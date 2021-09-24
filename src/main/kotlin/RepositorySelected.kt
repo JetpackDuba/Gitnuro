@@ -13,10 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import extensions.filePath
-import extensions.icon
 import git.LogStatus
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
@@ -26,7 +24,7 @@ import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import theme.backgroundColor
+import theme.backgroundColorLight
 import theme.primaryTextColor
 import theme.secondaryTextColor
 import java.io.IOException
@@ -171,22 +169,6 @@ fun prepareTreeParser(repository: Repository, commit: RevCommit): AbstractTreeIt
 }
 
 @Composable
-fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: (DiffEntry) -> Unit) {
-    val commit = commitDiff.first
-    val diff = commitDiff.second
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-    ) {
-        Text(commit.fullMessage)
-        Text(commit.commitTime.toString())
-
-        CommitLogChanges(diff, onDiffSelected = onDiffSelected)
-    }
-}
-
-@Composable
 fun Log(
     gitManager: GitManager,
     onRevCommitSelected: (RevCommit) -> Unit,
@@ -207,7 +189,7 @@ fun Log(
 
     LazyColumn(
         modifier = Modifier
-            .background(backgroundColor)
+            .background(MaterialTheme.colors.surface)
             .fillMaxSize()
     ) {
         if (gitManager.hasUncommitedChanges())
@@ -276,61 +258,6 @@ fun Log(
                     modifier = Modifier.padding(start = 16.dp),
                     color = MaterialTheme.colors.secondaryTextColor,
                 )
-                Spacer(modifier = Modifier.weight(2f))
-
-                Divider()
-            }
-        }
-    }
-}
-
-@Composable
-fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -> Unit) {
-    val selectedIndex = remember(diffEntries) { mutableStateOf(-1) }
-
-    LazyColumn(
-        modifier = Modifier
-            .background(backgroundColor)
-            .fillMaxSize()
-    ) {
-        itemsIndexed(items = diffEntries) { index, diffEntry ->
-            val textColor = if (selectedIndex.value == index) {
-                MaterialTheme.colors.primary
-            } else
-                MaterialTheme.colors.primaryTextColor
-
-            Column(
-                modifier = Modifier
-                    .height(56.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                        selectedIndex.value = index
-                        onDiffSelected(diffEntry)
-                    },
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Spacer(modifier = Modifier.weight(2f))
-
-
-                Row {
-                    Icon(
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .size(24.dp),
-                        imageVector = diffEntry.icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.primary,
-                    )
-
-                    Text(
-                        text = diffEntry.filePath,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        color = textColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-
                 Spacer(modifier = Modifier.weight(2f))
 
                 Divider()

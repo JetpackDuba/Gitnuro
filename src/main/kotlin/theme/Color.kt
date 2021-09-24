@@ -14,4 +14,6 @@ val errorColor = Color(0xFFFA4B4B)
 val primaryGrayLight = Color(0xFF464646)
 val accentGrayLight = Color(0xFFCCCCCC)
 
-val backgroundColor = Color(0xFFf9f9f9)
+//val backgroundColorLight = Color(0xFFE8E8E8)
+val backgroundColorLight = Color(0xFFC2C2C2)
+val surfaceColorLight = Color(0xFFf9f9f9)

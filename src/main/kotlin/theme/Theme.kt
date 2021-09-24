@@ -14,7 +14,8 @@ private val LightColorPalette = lightColors(
         primary = primary,
         primaryVariant = primaryDark,
         secondary = secondary,
-        background = backgroundColor,
+        background = backgroundColorLight,
+        surface = surfaceColorLight,
         error = errorColor
         /* Other default colors to override
 
