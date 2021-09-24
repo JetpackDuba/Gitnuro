@@ -1,6 +1,8 @@
 import theme.GitnuroTheme
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -36,7 +38,9 @@ fun main() = application {
 fun Gitnuro(gitManager: GitManager) {
     val repositorySelectionStatus by gitManager.repositorySelectionStatus.collectAsState()
 
-    Column {
+    Column(
+        modifier = Modifier.background(MaterialTheme.colors.background)
+    ) {
         GMenu(
             onRepositoryOpen = {
                 val latestDirectoryOpened = gitManager.latestDirectoryOpened
