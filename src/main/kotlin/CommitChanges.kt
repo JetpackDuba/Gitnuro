@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.useResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import extensions.filePath
@@ -123,7 +125,21 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                 .weight(1f, fill = true)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            CommitLogChanges(diff, onDiffSelected = onDiffSelected)
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp)
+                        .fillMaxWidth(),
+                    text = "Files changed",
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.primary,
+                )
+
+                Divider(modifier = Modifier.fillMaxWidth())
+
+                CommitLogChanges(diff, onDiffSelected = onDiffSelected)
+            }
         }
 
     }

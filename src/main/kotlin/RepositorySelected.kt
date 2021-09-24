@@ -83,7 +83,10 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                         )
                     }
                     else -> {
-                        DiffView(gitManager = gitManager, diffEntry = diffEntry, onCloseDiffView = { diffSelected = null })
+                        DiffView(
+                            gitManager = gitManager,
+                            diffEntry = diffEntry,
+                            onCloseDiffView = { diffSelected = null })
                     }
                 }
             }
@@ -175,7 +178,6 @@ fun Log(
     onUncommitedChangesSelected: () -> Unit,
     selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
 ) {
-
     val logStatusState = gitManager.logStatus.collectAsState()
     val logStatus = logStatusState.value
 
@@ -186,15 +188,57 @@ fun Log(
     } else
         listOf()
 
-
-    LazyColumn(
+    Card(
         modifier = Modifier
+            .padding(8.dp)
             .background(MaterialTheme.colors.surface)
             .fillMaxSize()
     ) {
-        if (gitManager.hasUncommitedChanges())
-            item {
-                val textColor = if (selectedUncommited.value) {
+        LazyColumn(
+            modifier = Modifier
+                .background(MaterialTheme.colors.surface)
+                .fillMaxSize()
+        ) {
+            if (gitManager.hasUncommitedChanges())
+                item {
+                    val textColor = if (selectedUncommited.value) {
+                        MaterialTheme.colors.primary
+                    } else
+                        MaterialTheme.colors.primaryTextColor
+
+                    Column(
+                        modifier = Modifier
+                            .height(64.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedIndex.value = -1
+                                selectedUncommited.value = true
+                                onUncommitedChangesSelected()
+                            },
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Spacer(modifier = Modifier.weight(2f))
+
+                        Text(
+                            text = "Uncommited changes",
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = textColor,
+                        )
+                        Text(
+                            text = "You",
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = MaterialTheme.colors.secondaryTextColor,
+                        )
+
+                        Spacer(modifier = Modifier.weight(2f))
+
+                        Divider()
+                    }
+                }
+
+            itemsIndexed(items = log) { index, item ->
+                val textColor = if (selectedIndex.value == index) {
                     MaterialTheme.colors.primary
                 } else
                     MaterialTheme.colors.primaryTextColor
@@ -204,22 +248,21 @@ fun Log(
                         .height(64.dp)
                         .fillMaxWidth()
                         .clickable {
-                            selectedIndex.value = -1
-                            selectedUncommited.value = true
-                            onUncommitedChangesSelected()
+                            selectedIndex.value = index
+                            selectedUncommited.value = false
+                            onRevCommitSelected(item)
                         },
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Spacer(modifier = Modifier.weight(2f))
 
                     Text(
-                        text = "Uncommited changes",
-                        fontWeight = FontWeight.Bold,
+                        text = item.shortMessage,
                         modifier = Modifier.padding(start = 16.dp),
                         color = textColor,
                     )
                     Text(
-                        text = "You",
+                        text = item.authorIdent.name,
                         modifier = Modifier.padding(start = 16.dp),
                         color = MaterialTheme.colors.secondaryTextColor,
                     )
@@ -228,40 +271,7 @@ fun Log(
                     Divider()
                 }
             }
-
-        itemsIndexed(items = log) { index, item ->
-            val textColor = if (selectedIndex.value == index) {
-                MaterialTheme.colors.primary
-            } else
-                MaterialTheme.colors.primaryTextColor
-
-            Column(
-                modifier = Modifier
-                    .height(64.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                        selectedIndex.value = index
-                        selectedUncommited.value = false
-                        onRevCommitSelected(item)
-                    },
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Spacer(modifier = Modifier.weight(2f))
-
-                Text(
-                    text = item.shortMessage,
-                    modifier = Modifier.padding(start = 16.dp),
-                    color = textColor,
-                )
-                Text(
-                    text = item.authorIdent.name,
-                    modifier = Modifier.padding(start = 16.dp),
-                    color = MaterialTheme.colors.secondaryTextColor,
-                )
-                Spacer(modifier = Modifier.weight(2f))
-
-                Divider()
-            }
         }
     }
+
 }
