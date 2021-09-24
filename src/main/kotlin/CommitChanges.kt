@@ -21,10 +21,13 @@ import kotlinx.coroutines.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.skija.Image.makeFromEncoded
-import theme.backgroundColorLight
 import theme.primaryTextColor
+import theme.secondaryTextColor
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 @Composable
 fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: (DiffEntry) -> Unit) {
@@ -42,16 +45,20 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                 .fillMaxWidth(),
         ) {
             val scroll = rememberScrollState(0)
-            Text(
-                text = commit.fullMessage,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colors.surface)
-                    .height(120.dp)
-                    .verticalScroll(scroll),
+            Card (modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .padding(8.dp)
+                .background(MaterialTheme.colors.surface)) {
+                Text(
+                    text = commit.fullMessage,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scroll),
 
-                )
+                    )
+            }
+
 
             Card(
                 modifier = Modifier
@@ -79,17 +86,42 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                             .fillMaxSize(),
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(commit.authorIdent.name)
+                        Row {
+                            Text(
+                                text = commit.authorIdent.name,
+                                color = MaterialTheme.colors.primaryTextColor,
+                                maxLines = 1,
+                            )
+                            Text(
+                                text = commit.authorIdent.emailAddress,
+                                color = MaterialTheme.colors.secondaryTextColor,
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                maxLines = 1,
+                            )
+                        }
+                        val systemLocale = System.getProperty("user.language")
+                        val locale = Locale(systemLocale)
+                        val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
+                        Text(
+                            text = sdf.format(commit.authorIdent.`when`),
+                            color = MaterialTheme.colors.secondaryTextColor,
+                            maxLines = 1,
+                        )
                     }
                 }
 
             }
-
-
         }
 
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f, fill = true)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            CommitLogChanges(diff, onDiffSelected = onDiffSelected)
+        }
 
-        CommitLogChanges(diff, onDiffSelected = onDiffSelected)
     }
 }
 
@@ -126,7 +158,6 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
 
     LazyColumn(
         modifier = Modifier
-            .background(backgroundColorLight)
             .fillMaxSize()
     ) {
         itemsIndexed(items = diffEntries) { index, diffEntry ->
