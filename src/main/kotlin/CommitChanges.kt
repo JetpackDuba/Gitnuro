@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.useResource
@@ -45,18 +46,21 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                 .fillMaxWidth(),
         ) {
             val scroll = rememberScrollState(0)
-            Card (modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .padding(8.dp)
-                .background(MaterialTheme.colors.surface)) {
-                Text(
-                    text = commit.fullMessage,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scroll),
-
-                    )
+            Card(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                Box {
+                    Text(
+                        text = commit.fullMessage,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
+                            .verticalScroll(scroll),
+                        )
+                }
             }
 
 
