@@ -1,4 +1,4 @@
-package aeab13.github.com.git
+package git
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive

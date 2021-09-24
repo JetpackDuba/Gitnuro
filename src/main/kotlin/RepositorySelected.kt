@@ -1,11 +1,3 @@
-package aeab13.github.com
-
-import aeab13.github.com.extensions.filePath
-import aeab13.github.com.extensions.icon
-import aeab13.github.com.git.LogStatus
-import aeab13.github.com.theme.backgroundColor
-import aeab13.github.com.theme.primaryTextColor
-import aeab13.github.com.theme.secondaryTextColor
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,16 +15,20 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import extensions.filePath
+import extensions.icon
+import git.LogStatus
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import java.io.ByteArrayOutputStream
+import theme.backgroundColor
+import theme.primaryTextColor
+import theme.secondaryTextColor
 import java.io.IOException
 
 @Composable

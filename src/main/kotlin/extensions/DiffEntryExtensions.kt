@@ -1,4 +1,4 @@
-package aeab13.github.com.extensions
+package extensions
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

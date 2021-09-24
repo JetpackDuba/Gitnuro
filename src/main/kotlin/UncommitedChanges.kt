@@ -1,8 +1,3 @@
-package aeab13.github.com
-
-import aeab13.github.com.extensions.filePath
-import aeab13.github.com.extensions.icon
-import aeab13.github.com.git.StageStatus
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,6 +15,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import extensions.filePath
+import extensions.icon
+import git.StageStatus
 import org.eclipse.jgit.diff.DiffEntry
 
 @Composable

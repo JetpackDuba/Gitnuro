@@ -1,15 +1,8 @@
-import aeab13.github.com.GitManager
-import aeab13.github.com.RepositorySelected
-import aeab13.github.com.RepositorySelectionStatus
-import aeab13.github.com.theme.GitnuroTheme
+import theme.GitnuroTheme
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi

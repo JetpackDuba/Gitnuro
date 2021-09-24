@@ -35,7 +35,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Gitnuro"
-            packageVersion = "1.0.0-preview01"
+            packageVersion = "1.0.0"
         }
     }
 }

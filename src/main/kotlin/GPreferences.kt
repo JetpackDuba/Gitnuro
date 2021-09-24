@@ -1,5 +1,3 @@
-package aeab13.github.com
-
 import java.util.prefs.Preferences
 
 private const val PREFERENCES_NAME = "GitnuroConfig"

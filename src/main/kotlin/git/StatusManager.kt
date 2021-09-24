@@ -1,6 +1,6 @@
-package aeab13.github.com.git
+package git
 
-import aeab13.github.com.extensions.filePath
+import extensions.filePath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow

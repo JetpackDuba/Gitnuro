@@ -1,9 +1,7 @@
-package aeab13.github.com
-
-import aeab13.github.com.git.LogManager
-import aeab13.github.com.git.LogStatus
-import aeab13.github.com.git.StageStatus
-import aeab13.github.com.git.StatusManager
+import git.LogManager
+import git.LogStatus
+import git.StageStatus
+import git.StatusManager
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -14,13 +12,9 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
-import org.eclipse.jgit.lib.Constants.HEAD
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
-import org.eclipse.jgit.treewalk.filter.TreeFilter
 import java.io.ByteArrayOutputStream
 import java.io.File
 

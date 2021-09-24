@@ -1,4 +1,4 @@
-package aeab13.github.com.theme
+package theme
 
 import androidx.compose.ui.graphics.Color
 
