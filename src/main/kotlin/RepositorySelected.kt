@@ -1,17 +1,7 @@
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.unit.dp
 import extensions.filePath
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
@@ -21,7 +11,6 @@ import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import theme.primaryTextColor
 import java.io.IOException
 
 @Composable
@@ -85,7 +74,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                         )
                     }
                     else -> {
-                        DiffView(
+                        Diff(
                             gitManager = gitManager,
                             diffEntry = diffEntry,
                             onCloseDiffView = { diffSelected = null })
@@ -118,47 +107,6 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                 }
             }
         }
-    }
-}
-
-
-
-@Composable
-fun DiffView(gitManager: GitManager, diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
-    val text = remember(diffEntry) {
-        gitManager.diffFormat(diffEntry)
-    }
-
-    Column {
-        Button(
-            modifier = Modifier
-                .padding(vertical = 16.dp, horizontal = 16.dp)
-                .align(Alignment.End),
-            onClick = onCloseDiffView,
-        ) {
-            Text("Close")
-        }
-        val textLines = text.split("\n", "\r\n")
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(textLines) { line ->
-                val color = if (line.startsWith("+")) {
-                    Color(0xFF094f00)
-                } else if (line.startsWith("-")) {
-                    Color(0xFF4f0000)
-                } else {
-                    MaterialTheme.colors.primaryTextColor
-                }
-                SelectionContainer {
-                    Text(
-                        text = line,
-                        color = color,
-                        maxLines = 1,
-                        fontFamily = FontFamily.Monospace,
-                    )
-                }
-            }
-        }
-
     }
 }
 
