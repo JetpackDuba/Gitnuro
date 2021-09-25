@@ -24,6 +24,7 @@ import kotlinx.coroutines.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.skija.Image.makeFromEncoded
+import theme.headerBackground
 import theme.primaryTextColor
 import theme.secondaryTextColor
 import java.net.HttpURLConnection
@@ -129,15 +130,16 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
             Column {
                 Text(
                     modifier = Modifier
+                        .background(MaterialTheme.colors.headerBackground)
                         .padding(vertical = 16.dp)
                         .fillMaxWidth(),
                     text = "Files changed",
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colors.primary,
+                    maxLines = 1,
                 )
 
-                Divider(modifier = Modifier.fillMaxWidth())
 
                 CommitLogChanges(diff, onDiffSelected = onDiffSelected)
             }

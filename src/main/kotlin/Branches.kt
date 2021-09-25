@@ -1,3 +1,4 @@
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,6 +27,7 @@ import extensions.icon
 import extensions.toByteArray
 import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skija.Image
+import theme.headerBackground
 
 @Composable
 fun Branches(gitManager: GitManager) {
@@ -43,15 +45,15 @@ fun Branches(gitManager: GitManager) {
         Column {
             Text(
                 modifier = Modifier
+                    .background(MaterialTheme.colors.headerBackground)
                     .padding(vertical = 16.dp)
                     .fillMaxWidth(),
-                text = "Branches",
+                text = "Local branches",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
+                maxLines = 1,
             )
-
-            Divider(modifier = Modifier.fillMaxWidth())
 
             LazyColumn(modifier = Modifier.weight(5f)) {
                 itemsIndexed(branches) { _, branch ->

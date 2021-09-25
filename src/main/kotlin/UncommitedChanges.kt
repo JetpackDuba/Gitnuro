@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +27,7 @@ import extensions.filePath
 import extensions.icon
 import git.StageStatus
 import org.eclipse.jgit.diff.DiffEntry
+import theme.headerBackground
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -133,15 +135,15 @@ private fun EntriesList(
         Column {
             Text(
                 modifier = Modifier
+                    .background(color = MaterialTheme.colors.headerBackground)
                     .padding(vertical = 16.dp)
                     .fillMaxWidth(),
                 text = title,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
+                maxLines = 1,
             )
-
-            Divider(modifier = Modifier.fillMaxWidth())
 
             LazyColumn(modifier = Modifier.weight(5f)) {
                 itemsIndexed(diffEntries) { index, diffEntry ->

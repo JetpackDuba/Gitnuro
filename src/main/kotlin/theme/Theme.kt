@@ -55,3 +55,7 @@ val Colors.primaryGray: Color
 @get:Composable
 val Colors.accentGray: Color
     get() = accentGrayLight
+
+@get:Composable
+val Colors.headerBackground: Color
+    get() = headerBackgroundLight
