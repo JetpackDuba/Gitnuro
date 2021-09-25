@@ -52,70 +52,64 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth()
-                    .height(120.dp)
             ) {
-                Box {
+                Column {
                     Text(
                         text = commit.fullMessage,
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
+                            .height(120.dp)
                             .padding(8.dp)
                             .verticalScroll(scroll),
-                        )
-                }
-            }
-
-
-            Card(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-                    .height(72.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    val url = "https://www.gravatar.com/avatar/${commit.authorIdent.emailAddress.md5}"
-                    Image(
-                        bitmap = rememberNetworkImage(url),
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .height(40.dp)
-                            .clip(CircleShape),
-                        contentDescription = null,
                     )
 
-                    Column(
+                    Divider(modifier = Modifier.fillMaxWidth())
+                    
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize(),
-                        verticalArrangement = Arrangement.Center
+                            .fillMaxWidth()
+                            .height(72.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row {
+                        val url = "https://www.gravatar.com/avatar/${commit.authorIdent.emailAddress.md5}"
+                        Image(
+                            bitmap = rememberNetworkImage(url),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .height(40.dp)
+                                .clip(CircleShape),
+                            contentDescription = null,
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Row {
+                                Text(
+                                    text = commit.authorIdent.name,
+                                    color = MaterialTheme.colors.primaryTextColor,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    text = commit.authorIdent.emailAddress,
+                                    color = MaterialTheme.colors.secondaryTextColor,
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                    maxLines = 1,
+                                )
+                            }
+                            val systemLocale = System.getProperty("user.language")
+                            val locale = Locale(systemLocale)
+                            val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
                             Text(
-                                text = commit.authorIdent.name,
-                                color = MaterialTheme.colors.primaryTextColor,
-                                maxLines = 1,
-                            )
-                            Text(
-                                text = commit.authorIdent.emailAddress,
+                                text = sdf.format(commit.authorIdent.`when`),
                                 color = MaterialTheme.colors.secondaryTextColor,
-                                modifier = Modifier.padding(horizontal = 4.dp),
                                 maxLines = 1,
                             )
                         }
-                        val systemLocale = System.getProperty("user.language")
-                        val locale = Locale(systemLocale)
-                        val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
-                        Text(
-                            text = sdf.format(commit.authorIdent.`when`),
-                            color = MaterialTheme.colors.secondaryTextColor,
-                            maxLines = 1,
-                        )
                     }
                 }
-
             }
         }
 
