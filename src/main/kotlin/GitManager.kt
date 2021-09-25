@@ -9,6 +9,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
+import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.treewalk.FileTreeIterator
@@ -21,6 +22,7 @@ class GitManager {
     private val statusManager = StatusManager()
     private val logManager = LogManager()
     private val remoteOperationsManager = RemoteOperationsManager()
+    private val branchesManager = BranchesManager()
 
     private val managerScope = CoroutineScope(SupervisorJob())
 
@@ -37,6 +39,9 @@ class GitManager {
 
     val logStatus: StateFlow<LogStatus>
         get() = logManager.logStatus
+
+    val branches: StateFlow<List<Ref>>
+        get() = branchesManager.branches
 
     val latestDirectoryOpened: File?
         get() = File(preferences.latestOpenedRepositoryPath).parentFile
@@ -87,7 +92,7 @@ class GitManager {
             _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
             git = Git(repository)
 
-            loadLog()
+            refreshRepositoryInfo()
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
@@ -132,7 +137,7 @@ class GitManager {
             val newTree = FileTreeIterator(repo)
 
             println(diffEntry)
-            formatter.scan(oldTree, newTree)
+            formatter.scan(oldTree, newTree) //TODO Should only be set when using diff for unstaged changes
 //            formatter.format(oldTree, newTree)
             formatter.format(diffEntry)
             formatter.flush()
@@ -147,6 +152,11 @@ class GitManager {
 
     fun push() = managerScope.launch {
         remoteOperationsManager.push(safeGit)
+    }
+
+    private fun refreshRepositoryInfo() = managerScope.launch {
+        branchesManager.loadBranches(safeGit)
+        loadLog()
     }
 }
 
