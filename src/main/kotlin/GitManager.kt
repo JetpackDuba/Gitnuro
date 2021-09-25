@@ -1,7 +1,4 @@
-import git.LogManager
-import git.LogStatus
-import git.StageStatus
-import git.StatusManager
+import git.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -23,6 +20,7 @@ class GitManager {
     private val preferences = GPreferences()
     private val statusManager = StatusManager()
     private val logManager = LogManager()
+    private val remoteOperationsManager = RemoteOperationsManager()
 
     private val managerScope = CoroutineScope(SupervisorJob())
 
@@ -141,6 +139,14 @@ class GitManager {
         }
 
         return byteArrayOutputStream.toString(Charsets.UTF_8)
+    }
+
+    fun pull() = managerScope.launch {
+        remoteOperationsManager.pull(safeGit)
+    }
+
+    fun push() = managerScope.launch {
+        remoteOperationsManager.push(safeGit)
     }
 }
 

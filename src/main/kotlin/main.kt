@@ -26,7 +26,7 @@ fun main() = application {
                 isOpen = false
             },
 
-        ) {
+            ) {
             GitnuroTheme {
                 Gitnuro(gitManager)
             }
@@ -45,7 +45,7 @@ fun Gitnuro(gitManager: GitManager) {
             onRepositoryOpen = {
                 val latestDirectoryOpened = gitManager.latestDirectoryOpened
 
-                val f = if(latestDirectoryOpened == null)
+                val f = if (latestDirectoryOpened == null)
                     JFileChooser()
                 else
                     JFileChooser(latestDirectoryOpened)
@@ -55,7 +55,9 @@ fun Gitnuro(gitManager: GitManager) {
 
                 if (f.selectedFile != null)
                     gitManager.openRepository(f.selectedFile)
-            }
+            },
+            onPull = { gitManager.pull() },
+            onPush = { gitManager.push() }
         )
 
         Crossfade(targetState = repositorySelectionStatus) {
@@ -94,7 +96,11 @@ fun NoneRepository() {
 }
 
 @Composable
-fun GMenu(onRepositoryOpen: () -> Unit) {
+fun GMenu(
+    onRepositoryOpen: () -> Unit,
+    onPull: () -> Unit,
+    onPush: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .padding(vertical = 16.dp)
@@ -102,11 +108,19 @@ fun GMenu(onRepositoryOpen: () -> Unit) {
         horizontalArrangement = Arrangement.Center,
     ) {
         OutlinedButton(
-//            modifier = Modifier.size(64.dp),
             onClick = onRepositoryOpen
         ) {
             Text("Open")
-//            Icon(Icons.Default.Add, contentDescription = "Open repository")
+        }
+        OutlinedButton(
+            onClick = onPull
+        ) {
+            Text("Pull")
+        }
+        OutlinedButton(
+            onClick = onPush
+        ) {
+            Text("Push")
         }
     }
 }
