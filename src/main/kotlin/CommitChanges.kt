@@ -44,7 +44,6 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
     ) {
         Column(
             modifier = Modifier
-                .padding(all = 8.dp)
                 .fillMaxWidth(),
         ) {
             val scroll = rememberScrollState(0)
@@ -64,7 +63,7 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                     )
 
                     Divider(modifier = Modifier.fillMaxWidth())
-                    
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -92,18 +91,26 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                                     color = MaterialTheme.colors.primaryTextColor,
                                     maxLines = 1,
                                 )
+
+                                Spacer(modifier = Modifier.weight(1f, fill = true))
+                                val date = remember(commit) {
+                                    val systemLocale = System.getProperty("user.language")
+                                    val locale = Locale(systemLocale)
+                                    val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
+                                    sdf.format(commit.authorIdent.`when`)
+                                }
+
                                 Text(
-                                    text = commit.authorIdent.emailAddress,
+                                    text = date,
                                     color = MaterialTheme.colors.secondaryTextColor,
-                                    modifier = Modifier.padding(horizontal = 4.dp),
                                     maxLines = 1,
+                                    modifier = Modifier.padding(horizontal = 16.dp),
                                 )
+
                             }
-                            val systemLocale = System.getProperty("user.language")
-                            val locale = Locale(systemLocale)
-                            val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
+
                             Text(
-                                text = sdf.format(commit.authorIdent.`when`),
+                                text = commit.authorIdent.emailAddress,
                                 color = MaterialTheme.colors.secondaryTextColor,
                                 maxLines = 1,
                             )
