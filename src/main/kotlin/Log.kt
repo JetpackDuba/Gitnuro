@@ -9,6 +9,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import git.LogStatus
@@ -39,12 +40,15 @@ fun Log(
             .background(MaterialTheme.colors.surface)
             .fillMaxSize()
     ) {
+        val hasUncommitedChanges by gitManager.hasUncommitedChanges.collectAsState()
+
         LazyColumn(
             modifier = Modifier
                 .background(MaterialTheme.colors.surface)
                 .fillMaxSize()
         ) {
-            if (gitManager.hasUncommitedChanges())
+
+            if (hasUncommitedChanges)
                 item {
                     val textColor = if (selectedUncommited.value) {
                         MaterialTheme.colors.primary
@@ -66,12 +70,13 @@ fun Log(
 
                         Text(
                             text = "Uncommited changes",
-                            fontWeight = FontWeight.Bold,
+                            fontStyle = FontStyle.Italic,
                             modifier = Modifier.padding(start = 16.dp),
                             color = textColor,
                         )
                         Text(
                             text = "You",
+                            fontStyle = FontStyle.Italic,
                             modifier = Modifier.padding(start = 16.dp),
                             color = MaterialTheme.colors.secondaryTextColor,
                         )

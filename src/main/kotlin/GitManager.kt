@@ -23,6 +23,7 @@ class GitManager {
     private val logManager = LogManager()
     private val remoteOperationsManager = RemoteOperationsManager()
     private val branchesManager = BranchesManager()
+    private val stashManager = StashManager()
 
     private val managerScope = CoroutineScope(SupervisorJob())
 
@@ -42,6 +43,9 @@ class GitManager {
 
     val branches: StateFlow<List<Ref>>
         get() = branchesManager.branches
+
+    val stashStatus: StateFlow<StashStatus>
+        get() = stashManager.stashStatus
 
     val latestDirectoryOpened: File?
         get() = File(preferences.latestOpenedRepositoryPath).parentFile
@@ -124,7 +128,8 @@ class GitManager {
         logManager.loadLog(safeGit)
     }
 
-    fun hasUncommitedChanges(): Boolean = statusManager.hasUncommitedChanges(safeGit)
+    val hasUncommitedChanges: StateFlow<Boolean>
+        get() = statusManager.hasUncommitedChanges
 
     fun diffFormat(diffEntry: DiffEntry): String {
         val byteArrayOutputStream = ByteArrayOutputStream()
@@ -155,8 +160,18 @@ class GitManager {
     }
 
     private fun refreshRepositoryInfo() = managerScope.launch {
+        statusManager.loadHasUncommitedChanges(safeGit)
         branchesManager.loadBranches(safeGit)
+        stashManager.loadStashList(safeGit)
         loadLog()
+    }
+
+    fun stash() = managerScope.launch {
+        stashManager.stash(safeGit)
+    }
+
+    fun popStash() = managerScope.launch {
+        stashManager.popStash(safeGit)
     }
 }
 

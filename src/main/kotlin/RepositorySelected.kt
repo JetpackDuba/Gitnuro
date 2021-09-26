@@ -29,12 +29,13 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
 
     Row {
-        Box(
+        Column (
             modifier = Modifier
                 .weight(0.15f)
                 .fillMaxHeight()
         ) {
             Branches(gitManager = gitManager)
+            Stashes(gitManager = gitManager)
         }
         Box(
             modifier = Modifier

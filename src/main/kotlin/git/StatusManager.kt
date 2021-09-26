@@ -15,11 +15,17 @@ class StatusManager {
     val stageStatus: StateFlow<StageStatus>
         get() = _stageStatus
 
-    fun hasUncommitedChanges(git: Git): Boolean {
-        return git
+    private val _hasUncommitedChanges = MutableStateFlow<Boolean>(false)
+    val hasUncommitedChanges: StateFlow<Boolean>
+        get() = _hasUncommitedChanges
+
+    suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
+        val hasUncommitedChanges = git
             .status()
             .call()
             .hasUncommittedChanges()
+
+        _hasUncommitedChanges.value = hasUncommitedChanges
     }
 
     suspend fun loadStatus(git: Git) = withContext(Dispatchers.IO) {

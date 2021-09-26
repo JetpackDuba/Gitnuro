@@ -57,7 +57,9 @@ fun Gitnuro(gitManager: GitManager) {
                     gitManager.openRepository(f.selectedFile)
             },
             onPull = { gitManager.pull() },
-            onPush = { gitManager.push() }
+            onPush = { gitManager.push() },
+            onStash = { gitManager.stash() },
+            onPopStash = { gitManager.popStash() },
         )
 
         Crossfade(targetState = repositorySelectionStatus) {
@@ -100,6 +102,8 @@ fun GMenu(
     onRepositoryOpen: () -> Unit,
     onPull: () -> Unit,
     onPush: () -> Unit,
+    onStash: () -> Unit,
+    onPopStash: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -121,6 +125,16 @@ fun GMenu(
             onClick = onPush
         ) {
             Text("Push")
+        }
+        OutlinedButton(
+            onClick = onStash
+        ) {
+            Text("Stash")
+        }
+        OutlinedButton(
+            onClick = onPopStash
+        ) {
+            Text("Pop stash")
         }
     }
 }
