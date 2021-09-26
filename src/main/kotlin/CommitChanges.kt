@@ -125,7 +125,7 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = true)
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         ) {
             Column {
                 Text(
