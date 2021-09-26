@@ -44,6 +44,9 @@ class GitManager {
     val branches: StateFlow<List<Ref>>
         get() = branchesManager.branches
 
+    val currentBranch: StateFlow<String>
+        get() = branchesManager.currentBranch
+
     val stashStatus: StateFlow<StashStatus>
         get() = stashManager.stashStatus
 
