@@ -14,13 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import org.eclipse.jgit.diff.DiffEntry
 import theme.primaryTextColor
 
 @Composable
-fun Diff(gitManager: GitManager, diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
-    val text = remember(diffEntry) {
-        gitManager.diffFormat(diffEntry)
+fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: () -> Unit) {
+    val text = remember(diffEntryType.diffEntry) {
+        gitManager.diffFormat(diffEntryType)
     }
 
     Card(

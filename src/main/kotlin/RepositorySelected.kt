@@ -20,7 +20,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
     }
 
     var diffSelected by remember {
-        mutableStateOf<DiffEntry?>(null)
+        mutableStateOf<DiffEntryType?>(null)
     }
     var uncommitedChangesSelected by remember {
         mutableStateOf<Boolean>(false)
@@ -79,7 +79,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                     else -> {
                         Diff(
                             gitManager = gitManager,
-                            diffEntry = diffEntry,
+                            diffEntryType = diffEntry,
                             onCloseDiffView = { diffSelected = null })
                     }
                 }
@@ -94,9 +94,11 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
             if (uncommitedChangesSelected) {
                 UncommitedChanges(
                     gitManager = gitManager,
-                    onDiffEntrySelected = { diffEntry ->
-                        println(diffEntry.filePath)
-                        diffSelected = diffEntry
+                    onStagedDiffEntrySelected = { diffEntry ->
+                        diffSelected = DiffEntryType.StagedDiff(diffEntry)
+                    },
+                    onUnstagedDiffEntrySelected = { diffEntry ->
+                        diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
                     }
                 )
             } else {
@@ -104,7 +106,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                     CommitChanges(
                         commitDiff = it,
                         onDiffSelected = { diffEntry ->
-                            diffSelected = diffEntry
+                            diffSelected = DiffEntryType.CommitDiff(diffEntry)
                         }
                     )
                 }

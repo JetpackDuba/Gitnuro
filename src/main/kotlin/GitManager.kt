@@ -126,7 +126,8 @@ class GitManager {
     val hasUncommitedChanges: StateFlow<Boolean>
         get() = statusManager.hasUncommitedChanges
 
-    fun diffFormat(diffEntry: DiffEntry): String {
+    fun diffFormat(diffEntryType: DiffEntryType): String {
+        val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()
 
         DiffFormatter(byteArrayOutputStream).use { formatter ->
@@ -136,9 +137,9 @@ class GitManager {
             val oldTree = DirCacheIterator(repo.readDirCache())
             val newTree = FileTreeIterator(repo)
 
-            println(diffEntry)
-            formatter.scan(oldTree, newTree) //TODO Should only be set when using diff for unstaged changes
-//            formatter.format(oldTree, newTree)
+            if(diffEntryType is DiffEntryType.UnstagedDiff)
+                formatter.scan(oldTree, newTree)
+
             formatter.format(diffEntry)
             formatter.flush()
         }

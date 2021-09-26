@@ -33,7 +33,8 @@ import theme.headerBackground
 @Composable
 fun UncommitedChanges(
     gitManager: GitManager,
-    onDiffEntrySelected: (DiffEntry) -> Unit,
+    onStagedDiffEntrySelected: (DiffEntry) -> Unit,
+    onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
     val stageStatusState = gitManager.stageStatus.collectAsState()
     val stageStatus = stageStatusState.value
@@ -64,7 +65,7 @@ fun UncommitedChanges(
             title = "Staged",
             optionIcon = Icons.Default.Close,
             diffEntries = staged,
-            onDiffEntrySelected = onDiffEntrySelected,
+            onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 gitManager.unstage(it)
             }
@@ -78,7 +79,7 @@ fun UncommitedChanges(
             title = "Unstaged",
             optionIcon = Icons.Default.Add,
             diffEntries = unstaged,
-            onDiffEntrySelected = onDiffEntrySelected,
+            onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 gitManager.stage(it)
             }
