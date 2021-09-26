@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -32,14 +34,11 @@ import theme.headerBackground
 @Composable
 fun Branches(gitManager: GitManager) {
     val branches by gitManager.branches.collectAsState()
-    val branchIcon = remember {
-        useResource("branch.png") {
-            Image.makeFromEncoded(it.toByteArray()).asImageBitmap()
-        }
-    }
+
     Card(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .fillMaxHeight(0.5f)
             .padding(8.dp)
     ) {
         Column {
@@ -59,7 +58,6 @@ fun Branches(gitManager: GitManager) {
                 itemsIndexed(branches) { _, branch ->
                     BranchRow(
                         branch = branch,
-                        icon = branchIcon,
                     )
 
                 }
@@ -69,7 +67,7 @@ fun Branches(gitManager: GitManager) {
 }
 
 @Composable
-private fun BranchRow(branch: Ref, icon: ImageBitmap) {
+private fun BranchRow(branch: Ref) {
     Row(
         modifier = Modifier
             .height(56.dp)
@@ -79,7 +77,7 @@ private fun BranchRow(branch: Ref, icon: ImageBitmap) {
     ) {
 
         Icon(
-            bitmap = icon,
+            painter = painterResource("branch.svg"),
             contentDescription = null,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
