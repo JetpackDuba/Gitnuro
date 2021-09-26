@@ -47,7 +47,7 @@ fun UncommitedChanges(
     var commitMessage by remember { mutableStateOf("") }
 
     Column {
-        AnimatedVisibility (
+        AnimatedVisibility(
             visible = stageStatus is StageStatus.Loading,
             enter = fadeIn(),
             exit = fadeOut(),
@@ -109,8 +109,9 @@ fun UncommitedChanges(
                         .fillMaxWidth(),
                     onClick = {
                         gitManager.commit(commitMessage)
+                        commitMessage = ""
                     },
-                    enabled = commitMessage.isNotEmpty(),
+                    enabled = commitMessage.isNotEmpty() && staged.isNotEmpty(),
                     shape = RectangleShape,
                 ) {
                     Text("Commit")
@@ -129,7 +130,7 @@ private fun EntriesList(
     onDiffEntrySelected: (DiffEntry) -> Unit,
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
 ) {
-    Card (
+    Card(
         modifier = modifier
     ) {
         Column {
