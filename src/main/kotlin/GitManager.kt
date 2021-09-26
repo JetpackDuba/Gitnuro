@@ -52,9 +52,6 @@ class GitManager {
 
     private var git: Git? = null
 
-    var lastTimeStatusChanged: Long = 0 // TODO Add file watcher to the repository
-        private set
-
     val safeGit: Git
         get() {
             val git = this.git
@@ -110,11 +107,6 @@ class GitManager {
         statusManager.loadStatus(safeGit)
     }
 
-    fun updateStatus() {
-        lastTimeStatusChanged = System.currentTimeMillis()
-        loadStatus()
-    }
-
     fun stage(diffEntry: DiffEntry) = managerScope.launch {
         statusManager.stage(safeGit, diffEntry)
     }
@@ -168,10 +160,20 @@ class GitManager {
 
     fun stash() = managerScope.launch {
         stashManager.stash(safeGit)
+        loadStatus()
     }
 
     fun popStash() = managerScope.launch {
         stashManager.popStash(safeGit)
+        loadStatus()
+    }
+
+    fun createBranch(branchName: String) = managerScope.launch {
+        branchesManager.createBranch(safeGit, branchName)
+    }
+
+    fun deleteBranch(branch: Ref) = managerScope.launch {
+        branchesManager.deleteBranch(safeGit, branch)
     }
 }
 

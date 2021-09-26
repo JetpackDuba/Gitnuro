@@ -6,6 +6,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
+import java.text.DateFormat
+import java.util.*
 
 class StashManager {
     private val _stashStatus = MutableStateFlow<StashStatus>(StashStatus.Loaded(listOf()))
@@ -15,15 +17,22 @@ class StashManager {
     suspend fun stash(git: Git) = withContext(Dispatchers.IO) {
         git
             .stashCreate()
+            .setIncludeUntracked(true)
             .call()
 
         loadStashList(git)
     }
 
     suspend fun popStash(git: Git) = withContext(Dispatchers.IO) {
+//        val firstStash = git.stashList().call().firstOrNull() ?: return@withContext
+
         git
             .stashApply()
+//            .setStashRef(firstStash.)
             .call()
+
+//        git.stashDrop()
+//            .setStashRef(firstStash.)
 
         loadStashList(git)
     }

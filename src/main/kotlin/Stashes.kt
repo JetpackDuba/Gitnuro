@@ -80,7 +80,7 @@ private fun StashRow(stash: RevCommit) {
         )
 
         Text(
-            text = stash.name,
+            text = stash.shortMessage,
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

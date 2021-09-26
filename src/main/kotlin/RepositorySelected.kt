@@ -51,6 +51,8 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                             onRevCommitSelected = { commit ->
                                 uncommitedChangesSelected = false
 
+                                gitManager.loadStatus()
+
                                 val parent = if (commit.parentCount == 0) {
                                     null
                                 } else
@@ -70,7 +72,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                             },
                             onUncommitedChangesSelected = {
                                 uncommitedChangesSelected = true
-                                gitManager.updateStatus()
+                                gitManager.loadStatus()
                             }
                         )
                     }

@@ -1,6 +1,7 @@
 package git
 
 import extensions.filePath
+import extensions.hasUntrackedChanges
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,16 +21,19 @@ class StatusManager {
         get() = _hasUncommitedChanges
 
     suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
-        val hasUncommitedChanges = git
+        val status = git
             .status()
             .call()
-            .hasUncommittedChanges()
+
+        val hasUncommitedChanges = status.hasUncommittedChanges() || status.hasUntrackedChanges()
 
         _hasUncommitedChanges.value = hasUncommitedChanges
     }
 
     suspend fun loadStatus(git: Git) = withContext(Dispatchers.IO) {
         _stageStatus.value = StageStatus.Loading
+
+        loadHasUncommitedChanges(git)
 
         val staged = git
             .diff()

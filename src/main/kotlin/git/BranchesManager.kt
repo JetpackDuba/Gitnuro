@@ -19,4 +19,20 @@ class BranchesManager {
 
         _branches.value = branchList
     }
+
+    suspend fun createBranch(git: Git, branchName: String) = withContext(Dispatchers.IO) {
+        git
+            .branchCreate()
+            .setName(branchName)
+            .call()
+
+        loadBranches(git)
+    }
+
+    suspend fun deleteBranch(git: Git, branch: Ref) = withContext(Dispatchers.IO) {
+        git
+            .branchDelete()
+            .setBranchNames(branch.name)
+            .call()
+    }
 }
