@@ -74,6 +74,24 @@ class StatusManager {
 
         loadStatus(git)
     }
+
+    suspend fun reset(git: Git, diffEntry: DiffEntry, staged: Boolean) = withContext(Dispatchers.IO) {
+        println("Staged $staged")
+
+        if(staged) {
+            git
+                .reset()
+                .addPath(diffEntry.filePath)
+                .call()
+        }
+
+        git
+            .checkout()
+            .addPath(diffEntry.filePath)
+            .call()
+
+        loadStatus(git)
+    }
 }
 
 sealed class StageStatus {

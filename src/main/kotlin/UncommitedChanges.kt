@@ -1,10 +1,10 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -15,10 +15,12 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.ContextMenuItem
+import androidx.compose.ui.platform.ContextMenuState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -68,6 +70,9 @@ fun UncommitedChanges(
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 gitManager.unstage(it)
+            },
+            onReset = { diffEntry ->
+                gitManager.resetStaged(diffEntry)
             }
         )
 
@@ -82,6 +87,9 @@ fun UncommitedChanges(
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 gitManager.stage(it)
+            },
+            onReset = { diffEntry ->
+                gitManager.resetUnstaged(diffEntry)
             }
         )
 
@@ -130,6 +138,7 @@ private fun EntriesList(
     diffEntries: List<DiffEntry>,
     onDiffEntrySelected: (DiffEntry) -> Unit,
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
+    onReset: (DiffEntry) -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -157,6 +166,9 @@ private fun EntriesList(
                         },
                         onButtonClick = {
                             onDiffEntryOptionSelected(diffEntry)
+                        },
+                        onReset = {
+                            onReset(diffEntry)
                         }
                     )
 
@@ -169,44 +181,69 @@ private fun EntriesList(
     }
 }
 
+@OptIn(
+    ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class,
+    ExperimentalDesktopApi::class
+)
 @Composable
-private fun FileEntry(diffEntry: DiffEntry, icon: ImageVector, onClick: () -> Unit, onButtonClick: () -> Unit) {
-    Row(
+private fun FileEntry(
+    diffEntry: DiffEntry,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    onButtonClick: () -> Unit,
+    onReset: () -> Unit,
+) {
+    Box(
         modifier = Modifier
-            .height(56.dp)
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        verticalAlignment = Alignment.CenterVertically,
+            .clickable { onClick() }
     ) {
-
-        Icon(
-            imageVector = diffEntry.icon,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(24.dp),
-            tint = MaterialTheme.colors.primary,
-        )
-
-        Text(
-            text = diffEntry.filePath,
-            modifier = Modifier.weight(1f, fill = true),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-
-        IconButton(
-            onClick = onButtonClick,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp)
-                .border(1.dp, MaterialTheme.colors.primary, RoundedCornerShape(10.dp))
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem(
+                        label = "Reset",
+                        onClick = onReset
+                    )
+                )
+            },
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colors.primary,
-            )
+            Row(
+                modifier = Modifier
+                    .height(56.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+
+                Icon(
+                    imageVector = diffEntry.icon,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(24.dp),
+                    tint = MaterialTheme.colors.primary,
+                )
+
+                Text(
+                    text = diffEntry.filePath,
+                    modifier = Modifier.weight(1f, fill = true),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                IconButton(
+                    onClick = onButtonClick,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(32.dp)
+                        .border(1.dp, MaterialTheme.colors.primary, RoundedCornerShape(10.dp))
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.primary,
+                    )
+                }
+            }
         }
     }
 }

@@ -137,7 +137,7 @@ class GitManager {
             val oldTree = DirCacheIterator(repo.readDirCache())
             val newTree = FileTreeIterator(repo)
 
-            if(diffEntryType is DiffEntryType.UnstagedDiff)
+            if (diffEntryType is DiffEntryType.UnstagedDiff)
                 formatter.scan(oldTree, newTree)
 
             formatter.format(diffEntry)
@@ -178,6 +178,14 @@ class GitManager {
 
     fun deleteBranch(branch: Ref) = managerScope.launch {
         branchesManager.deleteBranch(safeGit, branch)
+    }
+
+    fun resetStaged(diffEntry: DiffEntry) = managerScope.launch {
+        statusManager.reset(safeGit, diffEntry, staged = true)
+    }
+
+    fun resetUnstaged(diffEntry: DiffEntry) = managerScope.launch {
+        statusManager.reset(safeGit, diffEntry, staged = false)
     }
 }
 
