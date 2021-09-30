@@ -1,10 +1,8 @@
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Repository
@@ -34,6 +32,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
     Row {
         Column (
             modifier = Modifier
+                .widthIn(min = 300.dp)
                 .weight(0.15f)
                 .fillMaxHeight()
         ) {
@@ -42,7 +41,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
         }
         Box(
             modifier = Modifier
-                .weight(0.7f)
+                .weight(0.60f)
                 .fillMaxHeight()
         ) {
             Crossfade(targetState = diffSelected) { diffEntry ->
@@ -96,7 +95,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
         }
         Box(
             modifier = Modifier
-                .weight(0.15f)
+                .weight(0.25f)
                 .fillMaxHeight()
         ) {
             if (uncommitedChangesSelected) {

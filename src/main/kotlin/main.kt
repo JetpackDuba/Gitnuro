@@ -1,4 +1,3 @@
-import theme.GitnuroTheme
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,8 +9,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
+import androidx.compose.ui.window.*
+import theme.GitnuroTheme
 import javax.swing.JFileChooser
 
 
@@ -25,7 +24,7 @@ fun main() = application {
             onCloseRequest = {
                 isOpen = false
             },
-
+            state = rememberWindowState(placement = WindowPlacement.Maximized, size = WindowSize(1280.dp, 720.dp))
             ) {
             GitnuroTheme {
                 Gitnuro(gitManager)
