@@ -90,6 +90,13 @@ fun Log(
                     MaterialTheme.colors.primary
                 } else
                     MaterialTheme.colors.primaryTextColor
+
+                val secondaryTextColor = if (selectedIndex.value == index) {
+                    MaterialTheme.colors.primary
+                } else
+                    MaterialTheme.colors.secondaryTextColor
+
+
                 Column {
                     Spacer(modifier = Modifier.weight(2f))
                     Row(
@@ -119,7 +126,7 @@ fun Log(
                             text = item.committerIdent.`when`.toSmartSystemString(),
                             modifier = Modifier.padding(horizontal = 16.dp),
                             fontSize = 12.sp,
-                            color = MaterialTheme.colors.secondaryTextColor,
+                            color = secondaryTextColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
