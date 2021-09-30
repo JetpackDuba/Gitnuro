@@ -126,7 +126,7 @@ class GitManager {
     val hasUncommitedChanges: StateFlow<Boolean>
         get() = statusManager.hasUncommitedChanges
 
-    fun diffFormat(diffEntryType: DiffEntryType): String {
+    fun diffFormat(diffEntryType: DiffEntryType): List<String> {
         val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()
 
@@ -144,7 +144,13 @@ class GitManager {
             formatter.flush()
         }
 
-        return byteArrayOutputStream.toString(Charsets.UTF_8)
+        val diff = byteArrayOutputStream.toString(Charsets.UTF_8)
+
+        // TODO This is just a workaround, try to find properly which lines have to be displayed by using a custom diff
+
+        return diff.split("\n", "\r\n").filterNot {
+            it.startsWith("diff --git")
+        }
     }
 
     fun pull() = managerScope.launch {

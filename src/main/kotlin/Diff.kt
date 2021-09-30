@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import theme.primaryTextColor
 
 @Composable
@@ -37,28 +38,45 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
             ) {
                 Text("Close diff")
             }
-            val textLines = text.split("\n", "\r\n")
-            LazyColumn(modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)) {
-                items(textLines) { line ->
-                    val backgroundColor = if (line.startsWith("+")) {
-                        Color(0x77a9d49b)
-                    } else if (line.startsWith("-")) {
-                        Color(0x77dea2a2)
-                    } else {
-                        MaterialTheme.colors.surface
-                    }
+            SelectionContainer {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
+                    items(text) { line ->
+                        val isHunkLine = line.startsWith("@@") && line.endsWith("@@")
 
-                    SelectionContainer {
+                        val backgroundColor = when {
+                            line.startsWith("+") -> {
+                                Color(0x77a9d49b)
+                            }
+                            line.startsWith("-") -> {
+                                Color(0x77dea2a2)
+                            }
+                            isHunkLine -> {
+                                MaterialTheme.colors.background
+                            }
+                            else -> {
+                                MaterialTheme.colors.surface
+                            }
+                        }
+
+                        val paddingTop = if (isHunkLine)
+                            32.dp
+                        else
+                            0.dp
+
                         Text(
                             text = line,
                             modifier = Modifier
+                                .padding(top = paddingTop)
                                 .background(backgroundColor)
                                 .fillMaxWidth(),
                             color = MaterialTheme.colors.primaryTextColor,
                             maxLines = 1,
                             fontFamily = FontFamily.Monospace,
+                            fontSize = 14.sp,
                         )
                     }
                 }
