@@ -1,10 +1,7 @@
 import git.*
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
@@ -24,6 +21,7 @@ class GitManager {
     private val remoteOperationsManager = RemoteOperationsManager()
     private val branchesManager = BranchesManager()
     private val stashManager = StashManager()
+    private val diffManager = DiffManager()
 
     private val managerScope = CoroutineScope(SupervisorJob())
 
@@ -126,31 +124,8 @@ class GitManager {
     val hasUncommitedChanges: StateFlow<Boolean>
         get() = statusManager.hasUncommitedChanges
 
-    fun diffFormat(diffEntryType: DiffEntryType): List<String> {
-        val diffEntry = diffEntryType.diffEntry
-        val byteArrayOutputStream = ByteArrayOutputStream()
-
-        DiffFormatter(byteArrayOutputStream).use { formatter ->
-            val repo = safeGit.repository
-            formatter.setRepository(repo)
-
-            val oldTree = DirCacheIterator(repo.readDirCache())
-            val newTree = FileTreeIterator(repo)
-
-            if (diffEntryType is DiffEntryType.UnstagedDiff)
-                formatter.scan(oldTree, newTree)
-
-            formatter.format(diffEntry)
-            formatter.flush()
-        }
-
-        val diff = byteArrayOutputStream.toString(Charsets.UTF_8)
-
-        // TODO This is just a workaround, try to find properly which lines have to be displayed by using a custom diff
-
-        return diff.split("\n", "\r\n").filterNot {
-            it.startsWith("diff --git")
-        }
+    suspend fun diffFormat(diffEntryType: DiffEntryType): List<String> {
+        return diffManager.diffFormat(safeGit, diffEntryType)
     }
 
     fun pull() = managerScope.launch {

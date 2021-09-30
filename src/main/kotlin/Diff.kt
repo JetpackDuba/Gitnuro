@@ -5,9 +5,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,9 +23,12 @@ import theme.primaryTextColor
 
 @Composable
 fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: () -> Unit) {
-    val text = remember(diffEntryType.diffEntry) {
-        gitManager.diffFormat(diffEntryType)
+    var text by remember { mutableStateOf(listOf<String>()) }
+
+    LaunchedEffect(diffEntryType.diffEntry) {
+        text = gitManager.diffFormat(diffEntryType)
     }
+
 
     Card(
         modifier = Modifier
