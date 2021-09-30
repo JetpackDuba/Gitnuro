@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.platform.ContextMenuItem
 import androidx.compose.ui.platform.ContextMenuState
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -114,8 +115,9 @@ fun UncommitedChanges(
                         .weight(weight = 1f, fill = true),
                     value = commitMessage,
                     onValueChange = { commitMessage = it },
-                    label = { Text("Write your commit message here") },
-                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface)
+                    label = { Text("Write your commit message here", fontSize = 14.sp) },
+                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface),
+                    textStyle = TextStyle.Default.copy(fontSize = 14.sp)
                 )
 
                 Button(
@@ -128,7 +130,10 @@ fun UncommitedChanges(
                     enabled = commitMessage.isNotEmpty() && staged.isNotEmpty(),
                     shape = RectangleShape,
                 ) {
-                    Text("Commit")
+                    Text(
+                        text = "Commit",
+                        fontSize = 14.sp,
+                    )
                 }
             }
         }

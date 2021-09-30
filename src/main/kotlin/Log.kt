@@ -11,11 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import extensions.toSystemString
+import extensions.toSmartSystemString
 import git.LogStatus
 import org.eclipse.jgit.revwalk.RevCommit
 import theme.primaryTextColor
@@ -117,7 +116,7 @@ fun Log(
                         Spacer(modifier = Modifier.weight(2f))
 
                         Text(
-                            text = item.committerIdent.`when`.toSystemString(),
+                            text = item.committerIdent.`when`.toSmartSystemString(),
                             modifier = Modifier.padding(horizontal = 16.dp),
                             fontSize = 12.sp,
                             color = MaterialTheme.colors.secondaryTextColor,

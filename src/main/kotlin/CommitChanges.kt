@@ -54,6 +54,7 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                 Column {
                     Text(
                         text = commit.fullMessage,
+                        fontSize = 14.sp,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp)
@@ -89,11 +90,12 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                                     text = commit.authorIdent.name,
                                     color = MaterialTheme.colors.primaryTextColor,
                                     maxLines = 1,
+                                    fontSize = 14.sp,
                                 )
 
                                 Spacer(modifier = Modifier.weight(1f, fill = true))
                                 val date = remember(commit) {
-                                    commit.authorIdent.`when`.toSystemString()
+                                    commit.authorIdent.`when`.toSmartSystemString()
                                 }
 
                                 Text(
@@ -101,6 +103,7 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                                     color = MaterialTheme.colors.secondaryTextColor,
                                     maxLines = 1,
                                     modifier = Modifier.padding(horizontal = 16.dp),
+                                    fontSize = 12.sp,
                                 )
 
                             }
@@ -109,6 +112,7 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                                 text = commit.authorIdent.emailAddress,
                                 color = MaterialTheme.colors.secondaryTextColor,
                                 maxLines = 1,
+                                fontSize = 12.sp,
                             )
                         }
                     }
