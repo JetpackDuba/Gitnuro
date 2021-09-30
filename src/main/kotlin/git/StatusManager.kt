@@ -52,9 +52,15 @@ class StatusManager {
     }
 
     suspend fun stage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
-        git.add()
-            .addFilepattern(diffEntry.filePath)
-            .call()
+        if(diffEntry.changeType == DiffEntry.ChangeType.DELETE) {
+            git.rm()
+                .addFilepattern(diffEntry.filePath)
+                .call()
+        } else {
+            git.add()
+                .addFilepattern(diffEntry.filePath)
+                .call()
+        }
 
         loadStatus(git)
     }
