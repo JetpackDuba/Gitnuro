@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import extensions.filePath
 import extensions.icon
+import extensions.iconColor
 import git.StageStatus
 import org.eclipse.jgit.diff.DiffEntry
 import theme.headerBackground
@@ -247,7 +248,7 @@ private fun FileEntry(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .size(16.dp),
-                    tint = MaterialTheme.colors.primary,
+                    tint = diffEntry.iconColor,
                 )
 
                 Text(

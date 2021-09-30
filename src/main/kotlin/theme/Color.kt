@@ -17,3 +17,7 @@ val accentGrayLight = Color(0xFFCCCCCC)
 val backgroundColorLight = Color(0xFFEBEFF7)
 val surfaceColorLight = Color(0xFFFFFFFF)
 val headerBackgroundLight = Color(0xFFF4F6FA)
+
+val addFileLight = Color(0xFF32A852)
+val deleteFileLight = errorColor
+val modifyFileLight = primary

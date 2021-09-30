@@ -59,3 +59,15 @@ val Colors.accentGray: Color
 @get:Composable
 val Colors.headerBackground: Color
     get() = headerBackgroundLight
+
+@get:Composable
+val Colors.addFile: Color
+    get() = addFileLight
+
+@get:Composable
+val Colors.deleteFile: Color
+    get() = deleteFileLight
+
+@get:Composable
+val Colors.modifyFile: Color
+    get() = modifyFileLight

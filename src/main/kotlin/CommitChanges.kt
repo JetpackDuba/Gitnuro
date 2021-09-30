@@ -209,7 +209,7 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
                             .size(16.dp),
                         imageVector = diffEntry.icon,
                         contentDescription = null,
-                        tint = MaterialTheme.colors.primary,
+                        tint = diffEntry.iconColor,
                     )
 
                     Text(
