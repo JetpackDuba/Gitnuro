@@ -8,10 +8,14 @@ import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import extensions.toSystemString
 import git.LogStatus
 import org.eclipse.jgit.revwalk.RevCommit
 import theme.primaryTextColor
@@ -57,7 +61,7 @@ fun Log(
 
                     Column(
                         modifier = Modifier
-                            .height(64.dp)
+                            .height(48.dp)
                             .fillMaxWidth()
                             .clickable {
                                 selectedIndex.value = -1
@@ -74,12 +78,12 @@ fun Log(
                             modifier = Modifier.padding(start = 16.dp),
                             color = textColor,
                         )
-                        Text(
-                            text = "You",
-                            fontStyle = FontStyle.Italic,
-                            modifier = Modifier.padding(start = 16.dp),
-                            color = MaterialTheme.colors.secondaryTextColor,
-                        )
+//                        Text(
+//                            text = "You",
+//                            fontStyle = FontStyle.Italic,
+//                            modifier = Modifier.padding(start = 16.dp),
+//                            color = MaterialTheme.colors.secondaryTextColor,
+//                        )
 
                         Spacer(modifier = Modifier.weight(2f))
 
@@ -92,34 +96,45 @@ fun Log(
                     MaterialTheme.colors.primary
                 } else
                     MaterialTheme.colors.primaryTextColor
-
-                Column(
-                    modifier = Modifier
-                        .height(64.dp)
-                        .fillMaxWidth()
-                        .clickable {
-                            selectedIndex.value = index
-                            selectedUncommited.value = false
-                            onRevCommitSelected(item)
-                        },
-                    verticalArrangement = Arrangement.Center,
-                ) {
+                Column {
                     Spacer(modifier = Modifier.weight(2f))
+                    Row(
+                        modifier = Modifier
+                            .height(48.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                selectedIndex.value = index
+                                selectedUncommited.value = false
+                                onRevCommitSelected(item)
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
 
-                    Text(
-                        text = item.shortMessage,
-                        modifier = Modifier.padding(start = 16.dp),
-                        color = textColor,
-                    )
-                    Text(
-                        text = item.authorIdent.name,
-                        modifier = Modifier.padding(start = 16.dp),
-                        color = MaterialTheme.colors.secondaryTextColor,
-                    )
+
+                        Text(
+                            text = item.shortMessage,
+                            modifier = Modifier.padding(start = 16.dp),
+                            fontSize = 16.sp,
+                            color = textColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Spacer(modifier = Modifier.weight(2f))
+
+                        Text(
+                            text = item.committerIdent.`when`.toSystemString(),
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colors.secondaryTextColor,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+
+                    }
                     Spacer(modifier = Modifier.weight(2f))
-
                     Divider()
                 }
+
             }
         }
     }

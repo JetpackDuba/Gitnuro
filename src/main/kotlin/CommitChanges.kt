@@ -16,10 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import extensions.filePath
-import extensions.icon
-import extensions.md5
-import extensions.toByteArray
+import extensions.*
 import kotlinx.coroutines.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
@@ -95,10 +92,7 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
 
                                 Spacer(modifier = Modifier.weight(1f, fill = true))
                                 val date = remember(commit) {
-                                    val systemLocale = System.getProperty("user.language")
-                                    val locale = Locale(systemLocale)
-                                    val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
-                                    sdf.format(commit.authorIdent.`when`)
+                                    commit.authorIdent.`when`.toSystemString()
                                 }
 
                                 Text(
