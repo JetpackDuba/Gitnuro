@@ -1,8 +1,10 @@
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import extensions.filePath
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Repository
@@ -12,6 +14,7 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import java.io.IOException
+
 
 @Composable
 fun RepositorySelected(gitManager: GitManager, repository: Repository) {
@@ -50,7 +53,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                             selectedIndex = selectedIndexCommitLog,
                             onRevCommitSelected = { commit ->
                                 uncommitedChangesSelected = false
-
+                                // TODO Move all this code to tree manager
                                 gitManager.loadStatus()
 
                                 val parent = if (commit.parentCount == 0) {
@@ -58,9 +61,14 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                                 } else
                                     commit.parents.first()
 
-                                val oldTreeParser =
-                                    prepareTreeParser(repository, parent!!) //TODO Will crash with first commit
+                                val oldTreeParser = if(parent != null)
+                                    prepareTreeParser(repository, parent)
+                                else {
+                                    CanonicalTreeParser()
+                                }
+
                                 val newTreeParser = prepareTreeParser(repository, commit)
+
                                 Git(repository).use { git ->
                                     val diffs = git.diff()
                                         .setNewTree(newTreeParser)
