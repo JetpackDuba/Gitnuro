@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import extensions.simpleName
 import org.eclipse.jgit.lib.Ref
 import theme.headerBackground
@@ -35,12 +36,13 @@ fun Branches(gitManager: GitManager) {
             Text(
                 modifier = Modifier
                     .background(MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 8.dp)
                     .fillMaxWidth(),
                 text = "Local branches",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
+                fontSize = 14.sp,
                 maxLines = 1,
             )
 
@@ -69,7 +71,7 @@ private fun BranchRow(
 
     Row(
         modifier = Modifier
-            .height(56.dp)
+            .height(40.dp)
             .fillMaxWidth()
             .clickable(onClick = {}),
         verticalAlignment = Alignment.CenterVertically,
@@ -79,8 +81,8 @@ private fun BranchRow(
             painter = painterResource("branch.svg"),
             contentDescription = null,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(24.dp),
+                .padding(horizontal = 8.dp)
+                .size(16.dp),
             tint = MaterialTheme.colors.primary,
         )
 
@@ -89,6 +91,7 @@ private fun BranchRow(
             fontWeight = fontWeight,
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
+            fontSize = 14.sp,
             overflow = TextOverflow.Ellipsis,
         )
 
@@ -96,7 +99,7 @@ private fun BranchRow(
             onClick = {},
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .size(32.dp)
+                .size(16.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.MoreVert,

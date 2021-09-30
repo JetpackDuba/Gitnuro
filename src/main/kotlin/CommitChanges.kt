@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import extensions.*
 import kotlinx.coroutines.*
 import org.eclipse.jgit.diff.DiffEntry
@@ -125,13 +126,14 @@ fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: 
                 Text(
                     modifier = Modifier
                         .background(MaterialTheme.colors.headerBackground)
-                        .padding(vertical = 16.dp)
+                        .padding(vertical = 8.dp)
                         .fillMaxWidth(),
                     text = "Files changed",
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colors.primary,
                     maxLines = 1,
+                    fontSize = 14.sp,
                 )
 
 
@@ -185,7 +187,7 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
 
             Column(
                 modifier = Modifier
-                    .height(56.dp)
+                    .height(48.dp)
                     .fillMaxWidth()
                     .clickable {
                         selectedIndex.value = index
@@ -199,8 +201,8 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
                 Row {
                     Icon(
                         modifier = Modifier
-                            .padding(start = 16.dp)
-                            .size(24.dp),
+                            .padding(start = 8.dp)
+                            .size(16.dp),
                         imageVector = diffEntry.icon,
                         contentDescription = null,
                         tint = MaterialTheme.colors.primary,
@@ -208,9 +210,10 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
 
                     Text(
                         text = diffEntry.filePath,
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp),
                         color = textColor,
                         maxLines = 1,
+                        fontSize = 14.sp,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }

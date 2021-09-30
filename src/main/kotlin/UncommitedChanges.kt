@@ -17,14 +17,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.platform.ContextMenuItem
 import androidx.compose.ui.platform.ContextMenuState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import extensions.filePath
 import extensions.icon
 import git.StageStatus
@@ -65,7 +68,8 @@ fun UncommitedChanges(
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Staged",
-            optionIcon = Icons.Default.Close,
+            actionTitle = "Unstage",
+            actionColor = MaterialTheme.colors.error,
             diffEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
@@ -82,7 +86,8 @@ fun UncommitedChanges(
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Unstaged",
-            optionIcon = Icons.Default.Add,
+            actionTitle = "Stage",
+            actionColor = MaterialTheme.colors.primary,
             diffEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
@@ -134,7 +139,8 @@ fun UncommitedChanges(
 private fun EntriesList(
     modifier: Modifier,
     title: String,
-    optionIcon: ImageVector,
+    actionTitle: String,
+    actionColor: Color,
     diffEntries: List<DiffEntry>,
     onDiffEntrySelected: (DiffEntry) -> Unit,
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
@@ -147,12 +153,13 @@ private fun EntriesList(
             Text(
                 modifier = Modifier
                     .background(color = MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 8.dp)
                     .fillMaxWidth(),
                 text = title,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
+                fontSize = 14.sp,
                 maxLines = 1,
             )
 
@@ -160,7 +167,8 @@ private fun EntriesList(
                 itemsIndexed(diffEntries) { index, diffEntry ->
                     FileEntry(
                         diffEntry = diffEntry,
-                        icon = optionIcon,
+                        actionTitle = actionTitle,
+                        actionColor = actionColor,
                         onClick = {
                             onDiffEntrySelected(diffEntry)
                         },
@@ -183,19 +191,33 @@ private fun EntriesList(
 
 @OptIn(
     ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class,
-    ExperimentalDesktopApi::class
+    ExperimentalDesktopApi::class, androidx.compose.animation.ExperimentalAnimationApi::class
 )
 @Composable
 private fun FileEntry(
     diffEntry: DiffEntry,
-    icon: ImageVector,
+    actionTitle: String,
+    actionColor: Color,
     onClick: () -> Unit,
     onButtonClick: () -> Unit,
     onReset: () -> Unit,
 ) {
+    var active by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .clickable { onClick() }
+            .fillMaxWidth()
+            .pointerMoveFilter(
+                onEnter = {
+                    active = true
+                    false
+                },
+                onExit = {
+                    active = false
+                    false
+                }
+            )
     ) {
         ContextMenuArea(
             items = {
@@ -209,7 +231,7 @@ private fun FileEntry(
         ) {
             Row(
                 modifier = Modifier
-                    .height(56.dp)
+                    .height(48.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -218,8 +240,8 @@ private fun FileEntry(
                     imageVector = diffEntry.icon,
                     contentDescription = null,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .size(24.dp),
+                        .padding(horizontal = 8.dp)
+                        .size(16.dp),
                     tint = MaterialTheme.colors.primary,
                 )
 
@@ -228,21 +250,25 @@ private fun FileEntry(
                     modifier = Modifier.weight(1f, fill = true),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    fontSize = 14.sp,
                 )
-
-                IconButton(
-                    onClick = onButtonClick,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .size(32.dp)
-                        .border(1.dp, MaterialTheme.colors.primary, RoundedCornerShape(10.dp))
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.primary,
-                    )
-                }
+            }
+        }
+        AnimatedVisibility(
+            modifier = Modifier
+                .align(Alignment.CenterEnd),
+            visible = active,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Button(
+                onClick = onButtonClick,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = actionColor)
+            ) {
+                Text(actionTitle, fontSize = 12.sp)
             }
         }
     }

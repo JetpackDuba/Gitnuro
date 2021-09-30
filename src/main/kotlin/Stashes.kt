@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import git.StashStatus
 import org.eclipse.jgit.revwalk.RevCommit
 import theme.headerBackground
@@ -39,12 +40,13 @@ fun Stashes(gitManager: GitManager) {
             Text(
                 modifier = Modifier
                     .background(MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 8.dp)
                     .fillMaxWidth(),
                 text = "Stashes",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
+                fontSize = 14.sp,
                 maxLines = 1,
             )
 
@@ -64,7 +66,7 @@ fun Stashes(gitManager: GitManager) {
 private fun StashRow(stash: RevCommit) {
     Row(
         modifier = Modifier
-            .height(56.dp)
+            .height(40.dp)
             .fillMaxWidth()
             .clickable(onClick = {}),
         verticalAlignment = Alignment.CenterVertically,
@@ -74,29 +76,32 @@ private fun StashRow(stash: RevCommit) {
             painter = painterResource("stash.svg"),
             contentDescription = null,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(24.dp),
+                .padding(horizontal = 8.dp)
+                .size(16.dp),
             tint = MaterialTheme.colors.primary,
         )
 
         Text(
             text = stash.shortMessage,
-            modifier = Modifier.weight(1f, fill = true),
+            modifier = Modifier
+                .weight(1f, fill = true)
+                .padding(end = 16.dp),
             maxLines = 1,
+            fontSize = 14.sp,
             overflow = TextOverflow.Ellipsis,
         )
 
-        IconButton(
-            onClick = {},
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .size(32.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = null,
-                tint = MaterialTheme.colors.primary,
-            )
-        }
+//        IconButton(
+//            onClick = {},
+//            modifier = Modifier
+//                .padding(horizontal = 16.dp)
+//                .size(16.dp)
+//        ) {
+//            Icon(
+//                imageVector = Icons.Default.MoreVert,
+//                contentDescription = null,
+//                tint = MaterialTheme.colors.primary,
+//            )
+//        }
     }
 }

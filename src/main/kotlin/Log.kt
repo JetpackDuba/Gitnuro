@@ -61,7 +61,7 @@ fun Log(
 
                     Column(
                         modifier = Modifier
-                            .height(48.dp)
+                            .height(40.dp)
                             .fillMaxWidth()
                             .clickable {
                                 selectedIndex.value = -1
@@ -76,14 +76,9 @@ fun Log(
                             text = "Uncommited changes",
                             fontStyle = FontStyle.Italic,
                             modifier = Modifier.padding(start = 16.dp),
+                            fontSize = 14.sp,
                             color = textColor,
                         )
-//                        Text(
-//                            text = "You",
-//                            fontStyle = FontStyle.Italic,
-//                            modifier = Modifier.padding(start = 16.dp),
-//                            color = MaterialTheme.colors.secondaryTextColor,
-//                        )
 
                         Spacer(modifier = Modifier.weight(2f))
 
@@ -100,7 +95,7 @@ fun Log(
                     Spacer(modifier = Modifier.weight(2f))
                     Row(
                         modifier = Modifier
-                            .height(48.dp)
+                            .height(40.dp)
                             .fillMaxWidth()
                             .clickable {
                                 selectedIndex.value = index
@@ -114,7 +109,7 @@ fun Log(
                         Text(
                             text = item.shortMessage,
                             modifier = Modifier.padding(start = 16.dp),
-                            fontSize = 16.sp,
+                            fontSize = 14.sp,
                             color = textColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -124,7 +119,7 @@ fun Log(
                         Text(
                             text = item.committerIdent.`when`.toSystemString(),
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            fontSize = 14.sp,
+                            fontSize = 12.sp,
                             color = MaterialTheme.colors.secondaryTextColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
