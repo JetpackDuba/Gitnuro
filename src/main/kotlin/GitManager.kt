@@ -4,13 +4,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.diff.DiffFormatter
-import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.eclipse.jgit.treewalk.FileTreeIterator
-import java.io.ByteArrayOutputStream
 import java.io.File
 
 
@@ -32,6 +28,10 @@ class GitManager {
     private val _processing = MutableStateFlow(false)
     val processing: StateFlow<Boolean>
         get() = _processing
+
+    private val _lastTimeChecked = MutableStateFlow(System.currentTimeMillis())
+    val lastTimeChecked: StateFlow<Long>
+        get() = _lastTimeChecked
 
     val stageStatus: StateFlow<StageStatus>
         get() = statusManager.stageStatus
@@ -104,7 +104,7 @@ class GitManager {
         logManager.loadLog(safeGit)
     }
 
-    fun loadStatus() = managerScope.launch {
+    suspend fun loadStatus() {
         statusManager.loadStatus(safeGit)
     }
 
@@ -167,6 +167,10 @@ class GitManager {
 
     fun resetUnstaged(diffEntry: DiffEntry) = managerScope.launch {
         statusManager.reset(safeGit, diffEntry, staged = false)
+    }
+
+    fun statusShouldBeUpdated() {
+        _lastTimeChecked.value = System.currentTimeMillis()
     }
 }
 

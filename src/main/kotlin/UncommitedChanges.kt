@@ -45,6 +45,11 @@ fun UncommitedChanges(
 ) {
     val stageStatusState = gitManager.stageStatus.collectAsState()
     val stageStatus = stageStatusState.value
+    val lastCheck by gitManager.lastTimeChecked.collectAsState()
+
+    LaunchedEffect(lastCheck) {
+        gitManager.loadStatus()
+    }
 
     val (staged, unstaged) = if (stageStatus is StageStatus.Loaded) {
         stageStatus.staged to stageStatus.unstaged

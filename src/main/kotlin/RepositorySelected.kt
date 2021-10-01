@@ -51,9 +51,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                             gitManager = gitManager,
                             selectedIndex = selectedIndexCommitLog,
                             onRevCommitSelected = { commit ->
-                                uncommitedChangesSelected = false
                                 // TODO Move all this code to tree manager
-                                gitManager.loadStatus()
 
                                 val parent = if (commit.parentCount == 0) {
                                     null
@@ -76,10 +74,13 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
 
                                     selectedRevCommit = commit to diffs
                                 }
+
+
+                                uncommitedChangesSelected = false
                             },
                             onUncommitedChangesSelected = {
+                                gitManager.statusShouldBeUpdated()
                                 uncommitedChangesSelected = true
-                                gitManager.loadStatus()
                             }
                         )
                     }
