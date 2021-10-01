@@ -9,7 +9,7 @@ plugins {
     id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
 
-group = "me.user"
+group = "aeab13.github"
 version = "1.0"
 
 repositories {
@@ -31,10 +31,11 @@ tasks.withType<KotlinCompile>() {
 
 compose.desktop {
     application {
-        mainClass = "org.jetbrains.compose.demo.falling.MainKt"
+        mainClass = "MainKt"
+
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "Gitnuro"
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.AppImage)
+            packageName = "gitnuro"
             packageVersion = "1.0.0"
         }
     }
