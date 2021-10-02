@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.useResource
@@ -27,14 +26,19 @@ import theme.primaryTextColor
 import theme.secondaryTextColor
 import java.net.HttpURLConnection
 import java.net.URL
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
-fun CommitChanges(commitDiff: Pair<RevCommit, List<DiffEntry>>, onDiffSelected: (DiffEntry) -> Unit) {
-    val commit = commitDiff.first
-    val diff = commitDiff.second
+fun CommitChanges(
+    gitManager: GitManager,
+    commit:  RevCommit,
+    onDiffSelected: (DiffEntry) -> Unit
+) {
+    var diff by remember { mutableStateOf(emptyList<DiffEntry>()) }
+    LaunchedEffect(commit) {
+        diff = gitManager.diffListFromCommit(commit)
+    }
 
     Column(
         modifier = Modifier

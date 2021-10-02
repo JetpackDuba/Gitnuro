@@ -22,18 +22,17 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import java.io.IOException
 
 
-@ExperimentalMaterialApi
 @Composable
-fun RepositorySelected(gitManager: GitManager, repository: Repository) {
+fun RepositorySelected(gitManager: GitManager) {
     var selectedRevCommit by remember {
-        mutableStateOf<Pair<RevCommit, List<DiffEntry>>?>(null)
+        mutableStateOf<RevCommit?>(null)
     }
 
     var diffSelected by remember {
         mutableStateOf<DiffEntryType?>(null)
     }
     var uncommitedChangesSelected by remember {
-        mutableStateOf<Boolean>(false)
+        mutableStateOf(false)
     }
 
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
@@ -50,8 +49,8 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
             },
             title = "",
 
-        ) {
-            Column (
+            ) {
+            Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -76,7 +75,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                     },
                     visualTransformation = PasswordVisualTransformation()
                 )
-                Button(onClick = {gitManager.credentialsAccepted(userField, passwordField)}) {
+                Button(onClick = { gitManager.credentialsAccepted(userField, passwordField) }) {
                     Text("Ok")
                 }
             }
@@ -109,29 +108,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                             onRevCommitSelected = { commit ->
                                 // TODO Move all this code to tree manager
 
-                                val parent = if (commit.parentCount == 0) {
-                                    null
-                                } else
-                                    commit.parents.first()
-
-                                val oldTreeParser = if (parent != null)
-                                    prepareTreeParser(repository, parent)
-                                else {
-                                    CanonicalTreeParser()
-                                }
-
-                                val newTreeParser = prepareTreeParser(repository, commit)
-
-                                Git(repository).use { git ->
-                                    val diffs = git.diff()
-                                        .setNewTree(newTreeParser)
-                                        .setOldTree(oldTreeParser)
-                                        .call()
-
-                                    selectedRevCommit = commit to diffs
-                                }
-
-
+                                selectedRevCommit = commit
                                 uncommitedChangesSelected = false
                             },
                             onUncommitedChangesSelected = {
@@ -168,7 +145,8 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
             } else {
                 selectedRevCommit?.let {
                     CommitChanges(
-                        commitDiff = it,
+                        gitManager = gitManager,
+                        commit = it,
                         onDiffSelected = { diffEntry ->
                             diffSelected = DiffEntryType.CommitDiff(diffEntry)
                         }
@@ -179,15 +157,3 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
     }
 }
 
-
-@Throws(IOException::class)
-fun prepareTreeParser(repository: Repository, commit: RevCommit): AbstractTreeIterator? {
-    // from the commit we can build the tree which allows us to construct the TreeParser
-    RevWalk(repository).use { walk ->
-        val tree: RevTree = walk.parseTree(commit.tree.id)
-        val treeParser = CanonicalTreeParser()
-        repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
-        walk.dispose()
-        return treeParser
-    }
-}

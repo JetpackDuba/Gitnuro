@@ -8,6 +8,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 
@@ -185,6 +186,10 @@ class GitManager {
 
     fun credentialsAccepted(user: String, password: String) {
         credentialsStateManager.updateState(CredentialsState.CredentialsAccepted(user, password))
+    }
+
+    suspend fun diffListFromCommit(commit: RevCommit): List<DiffEntry> {
+        return diffManager.commitDiffEntries(safeGit, commit)
     }
 }
 

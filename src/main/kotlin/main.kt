@@ -70,7 +70,7 @@ fun Gitnuro(gitManager: GitManager) {
         Crossfade(targetState = repositorySelectionStatus) {
 
             @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
-            when (val status = repositorySelectionStatus) {
+            when (repositorySelectionStatus) {
                 RepositorySelectionStatus.None -> {
                     NoneRepository()
                 }
@@ -78,7 +78,7 @@ fun Gitnuro(gitManager: GitManager) {
                     LoadingRepository()
                 }
                 is RepositorySelectionStatus.Open -> {
-                    RepositorySelected(gitManager = gitManager, repository = status.repository)
+                    RepositorySelected(gitManager = gitManager)
                 }
             }
         }
