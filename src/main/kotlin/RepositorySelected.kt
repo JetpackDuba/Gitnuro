@@ -1,11 +1,12 @@
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -21,6 +22,7 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import java.io.IOException
 
 
+@ExperimentalMaterialApi
 @Composable
 fun RepositorySelected(gitManager: GitManager, repository: Repository) {
     var selectedRevCommit by remember {
@@ -41,13 +43,21 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
     if (credentialsState == CredentialsState.CredentialsRequested) {
         var userField by remember { mutableStateOf("") }
         var passwordField by remember { mutableStateOf("") }
+
         Dialog(
             onCloseRequest = {
                 gitManager.credentialsDenied()
             },
-            title = "Introduce your remote server credentials",
+            title = "",
+
         ) {
-            Column {
+            Column (
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text("Introduce your remote server credentials")
+
                 OutlinedTextField(
                     value = userField,
                     label = { Text("User", fontSize = 14.sp) },
@@ -57,12 +67,14 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                     },
                 )
                 OutlinedTextField(
+                    modifier = Modifier.padding(bottom = 8.dp),
                     value = passwordField,
                     label = { Text("Password", fontSize = 14.sp) },
                     textStyle = TextStyle(fontSize = 14.sp),
                     onValueChange = {
                         passwordField = it
                     },
+                    visualTransformation = PasswordVisualTransformation()
                 )
                 Button(onClick = {gitManager.credentialsAccepted(userField, passwordField)}) {
                     Text("Ok")
