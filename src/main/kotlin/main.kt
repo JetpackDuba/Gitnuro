@@ -1,17 +1,24 @@
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerMoveFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
-import theme.GitnuroTheme
+import theme.*
+import java.awt.FileDialog
+import java.awt.Frame
 import javax.swing.JFileChooser
+import javax.swing.UIManager
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -110,30 +117,76 @@ fun GMenu(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
     ) {
-        OutlinedButton(
+        MenuButton(
+            title = "Open",
+            icon = painterResource("open.svg"),
             onClick = onRepositoryOpen
-        ) {
-            Text("Open")
+        )
+        MenuButton(
+            title = "Pull",
+            icon = painterResource("download.svg"),
+            onClick = onPull,
+        )
+        MenuButton(
+            title = "Push",
+            icon = painterResource("upload.svg"),
+            onClick = onPush,
+        )
+        MenuButton(
+            title = "Stash",
+            icon = painterResource("stash.svg"),
+            onClick = onStash,
+        )
+        MenuButton(
+            title = "Apply",
+            icon = painterResource("apply_stash.svg"),
+            onClick = onPopStash,
+        )
+    }
+}
+
+@Composable
+fun MenuButton(modifier: Modifier = Modifier, title: String, icon: Painter, onClick: () -> Unit) {
+
+    var hovering by remember { mutableStateOf(false) }
+
+    val backgroundColor = if(hovering)
+        MaterialTheme.colors.primary.copy(alpha = 0.15F)
+    else
+        MaterialTheme.colors.primary.copy(alpha = 0F)
+
+    TextButton(
+        modifier = modifier
+            .padding(horizontal = 2.dp)
+            .pointerMoveFilter(
+                onEnter = {
+                    hovering = true
+                    false
+                },
+                onExit = {
+                    hovering = false
+                    false
+                }
+            )
+        ,
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor)
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painter = icon,
+                contentDescription = title,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .size(24.dp),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.primary),
+            )
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                color = MaterialTheme.colors.primaryTextColor
+            )
         }
-        OutlinedButton(
-            onClick = onPull
-        ) {
-            Text("Pull")
-        }
-        OutlinedButton(
-            onClick = onPush
-        ) {
-            Text("Push")
-        }
-        OutlinedButton(
-            onClick = onStash
-        ) {
-            Text("Stash")
-        }
-        OutlinedButton(
-            onClick = onPopStash
-        ) {
-            Text("Pop stash")
-        }
+
     }
 }
