@@ -82,8 +82,6 @@ class StatusManager {
     }
 
     suspend fun reset(git: Git, diffEntry: DiffEntry, staged: Boolean) = withContext(Dispatchers.IO) {
-        println("Staged $staged")
-
         if(staged) {
             git
                 .reset()

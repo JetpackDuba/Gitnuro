@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerMoveFilter
@@ -15,10 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
 import theme.*
-import java.awt.FileDialog
-import java.awt.Frame
 import javax.swing.JFileChooser
-import javax.swing.UIManager
 
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -32,7 +30,7 @@ fun main() = application {
                 isOpen = false
             },
             state = rememberWindowState(placement = WindowPlacement.Maximized, size = WindowSize(1280.dp, 720.dp))
-            ) {
+        ) {
             GitnuroTheme {
                 Gitnuro(gitManager)
             }
@@ -66,6 +64,7 @@ fun Gitnuro(gitManager: GitManager) {
             onPush = { gitManager.push() },
             onStash = { gitManager.stash() },
             onPopStash = { gitManager.popStash() },
+            isRepositoryOpen = repositorySelectionStatus is RepositorySelectionStatus.Open
         )
 
         Crossfade(targetState = repositorySelectionStatus) {
@@ -106,11 +105,14 @@ fun NoneRepository() {
 @Composable
 fun GMenu(
     onRepositoryOpen: () -> Unit,
+    isRepositoryOpen: Boolean,
     onPull: () -> Unit,
     onPush: () -> Unit,
     onStash: () -> Unit,
     onPopStash: () -> Unit,
 ) {
+    val openHovering = remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .padding(vertical = 16.dp)
@@ -119,58 +121,79 @@ fun GMenu(
     ) {
         MenuButton(
             title = "Open",
+            hovering = openHovering,
             icon = painterResource("open.svg"),
-            onClick = onRepositoryOpen
+            onClick = {
+                openHovering.value = false // Without this, the hover would be kept because of the newly opened dialog
+                onRepositoryOpen()
+            }
         )
         MenuButton(
             title = "Pull",
             icon = painterResource("download.svg"),
             onClick = onPull,
+            enabled = isRepositoryOpen,
         )
         MenuButton(
             title = "Push",
             icon = painterResource("upload.svg"),
             onClick = onPush,
+            enabled = isRepositoryOpen,
         )
         MenuButton(
             title = "Stash",
             icon = painterResource("stash.svg"),
             onClick = onStash,
+            enabled = isRepositoryOpen,
         )
         MenuButton(
             title = "Apply",
             icon = painterResource("apply_stash.svg"),
             onClick = onPopStash,
+            enabled = isRepositoryOpen,
         )
     }
 }
 
 @Composable
-fun MenuButton(modifier: Modifier = Modifier, title: String, icon: Painter, onClick: () -> Unit) {
-
-    var hovering by remember { mutableStateOf(false) }
-
-    val backgroundColor = if(hovering)
+fun MenuButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    hovering: MutableState<Boolean> = remember { mutableStateOf(false) },
+    title: String,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    val backgroundColor = if (hovering.value)
         MaterialTheme.colors.primary.copy(alpha = 0.15F)
     else
-        MaterialTheme.colors.primary.copy(alpha = 0F)
+        Color.Transparent
+
+    val iconColor = if (enabled) {
+        MaterialTheme.colors.primary
+    } else {
+        MaterialTheme.colors.secondaryVariant
+    }
 
     TextButton(
         modifier = modifier
             .padding(horizontal = 2.dp)
             .pointerMoveFilter(
                 onEnter = {
-                    hovering = true
+                    hovering.value = true
                     false
                 },
                 onExit = {
-                    hovering = false
+                    hovering.value = false
                     false
                 }
-            )
-        ,
+            ),
+        enabled = enabled,
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(backgroundColor = backgroundColor)
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = backgroundColor,
+            disabledBackgroundColor = Color.Transparent
+        )
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
@@ -179,7 +202,7 @@ fun MenuButton(modifier: Modifier = Modifier, title: String, icon: Painter, onCl
                 modifier = Modifier
                     .padding(4.dp)
                     .size(24.dp),
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primary),
+                colorFilter = ColorFilter.tint(iconColor),
             )
             Text(
                 text = title,
