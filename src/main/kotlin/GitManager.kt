@@ -1,3 +1,5 @@
+import credentials.CredentialsState
+import credentials.CredentialsStateManager
 import git.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +20,7 @@ class GitManager {
     private val branchesManager = BranchesManager()
     private val stashManager = StashManager()
     private val diffManager = DiffManager()
+    private val credentialsStateManager = CredentialsStateManager
 
     private val managerScope = CoroutineScope(SupervisorJob())
 
@@ -50,6 +53,9 @@ class GitManager {
 
     val latestDirectoryOpened: File?
         get() = File(preferences.latestOpenedRepositoryPath).parentFile
+
+    val credentialsState: StateFlow<CredentialsState>
+        get() = credentialsStateManager.credentialsState
 
     private var git: Git? = null
 
@@ -171,6 +177,14 @@ class GitManager {
 
     fun statusShouldBeUpdated() {
         _lastTimeChecked.value = System.currentTimeMillis()
+    }
+
+    fun credentialsDenied() {
+        credentialsStateManager.updateState(CredentialsState.CredentialsDenied)
+    }
+
+    fun credentialsAccepted(user: String, password: String) {
+        credentialsStateManager.updateState(CredentialsState.CredentialsAccepted(user, password))
     }
 }
 

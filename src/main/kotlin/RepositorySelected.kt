@@ -1,8 +1,15 @@
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import credentials.CredentialsState
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Repository
@@ -29,8 +36,45 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
 
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
 
+    val credentialsState by gitManager.credentialsState.collectAsState()
+
+    if (credentialsState == CredentialsState.CredentialsRequested) {
+        var userField by remember { mutableStateOf("") }
+        var passwordField by remember { mutableStateOf("") }
+        Dialog(
+            onCloseRequest = {
+                gitManager.credentialsDenied()
+            },
+            title = "Introduce your remote server credentials",
+        ) {
+            Column {
+                OutlinedTextField(
+                    value = userField,
+                    label = { Text("User", fontSize = 14.sp) },
+                    textStyle = TextStyle(fontSize = 14.sp),
+                    onValueChange = {
+                        userField = it
+                    },
+                )
+                OutlinedTextField(
+                    value = passwordField,
+                    label = { Text("Password", fontSize = 14.sp) },
+                    textStyle = TextStyle(fontSize = 14.sp),
+                    onValueChange = {
+                        passwordField = it
+                    },
+                )
+                Button(onClick = {gitManager.credentialsAccepted(userField, passwordField)}) {
+                    Text("Ok")
+                }
+            }
+        }
+    }
+
+
+
     Row {
-        Column (
+        Column(
             modifier = Modifier
                 .widthIn(min = 300.dp)
                 .weight(0.15f)
@@ -58,7 +102,7 @@ fun RepositorySelected(gitManager: GitManager, repository: Repository) {
                                 } else
                                     commit.parents.first()
 
-                                val oldTreeParser = if(parent != null)
+                                val oldTreeParser = if (parent != null)
                                     prepareTreeParser(repository, parent)
                                 else {
                                     CanonicalTreeParser()

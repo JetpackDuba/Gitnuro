@@ -112,6 +112,7 @@ fun GMenu(
     onPopStash: () -> Unit,
 ) {
     val openHovering = remember { mutableStateOf(false) }
+    val pullHovering = remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -130,8 +131,12 @@ fun GMenu(
         )
         MenuButton(
             title = "Pull",
+            hovering = pullHovering,
             icon = painterResource("download.svg"),
-            onClick = onPull,
+            onClick = {
+                pullHovering.value = false
+                onPull()
+            },
             enabled = isRepositoryOpen,
         )
         MenuButton(
