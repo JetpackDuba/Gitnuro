@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.ScrollableLazyColumn
 import theme.primaryTextColor
 
 @Composable
@@ -46,7 +47,7 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
                 Text("Close diff")
             }
             SelectionContainer {
-                LazyColumn(
+                ScrollableLazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.ScrollableLazyColumn
 import git.StashStatus
 import org.eclipse.jgit.revwalk.RevCommit
 import theme.headerBackground
@@ -50,7 +51,7 @@ fun Stashes(gitManager: GitManager) {
                 maxLines = 1,
             )
 
-            LazyColumn(modifier = Modifier.weight(5f)) {
+            ScrollableLazyColumn(modifier = Modifier.weight(5f)) {
                 items(items = stashList) { stash ->
                     StashRow(
                         stash = stash,

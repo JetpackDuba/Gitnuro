@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.ScrollableLazyColumn
 import extensions.simpleName
 import org.eclipse.jgit.lib.Ref
 import theme.headerBackground
@@ -46,7 +47,7 @@ fun Branches(gitManager: GitManager) {
                 maxLines = 1,
             )
 
-            LazyColumn(modifier = Modifier.weight(5f)) {
+            ScrollableLazyColumn(modifier = Modifier.weight(5f)) {
                 itemsIndexed(branches) { _, branch ->
                     BranchRow(
                         branch = branch,

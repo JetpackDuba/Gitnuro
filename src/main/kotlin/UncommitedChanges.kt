@@ -8,6 +8,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.ScrollableLazyColumn
 import extensions.filePath
 import extensions.icon
 import extensions.iconColor
@@ -157,6 +159,7 @@ private fun EntriesList(
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
     onReset: (DiffEntry) -> Unit,
 ) {
+
     Card(
         modifier = modifier
     ) {
@@ -174,7 +177,9 @@ private fun EntriesList(
                 maxLines = 1,
             )
 
-            LazyColumn(modifier = Modifier.weight(5f)) {
+            ScrollableLazyColumn(
+                modifier = Modifier.fillMaxSize(),
+            ) {
                 itemsIndexed(diffEntries) { index, diffEntry ->
                     FileEntry(
                         diffEntry = diffEntry,
@@ -194,7 +199,9 @@ private fun EntriesList(
                     if (index < diffEntries.size - 1) {
                         Divider(modifier = Modifier.fillMaxWidth())
                     }
+
                 }
+
             }
         }
     }

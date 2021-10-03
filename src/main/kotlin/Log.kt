@@ -1,8 +1,11 @@
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -14,6 +17,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.ScrollableLazyColumn
 import extensions.toSmartSystemString
 import git.LogStatus
 import org.eclipse.jgit.revwalk.RevCommit
@@ -37,6 +41,7 @@ fun Log(
     } else
         listOf()
 
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -45,10 +50,10 @@ fun Log(
     ) {
         val hasUncommitedChanges by gitManager.hasUncommitedChanges.collectAsState()
 
-        LazyColumn(
+        ScrollableLazyColumn(
             modifier = Modifier
                 .background(MaterialTheme.colors.surface)
-                .fillMaxSize()
+                .fillMaxSize(),
         ) {
 
             if (hasUncommitedChanges)

@@ -28,6 +28,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import components.ScrollableLazyColumn
 
 @Composable
 fun CommitChanges(
@@ -183,7 +184,7 @@ fun rememberNetworkImage(url: String): ImageBitmap {
 fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -> Unit) {
     val selectedIndex = remember(diffEntries) { mutableStateOf(-1) }
 
-    LazyColumn(
+    ScrollableLazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
