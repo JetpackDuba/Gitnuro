@@ -1,11 +1,10 @@
+package ui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -16,7 +15,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import components.ScrollableLazyColumn
+import ui.components.ScrollableLazyColumn
+import git.GitManager
 import git.StashStatus
 import org.eclipse.jgit.revwalk.RevCommit
 import theme.headerBackground
@@ -43,7 +43,7 @@ fun Stashes(gitManager: GitManager) {
                     .background(MaterialTheme.colors.headerBackground)
                     .padding(vertical = 8.dp)
                     .fillMaxWidth(),
-                text = "Stashes",
+                text = "ui.Stashes",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,

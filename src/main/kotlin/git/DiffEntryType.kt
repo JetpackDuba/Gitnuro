@@ -1,3 +1,5 @@
+package git
+
 import org.eclipse.jgit.diff.DiffEntry
 
 sealed class DiffEntryType(val diffEntry: DiffEntry) {

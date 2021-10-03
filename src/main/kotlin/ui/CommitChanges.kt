@@ -1,6 +1,7 @@
+package ui
+
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -28,7 +29,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import components.ScrollableLazyColumn
+import ui.components.ScrollableLazyColumn
+import git.GitManager
 
 @Composable
 fun CommitChanges(

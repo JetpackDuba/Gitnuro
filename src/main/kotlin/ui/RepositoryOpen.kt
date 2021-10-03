@@ -1,3 +1,5 @@
+package ui
+
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -6,24 +8,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import credentials.CredentialsState
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.lib.Repository
+import git.DiffEntryType
+import git.GitManager
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevTree
-import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.treewalk.AbstractTreeIterator
-import org.eclipse.jgit.treewalk.CanonicalTreeParser
-import java.io.IOException
 
 
 @Composable
-fun RepositorySelected(gitManager: GitManager) {
+fun RepositoryOpenPage(gitManager: GitManager) {
     var selectedRevCommit by remember {
         mutableStateOf<RevCommit?>(null)
     }

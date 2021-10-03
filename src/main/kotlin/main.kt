@@ -15,7 +15,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.*
+import git.GitManager
+import git.RepositorySelectionStatus
 import theme.*
+import ui.RepositoryOpenPage
+import ui.WelcomePage
 import javax.swing.JFileChooser
 
 
@@ -72,13 +76,13 @@ fun Gitnuro(gitManager: GitManager) {
             @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
             when (repositorySelectionStatus) {
                 RepositorySelectionStatus.None -> {
-                    NoneRepository()
+                    WelcomePage()
                 }
                 RepositorySelectionStatus.Loading -> {
                     LoadingRepository()
                 }
                 is RepositorySelectionStatus.Open -> {
-                    RepositorySelected(gitManager = gitManager)
+                    RepositoryOpenPage(gitManager = gitManager)
                 }
             }
         }
@@ -93,14 +97,6 @@ fun LoadingRepository() {
 
 }
 
-@Composable
-fun NoneRepository() {
-    Box(
-        contentAlignment = Alignment.Center
-    ) {
-        Text("Open a repository to start using Gitnuro")
-    }
-}
 
 @Composable
 fun GMenu(

@@ -1,7 +1,7 @@
+package git
+
 import credentials.CredentialsState
-import credentials.CredentialsStateManager
-import git.*
-import kotlinx.coroutines.*
+import credentials.CredentialsStateManager import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
@@ -10,6 +10,7 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import GPreferences
 import java.io.File
 
 

@@ -1,7 +1,8 @@
+package ui
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -17,8 +18,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import components.ScrollableLazyColumn
+import ui.components.ScrollableLazyColumn
 import extensions.simpleName
+import git.GitManager
 import org.eclipse.jgit.lib.Ref
 import theme.headerBackground
 

@@ -1,6 +1,5 @@
 package git
 
-import DiffEntryType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -15,7 +14,6 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 
 class DiffManager {
     suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): List<String> = withContext(Dispatchers.IO) {
