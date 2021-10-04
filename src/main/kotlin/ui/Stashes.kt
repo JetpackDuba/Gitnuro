@@ -43,7 +43,7 @@ fun Stashes(gitManager: GitManager) {
                     .background(MaterialTheme.colors.headerBackground)
                     .padding(vertical = 8.dp)
                     .fillMaxWidth(),
-                text = "ui.Stashes",
+                text = "Stashes",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.primary,
