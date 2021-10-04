@@ -79,8 +79,7 @@ fun main() = application {
 
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Cyan)
+                            .fillMaxSize(),
                     ) {
                         items(items = tabs.value, key = { it.key }) {
                             val isItemSelected = it.key == selectedTabKey
@@ -130,18 +129,7 @@ fun Gitnuro(isNewTab: Boolean, tabName: MutableState<String>) {
     ) {
         GMenu(
             onRepositoryOpen = {
-                val latestDirectoryOpened = gitManager.latestDirectoryOpened
-
-                val f = if (latestDirectoryOpened == null)
-                    JFileChooser()
-                else
-                    JFileChooser(latestDirectoryOpened)
-
-                f.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-                f.showSaveDialog(null)
-
-                if (f.selectedFile != null)
-                    gitManager.openRepository(f.selectedFile)
+                openRepositoryDialog(gitManager = gitManager)
             },
             onPull = { gitManager.pull() },
             onPush = { gitManager.push() },
