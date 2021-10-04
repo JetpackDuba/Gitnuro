@@ -14,6 +14,8 @@ import androidx.compose.ui.window.Dialog
 import credentials.CredentialsState
 import git.DiffEntryType
 import git.GitManager
+import git.RepositorySelectionStatus
+import openRepositoryDialog
 import org.eclipse.jgit.revwalk.RevCommit
 
 
@@ -79,76 +81,87 @@ fun RepositoryOpenPage(gitManager: GitManager) {
 
 
 
-    Row {
-        Column(
-            modifier = Modifier
-                .widthIn(min = 300.dp)
-                .weight(0.15f)
-                .fillMaxHeight()
-        ) {
-            Branches(gitManager = gitManager)
-            Stashes(gitManager = gitManager)
-        }
-        Box(
-            modifier = Modifier
-                .weight(0.60f)
-                .fillMaxHeight()
-        ) {
-            Crossfade(targetState = diffSelected) { diffEntry ->
-                when (diffEntry) {
-                    null -> {
-                        Log(
-                            gitManager = gitManager,
-                            selectedIndex = selectedIndexCommitLog,
-                            onRevCommitSelected = { commit ->
-                                // TODO Move all this code to tree manager
+    Column {
+        GMenu(
+            onRepositoryOpen = {
+                openRepositoryDialog(gitManager = gitManager)
+            },
+            onPull = { gitManager.pull() },
+            onPush = { gitManager.push() },
+            onStash = { gitManager.stash() },
+            onPopStash = { gitManager.popStash() },
+        )
 
-                                selectedRevCommit = commit
-                                uncommitedChangesSelected = false
-                            },
-                            onUncommitedChangesSelected = {
-                                gitManager.statusShouldBeUpdated()
-                                uncommitedChangesSelected = true
+        Row {
+            Column(
+                modifier = Modifier
+                    .widthIn(min = 300.dp)
+                    .weight(0.15f)
+                    .fillMaxHeight()
+            ) {
+                Branches(gitManager = gitManager)
+                Stashes(gitManager = gitManager)
+            }
+            Box(
+                modifier = Modifier
+                    .weight(0.60f)
+                    .fillMaxHeight()
+            ) {
+                Crossfade(targetState = diffSelected) { diffEntry ->
+                    when (diffEntry) {
+                        null -> {
+                            Log(
+                                gitManager = gitManager,
+                                selectedIndex = selectedIndexCommitLog,
+                                onRevCommitSelected = { commit ->
+                                    // TODO Move all this code to tree manager
+
+                                    selectedRevCommit = commit
+                                    uncommitedChangesSelected = false
+                                },
+                                onUncommitedChangesSelected = {
+                                    gitManager.statusShouldBeUpdated()
+                                    uncommitedChangesSelected = true
+                                }
+                            )
+                        }
+                        else -> {
+                            Diff(
+                                gitManager = gitManager,
+                                diffEntryType = diffEntry,
+                                onCloseDiffView = { diffSelected = null })
+                        }
+                    }
+                }
+
+            }
+            Box(
+                modifier = Modifier
+                    .weight(0.25f)
+                    .fillMaxHeight()
+            ) {
+                if (uncommitedChangesSelected) {
+                    UncommitedChanges(
+                        gitManager = gitManager,
+                        onStagedDiffEntrySelected = { diffEntry ->
+                            diffSelected = DiffEntryType.StagedDiff(diffEntry)
+                        },
+                        onUnstagedDiffEntrySelected = { diffEntry ->
+                            diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
+                        }
+                    )
+                } else {
+                    selectedRevCommit?.let {
+                        CommitChanges(
+                            gitManager = gitManager,
+                            commit = it,
+                            onDiffSelected = { diffEntry ->
+                                diffSelected = DiffEntryType.CommitDiff(diffEntry)
                             }
                         )
                     }
-                    else -> {
-                        Diff(
-                            gitManager = gitManager,
-                            diffEntryType = diffEntry,
-                            onCloseDiffView = { diffSelected = null })
-                    }
-                }
-            }
-
-        }
-        Box(
-            modifier = Modifier
-                .weight(0.25f)
-                .fillMaxHeight()
-        ) {
-            if (uncommitedChangesSelected) {
-                UncommitedChanges(
-                    gitManager = gitManager,
-                    onStagedDiffEntrySelected = { diffEntry ->
-                        diffSelected = DiffEntryType.StagedDiff(diffEntry)
-                    },
-                    onUnstagedDiffEntrySelected = { diffEntry ->
-                        diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
-                    }
-                )
-            } else {
-                selectedRevCommit?.let {
-                    CommitChanges(
-                        gitManager = gitManager,
-                        commit = it,
-                        onDiffSelected = { diffEntry ->
-                            diffSelected = DiffEntryType.CommitDiff(diffEntry)
-                        }
-                    )
                 }
             }
         }
     }
 }
-
