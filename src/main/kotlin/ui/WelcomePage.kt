@@ -32,6 +32,26 @@ fun WelcomePage() {
                 Text("Open repository")
 
             }
+
+            Button(onClick = {}) {
+                Image(
+                    painter = painterResource("open.svg"),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(contentColorFor(MaterialTheme.colors.primary))
+
+                )
+                Text("Clone repository")
+            }
+
+            Button(onClick = {}) {
+                Image(
+                    painter = painterResource("open.svg"),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(contentColorFor(MaterialTheme.colors.primary))
+
+                )
+                Text("Init a new repository")
+            }
         }
     }
 }

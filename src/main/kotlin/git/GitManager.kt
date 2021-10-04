@@ -1,7 +1,8 @@
 package git
 
 import credentials.CredentialsState
-import credentials.CredentialsStateManager import kotlinx.coroutines.*
+import credentials.CredentialsStateManager
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
@@ -15,6 +16,8 @@ import java.io.File
 
 
 class GitManager {
+    val repositoryName: String
+        get() = safeGit.repository.directory.parentFile.name
     private val preferences = GPreferences()
     private val statusManager = StatusManager()
     private val logManager = LogManager()
@@ -71,7 +74,8 @@ class GitManager {
                 return git
         }
 
-    init {
+
+    fun loadLatestOpenedRepository() {
         val latestOpenedRepositoryPath = preferences.latestOpenedRepositoryPath
         if (latestOpenedRepositoryPath.isNotEmpty()) {
             openRepository(File(latestOpenedRepositoryPath))
