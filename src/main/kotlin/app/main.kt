@@ -11,6 +11,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import androidx.compose.ui.zIndex
+import app.Main
+import app.di.DaggerAppComponent
 import app.git.GitManager
 import app.git.RepositorySelectionStatus
 import app.theme.*
@@ -20,120 +22,7 @@ import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun main() = application {
-    var isOpen by remember { mutableStateOf(true) }
-    if (isOpen) {
-        Window(
-            title = "Gitnuro",
-            onCloseRequest = {
-                isOpen = false
-            },
-            state = rememberWindowState(placement = WindowPlacement.Maximized, size = WindowSize(1280.dp, 720.dp))
-        ) {
-            GitnuroTheme {
-                val tabs = remember {
-                    val tabName = mutableStateOf("New tab")
-                    mutableStateOf(
-                        listOf(
-                            TabInformation(tabName, key = 0) {
-                                Gitnuro(false, tabName)
-                            },
-                        )
-                    )
-                }
-
-                var selectedTabKey by remember { mutableStateOf(0) }
-
-                Column {
-                    RepositoriesTabPanel(
-                        modifier = Modifier
-                            .padding(top = 4.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
-                            .fillMaxWidth(),
-                        tabs = tabs.value,
-                        selectedTabKey = selectedTabKey,
-                        onTabSelected = { newSelectedTabKey ->
-                            selectedTabKey = newSelectedTabKey
-                        },
-                        newTabContent = { tabName ->
-                            Gitnuro(true, tabName)
-                        },
-                        onTabsUpdated = { tabInformationList ->
-                            tabs.value = tabInformationList
-                        }
-                    )
-
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                    ) {
-                        items(items = tabs.value, key = { it.key }) {
-                            val isItemSelected = it.key == selectedTabKey
-
-                            var tabMod: Modifier = if (!isItemSelected)
-                                Modifier.size(0.dp)
-                            else
-                                Modifier
-                                    .fillParentMaxSize()
-
-                            tabMod = tabMod.background(MaterialTheme.colors.primary)
-                                .alpha(if (isItemSelected) 1f else -1f)
-                                .zIndex(if (isItemSelected) 1f else -1f)
-                            Box(
-                                modifier = tabMod,
-                            ) {
-                                it.content()
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-@Composable
-fun Gitnuro(isNewTab: Boolean, tabName: MutableState<String>) {
-    val gitManager = remember {
-        GitManager().apply {
-            if (!isNewTab)
-                loadLatestOpenedRepository()
-        }
-    }
-
-    val repositorySelectionStatus by gitManager.repositorySelectionStatus.collectAsState()
-
-    if (repositorySelectionStatus is RepositorySelectionStatus.Open) {
-        tabName.value = gitManager.repositoryName
-    }
-
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background)
-            .fillMaxSize()
-    ) {
-        Crossfade(targetState = repositorySelectionStatus) {
-
-            @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
-            when (repositorySelectionStatus) {
-                RepositorySelectionStatus.None -> {
-                    WelcomePage(gitManager = gitManager)
-                }
-                RepositorySelectionStatus.Loading -> {
-                    LoadingRepository()
-                }
-                is RepositorySelectionStatus.Open -> {
-                    RepositoryOpenPage(gitManager = gitManager)
-                }
-            }
-        }
-    }
-
-
-}
-
-@Composable
-fun LoadingRepository() {
-    Box { }
-
+fun main() {
+    val main = Main()
+    main.app()
 }

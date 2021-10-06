@@ -154,5 +154,5 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
 class TabInformation(
     val title: MutableState<String>,
     val key: Int,
-    val content: @Composable () -> Unit
+    val content: @Composable (TabInformation) -> Unit
 )

@@ -9,8 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
+import javax.inject.Inject
 
-class StatusManager {
+class StatusManager @Inject constructor() {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
 
     val stageStatus: StateFlow<StageStatus>

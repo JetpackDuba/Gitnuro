@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
+import javax.inject.Inject
 
-class LogManager {
+class LogManager @Inject constructor() {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loaded(listOf()))
 
     val logStatus: StateFlow<LogStatus>

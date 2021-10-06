@@ -4,10 +4,14 @@ import org.apache.sshd.client.SshClient
 import org.apache.sshd.client.future.ConnectFuture
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
+import javax.inject.Inject
+import javax.inject.Provider
 
 private const val DEFAULT_SSH_PORT = 22
 
-class GRemoteSession : RemoteSession {
+class GRemoteSession @Inject constructor(
+    private val processProvider: Provider<GProcess>,
+): RemoteSession {
     private val client = SshClient.setUpDefaultClient()
 
     private var connectFuture: ConnectFuture? = null
@@ -18,7 +22,7 @@ class GRemoteSession : RemoteSession {
         val session = connectFuture.clientSession
         session.auth().verify()
 
-        val process = GProcess()
+        val process = processProvider.get()
         process.setup(session, commandName)
         return process
     }

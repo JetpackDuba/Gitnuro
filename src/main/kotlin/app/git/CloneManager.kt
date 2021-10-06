@@ -5,13 +5,13 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.*
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
 
 private const val REMOTE_URL = ""
 
-class CloneManager {
-    private val sessionManager = GSessionManager()
-
-
+class CloneManager @Inject constructor(
+    private val sessionManager: GSessionManager,
+) {
     fun cloneTest() {
         // prepare a new folder for the cloned repository
 

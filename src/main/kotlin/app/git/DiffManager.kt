@@ -14,8 +14,9 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
-class DiffManager {
+class DiffManager @Inject constructor() {
     suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): List<String> = withContext(Dispatchers.IO) {
         val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()

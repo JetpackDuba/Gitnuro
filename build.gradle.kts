@@ -25,8 +25,8 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     implementation("org.apache.sshd:sshd-core:2.7.0")
-    implementation("com.google.dagger:dagger:2.38.1")
-    kapt("com.google.dagger:dagger-compiler:2.38.1")
+    implementation("com.google.dagger:dagger:2.39.1")
+    kapt("com.google.dagger:dagger-compiler:2.39.1")
 }
 
 tasks.withType<KotlinCompile>() {

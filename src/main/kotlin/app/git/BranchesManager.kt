@@ -6,8 +6,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
+import javax.inject.Inject
 
-class BranchesManager {
+class BranchesManager @Inject constructor() {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     val branches: StateFlow<List<Ref>>
         get() = _branches

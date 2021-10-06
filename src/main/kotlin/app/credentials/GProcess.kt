@@ -6,8 +6,9 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+import javax.inject.Inject
 
-class GProcess : Process() {
+class GProcess @Inject constructor() : Process() {
     private lateinit var channel: ChannelExec
     private val outputStream = PipedOutputStream()
     private val inputStream = PipedInputStream()

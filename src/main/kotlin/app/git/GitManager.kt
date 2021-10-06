@@ -13,18 +13,21 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import app.GPreferences
 import java.io.File
+import javax.inject.Inject
 
 
-class GitManager {
+class GitManager @Inject constructor(
+    private val preferences: GPreferences,
+    private val statusManager: StatusManager,
+    private val logManager: LogManager,
+    private val remoteOperationsManager: RemoteOperationsManager,
+    private val branchesManager: BranchesManager,
+    private val stashManager: StashManager,
+    private val diffManager: DiffManager,
+) {
     val repositoryName: String
         get() = safeGit.repository.directory.parentFile.name
-    private val preferences = GPreferences()
-    private val statusManager = StatusManager()
-    private val logManager = LogManager()
-    private val remoteOperationsManager = RemoteOperationsManager()
-    private val branchesManager = BranchesManager()
-    private val stashManager = StashManager()
-    private val diffManager = DiffManager()
+
     private val credentialsStateManager = CredentialsStateManager
 
     private val managerScope = CoroutineScope(SupervisorJob())
@@ -75,7 +78,7 @@ class GitManager {
         }
 
 
-    fun loadLatestOpenedRepository() {
+    suspend fun loadLatestOpenedRepository() = withContext(Dispatchers.IO) {
         val latestOpenedRepositoryPath = preferences.latestOpenedRepositoryPath
         if (latestOpenedRepositoryPath.isNotEmpty()) {
             openRepository(File(latestOpenedRepositoryPath))
@@ -83,10 +86,10 @@ class GitManager {
     }
 
     fun openRepository(directory: File) {
-        val gitDirectory = if (directory.name == ".app.git") {
+        val gitDirectory = if (directory.name == ".git") {
             directory
         } else {
-            val gitDir = File(directory, ".app.git")
+            val gitDir = File(directory, ".git")
             if (gitDir.exists() && gitDir.isDirectory) {
                 gitDir
             } else
