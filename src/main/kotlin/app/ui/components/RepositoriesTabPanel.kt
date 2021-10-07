@@ -26,7 +26,9 @@ fun RepositoriesTabPanel(
     onTabsUpdated: (List<TabInformation>) -> Unit,
     newTabContent: @Composable (tabTitle: MutableState<String>) -> Unit,
 ) {
-    var tabsIdentifier by remember { mutableStateOf(0) }
+    var tabsIdentifier by remember {
+        mutableStateOf(tabs.count())
+    }
 
     TabPanel(
         modifier = modifier,

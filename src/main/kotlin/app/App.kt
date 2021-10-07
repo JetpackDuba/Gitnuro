@@ -34,7 +34,7 @@ class Main {
         appComponent.inject(this)
     }
 
-    fun app() = application {
+    fun start() = application {
         var isOpen by remember { mutableStateOf(true) }
         if (isOpen) {
             Window(
