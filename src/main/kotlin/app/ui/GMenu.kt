@@ -67,7 +67,7 @@ fun GMenu(
             onClick = onStash,
         )
         MenuButton(
-            title = "Apply",
+            title = "Pop",
             icon = painterResource("apply_stash.svg"),
             onClick = onPopStash,
         )

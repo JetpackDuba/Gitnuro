@@ -23,15 +23,13 @@ class StashManager @Inject constructor() {
     }
 
     suspend fun popStash(git: Git) = withContext(Dispatchers.IO) {
-//        val firstStash = app.git.stashList().call().firstOrNull() ?: return@withContext
 
         git
             .stashApply()
-//            .setStashRef(firstStash.)
             .call()
-
-//        app.git.stashDrop()
-//            .setStashRef(firstStash.)
+        
+        git.stashDrop()
+            .call()
 
         loadStashList(git)
     }
