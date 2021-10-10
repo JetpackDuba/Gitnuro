@@ -27,7 +27,7 @@ class StashManager @Inject constructor() {
         git
             .stashApply()
             .call()
-        
+
         git.stashDrop()
             .call()
 
