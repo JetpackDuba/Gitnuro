@@ -86,6 +86,8 @@ class GitManager @Inject constructor(
     }
 
     fun openRepository(directory: File) {
+        println("Trying to open repository ${directory.absoluteFile}")
+
         val gitDirectory = if (directory.name == ".git") {
             directory
         } else {
@@ -198,6 +200,14 @@ class GitManager @Inject constructor(
 
     suspend fun diffListFromCommit(commit: RevCommit): List<DiffEntry> {
         return diffManager.commitDiffEntries(safeGit, commit)
+    }
+
+    fun unstageAll() = managerScope.launch {
+        statusManager.unstageAll(safeGit)
+    }
+
+    fun stageAll() = managerScope.launch {
+        statusManager.stageAll(safeGit)
     }
 }
 

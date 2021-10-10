@@ -53,7 +53,7 @@ class StatusManager @Inject constructor() {
     }
 
     suspend fun stage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
-        if(diffEntry.changeType == DiffEntry.ChangeType.DELETE) {
+        if (diffEntry.changeType == DiffEntry.ChangeType.DELETE) {
             git.rm()
                 .addFilepattern(diffEntry.filePath)
                 .call()
@@ -83,7 +83,7 @@ class StatusManager @Inject constructor() {
     }
 
     suspend fun reset(git: Git, diffEntry: DiffEntry, staged: Boolean) = withContext(Dispatchers.IO) {
-        if(staged) {
+        if (staged) {
             git
                 .reset()
                 .addPath(diffEntry.filePath)
@@ -93,6 +93,23 @@ class StatusManager @Inject constructor() {
         git
             .checkout()
             .addPath(diffEntry.filePath)
+            .call()
+
+        loadStatus(git)
+    }
+
+    suspend fun unstageAll(git: Git) = withContext(Dispatchers.IO) {
+        git
+            .reset()
+            .call()
+
+        loadStatus(git)
+    }
+
+    suspend fun stageAll(git: Git) = withContext(Dispatchers.IO) {
+        git
+            .add()
+            .addFilepattern(".")
             .call()
 
         loadStatus(git)

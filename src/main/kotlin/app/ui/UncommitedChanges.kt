@@ -72,6 +72,7 @@ fun UncommitedChanges(
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Staged",
+            allActionTitle = "Unstage all",
             actionTitle = "Unstage",
             actionColor = MaterialTheme.colors.error,
             diffEntries = staged,
@@ -81,6 +82,9 @@ fun UncommitedChanges(
             },
             onReset = { diffEntry ->
                 gitManager.resetStaged(diffEntry)
+            },
+            onAllAction = {
+                gitManager.unstageAll()
             }
         )
 
@@ -99,7 +103,11 @@ fun UncommitedChanges(
             },
             onReset = { diffEntry ->
                 gitManager.resetUnstaged(diffEntry)
-            }
+            },
+            {
+                gitManager.stageAll()
+            },
+            allActionTitle = "Stage all"
         )
 
         Card(
@@ -143,6 +151,7 @@ fun UncommitedChanges(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun EntriesList(
     modifier: Modifier,
@@ -153,24 +162,40 @@ private fun EntriesList(
     onDiffEntrySelected: (DiffEntry) -> Unit,
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
     onReset: (DiffEntry) -> Unit,
+    onAllAction: () -> Unit,
+    allActionTitle: String,
 ) {
 
     Card(
         modifier = modifier
     ) {
         Column {
-            Text(
-                modifier = Modifier
-                    .background(color = MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 8.dp)
-                    .fillMaxWidth(),
-                text = title,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
-                fontSize = 14.sp,
-                maxLines = 1,
-            )
+            Box {
+                Text(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colors.headerBackground)
+                        .padding(vertical = 8.dp)
+                        .fillMaxWidth(),
+                    text = title,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colors.primary,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                )
+
+                Button(
+                    onClick = onAllAction,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .align(Alignment.CenterEnd),
+                    elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = actionColor)
+                ) {
+                    Text(allActionTitle, fontSize = 10.sp)
+                }
+
+            }
 
             ScrollableLazyColumn(
                 modifier = Modifier.fillMaxSize(),
