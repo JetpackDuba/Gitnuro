@@ -7,6 +7,8 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.revplot.PlotCommit
+import org.eclipse.jgit.revplot.PlotCommitList
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
@@ -39,8 +41,15 @@ class DiffManager @Inject constructor() {
 
         // TODO This is just a workaround, try to find properly which lines have to be displayed by using a custom diff
 
+        val containsWindowsNewLine = diff.contains("\r\n")
+
         return@withContext diff.split("\n", "\r\n").filterNot {
-            it.startsWith("diff --app.git")
+            it.startsWith("diff --git")
+        }.map {
+            if (containsWindowsNewLine)
+                "$it\r\n"
+            else
+                "$it\n"
         }
     }
 
