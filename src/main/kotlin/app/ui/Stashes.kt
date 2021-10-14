@@ -20,6 +20,7 @@ import app.git.GitManager
 import app.git.StashStatus
 import org.eclipse.jgit.revwalk.RevCommit
 import app.theme.headerBackground
+import app.theme.headerText
 
 @Composable
 fun Stashes(gitManager: GitManager) {
@@ -46,7 +47,7 @@ fun Stashes(gitManager: GitManager) {
                 text = "Stashes",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
+                color = MaterialTheme.colors.headerText,
                 fontSize = 14.sp,
                 maxLines = 1,
             )

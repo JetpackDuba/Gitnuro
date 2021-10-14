@@ -31,11 +31,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
+import app.theme.headerText
 
 @Composable
 fun CommitChanges(
     gitManager: GitManager,
-    commit:  RevCommit,
+    commit: RevCommit,
     onDiffSelected: (DiffEntry) -> Unit
 ) {
     var diff by remember { mutableStateOf(emptyList<DiffEntry>()) }
@@ -142,7 +143,7 @@ fun CommitChanges(
                     text = "Files changed",
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.primary,
+                    color = MaterialTheme.colors.headerText,
                     maxLines = 1,
                     fontSize = 14.sp,
                 )
@@ -173,11 +174,17 @@ fun rememberNetworkImage(url: String): ImageBitmap {
         )
     }
 
+
     LaunchedEffect(url) {
-        loadImage(url).let {
-            image = makeFromEncoded(it).asImageBitmap()
+        try {
+            loadImage(url).let {
+                image = makeFromEncoded(it).asImageBitmap()
+            }
+        } catch (ex: Exception) {
+            println("Avatar loading failed: ${ex.message}")
         }
     }
+
 
     return image
 }

@@ -23,6 +23,7 @@ import app.extensions.simpleName
 import app.git.GitManager
 import org.eclipse.jgit.lib.Ref
 import app.theme.headerBackground
+import app.theme.headerText
 
 @Composable
 fun Branches(gitManager: GitManager) {
@@ -44,7 +45,7 @@ fun Branches(gitManager: GitManager) {
                 text = "Local branches",
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colors.primary,
+                color = MaterialTheme.colors.headerText,
                 fontSize = 14.sp,
                 maxLines = 1,
             )

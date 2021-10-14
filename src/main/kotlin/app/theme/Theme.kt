@@ -5,25 +5,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
-        primary = primaryLight,
-        primaryVariant = primaryDark,
-        secondary = secondary
+    primary = primaryLight,
+    primaryVariant = primaryDark,
+    secondary = secondary,
+    surface = surfaceColorDark,
 )
 
 private val LightColorPalette = lightColors(
-        primary = primary,
-        primaryVariant = primaryDark,
-        secondary = secondary,
-        background = backgroundColorLight,
-        surface = surfaceColorLight,
-        error = errorColor
-        /* Other default colors to override
+    primary = primary,
+    primaryVariant = primaryDark,
+    secondary = secondary,
+    background = backgroundColorLight,
+    surface = surfaceColorLight,
+    error = errorColor
+    /* Other default colors to override
 
-        */
+    */
 )
 
 @Composable
-fun GitnuroTheme(darkTheme: Boolean = false, content: @Composable() () -> Unit) {
+fun AppTheme(darkTheme: Boolean = false, content: @Composable() () -> Unit) {
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {
@@ -31,18 +32,18 @@ fun GitnuroTheme(darkTheme: Boolean = false, content: @Composable() () -> Unit) 
     }
 
     MaterialTheme(
-            colors = colors,
-            content = content,
+        colors = colors,
+        content = content,
     )
 }
 
 @get:Composable
 val Colors.primaryTextColor: Color
-    get() = if(isLight) mainText else mainTextDark
+    get() = if (isLight) mainText else mainTextDark
 
 @get:Composable
 val Colors.secondaryTextColor: Color
-    get() = if(isLight) secondaryText else secondaryTextDark
+    get() = if (isLight) secondaryText else secondaryTextDark
 
 @get:Composable
 val Colors.accent: Color
@@ -58,7 +59,12 @@ val Colors.accentGray: Color
 
 @get:Composable
 val Colors.headerBackground: Color
-    get() = headerBackgroundLight
+    get() {
+        return if (isLight)
+            headerBackgroundLight
+        else
+            headerBackgroundDark
+    }
 
 @get:Composable
 val Colors.addFile: Color
@@ -71,3 +77,17 @@ val Colors.deleteFile: Color
 @get:Composable
 val Colors.modifyFile: Color
     get() = modifyFileLight
+
+@get:Composable
+val Colors.headerText: Color
+    get() = if (isLight) primary else mainTextDark
+
+
+val Colors.tabColorActive: Color
+    get() = if (isLight) primary else tabColorActiveDark
+
+
+val Colors.tabColorInactive: Color
+    get() = if (isLight) primaryLight else tabColorInactiveDark
+
+

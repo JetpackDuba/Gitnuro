@@ -147,10 +147,12 @@ class GitManager @Inject constructor(
 
     fun pull() = managerScope.launch {
         remoteOperationsManager.pull(safeGit)
+        logManager.loadLog(safeGit)
     }
 
     fun push() = managerScope.launch {
         remoteOperationsManager.push(safeGit)
+        logManager.loadLog(safeGit)
     }
 
     private fun refreshRepositoryInfo() = managerScope.launch {
@@ -163,11 +165,13 @@ class GitManager @Inject constructor(
     fun stash() = managerScope.launch {
         stashManager.stash(safeGit)
         loadStatus()
+        loadLog()
     }
 
     fun popStash() = managerScope.launch {
         stashManager.popStash(safeGit)
         loadStatus()
+        loadLog()
     }
 
     fun createBranch(branchName: String) = managerScope.launch {

@@ -15,7 +15,7 @@ import androidx.compose.ui.zIndex
 import app.di.DaggerAppComponent
 import app.git.GitManager
 import app.git.RepositorySelectionStatus
-import app.theme.GitnuroTheme
+import app.theme.AppTheme
 import app.ui.RepositoryOpenPage
 import app.ui.WelcomePage
 import app.ui.components.RepositoriesTabPanel
@@ -47,7 +47,7 @@ class Main {
                     size = WindowSize(1280.dp, 720.dp)
                 )
             ) {
-                GitnuroTheme {
+                AppTheme {
                     val tabs = remember {
                         val tabName = mutableStateOf("New tab")
                         mutableStateOf(
@@ -61,7 +61,10 @@ class Main {
                     }
 
                     var selectedTabKey by remember { mutableStateOf(0) }
-                    Column {
+                    Column(
+                        modifier =
+                        Modifier.background(MaterialTheme.colors.surface)
+                    ) {
                         RepositoriesTabPanel(
                             modifier = Modifier
                                 .padding(top = 4.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)

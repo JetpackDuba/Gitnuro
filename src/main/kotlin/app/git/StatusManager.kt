@@ -22,13 +22,15 @@ class StatusManager @Inject constructor() {
         get() = _hasUncommitedChanges
 
     suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
+        _hasUncommitedChanges.value = checkHasUncommitedChanges(git)
+    }
+
+    suspend fun checkHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
         val status = git
             .status()
             .call()
 
-        val hasUncommitedChanges = status.hasUncommittedChanges() || status.hasUntrackedChanges()
-
-        _hasUncommitedChanges.value = hasUncommitedChanges
+        return@withContext status.hasUncommittedChanges() || status.hasUntrackedChanges()
     }
 
     suspend fun loadStatus(git: Git) = withContext(Dispatchers.IO) {

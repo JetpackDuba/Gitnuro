@@ -15,6 +15,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.theme.primaryLight
+import app.theme.primaryTextColor
+import app.theme.tabColorActive
+import app.theme.tabColorInactive
 
 
 @Composable
@@ -125,19 +128,24 @@ fun TabPanel(
 @Composable
 fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
     Card {
+        val backgroundColor = if (selected)
+            MaterialTheme.colors.tabColorActive
+        else
+            MaterialTheme.colors.tabColorInactive
+
         Box(
             modifier = Modifier
                 .padding(horizontal = 1.dp)
                 .height(36.dp)
                 .clip(RoundedCornerShape(5.dp))
-                .background(if (selected) MaterialTheme.colors.primary else primaryLight)
+                .background(backgroundColor)
                 .clickable { onClick() },
         ) {
             Text(
                 text = title.value,
                 modifier = Modifier
                     .padding(vertical = 8.dp, horizontal = 32.dp),
-                color = contentColorFor(MaterialTheme.colors.primary),
+                color = contentColorFor(backgroundColor),
             )
             IconButton(
                 onClick = onCloseTab,

@@ -5,8 +5,10 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.patch.HunkHeader
 import org.eclipse.jgit.revplot.PlotCommit
 import org.eclipse.jgit.revplot.PlotCommitList
 import org.eclipse.jgit.revwalk.RevCommit
@@ -25,6 +27,7 @@ class DiffManager @Inject constructor() {
 
         DiffFormatter(byteArrayOutputStream).use { formatter ->
             val repo = git.repository
+
             formatter.setRepository(repo)
 
             val oldTree = DirCacheIterator(repo.readDirCache())
@@ -34,6 +37,7 @@ class DiffManager @Inject constructor() {
                 formatter.scan(oldTree, newTree)
 
             formatter.format(diffEntry)
+
             formatter.flush()
         }
 
@@ -52,6 +56,8 @@ class DiffManager @Inject constructor() {
                 "$it\n"
         }
     }
+
+
 
     suspend fun commitDiffEntries(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {
         val repository = git.repository

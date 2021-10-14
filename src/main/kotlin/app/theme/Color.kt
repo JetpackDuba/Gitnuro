@@ -16,8 +16,13 @@ val accentGrayLight = Color(0xFFCCCCCC)
 
 val backgroundColorLight = Color(0xFFEBEFF7)
 val surfaceColorLight = Color(0xFFFFFFFF)
+val surfaceColorDark = Color(0xFF1C1D1E)
 val headerBackgroundLight = Color(0xFFF4F6FA)
+val headerBackgroundDark = Color(0xFF303132)
 
 val addFileLight = Color(0xFF32A852)
 val deleteFileLight = errorColor
 val modifyFileLight = primary
+
+val tabColorActiveDark = Color(0xFF606061)
+val tabColorInactiveDark = Color(0xFF262626)

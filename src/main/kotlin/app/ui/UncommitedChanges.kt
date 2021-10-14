@@ -32,6 +32,7 @@ import app.git.GitManager
 import app.git.StageStatus
 import org.eclipse.jgit.diff.DiffEntry
 import app.theme.headerBackground
+import app.theme.headerText
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -179,7 +180,7 @@ private fun EntriesList(
                     text = title,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.primary,
+                    color = MaterialTheme.colors.headerText,
                     fontSize = 14.sp,
                     maxLines = 1,
                 )

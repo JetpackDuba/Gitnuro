@@ -1,20 +1,21 @@
 package app.git
 
+import app.git.graph.GraphCommitList
+import app.git.graph.GraphWalk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.revplot.PlotCommit
-import org.eclipse.jgit.revplot.PlotCommitList
-import org.eclipse.jgit.revplot.PlotLane
-import org.eclipse.jgit.revplot.PlotWalk
-import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
-class LogManager @Inject constructor() {
+
+class LogManager @Inject constructor(
+    private val statusManager: StatusManager,
+) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
     val logStatus: StateFlow<LogStatus>
@@ -23,21 +24,33 @@ class LogManager @Inject constructor() {
     suspend fun loadLog(git: Git) = withContext(Dispatchers.IO) {
         _logStatus.value = LogStatus.Loading
 
-        val commitList = PlotCommitList<PlotLane>()
-        val walk = PlotWalk(git.repository)
+        val logList = git.log().setMaxCount(2).call().toList()
 
-        walk.markStart(walk.parseCommit(git.repository.resolve("HEAD")));
-        commitList.source(walk)
+        val commitList = GraphCommitList()
+        val walk = GraphWalk(git.repository)
 
-        commitList.fillTo(Int.MAX_VALUE)
+        walk.use {
+            walk.markStartAllRefs(Constants.R_HEADS)
+            walk.markStartAllRefs(Constants.R_REMOTES)
+            walk.markStartAllRefs(Constants.R_TAGS)
+
+            if (statusManager.checkHasUncommitedChanges(git))
+                commitList.addUncommitedChangesGraphCommit(logList.first())
+
+            commitList.source(walk)
+            commitList.fillTo(Int.MAX_VALUE)
+        }
 
         ensureActive()
 
-        _logStatus.value = LogStatus.Loaded(commitList)
+        val loadedStatus = LogStatus.Loaded(commitList)
+
+        _logStatus.value = loadedStatus
     }
 }
 
+
 sealed class LogStatus {
     object Loading : LogStatus()
-    data class Loaded(val plotCommitList: PlotCommitList<PlotLane>) : LogStatus()
+    class Loaded(val plotCommitList: GraphCommitList) : LogStatus()
 }
