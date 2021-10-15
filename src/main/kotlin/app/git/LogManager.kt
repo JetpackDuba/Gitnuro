@@ -38,7 +38,7 @@ class LogManager @Inject constructor(
                 commitList.addUncommitedChangesGraphCommit(logList.first())
 
             commitList.source(walk)
-            commitList.fillTo(Int.MAX_VALUE)
+            commitList.fillTo(1000) // TODO: Limited commits to show to 1000, add a setting to let the user adjust this
         }
 
         ensureActive()
