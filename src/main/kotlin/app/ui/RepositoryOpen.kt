@@ -51,7 +51,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text("Introduce your remote server app.credentials")
+                Text("Introduce your remote server credentials")
 
                 OutlinedTextField(
                     value = userField,
