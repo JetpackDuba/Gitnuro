@@ -5,10 +5,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import androidx.compose.ui.zIndex
@@ -155,6 +157,7 @@ fun App(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<S
 
 
     val repositorySelectionStatus by gitManager.repositorySelectionStatus.collectAsState()
+    val isProcessing by gitManager.processing.collectAsState()
 
     if (repositorySelectionStatus is RepositorySelectionStatus.Open) {
         tabName.value = gitManager.repositoryName
@@ -165,21 +168,40 @@ fun App(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<S
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
-        Crossfade(targetState = repositorySelectionStatus) {
 
-            @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
-            when (repositorySelectionStatus) {
-                RepositorySelectionStatus.None -> {
-                    WelcomePage(gitManager = gitManager)
-                }
-                RepositorySelectionStatus.Loading -> {
-                    LoadingRepository()
-                }
-                is RepositorySelectionStatus.Open -> {
-                    RepositoryOpenPage(gitManager = gitManager)
+        val linearProgressAlpha = if (isProcessing)
+            DefaultAlpha
+        else
+            0f
+
+        LinearProgressIndicator(
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(linearProgressAlpha)
+        )
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Crossfade(targetState = repositorySelectionStatus) {
+
+                @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
+                when (repositorySelectionStatus) {
+                    RepositorySelectionStatus.None -> {
+                        WelcomePage(gitManager = gitManager)
+                    }
+                    RepositorySelectionStatus.Loading -> {
+                        LoadingRepository()
+                    }
+                    is RepositorySelectionStatus.Open -> {
+                        RepositoryOpenPage(gitManager = gitManager)
+                    }
                 }
             }
+
+            if (isProcessing)
+                Box(modifier = Modifier.fillMaxSize()) //TODO this should block of the mouse/keyboard events while visible
         }
+
+
     }
 
 

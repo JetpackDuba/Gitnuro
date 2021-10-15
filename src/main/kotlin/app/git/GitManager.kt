@@ -82,42 +82,47 @@ class GitManager @Inject constructor(
         openRepository(File(directory))
     }
 
-    fun openRepository(directory: File) {
-        println("Trying to open repository ${directory.absoluteFile}")
+    fun openRepository(directory: File) = managerScope.launch(Dispatchers.IO) {
+        safeProcessing {
+            println("Trying to open repository ${directory.absoluteFile}")
 
-        val gitDirectory = if (directory.name == ".git") {
-            directory
-        } else {
-            val gitDir = File(directory, ".git")
-            if (gitDir.exists() && gitDir.isDirectory) {
-                gitDir
-            } else
+            val gitDirectory = if (directory.name == ".git") {
                 directory
+            } else {
+                val gitDir = File(directory, ".git")
+                if (gitDir.exists() && gitDir.isDirectory) {
+                    gitDir
+                } else
+                    directory
 
-        }
+            }
 
-        val builder = FileRepositoryBuilder()
-        val repository: Repository = builder.setGitDir(gitDirectory)
-            .readEnvironment() // scan environment GIT_* variables
-            .findGitDir() // scan up the file system tree
-            .build()
+            val builder = FileRepositoryBuilder()
+            val repository: Repository = builder.setGitDir(gitDirectory)
+                .readEnvironment() // scan environment GIT_* variables
+                .findGitDir() // scan up the file system tree
+                .build()
 
-        try {
-            repository.workTree // test if repository is valid
-            _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
-            git = Git(repository)
+            try {
+                repository.workTree // test if repository is valid
+                _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
+                git = Git(repository)
 
-            onRepositoryChanged(repository.directory.parent)
-            appStateManager.latestOpenedRepositoryPath = directory.absolutePath
-            refreshRepositoryInfo()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            onRepositoryChanged(null)
+                onRepositoryChanged(repository.directory.parent)
+                appStateManager.latestOpenedRepositoryPath = directory.absolutePath
+                refreshRepositoryInfo()
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                onRepositoryChanged(null)
 
+            }
         }
     }
 
     fun loadLog() = managerScope.launch {
+        coLoadLog()
+    }
+    private suspend fun coLoadLog(){
         logManager.loadLog(safeGit)
     }
 
@@ -146,32 +151,40 @@ class GitManager @Inject constructor(
     }
 
     fun pull() = managerScope.launch {
-        remoteOperationsManager.pull(safeGit)
-        logManager.loadLog(safeGit)
+        safeProcessing {
+            remoteOperationsManager.pull(safeGit)
+            logManager.loadLog(safeGit)
+        }
     }
 
     fun push() = managerScope.launch {
-        remoteOperationsManager.push(safeGit)
-        logManager.loadLog(safeGit)
+        safeProcessing {
+            remoteOperationsManager.push(safeGit)
+            logManager.loadLog(safeGit)
+        }
     }
 
-    private fun refreshRepositoryInfo() = managerScope.launch {
+    private suspend fun refreshRepositoryInfo() {
         statusManager.loadHasUncommitedChanges(safeGit)
         branchesManager.loadBranches(safeGit)
         stashManager.loadStashList(safeGit)
-        loadLog()
+        coLoadLog()
     }
 
     fun stash() = managerScope.launch {
-        stashManager.stash(safeGit)
-        loadStatus()
-        loadLog()
+        safeProcessing {
+            stashManager.stash(safeGit)
+            loadStatus()
+            loadLog()
+        }
     }
 
     fun popStash() = managerScope.launch {
-        stashManager.popStash(safeGit)
-        loadStatus()
-        loadLog()
+        safeProcessing {
+            stashManager.popStash(safeGit)
+            loadStatus()
+            loadLog()
+        }
     }
 
     fun createBranch(branchName: String) = managerScope.launch {
@@ -215,6 +228,15 @@ class GitManager @Inject constructor(
     }
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
+
+    private suspend fun safeProcessing(callback: suspend () -> Unit) {
+        _processing.value = true
+        try {
+            callback()
+        } finally {
+            _processing.value = false
+        }
+    }
 }
 
 
