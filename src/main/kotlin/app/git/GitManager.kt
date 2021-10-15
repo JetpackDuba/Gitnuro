@@ -122,12 +122,21 @@ class GitManager @Inject constructor(
     fun loadLog() = managerScope.launch {
         coLoadLog()
     }
-    private suspend fun coLoadLog(){
+
+    private suspend fun coLoadLog() {
         logManager.loadLog(safeGit)
     }
 
     suspend fun loadStatus() {
+        val hadUncommitedChanges = statusManager.hasUncommitedChanges.value
+
         statusManager.loadStatus(safeGit)
+
+        val hasNowUncommitedChanges = statusManager.hasUncommitedChanges.value
+
+        // Update the log only if the uncommitedChanges status has changed
+        if (hasNowUncommitedChanges != hadUncommitedChanges)
+            coLoadLog()
     }
 
     fun stage(diffEntry: DiffEntry) = managerScope.launch {
@@ -153,14 +162,14 @@ class GitManager @Inject constructor(
     fun pull() = managerScope.launch {
         safeProcessing {
             remoteOperationsManager.pull(safeGit)
-            logManager.loadLog(safeGit)
+            coLoadLog()
         }
     }
 
     fun push() = managerScope.launch {
         safeProcessing {
             remoteOperationsManager.push(safeGit)
-            logManager.loadLog(safeGit)
+            coLoadLog()
         }
     }
 
