@@ -141,13 +141,13 @@ class Main {
                     appStateManager.repositoryTabChanged(key, path)
             }
 
-            Gitnuro(gitManager, path, tabName)
+            App(gitManager, path, tabName)
         }
     }
 }
 
 @Composable
-fun Gitnuro(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<String>) {
+fun App(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<String>) {
     LaunchedEffect(gitManager) {
         if (repositoryPath != null)
             gitManager.openRepository(repositoryPath)
