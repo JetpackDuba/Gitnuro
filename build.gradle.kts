@@ -6,6 +6,7 @@ plugins {
     // __KOTLIN_COMPOSE_VERSION__
     kotlin("jvm") version "1.5.21"
     kotlin("kapt") version "1.5.21"
+    kotlin("plugin.serialization") version "1.5.21"
     // __LATEST_COMPOSE_RELEASE_VERSION__
     id("org.jetbrains.compose") version "1.0.0-alpha3"
 }
@@ -27,6 +28,7 @@ dependencies {
     implementation("org.apache.sshd:sshd-core:2.7.0")
     implementation("com.google.dagger:dagger:2.39.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.21")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
     kapt("com.google.dagger:dagger-compiler:2.39.1")
 }
 

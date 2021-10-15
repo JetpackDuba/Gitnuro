@@ -2,16 +2,16 @@ import app.git.GitManager
 import javax.swing.JFileChooser
 
 fun openRepositoryDialog(gitManager: GitManager) {
-    val latestDirectoryOpened = gitManager.latestDirectoryOpened
+    val latestDirectoryOpened = gitManager.latestOpenedRepositoryPath
 
-    val f = if (latestDirectoryOpened == null)
+    val fileChooser = if (latestDirectoryOpened.isEmpty())
         JFileChooser()
     else
         JFileChooser(latestDirectoryOpened)
 
-    f.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-    f.showSaveDialog(null)
+    fileChooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+    fileChooser.showSaveDialog(null)
 
-    if (f.selectedFile != null)
-        gitManager.openRepository(f.selectedFile)
+    if (fileChooser.selectedFile != null)
+        gitManager.openRepository(fileChooser.selectedFile)
 }

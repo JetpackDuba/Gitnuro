@@ -29,13 +29,18 @@ class Main {
     @Inject
     lateinit var gitManagerProvider: Provider<GitManager>
 
+    @Inject
+    lateinit var appStateManager: AppStateManager
 
     init {
         appComponent.inject(this)
+
+        appStateManager.loadRepositoriesTabs()
     }
 
     fun start() = application {
         var isOpen by remember { mutableStateOf(true) }
+
         if (isOpen) {
             Window(
                 title = "Gitnuro",
@@ -49,15 +54,19 @@ class Main {
             ) {
                 AppTheme {
                     val tabs = remember {
-                        val tabName = mutableStateOf("New tab")
-                        mutableStateOf(
-                            listOf(
-                                TabInformation(tabName, key = 0) {
-                                    val gitManager = remember { gitManagerProvider.get() }
-                                    Gitnuro(gitManager, false, tabName)
-                                },
+
+                        val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
+                        var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
+                            newAppTab(key = repositoryTab.key, path = repositoryTab.value)
+                        }
+
+                        if (repoTabs.isEmpty()) {
+                            repoTabs = listOf(
+                                newAppTab()
                             )
-                        )
+                        }
+
+                        mutableStateOf(repoTabs)
                     }
 
                     var selectedTabKey by remember { mutableStateOf(0) }
@@ -74,12 +83,14 @@ class Main {
                             onTabSelected = { newSelectedTabKey ->
                                 selectedTabKey = newSelectedTabKey
                             },
-                            newTabContent = { tabName ->
-                                val gitManager = remember { gitManagerProvider.get() }
-                                Gitnuro(gitManager, true, tabName)
+                            newTabContent = { key ->
+                                newAppTab(key)
                             },
                             onTabsUpdated = { tabInformationList ->
                                 tabs.value = tabInformationList
+                            },
+                            onTabClosed = { key ->
+                                appStateManager.repositoryTabRemoved(key)
                             }
                         )
 
@@ -111,13 +122,35 @@ class Main {
             }
         }
     }
+
+    private fun newAppTab(
+        key: Int = 0,
+        tabName: MutableState<String> = mutableStateOf("New tab"),
+        path: String? = null,
+    ): TabInformation {
+
+        return TabInformation(
+            title = tabName,
+            key = key
+        ) {
+            val gitManager = remember { gitManagerProvider.get() }
+            gitManager.onRepositoryChanged = { path ->
+                if (path == null) {
+                    appStateManager.repositoryTabRemoved(key)
+                } else
+                    appStateManager.repositoryTabChanged(key, path)
+            }
+
+            Gitnuro(gitManager, path, tabName)
+        }
+    }
 }
 
 @Composable
-fun Gitnuro(gitManager: GitManager, isNewTab: Boolean, tabName: MutableState<String>) {
+fun Gitnuro(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<String>) {
     LaunchedEffect(gitManager) {
-        if (!isNewTab)
-            gitManager.loadLatestOpenedRepository()
+        if (repositoryPath != null)
+            gitManager.openRepository(repositoryPath)
     }
 
 

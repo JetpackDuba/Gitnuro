@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import app.theme.primaryLight
-import app.theme.primaryTextColor
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
 
@@ -27,7 +25,8 @@ fun RepositoriesTabPanel(
     selectedTabKey: Int,
     onTabSelected: (Int) -> Unit,
     onTabsUpdated: (List<TabInformation>) -> Unit,
-    newTabContent: @Composable (tabTitle: MutableState<String>) -> Unit,
+    onTabClosed: (Int) -> Unit,
+    newTabContent: (key: Int) -> TabInformation,
 ) {
     var tabsIdentifier by remember {
         mutableStateOf(tabs.count())
@@ -40,13 +39,7 @@ fun RepositoriesTabPanel(
 
             tabsIdentifier++
 
-            val tabName = mutableStateOf("New tab")
-
-            tabsCopy.add(
-                TabInformation(tabName, key = tabsIdentifier) {
-                    newTabContent(tabName)
-                }
-            )
+            tabsCopy.add(newTabContent(tabsIdentifier))
 
             onTabSelected(tabsIdentifier)
             onTabsUpdated(tabsCopy)
@@ -83,17 +76,15 @@ fun RepositoriesTabPanel(
                         } else {
                             tabsIdentifier++
 
-                            val tabName = mutableStateOf("New tab")
                             tabsCopy.add(
-                                TabInformation(tabName, key = tabsIdentifier) {
-                                    newTabContent(tabName)
-                                }
+                                newTabContent(tabsIdentifier)
                             )
 
                             onTabSelected(tabsIdentifier)
                         }
                     }
 
+                    onTabClosed(tab.key)
                     onTabsUpdated(tabsCopy)
                 }
             )
