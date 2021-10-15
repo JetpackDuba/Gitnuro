@@ -182,9 +182,7 @@ fun Log(
                     }
 
                 itemsIndexed(items = commitList) { index, item ->
-                    val commitRefs = remember(commitList, item) {
-                        item.refs
-                    }
+                    val commitRefs = item.refs
                     Row(
                         modifier = Modifier
                             .height(40.dp)
