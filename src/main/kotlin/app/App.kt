@@ -200,11 +200,7 @@ fun App(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<S
             if (isProcessing)
                 Box(modifier = Modifier.fillMaxSize()) //TODO this should block of the mouse/keyboard events while visible
         }
-
-
     }
-
-
 }
 
 @Composable

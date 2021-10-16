@@ -11,34 +11,50 @@ import javax.inject.Singleton
 class AppStateManager @Inject constructor(
     private val appPreferences: AppPreferences,
 ) {
-
     private val _openRepositoriesPaths = mutableMapOf<Int, String>()
     val openRepositoriesPathsTabs: Map<Int, String>
         get() = _openRepositoriesPaths
 
+    private val _latestOpenedRepositoriesPaths = mutableListOf<String>()
+    val latestOpenedRepositoriesPaths: List<String>
+        get() = _latestOpenedRepositoriesPaths
+
     private val appStateScope = CoroutineScope(SupervisorJob() + Dispatchers.IO) // TODO Stop this when closing the app
 
-    var latestOpenedRepositoryPath: String
-        get() = appPreferences.latestOpenedRepositoryPath
-        set(value) {
-            appPreferences.latestOpenedRepositoryPath = value
-        }
+    val latestOpenedRepositoryPath: String
+        get() = _latestOpenedRepositoriesPaths.firstOrNull() ?: ""
 
-    fun repositoryTabChanged(key: Int, path: String) {
-        _openRepositoriesPaths[key] = path
+    fun repositoryTabChanged(key: Int, path: String) = appStateScope.launch(Dispatchers.IO) {
+        // Do not save already saved repos
+        if (!_openRepositoriesPaths.containsValue(path))
+            _openRepositoriesPaths[key] = path
+
+        // Remove any previously existing path
+        _latestOpenedRepositoriesPaths.remove(path)
+
+        // Add the latest one to the beginning
+        _latestOpenedRepositoriesPaths.add(0, path)
+
+        if (_latestOpenedRepositoriesPaths.count() > 5)
+            _latestOpenedRepositoriesPaths.removeLast()
 
         updateSavedRepositoryTabs()
+        updateLatestRepositoryTabs()
     }
 
-    fun repositoryTabRemoved(key: Int) {
+    fun repositoryTabRemoved(key: Int) = appStateScope.launch(Dispatchers.IO) {
         _openRepositoriesPaths.remove(key)
 
         updateSavedRepositoryTabs()
     }
 
-    private fun updateSavedRepositoryTabs() = appStateScope.launch(Dispatchers.IO) {
+    private suspend fun updateSavedRepositoryTabs() = withContext(Dispatchers.IO) {
         val tabsList = _openRepositoriesPaths.map { it.value }
         appPreferences.latestTabsOpened = Json.encodeToString(tabsList)
+    }
+
+    private suspend fun updateLatestRepositoryTabs() = withContext(Dispatchers.IO) {
+        appPreferences.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
     }
 
     fun loadRepositoriesTabs() = appStateScope.launch(Dispatchers.IO) {
@@ -52,5 +68,10 @@ class AppStateManager @Inject constructor(
             }
         }
 
+        val repositoriesPathsSaved = appPreferences.latestOpenedRepositoriesPath
+        if(repositoriesPathsSaved.isNotEmpty()) {
+            val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)
+            _latestOpenedRepositoriesPaths.addAll(repositories)
+        }
     }
 }

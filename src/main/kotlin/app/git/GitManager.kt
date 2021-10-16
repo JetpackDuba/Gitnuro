@@ -11,7 +11,6 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import app.AppPreferences
 import app.AppStateManager
 import java.io.File
 import javax.inject.Inject
@@ -24,7 +23,7 @@ class GitManager @Inject constructor(
     private val branchesManager: BranchesManager,
     private val stashManager: StashManager,
     private val diffManager: DiffManager,
-    private val appStateManager: AppStateManager,
+    val appStateManager: AppStateManager,
 ) {
     val repositoryName: String
         get() = safeGit.repository.directory.parentFile.name
@@ -62,9 +61,6 @@ class GitManager @Inject constructor(
 
     val credentialsState: StateFlow<CredentialsState>
         get() = credentialsStateManager.credentialsState
-
-    val latestOpenedRepositoryPath: String
-        get() = appStateManager.latestOpenedRepositoryPath
 
     private var git: Git? = null
 
@@ -109,7 +105,6 @@ class GitManager @Inject constructor(
                 git = Git(repository)
 
                 onRepositoryChanged(repository.directory.parent)
-                appStateManager.latestOpenedRepositoryPath = directory.absolutePath
                 refreshRepositoryInfo()
             } catch (ex: Exception) {
                 ex.printStackTrace()
