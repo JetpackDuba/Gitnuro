@@ -1,8 +1,14 @@
 package app.ui.components
 
+import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -45,7 +51,7 @@ fun RepositoriesTabPanel(
             onTabsUpdated(tabsCopy)
         }
     ) {
-        tabs.forEach { tab ->
+        items(items = tabs) { tab ->
             Tab(
                 title = tab.title,
                 selected = tab.key == selectedTabKey,
@@ -97,21 +103,25 @@ fun RepositoriesTabPanel(
 fun TabPanel(
     modifier: Modifier = Modifier,
     onNewTabClicked: () -> Unit,
-    tabs: @Composable RowScope.() -> Unit
+    tabs: LazyListScope.() -> Unit
 ) {
-    Row(modifier = modifier) {
+    LazyRow(
+        modifier = modifier,
+    ) {
         this.tabs()
 
-        IconButton(
-            onClick = onNewTabClicked,
-            modifier = Modifier
-                .size(36.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                tint = MaterialTheme.colors.primary
-            )
+        item {
+            IconButton(
+                onClick = onNewTabClicked,
+                modifier = Modifier
+                    .size(36.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.primary
+                )
+            }
         }
     }
 }

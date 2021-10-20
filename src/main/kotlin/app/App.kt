@@ -5,12 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import androidx.compose.ui.zIndex
@@ -76,25 +77,44 @@ class Main {
                         modifier =
                         Modifier.background(MaterialTheme.colors.surface)
                     ) {
-                        RepositoriesTabPanel(
+                        Row(
                             modifier = Modifier
                                 .padding(top = 4.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
                                 .fillMaxWidth(),
-                            tabs = tabs.value,
-                            selectedTabKey = selectedTabKey,
-                            onTabSelected = { newSelectedTabKey ->
-                                selectedTabKey = newSelectedTabKey
-                            },
-                            newTabContent = { key ->
-                                newAppTab(key)
-                            },
-                            onTabsUpdated = { tabInformationList ->
-                                tabs.value = tabInformationList
-                            },
-                            onTabClosed = { key ->
-                                appStateManager.repositoryTabRemoved(key)
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RepositoriesTabPanel(
+                                modifier = Modifier
+                                    .weight(1f),
+                                tabs = tabs.value,
+                                selectedTabKey = selectedTabKey,
+                                onTabSelected = { newSelectedTabKey ->
+                                    selectedTabKey = newSelectedTabKey
+                                },
+                                newTabContent = { key ->
+                                    newAppTab(key)
+                                },
+                                onTabsUpdated = { tabInformationList ->
+                                    tabs.value = tabInformationList
+                                },
+                                onTabClosed = { key ->
+                                    appStateManager.repositoryTabRemoved(key)
+                                }
+                            )
+                            IconButton(
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .size(24.dp),
+                                onClick = {}
+                            ) {
+                                Icon(
+                                    painter = painterResource("settings.svg"),
+                                    contentDescription = null,
+                                    modifier = Modifier.fillMaxSize(),
+                                    tint = MaterialTheme.colors.primary,
+                                )
                             }
-                        )
+                        }
 
                         LazyColumn(
                             modifier = Modifier
