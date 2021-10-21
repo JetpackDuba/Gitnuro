@@ -14,6 +14,7 @@ import androidx.compose.ui.window.Dialog
 import app.credentials.CredentialsState
 import app.git.DiffEntryType
 import app.git.GitManager
+import app.git.dialogs.UserPasswordDialog
 import openRepositoryDialog
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -36,49 +37,15 @@ fun RepositoryOpenPage(gitManager: GitManager) {
     val credentialsState by gitManager.credentialsState.collectAsState()
 
     if (credentialsState == CredentialsState.CredentialsRequested) {
-        var userField by remember { mutableStateOf("") }
-        var passwordField by remember { mutableStateOf("") }
-
-        Dialog(
-            onCloseRequest = {
+        UserPasswordDialog(
+            onReject = {
                 gitManager.credentialsDenied()
             },
-            title = "",
-
-            ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text("Introduce your remote server credentials")
-
-                OutlinedTextField(
-                    value = userField,
-                    label = { Text("User", fontSize = 14.sp) },
-                    textStyle = TextStyle(fontSize = 14.sp),
-                    onValueChange = {
-                        userField = it
-                    },
-                )
-                OutlinedTextField(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    value = passwordField,
-                    label = { Text("Password", fontSize = 14.sp) },
-                    textStyle = TextStyle(fontSize = 14.sp),
-                    onValueChange = {
-                        passwordField = it
-                    },
-                    visualTransformation = PasswordVisualTransformation()
-                )
-                Button(onClick = { gitManager.credentialsAccepted(userField, passwordField) }) {
-                    Text("Ok")
-                }
+            onAccept = { user, password ->
+                gitManager.credentialsAccepted(user, password)
             }
-        }
+        )
     }
-
-
 
     Column {
         GMenu(
