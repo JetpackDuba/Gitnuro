@@ -14,6 +14,7 @@ import androidx.compose.ui.window.Dialog
 import app.credentials.CredentialsState
 import app.git.DiffEntryType
 import app.git.GitManager
+import app.git.dialogs.NewBranchDialog
 import app.git.dialogs.UserPasswordDialog
 import openRepositoryDialog
 import org.eclipse.jgit.revwalk.RevCommit
@@ -32,6 +33,10 @@ fun RepositoryOpenPage(gitManager: GitManager) {
         mutableStateOf(false)
     }
 
+    var showBranchDialog by remember {
+        mutableStateOf(false)
+    }
+
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
 
     val credentialsState by gitManager.credentialsState.collectAsState()
@@ -47,6 +52,17 @@ fun RepositoryOpenPage(gitManager: GitManager) {
         )
     }
 
+    if (showBranchDialog) {
+        NewBranchDialog(
+            onReject = {
+                showBranchDialog = false
+            },
+            onAccept = { branchName ->
+                gitManager.createBranch(branchName)
+            }
+        )
+    }
+
     Column {
         GMenu(
             onRepositoryOpen = {
@@ -56,6 +72,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
             onPush = { gitManager.push() },
             onStash = { gitManager.stash() },
             onPopStash = { gitManager.popStash() },
+            onCreateBranch = { showBranchDialog = true }
         )
 
         Row {

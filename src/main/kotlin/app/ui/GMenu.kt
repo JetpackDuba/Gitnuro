@@ -28,9 +28,12 @@ fun GMenu(
     onPush: () -> Unit,
     onStash: () -> Unit,
     onPopStash: () -> Unit,
+    onCreateBranch: () -> Unit,
 ) {
     val openHovering = remember { mutableStateOf(false) }
     val pullHovering = remember { mutableStateOf(false) }
+    val pushHovering = remember { mutableStateOf(false) }
+    val branchHovering = remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -58,8 +61,21 @@ fun GMenu(
         )
         MenuButton(
             title = "Push",
+            hovering = pushHovering,
             icon = painterResource("upload.svg"),
-            onClick = onPush,
+            onClick = {
+                pushHovering.value = false
+                onPush()
+            },
+        )
+        MenuButton(
+            title = "Branch",
+            hovering = branchHovering,
+            icon = painterResource("branch.svg"),
+            onClick = {
+                branchHovering.value = false
+                onCreateBranch()
+            },
         )
         MenuButton(
             title = "Stash",

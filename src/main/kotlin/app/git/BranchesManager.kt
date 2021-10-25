@@ -38,7 +38,8 @@ class BranchesManager @Inject constructor() {
 
     suspend fun createBranch(git: Git, branchName: String) = withContext(Dispatchers.IO) {
         git
-            .branchCreate()
+            .checkout()
+            .setCreateBranch(true)
             .setName(branchName)
             .call()
 
