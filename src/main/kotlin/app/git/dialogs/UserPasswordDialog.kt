@@ -1,12 +1,8 @@
 package app.git.dialogs
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,43 +25,63 @@ fun UserPasswordDialog(
     val passwordFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    Dialog(
-        onCloseRequest = onReject,
-        title = "",
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colors.background),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
 
-        ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text("Introduce your remote server credentials")
+        Text(
+            text = "Introduce your remote server credentials",
+            modifier = Modifier
+                .padding(vertical = 8.dp),
+        )
 
-            OutlinedTextField(
-                modifier = Modifier.focusOrder(userFieldFocusRequester) {
+        OutlinedTextField(
+            modifier = Modifier
+                .focusOrder(userFieldFocusRequester) {
                     this.next = passwordFieldFocusRequester
-                },
-                value = userField,
-                label = { Text("User", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp),
-                onValueChange = {
-                    userField = it
-                },
-            )
-            OutlinedTextField(
-                modifier = Modifier.padding(bottom = 8.dp)
-                    .focusOrder(passwordFieldFocusRequester) {
-                        this.previous = userFieldFocusRequester
-                        this.next = buttonFieldFocusRequester
-                    },
-                value = passwordField,
-                label = { Text("Password", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp),
-                onValueChange = {
-                    passwordField = it
-                },
-                visualTransformation = PasswordVisualTransformation()
-            )
+                }
+                .width(300.dp),
+            value = userField,
+            singleLine = true,
+            label = { Text("User", fontSize = 14.sp) },
+            textStyle = TextStyle(fontSize = 14.sp),
+            onValueChange = {
+                userField = it
+            },
+        )
+        OutlinedTextField(
+            modifier = Modifier.padding(bottom = 8.dp)
+                .focusOrder(passwordFieldFocusRequester) {
+                    this.previous = userFieldFocusRequester
+                    this.next = buttonFieldFocusRequester
+                }
+                .width(300.dp),
+            value = passwordField,
+            singleLine = true,
+            label = { Text("Password", fontSize = 14.sp) },
+            textStyle = TextStyle(fontSize = 14.sp),
+            onValueChange = {
+                passwordField = it
+            },
+            visualTransformation = PasswordVisualTransformation()
+        )
+
+        Row(
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .align(Alignment.End)
+        ) {
+            TextButton(
+                modifier = Modifier.padding(end = 8.dp),
+                onClick = {
+                    onReject()
+                }
+            ) {
+                Text("Cancel")
+            }
             Button(
                 modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
                     this.previous = passwordFieldFocusRequester
@@ -78,5 +94,6 @@ fun UserPasswordDialog(
                 Text("Ok")
             }
         }
+
     }
 }

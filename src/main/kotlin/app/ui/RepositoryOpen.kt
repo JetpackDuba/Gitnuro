@@ -11,6 +11,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import app.DialogManager
 import app.credentials.CredentialsState
 import app.git.DiffEntryType
 import app.git.GitManager
@@ -21,7 +22,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 
 
 @Composable
-fun RepositoryOpenPage(gitManager: GitManager) {
+fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
     var selectedRevCommit by remember {
         mutableStateOf<RevCommit?>(null)
     }
@@ -33,34 +34,27 @@ fun RepositoryOpenPage(gitManager: GitManager) {
         mutableStateOf(false)
     }
 
-    var showBranchDialog by remember {
-        mutableStateOf(false)
-    }
+//    var showBranchDialog by remember {
+//        mutableStateOf(false)
+//    }
 
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
 
     val credentialsState by gitManager.credentialsState.collectAsState()
 
     if (credentialsState == CredentialsState.CredentialsRequested) {
-        UserPasswordDialog(
-            onReject = {
-                gitManager.credentialsDenied()
-            },
-            onAccept = { user, password ->
-                gitManager.credentialsAccepted(user, password)
-            }
-        )
-    }
-
-    if (showBranchDialog) {
-        NewBranchDialog(
-            onReject = {
-                showBranchDialog = false
-            },
-            onAccept = { branchName ->
-                gitManager.createBranch(branchName)
-            }
-        )
+        dialogManager.show {
+            UserPasswordDialog(
+                onReject = {
+                    gitManager.credentialsDenied()
+                    dialogManager.dismiss()
+                },
+                onAccept = { user, password ->
+                    gitManager.credentialsAccepted(user, password)
+                    dialogManager.dismiss()
+                }
+            )
+        }
     }
 
     Column {
@@ -72,7 +66,19 @@ fun RepositoryOpenPage(gitManager: GitManager) {
             onPush = { gitManager.push() },
             onStash = { gitManager.stash() },
             onPopStash = { gitManager.popStash() },
-            onCreateBranch = { showBranchDialog = true }
+            onCreateBranch = {
+                dialogManager.show {
+                    NewBranchDialog(
+                        onReject = {
+                            dialogManager.dismiss()
+                        },
+                        onAccept = { branchName ->
+                            gitManager.createBranch(branchName)
+                            dialogManager.dismiss()
+                        }
+                    )
+                }
+            }
         )
 
         Row {

@@ -1,12 +1,8 @@
 package app.git.dialogs
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,8 +11,6 @@ import androidx.compose.ui.focus.focusOrder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.rememberDialogState
 
 @Composable
 fun NewBranchDialog(
@@ -24,37 +18,48 @@ fun NewBranchDialog(
     onAccept: (branchName: String) -> Unit
 ) {
     var branchField by remember { mutableStateOf("") }
-    val userFieldFocusRequester = remember { FocusRequester() }
+    val branchFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    Dialog(
-        state = rememberDialogState(width = 0.dp, height = 0.dp),
-        onCloseRequest = onReject,
-        title = "",
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colors.background),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text("Enter a branch name")
-
-            OutlinedTextField(
-                modifier = Modifier.focusOrder(userFieldFocusRequester) {
+        OutlinedTextField(
+            modifier = Modifier
+                .focusOrder(branchFieldFocusRequester) {
                     this.next = buttonFieldFocusRequester
-                },
-                value = branchField,
-                label = { Text("User", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp),
-                onValueChange = {
-                    branchField = it
-                },
-            )
+                }
+                .width(300.dp),
+            value = branchField,
+            singleLine = true,
+            label = { Text("New branch name", fontSize = 14.sp) },
+            textStyle = TextStyle(fontSize = 14.sp),
+            onValueChange = {
+                branchField = it
+            },
+        )
+        Row(
+            modifier = Modifier
+                .padding(top = 16.dp)
+                .align(Alignment.End)
+        ) {
+            TextButton(
+                modifier = Modifier.padding(end = 8.dp),
+                onClick = {
+                    onReject()
+                }
+            ) {
+                Text("Cancel")
+            }
             Button(
                 modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                    this.previous = userFieldFocusRequester
-                    this.next = userFieldFocusRequester
+                    this.previous = branchFieldFocusRequester
+                    this.next = branchFieldFocusRequester
                 },
+                enabled = branchField.isNotEmpty(),
                 onClick = {
                     onAccept(branchField)
                 }

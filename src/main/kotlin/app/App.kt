@@ -1,26 +1,28 @@
 package app
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.DefaultAlpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import androidx.compose.ui.zIndex
 import app.di.DaggerAppComponent
 import app.git.GitManager
-import app.git.RepositorySelectionStatus
 import app.theme.AppTheme
-import app.ui.RepositoryOpenPage
-import app.ui.WelcomePage
+import app.ui.AppTab
+import app.ui.components.DialogBox
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 import javax.inject.Inject
@@ -56,89 +58,141 @@ class Main {
                 )
             ) {
                 AppTheme {
-                    val tabs = remember {
+                    val showDialog = remember { mutableStateOf(false) }
+                    val dialogManager = remember { DialogManager(showDialog) }
 
-                        val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
-                        var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
-                            newAppTab(key = repositoryTab.key, path = repositoryTab.value)
-                        }
+                    Box {
 
-                        if (repoTabs.isEmpty()) {
-                            repoTabs = listOf(
-                                newAppTab()
+                        AppTabs(dialogManager)
+
+                        if (showDialog.value) {
+                            val interactionSource = remember { MutableInteractionSource() }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .alpha(0.8f)
+                                    .background(Color.Black)
+                                    .clickable(
+                                        enabled = true,
+                                        onClick = {},
+                                        interactionSource = interactionSource,
+                                        indication = null
+                                    )
                             )
+                            DialogBox(
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .clickable(
+                                        enabled = true,
+                                        onClick = {},
+                                        interactionSource = interactionSource,
+                                        indication = null
+                                    )
+                            ) {
+                                dialogManager.dialog()
+                            }
                         }
-
-                        mutableStateOf(repoTabs)
                     }
 
-                    var selectedTabKey by remember { mutableStateOf(0) }
-                    Column(
-                        modifier =
-                        Modifier.background(MaterialTheme.colors.surface)
+                }
+            }
+        }
+    }
+
+
+    @Composable
+    fun AppTabs(dialogManager: DialogManager) {
+        val tabs = remember {
+
+            val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
+            var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
+                newAppTab(
+                    dialogManager = dialogManager,
+                    key = repositoryTab.key,
+                    path = repositoryTab.value
+                )
+            }
+
+            if (repoTabs.isEmpty()) {
+                repoTabs = listOf(
+                    newAppTab(
+                        dialogManager = dialogManager
+                    )
+                )
+            }
+
+            mutableStateOf(repoTabs)
+        }
+
+        var selectedTabKey by remember { mutableStateOf(0) }
+
+        Column(
+            modifier =
+            Modifier.background(MaterialTheme.colors.surface)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(top = 4.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RepositoriesTabPanel(
+                    modifier = Modifier
+                        .weight(1f),
+                    tabs = tabs.value,
+                    selectedTabKey = selectedTabKey,
+                    onTabSelected = { newSelectedTabKey ->
+                        selectedTabKey = newSelectedTabKey
+                    },
+                    newTabContent = { key ->
+                        newAppTab(
+                            dialogManager = dialogManager,
+                            key = key
+                        )
+                    },
+                    onTabsUpdated = { tabInformationList ->
+                        tabs.value = tabInformationList
+                    },
+                    onTabClosed = { key ->
+                        appStateManager.repositoryTabRemoved(key)
+                    }
+                )
+                IconButton(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .size(24.dp),
+                    onClick = {}
+                ) {
+                    Icon(
+                        painter = painterResource("settings.svg"),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        tint = MaterialTheme.colors.primary,
+                    )
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+            ) {
+                items(items = tabs.value, key = { it.key }) {
+                    val isItemSelected = it.key == selectedTabKey
+
+                    var tabMod: Modifier = if (!isItemSelected)
+                        Modifier.size(0.dp)
+                    else
+                        Modifier
+                            .fillParentMaxSize()
+
+                    tabMod = tabMod.background(MaterialTheme.colors.primary)
+                        .alpha(if (isItemSelected) 1f else -1f)
+                        .zIndex(if (isItemSelected) 1f else -1f)
+                    Box(
+                        modifier = tabMod,
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(top = 4.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RepositoriesTabPanel(
-                                modifier = Modifier
-                                    .weight(1f),
-                                tabs = tabs.value,
-                                selectedTabKey = selectedTabKey,
-                                onTabSelected = { newSelectedTabKey ->
-                                    selectedTabKey = newSelectedTabKey
-                                },
-                                newTabContent = { key ->
-                                    newAppTab(key)
-                                },
-                                onTabsUpdated = { tabInformationList ->
-                                    tabs.value = tabInformationList
-                                },
-                                onTabClosed = { key ->
-                                    appStateManager.repositoryTabRemoved(key)
-                                }
-                            )
-                            IconButton(
-                                modifier = Modifier
-                                    .padding(horizontal = 8.dp)
-                                    .size(24.dp),
-                                onClick = {}
-                            ) {
-                                Icon(
-                                    painter = painterResource("settings.svg"),
-                                    contentDescription = null,
-                                    modifier = Modifier.fillMaxSize(),
-                                    tint = MaterialTheme.colors.primary,
-                                )
-                            }
-                        }
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                        ) {
-                            items(items = tabs.value, key = { it.key }) {
-                                val isItemSelected = it.key == selectedTabKey
-
-                                var tabMod: Modifier = if (!isItemSelected)
-                                    Modifier.size(0.dp)
-                                else
-                                    Modifier
-                                        .fillParentMaxSize()
-
-                                tabMod = tabMod.background(MaterialTheme.colors.primary)
-                                    .alpha(if (isItemSelected) 1f else -1f)
-                                    .zIndex(if (isItemSelected) 1f else -1f)
-                                Box(
-                                    modifier = tabMod,
-                                ) {
-                                    it.content(it)
-                                }
-                            }
-                        }
+                        it.content(it)
                     }
                 }
             }
@@ -146,6 +200,7 @@ class Main {
     }
 
     private fun newAppTab(
+        dialogManager: DialogManager,
         key: Int = 0,
         tabName: MutableState<String> = mutableStateOf("New tab"),
         path: String? = null,
@@ -163,63 +218,26 @@ class Main {
                     appStateManager.repositoryTabChanged(key, path)
             }
 
-            App(gitManager, path, tabName)
+            AppTab(gitManager, dialogManager, path, tabName)
         }
     }
 }
 
-@Composable
-fun App(gitManager: GitManager, repositoryPath: String?, tabName: MutableState<String>) {
-    LaunchedEffect(gitManager) {
-        if (repositoryPath != null)
-            gitManager.openRepository(repositoryPath)
+class DialogManager(private val showDialog: MutableState<Boolean>) {
+    private var content: @Composable () -> Unit = {}
+
+    fun show(content: @Composable () -> Unit) {
+        this.content = content
+        showDialog.value = true
     }
 
-
-    val repositorySelectionStatus by gitManager.repositorySelectionStatus.collectAsState()
-    val isProcessing by gitManager.processing.collectAsState()
-
-    if (repositorySelectionStatus is RepositorySelectionStatus.Open) {
-        tabName.value = gitManager.repositoryName
+    fun dismiss() {
+        showDialog.value = false
     }
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background)
-            .fillMaxSize()
-    ) {
-
-        val linearProgressAlpha = if (isProcessing)
-            DefaultAlpha
-        else
-            0f
-
-        LinearProgressIndicator(
-            modifier = Modifier
-                .fillMaxWidth()
-                .alpha(linearProgressAlpha)
-        )
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            Crossfade(targetState = repositorySelectionStatus) {
-
-                @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
-                when (repositorySelectionStatus) {
-                    RepositorySelectionStatus.None -> {
-                        WelcomePage(gitManager = gitManager)
-                    }
-                    RepositorySelectionStatus.Loading -> {
-                        LoadingRepository()
-                    }
-                    is RepositorySelectionStatus.Open -> {
-                        RepositoryOpenPage(gitManager = gitManager)
-                    }
-                }
-            }
-
-            if (isProcessing)
-                Box(modifier = Modifier.fillMaxSize()) //TODO this should block of the mouse/keyboard events while visible
-        }
+    @Composable
+    fun dialog() {
+        content()
     }
 }
 
