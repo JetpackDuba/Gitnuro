@@ -193,6 +193,7 @@ class GitManager @Inject constructor(
 
     fun createBranch(branchName: String) = managerScope.launch {
         branchesManager.createBranch(safeGit, branchName)
+        coLoadLog()
     }
 
     fun deleteBranch(branch: Ref) = managerScope.launch {
