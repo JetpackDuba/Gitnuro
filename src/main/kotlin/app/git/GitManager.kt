@@ -12,6 +12,9 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import app.AppStateManager
+import app.app.Error
+import app.app.ErrorsManager
+import app.app.newErrorNow
 import java.io.File
 import javax.inject.Inject
 
@@ -23,6 +26,7 @@ class GitManager @Inject constructor(
     private val branchesManager: BranchesManager,
     private val stashManager: StashManager,
     private val diffManager: DiffManager,
+    val errorsManager: ErrorsManager,
     val appStateManager: AppStateManager,
 ) {
     val repositoryName: String
@@ -109,7 +113,7 @@ class GitManager @Inject constructor(
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 onRepositoryChanged(null)
-
+                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
             }
         }
     }
@@ -192,8 +196,10 @@ class GitManager @Inject constructor(
     }
 
     fun createBranch(branchName: String) = managerScope.launch {
-        branchesManager.createBranch(safeGit, branchName)
-        coLoadLog()
+        safeProcessing {
+            branchesManager.createBranch(safeGit, branchName)
+            coLoadLog()
+        }
     }
 
     fun deleteBranch(branch: Ref) = managerScope.launch {
@@ -238,6 +244,8 @@ class GitManager @Inject constructor(
         _processing.value = true
         try {
             callback()
+        } catch (ex: Exception) {
+            errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
             _processing.value = false
         }
