@@ -2,21 +2,15 @@ package app.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import app.DialogManager
 import app.credentials.CredentialsState
 import app.git.DiffEntryType
 import app.git.GitManager
-import app.git.dialogs.NewBranchDialog
-import app.git.dialogs.UserPasswordDialog
+import app.ui.dialogs.NewBranchDialog
+import app.ui.dialogs.UserPasswordDialog
 import openRepositoryDialog
 import org.eclipse.jgit.revwalk.RevCommit
 

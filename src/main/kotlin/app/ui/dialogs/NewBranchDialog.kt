@@ -1,4 +1,4 @@
-package app.git.dialogs
+package app.ui.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -67,5 +67,9 @@ fun NewBranchDialog(
                 Text("Create branch")
             }
         }
+    }
+
+    LaunchedEffect(Unit) {
+        branchFieldFocusRequester.requestFocus()
     }
 }

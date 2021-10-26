@@ -1,4 +1,4 @@
-package app.git.dialogs
+package app.ui.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,7 +12,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 
 @Composable
 fun UserPasswordDialog(
@@ -95,5 +94,9 @@ fun UserPasswordDialog(
             }
         }
 
+    }
+    
+    LaunchedEffect(Unit) {
+        userFieldFocusRequester.requestFocus()
     }
 }
