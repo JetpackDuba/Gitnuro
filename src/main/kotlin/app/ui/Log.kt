@@ -468,81 +468,89 @@ fun UncommitedChangesGraphLine(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RefChip(
-    modifier: Modifier = Modifier,
-    ref: Ref,
-    icon: String,
-    onCheckoutRef: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .padding(horizontal = 4.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colors.primary)
-            .combinedClickable(
-                onDoubleClick = onCheckoutRef,
-                onClick = {}
-            ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            modifier = Modifier
-                .padding(start = 6.dp, end = 4.dp, top = 6.dp, bottom = 6.dp)
-                .size(14.dp),
-            painter = painterResource(icon),
-            contentDescription = null,
-            tint = MaterialTheme.colors.onPrimary,
-        )
-        Text(
-            text = ref.simpleName,
-            color = MaterialTheme.colors.onPrimary,
-            fontSize = 12.sp,
-            modifier = Modifier
-                .padding(end = 6.dp)
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
 fun BranchChip(modifier: Modifier = Modifier, ref: Ref, onCheckoutBranch: () -> Unit) {
-    ContextMenuArea(
-        items = {
-            listOf(
-                ContextMenuItem(
-                    label = "Checkout branch",
-                    onClick = onCheckoutBranch
-                )
+    val contextMenuItemsList = {
+        listOf(
+            ContextMenuItem(
+                label = "Checkout branch",
+                onClick = onCheckoutBranch
             )
-        }
-    ) {
-        RefChip(
-            modifier,
-            ref,
-            "branch.svg",
-            onCheckoutRef = onCheckoutBranch
         )
     }
+
+    RefChip(
+        modifier,
+        ref,
+        "branch.svg",
+        onCheckoutRef = onCheckoutBranch,
+        contextMenuItemsList = contextMenuItemsList
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TagChip(modifier: Modifier = Modifier, ref: Ref, onCheckoutTag: () -> Unit) {
-    ContextMenuArea(
-        items = {
-            listOf(
-                ContextMenuItem(
-                    label = "Checkout tag",
-                    onClick = onCheckoutTag
-                )
+    val contextMenuItemsList = {
+        listOf(
+            ContextMenuItem(
+                label = "Checkout tag",
+                onClick = onCheckoutTag
             )
-        }
-    ) {
-        RefChip(
-            modifier,
-            ref,
-            "tag.svg",
-            onCheckoutRef = onCheckoutTag
         )
     }
+
+    RefChip(
+        modifier,
+        ref,
+        "tag.svg",
+        onCheckoutRef = onCheckoutTag,
+        contextMenuItemsList = contextMenuItemsList,
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun RefChip(
+    modifier: Modifier = Modifier,
+    ref: Ref,
+    icon: String,
+    onCheckoutRef: () -> Unit,
+    contextMenuItemsList: () -> List<ContextMenuItem>,
+) {
+    Box(
+        modifier = Modifier
+            .combinedClickable(
+                onDoubleClick = onCheckoutRef,
+                onClick = {}
+            )
+    ) {
+        ContextMenuArea(
+            items = contextMenuItemsList
+        ) {
+            Row(
+                modifier = modifier
+                    .padding(horizontal = 4.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colors.primary),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .padding(start = 6.dp, end = 4.dp, top = 6.dp, bottom = 6.dp)
+                        .size(14.dp),
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onPrimary,
+                )
+                Text(
+                    text = ref.simpleName,
+                    color = MaterialTheme.colors.onPrimary,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .padding(end = 6.dp)
+                )
+            }
+        }
+    }
+
 }
