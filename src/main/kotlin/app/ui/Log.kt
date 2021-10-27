@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.DialogManager
 import app.extensions.simpleName
 import app.extensions.toSmartSystemString
 import app.git.GitManager
@@ -35,6 +35,8 @@ import app.theme.headerText
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.components.ScrollableLazyColumn
+import app.ui.dialogs.NewBranchDialog
+import app.ui.dialogs.NewTagDialog
 import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -59,8 +61,12 @@ private const val CANVAS_MIN_WIDTH = 100
 @Composable
 fun Log(
     gitManager: GitManager,
+    dialogManager: DialogManager,
     onRevCommitSelected: (RevCommit) -> Unit,
     onUncommitedChangesSelected: () -> Unit,
+    onCheckoutCommit: (graphNode: GraphNode) -> Unit,
+    onCreateBranchOnCommit: (branchName: String, graphNode: GraphNode) -> Unit,
+    onCreateTagOnCommit: (tagName: String, graphNode: GraphNode) -> Unit,
     selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
 ) {
     val logStatusState = gitManager.logStatus.collectAsState()
@@ -184,38 +190,86 @@ fun Log(
 
                 itemsIndexed(items = commitList) { index, item ->
                     val commitRefs = item.refs
-                    Row(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .fillMaxWidth()
-                            .clickable {
-                                selectedIndex.value = index
-                                selectedUncommited.value = false
-                                onRevCommitSelected(item)
-                            },
+                    Box(modifier = Modifier
+                        .clickable {
+                            selectedIndex.value = index
+                            selectedUncommited.value = false
+                            onRevCommitSelected(item)
+                        }
                     ) {
-                        CommitsGraphLine(
-                            modifier = Modifier
-                                .width(graphWidth),
-                            plotCommit = item
-                        )
 
-                        DividerLog(
-                            modifier = Modifier
-                                .draggable(
-                                    rememberDraggableState {
-                                        weightMod += it
-                                    },
-                                    Orientation.Horizontal
+
+                        ContextMenuArea(
+                            items = {
+                                listOf(
+                                    ContextMenuItem(
+                                        label = "Checkout commit",
+                                        onClick = { onCheckoutCommit(item) }
+                                    ),
+                                    ContextMenuItem(
+                                        label = "Create branch",
+                                        onClick = {
+                                            dialogManager.show {
+                                                NewBranchDialog(
+                                                    onReject = {
+                                                        dialogManager.dismiss()
+                                                    },
+                                                    onAccept = { branchName ->
+                                                        onCreateBranchOnCommit(branchName, item)
+                                                        dialogManager.dismiss()
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    ),
+                                    ContextMenuItem(
+                                        label = "Create tag",
+                                        onClick = {
+                                            dialogManager.show {
+                                                NewTagDialog(
+                                                    onReject = {
+                                                        dialogManager.dismiss()
+                                                    },
+                                                    onAccept = { branchName ->
+                                                        onCreateTagOnCommit(branchName, item)
+                                                        dialogManager.dismiss()
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    ),
                                 )
-                        )
+                            },
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .height(40.dp)
+                                    .fillMaxWidth(),
+                            ) {
+                                CommitsGraphLine(
+                                    modifier = Modifier
+                                        .width(graphWidth),
+                                    plotCommit = item
+                                )
 
-                        CommitMessage(
-                            modifier = Modifier.weight(1f),
-                            commit = item,
-                            selected = selectedIndex.value == index,
-                            refs = commitRefs,
-                        )
+                                DividerLog(
+                                    modifier = Modifier
+                                        .draggable(
+                                            rememberDraggableState {
+                                                weightMod += it
+                                            },
+                                            Orientation.Horizontal
+                                        )
+                                )
+
+                                CommitMessage(
+                                    modifier = Modifier.weight(1f),
+                                    commit = item,
+                                    selected = selectedIndex.value == index,
+                                    refs = commitRefs,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -404,7 +458,7 @@ fun UncommitedChangesGraphLine(
 @Composable
 fun RefChip(modifier: Modifier = Modifier, ref: Ref) {
     val icon = remember(ref) {
-        if(ref is ObjectIdRef.PeeledTag) {
+        if (ref is ObjectIdRef.PeeledTag) {
             "tag.svg"
         } else
             "branch.svg"

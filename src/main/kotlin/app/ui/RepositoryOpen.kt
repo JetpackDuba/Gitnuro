@@ -91,10 +91,18 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                         null -> {
                             Log(
                                 gitManager = gitManager,
+                                dialogManager = dialogManager,
                                 selectedIndex = selectedIndexCommitLog,
+                                onCheckoutCommit = { graphNode ->
+                                    gitManager.checkoutCommit(graphNode)
+                                },
+                                onCreateBranchOnCommit = { branch, graphNode ->
+                                    gitManager.createBranchOnCommit(branch, graphNode)
+                                },
+                                onCreateTagOnCommit = { tag, graphNode ->
+                                    gitManager.createTagOnCommit(tag, graphNode)
+                                },
                                 onRevCommitSelected = { commit ->
-                                    // TODO Move all this code to tree manager
-
                                     selectedRevCommit = commit
                                     uncommitedChangesSelected = false
                                 },

@@ -15,6 +15,7 @@ import app.AppStateManager
 import app.app.Error
 import app.app.ErrorsManager
 import app.app.newErrorNow
+import org.eclipse.jgit.lib.ObjectId
 import java.io.File
 import javax.inject.Inject
 
@@ -236,6 +237,27 @@ class GitManager @Inject constructor(
 
     fun stageAll() = managerScope.launch {
         statusManager.stageAll(safeGit)
+    }
+
+    fun checkoutCommit(revCommit: RevCommit) = managerScope.launch {
+        safeProcessing {
+            logManager.checkoutCommit(safeGit, revCommit)
+            coLoadLog()
+        }
+    }
+
+    fun createBranchOnCommit(branch: String, revCommit: RevCommit) = managerScope.launch {
+        safeProcessing {
+            logManager.createBranchOnCommit(safeGit, branch, revCommit)
+            coLoadLog()
+        }
+    }
+
+    fun createTagOnCommit(tag: String, revCommit: RevCommit) = managerScope.launch {
+        safeProcessing {
+            logManager.createTagOnCommit(safeGit, tag, revCommit)
+            coLoadLog()
+        }
     }
 
     var onRepositoryChanged: (path: String?) -> Unit = {}

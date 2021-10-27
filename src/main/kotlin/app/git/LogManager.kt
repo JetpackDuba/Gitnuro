@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 
@@ -46,6 +47,31 @@ class LogManager @Inject constructor(
         val loadedStatus = LogStatus.Loaded(commitList)
 
         _logStatus.value = loadedStatus
+    }
+
+    suspend fun checkoutCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git
+            .checkout()
+            .setName(revCommit.name)
+            .call()
+    }
+
+    suspend fun createBranchOnCommit(git: Git, branch: String, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git
+            .checkout()
+            .setCreateBranch(true)
+            .setName(branch)
+            .setStartPoint(revCommit)
+            .call()
+    }
+
+    suspend fun createTagOnCommit(git: Git, tag: String, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git
+            .tag()
+            .setAnnotated(true)
+            .setName(tag)
+            .setObjectId(revCommit)
+            .call()
     }
 }
 
