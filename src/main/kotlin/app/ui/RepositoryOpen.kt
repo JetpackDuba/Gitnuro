@@ -96,6 +96,9 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                 onCheckoutCommit = { graphNode ->
                                     gitManager.checkoutCommit(graphNode)
                                 },
+                                onRevertCommit = { graphNode ->
+                                    gitManager.revertCommit(graphNode)
+                                },
                                 onCreateBranchOnCommit = { branch, graphNode ->
                                     gitManager.createBranchOnCommit(branch, graphNode)
                                 },

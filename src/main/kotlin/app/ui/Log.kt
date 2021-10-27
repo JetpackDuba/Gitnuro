@@ -65,6 +65,7 @@ fun Log(
     onRevCommitSelected: (RevCommit) -> Unit,
     onUncommitedChangesSelected: () -> Unit,
     onCheckoutCommit: (graphNode: GraphNode) -> Unit,
+    onRevertCommit: (graphNode: GraphNode) -> Unit,
     onCreateBranchOnCommit: (branchName: String, graphNode: GraphNode) -> Unit,
     onCreateTagOnCommit: (tagName: String, graphNode: GraphNode) -> Unit,
     onCheckoutRef: (ref: Ref) -> Unit,
@@ -239,6 +240,12 @@ fun Log(
                                             }
                                         }
                                     ),
+                                    ContextMenuItem(
+                                        label = "Revert commit",
+                                        onClick = {
+                                            onRevertCommit(item)
+                                        }
+                                    )
                                 )
                             },
                         ) {

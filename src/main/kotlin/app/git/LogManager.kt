@@ -63,6 +63,13 @@ class LogManager @Inject constructor(
             .setName(ref.name)
             .call()
     }
+
+    suspend fun revertCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git
+            .revert()
+            .include(revCommit)
+            .call()
+    }
 }
 
 

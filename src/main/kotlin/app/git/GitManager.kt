@@ -247,6 +247,13 @@ class GitManager @Inject constructor(
         }
     }
 
+    fun revertCommit(revCommit: RevCommit) = managerScope.launch {
+        safeProcessing {
+            logManager.revertCommit(safeGit, revCommit)
+            refreshRepositoryInfo()
+        }
+    }
+
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = managerScope.launch {
         safeProcessing {
             branchesManager.createBranchOnCommit(safeGit, branch, revCommit)
