@@ -67,6 +67,7 @@ fun Log(
     onCheckoutCommit: (graphNode: GraphNode) -> Unit,
     onCreateBranchOnCommit: (branchName: String, graphNode: GraphNode) -> Unit,
     onCreateTagOnCommit: (tagName: String, graphNode: GraphNode) -> Unit,
+    onCheckoutRef: (ref: Ref) -> Unit,
     selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
 ) {
     val logStatusState = gitManager.logStatus.collectAsState()
@@ -267,6 +268,7 @@ fun Log(
                                     commit = item,
                                     selected = selectedIndex.value == index,
                                     refs = commitRefs,
+                                    onCheckoutRef = onCheckoutRef
                                 )
                             }
                         }
@@ -282,7 +284,8 @@ fun CommitMessage(
     modifier: Modifier = Modifier,
     commit: RevCommit,
     selected: Boolean,
-    refs: List<Ref>
+    refs: List<Ref>,
+    onCheckoutRef: (ref: Ref) -> Unit,
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -294,7 +297,6 @@ fun CommitMessage(
     } else
         MaterialTheme.colors.secondaryTextColor
 
-
     Column(
         modifier = modifier
     ) {
@@ -304,12 +306,21 @@ fun CommitMessage(
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            refs.forEach {
-                RefChip(
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp),
-                    ref = it,
-                )
+            refs.forEach { ref ->
+                if (ref is ObjectIdRef.PeeledTag) {
+                    TagChip(
+                        ref = ref,
+                        onCheckoutTag = {
+                            onCheckoutRef(ref)
+                        }
+                    )
+                } else
+                    BranchChip(
+                        ref = ref,
+                        onCheckoutBranch = {
+                            onCheckoutRef(ref)
+                        }
+                    )
             }
 
             Text(
@@ -455,19 +466,23 @@ fun UncommitedChangesGraphLine(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RefChip(modifier: Modifier = Modifier, ref: Ref) {
-    val icon = remember(ref) {
-        if (ref is ObjectIdRef.PeeledTag) {
-            "tag.svg"
-        } else
-            "branch.svg"
-    }
-
+fun RefChip(
+    modifier: Modifier = Modifier,
+    ref: Ref,
+    icon: String,
+    onCheckoutRef: () -> Unit,
+) {
     Row(
         modifier = modifier
+            .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colors.primary),
+            .background(MaterialTheme.colors.primary)
+            .combinedClickable(
+                onDoubleClick = onCheckoutRef,
+                onClick = {}
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -484,6 +499,50 @@ fun RefChip(modifier: Modifier = Modifier, ref: Ref) {
             fontSize = 12.sp,
             modifier = Modifier
                 .padding(end = 6.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun BranchChip(modifier: Modifier = Modifier, ref: Ref, onCheckoutBranch: () -> Unit) {
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem(
+                    label = "Checkout branch",
+                    onClick = onCheckoutBranch
+                )
+            )
+        }
+    ) {
+        RefChip(
+            modifier,
+            ref,
+            "branch.svg",
+            onCheckoutRef = onCheckoutBranch
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TagChip(modifier: Modifier = Modifier, ref: Ref, onCheckoutTag: () -> Unit) {
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem(
+                    label = "Checkout tag",
+                    onClick = onCheckoutTag
+                )
+            )
+        }
+    ) {
+        RefChip(
+            modifier,
+            ref,
+            "tag.svg",
+            onCheckoutRef = onCheckoutTag
         )
     }
 }

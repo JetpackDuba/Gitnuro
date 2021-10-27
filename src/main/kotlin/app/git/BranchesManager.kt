@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class BranchesManager @Inject constructor() {
@@ -45,6 +46,16 @@ class BranchesManager @Inject constructor() {
 
         loadBranches(git)
     }
+
+    suspend fun createBranchOnCommit(git: Git, branch: String, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git
+            .checkout()
+            .setCreateBranch(true)
+            .setName(branch)
+            .setStartPoint(revCommit)
+            .call()
+    }
+
 
     suspend fun deleteBranch(git: Git, branch: Ref) = withContext(Dispatchers.IO) {
         git

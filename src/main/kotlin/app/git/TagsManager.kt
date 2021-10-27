@@ -1,0 +1,18 @@
+package app.git
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.revwalk.RevCommit
+import javax.inject.Inject
+
+class TagsManager @Inject constructor() {
+    suspend fun createTagOnCommit(git: Git, tag: String, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git
+            .tag()
+            .setAnnotated(true)
+            .setName(tag)
+            .setObjectId(revCommit)
+            .call()
+    }
+}

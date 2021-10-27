@@ -27,6 +27,7 @@ class GitManager @Inject constructor(
     private val branchesManager: BranchesManager,
     private val stashManager: StashManager,
     private val diffManager: DiffManager,
+    private val tagsManager: TagsManager,
     val errorsManager: ErrorsManager,
     val appStateManager: AppStateManager,
 ) {
@@ -242,21 +243,21 @@ class GitManager @Inject constructor(
     fun checkoutCommit(revCommit: RevCommit) = managerScope.launch {
         safeProcessing {
             logManager.checkoutCommit(safeGit, revCommit)
-            coLoadLog()
+            refreshRepositoryInfo()
         }
     }
 
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = managerScope.launch {
         safeProcessing {
-            logManager.createBranchOnCommit(safeGit, branch, revCommit)
-            coLoadLog()
+            branchesManager.createBranchOnCommit(safeGit, branch, revCommit)
+            refreshRepositoryInfo()
         }
     }
 
     fun createTagOnCommit(tag: String, revCommit: RevCommit) = managerScope.launch {
         safeProcessing {
-            logManager.createTagOnCommit(safeGit, tag, revCommit)
-            coLoadLog()
+            tagsManager.createTagOnCommit(safeGit, tag, revCommit)
+            refreshRepositoryInfo()
         }
     }
 
@@ -270,6 +271,13 @@ class GitManager @Inject constructor(
             errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
             _processing.value = false
+        }
+    }
+
+    fun checkoutRef(ref: Ref) = managerScope.launch {
+        safeProcessing {
+            logManager.checkoutRef(safeGit, ref)
+            refreshRepositoryInfo()
         }
     }
 }

@@ -102,6 +102,9 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                 onCreateTagOnCommit = { tag, graphNode ->
                                     gitManager.createTagOnCommit(tag, graphNode)
                                 },
+                                onCheckoutRef = { ref ->
+                                    gitManager.checkoutRef(ref)
+                                },
                                 onRevCommitSelected = { commit ->
                                     selectedRevCommit = commit
                                     uncommitedChangesSelected = false
@@ -109,7 +112,7 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                 onUncommitedChangesSelected = {
                                     gitManager.statusShouldBeUpdated()
                                     uncommitedChangesSelected = true
-                                }
+                                },
                             )
                         }
                         else -> {
