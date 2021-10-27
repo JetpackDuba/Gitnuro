@@ -21,7 +21,6 @@ import app.extensions.*
 import kotlinx.coroutines.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
-import org.jetbrains.skija.Image.makeFromEncoded
 import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
@@ -29,9 +28,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
 import app.theme.headerText
+import org.jetbrains.skia.Image.Companion.makeFromEncoded
 
 @Composable
 fun CommitChanges(
@@ -169,7 +170,7 @@ fun rememberNetworkImage(url: String): ImageBitmap {
     var image by remember(url) {
         mutableStateOf<ImageBitmap>(
             useResource("image.jpg") {
-                makeFromEncoded(it.toByteArray()).asImageBitmap()
+                makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
             }
         )
     }
@@ -178,7 +179,7 @@ fun rememberNetworkImage(url: String): ImageBitmap {
     LaunchedEffect(url) {
         try {
             loadImage(url).let {
-                image = makeFromEncoded(it).asImageBitmap()
+                image = makeFromEncoded(it).toComposeImageBitmap()
             }
         } catch (ex: Exception) {
             println("Avatar loading failed: ${ex.message}")

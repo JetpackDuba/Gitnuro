@@ -30,11 +30,6 @@ fun GMenu(
     onPopStash: () -> Unit,
     onCreateBranch: () -> Unit,
 ) {
-    val openHovering = remember { mutableStateOf(false) }
-    val pullHovering = remember { mutableStateOf(false) }
-    val pushHovering = remember { mutableStateOf(false) }
-    val branchHovering = remember { mutableStateOf(false) }
-
     Row(
         modifier = Modifier
             .padding(vertical = 16.dp)
@@ -43,37 +38,29 @@ fun GMenu(
     ) {
         MenuButton(
             title = "Open",
-            hovering = openHovering,
             icon = painterResource("open.svg"),
             onClick = {
-                openHovering.value = false // Without this, the hover would be kept because of the newly opened dialog
                 onRepositoryOpen()
             }
         )
         MenuButton(
             title = "Pull",
-            hovering = pullHovering,
             icon = painterResource("download.svg"),
             onClick = {
-                pullHovering.value = false
                 onPull()
             },
         )
         MenuButton(
             title = "Push",
-            hovering = pushHovering,
             icon = painterResource("upload.svg"),
             onClick = {
-                pushHovering.value = false
                 onPush()
             },
         )
         MenuButton(
             title = "Branch",
-            hovering = branchHovering,
             icon = painterResource("branch.svg"),
             onClick = {
-                branchHovering.value = false
                 onCreateBranch()
             },
         )
@@ -94,16 +81,10 @@ fun GMenu(
 fun MenuButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    hovering: MutableState<Boolean> = remember { mutableStateOf(false) },
     title: String,
     icon: Painter,
     onClick: () -> Unit
 ) {
-    val backgroundColor = if (hovering.value)
-        MaterialTheme.colors.primary.copy(alpha = 0.15F)
-    else
-        Color.Transparent
-
     val iconColor = if (enabled) {
         MaterialTheme.colors.primary
     } else {
@@ -112,23 +93,9 @@ fun MenuButton(
 
     TextButton(
         modifier = modifier
-            .padding(horizontal = 2.dp)
-            .pointerMoveFilter(
-                onEnter = {
-                    hovering.value = true
-                    false
-                },
-                onExit = {
-                    hovering.value = false
-                    false
-                }
-            ),
+            .padding(horizontal = 2.dp),
         enabled = enabled,
         onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = backgroundColor,
-            disabledBackgroundColor = Color.Transparent
-        )
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(

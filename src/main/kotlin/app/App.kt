@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import androidx.compose.ui.zIndex
@@ -54,7 +55,7 @@ class Main {
                 },
                 state = rememberWindowState(
                     placement = WindowPlacement.Maximized,
-                    size = WindowSize(1280.dp, 720.dp)
+                    size = DpSize(1280.dp, 720.dp)
                 )
             ) {
                 AppTheme {

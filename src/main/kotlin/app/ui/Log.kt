@@ -17,7 +17,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerIcon
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +53,7 @@ private const val CANVAS_MIN_WIDTH = 100
 // TODO Min size for message column
 // TODO Horizontal scroll for the graph
 @OptIn(
-    ExperimentalDesktopApi::class, ExperimentalFoundationApi::class,
+    ExperimentalFoundationApi::class,
     ExperimentalComposeUiApi::class
 )
 @Composable
@@ -289,7 +290,7 @@ fun DividerLog(modifier: Modifier) {
         modifier = Modifier
             .width(8.dp)
             .then(modifier)
-            .pointerIcon(PointerIcon.Hand)
+            .pointerHoverIcon(PointerIconDefaults.Hand)
     ) {
         Box(
             modifier = Modifier

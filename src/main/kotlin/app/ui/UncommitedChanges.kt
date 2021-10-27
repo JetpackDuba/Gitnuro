@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerMoveFilter
-import androidx.compose.ui.platform.ContextMenuItem
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -230,7 +229,7 @@ private fun EntriesList(
 
 @OptIn(
     ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class,
-    ExperimentalDesktopApi::class, androidx.compose.animation.ExperimentalAnimationApi::class
+    ExperimentalAnimationApi::class
 )
 @Composable
 private fun FileEntry(
