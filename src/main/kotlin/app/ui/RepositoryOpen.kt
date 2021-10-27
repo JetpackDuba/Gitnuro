@@ -108,6 +108,9 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                 onCheckoutRef = { ref ->
                                     gitManager.checkoutRef(ref)
                                 },
+                                onMergeBranch = { ref , fastForward ->
+                                    gitManager.mergeBranch(ref, fastForward)
+                                },
                                 onRevCommitSelected = { commit ->
                                     selectedRevCommit = commit
                                     uncommitedChangesSelected = false

@@ -4,6 +4,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,15 +62,17 @@ fun CommitChanges(
                     .fillMaxWidth()
             ) {
                 Column {
-                    Text(
-                        text = commit.fullMessage,
-                        fontSize = 14.sp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .padding(8.dp)
-                            .verticalScroll(scroll),
-                    )
+                    SelectionContainer {
+                        Text(
+                            text = commit.fullMessage,
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                                .padding(8.dp)
+                                .verticalScroll(scroll),
+                        )
+                    }
 
                     Divider(modifier = Modifier.fillMaxWidth())
 

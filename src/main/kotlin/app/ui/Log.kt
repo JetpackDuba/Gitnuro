@@ -35,6 +35,7 @@ import app.theme.headerText
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.components.ScrollableLazyColumn
+import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
 import org.eclipse.jgit.lib.ObjectIdRef
@@ -69,6 +70,7 @@ fun Log(
     onCreateBranchOnCommit: (branchName: String, graphNode: GraphNode) -> Unit,
     onCreateTagOnCommit: (tagName: String, graphNode: GraphNode) -> Unit,
     onCheckoutRef: (ref: Ref) -> Unit,
+    onMergeBranch: (ref: Ref, fastForwards: Boolean) -> Unit,
     selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
 ) {
     val logStatusState = gitManager.logStatus.collectAsState()
@@ -275,7 +277,22 @@ fun Log(
                                     commit = item,
                                     selected = selectedIndex.value == index,
                                     refs = commitRefs,
-                                    onCheckoutRef = onCheckoutRef
+                                    onCheckoutRef = onCheckoutRef,
+                                    onMergeBranch = { ref ->
+                                        dialogManager.show {
+                                            MergeDialog(
+                                                currentBranchName = "HEAD",
+                                                mergeBranchName = ref.name,
+                                                onReject = {
+                                                    dialogManager.dismiss()
+                                                },
+                                                onAccept = { fastForward ->
+                                                    dialogManager.dismiss()
+                                                    onMergeBranch(ref, fastForward)
+                                                }
+                                            )
+                                        }
+                                    },
                                 )
                             }
                         }
@@ -293,6 +310,7 @@ fun CommitMessage(
     selected: Boolean,
     refs: List<Ref>,
     onCheckoutRef: (ref: Ref) -> Unit,
+    onMergeBranch: (ref: Ref) -> Unit,
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -326,6 +344,9 @@ fun CommitMessage(
                         ref = ref,
                         onCheckoutBranch = {
                             onCheckoutRef(ref)
+                        },
+                        onMergeBranch = {
+                            onMergeBranch(ref)
                         }
                     )
             }
@@ -475,14 +496,29 @@ fun UncommitedChangesGraphLine(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BranchChip(modifier: Modifier = Modifier, ref: Ref, onCheckoutBranch: () -> Unit) {
+fun BranchChip(
+    modifier: Modifier = Modifier,
+    isCurrentBranch: Boolean = false,
+    ref: Ref,
+    onCheckoutBranch: () -> Unit,
+    onMergeBranch: () -> Unit,
+) {
     val contextMenuItemsList = {
-        listOf(
+        mutableListOf(
             ContextMenuItem(
                 label = "Checkout branch",
                 onClick = onCheckoutBranch
-            )
-        )
+            ),
+
+            ).apply {
+            if (!isCurrentBranch)
+                add(
+                    ContextMenuItem(
+                        label = "Merge branch",
+                        onClick = onMergeBranch
+                    )
+                )
+        }
     }
 
     RefChip(

@@ -287,6 +287,13 @@ class GitManager @Inject constructor(
             refreshRepositoryInfo()
         }
     }
+
+    fun mergeBranch(ref: Ref, fastForward: Boolean) = managerScope.launch {
+        safeProcessing {
+            branchesManager.mergeBranch(safeGit, ref, fastForward)
+            refreshRepositoryInfo()
+        }
+    }
 }
 
 
