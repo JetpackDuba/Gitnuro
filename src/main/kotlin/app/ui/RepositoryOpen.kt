@@ -28,10 +28,6 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
         mutableStateOf(false)
     }
 
-//    var showBranchDialog by remember {
-//        mutableStateOf(false)
-//    }
-
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
 
     val credentialsState by gitManager.credentialsState.collectAsState()
