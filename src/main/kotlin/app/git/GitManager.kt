@@ -210,10 +210,12 @@ class GitManager @Inject constructor(
 
     fun resetStaged(diffEntry: DiffEntry) = managerScope.launch {
         statusManager.reset(safeGit, diffEntry, staged = true)
+        loadLog()
     }
 
     fun resetUnstaged(diffEntry: DiffEntry) = managerScope.launch {
         statusManager.reset(safeGit, diffEntry, staged = false)
+        loadLog()
     }
 
     fun statusShouldBeUpdated() {
@@ -250,6 +252,13 @@ class GitManager @Inject constructor(
     fun revertCommit(revCommit: RevCommit) = managerScope.launch {
         safeProcessing {
             logManager.revertCommit(safeGit, revCommit)
+            refreshRepositoryInfo()
+        }
+    }
+
+    fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = managerScope.launch {
+        safeProcessing {
+            logManager.resetToCommit(safeGit, revCommit, resetType = resetType)
             refreshRepositoryInfo()
         }
     }

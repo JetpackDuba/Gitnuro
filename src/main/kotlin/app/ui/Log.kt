@@ -29,6 +29,7 @@ import app.extensions.simpleName
 import app.extensions.toSmartSystemString
 import app.git.GitManager
 import app.git.LogStatus
+import app.git.ResetType
 import app.git.graph.GraphNode
 import app.theme.headerBackground
 import app.theme.headerText
@@ -38,6 +39,7 @@ import app.ui.components.ScrollableLazyColumn
 import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
+import app.ui.dialogs.ResetBranchDialog
 import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -67,6 +69,7 @@ fun Log(
     onUncommitedChangesSelected: () -> Unit,
     onCheckoutCommit: (graphNode: GraphNode) -> Unit,
     onRevertCommit: (graphNode: GraphNode) -> Unit,
+    onResetToCommit: (graphNode: GraphNode, resetType: ResetType) -> Unit,
     onCreateBranchOnCommit: (branchName: String, graphNode: GraphNode) -> Unit,
     onCreateTagOnCommit: (tagName: String, graphNode: GraphNode) -> Unit,
     onCheckoutRef: (ref: Ref) -> Unit,
@@ -246,6 +249,23 @@ fun Log(
                                         label = "Revert commit",
                                         onClick = {
                                             onRevertCommit(item)
+                                        }
+                                    ),
+
+                                    ContextMenuItem(
+                                        label = "Reset current branch to this commit",
+                                        onClick = {
+                                            dialogManager.show {
+                                                ResetBranchDialog(
+                                                    onReject = {
+                                                        dialogManager.dismiss()
+                                                    },
+                                                    onAccept = { resetType ->
+                                                        onResetToCommit(item, resetType)
+                                                        dialogManager.dismiss()
+                                                    }
+                                                )
+                                            }
                                         }
                                     )
                                 )

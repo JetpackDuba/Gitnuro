@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
@@ -70,8 +71,26 @@ class LogManager @Inject constructor(
             .include(revCommit)
             .call()
     }
-}
 
+    suspend fun resetToCommit(git: Git, revCommit: RevCommit, resetType: ResetType) = withContext(Dispatchers.IO) {
+        val reset = when(resetType) {
+            ResetType.SOFT -> ResetCommand.ResetType.SOFT
+            ResetType.MIXED -> ResetCommand.ResetType.MIXED
+            ResetType.HARD -> ResetCommand.ResetType.HARD
+        }
+        git
+            .reset()
+            .setMode(reset)
+            .setRef(revCommit.name)
+            .call()
+    }
+}
+// TODO Move this to
+enum class ResetType {
+    SOFT,
+    MIXED,
+    HARD,
+}
 
 sealed class LogStatus {
     object Loading : LogStatus()
