@@ -63,7 +63,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     override fun enter(index: Int, currCommit: GraphNode) {
         if(currCommit.id == parentId) {
             graphCommit.graphParent = currCommit
-            currCommit.addChild(graphCommit)
+            currCommit.addChild(graphCommit, addFirst = true)
         }
 
         setupChildren(currCommit)

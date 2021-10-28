@@ -31,30 +31,42 @@ open class GraphNode(id: AnyObjectId?) : RevCommit(id), IGraphNode {
         mergingLanes = addLane(graphLane, mergingLanes)
     }
 
-    fun addChild(c: GraphNode) {
+    fun addChild(c: GraphNode, addFirst: Boolean = false) {
         when (val childrenCount = children.count()) {
             0 -> children = arrayOf(c)
-            1 -> if (!c.id.equals(children[0].id)) children = arrayOf(children[0], c)
+            1 -> {
+                if (!c.id.equals(children[0].id)) {
+                    children = if (addFirst) {
+                        arrayOf(c, children[0])
+                    } else
+                        arrayOf(children[0], c)
+                }
+            }
             else -> {
                 for (pc in children)
                     if (c.id.equals(pc.id))
                         return
 
-                val n: Array<GraphNode> = children.copyOf(childrenCount + 1).run {
-                    this[childrenCount] = c
-                    requireNoNulls()
+                val resultArray = if (addFirst) {
+                    val childList = mutableListOf(c)
+                    childList.addAll(children)
+                    childList.toTypedArray()
+                } else {
+                    children.copyOf(childrenCount + 1).run {
+                        this[childrenCount] = c
+                        requireNoNulls()
+                    }
                 }
 
-                n[childrenCount] = c
-                children = n
+                children = resultArray
             }
         }
     }
 
     val childCount: Int
-    get() {
-        return children.size
-    }
+        get() {
+            return children.size
+        }
 
     /**
      * Get the nth child from this commit's child list.
