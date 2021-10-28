@@ -1,17 +1,22 @@
 package app.ui.dialogs
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.mouseClickable
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MergeDialog(
     currentBranchName: String,
@@ -28,19 +33,37 @@ fun MergeDialog(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Row {
-            Text(
-                text = currentBranchName,
-            )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
 
-            Text("  ----------->  ")
 
             Text(
                 text = mergeBranchName,
+                fontWeight = FontWeight.Medium
+            )
+
+
+            Text(
+                text = "will be merged into",
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            Text(
+                text = currentBranchName,
+                fontWeight = FontWeight.Medium
             )
         }
 
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .mouseClickable {
+                    if(this.buttons.isPrimaryPressed) {
+                        fastForwardCheck = !fastForwardCheck
+                    }
+                }
+        ) {
             Checkbox(
                 checked = fastForwardCheck,
                 onCheckedChange = { checked ->
@@ -50,7 +73,8 @@ fun MergeDialog(
 
             Text(
                 "Fast forward",
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier
+                    .padding(start = 8.dp)
             )
 
         }
