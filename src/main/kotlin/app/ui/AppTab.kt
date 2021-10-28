@@ -142,7 +142,7 @@ fun AppTab(
                         Text(
                             text = safeLastError.message,
                             modifier = Modifier
-                                .padding(top = 8.dp)
+                                .padding(top = 8.dp, bottom = 16.dp)
                         )
                     }
                 }
