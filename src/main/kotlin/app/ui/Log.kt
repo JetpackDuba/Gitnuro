@@ -155,7 +155,7 @@ fun Log(
                                     onUncommitedChangesSelected()
                                 },
                         ) {
-                            val hasPreviousCommits = remember(commitList) { commitList.count() > 0 }
+                            val hasPreviousCommits = commitList.count() > 0
 
                             UncommitedChangesGraphLine(
                                 modifier = Modifier
@@ -282,7 +282,7 @@ fun Log(
                                         dialogManager.show {
                                             MergeDialog(
                                                 currentBranchName = "HEAD",
-                                                mergeBranchName = ref.name,
+                                                mergeBranchName = ref.simpleName,
                                                 onReject = {
                                                     dialogManager.dismiss()
                                                 },
@@ -401,12 +401,9 @@ fun CommitsGraphLine(
     modifier: Modifier = Modifier,
     plotCommit: GraphNode,
 ) {
-    val passingLanes = remember(plotCommit) {
-        plotCommit.passingLanes
-    }
-
-    val forkingOffLanes = remember(plotCommit) { plotCommit.forkingOffLanes }
-    val mergingLanes = remember(plotCommit) { plotCommit.mergingLanes }
+    val passingLanes = plotCommit.passingLanes
+    val forkingOffLanes = plotCommit.forkingOffLanes
+    val mergingLanes = plotCommit.mergingLanes
 
     Box(modifier = modifier) {
         Canvas(
