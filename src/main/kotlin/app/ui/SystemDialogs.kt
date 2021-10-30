@@ -18,7 +18,7 @@ fun openRepositoryDialog(gitManager: GitManager) {
 
         if(isZenityInstalled) {
             val openDirectory = runCommand(
-                "zenity --file-selection --title=\"Select your git directory\" --directory --filename=\"$latestDirectoryOpened\""
+                "zenity --file-selection --title=Open --directory --filename=\"$latestDirectoryOpened\""
             )?.replace("\n", "")
 
             if(!openDirectory.isNullOrEmpty())
