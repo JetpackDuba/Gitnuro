@@ -61,9 +61,11 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     }
 
     override fun enter(index: Int, currCommit: GraphNode) {
-        if(currCommit.id == parentId) {
+        var isUncommitedChangesNodeParent = false
+        if (currCommit.id == parentId) {
             graphCommit.graphParent = currCommit
             currCommit.addChild(graphCommit, addFirst = true)
+            isUncommitedChangesNodeParent = true
         }
 
         setupChildren(currCommit)
@@ -80,7 +82,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
             var len = laneLength[currCommit.lane]
             len = if (len != null) Integer.valueOf(len.toInt() + 1) else Integer.valueOf(0)
 
-            if(currCommit.lane.position != INVALID_LANE_POSITION)
+            if (currCommit.lane.position != INVALID_LANE_POSITION)
                 laneLength[currCommit.lane] = len
         } else {
             // More than one child, or our child is a merge.
@@ -100,20 +102,31 @@ class GraphCommitList : RevCommitList<GraphNode>() {
             var reservedLane: GraphLane? = null
             var childOnReservedLane: GraphNode? = null
             var lengthOfReservedLane = -1
-            for (i in 0 until nChildren) {
-                val c: GraphNode = currCommit.children[i]
-                if (c.getGraphParent(0) === currCommit) {
-                    if (c.lane.position < 0)
-                        println("c.lane.position is invalid (${c.lane.position})")
 
-                    val length = laneLength[c.lane]
 
-                    // we may be the first parent for multiple lines of
-                    // development, try to continue the longest one
-                    if (length != null && length > lengthOfReservedLane) {
-                        reservedLane = c.lane
-                        childOnReservedLane = c
-                        lengthOfReservedLane = length
+            if (isUncommitedChangesNodeParent) {
+                val length = laneLength[graphCommit.lane]
+                if (length != null) {
+                    reservedLane = graphCommit.lane
+                    childOnReservedLane = graphCommit
+                    lengthOfReservedLane = length
+                }
+            } else {
+                for (i in 0 until nChildren) {
+                    val c: GraphNode = currCommit.children[i]
+                    if (c.getGraphParent(0) === currCommit) {
+                        if (c.lane.position < 0)
+                            println("c.lane.position is invalid (${c.lane.position})")
+
+                        val length = laneLength[c.lane]
+
+                        // we may be the first parent for multiple lines of
+                        // development, try to continue the longest one
+                        if (length != null && length > lengthOfReservedLane) {
+                            reservedLane = c.lane
+                            childOnReservedLane = c
+                            lengthOfReservedLane = length
+                        }
                     }
                 }
             }
