@@ -62,7 +62,7 @@ class GRemoteSession @Inject constructor(
             uri.port
 
         val filePasswordProvider =
-            FilePasswordProvider { session, resourceKey, retryIndex ->
+            FilePasswordProvider { _, _, _ ->
                 credentialsStateManager.updateState(CredentialsState.SshCredentialsRequested)
 
                 var credentials = credentialsStateManager.currentCredentialsState
