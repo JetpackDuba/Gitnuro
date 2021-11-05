@@ -23,15 +23,14 @@ class HttpCredentialsProvider : CredentialsProvider() {
     }
 
     override fun get(uri: URIish?, vararg items: CredentialItem?): Boolean {
-        credentialsStateManager.updateState(CredentialsState.CredentialsRequested)
+        credentialsStateManager.updateState(CredentialsState.HttpCredentialsRequested)
 
-        @Suppress("ControlFlowWithEmptyBody")
         var credentials = credentialsStateManager.currentCredentialsState
         while (credentials is CredentialsState.CredentialsRequested) {
             credentials = credentialsStateManager.currentCredentialsState
         }
 
-        if(credentials is CredentialsState.CredentialsAccepted) {
+        if(credentials is CredentialsState.HttpCredentialsAccepted) {
             val userItem = items.firstOrNull { it?.promptText == "Username" }
             val passwordItem = items.firstOrNull { it?.promptText == "Password" }
 

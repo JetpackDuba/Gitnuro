@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.Constants
 import javax.inject.Inject
 
 class StatusManager @Inject constructor() {
@@ -67,6 +68,13 @@ class StatusManager @Inject constructor() {
 
         loadStatus(git)
     }
+
+//    suspend fun stageHunk(git: Git) {
+////        val repository = git.repository
+////        val objectInserter = repository.newObjectInserter()
+//
+////        objectInserter.insert(Constants.OBJ_BLOB,)
+//    }
 
     suspend fun unstage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
         git.reset()

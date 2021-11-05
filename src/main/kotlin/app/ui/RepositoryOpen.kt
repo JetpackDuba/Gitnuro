@@ -10,6 +10,7 @@ import app.credentials.CredentialsState
 import app.git.DiffEntryType
 import app.git.GitManager
 import app.ui.dialogs.NewBranchDialog
+import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
 import openRepositoryDialog
 import org.eclipse.jgit.revwalk.RevCommit
@@ -32,7 +33,7 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
 
     val credentialsState by gitManager.credentialsState.collectAsState()
 
-    if (credentialsState == CredentialsState.CredentialsRequested) {
+    if (credentialsState == CredentialsState.HttpCredentialsRequested) {
         dialogManager.show {
             UserPasswordDialog(
                 onReject = {
@@ -40,7 +41,20 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                     dialogManager.dismiss()
                 },
                 onAccept = { user, password ->
-                    gitManager.credentialsAccepted(user, password)
+                    gitManager.httpCredentialsAccepted(user, password)
+                    dialogManager.dismiss()
+                }
+            )
+        }
+    } else if (credentialsState == CredentialsState.SshCredentialsRequested) {
+        dialogManager.show {
+            PasswordDialog(
+                onReject = {
+                    gitManager.credentialsDenied()
+                    dialogManager.dismiss()
+                },
+                onAccept = { password ->
+                    gitManager.sshCredentialsAccepted(password)
                     dialogManager.dismiss()
                 }
             )

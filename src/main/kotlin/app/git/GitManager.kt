@@ -226,8 +226,12 @@ class GitManager @Inject constructor(
         credentialsStateManager.updateState(CredentialsState.CredentialsDenied)
     }
 
-    fun credentialsAccepted(user: String, password: String) {
-        credentialsStateManager.updateState(CredentialsState.CredentialsAccepted(user, password))
+    fun httpCredentialsAccepted(user: String, password: String) {
+        credentialsStateManager.updateState(CredentialsState.HttpCredentialsAccepted(user, password))
+    }
+
+    fun sshCredentialsAccepted(password: String) {
+        credentialsStateManager.updateState(CredentialsState.SshCredentialsAccepted(password))
     }
 
     suspend fun diffListFromCommit(commit: RevCommit): List<DiffEntry> {
@@ -284,6 +288,7 @@ class GitManager @Inject constructor(
         try {
             callback()
         } catch (ex: Exception) {
+            ex.printStackTrace()
             errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
             _processing.value = false

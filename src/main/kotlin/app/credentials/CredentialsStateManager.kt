@@ -19,7 +19,11 @@ object CredentialsStateManager {
 
 sealed class CredentialsState {
     object None : CredentialsState()
-    object CredentialsRequested : CredentialsState()
+    sealed class CredentialsRequested : CredentialsState()
+    object SshCredentialsRequested : CredentialsRequested()
+    object HttpCredentialsRequested : CredentialsRequested()
     object CredentialsDenied : CredentialsState()
-    data class CredentialsAccepted(val user: String, val password: String) : CredentialsState()
+    sealed class CredentialsAccepted : CredentialsState()
+    data class SshCredentialsAccepted(val password: String) : CredentialsAccepted()
+    data class HttpCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted()
 }
