@@ -1,24 +1,11 @@
 package app.credentials
 
-import org.apache.sshd.agent.SshAgent
-import org.apache.sshd.agent.local.AgentImpl
-import org.apache.sshd.agent.local.LocalAgentFactory
 import org.apache.sshd.client.SshClient
-import org.apache.sshd.client.auth.keyboard.UserAuthKeyboardInteractive
-import org.apache.sshd.client.auth.keyboard.UserAuthKeyboardInteractiveFactory
-import org.apache.sshd.client.auth.keyboard.UserInteraction
-import org.apache.sshd.client.auth.password.PasswordAuthenticationReporter
-import org.apache.sshd.client.auth.password.UserAuthPassword
 import org.apache.sshd.client.future.ConnectFuture
 import org.apache.sshd.client.session.ClientSession
-import org.apache.sshd.common.NamedResource
 import org.apache.sshd.common.config.keys.FilePasswordProvider
-import org.apache.sshd.common.keyprovider.FileKeyPairProvider
-import org.apache.sshd.common.session.SessionContext
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
-import java.lang.Exception
-import java.security.KeyPair
 import java.time.Duration
 import javax.inject.Inject
 import javax.inject.Provider
@@ -74,8 +61,8 @@ class GRemoteSession @Inject constructor(
         } else
             uri.port
 
-        val filePasswordProvider = object : FilePasswordProvider {
-            override fun getPassword(session: SessionContext?, resourceKey: NamedResource?, retryIndex: Int): String? {
+        val filePasswordProvider =
+            FilePasswordProvider { session, resourceKey, retryIndex ->
                 credentialsStateManager.updateState(CredentialsState.SshCredentialsRequested)
 
                 var credentials = credentialsStateManager.currentCredentialsState
@@ -84,12 +71,11 @@ class GRemoteSession @Inject constructor(
                     credentials = credentialsStateManager.currentCredentialsState
                 }
 
-                return if(credentials !is CredentialsState.SshCredentialsAccepted)
+                if(credentials !is CredentialsState.SshCredentialsAccepted)
                     null
                 else
                     credentials.password
             }
-        }
 
         client.filePasswordProvider = filePasswordProvider
 
