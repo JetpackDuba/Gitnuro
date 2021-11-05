@@ -125,7 +125,7 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                 onCheckoutRef = { ref ->
                                     gitManager.checkoutRef(ref)
                                 },
-                                onMergeBranch = { ref , fastForward ->
+                                onMergeBranch = { ref, fastForward ->
                                     gitManager.mergeBranch(ref, fastForward)
                                 },
                                 onRevCommitSelected = { commit ->
@@ -157,7 +157,10 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                     UncommitedChanges(
                         gitManager = gitManager,
                         onStagedDiffEntrySelected = { diffEntry ->
-                            diffSelected = DiffEntryType.StagedDiff(diffEntry)
+                            diffSelected = if (diffEntry != null)
+                                DiffEntryType.StagedDiff(diffEntry)
+                            else
+                                null
                         },
                         onUnstagedDiffEntrySelected = { diffEntry ->
                             diffSelected = DiffEntryType.UnstagedDiff(diffEntry)

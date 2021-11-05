@@ -37,7 +37,7 @@ import app.theme.headerText
 @Composable
 fun UncommitedChanges(
     gitManager: GitManager,
-    onStagedDiffEntrySelected: (DiffEntry) -> Unit,
+    onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
     val stageStatusState = gitManager.stageStatus.collectAsState()
@@ -137,6 +137,7 @@ fun UncommitedChanges(
                     onClick = {
                         gitManager.commit(commitMessage)
                         commitMessage = ""
+                        onStagedDiffEntrySelected(null)
                     },
                     enabled = commitMessage.isNotEmpty() && staged.isNotEmpty(),
                     shape = RectangleShape,
