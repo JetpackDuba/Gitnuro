@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -420,7 +422,7 @@ fun CommitsGraphLine(
     val passingLanes = plotCommit.passingLanes
     val forkingOffLanes = plotCommit.forkingOffLanes
     val mergingLanes = plotCommit.mergingLanes
-
+    val backgroundColor = MaterialTheme.colors.surface
     Box(modifier = modifier) {
         Canvas(
             modifier = Modifier
@@ -468,11 +470,26 @@ fun CommitsGraphLine(
                     )
                 }
 
-                drawCircle(
-                    color = colors[itemPosition % colors.size],
-                    radius = 10f,
-                    center = Offset(20f * (itemPosition + 1), this.center.y),
-                )
+                if(plotCommit.parentCount >= 2) { // A merge
+                    drawCircle(
+                        color = colors[itemPosition % colors.size],
+                        radius = 7.dp.toPx(),
+                        center = Offset(20f * (itemPosition + 1), this.center.y),
+                    )
+                } else {
+                    drawCircle(
+                        color = backgroundColor,
+                        radius = 10.dp.toPx(),
+                        center = Offset(20f * (itemPosition + 1), this.center.y),
+                    )
+
+                    drawCircle(
+                        color = colors[itemPosition % colors.size],
+                        radius = 10.dp.toPx(),
+                        center = Offset(20f * (itemPosition + 1), this.center.y),
+                        style = Stroke(width = 2.dp.toPx())
+                    )
+                }
             }
         }
     }
