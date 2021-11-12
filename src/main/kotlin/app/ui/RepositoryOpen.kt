@@ -107,27 +107,6 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                 gitManager = gitManager,
                                 dialogManager = dialogManager,
                                 selectedIndex = selectedIndexCommitLog,
-                                onCheckoutCommit = { graphNode ->
-                                    gitManager.checkoutCommit(graphNode)
-                                },
-                                onRevertCommit = { graphNode ->
-                                    gitManager.revertCommit(graphNode)
-                                },
-                                onResetToCommit = { graphNode, resetType ->
-                                    gitManager.resetToCommit(graphNode, resetType)
-                                },
-                                onCreateBranchOnCommit = { branch, graphNode ->
-                                    gitManager.createBranchOnCommit(branch, graphNode)
-                                },
-                                onCreateTagOnCommit = { tag, graphNode ->
-                                    gitManager.createTagOnCommit(tag, graphNode)
-                                },
-                                onCheckoutRef = { ref ->
-                                    gitManager.checkoutRef(ref)
-                                },
-                                onMergeBranch = { ref, fastForward ->
-                                    gitManager.mergeBranch(ref, fastForward)
-                                },
                                 onRevCommitSelected = { commit ->
                                     selectedRevCommit = commit
                                     uncommitedChangesSelected = false
@@ -146,8 +125,8 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                         }
                     }
                 }
-
             }
+
             Box(
                 modifier = Modifier
                     .weight(0.25f)

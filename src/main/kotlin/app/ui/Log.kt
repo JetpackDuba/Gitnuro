@@ -67,13 +67,6 @@ fun Log(
     dialogManager: DialogManager,
     onRevCommitSelected: (RevCommit) -> Unit,
     onUncommitedChangesSelected: () -> Unit,
-    onCheckoutCommit: (graphNode: GraphNode) -> Unit,
-    onRevertCommit: (graphNode: GraphNode) -> Unit,
-    onResetToCommit: (graphNode: GraphNode, resetType: ResetType) -> Unit,
-    onCreateBranchOnCommit: (branchName: String, graphNode: GraphNode) -> Unit,
-    onCreateTagOnCommit: (tagName: String, graphNode: GraphNode) -> Unit,
-    onCheckoutRef: (ref: Ref) -> Unit,
-    onMergeBranch: (ref: Ref, fastForwards: Boolean) -> Unit,
     selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
 ) {
     val logStatusState = gitManager.logStatus.collectAsState()
@@ -195,13 +188,13 @@ fun Log(
                         }
                     }
 
-                itemsIndexed(items = commitList) { index, item ->
-                    val commitRefs = item.refs
+                itemsIndexed(items = commitList) { index, graphNode ->
+                    val commitRefs = graphNode.refs
                     Box(modifier = Modifier
                         .clickable {
                             selectedIndex.value = index
                             selectedUncommited.value = false
-                            onRevCommitSelected(item)
+                            onRevCommitSelected(graphNode)
                         }
                     ) {
 
@@ -211,8 +204,9 @@ fun Log(
                                 listOf(
                                     ContextMenuItem(
                                         label = "Checkout commit",
-                                        onClick = { onCheckoutCommit(item) }
-                                    ),
+                                        onClick = {
+                                            gitManager.checkoutCommit(graphNode)
+                                        }),
                                     ContextMenuItem(
                                         label = "Create branch",
                                         onClick = {
@@ -222,8 +216,8 @@ fun Log(
                                                         dialogManager.dismiss()
                                                     },
                                                     onAccept = { branchName ->
-                                                        onCreateBranchOnCommit(branchName, item)
                                                         dialogManager.dismiss()
+                                                        gitManager.createBranchOnCommit(branchName, graphNode)
                                                     }
                                                 )
                                             }
@@ -237,8 +231,8 @@ fun Log(
                                                     onReject = {
                                                         dialogManager.dismiss()
                                                     },
-                                                    onAccept = { branchName ->
-                                                        onCreateTagOnCommit(branchName, item)
+                                                    onAccept = { tagName ->
+                                                        gitManager.createTagOnCommit(tagName, graphNode)
                                                         dialogManager.dismiss()
                                                     }
                                                 )
@@ -248,7 +242,7 @@ fun Log(
                                     ContextMenuItem(
                                         label = "Revert commit",
                                         onClick = {
-                                            onRevertCommit(item)
+                                            gitManager.revertCommit(graphNode)
                                         }
                                     ),
 
@@ -261,8 +255,8 @@ fun Log(
                                                         dialogManager.dismiss()
                                                     },
                                                     onAccept = { resetType ->
-                                                        onResetToCommit(item, resetType)
                                                         dialogManager.dismiss()
+                                                        gitManager.resetToCommit(graphNode, resetType)
                                                     }
                                                 )
                                             }
@@ -279,7 +273,7 @@ fun Log(
                                 CommitsGraphLine(
                                     modifier = Modifier
                                         .width(graphWidth),
-                                    plotCommit = item
+                                    plotCommit = graphNode
                                 )
 
                                 DividerLog(
@@ -294,10 +288,12 @@ fun Log(
 
                                 CommitMessage(
                                     modifier = Modifier.weight(1f),
-                                    commit = item,
+                                    commit = graphNode,
                                     selected = selectedIndex.value == index,
                                     refs = commitRefs,
-                                    onCheckoutRef = onCheckoutRef,
+                                    onCheckoutRef = { ref ->
+                                        gitManager.checkoutRef(ref)
+                                    },
                                     onMergeBranch = { ref ->
                                         dialogManager.show {
                                             MergeDialog(
@@ -308,7 +304,7 @@ fun Log(
                                                 },
                                                 onAccept = { fastForward ->
                                                     dialogManager.dismiss()
-                                                    onMergeBranch(ref, fastForward)
+                                                    gitManager.mergeBranch(ref, fastForward)
                                                 }
                                             )
                                         }
