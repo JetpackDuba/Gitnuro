@@ -45,6 +45,7 @@ fun WelcomePage(gitManager: GitManager) {
             Text(
                 text = "Gitnuro",
                 fontSize = 32.sp,
+                color = MaterialTheme.colors.primaryTextColor,
                 modifier = Modifier
                     .padding(bottom = 16.dp),
             )
@@ -76,6 +77,7 @@ fun WelcomePage(gitManager: GitManager) {
             Text(
                 text = "About Gitnuro",
                 fontSize = 18.sp,
+                color = MaterialTheme.colors.primaryTextColor,
                 modifier = Modifier
                     .padding(top = 16.dp, bottom = 8.dp),
             )
