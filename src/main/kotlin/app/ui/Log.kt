@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.DialogManager
+import app.extensions.md5
 import app.extensions.simpleName
 import app.extensions.toSmartSystemString
 import app.git.GitManager
@@ -274,7 +276,8 @@ fun Log(
                             ) {
                                 CommitsGraphLine(
                                     modifier = Modifier
-                                        .width(graphWidth),
+                                        .width(graphWidth)
+                                        .fillMaxHeight(),
                                     plotCommit = graphNode
                                 )
 
@@ -422,76 +425,86 @@ fun CommitsGraphLine(
     val passingLanes = plotCommit.passingLanes
     val forkingOffLanes = plotCommit.forkingOffLanes
     val mergingLanes = plotCommit.mergingLanes
-    val backgroundColor = MaterialTheme.colors.surface
+
     Box(modifier = modifier) {
+        val itemPosition = plotCommit.lane.position
+
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            val itemPosition = plotCommit.lane.position
             clipRect {
                 if (plotCommit.childCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset(20f * (itemPosition + 1), this.center.y),
-                        end = Offset(20f * (itemPosition + 1), 0f),
+                        start = Offset(30f * (itemPosition + 1), this.center.y),
+                        end = Offset(30f * (itemPosition + 1), 0f),
                     )
                 }
 
                 forkingOffLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(20f * (itemPosition + 1), this.center.y),
-                        end = Offset(20f * (plotLane.position + 1), 0f),
+                        start = Offset(30f * (itemPosition + 1), this.center.y),
+                        end = Offset(30f * (plotLane.position + 1), 0f),
                     )
                 }
 
                 mergingLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(20f * (plotLane.position + 1), this.size.height),
-                        end = Offset(20f * (itemPosition + 1), this.center.y),
+                        start = Offset(30f * (plotLane.position + 1), this.size.height),
+                        end = Offset(30f * (itemPosition + 1), this.center.y),
                     )
                 }
 
                 if (plotCommit.parentCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset(20f * (itemPosition + 1), this.center.y),
-                        end = Offset(20f * (itemPosition + 1), this.size.height),
+                        start = Offset(30f * (itemPosition + 1), this.center.y),
+                        end = Offset(30f * (itemPosition + 1), this.size.height),
                     )
                 }
 
                 passingLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(20f * (plotLane.position + 1), 0f),
-                        end = Offset(20f * (plotLane.position + 1), this.size.height),
-                    )
-                }
-
-                if(plotCommit.parentCount >= 2) { // A merge
-                    drawCircle(
-                        color = colors[itemPosition % colors.size],
-                        radius = 7.dp.toPx(),
-                        center = Offset(20f * (itemPosition + 1), this.center.y),
-                    )
-                } else {
-                    drawCircle(
-                        color = backgroundColor,
-                        radius = 10.dp.toPx(),
-                        center = Offset(20f * (itemPosition + 1), this.center.y),
-                    )
-
-                    drawCircle(
-                        color = colors[itemPosition % colors.size],
-                        radius = 10.dp.toPx(),
-                        center = Offset(20f * (itemPosition + 1), this.center.y),
-                        style = Stroke(width = 2.dp.toPx())
+                        start = Offset(30f * (plotLane.position + 1), 0f),
+                        end = Offset(30f * (plotLane.position + 1), this.size.height),
                     )
                 }
             }
         }
+
+        CommitNode(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = ((itemPosition + 1) * 30 - 15).dp),
+            plotCommit = plotCommit,
+            color = colors[itemPosition % colors.size],
+        )
+    }
+}
+
+@Composable
+fun CommitNode(
+    modifier: Modifier = Modifier,
+    plotCommit: GraphNode,
+    color: Color,
+) {
+    Box(
+        modifier = modifier
+            .size(30.dp)
+            .border(2.dp, color, shape = CircleShape)
+            .clip(CircleShape)
+    ) {
+        val url = "https://www.gravatar.com/avatar/${plotCommit.authorIdent.emailAddress.md5}"
+        Image(
+            bitmap = rememberNetworkImage(url),
+            modifier = Modifier
+                .fillMaxSize(),
+            contentDescription = null
+        )
     }
 }
 
@@ -510,14 +523,14 @@ fun UncommitedChangesGraphLine(
                 if (hasPreviousCommits)
                     drawLine(
                         color = colors[0],
-                        start = Offset(20f, this.center.y),
-                        end = Offset(20f, this.size.height),
+                        start = Offset(30f, this.center.y),
+                        end = Offset(30f, this.size.height),
                     )
 
                 drawCircle(
                     color = colors[0],
-                    radius = 10f,
-                    center = Offset(20f, this.center.y),
+                    radius = 15f,
+                    center = Offset(30f, this.center.y),
                 )
             }
         }
