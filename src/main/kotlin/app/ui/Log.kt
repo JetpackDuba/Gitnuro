@@ -592,6 +592,9 @@ fun RefChip(
 ) {
     Box(
         modifier = Modifier
+            .padding(horizontal = 4.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colors.primary)
             .combinedClickable(
                 onDoubleClick = onCheckoutRef,
                 onClick = {}
@@ -601,10 +604,7 @@ fun RefChip(
             items = contextMenuItemsList
         ) {
             Row(
-                modifier = modifier
-                    .padding(horizontal = 4.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colors.primary),
+                modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
