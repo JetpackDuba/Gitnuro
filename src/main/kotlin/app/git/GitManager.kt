@@ -59,6 +59,9 @@ class GitManager @Inject constructor(
     val branches: StateFlow<List<Ref>>
         get() = branchesManager.branches
 
+    val tags: StateFlow<List<Ref>>
+        get() = tagsManager.tags
+
     val currentBranch: StateFlow<String>
         get() = branchesManager.currentBranch
 
@@ -177,6 +180,7 @@ class GitManager @Inject constructor(
     private suspend fun refreshRepositoryInfo() {
         statusManager.loadHasUncommitedChanges(safeGit)
         branchesManager.loadBranches(safeGit)
+        tagsManager.loadTags(safeGit)
         stashManager.loadStashList(safeGit)
         coLoadLog()
     }

@@ -2,6 +2,7 @@ package app.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -93,6 +94,7 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                     .fillMaxHeight()
             ) {
                 Branches(gitManager = gitManager)
+                Tags(gitManager = gitManager)
                 Stashes(gitManager = gitManager)
             }
             Box(

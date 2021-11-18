@@ -3,13 +3,10 @@ package app.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -18,54 +15,52 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.ui.components.ScrollableLazyColumn
 import app.extensions.simpleName
+import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
-import org.eclipse.jgit.lib.Ref
+import app.git.StashStatus
+import org.eclipse.jgit.revwalk.RevCommit
 import app.theme.headerBackground
 import app.theme.headerText
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
+import org.eclipse.jgit.lib.Ref
 
 @Composable
-fun Branches(gitManager: GitManager) {
-    val branches by gitManager.branches.collectAsState()
-    val currentBranch by gitManager.currentBranch.collectAsState()
+fun Tags(gitManager: GitManager) {
+    val tagsState = gitManager.tags.collectAsState()
+    val tags = tagsState.value
+
 
     Column {
-        SideMenuEntry("Branches")
+        SideMenuEntry(
+            text = "Tags",
+        )
 
-        val branchesHeight = branches.count() * 40
-        val maxHeight = if(branchesHeight < 300)
+        val branchesHeight = tags.count() * 40
+        val maxHeight = if (branchesHeight < 300)
             branchesHeight
         else
             300
 
         Box(modifier = Modifier.heightIn(max = maxHeight.dp)) {
             ScrollableLazyColumn(modifier = Modifier.fillMaxWidth()) {
-                itemsIndexed(branches) { _, branch ->
-                    BranchRow(
-                        branch = branch,
-                        isCurrentBranch = currentBranch == branch.name
+                items(items = tags) { tag ->
+                    TagRow(
+                        tag = tag,
                     )
 
                 }
             }
         }
     }
+
 }
 
 @Composable
-private fun BranchRow(
-    branch: Ref,
-    isCurrentBranch: Boolean
-) {
+private fun TagRow(tag: Ref) {
     SideMenuSubentry(
-        text = branch.simpleName,
-        iconResourcePath = "branch.svg"
-    ) {
-        if (isCurrentBranch) {
-            Text("***")
-        }
-    }
+        text = tag.simpleName,
+        iconResourcePath = "tag.svg",
+    )
 }
