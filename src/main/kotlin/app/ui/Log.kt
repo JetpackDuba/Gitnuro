@@ -28,9 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.DialogManager
-import app.extensions.md5
-import app.extensions.simpleName
-import app.extensions.toSmartSystemString
+import app.extensions.*
 import app.git.GitManager
 import app.git.LogStatus
 import app.git.ResetType
@@ -353,14 +351,14 @@ fun CommitMessage(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             refs.forEach { ref ->
-                if (ref is ObjectIdRef.PeeledTag) {
+                if (ref.isTag) {
                     TagChip(
                         ref = ref,
                         onCheckoutTag = {
                             onCheckoutRef(ref)
                         }
                     )
-                } else
+                } else if(ref.isBranch)
                     BranchChip(
                         ref = ref,
                         onCheckoutBranch = {

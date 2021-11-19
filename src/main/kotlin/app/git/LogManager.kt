@@ -1,5 +1,7 @@
 package app.git
 
+import app.extensions.isBranch
+import app.extensions.simpleName
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphWalk
 import kotlinx.coroutines.Dispatchers
@@ -7,6 +9,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.Constants
@@ -59,10 +62,15 @@ class LogManager @Inject constructor(
     }
 
     suspend fun checkoutRef(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
-        git
-            .checkout()
-            .setName(ref.name)
-            .call()
+        git.checkout().apply {
+                setName(ref.name)
+                if(ref.isBranch && ref.name.startsWith("refs/remotes/")) {
+                    setCreateBranch(true)
+                    setName(ref.simpleName)
+                    setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                }
+                call()
+            }
     }
 
     suspend fun revertCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
