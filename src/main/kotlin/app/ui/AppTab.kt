@@ -24,6 +24,7 @@ import app.DialogManager
 import app.LoadingRepository
 import app.git.GitManager
 import app.git.RepositorySelectionStatus
+import app.theme.tabBackground
 import app.ui.components.DialogBox
 import kotlinx.coroutines.delay
 
@@ -69,7 +70,7 @@ fun AppTab(
     Box {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colors.background)
+                .background(tabBackground)
                 .fillMaxSize()
         ) {
 

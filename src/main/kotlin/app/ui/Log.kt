@@ -82,7 +82,7 @@ fun Log(
         Card(
             modifier = Modifier
                 .padding(8.dp)
-                .background(MaterialTheme.colors.surface)
+                .background(MaterialTheme.colors.background)
                 .fillMaxSize()
         ) {
             val hasUncommitedChanges by gitManager.hasUncommitedChanges.collectAsState()
@@ -94,7 +94,7 @@ fun Log(
 
             ScrollableLazyColumn(
                 modifier = Modifier
-                    .background(MaterialTheme.colors.surface)
+                    .background(MaterialTheme.colors.background)
                     .fillMaxSize(),
             ) {
 
