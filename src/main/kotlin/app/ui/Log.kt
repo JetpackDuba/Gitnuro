@@ -79,7 +79,7 @@ fun Log(
     if (logStatus is LogStatus.Loaded) {
         val commitList = logStatus.plotCommitList
 
-        Card(
+        Box(
             modifier = Modifier
                 .padding(8.dp)
                 .background(MaterialTheme.colors.background)
