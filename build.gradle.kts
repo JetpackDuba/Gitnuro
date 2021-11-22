@@ -24,6 +24,8 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+    implementation(compose.desktop.components.splitPane)
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     implementation("org.apache.sshd:sshd-core:2.7.0")
     implementation("com.google.dagger:dagger:2.39.1")
