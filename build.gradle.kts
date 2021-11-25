@@ -8,7 +8,7 @@ plugins {
     kotlin("kapt") version "1.5.31"
     kotlin("plugin.serialization") version "1.5.31"
     // __LATEST_COMPOSE_RELEASE_VERSION__
-    id("org.jetbrains.compose") version "1.0.0-beta6-dev464"
+    id("org.jetbrains.compose") version "1.0.0-rc3"
 }
 
 group = "aeab13.github"
@@ -28,10 +28,10 @@ dependencies {
     implementation(compose.desktop.components.splitPane)
     implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
     implementation("org.apache.sshd:sshd-core:2.7.0")
-    implementation("com.google.dagger:dagger:2.39.1")
+    implementation("com.google.dagger:dagger:2.40.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.31")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-    kapt("com.google.dagger:dagger-compiler:2.39.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
+    kapt("com.google.dagger:dagger-compiler:2.40.1")
 }
 
 tasks.withType<KotlinCompile>() {
