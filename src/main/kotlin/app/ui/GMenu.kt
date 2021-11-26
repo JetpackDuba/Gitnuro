@@ -4,15 +4,17 @@ package app.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,17 +31,21 @@ fun GMenu(
 ) {
     Row(
         modifier = Modifier
-            .padding(vertical = 16.dp)
+            .padding(vertical = 4.dp)
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
     ) {
         MenuButton(
+            modifier = Modifier.padding(start = 8.dp),
             title = "Open",
             icon = painterResource("open.svg"),
             onClick = {
                 onRepositoryOpen()
             }
         )
+
+        Spacer(modifier = Modifier.weight(1f))
+
         MenuButton(
             title = "Pull",
             icon = painterResource("download.svg"),
@@ -47,6 +53,7 @@ fun GMenu(
                 onPull()
             },
         )
+
         MenuButton(
             title = "Push",
             icon = painterResource("upload.svg"),
@@ -54,6 +61,9 @@ fun GMenu(
                 onPush()
             },
         )
+
+        Spacer(modifier = Modifier.width(16.dp))
+
         MenuButton(
             title = "Branch",
             icon = painterResource("branch.svg"),
@@ -61,6 +71,10 @@ fun GMenu(
                 onCreateBranch()
             },
         )
+
+
+        Spacer(modifier = Modifier.width(16.dp))
+
         MenuButton(
             title = "Stash",
             icon = painterResource("stash.svg"),
@@ -71,6 +85,8 @@ fun GMenu(
             icon = painterResource("apply_stash.svg"),
             onClick = onPopStash,
         )
+
+        Spacer(modifier = Modifier.weight(1f))
     }
 }
 
@@ -88,18 +104,21 @@ fun MenuButton(
         MaterialTheme.colors.secondaryVariant
     }
 
-    TextButton(
+    OutlinedButton(
         modifier = modifier
             .padding(horizontal = 2.dp),
         enabled = enabled,
         onClick = onClick,
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Image(
                 painter = icon,
                 contentDescription = title,
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(horizontal = 4.dp)
                     .size(24.dp),
                 colorFilter = ColorFilter.tint(iconColor),
             )
@@ -112,3 +131,4 @@ fun MenuButton(
 
     }
 }
+
