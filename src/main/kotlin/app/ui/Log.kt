@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package app.ui
 
 import androidx.compose.foundation.*
