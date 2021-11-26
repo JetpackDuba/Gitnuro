@@ -1,10 +1,7 @@
 package app.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -33,67 +30,68 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
         text = gitManager.diffFormat(diffEntryType)
     }
 
-
-    Card(
+    Column(
         modifier = Modifier
             .padding(8.dp)
-            .background(MaterialTheme.colors.surface)
+            .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
-        Column {
-            OutlinedButton(
+        OutlinedButton(
+            modifier = Modifier
+                .padding(vertical = 16.dp, horizontal = 16.dp)
+                .align(Alignment.End),
+            onClick = onCloseDiffView,
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = MaterialTheme.colors.background,
+                contentColor = MaterialTheme.colors.primary,
+            )
+        ) {
+            Text("Close diff")
+        }
+        SelectionContainer {
+            ScrollableLazyColumn(
                 modifier = Modifier
-                    .padding(vertical = 16.dp, horizontal = 16.dp)
-                    .align(Alignment.End),
-                onClick = onCloseDiffView,
+                    .fillMaxSize()
+                    .padding(16.dp)
             ) {
-                Text("Close diff")
-            }
-            SelectionContainer {
-                ScrollableLazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
-                    items(text) { line ->
-                        val isHunkLine = line.startsWith("@@") && line.endsWith("@@")
+                items(text) { line ->
+                    val isHunkLine = line.startsWith("@@")
 
-                        val backgroundColor = when {
-                            line.startsWith("+") -> {
-                                Color(0x77a9d49b)
-                            }
-                            line.startsWith("-") -> {
-                                Color(0x77dea2a2)
-                            }
-                            isHunkLine -> {
-                                MaterialTheme.colors.background
-                            }
-                            else -> {
-                                MaterialTheme.colors.surface
-                            }
+                    val backgroundColor = when {
+                        line.startsWith("+") -> {
+                            Color(0x77a9d49b)
                         }
-
-                        val paddingTop = if (isHunkLine)
-                            32.dp
-                        else
-                            0.dp
-
-                        Text(
-                            text = line,
-                            modifier = Modifier
-                                .padding(top = paddingTop)
-                                .background(backgroundColor)
-                                .fillMaxWidth(),
-                            color = MaterialTheme.colors.primaryTextColor,
-                            maxLines = 1,
-                            fontFamily = FontFamily.Monospace,
-                            fontSize = 14.sp,
-                        )
+                        line.startsWith("-") -> {
+                            Color(0x77dea2a2)
+                        }
+                        isHunkLine -> {
+                            MaterialTheme.colors.surface
+                        }
+                        else -> {
+                            MaterialTheme.colors.background
+                        }
                     }
+
+                    val paddingTop = if (isHunkLine)
+                        32.dp
+                    else
+                        0.dp
+
+                    Text(
+                        text = line,
+                        modifier = Modifier
+                            .padding(top = paddingTop)
+                            .background(backgroundColor)
+                            .fillMaxWidth(),
+                        color = MaterialTheme.colors.primaryTextColor,
+                        maxLines = 1,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 14.sp,
+                    )
                 }
             }
-
         }
+
     }
 }
 
