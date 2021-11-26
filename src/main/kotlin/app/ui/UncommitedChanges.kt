@@ -9,11 +9,13 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerMoveFilter
@@ -127,7 +129,7 @@ fun UncommitedChanges(
                     value = commitMessage,
                     onValueChange = { commitMessage = it },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
-                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.surface),
+                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp)
                 )
 
@@ -166,63 +168,65 @@ private fun EntriesList(
     onAllAction: () -> Unit,
     allActionTitle: String,
 ) {
-
-    Card(
+    Column(
         modifier = modifier
     ) {
-        Column {
-            Box {
+        Box {
+            Text(
+                modifier = Modifier
+                    .background(color = MaterialTheme.colors.headerBackground)
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                text = title,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.headerText,
+                fontSize = 14.sp,
+                maxLines = 1,
+            )
+
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .align(Alignment.CenterEnd)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(actionColor)
+                    .clickable { onAllAction() },
+            ) {
                 Text(
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colors.headerBackground)
-                        .padding(vertical = 8.dp)
-                        .fillMaxWidth(),
-                    text = title,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.headerText,
-                    fontSize = 14.sp,
-                    maxLines = 1,
+                    text = allActionTitle,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colors.contentColorFor(actionColor),
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
                 )
-
-                Button(
-                    onClick = onAllAction,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .align(Alignment.CenterEnd),
-                    elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = actionColor)
-                ) {
-                    Text(allActionTitle, fontSize = 10.sp)
-                }
-
             }
 
-            ScrollableLazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                itemsIndexed(diffEntries) { index, diffEntry ->
-                    FileEntry(
-                        diffEntry = diffEntry,
-                        actionTitle = actionTitle,
-                        actionColor = actionColor,
-                        onClick = {
-                            onDiffEntrySelected(diffEntry)
-                        },
-                        onButtonClick = {
-                            onDiffEntryOptionSelected(diffEntry)
-                        },
-                        onReset = {
-                            onReset(diffEntry)
-                        }
-                    )
+        }
 
-                    if (index < diffEntries.size - 1) {
-                        Divider(modifier = Modifier.fillMaxWidth())
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background),
+        ) {
+            itemsIndexed(diffEntries) { index, diffEntry ->
+                FileEntry(
+                    diffEntry = diffEntry,
+                    actionTitle = actionTitle,
+                    actionColor = actionColor,
+                    onClick = {
+                        onDiffEntrySelected(diffEntry)
+                    },
+                    onButtonClick = {
+                        onDiffEntryOptionSelected(diffEntry)
+                    },
+                    onReset = {
+                        onReset(diffEntry)
                     }
+                )
 
+                if (index < diffEntries.size - 1) {
+                    Divider(modifier = Modifier.fillMaxWidth())
                 }
-
             }
         }
     }

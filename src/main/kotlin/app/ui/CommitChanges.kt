@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
 import app.theme.headerText
+import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.skia.Image.Companion.makeFromEncoded
 
 @Composable
@@ -48,115 +49,116 @@ fun CommitChanges(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.background),
+            .fillMaxSize(),
     ) {
+        val scroll = rememberScrollState(0)
+
         Column(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .padding(8.dp),
         ) {
-            val scroll = rememberScrollState(0)
-            Card(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth()
-            ) {
-                Column {
-                    SelectionContainer {
-                        Text(
-                            text = commit.fullMessage,
-                            fontSize = 14.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .padding(8.dp)
-                                .verticalScroll(scroll),
-                        )
-                    }
-
-                    Divider(modifier = Modifier.fillMaxWidth())
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(72.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val url = "https://www.gravatar.com/avatar/${commit.authorIdent.emailAddress.md5}"
-                        Image(
-                            bitmap = rememberNetworkImage(url),
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .height(40.dp)
-                                .clip(CircleShape),
-                            contentDescription = null,
-                        )
-
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Row {
-                                Text(
-                                    text = commit.authorIdent.name,
-                                    color = MaterialTheme.colors.primaryTextColor,
-                                    maxLines = 1,
-                                    fontSize = 14.sp,
-                                )
-
-                                Spacer(modifier = Modifier.weight(1f, fill = true))
-                                val date = remember(commit) {
-                                    commit.authorIdent.`when`.toSmartSystemString()
-                                }
-
-                                Text(
-                                    text = date,
-                                    color = MaterialTheme.colors.secondaryTextColor,
-                                    maxLines = 1,
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                    fontSize = 12.sp,
-                                )
-
-                            }
-
-                            Text(
-                                text = commit.authorIdent.emailAddress,
-                                color = MaterialTheme.colors.secondaryTextColor,
-                                maxLines = 1,
-                                fontSize = 12.sp,
-                            )
-                        }
-                    }
-                }
+            SelectionContainer {
+                Text(
+                    text = commit.fullMessage,
+                    fontSize = 14.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colors.background)
+                        .height(120.dp)
+                        .padding(8.dp)
+                        .verticalScroll(scroll),
+                )
             }
+
+            Divider(modifier = Modifier.fillMaxWidth())
+
+            Author(commit.authorIdent)
         }
 
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = true)
                 .padding(horizontal = 8.dp, vertical = 8.dp)
+                .background(MaterialTheme.colors.background)
         ) {
-            Column {
+            Text(
+                modifier = Modifier
+                    .background(MaterialTheme.colors.headerBackground)
+                    .padding(vertical = 8.dp)
+                    .fillMaxWidth(),
+                text = "Files changed",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.headerText,
+                maxLines = 1,
+                fontSize = 14.sp,
+            )
+
+
+            CommitLogChanges(diff, onDiffSelected = onDiffSelected)
+        }
+    }
+}
+
+@Composable
+fun Author(authorIdent: PersonIdent?) {
+    if(authorIdent == null)
+        return
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .background(MaterialTheme.colors.background),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val url = "https://www.gravatar.com/avatar/${authorIdent.emailAddress.md5}"
+        Image(
+            bitmap = rememberNetworkImage(url),
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .height(40.dp)
+                .clip(CircleShape),
+            contentDescription = null,
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row {
                 Text(
-                    modifier = Modifier
-                        .background(MaterialTheme.colors.headerBackground)
-                        .padding(vertical = 8.dp)
-                        .fillMaxWidth(),
-                    text = "Files changed",
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colors.headerText,
+                    text = authorIdent.name,
+                    color = MaterialTheme.colors.primaryTextColor,
                     maxLines = 1,
                     fontSize = 14.sp,
                 )
 
+                Spacer(modifier = Modifier.weight(1f, fill = true))
+                val date = remember(authorIdent) {
+                    authorIdent.`when`.toSmartSystemString()
+                }
 
-                CommitLogChanges(diff, onDiffSelected = onDiffSelected)
+                Text(
+                    text = date,
+                    color = MaterialTheme.colors.secondaryTextColor,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    fontSize = 12.sp,
+                )
+
             }
-        }
 
+            Text(
+                text = authorIdent.emailAddress,
+                color = MaterialTheme.colors.secondaryTextColor,
+                maxLines = 1,
+                fontSize = 12.sp,
+            )
+        }
     }
 }
 
