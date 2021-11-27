@@ -5,14 +5,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PasswordDialog(
     onReject: () -> Unit,
@@ -39,7 +44,15 @@ fun PasswordDialog(
                 .focusOrder(passwordFieldFocusRequester) {
                     this.next = buttonFieldFocusRequester
                 }
-                .width(300.dp),
+                .width(300.dp)
+                .onPreviewKeyEvent {
+                    if(it.key == Key.Enter) {
+                        onAccept(passwordField)
+                        true
+                    } else {
+                        false
+                    }
+                },
             value = passwordField,
             singleLine = true,
             label = { Text("Password", fontSize = 14.sp) },

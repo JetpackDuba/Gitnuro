@@ -5,13 +5,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NewBranchDialog(
     onReject: () -> Unit,
@@ -32,7 +37,15 @@ fun NewBranchDialog(
                 .focusOrder(branchFieldFocusRequester) {
                     this.next = buttonFieldFocusRequester
                 }
-                .width(300.dp),
+                .width(300.dp)
+                .onPreviewKeyEvent {
+                    if(it.key == Key.Enter) {
+                        onAccept(branchField)
+                        true
+                    } else {
+                        false
+                    }
+                },
             value = branchField,
             singleLine = true,
             label = { Text("New branch name", fontSize = 14.sp) },
