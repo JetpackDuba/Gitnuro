@@ -209,7 +209,10 @@ class GitManager @Inject constructor(
     }
 
     fun deleteBranch(branch: Ref) = managerScope.launch {
-        branchesManager.deleteBranch(safeGit, branch)
+        safeProcessing {
+            branchesManager.deleteBranch(safeGit, branch)
+            coLoadLog()
+        }
     }
 
     fun resetStaged(diffEntry: DiffEntry) = managerScope.launch {

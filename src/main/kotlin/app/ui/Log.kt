@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -18,8 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -33,7 +33,6 @@ import app.DialogManager
 import app.extensions.*
 import app.git.GitManager
 import app.git.LogStatus
-import app.git.ResetType
 import app.git.graph.GraphNode
 import app.theme.headerBackground
 import app.theme.headerText
@@ -44,7 +43,6 @@ import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
 import app.ui.dialogs.ResetBranchDialog
-import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -296,9 +294,7 @@ fun Log(
                                     commit = graphNode,
                                     selected = selectedIndex.value == index,
                                     refs = commitRefs,
-                                    onCheckoutRef = { ref ->
-                                        gitManager.checkoutRef(ref)
-                                    },
+                                    onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
                                     onMergeBranch = { ref ->
                                         dialogManager.show {
                                             MergeDialog(
@@ -314,6 +310,7 @@ fun Log(
                                             )
                                         }
                                     },
+                                    onDeleteBranch = { ref -> gitManager.deleteBranch(ref) }
                                 )
                             }
                         }
@@ -332,6 +329,7 @@ fun CommitMessage(
     refs: List<Ref>,
     onCheckoutRef: (ref: Ref) -> Unit,
     onMergeBranch: (ref: Ref) -> Unit,
+    onDeleteBranch: (ref: Ref) -> Unit,
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -360,15 +358,12 @@ fun CommitMessage(
                             onCheckoutRef(ref)
                         }
                     )
-                } else if(ref.isBranch)
+                } else if (ref.isBranch)
                     BranchChip(
                         ref = ref,
-                        onCheckoutBranch = {
-                            onCheckoutRef(ref)
-                        },
-                        onMergeBranch = {
-                            onMergeBranch(ref)
-                        }
+                        onCheckoutBranch = { onCheckoutRef(ref) },
+                        onMergeBranch = { onMergeBranch(ref) },
+                        onDeleteBranch = { onDeleteBranch(ref) }
                     )
             }
 
@@ -545,6 +540,7 @@ fun BranchChip(
     ref: Ref,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
+    onDeleteBranch: () -> Unit,
 ) {
     val contextMenuItemsList = {
         mutableListOf(
@@ -554,13 +550,22 @@ fun BranchChip(
             ),
 
             ).apply {
-            if (!isCurrentBranch)
+            if (!isCurrentBranch) {
                 add(
                     ContextMenuItem(
                         label = "Merge branch",
                         onClick = onMergeBranch
                     )
                 )
+            }
+            if (ref.isLocal && !isCurrentBranch) {
+                add(
+                    ContextMenuItem(
+                        label = "Delete branch",
+                        onClick = onDeleteBranch
+                    )
+                )
+            }
         }
     }
 

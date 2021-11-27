@@ -75,6 +75,7 @@ class BranchesManager @Inject constructor() {
         git
             .branchDelete()
             .setBranchNames(branch.name)
+            .setForce(true) // TODO Should it be forced?
             .call()
     }
 }
