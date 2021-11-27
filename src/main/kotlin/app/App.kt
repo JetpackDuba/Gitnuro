@@ -108,7 +108,6 @@ class Main {
     @Composable
     fun AppTabs(dialogManager: DialogManager) {
         val tabs = remember {
-
             val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
             var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
                 newAppTab(
@@ -133,7 +132,7 @@ class Main {
 
         Column(
             modifier =
-            Modifier.background(MaterialTheme.colors.surface)
+            Modifier.background(MaterialTheme.colors.background)
         ) {
             Row(
                 modifier = Modifier
