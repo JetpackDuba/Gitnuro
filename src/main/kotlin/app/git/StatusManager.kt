@@ -35,24 +35,30 @@ class StatusManager @Inject constructor() {
     }
 
     suspend fun loadStatus(git: Git) = withContext(Dispatchers.IO) {
+        val previousStatus = _stageStatus.value
         _stageStatus.value = StageStatus.Loading
 
-        loadHasUncommitedChanges(git)
+        try {
+            loadHasUncommitedChanges(git)
 
-        val staged = git
-            .diff()
-            .setCached(true)
-            .call()
+            val staged = git
+                .diff()
+                .setCached(true)
+                .call()
 
-        ensureActive()
+            ensureActive()
 
-        val unstaged = git
-            .diff()
-            .call()
+            val unstaged = git
+                .diff()
+                .call()
 
-        ensureActive()
+            ensureActive()
+            _stageStatus.value = StageStatus.Loaded(staged, unstaged)
+        } catch(ex: Exception) {
+            _stageStatus.value = previousStatus
+            throw ex
+        }
 
-        _stageStatus.value = StageStatus.Loaded(staged, unstaged)
     }
 
     suspend fun stage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {

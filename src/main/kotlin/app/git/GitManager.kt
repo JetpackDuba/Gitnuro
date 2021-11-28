@@ -15,7 +15,10 @@ import app.AppStateManager
 import app.app.Error
 import app.app.ErrorsManager
 import app.app.newErrorNow
+import app.extensions.dirPath
+import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.File
 import javax.inject.Inject
 
@@ -30,6 +33,7 @@ class GitManager @Inject constructor(
     private val tagsManager: TagsManager,
     val errorsManager: ErrorsManager,
     val appStateManager: AppStateManager,
+    private val fileChangesWatcher: FileChangesWatcher,
 ) {
     val repositoryName: String
         get() = safeGit.repository.directory.parentFile.name
@@ -115,10 +119,28 @@ class GitManager @Inject constructor(
 
                 onRepositoryChanged(repository.directory.parent)
                 refreshRepositoryInfo()
+                launch {
+                    watchRepositoryChanges()
+                }
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 onRepositoryChanged(null)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+            }
+        }
+    }
+
+    private suspend fun watchRepositoryChanges() {
+        val ignored = safeGit.status().call().ignoredNotInIndex.toList()
+
+        fileChangesWatcher.watchDirectoryPath(
+            pathStr = safeGit.repository.directory.parent,
+            ignoredDirsPath = ignored,
+        ).collect {
+            safeProcessing {
+                println("Changes detected, loading status")
+                statusManager.loadHasUncommitedChanges(safeGit)
+                statusManager.loadStatus(safeGit)
             }
         }
     }
