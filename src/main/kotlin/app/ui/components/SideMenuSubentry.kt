@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,6 +22,7 @@ import app.theme.primaryTextColor
 fun SideMenuSubentry(
     text: String,
     iconResourcePath: String,
+    bold: Boolean = false,
     additionalInfo: @Composable () -> Unit = {}
 ) {
     Row(
@@ -44,6 +46,7 @@ fun SideMenuSubentry(
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
             fontSize = 14.sp,
+            fontWeight = if(bold) FontWeight.SemiBold else FontWeight.Normal,
             color = MaterialTheme.colors.primaryTextColor,
             overflow = TextOverflow.Ellipsis,
         )

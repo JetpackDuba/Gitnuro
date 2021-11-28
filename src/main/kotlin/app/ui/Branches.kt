@@ -62,10 +62,16 @@ private fun BranchRow(
 ) {
     SideMenuSubentry(
         text = branch.simpleName,
-        iconResourcePath = "branch.svg"
+        iconResourcePath = "branch.svg",
+        bold = isCurrentBranch,
     ) {
         if (isCurrentBranch) {
-            Text("***")
+            Icon(
+                painter = painterResource("location.svg"),
+                contentDescription = null,
+                modifier = Modifier.padding(horizontal = 4.dp),
+                tint = MaterialTheme.colors.primary,
+            )
         }
     }
 }
