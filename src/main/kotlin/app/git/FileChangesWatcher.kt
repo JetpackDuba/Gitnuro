@@ -21,7 +21,7 @@ class FileChangesWatcher @Inject constructor() {
             ENTRY_MODIFY
         )
 
-        // register directory and sub-directories
+        // register directory and sub-directories but ignore dirs by gitignore
         Files.walkFileTree(path, object : SimpleFileVisitor<Path>() {
             @Throws(IOException::class)
             override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
@@ -40,10 +40,7 @@ class FileChangesWatcher @Inject constructor() {
         while (watchService.take().also { key = it } != null) {
             this.emit(Unit)
             for (event: WatchEvent<*> in key.pollEvents()) {
-                println(
-                    "Event kind:" + event.kind()
-                            + ". File affected: " + event.context() + "."
-                )
+                println("Event kind: ${event.kind()}. File affected: ${event.context()}.")
             }
             key.reset()
         }
