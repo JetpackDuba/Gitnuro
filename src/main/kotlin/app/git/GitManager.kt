@@ -337,6 +337,10 @@ class GitManager @Inject constructor(
             refreshRepositoryInfo()
         }
     }
+
+    fun dispose() {
+        managerScope.cancel()
+    }
 }
 
 

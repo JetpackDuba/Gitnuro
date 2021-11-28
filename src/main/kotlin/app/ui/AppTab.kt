@@ -15,7 +15,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,7 +24,6 @@ import app.LoadingRepository
 import app.git.GitManager
 import app.git.RepositorySelectionStatus
 import app.theme.tabBackground
-import app.ui.components.DialogBox
 import kotlinx.coroutines.delay
 
 
@@ -37,9 +35,15 @@ fun AppTab(
     repositoryPath: String?,
     tabName: MutableState<String>
 ) {
-    LaunchedEffect(gitManager) {
+    DisposableEffect(gitManager) {
         if (repositoryPath != null)
             gitManager.openRepository(repositoryPath)
+
+        // TODO onDispose sometimes is called when changing tabs, therefore losing the tab state
+        onDispose {
+            println("onDispose called for $tabName")
+            gitManager.dispose()
+        }
     }
 
     val errorManager = remember(gitManager) { // TODO Is remember here necessary?
