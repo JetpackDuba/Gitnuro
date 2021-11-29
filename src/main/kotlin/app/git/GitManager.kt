@@ -54,26 +54,15 @@ class GitManager @Inject constructor(
     val lastTimeChecked: StateFlow<Long>
         get() = _lastTimeChecked
 
-    val stageStatus: StateFlow<StageStatus>
-        get() = statusManager.stageStatus
+    val stageStatus: StateFlow<StageStatus> = statusManager.stageStatus
+    val logStatus: StateFlow<LogStatus> = logManager.logStatus
+    val branches: StateFlow<List<Ref>> = branchesManager.branches
+    val tags: StateFlow<List<Ref>> = tagsManager.tags
+    val currentBranch: StateFlow<String> = branchesManager.currentBranch
+    val stashStatus: StateFlow<StashStatus> = stashManager.stashStatus
+    val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
+    val cloneStatus: StateFlow<CloneStatus> = remoteOperationsManager.cloneStatus
 
-    val logStatus: StateFlow<LogStatus>
-        get() = logManager.logStatus
-
-    val branches: StateFlow<List<Ref>>
-        get() = branchesManager.branches
-
-    val tags: StateFlow<List<Ref>>
-        get() = tagsManager.tags
-
-    val currentBranch: StateFlow<String>
-        get() = branchesManager.currentBranch
-
-    val stashStatus: StateFlow<StashStatus>
-        get() = stashManager.stashStatus
-
-    val credentialsState: StateFlow<CredentialsState>
-        get() = credentialsStateManager.credentialsState
 
     private var git: Git? = null
 
@@ -133,11 +122,12 @@ class GitManager @Inject constructor(
     private suspend fun watchRepositoryChanges() {
         val ignored = safeGit.status().call().ignoredNotInIndex.toList()
 
+
         fileChangesWatcher.watchDirectoryPath(
             pathStr = safeGit.repository.directory.parent,
             ignoredDirsPath = ignored,
         ).collect {
-            safeProcessing {
+            safeProcessing(showError = false) {
                 println("Changes detected, loading status")
                 statusManager.loadHasUncommitedChanges(safeGit)
                 statusManager.loadStatus(safeGit)
@@ -182,7 +172,13 @@ class GitManager @Inject constructor(
         get() = statusManager.hasUncommitedChanges
 
     suspend fun diffFormat(diffEntryType: DiffEntryType): List<String> {
-        return diffManager.diffFormat(safeGit, diffEntryType)
+        try {
+            return diffManager.diffFormat(safeGit, diffEntryType)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            loadStatus()
+            return listOf()
+        }
     }
 
     fun pull() = managerScope.launch {
@@ -312,13 +308,15 @@ class GitManager @Inject constructor(
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
-    private suspend fun safeProcessing(callback: suspend () -> Unit) {
+    private suspend fun safeProcessing(showError: Boolean = true, callback: suspend () -> Unit) {
         _processing.value = true
         try {
             callback()
         } catch (ex: Exception) {
             ex.printStackTrace()
-            errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+
+            if(showError)
+                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
             _processing.value = false
         }
@@ -340,6 +338,10 @@ class GitManager @Inject constructor(
 
     fun dispose() {
         managerScope.cancel()
+    }
+
+    fun clone(directory: File, url: String) = managerScope.launch {
+        remoteOperationsManager.clone(directory, url)
     }
 }
 

@@ -28,6 +28,9 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
 
     LaunchedEffect(diffEntryType.diffEntry) {
         text = gitManager.diffFormat(diffEntryType)
+
+
+        if(text.isEmpty()) onCloseDiffView()
     }
 
     Column(

@@ -2,6 +2,7 @@
 
 package app.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,28 +18,47 @@ import androidx.compose.ui.unit.dp
 import app.git.GitManager
 import openRepositoryDialog
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
+import app.DialogManager
 import app.extensions.dirName
 import app.extensions.dirPath
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.ui.dialogs.CloneDialog
 import java.awt.Desktop
 import java.net.URI
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Popup
+import app.ui.dialogs.MaterialDialog
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun WelcomePage(gitManager: GitManager) {
+fun WelcomePage(
+    gitManager: GitManager,
+) {
     val appStateManager = gitManager.appStateManager
+    var showCloneView by remember { mutableStateOf(false) }
 
+//    Crossfade(showCloneView) {
+//        if(it) {
+
+
+//        } else {
     Row(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = BiasAlignment.Vertical(-0.5f),
+
     ) {
         Column(
             modifier = Modifier
@@ -66,7 +86,9 @@ fun WelcomePage(gitManager: GitManager) {
                     .padding(bottom = 8.dp),
                 title = "Clone a repository",
                 painter = painterResource("open.svg"),
-                onClick = { }
+                onClick = {
+                    showCloneView = true
+                }
             )
 
             ButtonTile(
@@ -106,7 +128,6 @@ fun WelcomePage(gitManager: GitManager) {
             modifier = Modifier
                 .padding(start = 32.dp),
         ) {
-
             Text(
                 text = "Recent",
                 fontSize = 18.sp,
@@ -140,11 +161,28 @@ fun WelcomePage(gitManager: GitManager) {
                             color = MaterialTheme.colors.secondaryTextColor
                         )
                     }
-
                 }
             }
         }
     }
+
+
+    if(showCloneView)
+        MaterialDialog {
+            CloneDialog(gitManager, onClose = { showCloneView = false })
+        }
+//        Popup(focusable = true, onDismissRequest = { showCloneView = false }, alignment = Alignment.Center) {
+//
+//        }
+
+//        PopupAlertDialogProvider.AlertDialog(onDismissRequest = {}) {
+//
+//            CloneDialog(gitManager, onClose = { showCloneView = false })
+//        }
+
+//        }
+//    }
+
 }
 
 @Composable
