@@ -14,15 +14,26 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 
 @Composable
 fun MaterialDialog(
     alignment: Alignment = Alignment.Center,
     content: @Composable () -> Unit
 ) {
-    Popup(focusable = true) {
+    Popup(
+        focusable = true,
+        popupPositionProvider = object: PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize
+            ): IntOffset = IntOffset.Zero
+        }
+    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
