@@ -85,22 +85,7 @@ class RemoteOperationsManager @Inject constructor(
                     if (it is SshTransport) {
                         it.sshSessionFactory = sessionManager.generateSshSessionFactory()
                     } else if (it is HttpTransport) {
-                        it.credentialsProvider = object : CredentialsProvider() {
-                            override fun isInteractive(): Boolean {
-                                return true
-                            }
-
-                            override fun supports(vararg items: CredentialItem?): Boolean {
-                                println(items)
-
-                                return true
-                            }
-
-                            override fun get(uri: URIish?, vararg items: CredentialItem?): Boolean {
-                                return true
-                            }
-
-                        }
+                        it.credentialsProvider = HttpCredentialsProvider()
                     }
                 }
                 .call()
