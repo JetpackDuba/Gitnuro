@@ -26,58 +26,60 @@ fun NewBranchDialog(
     val branchFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        OutlinedTextField(
+    MaterialDialog {
+        Column(
             modifier = Modifier
-                .focusOrder(branchFieldFocusRequester) {
-                    this.next = buttonFieldFocusRequester
-                }
-                .width(300.dp)
-                .onPreviewKeyEvent {
-                    if(it.key == Key.Enter) {
-                        onAccept(branchField)
-                        true
-                    } else {
-                        false
-                    }
-                },
-            value = branchField,
-            singleLine = true,
-            label = { Text("New branch name", fontSize = 14.sp) },
-            textStyle = TextStyle(fontSize = 14.sp),
-            onValueChange = {
-                branchField = it
-            },
-        )
-        Row(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
+                .background(MaterialTheme.colors.background),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            TextButton(
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = {
-                    onReject()
-                }
-            ) {
-                Text("Cancel")
-            }
-            Button(
-                modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                    this.previous = branchFieldFocusRequester
-                    this.next = branchFieldFocusRequester
+            OutlinedTextField(
+                modifier = Modifier
+                    .focusOrder(branchFieldFocusRequester) {
+                        this.next = buttonFieldFocusRequester
+                    }
+                    .width(300.dp)
+                    .onPreviewKeyEvent {
+                        if (it.key == Key.Enter) {
+                            onAccept(branchField)
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                value = branchField,
+                singleLine = true,
+                label = { Text("New branch name", fontSize = 14.sp) },
+                textStyle = TextStyle(fontSize = 14.sp),
+                onValueChange = {
+                    branchField = it
                 },
-                enabled = branchField.isNotEmpty(),
-                onClick = {
-                    onAccept(branchField)
-                }
+            )
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.End)
             ) {
-                Text("Create branch")
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        onReject()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
+                        this.previous = branchFieldFocusRequester
+                        this.next = branchFieldFocusRequester
+                    },
+                    enabled = branchField.isNotEmpty(),
+                    onClick = {
+                        onAccept(branchField)
+                    }
+                ) {
+                    Text("Create branch")
+                }
             }
         }
     }
