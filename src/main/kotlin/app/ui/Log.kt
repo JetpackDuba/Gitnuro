@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalComposeUiApi::class)
+@file:Suppress("UNUSED_PARAMETER")
 
 package app.ui
 
@@ -493,7 +494,7 @@ fun CommitNode(
             .border(2.dp, color, shape = CircleShape)
             .clip(CircleShape)
     ) {
-        val url = "https://www.gravatar.com/avatar/${plotCommit.authorIdent.emailAddress.md5}"
+        val url = "https://www.gravatar.com/avatar/${plotCommit.authorIdent.emailAddress.md5}?s=60"
         Image(
             bitmap = rememberNetworkImage(url),
             modifier = Modifier

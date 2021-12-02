@@ -32,6 +32,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
+import app.images.ImagesCache
+import app.images.InMemoryImagesCache
 import app.theme.headerText
 import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.skia.Image.Companion.makeFromEncoded
@@ -171,26 +173,32 @@ suspend fun loadImage(link: String): ByteArray = withContext(Dispatchers.IO) {
 }
 
 @Composable
-fun rememberNetworkImage(url: String): ImageBitmap {
+fun rememberNetworkImage(url: String, cache: ImagesCache = InMemoryImagesCache): ImageBitmap {
+    val cachedImage = cache.getCachedObject(url)
+
     var image by remember(url) {
-        mutableStateOf<ImageBitmap>(
-            useResource("image.jpg") {
-                makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
-            }
-        )
+        if(cachedImage != null)
+            mutableStateOf(makeFromEncoded(cachedImage).toComposeImageBitmap())
+        else
+            mutableStateOf(
+                useResource("image.jpg") {
+                    makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
+                }
+            )
     }
 
-
-    LaunchedEffect(url) {
-        try {
-            loadImage(url).let {
-                image = makeFromEncoded(it).toComposeImageBitmap()
+    if(cachedImage == null) {
+        LaunchedEffect(url) {
+            try {
+                loadImage(url).let {
+                    image = makeFromEncoded(it).toComposeImageBitmap()
+                    cache.cacheImage(url, it)
+                }
+            } catch (ex: Exception) {
+                println("Avatar loading failed: ${ex.message}")
             }
-        } catch (ex: Exception) {
-            println("Avatar loading failed: ${ex.message}")
         }
     }
-
 
     return image
 }
