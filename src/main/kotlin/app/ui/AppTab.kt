@@ -21,9 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.DialogManager
 import app.LoadingRepository
+import app.credentials.CredentialsState
 import app.git.GitManager
 import app.git.RepositorySelectionStatus
 import app.theme.tabBackground
+import app.ui.dialogs.PasswordDialog
+import app.ui.dialogs.UserPasswordDialog
 import kotlinx.coroutines.delay
 
 
@@ -89,6 +92,8 @@ fun AppTab(
                     .alpha(linearProgressAlpha)
             )
 
+            CredentialsDialog(gitManager)
+
             Box(modifier = Modifier.fillMaxSize()) {
                 Crossfade(targetState = repositorySelectionStatus) {
 
@@ -153,5 +158,30 @@ fun AppTab(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CredentialsDialog(gitManager: GitManager) {
+    val credentialsState by gitManager.credentialsState.collectAsState()
+
+    if (credentialsState == CredentialsState.HttpCredentialsRequested) {
+        UserPasswordDialog(
+            onReject = {
+                gitManager.credentialsDenied()
+            },
+            onAccept = { user, password ->
+                gitManager.httpCredentialsAccepted(user, password)
+            }
+        )
+    } else if (credentialsState == CredentialsState.SshCredentialsRequested) {
+        PasswordDialog(
+            onReject = {
+                gitManager.credentialsDenied()
+            },
+            onAccept = { password ->
+                gitManager.sshCredentialsAccepted(password)
+            }
+        )
     }
 }

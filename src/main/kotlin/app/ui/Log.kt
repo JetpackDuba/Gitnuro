@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalComposeUiApi::class)
+@file:OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+
 @file:Suppress("UNUSED_PARAMETER")
 
 package app.ui
@@ -28,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.DialogManager
@@ -87,8 +89,8 @@ fun Log(
                 .fillMaxSize()
         ) {
             val hasUncommitedChanges by gitManager.hasUncommitedChanges.collectAsState()
-            var weightMod by remember { mutableStateOf(0f) }
-            var graphWidth = (CANVAS_MIN_WIDTH + weightMod).dp//(weightMod / 500)
+            val weightMod = remember { mutableStateOf(0f) }
+            var graphWidth = (CANVAS_MIN_WIDTH + weightMod.value).dp
 
             if (graphWidth.value < CANVAS_MIN_WIDTH)
                 graphWidth = CANVAS_MIN_WIDTH.dp
@@ -120,7 +122,7 @@ fun Log(
 
                         DividerLog(
                             modifier = Modifier.draggable(rememberDraggableState {
-                                weightMod += it
+                                weightMod.value += it
                             }, Orientation.Horizontal)
                         )
 
@@ -166,7 +168,7 @@ fun Log(
                                 modifier = Modifier
                                     .draggable(
                                         rememberDraggableState {
-                                            weightMod += it
+                                            weightMod.value += it
                                         },
                                         Orientation.Horizontal
                                     )
@@ -192,131 +194,155 @@ fun Log(
                     }
 
                 itemsIndexed(items = commitList) { index, graphNode ->
-                    val commitRefs = graphNode.refs
-                    Box(modifier = Modifier
-                        .clickable {
+                    CommitLine(
+                        gitManager = gitManager,
+                        dialogManager = dialogManager,
+                        graphNode = graphNode,
+                        selected = selectedIndex.value == index,
+                        weightMod = weightMod,
+                        graphWidth = graphWidth,
+                        onRevCommitSelected = {
                             selectedIndex.value = index
                             selectedUncommited.value = false
-                            onRevCommitSelected(graphNode)
+                            onRevCommitSelected(it)
                         }
-                    ) {
+                    )
+                }
+            }
 
+        }
+    }
+}
 
-                        ContextMenuArea(
-                            items = {
-                                listOf(
-                                    ContextMenuItem(
-                                        label = "Checkout commit",
-                                        onClick = {
-                                            gitManager.checkoutCommit(graphNode)
-                                        }),
-                                    ContextMenuItem(
-                                        label = "Create branch",
-                                        onClick = {
-                                            dialogManager.show {
-                                                NewBranchDialog(
-                                                    onReject = {
-                                                        dialogManager.dismiss()
-                                                    },
-                                                    onAccept = { branchName ->
-                                                        dialogManager.dismiss()
-                                                        gitManager.createBranchOnCommit(branchName, graphNode)
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    ),
-                                    ContextMenuItem(
-                                        label = "Create tag",
-                                        onClick = {
-                                            dialogManager.show {
-                                                NewTagDialog(
-                                                    onReject = {
-                                                        dialogManager.dismiss()
-                                                    },
-                                                    onAccept = { tagName ->
-                                                        gitManager.createTagOnCommit(tagName, graphNode)
-                                                        dialogManager.dismiss()
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    ),
-                                    ContextMenuItem(
-                                        label = "Revert commit",
-                                        onClick = {
-                                            gitManager.revertCommit(graphNode)
-                                        }
-                                    ),
+@Composable
+fun CommitLine(
+    gitManager: GitManager,
+    dialogManager: DialogManager,
+    graphNode: GraphNode,
+    selected: Boolean,
+    weightMod: MutableState<Float>,
+    graphWidth: Dp,
+    onRevCommitSelected: (GraphNode) -> Unit,
+) {
+    val commitRefs = graphNode.refs
+    var showCreateBranchDialog by remember(graphNode.id.name) { mutableStateOf(false) }
+    if(showCreateBranchDialog)
+        NewBranchDialog(
+            onReject = {
+                showCreateBranchDialog = false
+            },
+            onAccept = { branchName ->
+                gitManager.createBranchOnCommit(branchName, graphNode)
+                showCreateBranchDialog = false
+            }
+        )
 
-                                    ContextMenuItem(
-                                        label = "Reset current branch to this commit",
-                                        onClick = {
-                                            dialogManager.show {
-                                                ResetBranchDialog(
-                                                    onReject = {
-                                                        dialogManager.dismiss()
-                                                    },
-                                                    onAccept = { resetType ->
-                                                        dialogManager.dismiss()
-                                                        gitManager.resetToCommit(graphNode, resetType)
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    )
-                                )
-                            },
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .fillMaxWidth(),
-                            ) {
-                                CommitsGraphLine(
-                                    modifier = Modifier
-                                        .width(graphWidth)
-                                        .fillMaxHeight(),
-                                    plotCommit = graphNode
-                                )
-
-                                DividerLog(
-                                    modifier = Modifier
-                                        .draggable(
-                                            rememberDraggableState {
-                                                weightMod += it
-                                            },
-                                            Orientation.Horizontal
-                                        )
-                                )
-
-                                CommitMessage(
-                                    modifier = Modifier.weight(1f),
-                                    commit = graphNode,
-                                    selected = selectedIndex.value == index,
-                                    refs = commitRefs,
-                                    onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
-                                    onMergeBranch = { ref ->
-                                        dialogManager.show {
-                                            MergeDialog(
-                                                currentBranchName = "HEAD",
-                                                mergeBranchName = ref.simpleName,
-                                                onReject = {
-                                                    dialogManager.dismiss()
-                                                },
-                                                onAccept = { fastForward ->
-                                                    dialogManager.dismiss()
-                                                    gitManager.mergeBranch(ref, fastForward)
-                                                }
-                                            )
-                                        }
+    Box(modifier = Modifier
+        .clickable {
+            onRevCommitSelected(graphNode)
+        }
+    ) {
+        ContextMenuArea(
+            items = {
+                listOf(
+                    ContextMenuItem(
+                        label = "Checkout commit",
+                        onClick = {
+                            gitManager.checkoutCommit(graphNode)
+                        }),
+                    ContextMenuItem(
+                        label = "Create branch",
+                        onClick = {
+                            showCreateBranchDialog = true
+                        }
+                    ),
+                    ContextMenuItem(
+                        label = "Create tag",
+                        onClick = {
+                            dialogManager.show {
+                                NewTagDialog(
+                                    onReject = {
+                                        dialogManager.dismiss()
                                     },
-                                    onDeleteBranch = { ref -> gitManager.deleteBranch(ref) }
+                                    onAccept = { tagName ->
+                                        gitManager.createTagOnCommit(tagName, graphNode)
+                                        dialogManager.dismiss()
+                                    }
                                 )
                             }
                         }
-                    }
-                }
+                    ),
+                    ContextMenuItem(
+                        label = "Revert commit",
+                        onClick = {
+                            gitManager.revertCommit(graphNode)
+                        }
+                    ),
+
+                    ContextMenuItem(
+                        label = "Reset current branch to this commit",
+                        onClick = {
+                            dialogManager.show {
+                                ResetBranchDialog(
+                                    onReject = {
+                                        dialogManager.dismiss()
+                                    },
+                                    onAccept = { resetType ->
+                                        dialogManager.dismiss()
+                                        gitManager.resetToCommit(graphNode, resetType)
+                                    }
+                                )
+                            }
+                        }
+                    )
+                )
+            },
+        ) {
+            Row(
+                modifier = Modifier
+                    .height(40.dp)
+                    .fillMaxWidth(),
+            ) {
+                CommitsGraphLine(
+                    modifier = Modifier
+                        .width(graphWidth)
+                        .fillMaxHeight(),
+                    plotCommit = graphNode
+                )
+
+                DividerLog(
+                    modifier = Modifier
+                        .draggable(
+                            rememberDraggableState {
+                                weightMod.value += it
+                            },
+                            Orientation.Horizontal
+                        )
+                )
+
+                CommitMessage(
+                    modifier = Modifier.weight(1f),
+                    commit = graphNode,
+                    selected = selected,
+                    refs = commitRefs,
+                    onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
+                    onMergeBranch = { ref ->
+                        dialogManager.show {
+                            MergeDialog(
+                                currentBranchName = "HEAD",
+                                mergeBranchName = ref.simpleName,
+                                onReject = {
+                                    dialogManager.dismiss()
+                                },
+                                onAccept = { fastForward ->
+                                    dialogManager.dismiss()
+                                    gitManager.mergeBranch(ref, fastForward)
+                                }
+                            )
+                        }
+                    },
+                    onDeleteBranch = { ref -> gitManager.deleteBranch(ref) }
+                )
             }
         }
     }

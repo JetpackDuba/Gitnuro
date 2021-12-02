@@ -44,36 +44,6 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
 
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
 
-    val credentialsState by gitManager.credentialsState.collectAsState()
-
-    if (credentialsState == CredentialsState.HttpCredentialsRequested) {
-        dialogManager.show {
-            UserPasswordDialog(
-                onReject = {
-                    gitManager.credentialsDenied()
-                    dialogManager.dismiss()
-                },
-                onAccept = { user, password ->
-                    gitManager.httpCredentialsAccepted(user, password)
-                    dialogManager.dismiss()
-                }
-            )
-        }
-    } else if (credentialsState == CredentialsState.SshCredentialsRequested) {
-        dialogManager.show {
-            PasswordDialog(
-                onReject = {
-                    gitManager.credentialsDenied()
-                    dialogManager.dismiss()
-                },
-                onAccept = { password ->
-                    gitManager.sshCredentialsAccepted(password)
-                    dialogManager.dismiss()
-                }
-            )
-        }
-    }
-
     Column {
         GMenu(
             onRepositoryOpen = {
