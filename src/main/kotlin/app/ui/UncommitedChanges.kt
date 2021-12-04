@@ -61,6 +61,11 @@ fun UncommitedChanges(
     }
 
     var commitMessage by remember { mutableStateOf("") }
+    val doCommit = {
+        gitManager.commit(commitMessage)
+        onStagedDiffEntrySelected(null)
+        commitMessage = ""
+    }
 
     Column {
         AnimatedVisibility(
@@ -132,7 +137,7 @@ fun UncommitedChanges(
                         .weight(weight = 1f, fill = true)
                         .onPreviewKeyEvent {
                             if (it.isCtrlPressed && it.key == Key.Enter) {
-                                gitManager.commit(commitMessage)
+                                doCommit()
                                 true
                             }
                                 else
@@ -150,9 +155,7 @@ fun UncommitedChanges(
                     modifier = Modifier
                         .fillMaxWidth(),
                     onClick = {
-                        gitManager.commit(commitMessage)
-                        commitMessage = ""
-                        onStagedDiffEntrySelected(null)
+                        doCommit()
                     },
                     enabled = commitMessage.isNotEmpty() && staged.isNotEmpty(),
                     shape = RectangleShape,
