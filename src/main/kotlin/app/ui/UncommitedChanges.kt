@@ -18,6 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +39,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import app.theme.headerBackground
 import app.theme.headerText
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun UncommitedChanges(
     gitManager: GitManager,
@@ -125,12 +129,21 @@ fun UncommitedChanges(
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(weight = 1f, fill = true),
+                        .weight(weight = 1f, fill = true)
+                        .onPreviewKeyEvent {
+                            if (it.isCtrlPressed && it.key == Key.Enter) {
+                                gitManager.commit(commitMessage)
+                                true
+                            }
+                                else
+                                    false
+
+                        },
                     value = commitMessage,
                     onValueChange = { commitMessage = it },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
                     colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
-                    textStyle = TextStyle.Default.copy(fontSize = 14.sp)
+                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
                 )
 
                 Button(
