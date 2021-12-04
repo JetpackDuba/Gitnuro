@@ -113,7 +113,6 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
                                         null -> {
                                             Log(
                                                 gitManager = gitManager,
-                                                dialogManager = dialogManager,
                                                 selectedIndex = selectedIndexCommitLog,
                                                 onRevCommitSelected = { commit ->
                                                     selectedRevCommit = commit
