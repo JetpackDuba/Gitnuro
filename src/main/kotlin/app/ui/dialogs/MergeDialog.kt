@@ -27,76 +27,78 @@ fun MergeDialog(
 ) {
     var fastForwardCheck by remember { mutableStateOf(fastForward) }
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-
-
-            Text(
-                text = mergeBranchName,
-                fontWeight = FontWeight.Medium
-            )
-
-
-            Text(
-                text = "will be merged into",
-                modifier = Modifier.padding(horizontal = 8.dp)
-            )
-
-            Text(
-                text = currentBranchName,
-                fontWeight = FontWeight.Medium
-            )
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+    MaterialDialog {
+        Column(
             modifier = Modifier
-                .mouseClickable {
-                    if(this.buttons.isPrimaryPressed) {
-                        fastForwardCheck = !fastForwardCheck
-                    }
-                }
+                .background(MaterialTheme.colors.background),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            Checkbox(
-                checked = fastForwardCheck,
-                onCheckedChange = { checked ->
-                    fastForwardCheck = checked
-                }
-            )
-
-            Text(
-                "Fast forward",
-                modifier = Modifier
-                    .padding(start = 8.dp)
-            )
-
-        }
-        Row(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
-        ) {
-            TextButton(
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = {
-                    onReject()
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Cancel")
+
+
+                Text(
+                    text = mergeBranchName,
+                    fontWeight = FontWeight.Medium
+                )
+
+
+                Text(
+                    text = "will be merged into",
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+
+                Text(
+                    text = currentBranchName,
+                    fontWeight = FontWeight.Medium
+                )
             }
-            Button(
-                onClick = {
-                    onAccept(fastForwardCheck)
-                }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .mouseClickable {
+                        if (this.buttons.isPrimaryPressed) {
+                            fastForwardCheck = !fastForwardCheck
+                        }
+                    }
             ) {
-                Text("Merge")
+                Checkbox(
+                    checked = fastForwardCheck,
+                    onCheckedChange = { checked ->
+                        fastForwardCheck = checked
+                    }
+                )
+
+                Text(
+                    "Fast forward",
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                )
+
+            }
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.End)
+            ) {
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        onReject()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    onClick = {
+                        onAccept(fastForwardCheck)
+                    }
+                ) {
+                    Text("Merge")
+                }
             }
         }
     }

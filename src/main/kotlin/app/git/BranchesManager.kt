@@ -20,6 +20,15 @@ class BranchesManager @Inject constructor() {
     val currentBranch: StateFlow<String>
         get() = _currentBranch
 
+    suspend fun currentBranchRef(git: Git): Ref? {
+        val branchList = getBranches(git)
+        val branchName = git
+            .repository
+            .fullBranch
+
+        return branchList.firstOrNull { it.name == branchName }
+    }
+
     suspend fun loadBranches(git: Git) = withContext(Dispatchers.IO) {
         val branchList = getBranches(git)
 
@@ -58,7 +67,7 @@ class BranchesManager @Inject constructor() {
     }
 
     suspend fun mergeBranch(git: Git, branch: Ref, fastForward: Boolean) = withContext(Dispatchers.IO) {
-        val fastForwardMode = if(fastForward)
+        val fastForwardMode = if (fastForward)
             MergeCommand.FastForwardMode.FF
         else
             MergeCommand.FastForwardMode.NO_FF

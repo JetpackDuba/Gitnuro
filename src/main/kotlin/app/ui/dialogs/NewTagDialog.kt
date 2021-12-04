@@ -26,63 +26,65 @@ fun NewTagDialog(
     val tagFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        OutlinedTextField(
+    MaterialDialog {
+        Column(
             modifier = Modifier
-                .focusOrder(tagFieldFocusRequester) {
-                    this.next = buttonFieldFocusRequester
-                }
-                .width(300.dp)
-                .onPreviewKeyEvent {
-                    if(it.key == Key.Enter) {
-                        onAccept(tagField)
-                        true
-                    } else {
-                        false
-                    }
-                },
-            value = tagField,
-            singleLine = true,
-            label = { Text("New tag name", fontSize = 14.sp) },
-            textStyle = TextStyle(fontSize = 14.sp),
-            onValueChange = {
-                tagField = it
-            },
-        )
-        Row(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
+                .background(MaterialTheme.colors.background),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            TextButton(
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = {
-                    onReject()
-                }
-            ) {
-                Text("Cancel")
-            }
-            Button(
-                modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                    this.previous = tagFieldFocusRequester
-                    this.next = tagFieldFocusRequester
+            OutlinedTextField(
+                modifier = Modifier
+                    .focusOrder(tagFieldFocusRequester) {
+                        this.next = buttonFieldFocusRequester
+                    }
+                    .width(300.dp)
+                    .onPreviewKeyEvent {
+                        if (it.key == Key.Enter) {
+                            onAccept(tagField)
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                value = tagField,
+                singleLine = true,
+                label = { Text("New tag name", fontSize = 14.sp) },
+                textStyle = TextStyle(fontSize = 14.sp),
+                onValueChange = {
+                    tagField = it
                 },
-                enabled = tagField.isNotEmpty(),
-                onClick = {
-                    onAccept(tagField)
-                }
+            )
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.End)
             ) {
-                Text("Create tag")
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        onReject()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
+                        this.previous = tagFieldFocusRequester
+                        this.next = tagFieldFocusRequester
+                    },
+                    enabled = tagField.isNotEmpty(),
+                    onClick = {
+                        onAccept(tagField)
+                    }
+                ) {
+                    Text("Create tag")
+                }
             }
         }
-    }
 
-    LaunchedEffect(Unit) {
-        tagFieldFocusRequester.requestFocus()
+        LaunchedEffect(Unit) {
+            tagFieldFocusRequester.requestFocus()
+        }
     }
 }

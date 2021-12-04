@@ -2,7 +2,7 @@
 
 @file:Suppress("UNUSED_PARAMETER")
 
-package app.ui
+package app.ui.log
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.DialogManager
 import app.extensions.*
 import app.git.GitManager
 import app.git.LogStatus
@@ -46,6 +45,7 @@ import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
 import app.ui.dialogs.ResetBranchDialog
+import app.ui.rememberNetworkImage
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -69,7 +69,6 @@ private const val CANVAS_MIN_WIDTH = 100
 @Composable
 fun Log(
     gitManager: GitManager,
-    dialogManager: DialogManager,
     onRevCommitSelected: (RevCommit) -> Unit,
     onUncommitedChangesSelected: () -> Unit,
     selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
@@ -78,11 +77,20 @@ fun Log(
     val logStatus = logStatusState.value
 
     val selectedUncommited = remember { mutableStateOf(false) }
+    val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
+
 
     if (logStatus is LogStatus.Loaded) {
         val commitList = logStatus.plotCommitList
 
-        Box(
+        LogDialogs(
+            gitManager,
+            currentBranch = logStatus.currentBranch,
+            onResetShowLogDialog = { showLogDialog.value = LogDialog.None },
+            showLogDialog = showLogDialog.value,
+        )
+
+        Column(
             modifier = Modifier
                 .padding(8.dp)
                 .background(MaterialTheme.colors.background)
@@ -95,112 +103,41 @@ fun Log(
             if (graphWidth.value < CANVAS_MIN_WIDTH)
                 graphWidth = CANVAS_MIN_WIDTH.dp
 
+            GraphHeader(
+                graphWidth = graphWidth,
+                weightMod = weightMod,
+            )
             ScrollableLazyColumn(
                 modifier = Modifier
                     .background(MaterialTheme.colors.background)
                     .fillMaxSize(),
             ) {
-
-                stickyHeader {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(32.dp)
-                            .background(MaterialTheme.colors.headerBackground),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .width(graphWidth)
-                                .padding(start = 8.dp),
-                            text = "Graph",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colors.headerText,
-                            fontSize = 14.sp,
-                            maxLines = 1,
-                        )
-
-                        DividerLog(
-                            modifier = Modifier.draggable(rememberDraggableState {
-                                weightMod.value += it
-                            }, Orientation.Horizontal)
-                        )
-
-                        Text(
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .width(graphWidth),
-                            text = "Message",
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colors.headerText,
-                            fontSize = 14.sp,
-                            maxLines = 1,
-                        )
-                    }
-                }
-
                 if (hasUncommitedChanges)
                     item {
-                        val textColor = if (selectedUncommited.value) {
-                            MaterialTheme.colors.primary
-                        } else
-                            MaterialTheme.colors.primaryTextColor
-
-                        Row(
-                            modifier = Modifier
-                                .height(40.dp)
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedIndex.value = -1
-                                    selectedUncommited.value = true
-                                    onUncommitedChangesSelected()
-                                },
-                        ) {
-                            val hasPreviousCommits = commitList.count() > 0
-
-                            UncommitedChangesGraphLine(
-                                modifier = Modifier
-                                    .width(graphWidth),
-                                hasPreviousCommits = hasPreviousCommits,
-                            )
-
-                            DividerLog(
-                                modifier = Modifier
-                                    .draggable(
-                                        rememberDraggableState {
-                                            weightMod.value += it
-                                        },
-                                        Orientation.Horizontal
-                                    )
-                            )
-
-                            Column(
-                                modifier = Modifier.fillMaxSize(),
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Spacer(modifier = Modifier.weight(2f))
-
-                                Text(
-                                    text = "Uncommited changes",
-                                    fontStyle = FontStyle.Italic,
-                                    modifier = Modifier.padding(start = 16.dp),
-                                    fontSize = 14.sp,
-                                    color = textColor,
-                                )
-
-                                Spacer(modifier = Modifier.weight(2f))
+                        UncommitedChangesLine(
+                            selected = selectedUncommited.value,
+                            hasPreviousCommits = commitList.count() > 0,
+                            graphWidth = graphWidth,
+                            weightMod = weightMod,
+                            onUncommitedChangesSelected = {
+                                selectedIndex.value = -1
+                                selectedUncommited.value = true
+                                onUncommitedChangesSelected()
                             }
-                        }
+                        )
                     }
 
                 itemsIndexed(items = commitList) { index, graphNode ->
                     CommitLine(
                         gitManager = gitManager,
-                        dialogManager = dialogManager,
                         graphNode = graphNode,
                         selected = selectedIndex.value == index,
                         weightMod = weightMod,
                         graphWidth = graphWidth,
+                        showCreateNewBranch = { showLogDialog.value = LogDialog.NewBranch(graphNode) },
+                        showCreateNewTag = { showLogDialog.value = LogDialog.NewTag(graphNode) },
+                        resetBranch = { showLogDialog.value = LogDialog.ResetBranch(graphNode) },
+                        onMergeBranch = { ref -> showLogDialog.value = LogDialog.MergeBranch(ref) },
                         onRevCommitSelected = {
                             selectedIndex.value = index
                             selectedUncommited.value = false
@@ -215,27 +152,166 @@ fun Log(
 }
 
 @Composable
+fun LogDialogs(
+    gitManager: GitManager,
+    onResetShowLogDialog: () -> Unit,
+    showLogDialog: LogDialog,
+    currentBranch: Ref?,
+) {
+    when(showLogDialog) {
+        is LogDialog.NewBranch -> {
+            NewBranchDialog(
+                onReject = onResetShowLogDialog,
+                onAccept = { branchName ->
+                    gitManager.createBranchOnCommit(branchName, showLogDialog.graphNode)
+                    onResetShowLogDialog()
+                }
+            )
+        }
+        is LogDialog.NewTag -> {
+            NewTagDialog(
+                onReject = onResetShowLogDialog,
+                onAccept = { tagName ->
+                    gitManager.createTagOnCommit(tagName, showLogDialog.graphNode)
+                    onResetShowLogDialog()
+                }
+            )
+        }
+        is LogDialog.MergeBranch -> {
+            if(currentBranch != null)
+                MergeDialog(
+                    currentBranchName = currentBranch.simpleName,
+                    mergeBranchName = showLogDialog.ref.simpleName,
+                    onReject = onResetShowLogDialog,
+                    onAccept = { ff ->
+                        gitManager.mergeBranch(showLogDialog.ref, ff)
+                        onResetShowLogDialog()
+                    }
+                )
+        }
+        is LogDialog.ResetBranch -> ResetBranchDialog(
+            onReject = onResetShowLogDialog,
+            onAccept = { resetType ->
+                gitManager.resetToCommit(showLogDialog.graphNode, resetType)
+                onResetShowLogDialog()
+            }
+        )
+        LogDialog.None -> {}
+    }
+}
+
+@Composable
+fun GraphHeader(
+    graphWidth: Dp,
+    weightMod: MutableState<Float>,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(32.dp)
+            .background(MaterialTheme.colors.headerBackground),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier
+                .width(graphWidth)
+                .padding(start = 8.dp),
+            text = "Graph",
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.headerText,
+            fontSize = 14.sp,
+            maxLines = 1,
+        )
+
+        DividerLog(
+            modifier = Modifier.draggable(rememberDraggableState {
+                weightMod.value += it
+            }, Orientation.Horizontal)
+        )
+
+        Text(
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .width(graphWidth),
+            text = "Message",
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colors.headerText,
+            fontSize = 14.sp,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
+fun UncommitedChangesLine(
+    selected: Boolean,
+    hasPreviousCommits: Boolean,
+    graphWidth: Dp,
+    weightMod: MutableState<Float>,
+    onUncommitedChangesSelected: () -> Unit
+) {
+    val textColor = if (selected) {
+        MaterialTheme.colors.primary
+    } else
+        MaterialTheme.colors.primaryTextColor
+
+    Row(
+        modifier = Modifier
+            .height(40.dp)
+            .fillMaxWidth()
+            .clickable {
+                onUncommitedChangesSelected()
+            },
+    ) {
+        UncommitedChangesGraphLine(
+            modifier = Modifier
+                .width(graphWidth),
+            hasPreviousCommits = hasPreviousCommits,
+        )
+
+        DividerLog(
+            modifier = Modifier
+                .draggable(
+                    rememberDraggableState {
+                        weightMod.value += it
+                    },
+                    Orientation.Horizontal
+                )
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Spacer(modifier = Modifier.weight(2f))
+
+            Text(
+                text = "Uncommited changes",
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.padding(start = 16.dp),
+                fontSize = 14.sp,
+                color = textColor,
+            )
+
+            Spacer(modifier = Modifier.weight(2f))
+        }
+    }
+}
+
+@Composable
 fun CommitLine(
     gitManager: GitManager,
-    dialogManager: DialogManager,
     graphNode: GraphNode,
     selected: Boolean,
     weightMod: MutableState<Float>,
     graphWidth: Dp,
+    showCreateNewBranch: () -> Unit,
+    showCreateNewTag: () -> Unit,
+    resetBranch: (GraphNode) -> Unit,
+    onMergeBranch: (Ref) -> Unit,
     onRevCommitSelected: (GraphNode) -> Unit,
 ) {
     val commitRefs = graphNode.refs
-    var showCreateBranchDialog by remember(graphNode.id.name) { mutableStateOf(false) }
-    if(showCreateBranchDialog)
-        NewBranchDialog(
-            onReject = {
-                showCreateBranchDialog = false
-            },
-            onAccept = { branchName ->
-                gitManager.createBranchOnCommit(branchName, graphNode)
-                showCreateBranchDialog = false
-            }
-        )
 
     Box(modifier = Modifier
         .clickable {
@@ -252,48 +328,20 @@ fun CommitLine(
                         }),
                     ContextMenuItem(
                         label = "Create branch",
-                        onClick = {
-                            showCreateBranchDialog = true
-                        }
+                        onClick = showCreateNewBranch
                     ),
                     ContextMenuItem(
                         label = "Create tag",
-                        onClick = {
-                            dialogManager.show {
-                                NewTagDialog(
-                                    onReject = {
-                                        dialogManager.dismiss()
-                                    },
-                                    onAccept = { tagName ->
-                                        gitManager.createTagOnCommit(tagName, graphNode)
-                                        dialogManager.dismiss()
-                                    }
-                                )
-                            }
-                        }
+                        onClick = showCreateNewTag
                     ),
                     ContextMenuItem(
                         label = "Revert commit",
-                        onClick = {
-                            gitManager.revertCommit(graphNode)
-                        }
+                        onClick = { gitManager.revertCommit(graphNode) }
                     ),
 
                     ContextMenuItem(
                         label = "Reset current branch to this commit",
-                        onClick = {
-                            dialogManager.show {
-                                ResetBranchDialog(
-                                    onReject = {
-                                        dialogManager.dismiss()
-                                    },
-                                    onAccept = { resetType ->
-                                        dialogManager.dismiss()
-                                        gitManager.resetToCommit(graphNode, resetType)
-                                    }
-                                )
-                            }
-                        }
+                        onClick = { resetBranch(graphNode) }
                     )
                 )
             },
@@ -326,21 +374,7 @@ fun CommitLine(
                     selected = selected,
                     refs = commitRefs,
                     onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
-                    onMergeBranch = { ref ->
-                        dialogManager.show {
-                            MergeDialog(
-                                currentBranchName = "HEAD",
-                                mergeBranchName = ref.simpleName,
-                                onReject = {
-                                    dialogManager.dismiss()
-                                },
-                                onAccept = { fastForward ->
-                                    dialogManager.dismiss()
-                                    gitManager.mergeBranch(ref, fastForward)
-                                }
-                            )
-                        }
-                    },
+                    onMergeBranch = { ref -> onMergeBranch(ref) },
                     onDeleteBranch = { ref -> gitManager.deleteBranch(ref) }
                 )
             }

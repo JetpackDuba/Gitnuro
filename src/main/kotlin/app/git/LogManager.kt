@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 class LogManager @Inject constructor(
     private val statusManager: StatusManager,
+    private val branchesManager: BranchesManager,
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
@@ -49,7 +50,7 @@ class LogManager @Inject constructor(
 
         ensureActive()
 
-        val loadedStatus = LogStatus.Loaded(commitList)
+        val loadedStatus = LogStatus.Loaded(commitList, branchesManager.currentBranchRef(git))
 
         _logStatus.value = loadedStatus
     }
@@ -102,5 +103,5 @@ enum class ResetType {
 
 sealed class LogStatus {
     object Loading : LogStatus()
-    class Loaded(val plotCommitList: GraphCommitList) : LogStatus()
+    class Loaded(val plotCommitList: GraphCommitList, val currentBranch: Ref?) : LogStatus()
 }

@@ -24,51 +24,53 @@ fun ResetBranchDialog(
 ) {
     var resetType by remember { mutableStateOf(ResetType.MIXED) }
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        verticalArrangement = Arrangement.Center,
-    ) {
-        RadioButtonText(
-            selected = resetType == ResetType.SOFT,
-            onClick = {
-                resetType = ResetType.SOFT
-            },
-            text = "Soft reset"
-        )
-        RadioButtonText(
-            selected = resetType == ResetType.MIXED,
-            onClick = {
-                resetType = ResetType.MIXED
-            },
-            text = "Mixed reset"
-        )
-        RadioButtonText(
-            selected = resetType == ResetType.HARD,
-            onClick = {
-                resetType = ResetType.HARD
-            },
-            text = "Hard reset"
-        )
-        Row(
+    MaterialDialog {
+        Column(
             modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
+                .background(MaterialTheme.colors.background),
+            verticalArrangement = Arrangement.Center,
         ) {
-            TextButton(
-                modifier = Modifier.padding(end = 8.dp),
+            RadioButtonText(
+                selected = resetType == ResetType.SOFT,
                 onClick = {
-                    onReject()
-                }
-            ) {
-                Text("Cancel")
-            }
-            Button(
+                    resetType = ResetType.SOFT
+                },
+                text = "Soft reset"
+            )
+            RadioButtonText(
+                selected = resetType == ResetType.MIXED,
                 onClick = {
-                    onAccept(resetType)
-                }
+                    resetType = ResetType.MIXED
+                },
+                text = "Mixed reset"
+            )
+            RadioButtonText(
+                selected = resetType == ResetType.HARD,
+                onClick = {
+                    resetType = ResetType.HARD
+                },
+                text = "Hard reset"
+            )
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.End)
             ) {
-                Text("Reset branch")
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        onReject()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    onClick = {
+                        onAccept(resetType)
+                    }
+                ) {
+                    Text("Reset branch")
+                }
             }
         }
     }
