@@ -27,70 +27,72 @@ fun PasswordDialog(
     val passwordFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-
-        Text(
-            text = "Introduce your default SSH key's password",
+    MaterialDialog {
+        Column(
             modifier = Modifier
-                .padding(vertical = 8.dp),
-        )
-        OutlinedTextField(
-            modifier = Modifier.padding(bottom = 8.dp)
-                .focusOrder(passwordFieldFocusRequester) {
-                    this.next = buttonFieldFocusRequester
-                }
-                .width(300.dp)
-                .onPreviewKeyEvent {
-                    if(it.key == Key.Enter) {
-                        onAccept(passwordField)
-                        true
-                    } else {
-                        false
-                    }
-                },
-            value = passwordField,
-            singleLine = true,
-            label = { Text("Password", fontSize = 14.sp) },
-            textStyle = TextStyle(fontSize = 14.sp),
-            onValueChange = {
-                passwordField = it
-            },
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        Row(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
+                .background(MaterialTheme.colors.background),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            TextButton(
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = {
-                    onReject()
-                }
-            ) {
-                Text("Cancel")
-            }
-            Button(
-                modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                    this.previous = passwordFieldFocusRequester
+
+            Text(
+                text = "Introduce your default SSH key's password",
+                modifier = Modifier
+                    .padding(vertical = 8.dp),
+            )
+            OutlinedTextField(
+                modifier = Modifier.padding(bottom = 8.dp)
+                    .focusOrder(passwordFieldFocusRequester) {
+                        this.next = buttonFieldFocusRequester
+                    }
+                    .width(300.dp)
+                    .onPreviewKeyEvent {
+                        if (it.key == Key.Enter) {
+                            onAccept(passwordField)
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                value = passwordField,
+                singleLine = true,
+                label = { Text("Password", fontSize = 14.sp) },
+                textStyle = TextStyle(fontSize = 14.sp),
+                onValueChange = {
+                    passwordField = it
                 },
-                onClick = {
-                    onAccept(passwordField)
-                }
+                visualTransformation = PasswordVisualTransformation()
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.End)
             ) {
-                Text("Ok")
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        onReject()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
+                        this.previous = passwordFieldFocusRequester
+                    },
+                    onClick = {
+                        onAccept(passwordField)
+                    }
+                ) {
+                    Text("Ok")
+                }
             }
+
         }
 
-    }
-    
-    LaunchedEffect(Unit) {
-        passwordFieldFocusRequester.requestFocus()
+        LaunchedEffect(Unit) {
+            passwordFieldFocusRequester.requestFocus()
+        }
     }
 }

@@ -31,95 +31,96 @@ fun UserPasswordDialog(
     val acceptDialog = {
         onAccept(userField, passwordField)
     }
-    Column(
-        modifier = Modifier
-            .background(MaterialTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-
-        Text(
-            text = "Introduce your remote server credentials",
+    MaterialDialog {
+        Column(
             modifier = Modifier
-                .padding(vertical = 8.dp),
-        )
-
-        OutlinedTextField(
-            modifier = Modifier
-                .focusOrder(userFieldFocusRequester) {
-                    this.next = passwordFieldFocusRequester
-                }
-                .width(300.dp)
-                .onPreviewKeyEvent {
-                                   if(it.key == Key.Enter) {
-                                       acceptDialog()
-                                       true
-                                   } else {
-                                       false
-                                   }
-                },
-            value = userField,
-            singleLine = true,
-            label = { Text("User", fontSize = 14.sp) },
-            textStyle = TextStyle(fontSize = 14.sp),
-            onValueChange = {
-                userField = it
-            },
-        )
-        OutlinedTextField(
-            modifier = Modifier.padding(bottom = 8.dp)
-                .focusOrder(passwordFieldFocusRequester) {
-                    this.previous = userFieldFocusRequester
-                    this.next = buttonFieldFocusRequester
-                }
-                .width(300.dp)
-                .onPreviewKeyEvent {
-                    if(it.key == Key.Enter) {
-                        acceptDialog()
-                        true
-                    } else {
-                        false
-                    }
-                },
-            value = passwordField,
-            singleLine = true,
-            label = { Text("Password", fontSize = 14.sp) },
-            textStyle = TextStyle(fontSize = 14.sp),
-            onValueChange = {
-                passwordField = it
-            },
-            visualTransformation = PasswordVisualTransformation()
-        )
-
-        Row(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
+                .background(MaterialTheme.colors.background),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            TextButton(
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = {
-                    onReject()
-                }
-            ) {
-                Text("Cancel")
-            }
-            Button(
-                modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                    this.previous = passwordFieldFocusRequester
-                    this.next = userFieldFocusRequester
+
+            Text(
+                text = "Introduce your remote server credentials",
+                modifier = Modifier
+                    .padding(vertical = 8.dp),
+            )
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .focusOrder(userFieldFocusRequester) {
+                        this.next = passwordFieldFocusRequester
+                    }
+                    .width(300.dp)
+                    .onPreviewKeyEvent {
+                        if (it.key == Key.Enter) {
+                            acceptDialog()
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                value = userField,
+                singleLine = true,
+                label = { Text("User", fontSize = 14.sp) },
+                textStyle = TextStyle(fontSize = 14.sp),
+                onValueChange = {
+                    userField = it
                 },
-                onClick = {
-                    onAccept(userField, passwordField)
-                }
+            )
+            OutlinedTextField(
+                modifier = Modifier.padding(bottom = 8.dp)
+                    .focusOrder(passwordFieldFocusRequester) {
+                        this.previous = userFieldFocusRequester
+                        this.next = buttonFieldFocusRequester
+                    }
+                    .width(300.dp)
+                    .onPreviewKeyEvent {
+                        if (it.key == Key.Enter) {
+                            acceptDialog()
+                            true
+                        } else {
+                            false
+                        }
+                    },
+                value = passwordField,
+                singleLine = true,
+                label = { Text("Password", fontSize = 14.sp) },
+                textStyle = TextStyle(fontSize = 14.sp),
+                onValueChange = {
+                    passwordField = it
+                },
+                visualTransformation = PasswordVisualTransformation()
+            )
+
+            Row(
+                modifier = Modifier
+                    .padding(top = 16.dp)
+                    .align(Alignment.End)
             ) {
-                Text("Ok")
+                TextButton(
+                    modifier = Modifier.padding(end = 8.dp),
+                    onClick = {
+                        onReject()
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
+                        this.previous = passwordFieldFocusRequester
+                        this.next = userFieldFocusRequester
+                    },
+                    onClick = {
+                        onAccept(userField, passwordField)
+                    }
+                ) {
+                    Text("Ok")
+                }
             }
         }
 
-    }
-    
-    LaunchedEffect(Unit) {
-        userFieldFocusRequester.requestFocus()
+        LaunchedEffect(Unit) {
+            userFieldFocusRequester.requestFocus()
+        }
     }
 }
