@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import app.theme.dialogBackgroundColor
 
 @Composable
 fun MaterialDialog(
@@ -37,7 +38,7 @@ fun MaterialDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Brush.horizontalGradient(listOf(Color.Black, Color.Black)), alpha = 0.8f),
+                .background(dialogBackgroundColor),
             contentAlignment = alignment,
         ) {
             Box(

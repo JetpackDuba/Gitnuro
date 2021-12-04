@@ -28,3 +28,5 @@ val modifyFileLight = primary
 
 val tabColorActiveDark = Color(0xFF606061)
 val tabColorInactiveDark = Color(0xFF262626)
+
+val dialogBackgroundColor = Color(0xAA000000)
