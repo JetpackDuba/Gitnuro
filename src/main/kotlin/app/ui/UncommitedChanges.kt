@@ -66,6 +66,7 @@ fun UncommitedChanges(
         onStagedDiffEntrySelected(null)
         commitMessage = ""
     }
+    val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
 
     Column {
         AnimatedVisibility(
@@ -136,7 +137,7 @@ fun UncommitedChanges(
                         .fillMaxWidth()
                         .weight(weight = 1f, fill = true)
                         .onPreviewKeyEvent {
-                            if (it.isCtrlPressed && it.key == Key.Enter) {
+                            if (it.isCtrlPressed && it.key == Key.Enter && canCommit) {
                                 doCommit()
                                 true
                             }
@@ -157,7 +158,7 @@ fun UncommitedChanges(
                     onClick = {
                         doCommit()
                     },
-                    enabled = commitMessage.isNotEmpty() && staged.isNotEmpty(),
+                    enabled = canCommit,
                     shape = RectangleShape,
                 ) {
                     Text(
