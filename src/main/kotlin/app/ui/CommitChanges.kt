@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.useResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +34,7 @@ import app.git.GitManager
 import app.images.ImagesCache
 import app.images.InMemoryImagesCache
 import app.theme.headerText
+import app.ui.components.TooltipText
 import org.eclipse.jgit.lib.PersonIdent
 import org.jetbrains.skia.Image.Companion.makeFromEncoded
 
@@ -75,7 +75,7 @@ fun CommitChanges(
 
             Divider(modifier = Modifier.fillMaxWidth())
 
-            Author(commit.authorIdent)
+            Author(commit)
         }
 
         Column(
@@ -105,9 +105,8 @@ fun CommitChanges(
 }
 
 @Composable
-fun Author(authorIdent: PersonIdent?) {
-    if(authorIdent == null)
-        return
+fun Author(commit: RevCommit) {
+    val authorIdent = commit.authorIdent
 
     Row(
         modifier = Modifier
@@ -132,14 +131,16 @@ fun Author(authorIdent: PersonIdent?) {
             verticalArrangement = Arrangement.Center
         ) {
             Row {
-                Text(
+                TooltipText(
                     text = authorIdent.name,
                     color = MaterialTheme.colors.primaryTextColor,
                     maxLines = 1,
                     fontSize = 14.sp,
+                    tooltipTitle = authorIdent.emailAddress,
                 )
 
                 Spacer(modifier = Modifier.weight(1f, fill = true))
+
                 val date = remember(authorIdent) {
                     authorIdent.`when`.toSmartSystemString()
                 }
@@ -155,7 +156,7 @@ fun Author(authorIdent: PersonIdent?) {
             }
 
             Text(
-                text = authorIdent.emailAddress,
+                text = commit.id.abbreviate(7).name(),
                 color = MaterialTheme.colors.secondaryTextColor,
                 maxLines = 1,
                 fontSize = 12.sp,
