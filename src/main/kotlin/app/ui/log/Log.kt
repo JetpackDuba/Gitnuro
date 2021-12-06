@@ -159,7 +159,7 @@ fun LogDialogs(
     showLogDialog: LogDialog,
     currentBranch: Ref?,
 ) {
-    when(showLogDialog) {
+    when (showLogDialog) {
         is LogDialog.NewBranch -> {
             NewBranchDialog(
                 onReject = onResetShowLogDialog,
@@ -179,7 +179,7 @@ fun LogDialogs(
             )
         }
         is LogDialog.MergeBranch -> {
-            if(currentBranch != null)
+            if (currentBranch != null)
                 MergeDialog(
                     currentBranchName = currentBranch.simpleName,
                     mergeBranchName = showLogDialog.ref.simpleName,
@@ -438,10 +438,10 @@ fun CommitMessage(
                             isCurrentBranch = ref.isSameBranch(currentBranch),
                             onCheckoutBranch = { onCheckoutRef(ref) },
                             onMergeBranch = { onMergeBranch(ref) },
-                            onDeleteBranch = { onDeleteBranch(ref) }
+                            onDeleteBranch = { onDeleteBranch(ref) },
                         )
                     }
-            }
+                }
 
             Text(
                 text = commit.shortMessage,
@@ -646,7 +646,7 @@ fun BranchChip(
     }
 
     var endingContent: @Composable () -> Unit = {}
-    if(isCurrentBranch) {
+    if (isCurrentBranch) {
         endingContent = {
             Icon(
                 painter = painterResource("location.svg"),
@@ -682,7 +682,7 @@ fun TagChip(
                 onClick = onCheckoutTag
             )
         ).apply {
-            if(ref.isLocal) {
+            if (ref.isLocal) {
                 add(
                     ContextMenuItem(
                         label = "Delete tag",

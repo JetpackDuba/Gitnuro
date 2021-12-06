@@ -27,6 +27,9 @@ val Ref.isRemote: Boolean
 
 
 fun Ref.isSameBranch(otherRef: Ref?): Boolean {
+    if(this.name == "HEAD" && otherRef == null)
+        return true
+
     if(otherRef == null)
         return false
 
