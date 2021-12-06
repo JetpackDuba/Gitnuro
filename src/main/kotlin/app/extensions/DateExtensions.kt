@@ -33,3 +33,11 @@ fun Date.toSystemString(): String {
 
     return sdf.format(this)
 }
+
+fun Date.toSystemDateTimeString(): String {
+    val systemLocale = System.getProperty("user.language")
+    val locale = Locale(systemLocale)
+    val sdf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale)
+
+    return sdf.format(this)
+}

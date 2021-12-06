@@ -145,12 +145,13 @@ fun Author(commit: RevCommit) {
                     authorIdent.`when`.toSmartSystemString()
                 }
 
-                Text(
+                TooltipText(
                     text = date,
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     fontSize = 12.sp,
+                    tooltipTitle = authorIdent.`when`.toSystemDateTimeString()
                 )
 
             }
