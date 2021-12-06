@@ -19,7 +19,6 @@ import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.DialogManager
 import app.LoadingRepository
 import app.credentials.CredentialsState
 import app.git.GitManager
@@ -29,12 +28,10 @@ import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
 import kotlinx.coroutines.delay
 
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTab(
     gitManager: GitManager,
-    dialogManager: DialogManager,
     repositoryPath: String?,
     tabName: MutableState<String>
 ) {
@@ -106,7 +103,7 @@ fun AppTab(
                             LoadingRepository()
                         }
                         is RepositorySelectionStatus.Open -> {
-                            RepositoryOpenPage(gitManager = gitManager, dialogManager = dialogManager)
+                            RepositoryOpenPage(gitManager = gitManager)
                         }
                     }
                 }

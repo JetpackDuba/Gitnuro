@@ -2,41 +2,32 @@
 
 package app.ui
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import app.git.GitManager
-import openRepositoryDialog
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.BiasAlignment
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
-import app.DialogManager
 import app.extensions.dirName
 import app.extensions.dirPath
+import app.git.GitManager
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.dialogs.CloneDialog
+import app.ui.dialogs.MaterialDialog
+import openRepositoryDialog
 import java.awt.Desktop
 import java.net.URI
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.window.Popup
-import app.ui.dialogs.MaterialDialog
 
 
 @OptIn(ExperimentalMaterialApi::class)

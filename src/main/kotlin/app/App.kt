@@ -28,7 +28,6 @@ import app.theme.AppTheme
 import app.ui.AppTab
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
-import app.ui.dialogs.MaterialDialog
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -62,17 +61,8 @@ class Main {
                 )
             ) {
                 AppTheme {
-                    val showDialog = remember { mutableStateOf(false) }
-                    val dialogManager = remember { DialogManager(showDialog) }
-
                     Box {
-                        AppTabs(dialogManager)
-
-                        if (showDialog.value) {
-                            MaterialDialog {
-                                dialogManager.dialog()
-                            }
-                        }
+                        AppTabs()
                     }
                 }
             }
@@ -81,12 +71,11 @@ class Main {
 
 
     @Composable
-    fun AppTabs(dialogManager: DialogManager) {
+    fun AppTabs() {
         val tabs = remember {
             val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
             var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
                 newAppTab(
-                    dialogManager = dialogManager,
                     key = repositoryTab.key,
                     path = repositoryTab.value
                 )
@@ -94,9 +83,7 @@ class Main {
 
             if (repoTabs.isEmpty()) {
                 repoTabs = listOf(
-                    newAppTab(
-                        dialogManager = dialogManager
-                    )
+                    newAppTab()
                 )
             }
 
@@ -111,7 +98,6 @@ class Main {
             Tabs(
                 tabs = tabs,
                 selectedTabKey = selectedTabKey,
-                dialogManager = dialogManager,
             )
 
             TabsContent(tabs.value, selectedTabKey.value)
@@ -122,7 +108,6 @@ class Main {
     fun Tabs(
         tabs: MutableState<List<TabInformation>>,
         selectedTabKey: MutableState<Int>,
-        dialogManager: DialogManager,
     ) {
         Row(
             modifier = Modifier
@@ -140,7 +125,6 @@ class Main {
                 },
                 newTabContent = { key ->
                     newAppTab(
-                        dialogManager = dialogManager,
                         key = key
                     )
                 },
@@ -168,7 +152,6 @@ class Main {
     }
 
     private fun newAppTab(
-        dialogManager: DialogManager,
         key: Int = 0,
         tabName: MutableState<String> = mutableStateOf("New tab"),
         path: String? = null,
@@ -186,7 +169,7 @@ class Main {
                     appStateManager.repositoryTabChanged(key, path)
             }
 
-            AppTab(gitManager, dialogManager, path, tabName)
+            AppTab(gitManager, path, tabName)
         }
     }
 }
@@ -215,24 +198,6 @@ private fun TabsContent(tabs: List<TabInformation>, selectedTabKey: Int) {
                 it.content(it)
             }
         }
-    }
-}
-
-class DialogManager(private val showDialog: MutableState<Boolean>) {
-    private var content: @Composable () -> Unit = {}
-
-    fun show(content: @Composable () -> Unit) {
-        this.content = content
-        showDialog.value = true
-    }
-
-    fun dismiss() {
-        showDialog.value = false
-    }
-
-    @Composable
-    fun dialog() {
-        content()
     }
 }
 

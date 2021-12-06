@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import app.DialogManager
 import app.git.DiffEntryType
 import app.git.GitManager
 import app.ui.dialogs.NewBranchDialog
@@ -26,7 +25,7 @@ import java.awt.Cursor
 
 @OptIn(ExperimentalSplitPaneApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
+fun RepositoryOpenPage(gitManager: GitManager) {
     var selectedRevCommit by remember {
         mutableStateOf<RevCommit?>(null)
     }
@@ -38,7 +37,21 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
         mutableStateOf(false)
     }
 
+    var showNewBranchDialog by remember { mutableStateOf(false) }
+
     val selectedIndexCommitLog = remember { mutableStateOf(-1) }
+
+    if(showNewBranchDialog) {
+        NewBranchDialog(
+            onReject = {
+                showNewBranchDialog = false
+            },
+            onAccept = { branchName ->
+                gitManager.createBranch(branchName)
+                showNewBranchDialog = false
+            }
+        )
+    }
 
     Column {
         GMenu(
@@ -49,19 +62,7 @@ fun RepositoryOpenPage(gitManager: GitManager, dialogManager: DialogManager) {
             onPush = { gitManager.push() },
             onStash = { gitManager.stash() },
             onPopStash = { gitManager.popStash() },
-            onCreateBranch = {
-                dialogManager.show {
-                    NewBranchDialog(
-                        onReject = {
-                            dialogManager.dismiss()
-                        },
-                        onAccept = { branchName ->
-                            gitManager.createBranch(branchName)
-                            dialogManager.dismiss()
-                        }
-                    )
-                }
-            }
+            onCreateBranch = { showNewBranchDialog = true }
         )
 
         Row {
