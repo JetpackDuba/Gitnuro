@@ -93,6 +93,7 @@ class StatusManager @Inject constructor() {
     suspend fun commit(git: Git, message: String) = withContext(Dispatchers.IO) {
         git.commit()
             .setMessage(message)
+            .setAllowEmpty(false)
             .call()
 
         loadStatus(git)
