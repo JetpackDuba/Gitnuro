@@ -24,3 +24,11 @@ val Ref.isLocal: Boolean
 
 val Ref.isRemote: Boolean
     get() = this.name.startsWith("refs/remotes/")
+
+
+fun Ref.isSameBranch(otherRef: Ref?): Boolean {
+    if(otherRef == null)
+        return false
+
+    return this.name == otherRef.name
+}

@@ -48,7 +48,6 @@ fun Branches(gitManager: GitManager) {
                         branch = branch,
                         isCurrentBranch = currentBranch == branch.name
                     )
-
                 }
             }
         }

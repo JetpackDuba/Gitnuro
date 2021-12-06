@@ -134,6 +134,7 @@ fun Log(
                         selected = selectedIndex.value == index,
                         weightMod = weightMod,
                         graphWidth = graphWidth,
+                        currentBranch = logStatus.currentBranch,
                         showCreateNewBranch = { showLogDialog.value = LogDialog.NewBranch(graphNode) },
                         showCreateNewTag = { showLogDialog.value = LogDialog.NewTag(graphNode) },
                         resetBranch = { showLogDialog.value = LogDialog.ResetBranch(graphNode) },
@@ -305,6 +306,7 @@ fun CommitLine(
     selected: Boolean,
     weightMod: MutableState<Float>,
     graphWidth: Dp,
+    currentBranch: Ref?,
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
     resetBranch: (GraphNode) -> Unit,
@@ -373,6 +375,7 @@ fun CommitLine(
                     commit = graphNode,
                     selected = selected,
                     refs = commitRefs,
+                    currentBranch = currentBranch,
                     onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
                     onMergeBranch = { ref -> onMergeBranch(ref) },
                     onDeleteBranch = { ref -> gitManager.deleteBranch(ref) },
@@ -389,6 +392,7 @@ fun CommitMessage(
     commit: RevCommit,
     selected: Boolean,
     refs: List<Ref>,
+    currentBranch: Ref?,
     onCheckoutRef: (ref: Ref) -> Unit,
     onMergeBranch: (ref: Ref) -> Unit,
     onDeleteBranch: (ref: Ref) -> Unit,
@@ -413,20 +417,30 @@ fun CommitMessage(
                 .fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            refs.forEach { ref ->
-                if (ref.isTag) {
-                    TagChip(
-                        ref = ref,
-                        onCheckoutTag = { onCheckoutRef(ref) },
-                        onDeleteTag = { onDeleteTag(ref) },
-                    )
-                } else if (ref.isBranch)
-                    BranchChip(
-                        ref = ref,
-                        onCheckoutBranch = { onCheckoutRef(ref) },
-                        onMergeBranch = { onMergeBranch(ref) },
-                        onDeleteBranch = { onDeleteBranch(ref) }
-                    )
+            refs
+                .sortedWith { ref1, ref2 ->
+                    if (ref1.isSameBranch(currentBranch)) {
+                        -1
+                    } else {
+                        ref1.name.compareTo(ref2.name)
+                    }
+                }
+                .forEach { ref ->
+                    if (ref.isTag) {
+                        TagChip(
+                            ref = ref,
+                            onCheckoutTag = { onCheckoutRef(ref) },
+                            onDeleteTag = { onDeleteTag(ref) },
+                        )
+                    } else if (ref.isBranch) {
+                        BranchChip(
+                            ref = ref,
+                            isCurrentBranch = ref.isSameBranch(currentBranch),
+                            onCheckoutBranch = { onCheckoutRef(ref) },
+                            onMergeBranch = { onMergeBranch(ref) },
+                            onDeleteBranch = { onDeleteBranch(ref) }
+                        )
+                    }
             }
 
             Text(
@@ -631,12 +645,25 @@ fun BranchChip(
         }
     }
 
+    var endingContent: @Composable () -> Unit = {}
+    if(isCurrentBranch) {
+        endingContent = {
+            Icon(
+                painter = painterResource("location.svg"),
+                contentDescription = null,
+                modifier = Modifier.padding(end = 6.dp),
+                tint = MaterialTheme.colors.background,
+            )
+        }
+    }
+
     RefChip(
-        modifier,
-        ref,
-        "branch.svg",
+        modifier = modifier,
+        ref = ref,
+        icon = "branch.svg",
         onCheckoutRef = onCheckoutBranch,
-        contextMenuItemsList = contextMenuItemsList
+        contextMenuItemsList = contextMenuItemsList,
+        endingContent = endingContent,
     )
 }
 
@@ -683,6 +710,7 @@ fun RefChip(
     icon: String,
     onCheckoutRef: () -> Unit,
     contextMenuItemsList: () -> List<ContextMenuItem>,
+    endingContent: @Composable () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -716,6 +744,8 @@ fun RefChip(
                     modifier = Modifier
                         .padding(end = 6.dp)
                 )
+
+                endingContent()
             }
         }
     }
