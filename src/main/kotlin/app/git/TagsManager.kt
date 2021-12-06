@@ -30,4 +30,11 @@ class TagsManager @Inject constructor() {
             .setObjectId(revCommit)
             .call()
     }
+
+    suspend fun deleteTag(git: Git, tag: Ref) = withContext(Dispatchers.IO) {
+        git
+            .tagDelete()
+            .setTags(tag.name)
+            .call()
+    }
 }

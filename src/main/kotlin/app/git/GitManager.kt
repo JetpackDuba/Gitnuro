@@ -12,13 +12,9 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import app.AppStateManager
-import app.app.Error
 import app.app.ErrorsManager
 import app.app.newErrorNow
-import app.extensions.dirPath
 import kotlinx.coroutines.flow.collect
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.File
 import javax.inject.Inject
 
@@ -229,6 +225,13 @@ class GitManager @Inject constructor(
     fun deleteBranch(branch: Ref) = managerScope.launch {
         safeProcessing {
             branchesManager.deleteBranch(safeGit, branch)
+            refreshRepositoryInfo()
+        }
+    }
+
+    fun deleteTag(tag: Ref) = managerScope.launch {
+        safeProcessing {
+            tagsManager.deleteTag(safeGit, tag)
             refreshRepositoryInfo()
         }
     }

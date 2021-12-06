@@ -375,7 +375,8 @@ fun CommitLine(
                     refs = commitRefs,
                     onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
                     onMergeBranch = { ref -> onMergeBranch(ref) },
-                    onDeleteBranch = { ref -> gitManager.deleteBranch(ref) }
+                    onDeleteBranch = { ref -> gitManager.deleteBranch(ref) },
+                    onDeleteTag = { ref -> gitManager.deleteTag(ref) },
                 )
             }
         }
@@ -391,6 +392,7 @@ fun CommitMessage(
     onCheckoutRef: (ref: Ref) -> Unit,
     onMergeBranch: (ref: Ref) -> Unit,
     onDeleteBranch: (ref: Ref) -> Unit,
+    onDeleteTag: (ref: Ref) -> Unit,
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -415,9 +417,8 @@ fun CommitMessage(
                 if (ref.isTag) {
                     TagChip(
                         ref = ref,
-                        onCheckoutTag = {
-                            onCheckoutRef(ref)
-                        }
+                        onCheckoutTag = { onCheckoutRef(ref) },
+                        onDeleteTag = { onDeleteTag(ref) },
                     )
                 } else if (ref.isBranch)
                     BranchChip(
@@ -641,14 +642,28 @@ fun BranchChip(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TagChip(modifier: Modifier = Modifier, ref: Ref, onCheckoutTag: () -> Unit) {
+fun TagChip(
+    modifier: Modifier = Modifier,
+    ref: Ref,
+    onCheckoutTag: () -> Unit,
+    onDeleteTag: () -> Unit,
+) {
     val contextMenuItemsList = {
-        listOf(
+        mutableListOf(
             ContextMenuItem(
                 label = "Checkout tag",
                 onClick = onCheckoutTag
             )
-        )
+        ).apply {
+            if(ref.isLocal) {
+                add(
+                    ContextMenuItem(
+                        label = "Delete tag",
+                        onClick = onDeleteTag
+                    )
+                )
+            }
+        }
     }
 
     RefChip(
