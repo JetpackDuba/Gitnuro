@@ -3,7 +3,7 @@ package app.images
 object InMemoryImagesCache : ImagesCache {
     private val cachedImages = hashMapOf<String, ByteArray>()
 
-    override fun getCachedObject(urlSource: String): ByteArray? {
+    override fun getCachedImage(urlSource: String): ByteArray? {
         return cachedImages[urlSource]
     }
 

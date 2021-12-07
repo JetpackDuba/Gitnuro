@@ -36,6 +36,7 @@ import app.extensions.*
 import app.git.GitManager
 import app.git.LogStatus
 import app.git.graph.GraphNode
+import app.images.rememberNetworkImage
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
@@ -46,7 +47,6 @@ import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
 import app.ui.dialogs.ResetBranchDialog
-import app.ui.rememberNetworkImage
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 
