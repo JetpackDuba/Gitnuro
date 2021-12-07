@@ -23,13 +23,14 @@ fun SideMenuSubentry(
     text: String,
     iconResourcePath: String,
     bold: Boolean = false,
+    onClick: () -> Unit = {},
     additionalInfo: @Composable () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
             .height(40.dp)
             .fillMaxWidth()
-            .clickable(onClick = {}),
+            .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

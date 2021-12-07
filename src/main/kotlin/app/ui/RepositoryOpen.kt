@@ -26,20 +26,13 @@ import java.awt.Cursor
 @OptIn(ExperimentalSplitPaneApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun RepositoryOpenPage(gitManager: GitManager) {
-    var selectedRevCommit by remember {
-        mutableStateOf<RevCommit?>(null)
-    }
-
     var diffSelected by remember {
         mutableStateOf<DiffEntryType?>(null)
-    }
-    var uncommitedChangesSelected by remember {
-        mutableStateOf(false)
     }
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
 
-    val selectedIndexCommitLog = remember { mutableStateOf(-1) }
+    var (selectedItem, setSelectedItem) = remember { mutableStateOf<SelectedItem>(SelectedItem.None) }
 
     if(showNewBranchDialog) {
         NewBranchDialog(
@@ -76,7 +69,12 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                     ) {
                         Branches(gitManager = gitManager)
                         Tags(gitManager = gitManager)
-                        Stashes(gitManager = gitManager)
+                        Stashes(
+                            gitManager = gitManager,
+                            onStashSelected = { stash ->
+                                setSelectedItem(SelectedItem.Stash(stash))
+                            }
+                        )
                     }
                 }
 
@@ -104,7 +102,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                     HorizontalSplitPane(
                         splitPaneState = rememberSplitPaneState(0.9f)
                     ) {
-                        first() {
+                        first {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -114,14 +112,9 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                         null -> {
                                             Log(
                                                 gitManager = gitManager,
-                                                selectedIndex = selectedIndexCommitLog,
-                                                onRevCommitSelected = { commit ->
-                                                    selectedRevCommit = commit
-                                                    uncommitedChangesSelected = false
-                                                },
-                                                onUncommitedChangesSelected = {
-                                                    gitManager.statusShouldBeUpdated()
-                                                    uncommitedChangesSelected = true
+                                                selectedItem = selectedItem,
+                                                onItemSelected = {
+                                                    setSelectedItem(it)
                                                 },
                                             )
                                         }
@@ -160,7 +153,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                 modifier = Modifier
                                     .fillMaxHeight()
                             ) {
-                                if (uncommitedChangesSelected) {
+                                if (selectedItem == SelectedItem.UncommitedChanges) {
                                     UncommitedChanges(
                                         gitManager = gitManager,
                                         onStagedDiffEntrySelected = { diffEntry ->
@@ -173,16 +166,14 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                             diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
                                         }
                                     )
-                                } else {
-                                    selectedRevCommit?.let {
-                                        CommitChanges(
-                                            gitManager = gitManager,
-                                            commit = it,
-                                            onDiffSelected = { diffEntry ->
-                                                diffSelected = DiffEntryType.CommitDiff(diffEntry)
-                                            }
-                                        )
-                                    }
+                                } else if(selectedItem is SelectedItem.CommitBasedItem) {
+                                    CommitChanges(
+                                        gitManager = gitManager,
+                                        commit = selectedItem.revCommit,
+                                        onDiffSelected = { diffEntry ->
+                                            diffSelected = DiffEntryType.CommitDiff(diffEntry)
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -191,4 +182,12 @@ fun RepositoryOpenPage(gitManager: GitManager) {
             }
         }
     }
+}
+
+sealed class SelectedItem {
+    object None : SelectedItem()
+    object UncommitedChanges : SelectedItem()
+    sealed class CommitBasedItem(val revCommit: RevCommit) : SelectedItem()
+    class Commit(revCommit: RevCommit) : CommitBasedItem(revCommit)
+    class Stash(revCommit: RevCommit) : CommitBasedItem(revCommit)
 }

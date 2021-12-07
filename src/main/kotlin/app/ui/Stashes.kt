@@ -1,31 +1,23 @@
 package app.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
 import app.git.StashStatus
-import org.eclipse.jgit.revwalk.RevCommit
-import app.theme.headerBackground
-import app.theme.headerText
+import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
+import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
-fun Stashes(gitManager: GitManager) {
+fun Stashes(
+    gitManager: GitManager,
+    onStashSelected: (commit: RevCommit) -> Unit,
+) {
     val stashStatusState = gitManager.stashStatus.collectAsState()
     val stashStatus = stashStatusState.value
 
@@ -44,8 +36,10 @@ fun Stashes(gitManager: GitManager) {
             items(items = stashList) { stash ->
                 StashRow(
                     stash = stash,
+                    onClick = {
+                        onStashSelected(stash)
+                    }
                 )
-
             }
         }
     }
@@ -53,9 +47,10 @@ fun Stashes(gitManager: GitManager) {
 }
 
 @Composable
-private fun StashRow(stash: RevCommit) {
+private fun StashRow(stash: RevCommit, onClick: () -> Unit) {
     SideMenuSubentry(
         text = stash.name,
         iconResourcePath = "stash.svg",
+        onClick = onClick,
     )
 }

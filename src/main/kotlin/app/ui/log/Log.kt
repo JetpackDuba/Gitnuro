@@ -9,7 +9,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -40,6 +40,7 @@ import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.ui.SelectedItem
 import app.ui.components.ScrollableLazyColumn
 import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
@@ -69,16 +70,19 @@ private const val CANVAS_MIN_WIDTH = 100
 @Composable
 fun Log(
     gitManager: GitManager,
-    onRevCommitSelected: (RevCommit) -> Unit,
-    onUncommitedChangesSelected: () -> Unit,
-    selectedIndex: MutableState<Int> = remember { mutableStateOf(-1) }
+    selectedItem: SelectedItem,
+    onItemSelected: (SelectedItem) -> Unit,
 ) {
     val logStatusState = gitManager.logStatus.collectAsState()
     val logStatus = logStatusState.value
 
-    val selectedUncommited = remember { mutableStateOf(false) }
     val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
 
+    val selectedCommit =  if (selectedItem is SelectedItem.Commit) {
+        selectedItem.revCommit
+    } else {
+        null
+    }
 
     if (logStatus is LogStatus.Loaded) {
         val commitList = logStatus.plotCommitList
@@ -115,23 +119,20 @@ fun Log(
                 if (hasUncommitedChanges)
                     item {
                         UncommitedChangesLine(
-                            selected = selectedUncommited.value,
+                            selected = selectedItem == SelectedItem.UncommitedChanges,
                             hasPreviousCommits = commitList.count() > 0,
                             graphWidth = graphWidth,
                             weightMod = weightMod,
                             onUncommitedChangesSelected = {
-                                selectedIndex.value = -1
-                                selectedUncommited.value = true
-                                onUncommitedChangesSelected()
+                                onItemSelected(SelectedItem.UncommitedChanges)
                             }
                         )
                     }
-
-                itemsIndexed(items = commitList) { index, graphNode ->
+                items(items = commitList) { graphNode ->
                     CommitLine(
                         gitManager = gitManager,
                         graphNode = graphNode,
-                        selected = selectedIndex.value == index,
+                        selected = selectedCommit?.name == graphNode.name,
                         weightMod = weightMod,
                         graphWidth = graphWidth,
                         currentBranch = logStatus.currentBranch,
@@ -140,9 +141,7 @@ fun Log(
                         resetBranch = { showLogDialog.value = LogDialog.ResetBranch(graphNode) },
                         onMergeBranch = { ref -> showLogDialog.value = LogDialog.MergeBranch(ref) },
                         onRevCommitSelected = {
-                            selectedIndex.value = index
-                            selectedUncommited.value = false
-                            onRevCommitSelected(it)
+                            onItemSelected(SelectedItem.Commit(graphNode))
                         }
                     )
                 }
@@ -197,7 +196,8 @@ fun LogDialogs(
                 onResetShowLogDialog()
             }
         )
-        LogDialog.None -> {}
+        LogDialog.None -> {
+        }
     }
 }
 

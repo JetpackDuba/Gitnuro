@@ -1,16 +1,13 @@
 package app.git
 
+import app.extensions.fullData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
-import org.eclipse.jgit.diff.EditList
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.lib.Repository
-import org.eclipse.jgit.patch.HunkHeader
-import org.eclipse.jgit.revplot.PlotCommit
-import org.eclipse.jgit.revplot.PlotCommitList
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
@@ -60,11 +57,14 @@ class DiffManager @Inject constructor() {
 
 
     suspend fun commitDiffEntries(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {
+        val fullCommit = commit.fullData(git.repository) ?: return@withContext emptyList()
+
         val repository = git.repository
-        val parent = if (commit.parentCount == 0) {
+
+        val parent = if (fullCommit.parentCount == 0) {
             null
         } else
-            commit.parents.first()
+            fullCommit.parents.first().fullData(git.repository)
 
         val oldTreeParser = if (parent != null)
             prepareTreeParser(repository, parent)
@@ -72,7 +72,7 @@ class DiffManager @Inject constructor() {
             CanonicalTreeParser()
         }
 
-        val newTreeParser = prepareTreeParser(repository, commit)
+        val newTreeParser = prepareTreeParser(repository, fullCommit)
 
         return@withContext git.diff()
             .setNewTree(newTreeParser)

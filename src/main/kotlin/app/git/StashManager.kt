@@ -23,7 +23,6 @@ class StashManager @Inject constructor() {
     }
 
     suspend fun popStash(git: Git) = withContext(Dispatchers.IO) {
-
         git
             .stashApply()
             .call()
