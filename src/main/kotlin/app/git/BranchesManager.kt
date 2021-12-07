@@ -43,7 +43,6 @@ class BranchesManager @Inject constructor() {
     suspend fun getBranches(git: Git) = withContext(Dispatchers.IO) {
         return@withContext git
             .branchList()
-            .setListMode(ListBranchCommand.ListMode.ALL)
             .call()
     }
 
@@ -78,7 +77,6 @@ class BranchesManager @Inject constructor() {
             .setFastForward(fastForwardMode)
             .call()
     }
-
 
     suspend fun deleteBranch(git: Git, branch: Ref) = withContext(Dispatchers.IO) {
         git

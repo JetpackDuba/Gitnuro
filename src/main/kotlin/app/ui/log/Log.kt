@@ -738,7 +738,7 @@ fun RefChip(
                     tint = MaterialTheme.colors.onPrimary,
                 )
                 Text(
-                    text = ref.simpleName,
+                    text = ref.simpleVisibleName,
                     color = MaterialTheme.colors.onPrimary,
                     fontSize = 12.sp,
                     modifier = Modifier
