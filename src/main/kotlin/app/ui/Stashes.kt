@@ -49,7 +49,7 @@ fun Stashes(
 @Composable
 private fun StashRow(stash: RevCommit, onClick: () -> Unit) {
     SideMenuSubentry(
-        text = stash.name,
+        text = stash.shortMessage,
         iconResourcePath = "stash.svg",
         onClick = onClick,
     )
