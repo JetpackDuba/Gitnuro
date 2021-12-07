@@ -32,7 +32,11 @@ fun RepositoryOpenPage(gitManager: GitManager) {
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
 
-    var (selectedItem, setSelectedItem) = remember { mutableStateOf<SelectedItem>(SelectedItem.None) }
+    val (selectedItem, setSelectedItem) = remember { mutableStateOf<SelectedItem>(SelectedItem.None) }
+
+    LaunchedEffect(selectedItem) {
+        diffSelected = null
+    }
 
     if(showNewBranchDialog) {
         NewBranchDialog(
