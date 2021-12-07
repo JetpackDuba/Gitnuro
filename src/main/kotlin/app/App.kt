@@ -58,7 +58,8 @@ class Main {
                 state = rememberWindowState(
                     placement = WindowPlacement.Maximized,
                     size = DpSize(1280.dp, 720.dp)
-                )
+                ),
+                icon = painterResource("logo.svg"),
             ) {
                 AppTheme {
                     Box {
