@@ -85,4 +85,11 @@ class BranchesManager @Inject constructor() {
             .setForce(true) // TODO Should it be forced?
             .call()
     }
+
+    suspend fun remoteBranches(git: Git) = withContext(Dispatchers.IO) {
+        git
+            .branchList()
+            .setListMode(ListBranchCommand.ListMode.REMOTE)
+            .call()
+    }
 }

@@ -72,6 +72,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                             .fillMaxHeight()
                     ) {
                         Branches(gitManager = gitManager)
+                        Remotes(gitManager = gitManager)
                         Tags(gitManager = gitManager)
                         Stashes(
                             gitManager = gitManager,

@@ -33,7 +33,7 @@ fun Branches(gitManager: GitManager) {
     val currentBranch by gitManager.currentBranch.collectAsState()
 
     Column {
-        SideMenuEntry("Branches")
+        SideMenuEntry("Local branches")
 
         val branchesHeight = branches.count() * 40
         val maxHeight = if(branchesHeight < 300)

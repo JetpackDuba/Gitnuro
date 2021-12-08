@@ -15,6 +15,7 @@ import app.AppStateManager
 import app.app.ErrorsManager
 import app.app.newErrorNow
 import kotlinx.coroutines.flow.collect
+import org.eclipse.jgit.transport.RemoteConfig
 import java.io.File
 import javax.inject.Inject
 
@@ -27,6 +28,7 @@ class GitManager @Inject constructor(
     private val stashManager: StashManager,
     private val diffManager: DiffManager,
     private val tagsManager: TagsManager,
+    private val remotesManager: RemotesManager,
     val errorsManager: ErrorsManager,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
@@ -58,6 +60,7 @@ class GitManager @Inject constructor(
     val stashStatus: StateFlow<StashStatus> = stashManager.stashStatus
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
     val cloneStatus: StateFlow<CloneStatus> = remoteOperationsManager.cloneStatus
+    val remotes: StateFlow<List<RemoteInfo>> = remotesManager.remotes
 
 
     private var git: Git? = null
@@ -194,6 +197,7 @@ class GitManager @Inject constructor(
     private suspend fun refreshRepositoryInfo() {
         statusManager.loadHasUncommitedChanges(safeGit)
         branchesManager.loadBranches(safeGit)
+        remotesManager.loadRemotes(safeGit, branchesManager.remoteBranches(safeGit))
         tagsManager.loadTags(safeGit)
         stashManager.loadStashList(safeGit)
         coLoadLog()

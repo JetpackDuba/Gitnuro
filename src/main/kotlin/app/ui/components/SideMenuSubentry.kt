@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
@@ -23,6 +24,7 @@ fun SideMenuSubentry(
     text: String,
     iconResourcePath: String,
     bold: Boolean = false,
+    extraPadding: Dp = 0.dp,
     onClick: () -> Unit = {},
     additionalInfo: @Composable () -> Unit = {}
 ) {
@@ -30,7 +32,8 @@ fun SideMenuSubentry(
         modifier = Modifier
             .height(40.dp)
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .padding(start = extraPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
