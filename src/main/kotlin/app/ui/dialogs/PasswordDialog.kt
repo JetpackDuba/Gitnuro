@@ -59,7 +59,7 @@ fun PasswordDialog(
                 value = passwordField,
                 singleLine = true,
                 label = { Text("Password", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp),
+                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 onValueChange = {
                     passwordField = it
                 },

@@ -64,7 +64,7 @@ fun UserPasswordDialog(
                 value = userField,
                 singleLine = true,
                 label = { Text("User", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp),
+                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 onValueChange = {
                     userField = it
                 },

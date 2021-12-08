@@ -144,7 +144,6 @@ fun UncommitedChanges(
                             }
                                 else
                                     false
-
                         },
                     value = commitMessage,
                     onValueChange = { commitMessage = it },

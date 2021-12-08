@@ -15,6 +15,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.primaryTextColor
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -50,7 +51,7 @@ fun NewTagDialog(
                 value = tagField,
                 singleLine = true,
                 label = { Text("New tag name", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp),
+                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 onValueChange = {
                     tagField = it
                 },

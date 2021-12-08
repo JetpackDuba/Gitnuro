@@ -8,7 +8,9 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
 import app.git.GitManager
 import app.theme.primaryTextColor
@@ -41,6 +43,7 @@ fun CloneDialog(
                 .width(400.dp)
                 .padding(vertical = 4.dp, horizontal = 8.dp),
             label = { Text("URL") },
+            textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
             maxLines = 1,
             value = url,
             onValueChange = {
@@ -53,6 +56,7 @@ fun CloneDialog(
                 .width(400.dp)
                 .padding(vertical = 4.dp, horizontal = 8.dp),
             label = { Text("Directory") },
+            textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
             maxLines = 1,
             value = directory,
             onValueChange = {

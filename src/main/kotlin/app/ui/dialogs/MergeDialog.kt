@@ -38,8 +38,6 @@ fun MergeDialog(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-
-
                 Text(
                     text = mergeBranchName,
                     fontWeight = FontWeight.Medium,
