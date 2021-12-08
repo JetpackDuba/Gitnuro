@@ -23,7 +23,6 @@ import app.LoadingRepository
 import app.credentials.CredentialsState
 import app.git.GitManager
 import app.git.RepositorySelectionStatus
-import app.theme.tabBackground
 import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
 import kotlinx.coroutines.delay

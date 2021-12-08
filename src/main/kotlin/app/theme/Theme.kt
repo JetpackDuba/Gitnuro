@@ -9,6 +9,7 @@ private val DarkColorPalette = darkColors(
     primaryVariant = primaryDark,
     secondary = secondary,
     surface = surfaceColorDark,
+    background = backgroundColorDark,
 )
 
 private val LightColorPalette = lightColors(
