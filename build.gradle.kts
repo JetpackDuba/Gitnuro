@@ -26,12 +26,12 @@ dependencies {
     implementation(compose.desktop.currentOs)
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
-    implementation("org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r")
     implementation("org.apache.sshd:sshd-core:2.7.0")
-    implementation("com.google.dagger:dagger:2.40.1")
+    implementation("com.google.dagger:dagger:2.40.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.31")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.1")
-    kapt("com.google.dagger:dagger-compiler:2.40.1")
+    kapt("com.google.dagger:dagger-compiler:2.40.3")
 }
 
 tasks.withType<KotlinCompile>() {
