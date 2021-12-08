@@ -34,7 +34,7 @@ class AppPreferences @Inject constructor() {
 
     var theme: Themes
         get() {
-            val lastTheme = preferences.get(PREF_THEME, Themes.LIGHT.toString())
+            val lastTheme = preferences.get(PREF_THEME, Themes.DARK.toString())
             return Themes.valueOf(lastTheme)
         }
         set(value) {
