@@ -124,6 +124,7 @@ fun WelcomePage(
                 fontSize = 18.sp,
                 modifier = Modifier
                     .padding(top = 16.dp, bottom = 8.dp),
+                color = MaterialTheme.colors.primaryTextColor,
             )
             LazyColumn {
                 items(items = appStateManager.latestOpenedRepositoriesPaths) { repo ->
