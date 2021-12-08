@@ -56,6 +56,7 @@ fun CommitChanges(
                 Text(
                     text = commit.fullMessage,
                     fontSize = 14.sp,
+                    color = MaterialTheme.colors.primaryTextColor,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.background)
