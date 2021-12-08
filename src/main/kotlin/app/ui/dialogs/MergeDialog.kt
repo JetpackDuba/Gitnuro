@@ -15,6 +15,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.primaryTextColor
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -41,18 +42,21 @@ fun MergeDialog(
 
                 Text(
                     text = mergeBranchName,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colors.primaryTextColor,
                 )
 
 
                 Text(
                     text = "will be merged into",
-                    modifier = Modifier.padding(horizontal = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    color = MaterialTheme.colors.primaryTextColor,
                 )
 
                 Text(
                     text = currentBranchName,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colors.primaryTextColor,
                 )
             }
 

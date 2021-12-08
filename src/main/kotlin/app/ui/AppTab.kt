@@ -74,10 +74,9 @@ fun AppTab(
     Box {
         Column(
             modifier = Modifier
-                .background(tabBackground)
+                .background(MaterialTheme.colors.surface)
                 .fillMaxSize()
         ) {
-
             val linearProgressAlpha = if (isProcessing)
                 DefaultAlpha
             else

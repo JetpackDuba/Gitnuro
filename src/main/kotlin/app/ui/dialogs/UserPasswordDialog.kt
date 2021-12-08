@@ -16,6 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.primaryTextColor
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -43,6 +44,7 @@ fun UserPasswordDialog(
                 text = "Introduce your remote server credentials",
                 modifier = Modifier
                     .padding(vertical = 8.dp),
+                color = MaterialTheme.colors.primaryTextColor,
             )
 
             OutlinedTextField(

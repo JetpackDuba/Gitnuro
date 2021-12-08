@@ -16,6 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.ResetType
+import app.theme.primaryTextColor
 
 @Composable
 fun ResetBranchDialog(
@@ -109,7 +110,8 @@ fun RadioButtonText(
 
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            modifier = Modifier.padding(horizontal = 8.dp),
+            color = MaterialTheme.colors.primaryTextColor,
         )
     }
 }

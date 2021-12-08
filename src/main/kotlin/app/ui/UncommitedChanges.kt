@@ -38,6 +38,7 @@ import app.git.StageStatus
 import org.eclipse.jgit.diff.DiffEntry
 import app.theme.headerBackground
 import app.theme.headerText
+import app.theme.primaryTextColor
 
 @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -311,6 +312,7 @@ private fun FileEntry(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 14.sp,
+                    color = MaterialTheme.colors.primaryTextColor,
                 )
             }
         }

@@ -28,6 +28,7 @@ import app.theme.AppTheme
 import app.ui.AppTab
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
+import app.ui.dialogs.SettingsDialog
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -40,6 +41,9 @@ class Main {
     @Inject
     lateinit var appStateManager: AppStateManager
 
+    @Inject
+    lateinit var appPreferences: AppPreferences
+
     init {
         appComponent.inject(this)
 
@@ -48,7 +52,7 @@ class Main {
 
     fun start() = application {
         var isOpen by remember { mutableStateOf(true) }
-
+        val theme by appPreferences.themeState.collectAsState()
         if (isOpen) {
             Window(
                 title = "Gitnuro",
@@ -61,9 +65,22 @@ class Main {
                 ),
                 icon = painterResource("logo.svg"),
             ) {
-                AppTheme {
-                    Box {
-                        AppTabs()
+                var showSettingsDialog by remember { mutableStateOf(false) }
+
+                AppTheme(theme = theme) {
+                    Box (modifier = Modifier.background(MaterialTheme.colors.background)) {
+                        AppTabs(
+                            onOpenSettings = {
+                                showSettingsDialog = true
+                            }
+                        )
+                    }
+
+                    if(showSettingsDialog) {
+                        SettingsDialog(
+                            appPreferences = appPreferences,
+                            onDismiss = { showSettingsDialog = false }
+                        )
                     }
                 }
             }
@@ -71,8 +88,12 @@ class Main {
     }
 
 
+
+
     @Composable
-    fun AppTabs() {
+    fun AppTabs(
+        onOpenSettings: () -> Unit,
+    ) {
         val tabs = remember {
             val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
             var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
@@ -99,6 +120,7 @@ class Main {
             Tabs(
                 tabs = tabs,
                 selectedTabKey = selectedTabKey,
+                onOpenSettings = onOpenSettings
             )
 
             TabsContent(tabs.value, selectedTabKey.value)
@@ -109,6 +131,7 @@ class Main {
     fun Tabs(
         tabs: MutableState<List<TabInformation>>,
         selectedTabKey: MutableState<Int>,
+        onOpenSettings: () -> Unit,
     ) {
         Row(
             modifier = Modifier
@@ -140,7 +163,7 @@ class Main {
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .size(24.dp),
-                onClick = {}
+                onClick = onOpenSettings
             ) {
                 Icon(
                     painter = painterResource("settings.svg"),

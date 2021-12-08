@@ -24,11 +24,10 @@ private val LightColorPalette = lightColors(
 )
 
 @Composable
-fun AppTheme(darkTheme: Boolean = false, content: @Composable() () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
+fun AppTheme(theme: Themes = Themes.LIGHT, content: @Composable() () -> Unit) {
+    val colors = when(theme) {
+        Themes.LIGHT -> LightColorPalette
+        Themes.DARK -> DarkColorPalette
     }
 
     MaterialTheme(
@@ -91,3 +90,12 @@ val Colors.tabColorInactive: Color
     get() = if (isLight) primaryLight else tabColorInactiveDark
 
 
+enum class Themes(val displayName: String) {
+    LIGHT("Light"),
+    DARK("Dark")
+}
+
+val themesList = listOf(
+    Themes.LIGHT,
+    Themes.DARK,
+)

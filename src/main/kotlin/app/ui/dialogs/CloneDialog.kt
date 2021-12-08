@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.git.CloneStatus
 import app.git.GitManager
+import app.theme.primaryTextColor
 import java.io.File
 
 @Composable
@@ -30,7 +31,10 @@ fun CloneDialog(
             onClose()
         }
 
-        Text("Clone a repository")
+        Text(
+            "Clone a repository",
+            color = MaterialTheme.colors.primaryTextColor,
+        )
 
         OutlinedTextField(
             modifier = Modifier
