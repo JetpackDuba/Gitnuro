@@ -82,27 +82,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                         )
                     }
                 }
-
-                splitter {
-                    visiblePart {
-                        Box(
-                            Modifier
-                                .width(1.dp)
-                                .fillMaxHeight()
-                                .background(MaterialTheme.colors.background)
-                        )
-                    }
-                    handle {
-                        Box(
-                            Modifier
-                                .markAsHandle()
-                                .background(SolidColor(Color.Gray), alpha = 0.50f)
-                                .width(2.dp)
-                                .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
-                                .fillMaxHeight()
-                        )
-                    }
-                }
+                
                 second {
                     HorizontalSplitPane(
                         splitPaneState = rememberSplitPaneState(0.9f)
@@ -133,26 +113,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                 }
                             }
                         }
-                        splitter {
-                            visiblePart {
-                                Box(
-                                    Modifier
-                                        .width(1.dp)
-                                        .fillMaxHeight()
-                                        .background(MaterialTheme.colors.background)
-                                )
-                            }
-                            handle {
-                                Box(
-                                    Modifier
-                                        .markAsHandle()
-                                        .background(SolidColor(Color.Gray), alpha = 0.50f)
-                                        .width(2.dp)
-                                        .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
-                                        .fillMaxHeight()
-                                )
-                            }
-                        }
+
                         second(minSize = 300.dp) {
                             Box(
                                 modifier = Modifier
