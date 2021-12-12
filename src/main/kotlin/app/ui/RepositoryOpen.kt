@@ -71,9 +71,21 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                             .weight(0.15f)
                             .fillMaxHeight()
                     ) {
-                        Branches(gitManager = gitManager)
+                        Branches(
+                            gitManager = gitManager,
+                            onBranchClicked = {
+                                val commit = gitManager.findCommit(it.objectId)
+                                setSelectedItem(SelectedItem.Ref(commit))
+                            }
+                        )
                         Remotes(gitManager = gitManager)
-                        Tags(gitManager = gitManager)
+                        Tags(
+                            gitManager = gitManager,
+                            onTagClicked = {
+                                val commit = gitManager.findCommit(it.objectId)
+                                setSelectedItem(SelectedItem.Ref(commit))
+                            }
+                        )
                         Stashes(
                             gitManager = gitManager,
                             onStashSelected = { stash ->
@@ -154,6 +166,7 @@ sealed class SelectedItem {
     object None : SelectedItem()
     object UncommitedChanges : SelectedItem()
     sealed class CommitBasedItem(val revCommit: RevCommit) : SelectedItem()
+    class Ref(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Commit(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Stash(revCommit: RevCommit) : CommitBasedItem(revCommit)
 }

@@ -19,7 +19,10 @@ import app.ui.context_menu.tagContextMenuItems
 import org.eclipse.jgit.lib.Ref
 
 @Composable
-fun Tags(gitManager: GitManager) {
+fun Tags(
+    gitManager: GitManager,
+    onTagClicked: (Ref) -> Unit,
+) {
     val tagsState = gitManager.tags.collectAsState()
     val tags = tagsState.value
 
@@ -39,6 +42,7 @@ fun Tags(gitManager: GitManager) {
                 items(items = tags) { tag ->
                     TagRow(
                         tag = tag,
+                        onTagClicked = { onTagClicked(tag) },
                         onCheckoutTag = { gitManager.checkoutRef(tag) },
                         onDeleteTag = { gitManager.deleteTag(tag) }
                     )
@@ -53,6 +57,7 @@ fun Tags(gitManager: GitManager) {
 @Composable
 private fun TagRow(
     tag: Ref,
+    onTagClicked: () -> Unit,
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
 ) {
@@ -67,6 +72,7 @@ private fun TagRow(
         SideMenuSubentry(
             text = tag.simpleName,
             iconResourcePath = "tag.svg",
+            onClick = onTagClicked,
         )
     }
 }

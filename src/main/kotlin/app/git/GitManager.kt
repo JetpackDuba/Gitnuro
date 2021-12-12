@@ -15,6 +15,7 @@ import app.AppStateManager
 import app.app.ErrorsManager
 import app.app.newErrorNow
 import kotlinx.coroutines.flow.collect
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.transport.RemoteConfig
 import java.io.File
 import javax.inject.Inject
@@ -349,6 +350,10 @@ class GitManager @Inject constructor(
 
     fun clone(directory: File, url: String) = managerScope.launch {
         remoteOperationsManager.clone(directory, url)
+    }
+
+    fun findCommit(objectId: ObjectId): RevCommit {
+        return safeGit.repository.parseCommit(objectId)
     }
 }
 

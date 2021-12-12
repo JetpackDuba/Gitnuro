@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
@@ -77,14 +78,21 @@ fun Log(
 
     val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
 
-    val selectedCommit =  if (selectedItem is SelectedItem.Commit) {
+    val selectedCommit =  if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit
     } else {
         null
     }
 
+
     if (logStatus is LogStatus.Loaded) {
         val commitList = logStatus.plotCommitList
+        val scrollState = rememberLazyListState()
+
+        LaunchedEffect(selectedCommit) {
+            if(selectedItem is SelectedItem.Ref)
+                scrollState.scrollToItem(commitList.indexOfFirst { it.name == selectedCommit?.name })
+        }
 
         LogDialogs(
             gitManager,
@@ -111,6 +119,7 @@ fun Log(
                 weightMod = weightMod,
             )
             ScrollableLazyColumn(
+                state = scrollState,
                 modifier = Modifier
                     .background(MaterialTheme.colors.background)
                     .fillMaxSize(),

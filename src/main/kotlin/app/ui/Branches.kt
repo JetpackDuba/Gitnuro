@@ -33,7 +33,11 @@ import app.ui.context_menu.branchContextMenuItems
 import app.ui.dialogs.MergeDialog
 
 @Composable
-fun Branches(gitManager: GitManager) {
+fun Branches(
+    gitManager: GitManager,
+    onBranchClicked: (Ref) -> Unit,
+
+) {
     val branches by gitManager.branches.collectAsState()
     val currentBranch by gitManager.currentBranch.collectAsState()
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
@@ -53,6 +57,7 @@ fun Branches(gitManager: GitManager) {
                     BranchRow(
                         branch = branch,
                         isCurrentBranch = currentBranch == branch.name,
+                        onBranchClicked = { onBranchClicked(branch) },
                         onCheckoutBranch = { gitManager.checkoutRef(branch) },
                         onMergeBranch = { setMergeBranch(branch) },
                         onDeleteBranch = { gitManager.deleteBranch(branch) },
@@ -77,6 +82,7 @@ fun Branches(gitManager: GitManager) {
 private fun BranchRow(
     branch: Ref,
     isCurrentBranch: Boolean,
+    onBranchClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
@@ -96,6 +102,7 @@ private fun BranchRow(
             text = branch.simpleName,
             iconResourcePath = "branch.svg",
             bold = isCurrentBranch,
+            onClick = onBranchClicked
         ) {
             if (isCurrentBranch) {
                 Icon(
