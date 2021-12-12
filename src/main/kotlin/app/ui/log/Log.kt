@@ -91,8 +91,14 @@ fun Log(
 
         LaunchedEffect(selectedCommit) {
             // Scroll to commit if a Ref is selected
-            if (selectedItem is SelectedItem.Ref)
-                scrollState.scrollToItem(commitList.indexOfFirst { it.name == selectedCommit?.name })
+            if (selectedItem is SelectedItem.Ref) {
+                val index = commitList.indexOfFirst { it.name == selectedCommit?.name }
+                // TODO Show a message informing the user why we aren't scrolling
+                // Index can be -1 if the ref points to a commit that is not shown in the graph due to the limited
+                // number of displayed commits.
+                if (index >= 0)
+                    scrollState.scrollToItem(index)
+            }
         }
 
         LogDialogs(
