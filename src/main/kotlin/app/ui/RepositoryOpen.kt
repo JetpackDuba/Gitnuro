@@ -1,15 +1,9 @@
 package app.ui
 
 import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import app.git.DiffEntryType
 import app.git.GitManager
@@ -20,7 +14,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
-import java.awt.Cursor
 
 
 @OptIn(ExperimentalSplitPaneApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -38,7 +31,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
         diffSelected = null
     }
 
-    if(showNewBranchDialog) {
+    if (showNewBranchDialog) {
         NewBranchDialog(
             onReject = {
                 showNewBranchDialog = false
@@ -94,7 +87,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                         )
                     }
                 }
-                
+
                 second {
                     HorizontalSplitPane(
                         splitPaneState = rememberSplitPaneState(0.9f)
@@ -144,7 +137,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                             diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
                                         }
                                     )
-                                } else if(selectedItem is SelectedItem.CommitBasedItem) {
+                                } else if (selectedItem is SelectedItem.CommitBasedItem) {
                                     CommitChanges(
                                         gitManager = gitManager,
                                         commit = selectedItem.revCommit,

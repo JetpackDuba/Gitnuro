@@ -69,7 +69,7 @@ class AppStateManager @Inject constructor(
         }
 
         val repositoriesPathsSaved = appPreferences.latestOpenedRepositoriesPath
-        if(repositoriesPathsSaved.isNotEmpty()) {
+        if (repositoriesPathsSaved.isNotEmpty()) {
             val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)
             _latestOpenedRepositoriesPaths.addAll(repositories)
         }

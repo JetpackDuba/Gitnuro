@@ -8,7 +8,6 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.*
 import java.io.IOException
-import java.util.*
 
 /**
  * Specialized RevWalk for visualization of a commit graph.

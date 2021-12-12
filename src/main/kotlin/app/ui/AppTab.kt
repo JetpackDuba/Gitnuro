@@ -134,7 +134,7 @@ fun AppTab(
                 ) {
                     Column(
                         modifier = Modifier
-                        .padding(horizontal = 32.dp)
+                            .padding(horizontal = 32.dp)
                     ) {
                         Text(
                             text = "Error",

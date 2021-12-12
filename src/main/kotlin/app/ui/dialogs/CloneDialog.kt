@@ -26,9 +26,9 @@ fun CloneDialog(
     var directory by remember { mutableStateOf("") }
     var url by remember { mutableStateOf("") }
     Column {
-        if(cloneStatusValue is CloneStatus.Cloning || cloneStatusValue == CloneStatus.CheckingOut)
+        if (cloneStatusValue is CloneStatus.Cloning || cloneStatusValue == CloneStatus.CheckingOut)
             LinearProgressIndicator(modifier = Modifier.width(500.dp))
-        else if(cloneStatusValue == CloneStatus.Completed) {
+        else if (cloneStatusValue == CloneStatus.Completed) {
             gitManager.openRepository(directory)
             onClose()
         }

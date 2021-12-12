@@ -1,6 +1,9 @@
 package app.theme
 
-import androidx.compose.material.*
+import androidx.compose.material.Colors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
@@ -26,7 +29,7 @@ private val LightColorPalette = lightColors(
 
 @Composable
 fun AppTheme(theme: Themes = Themes.LIGHT, content: @Composable() () -> Unit) {
-    val colors = when(theme) {
+    val colors = when (theme) {
         Themes.LIGHT -> LightColorPalette
         Themes.DARK -> DarkColorPalette
     }

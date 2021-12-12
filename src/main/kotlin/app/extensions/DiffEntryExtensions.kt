@@ -9,9 +9,9 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import org.eclipse.jgit.diff.DiffEntry
 import app.theme.addFile
 import app.theme.modifyFile
+import org.eclipse.jgit.diff.DiffEntry
 
 val DiffEntry.filePath: String
     get() {

@@ -31,4 +31,4 @@ class ErrorsManager @Inject constructor() {
 
 data class Error(val date: Long, val exception: Exception, val message: String)
 
-fun newErrorNow(exception: Exception,message: String) = Error(System.currentTimeMillis(), exception, message)
+fun newErrorNow(exception: Exception, message: String) = Error(System.currentTimeMillis(), exception, message)

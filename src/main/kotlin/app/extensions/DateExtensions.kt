@@ -15,11 +15,12 @@ fun Date.toSmartSystemString(): String {
     val currentTime = LocalDate.now(zoneId)
 
     var result = sdf.format(this)
-    if(localDate.year == currentTime.year &&
-        localDate.month == currentTime.month) {
-        if(localDate.dayOfMonth == currentTime.dayOfMonth)
+    if (localDate.year == currentTime.year &&
+        localDate.month == currentTime.month
+    ) {
+        if (localDate.dayOfMonth == currentTime.dayOfMonth)
             result = "Today"
-        else if(localDate.dayOfMonth == currentTime.dayOfMonth - 1)
+        else if (localDate.dayOfMonth == currentTime.dayOfMonth - 1)
             result = "Yesterday"
     }
 

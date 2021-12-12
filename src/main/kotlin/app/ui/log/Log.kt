@@ -78,19 +78,20 @@ fun Log(
 
     val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
 
-    val selectedCommit =  if (selectedItem is SelectedItem.CommitBasedItem) {
+    val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit
     } else {
         null
     }
 
-
     if (logStatus is LogStatus.Loaded) {
         val commitList = logStatus.plotCommitList
         val scrollState = rememberLazyListState()
 
+
         LaunchedEffect(selectedCommit) {
-            if(selectedItem is SelectedItem.Ref)
+            // Scroll to commit if a Ref is selected
+            if (selectedItem is SelectedItem.Ref)
                 scrollState.scrollToItem(commitList.indexOfFirst { it.name == selectedCommit?.name })
         }
 
@@ -722,7 +723,7 @@ fun RefChip(
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box (modifier = Modifier.background(color = color)) {
+                Box(modifier = Modifier.background(color = color)) {
                     Icon(
                         modifier = Modifier
                             .padding(6.dp)

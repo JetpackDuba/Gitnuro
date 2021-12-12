@@ -71,7 +71,7 @@ class GRemoteSession @Inject constructor(
                     credentials = credentialsStateManager.currentCredentialsState
                 }
 
-                if(credentials !is CredentialsState.SshCredentialsAccepted)
+                if (credentials !is CredentialsState.SshCredentialsAccepted)
                     null
                 else
                     credentials.password

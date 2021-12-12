@@ -2,7 +2,6 @@ package app.ui.context_menu
 
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
-import app.extensions.isLocal
 
 @OptIn(ExperimentalFoundationApi::class)
 fun tagContextMenuItems(

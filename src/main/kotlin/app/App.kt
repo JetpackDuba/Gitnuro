@@ -68,7 +68,7 @@ class Main {
                 var showSettingsDialog by remember { mutableStateOf(false) }
 
                 AppTheme(theme = theme) {
-                    Box (modifier = Modifier.background(MaterialTheme.colors.background)) {
+                    Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
                         AppTabs(
                             onOpenSettings = {
                                 showSettingsDialog = true
@@ -76,7 +76,7 @@ class Main {
                         )
                     }
 
-                    if(showSettingsDialog) {
+                    if (showSettingsDialog) {
                         SettingsDialog(
                             appPreferences = appPreferences,
                             onDismiss = { showSettingsDialog = false }
@@ -86,8 +86,6 @@ class Main {
             }
         }
     }
-
-
 
 
     @Composable

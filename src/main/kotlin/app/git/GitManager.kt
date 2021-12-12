@@ -1,22 +1,21 @@
 package app.git
 
+import app.AppStateManager
+import app.app.ErrorsManager
+import app.app.newErrorNow
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import app.AppStateManager
-import app.app.ErrorsManager
-import app.app.newErrorNow
-import kotlinx.coroutines.flow.collect
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.transport.RemoteConfig
 import java.io.File
 import javax.inject.Inject
 
@@ -323,7 +322,7 @@ class GitManager @Inject constructor(
         } catch (ex: Exception) {
             ex.printStackTrace()
 
-            if(showError)
+            if (showError)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
             _processing.value = false

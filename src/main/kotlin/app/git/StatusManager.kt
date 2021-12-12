@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.lib.Constants
 import javax.inject.Inject
 
 class StatusManager @Inject constructor() {
@@ -54,7 +53,7 @@ class StatusManager @Inject constructor() {
 
             ensureActive()
             _stageStatus.value = StageStatus.Loaded(staged, unstaged)
-        } catch(ex: Exception) {
+        } catch (ex: Exception) {
             _stageStatus.value = previousStatus
             throw ex
         }

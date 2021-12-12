@@ -5,11 +5,10 @@ package app.ui.dialogs
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.AppPreferences
-import androidx.compose.ui.Alignment
-import app.theme.Themes
 import app.theme.primaryTextColor
 import app.theme.themesList
 

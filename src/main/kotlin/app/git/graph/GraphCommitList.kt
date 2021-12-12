@@ -1,12 +1,11 @@
 package app.git.graph
 
-import org.eclipse.jgit.revwalk.RevCommitList
-import java.lang.ClassCastException
-import java.text.MessageFormat
 import org.eclipse.jgit.internal.JGitText
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.revwalk.RevCommitList
 import org.eclipse.jgit.revwalk.RevWalk
+import java.text.MessageFormat
 import java.util.*
 
 /**

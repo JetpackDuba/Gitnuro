@@ -30,12 +30,13 @@ class HttpCredentialsProvider : CredentialsProvider() {
             credentials = credentialsStateManager.currentCredentialsState
         }
 
-        if(credentials is CredentialsState.HttpCredentialsAccepted) {
+        if (credentials is CredentialsState.HttpCredentialsAccepted) {
             val userItem = items.firstOrNull { it?.promptText == "Username" }
             val passwordItem = items.firstOrNull { it?.promptText == "Password" }
 
-            if(userItem is CredentialItem.Username &&
-                passwordItem is CredentialItem.Password) {
+            if (userItem is CredentialItem.Username &&
+                passwordItem is CredentialItem.Password
+            ) {
 
                 userItem.value = credentials.user
                 passwordItem.value = credentials.password.toCharArray()

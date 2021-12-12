@@ -13,7 +13,6 @@ import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
@@ -64,14 +63,14 @@ class LogManager @Inject constructor(
 
     suspend fun checkoutRef(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
         git.checkout().apply {
-                setName(ref.name)
-                if(ref.isBranch && ref.name.startsWith("refs/remotes/")) {
-                    setCreateBranch(true)
-                    setName(ref.simpleName)
-                    setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                }
-                call()
+            setName(ref.name)
+            if (ref.isBranch && ref.name.startsWith("refs/remotes/")) {
+                setCreateBranch(true)
+                setName(ref.simpleName)
+                setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
             }
+            call()
+        }
     }
 
     suspend fun revertCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
@@ -82,7 +81,7 @@ class LogManager @Inject constructor(
     }
 
     suspend fun resetToCommit(git: Git, revCommit: RevCommit, resetType: ResetType) = withContext(Dispatchers.IO) {
-        val reset = when(resetType) {
+        val reset = when (resetType) {
             ResetType.SOFT -> ResetCommand.ResetType.SOFT
             ResetType.MIXED -> ResetCommand.ResetType.MIXED
             ResetType.HARD -> ResetCommand.ResetType.HARD
@@ -94,6 +93,7 @@ class LogManager @Inject constructor(
             .call()
     }
 }
+
 // TODO Move this to
 enum class ResetType {
     SOFT,

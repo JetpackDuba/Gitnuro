@@ -50,7 +50,7 @@ fun WelcomePage(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = BiasAlignment.Vertical(-0.5f),
 
-    ) {
+        ) {
         Column(
             modifier = Modifier
                 .padding(end = 32.dp),
@@ -159,7 +159,7 @@ fun WelcomePage(
     }
 
 
-    if(showCloneView)
+    if (showCloneView)
         MaterialDialog {
             CloneDialog(gitManager, onClose = { showCloneView = false })
         }

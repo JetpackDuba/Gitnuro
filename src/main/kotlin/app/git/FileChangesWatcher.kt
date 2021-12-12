@@ -27,7 +27,7 @@ class FileChangesWatcher @Inject constructor() {
             override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
                 val isIgnoredDirectory = ignoredDirsPath.any { "$pathStr/$it" == dir.toString() }
 
-                return if(!isIgnoredDirectory) {
+                return if (!isIgnoredDirectory) {
                     dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
                     FileVisitResult.CONTINUE
                 } else {

@@ -29,16 +29,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.ui.components.ScrollableLazyColumn
 import app.extensions.filePath
 import app.extensions.icon
 import app.extensions.iconColor
 import app.git.GitManager
 import app.git.StageStatus
-import org.eclipse.jgit.diff.DiffEntry
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
+import app.ui.components.ScrollableLazyColumn
+import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -141,9 +141,8 @@ fun UncommitedChanges(
                             if (it.isCtrlPressed && it.key == Key.Enter && canCommit) {
                                 doCommit()
                                 true
-                            }
-                                else
-                                    false
+                            } else
+                                false
                         },
                     value = commitMessage,
                     onValueChange = { commitMessage = it },

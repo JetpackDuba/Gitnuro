@@ -55,7 +55,6 @@ class DiffManager @Inject constructor() {
     }
 
 
-
     suspend fun commitDiffEntries(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {
         val fullCommit = commit.fullData(git.repository) ?: return@withContext emptyList()
 

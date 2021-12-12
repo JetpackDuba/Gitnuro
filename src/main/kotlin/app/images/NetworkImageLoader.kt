@@ -23,8 +23,8 @@ object NetworkImageLoader {
         try {
             val cachedImage = cache.getCachedImage(url)
 
-            if(cachedImage != null)
-                return@withContext  cachedImage.toComposeImage()
+            if (cachedImage != null)
+                return@withContext cachedImage.toComposeImage()
 
             loadingImagesSemaphore.acquireAndUse {
                 val imageByteArray = loadImage(url)
@@ -50,7 +50,6 @@ object NetworkImageLoader {
 }
 
 
-
 @Composable
 fun rememberNetworkImage(url: String): ImageBitmap {
     val networkImageLoader = NetworkImageLoader
@@ -64,7 +63,7 @@ fun rememberNetworkImage(url: String): ImageBitmap {
 
     LaunchedEffect(url) {
         val networkImage = networkImageLoader.loadImageNetwork(url)
-        if(networkImage != null)
+        if (networkImage != null)
             image = networkImage
     }
 

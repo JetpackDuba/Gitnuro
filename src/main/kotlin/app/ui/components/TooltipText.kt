@@ -44,7 +44,7 @@ fun TooltipText(
 ) {
     TooltipArea(
         tooltip = {
-            Card (
+            Card(
                 backgroundColor = MaterialTheme.colors.background,
                 elevation = 10.dp,
             ) {
@@ -53,7 +53,7 @@ fun TooltipText(
                     modifier = Modifier.padding(10.dp)
                 )
             }
-      },
+        },
     ) {
         Text(
             text = text,

@@ -1,8 +1,5 @@
-import app.AppStateManager
 import app.extensions.runCommand
 import app.git.GitManager
-import java.io.IOException
-import java.util.*
 import javax.swing.JFileChooser
 
 
@@ -12,16 +9,16 @@ fun openRepositoryDialog(gitManager: GitManager) {
     val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
 
 
-    if(os.lowercase() == "linux") {
+    if (os.lowercase() == "linux") {
         val checkZenityInstalled = runCommand("which zenity 2>/dev/null")
         val isZenityInstalled = !checkZenityInstalled.isNullOrEmpty()
 
-        if(isZenityInstalled) {
+        if (isZenityInstalled) {
             val openDirectory = runCommand(
                 "zenity --file-selection --title=Open --directory --filename=\"$latestDirectoryOpened\""
             )?.replace("\n", "")
 
-            if(!openDirectory.isNullOrEmpty())
+            if (!openDirectory.isNullOrEmpty())
                 gitManager.openRepository(openDirectory)
         } else
             openRepositoryDialog(gitManager, latestDirectoryOpened)

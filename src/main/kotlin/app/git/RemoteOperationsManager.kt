@@ -1,6 +1,7 @@
 package app.git
 
-import app.credentials.*
+import app.credentials.GSessionManager
+import app.credentials.HttpCredentialsProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,7 +9,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
-import org.eclipse.jgit.transport.*
+import org.eclipse.jgit.transport.CredentialsProvider
+import org.eclipse.jgit.transport.HttpTransport
+import org.eclipse.jgit.transport.RefSpec
+import org.eclipse.jgit.transport.SshTransport
 import java.io.File
 import javax.inject.Inject
 
