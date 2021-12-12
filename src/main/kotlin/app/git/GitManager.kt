@@ -164,7 +164,7 @@ class GitManager @Inject constructor(
 
     fun commit(message: String) = managerScope.launch {
         statusManager.commit(safeGit, message)
-        logManager.loadLog(safeGit)
+        refreshRepositoryInfo()
     }
 
     val hasUncommitedChanges: StateFlow<Boolean>
