@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -37,10 +38,7 @@ import app.git.GitManager
 import app.git.LogStatus
 import app.git.graph.GraphNode
 import app.images.rememberNetworkImage
-import app.theme.headerBackground
-import app.theme.headerText
-import app.theme.primaryTextColor
-import app.theme.secondaryTextColor
+import app.theme.*
 import app.ui.SelectedItem
 import app.ui.components.ScrollableLazyColumn
 import app.ui.dialogs.MergeDialog
@@ -353,11 +351,14 @@ fun CommitLine(
                     .height(40.dp)
                     .fillMaxWidth(),
             ) {
+                val nodeColor = colors[graphNode.lane.position % colors.size]
+
                 CommitsGraphLine(
                     modifier = Modifier
                         .width(graphWidth)
                         .fillMaxHeight(),
-                    plotCommit = graphNode
+                    plotCommit = graphNode,
+                    nodeColor = nodeColor,
                 )
 
                 DividerLog(
@@ -375,6 +376,7 @@ fun CommitLine(
                     commit = graphNode,
                     selected = selected,
                     refs = commitRefs,
+                    nodeColor = nodeColor,
                     currentBranch = currentBranch,
                     onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
                     onMergeBranch = { ref -> onMergeBranch(ref) },
@@ -393,6 +395,7 @@ fun CommitMessage(
     selected: Boolean,
     refs: List<Ref>,
     currentBranch: Ref?,
+    nodeColor: Color,
     onCheckoutRef: (ref: Ref) -> Unit,
     onMergeBranch: (ref: Ref) -> Unit,
     onDeleteBranch: (ref: Ref) -> Unit,
@@ -429,12 +432,14 @@ fun CommitMessage(
                     if (ref.isTag) {
                         TagChip(
                             ref = ref,
+                            color = nodeColor,
                             onCheckoutTag = { onCheckoutRef(ref) },
                             onDeleteTag = { onDeleteTag(ref) },
                         )
                     } else if (ref.isBranch) {
                         BranchChip(
                             ref = ref,
+                            color = nodeColor,
                             isCurrentBranch = ref.isSameBranch(currentBranch),
                             onCheckoutBranch = { onCheckoutRef(ref) },
                             onMergeBranch = { onMergeBranch(ref) },
@@ -492,6 +497,7 @@ fun DividerLog(modifier: Modifier) {
 fun CommitsGraphLine(
     modifier: Modifier = Modifier,
     plotCommit: GraphNode,
+    nodeColor: Color,
 ) {
     val passingLanes = plotCommit.passingLanes
     val forkingOffLanes = plotCommit.forkingOffLanes
@@ -552,7 +558,7 @@ fun CommitsGraphLine(
                 .align(Alignment.CenterStart)
                 .padding(start = ((itemPosition + 1) * 30 - 15).dp),
             plotCommit = plotCommit,
-            color = colors[itemPosition % colors.size],
+            color = nodeColor,
         )
     }
 }
@@ -617,6 +623,7 @@ fun BranchChip(
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
+    color: Color,
 ) {
     val contextMenuItemsList = {
         mutableListOf(
@@ -652,13 +659,14 @@ fun BranchChip(
                 painter = painterResource("location.svg"),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 6.dp),
-                tint = MaterialTheme.colors.background,
+                tint = MaterialTheme.colors.primary,
             )
         }
     }
 
     RefChip(
         modifier = modifier,
+        color = color,
         ref = ref,
         icon = "branch.svg",
         onCheckoutRef = onCheckoutBranch,
@@ -674,6 +682,7 @@ fun TagChip(
     ref: Ref,
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
+    color: Color,
 ) {
     val contextMenuItemsList = {
         mutableListOf(
@@ -699,6 +708,7 @@ fun TagChip(
         "tag.svg",
         onCheckoutRef = onCheckoutTag,
         contextMenuItemsList = contextMenuItemsList,
+        color = color,
     )
 }
 
@@ -708,6 +718,7 @@ fun RefChip(
     modifier: Modifier = Modifier,
     ref: Ref,
     icon: String,
+    color: Color,
     onCheckoutRef: () -> Unit,
     contextMenuItemsList: () -> List<ContextMenuItem>,
     endingContent: @Composable () -> Unit = {},
@@ -716,7 +727,7 @@ fun RefChip(
         modifier = Modifier
             .padding(horizontal = 4.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colors.primary)
+            .border(width = 2.dp, color = color, shape = RoundedCornerShape(16.dp))
             .combinedClickable(
                 onDoubleClick = onCheckoutRef,
                 onClick = {}
@@ -729,20 +740,22 @@ fun RefChip(
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    modifier = Modifier
-                        .padding(start = 6.dp, end = 4.dp, top = 6.dp, bottom = 6.dp)
-                        .size(14.dp),
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    tint = MaterialTheme.colors.onPrimary,
-                )
+                Box (modifier = Modifier.background(color = color)) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .size(14.dp),
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.inversePrimaryTextColor,
+                    )
+                }
                 Text(
                     text = ref.simpleVisibleName,
-                    color = MaterialTheme.colors.onPrimary,
-                    fontSize = 12.sp,
+                    color = MaterialTheme.colors.primaryTextColor,
+                    fontSize = 13.sp,
                     modifier = Modifier
-                        .padding(end = 6.dp)
+                        .padding(horizontal = 6.dp)
                 )
 
                 endingContent()

@@ -42,6 +42,10 @@ val Colors.primaryTextColor: Color
     get() = if (isLight) mainText else mainTextDark
 
 @get:Composable
+val Colors.inversePrimaryTextColor: Color
+    get() = if (isLight) mainTextDark else mainText
+
+@get:Composable
 val Colors.secondaryTextColor: Color
     get() = if (isLight) secondaryText else secondaryTextDark
 
