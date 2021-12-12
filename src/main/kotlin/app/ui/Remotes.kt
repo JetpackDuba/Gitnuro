@@ -7,12 +7,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.ui.components.ScrollableLazyColumn
 import app.extensions.simpleVisibleName
 import app.git.GitManager
 import app.git.RemoteInfo
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
+import app.ui.components.entryHeight
 
 @Composable
 fun Remotes(gitManager: GitManager) {
@@ -22,11 +24,11 @@ fun Remotes(gitManager: GitManager) {
         SideMenuEntry("Remotes")
 
         val allBranches = remotes.map { it.branchesList }.flatten()
-        val remotesHeight = (allBranches.count() + remotes.count()) * 40
-        val maxHeight = if(remotesHeight < 300)
+        val remotesHeight = (allBranches.count() + remotes.count()) * entryHeight
+        val maxHeight = if(remotesHeight < MAX_SIDE_PANEL_ITEMS_HEIGHT)
             remotesHeight
         else
-            300
+            MAX_SIDE_PANEL_ITEMS_HEIGHT
 
         Box(modifier = Modifier.heightIn(max = maxHeight.dp)) {
             ScrollableLazyColumn(modifier = Modifier.fillMaxWidth()) {

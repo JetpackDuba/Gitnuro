@@ -15,7 +15,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -41,6 +40,8 @@ import app.images.rememberNetworkImage
 import app.theme.*
 import app.ui.SelectedItem
 import app.ui.components.ScrollableLazyColumn
+import app.ui.context_menu.branchContextMenuItems
+import app.ui.context_menu.tagContextMenuItems
 import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
@@ -626,30 +627,13 @@ fun BranchChip(
     color: Color,
 ) {
     val contextMenuItemsList = {
-        mutableListOf(
-            ContextMenuItem(
-                label = "Checkout branch",
-                onClick = onCheckoutBranch
-            ),
-
-            ).apply {
-            if (!isCurrentBranch) {
-                add(
-                    ContextMenuItem(
-                        label = "Merge branch",
-                        onClick = onMergeBranch
-                    )
-                )
-            }
-            if (ref.isLocal && !isCurrentBranch) {
-                add(
-                    ContextMenuItem(
-                        label = "Delete branch",
-                        onClick = onDeleteBranch
-                    )
-                )
-            }
-        }
+        branchContextMenuItems(
+            isCurrentBranch = isCurrentBranch,
+            isLocal = ref.isLocal,
+            onCheckoutBranch = onCheckoutBranch,
+            onMergeBranch = onMergeBranch,
+            onDeleteBranch = onDeleteBranch,
+        )
     }
 
     var endingContent: @Composable () -> Unit = {}
@@ -685,21 +669,10 @@ fun TagChip(
     color: Color,
 ) {
     val contextMenuItemsList = {
-        mutableListOf(
-            ContextMenuItem(
-                label = "Checkout tag",
-                onClick = onCheckoutTag
-            )
-        ).apply {
-            if (ref.isLocal) {
-                add(
-                    ContextMenuItem(
-                        label = "Delete tag",
-                        onClick = onDeleteTag
-                    )
-                )
-            }
-        }
+        tagContextMenuItems(
+            onCheckoutTag = onCheckoutTag,
+            onDeleteTag = onDeleteTag,
+        )
     }
 
     RefChip(

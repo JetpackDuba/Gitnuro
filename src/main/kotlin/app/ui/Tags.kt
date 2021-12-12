@@ -1,29 +1,21 @@
 package app.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.extensions.simpleName
 import app.ui.components.ScrollableLazyColumn
 import app.git.GitManager
-import app.git.StashStatus
-import org.eclipse.jgit.revwalk.RevCommit
-import app.theme.headerBackground
-import app.theme.headerText
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
+import app.ui.components.entryHeight
+import app.ui.context_menu.tagContextMenuItems
 import org.eclipse.jgit.lib.Ref
 
 @Composable
@@ -31,25 +23,25 @@ fun Tags(gitManager: GitManager) {
     val tagsState = gitManager.tags.collectAsState()
     val tags = tagsState.value
 
-
     Column {
         SideMenuEntry(
             text = "Tags",
         )
 
-        val branchesHeight = tags.count() * 40
-        val maxHeight = if (branchesHeight < 300)
-            branchesHeight
+        val tagsHeight = tags.count() * entryHeight
+        val maxHeight = if (tagsHeight < MAX_SIDE_PANEL_ITEMS_HEIGHT)
+            tagsHeight
         else
-            300
+            MAX_SIDE_PANEL_ITEMS_HEIGHT
 
         Box(modifier = Modifier.heightIn(max = maxHeight.dp)) {
             ScrollableLazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(items = tags) { tag ->
                     TagRow(
                         tag = tag,
+                        onCheckoutTag = { gitManager.checkoutRef(tag) },
+                        onDeleteTag = { gitManager.deleteTag(tag) }
                     )
-
                 }
             }
         }
@@ -57,10 +49,24 @@ fun Tags(gitManager: GitManager) {
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun TagRow(tag: Ref) {
-    SideMenuSubentry(
-        text = tag.simpleName,
-        iconResourcePath = "tag.svg",
-    )
+private fun TagRow(
+    tag: Ref,
+    onCheckoutTag: () -> Unit,
+    onDeleteTag: () -> Unit,
+) {
+    ContextMenuArea(
+        items = {
+            tagContextMenuItems(
+                onCheckoutTag = onCheckoutTag,
+                onDeleteTag = onDeleteTag,
+            )
+        }
+    ) {
+        SideMenuSubentry(
+            text = tag.simpleName,
+            iconResourcePath = "tag.svg",
+        )
+    }
 }
