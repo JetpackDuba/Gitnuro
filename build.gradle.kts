@@ -46,8 +46,9 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
+            includeAllModules = true
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.AppImage)
-            packageName = "gitnuro"
+            packageName = "Gitnuro"
             packageVersion = "1.0.0"
         }
     }
