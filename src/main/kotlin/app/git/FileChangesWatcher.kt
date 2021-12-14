@@ -39,9 +39,7 @@ class FileChangesWatcher @Inject constructor() {
         var key: WatchKey
         while (watchService.take().also { key = it } != null) {
             this.emit(Unit)
-            for (event: WatchEvent<*> in key.pollEvents()) {
-                println("Event kind: ${event.kind()}. File affected: ${event.context()}.")
-            }
+            key.pollEvents()
             key.reset()
         }
     }

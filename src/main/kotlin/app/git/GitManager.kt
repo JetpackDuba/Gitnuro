@@ -62,8 +62,12 @@ class GitManager @Inject constructor(
     val cloneStatus: StateFlow<CloneStatus> = remoteOperationsManager.cloneStatus
     val remotes: StateFlow<List<RemoteInfo>> = remotesManager.remotes
 
-
     private var git: Git? = null
+
+    /**
+     * Property that indicates if a git operation is running
+     */
+    @set:Synchronized private var operationRunning = false
 
     private val safeGit: Git
         get() {
@@ -125,7 +129,7 @@ class GitManager @Inject constructor(
             pathStr = safeGit.repository.directory.parent,
             ignoredDirsPath = ignored,
         ).collect {
-            if (!_processing.value) { // Only update if there isn't any process running
+            if (!operationRunning) { // Only update if there isn't any process running
                 safeProcessing(showError = false) {
                     println("Changes detected, loading status")
                     statusManager.loadHasUncommitedChanges(safeGit)
@@ -156,16 +160,22 @@ class GitManager @Inject constructor(
     }
 
     fun stage(diffEntry: DiffEntry) = managerScope.launch {
-        statusManager.stage(safeGit, diffEntry)
+        runOperation {
+            statusManager.stage(safeGit, diffEntry)
+        }
     }
 
     fun unstage(diffEntry: DiffEntry) = managerScope.launch {
-        statusManager.unstage(safeGit, diffEntry)
+        runOperation {
+            statusManager.unstage(safeGit, diffEntry)
+        }
     }
 
     fun commit(message: String) = managerScope.launch {
-        statusManager.commit(safeGit, message)
-        refreshRepositoryInfo()
+        safeProcessing {
+            statusManager.commit(safeGit, message)
+            refreshRepositoryInfo()
+        }
     }
 
     val hasUncommitedChanges: StateFlow<Boolean>
@@ -251,10 +261,6 @@ class GitManager @Inject constructor(
         loadLog()
     }
 
-    fun statusShouldBeUpdated() {
-        _lastTimeChecked.value = System.currentTimeMillis()
-    }
-
     fun credentialsDenied() {
         credentialsStateManager.updateState(CredentialsState.CredentialsDenied)
     }
@@ -272,11 +278,15 @@ class GitManager @Inject constructor(
     }
 
     fun unstageAll() = managerScope.launch {
-        statusManager.unstageAll(safeGit)
+        safeProcessing {
+            statusManager.unstageAll(safeGit)
+        }
     }
 
     fun stageAll() = managerScope.launch {
-        statusManager.stageAll(safeGit)
+        safeProcessing {
+            statusManager.stageAll(safeGit)
+        }
     }
 
     fun checkoutCommit(revCommit: RevCommit) = managerScope.launch {
@@ -316,21 +326,6 @@ class GitManager @Inject constructor(
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
-    @Synchronized
-    private suspend fun safeProcessing(showError: Boolean = true, callback: suspend () -> Unit) {
-        _processing.value = true
-        try {
-            callback()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-
-            if (showError)
-                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
-        } finally {
-            _processing.value = false
-        }
-    }
-
     fun checkoutRef(ref: Ref) = managerScope.launch {
         safeProcessing {
             logManager.checkoutRef(safeGit, ref)
@@ -355,6 +350,33 @@ class GitManager @Inject constructor(
 
     fun findCommit(objectId: ObjectId): RevCommit {
         return safeGit.repository.parseCommit(objectId)
+    }
+
+    @Synchronized
+    private suspend fun safeProcessing(showError: Boolean = true, callback: suspend () -> Unit) {
+        _processing.value = true
+        operationRunning = true
+
+        try {
+            callback()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+
+            if (showError)
+                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+        } finally {
+            _processing.value = false
+            operationRunning = false
+        }
+    }
+
+    private inline fun runOperation(block: () -> Unit) {
+        operationRunning = true
+        try {
+            block()
+        } finally {
+            operationRunning = false
+        }
     }
 }
 
