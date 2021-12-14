@@ -121,15 +121,16 @@ class GitManager @Inject constructor(
     private suspend fun watchRepositoryChanges() {
         val ignored = safeGit.status().call().ignoredNotInIndex.toList()
 
-
         fileChangesWatcher.watchDirectoryPath(
             pathStr = safeGit.repository.directory.parent,
             ignoredDirsPath = ignored,
         ).collect {
-            safeProcessing(showError = false) {
-                println("Changes detected, loading status")
-                statusManager.loadHasUncommitedChanges(safeGit)
-                statusManager.loadStatus(safeGit)
+            if (!_processing.value) { // Only update if there isn't any process running
+                safeProcessing(showError = false) {
+                    println("Changes detected, loading status")
+                    statusManager.loadHasUncommitedChanges(safeGit)
+                    statusManager.loadStatus(safeGit)
+                }
             }
         }
     }
@@ -315,6 +316,7 @@ class GitManager @Inject constructor(
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
+    @Synchronized
     private suspend fun safeProcessing(showError: Boolean = true, callback: suspend () -> Unit) {
         _processing.value = true
         try {
