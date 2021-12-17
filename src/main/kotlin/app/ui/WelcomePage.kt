@@ -76,7 +76,7 @@ fun WelcomePage(
                 modifier = Modifier
                     .padding(bottom = 8.dp),
                 title = "Clone a repository",
-                painter = painterResource("open.svg"),
+                painter = painterResource("download.svg"),
                 onClick = {
                     showCloneView = true
                 }
