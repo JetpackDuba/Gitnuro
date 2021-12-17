@@ -37,9 +37,9 @@ import app.extensions.*
 import app.git.GitManager
 import app.git.LogStatus
 import app.git.graph.GraphNode
-import app.images.rememberNetworkImage
 import app.theme.*
 import app.ui.SelectedItem
+import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.context_menu.tagContextMenuItems
@@ -592,12 +592,10 @@ fun CommitNode(
             .border(2.dp, color, shape = CircleShape)
             .clip(CircleShape)
     ) {
-        val url = "https://www.gravatar.com/avatar/${plotCommit.authorIdent.emailAddress.md5}?s=60"
-        Image(
-            bitmap = rememberNetworkImage(url),
-            modifier = Modifier
-                .fillMaxSize(),
-            contentDescription = null
+        AvatarImage(
+            modifier = Modifier.fillMaxSize(),
+            personIdent = plotCommit.authorIdent,
+            color = color,
         )
     }
 }

@@ -49,16 +49,18 @@ object NetworkImageLoader {
     }
 }
 
-
 @Composable
-fun rememberNetworkImage(url: String): ImageBitmap {
+fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null): ImageBitmap? {
     val networkImageLoader = NetworkImageLoader
     var image by remember(url) {
-        mutableStateOf(
-            useResource("image.jpg") {
+        val placeHolderImage = if(placeHolderImageRes != null)
+            useResource(placeHolderImageRes) {
                 Image.makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
             }
-        )
+        else
+            null
+
+        mutableStateOf(placeHolderImage)
     }
 
     LaunchedEffect(url) {
@@ -71,4 +73,3 @@ fun rememberNetworkImage(url: String): ImageBitmap {
 }
 
 fun ByteArray.toComposeImage() = Image.makeFromEncoded(this).toComposeImageBitmap()
-

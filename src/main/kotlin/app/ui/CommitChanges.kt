@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
 import app.git.GitManager
-import app.images.rememberNetworkImage
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TooltipText
 import org.eclipse.jgit.diff.DiffEntry
@@ -108,14 +108,11 @@ fun Author(commit: RevCommit) {
             .background(MaterialTheme.colors.background),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        val url = "https://www.gravatar.com/avatar/${authorIdent.emailAddress.md5}"
-        Image(
-            bitmap = rememberNetworkImage(url),
+        AvatarImage(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .height(40.dp)
-                .clip(CircleShape),
-            contentDescription = null,
+                .size(40.dp),
+            personIdent = commit.authorIdent,
         )
 
         Column(
