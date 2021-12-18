@@ -1,6 +1,7 @@
 package app.git
 
 import app.extensions.isBranch
+import app.extensions.isMerging
 import app.extensions.simpleName
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphWalk
@@ -32,8 +33,9 @@ class LogManager @Inject constructor(
 
         val currentBranch = branchesManager.currentBranchRef(git)
         val commitList = GraphCommitList()
+        val repositoryState = git.repository.repositoryState
 
-        if(currentBranch != null) { // Current branch is null when there is no log (new repo)
+        if(currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(2).call().toList()
 
             val walk = GraphWalk(git.repository)

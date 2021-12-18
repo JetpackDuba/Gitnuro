@@ -14,6 +14,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
@@ -53,6 +54,7 @@ class GitManager @Inject constructor(
         get() = _lastTimeChecked
 
     val stageStatus: StateFlow<StageStatus> = statusManager.stageStatus
+    val repositoryState: StateFlow<RepositoryState> = statusManager.repositoryState
     val logStatus: StateFlow<LogStatus> = logManager.logStatus
     val branches: StateFlow<List<Ref>> = branchesManager.branches
     val tags: StateFlow<List<Ref>> = tagsManager.tags
@@ -211,6 +213,7 @@ class GitManager @Inject constructor(
     }
 
     private suspend fun refreshRepositoryInfo() {
+        statusManager.loadRepositoryStatus(safeGit)
         statusManager.loadHasUncommitedChanges(safeGit)
         branchesManager.loadBranches(safeGit)
         remotesManager.loadRemotes(safeGit, branchesManager.remoteBranches(safeGit))

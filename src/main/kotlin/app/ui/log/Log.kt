@@ -48,6 +48,7 @@ import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
 import app.ui.dialogs.ResetBranchDialog
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 
 private val colors = listOf(
@@ -75,7 +76,7 @@ fun Log(
 ) {
     val logStatusState = gitManager.logStatus.collectAsState()
     val logStatus = logStatusState.value
-
+    val repositoryState by gitManager.repositoryState.collectAsState()
     val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
@@ -137,6 +138,7 @@ fun Log(
                             hasPreviousCommits = commitList.count() > 0,
                             graphWidth = graphWidth,
                             weightMod = weightMod,
+                            repositoryState = repositoryState,
                             onUncommitedChangesSelected = {
                                 onItemSelected(SelectedItem.UncommitedChanges)
                             }
@@ -263,7 +265,8 @@ fun UncommitedChangesLine(
     hasPreviousCommits: Boolean,
     graphWidth: Dp,
     weightMod: MutableState<Float>,
-    onUncommitedChangesSelected: () -> Unit
+    onUncommitedChangesSelected: () -> Unit,
+    repositoryState: RepositoryState
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -295,13 +298,19 @@ fun UncommitedChangesLine(
         )
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxHeight(),
             verticalArrangement = Arrangement.Center,
         ) {
             Spacer(modifier = Modifier.weight(2f))
 
+            val text = when {
+                repositoryState.isRebasing -> "Pending changes to rebase"
+                repositoryState.isMerging -> "Pending changes to merge"
+                else -> "Uncommited changes"
+            }
+
             Text(
-                text = "Uncommited changes",
+                text = text,
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(start = 16.dp),
                 fontSize = 14.sp,
@@ -748,5 +757,4 @@ fun RefChip(
             }
         }
     }
-
 }

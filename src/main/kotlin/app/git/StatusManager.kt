@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.dircache.DirCacheIterator
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import javax.inject.Inject
 
@@ -17,9 +17,10 @@ class StatusManager @Inject constructor(
     private val branchesManager: BranchesManager,
 ) {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
+    val stageStatus: StateFlow<StageStatus> = _stageStatus
 
-    val stageStatus: StateFlow<StageStatus>
-        get() = _stageStatus
+    private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
+    val repositoryState: StateFlow<RepositoryState> = _repositoryState
 
     private val _hasUncommitedChanges = MutableStateFlow<Boolean>(false)
     val hasUncommitedChanges: StateFlow<Boolean>
@@ -37,26 +38,52 @@ class StatusManager @Inject constructor(
         return@withContext status.hasUncommittedChanges() || status.hasUntrackedChanges()
     }
 
+    suspend fun loadRepositoryStatus(git: Git) = withContext(Dispatchers.IO) {
+        _repositoryState.value = git.repository.repositoryState
+    }
+
     suspend fun loadStatus(git: Git) = withContext(Dispatchers.IO) {
         val previousStatus = _stageStatus.value
         _stageStatus.value = StageStatus.Loading
 
         try {
+            loadRepositoryStatus(git)
+
             loadHasUncommitedChanges(git)
             val currentBranch = branchesManager.currentBranchRef(git)
-
+            val repositoryState = git.repository.repositoryState
             val staged = git.diff().apply {
-                if(currentBranch == null)
+                if(currentBranch == null && repositoryState != RepositoryState.MERGING && !repositoryState.isRebasing )
                     setOldTree(EmptyTreeIterator()) // Required if the repository is empty
 
                 setCached(true)
-            }.call()
+            }
+                .call()
+                // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
+                .groupBy { it.oldPath }
+                .map {
+                    val entries = it.value
+
+                    if(entries.count() > 1)
+                        entries.filter { it.oldPath != "/dev/null" }
+                    else
+                        entries
+                }.flatten()
 
             ensureActive()
 
             val unstaged = git
                 .diff()
                 .call()
+                .groupBy { it.oldPath }
+                .map {
+                    val entries = it.value
+
+                    if(entries.count() > 1)
+                        entries.filter { it.newPath != "/dev/null" }
+                    else
+                        entries
+                }.flatten()
 
             ensureActive()
             _stageStatus.value = StageStatus.Loaded(staged, unstaged)
