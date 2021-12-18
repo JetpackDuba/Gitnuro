@@ -88,7 +88,6 @@ fun Log(
         val commitList = logStatus.plotCommitList
         val scrollState = rememberLazyListState()
 
-
         LaunchedEffect(selectedCommit) {
             // Scroll to commit if a Ref is selected
             if (selectedItem is SelectedItem.Ref) {

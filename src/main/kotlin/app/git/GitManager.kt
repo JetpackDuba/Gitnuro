@@ -132,8 +132,13 @@ class GitManager @Inject constructor(
             if (!operationRunning) { // Only update if there isn't any process running
                 safeProcessing(showError = false) {
                     println("Changes detected, loading status")
+                    val hasUncommitedChanges = statusManager.hasUncommitedChanges.value
                     statusManager.loadHasUncommitedChanges(safeGit)
                     statusManager.loadStatus(safeGit)
+
+                    if(!hasUncommitedChanges) {
+                        logManager.loadLog(safeGit)
+                    }
                 }
             }
         }
