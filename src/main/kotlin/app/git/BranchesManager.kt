@@ -20,6 +20,9 @@ class BranchesManager @Inject constructor() {
     val currentBranch: StateFlow<String>
         get() = _currentBranch
 
+    /**
+     * Returns the current branch in [Ref]. If the repository is new, the current branch will be null.
+     */
     suspend fun currentBranchRef(git: Git): Ref? {
         val branchList = getBranches(git)
         val branchName = git

@@ -30,26 +30,30 @@ class LogManager @Inject constructor(
     suspend fun loadLog(git: Git) = withContext(Dispatchers.IO) {
         _logStatus.value = LogStatus.Loading
 
-        val logList = git.log().setMaxCount(2).call().toList()
-
+        val currentBranch = branchesManager.currentBranchRef(git)
         val commitList = GraphCommitList()
-        val walk = GraphWalk(git.repository)
 
-        walk.use {
-            walk.markStartAllRefs(Constants.R_HEADS)
-            walk.markStartAllRefs(Constants.R_REMOTES)
-            walk.markStartAllRefs(Constants.R_TAGS)
+        if(currentBranch != null) { // Current branch is null when there is no log (new repo)
+            val logList = git.log().setMaxCount(2).call().toList()
 
-            if (statusManager.checkHasUncommitedChanges(git))
-                commitList.addUncommitedChangesGraphCommit(logList.first())
+            val walk = GraphWalk(git.repository)
 
-            commitList.source(walk)
-            commitList.fillTo(1000) // TODO: Limited commits to show to 1000, add a setting to let the user adjust this
+            walk.use {
+                walk.markStartAllRefs(Constants.R_HEADS)
+                walk.markStartAllRefs(Constants.R_REMOTES)
+                walk.markStartAllRefs(Constants.R_TAGS)
+
+                if (statusManager.checkHasUncommitedChanges(git))
+                    commitList.addUncommitedChangesGraphCommit(logList.first())
+
+                commitList.source(walk)
+                commitList.fillTo(1000) // TODO: Limited commits to show to 1000, add a setting to let the user adjust this
+            }
+
+            ensureActive()
+
         }
-
-        ensureActive()
-
-        val loadedStatus = LogStatus.Loaded(commitList, branchesManager.currentBranchRef(git))
+        val loadedStatus = LogStatus.Loaded(commitList, currentBranch)
 
         _logStatus.value = loadedStatus
     }

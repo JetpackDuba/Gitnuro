@@ -9,9 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.dircache.DirCacheIterator
+import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import javax.inject.Inject
 
-class StatusManager @Inject constructor() {
+class StatusManager @Inject constructor(
+    private val branchesManager: BranchesManager,
+) {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
 
     val stageStatus: StateFlow<StageStatus>
@@ -39,11 +43,14 @@ class StatusManager @Inject constructor() {
 
         try {
             loadHasUncommitedChanges(git)
+            val currentBranch = branchesManager.currentBranchRef(git)
 
-            val staged = git
-                .diff()
-                .setCached(true)
-                .call()
+            val staged = git.diff().apply {
+                if(currentBranch == null)
+                    setOldTree(EmptyTreeIterator()) // Required if the repository is empty
+
+                setCached(true)
+            }.call()
 
             ensureActive()
 
