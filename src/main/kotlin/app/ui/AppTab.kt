@@ -148,6 +148,7 @@ fun AppTab(
                             text = safeLastError.message,
                             modifier = Modifier
                                 .padding(top = 8.dp, bottom = 16.dp)
+                                .widthIn(max = 600.dp)
                         )
                     }
                 }

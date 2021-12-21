@@ -9,10 +9,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
-import org.eclipse.jgit.transport.CredentialsProvider
-import org.eclipse.jgit.transport.HttpTransport
-import org.eclipse.jgit.transport.RefSpec
-import org.eclipse.jgit.transport.SshTransport
+import org.eclipse.jgit.transport.*
 import java.io.File
 import javax.inject.Inject
 
@@ -40,7 +37,7 @@ class RemoteOperationsManager @Inject constructor(
     suspend fun push(git: Git) = withContext(Dispatchers.IO) {
         val currentBranchRefSpec = git.repository.fullBranch
 
-        git
+        val pushResult = git
             .push()
             .setRefSpecs(RefSpec(currentBranchRefSpec))
             .setPushTags()
@@ -52,7 +49,42 @@ class RemoteOperationsManager @Inject constructor(
                 }
             }
             .call()
+
+        val results =
+            pushResult.map { it.remoteUpdates.filter { remoteRefUpdate -> remoteRefUpdate.status.isRejected } }
+                .flatten()
+        if (results.isNotEmpty()) {
+            val error = StringBuilder()
+
+            results.forEach { result ->
+                error.append(result.statusMessage)
+                error.append("\n")
+            }
+
+            throw Exception(error.toString())
+        }
     }
+
+    private val RemoteRefUpdate.Status.isRejected: Boolean
+        get() {
+            return this == RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD ||
+                    this == RemoteRefUpdate.Status.REJECTED_NODELETE ||
+                    this == RemoteRefUpdate.Status.REJECTED_REMOTE_CHANGED ||
+                    this == RemoteRefUpdate.Status.REJECTED_OTHER_REASON
+        }
+
+    private val RemoteRefUpdate.statusMessage: String
+        get() {
+            return when (this.status) {
+                RemoteRefUpdate.Status.REJECTED_NONFASTFORWARD -> "Failed to push some refs to ${this.remoteName}. " +
+                        "Updates were rejected because the remote contains work that you do not have locally. Pulling changes from remote may help."
+                RemoteRefUpdate.Status.REJECTED_NODELETE -> "Could not delete ref because the remote doesn't support deleting refs."
+                RemoteRefUpdate.Status.REJECTED_REMOTE_CHANGED -> "Ref rejected, old object id in remote has changed."
+                RemoteRefUpdate.Status.REJECTED_OTHER_REASON -> this.message ?: "Push rejected for unknown reasons."
+                else -> ""
+            }
+
+        }
 
     suspend fun clone(directory: File, url: String) = withContext(Dispatchers.IO) {
         try {

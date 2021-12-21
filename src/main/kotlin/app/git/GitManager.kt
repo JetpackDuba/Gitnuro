@@ -207,8 +207,11 @@ class GitManager @Inject constructor(
 
     fun push() = managerScope.launch {
         safeProcessing {
-            remoteOperationsManager.push(safeGit)
-            coLoadLog()
+            try {
+                remoteOperationsManager.push(safeGit)
+            } finally {
+                coLoadLog()
+            }
         }
     }
 

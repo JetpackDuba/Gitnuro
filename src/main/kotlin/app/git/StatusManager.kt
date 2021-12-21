@@ -65,7 +65,7 @@ class StatusManager @Inject constructor(
                     val entries = it.value
 
                     if(entries.count() > 1)
-                        entries.filter { it.oldPath != "/dev/null" }
+                        entries.filter { entry -> entry.oldPath != "/dev/null" }
                     else
                         entries
                 }.flatten()
@@ -80,7 +80,7 @@ class StatusManager @Inject constructor(
                     val entries = it.value
 
                     if(entries.count() > 1)
-                        entries.filter { it.newPath != "/dev/null" }
+                        entries.filter { entry -> entry.newPath != "/dev/null" }
                     else
                         entries
                 }.flatten()
