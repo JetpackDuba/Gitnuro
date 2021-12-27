@@ -1,11 +1,12 @@
 package app.git
 
+import app.di.HunkDiffGeneratorFactory
+import app.di.RawFileManagerFactory
 import app.extensions.fullData
 import app.git.diff.Hunk
 import app.git.diff.HunkDiffGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.apache.commons.logging.LogFactory.objectId
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
@@ -21,7 +22,10 @@ import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 
-class DiffManager @Inject constructor() {
+class DiffManager @Inject constructor(
+    private val rawFileManagerFactory: RawFileManagerFactory,
+    private val hunkDiffGeneratorFactory: HunkDiffGeneratorFactory,
+) {
     suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): List<Hunk> = withContext(Dispatchers.IO) {
         val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()
@@ -42,7 +46,9 @@ class DiffManager @Inject constructor() {
             formatter.flush()
         }
 
-        val hunkDiffGenerator = HunkDiffGenerator(git.repository)
+        val rawFileManager = rawFileManagerFactory.create(repository)
+        val hunkDiffGenerator = hunkDiffGeneratorFactory.create(repository, rawFileManager)
+
         val hunks = mutableListOf<Hunk>()
 
         hunkDiffGenerator.use {
