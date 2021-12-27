@@ -20,12 +20,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
 import app.git.GitManager
+import app.git.diff.Hunk
+import app.git.diff.Line
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
 
 @Composable
 fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: () -> Unit) {
-    var text by remember { mutableStateOf(listOf<String>()) }
+    var text by remember { mutableStateOf(listOf<Hunk>()) }
 
     LaunchedEffect(diffEntryType.diffEntry) {
         text = gitManager.diffFormat(diffEntryType)
@@ -58,44 +60,44 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                items(text) { line ->
-                    val isHunkLine = line.startsWith("@@")
+                items(text) { hunk ->
+                    Text(
+                        text = hunk.header,
+                        color = MaterialTheme.colors.primaryTextColor,
+                        modifier = Modifier
+                            .background(MaterialTheme.colors.surface)
+                            .fillMaxWidth(),
+                    )
 
-                    val backgroundColor = when {
-                        line.startsWith("+") -> {
-                            Color(0x77a9d49b)
-                        }
-                        line.startsWith("-") -> {
-                            Color(0x77dea2a2)
-                        }
-                        isHunkLine -> {
-                            MaterialTheme.colors.surface
-                        }
-                        else -> {
-                            MaterialTheme.colors.background
+                    Column {
+                        hunk.lines.forEach { line ->
+                            val backgroundColor = when (line) {
+                                is Line.AddedLine -> {
+                                    Color(0x77a9d49b)
+                                }
+                                is Line.RemovedLine -> {
+                                    Color(0x77dea2a2)
+                                }
+                                is  Line.ContextLine -> {
+                                    MaterialTheme.colors.background
+                                }
+                            }
+
+                            Text(
+                                text = line.content,
+                                modifier = Modifier
+                                    .background(backgroundColor)
+                                    .fillMaxWidth(),
+                                color = MaterialTheme.colors.primaryTextColor,
+                                maxLines = 1,
+                                fontFamily = FontFamily.Monospace,
+                                fontSize = 14.sp,
+                            )
                         }
                     }
-
-                    val paddingTop = if (isHunkLine)
-                        32.dp
-                    else
-                        0.dp
-
-                    Text(
-                        text = line,
-                        modifier = Modifier
-                            .padding(top = paddingTop)
-                            .background(backgroundColor)
-                            .fillMaxWidth(),
-                        color = MaterialTheme.colors.primaryTextColor,
-                        maxLines = 1,
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 14.sp,
-                    )
                 }
             }
         }
-
     }
 }
 

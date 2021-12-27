@@ -1,8 +1,11 @@
 package app.git
 
 import app.extensions.fullData
+import app.git.diff.Hunk
+import app.git.diff.HunkDiffGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.apache.commons.logging.LogFactory.objectId
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
@@ -17,18 +20,19 @@ import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
+
 class DiffManager @Inject constructor() {
-    suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): List<String> = withContext(Dispatchers.IO) {
+    suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): List<Hunk> = withContext(Dispatchers.IO) {
         val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()
+        val repository = git.repository
 
         DiffFormatter(byteArrayOutputStream).use { formatter ->
-            val repo = git.repository
 
-            formatter.setRepository(repo)
+            formatter.setRepository(repository)
 
-            val oldTree = DirCacheIterator(repo.readDirCache())
-            val newTree = FileTreeIterator(repo)
+            val oldTree = DirCacheIterator(repository.readDirCache())
+            val newTree = FileTreeIterator(repository)
 
             if (diffEntryType is DiffEntryType.UnstagedDiff)
                 formatter.scan(oldTree, newTree)
@@ -38,22 +42,21 @@ class DiffManager @Inject constructor() {
             formatter.flush()
         }
 
-        val diff = byteArrayOutputStream.toString(Charsets.UTF_8)
+        val hunkDiffGenerator = HunkDiffGenerator(git.repository)
+        val hunks = mutableListOf<Hunk>()
 
-        // TODO This is just a workaround, try to find properly which lines have to be displayed by using a custom diff
+        hunkDiffGenerator.use {
+            if (diffEntryType is DiffEntryType.UnstagedDiff) {
+                val oldTree = DirCacheIterator(repository.readDirCache())
+                val newTree = FileTreeIterator(repository)
+                hunkDiffGenerator.scan(oldTree, newTree)
+            }
 
-        val containsWindowsNewLine = diff.contains("\r\n")
-
-        return@withContext diff.split("\n", "\r\n").filterNot {
-            it.startsWith("diff --git")
-        }.map {
-            if (containsWindowsNewLine)
-                "$it\r\n"
-            else
-                "$it\n"
+            hunks.addAll(hunkDiffGenerator.format(diffEntry))
         }
-    }
 
+        return@withContext hunks
+    }
 
     suspend fun commitDiffEntries(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {
         val fullCommit = commit.fullData(git.repository) ?: return@withContext emptyList()

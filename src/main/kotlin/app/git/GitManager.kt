@@ -5,6 +5,7 @@ import app.app.ErrorsManager
 import app.app.newErrorNow
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
+import app.git.diff.Hunk
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -188,7 +189,7 @@ class GitManager @Inject constructor(
     val hasUncommitedChanges: StateFlow<Boolean>
         get() = statusManager.hasUncommitedChanges
 
-    suspend fun diffFormat(diffEntryType: DiffEntryType): List<String> {
+    suspend fun diffFormat(diffEntryType: DiffEntryType): List<Hunk> {
         try {
             return diffManager.diffFormat(safeGit, diffEntryType)
         } catch (ex: Exception) {
