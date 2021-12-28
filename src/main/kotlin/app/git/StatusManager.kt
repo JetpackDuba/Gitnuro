@@ -167,41 +167,49 @@ class StatusManager @Inject constructor(
         val repository = git.repository
         val dirCache = repository.lockDirCache()
         val dirCacheEditor = dirCache.editor()
+        var completedWithErrors = true
+        try {
 
-        val rawFileManager = rawFileManagerFactory.create(git.repository)
-        val rawFile = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
-        val textLines = getTextLines(rawFile).toMutableList()
+            val rawFileManager = rawFileManagerFactory.create(git.repository)
+            val rawFile = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
+            val textLines = getTextLines(rawFile).toMutableList()
 
-        val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
+            val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
 
-        val addedLines = hunkLines
-            .filter { it.lineType == LineType.ADDED }
-            .sortedBy { it.newLineNumber }
-        val removedLines = hunkLines
-            .filter { it.lineType == LineType.REMOVED }
-            .sortedBy { it.newLineNumber }
+            val addedLines = hunkLines
+                .filter { it.lineType == LineType.ADDED }
+                .sortedBy { it.newLineNumber }
+            val removedLines = hunkLines
+                .filter { it.lineType == LineType.REMOVED }
+                .sortedBy { it.newLineNumber }
 
-        var linesRemoved = 0
+            var linesRemoved = 0
 
-        // Start by removing the added lines to the index
-        for (line in addedLines) {
-            textLines.removeAt(line.newLineNumber + linesRemoved)
-            linesRemoved--
+            // Start by removing the added lines to the index
+            for (line in addedLines) {
+                textLines.removeAt(line.newLineNumber + linesRemoved)
+                linesRemoved--
+            }
+
+            var linesAdded = 0
+
+            // Restore previously removed lines to the index
+            for (line in removedLines) {
+                textLines.add(line.newLineNumber + linesAdded, line.text.withoutLineEnding)
+                linesAdded++
+            }
+
+            val stagedFileText = textLines.joinToString(rawFile.lineDelimiter)
+            dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
+            dirCacheEditor.commit()
+
+            completedWithErrors = false
+
+            loadStatus(git)
+        } finally {
+            if(completedWithErrors)
+                dirCache.unlock()
         }
-
-        var linesAdded = 0
-
-        // Restore previously removed lines to the index
-        for (line in removedLines) {
-            textLines.add(line.newLineNumber + linesAdded, line.text.withoutLineEnding)
-            linesAdded++
-        }
-
-        val stagedFileText = textLines.joinToString(rawFile.lineDelimiter)
-        dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
-        dirCacheEditor.commit()
-
-        loadStatus(git)
     }
 
     private fun getTextLines(rawFile: RawText): List<String> {
