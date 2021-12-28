@@ -29,3 +29,8 @@ val String.dirPath: String
         } else
             this
     }
+
+val String.withoutLineEnding: String
+get() = this
+    .removeSuffix("\n")
+    .removeSuffix("\r\n")

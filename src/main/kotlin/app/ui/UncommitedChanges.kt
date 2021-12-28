@@ -9,13 +9,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.key.Key
@@ -38,6 +36,7 @@ import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
+import app.ui.components.SecondaryButton
 import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -50,6 +49,7 @@ fun UncommitedChanges(
     val stageStatusState = gitManager.stageStatus.collectAsState()
     val stageStatus = stageStatusState.value
     val lastCheck by gitManager.lastTimeChecked.collectAsState()
+    val repositoryState by gitManager.repositoryState.collectAsState()
 
     LaunchedEffect(lastCheck) {
         gitManager.loadStatus()
@@ -201,22 +201,12 @@ private fun EntriesList(
                 maxLines = 1,
             )
 
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .align(Alignment.CenterEnd)
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(actionColor)
-                    .clickable { onAllAction() },
-            ) {
-                Text(
-                    text = allActionTitle,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colors.contentColorFor(actionColor),
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
-                )
-            }
-
+            SecondaryButton(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                text = allActionTitle,
+                backgroundButton = actionColor,
+                onClick = onAllAction
+            )
         }
 
         ScrollableLazyColumn(

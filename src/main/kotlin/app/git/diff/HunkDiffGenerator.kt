@@ -72,18 +72,18 @@ class HunkDiffGenerator @AssistedInject constructor(
             while (oldCurrentLine < oldEndLine || newCurrentLine < newEndLine) {
                 if (oldCurrentLine < curEdit.beginA || endIdx + 1 < curIdx) {
                     val lineText = oldRawText.lineAt(oldCurrentLine)
-                    lines.add(Line.ContextLine(lineText, oldCurrentLine, newCurrentLine))
+                    lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.CONTEXT))
 
                     oldCurrentLine++
                     newCurrentLine++
                 } else if (oldCurrentLine < curEdit.endA) {
                     val lineText = oldRawText.lineAt(oldCurrentLine)
-                    lines.add(Line.RemovedLine(lineText, oldCurrentLine))
+                    lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.REMOVED))
 
                     oldCurrentLine++
                 } else if (newCurrentLine < curEdit.endB) {
                     val lineText = newRawText.lineAt(newCurrentLine)
-                    lines.add(Line.AddedLine(lineText, oldCurrentLine, newCurrentLine))
+                    lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.ADDED))
 
                     newCurrentLine++
                 }

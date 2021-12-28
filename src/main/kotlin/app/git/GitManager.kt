@@ -173,6 +173,18 @@ class GitManager @Inject constructor(
         }
     }
 
+    fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = managerScope.launch {
+        runOperation {
+            statusManager.stageHunk(safeGit, diffEntry, hunk)
+        }
+    }
+
+    fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = managerScope.launch {
+        runOperation {
+            statusManager.unstageHunk(safeGit, diffEntry, hunk)
+        }
+    }
+
     fun unstage(diffEntry: DiffEntry) = managerScope.launch {
         runOperation {
             statusManager.unstage(safeGit, diffEntry)

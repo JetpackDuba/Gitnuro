@@ -1,11 +1,8 @@
 package app.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -21,9 +18,11 @@ import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
 import app.git.GitManager
 import app.git.diff.Hunk
-import app.git.diff.Line
+import app.git.diff.LineType
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
+import app.ui.components.SecondaryButton
+import org.eclipse.jgit.diff.DiffEntry
 
 @Composable
 fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: () -> Unit) {
@@ -54,39 +53,78 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
         ) {
             Text("Close diff")
         }
-        SelectionContainer {
-            ScrollableLazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-            ) {
-                items(text) { hunk ->
+
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+//                .padding(16.dp)
+        ) {
+            itemsIndexed(text) { index, hunk ->
+                val hunksSeparation = if (index == 0)
+                    0.dp
+                else
+                    16.dp
+                Row(
+                    modifier = Modifier
+                        .padding(top = hunksSeparation)
+                        .background(MaterialTheme.colors.surface)
+                        .padding(vertical = 4.dp)
+                        .fillMaxWidth()
+                ) {
                     Text(
                         text = hunk.header,
                         color = MaterialTheme.colors.primaryTextColor,
-                        modifier = Modifier
-                            .background(MaterialTheme.colors.surface)
-                            .fillMaxWidth(),
                     )
 
+                    Spacer(modifier = Modifier.weight(1f))
+                    if (
+                        (diffEntryType is DiffEntryType.StagedDiff || diffEntryType is DiffEntryType.UnstagedDiff) &&
+                        diffEntryType.diffEntry.changeType == DiffEntry.ChangeType.MODIFY
+                    ) {
+                        val buttonText: String
+                        val color: Color
+                        if (diffEntryType is DiffEntryType.StagedDiff) {
+                            buttonText = "Unstage"
+                            color = MaterialTheme.colors.error
+                        } else {
+                            buttonText = "Stage"
+                            color = MaterialTheme.colors.primary
+                        }
+
+                        SecondaryButton(
+                            text = buttonText,
+                            backgroundButton = color,
+                            onClick = {
+                                if (diffEntryType is DiffEntryType.StagedDiff) {
+                                    gitManager.unstageHunk(diffEntryType.diffEntry, hunk)
+                                } else {
+                                    gitManager.stageHunk(diffEntryType.diffEntry, hunk)
+                                }
+                            }
+                        )
+                    }
+                }
+
+                SelectionContainer {
                     Column {
                         hunk.lines.forEach { line ->
-                            val backgroundColor = when (line) {
-                                is Line.AddedLine -> {
+                            val backgroundColor = when (line.lineType) {
+                                LineType.ADDED -> {
                                     Color(0x77a9d49b)
                                 }
-                                is Line.RemovedLine -> {
+                                LineType.REMOVED -> {
                                     Color(0x77dea2a2)
                                 }
-                                is  Line.ContextLine -> {
+                                LineType.CONTEXT -> {
                                     MaterialTheme.colors.background
                                 }
                             }
 
                             Text(
-                                text = line.content,
+                                text = line.text,
                                 modifier = Modifier
                                     .background(backgroundColor)
+                                    .padding(start = 16.dp)
                                     .fillMaxWidth(),
                                 color = MaterialTheme.colors.primaryTextColor,
                                 maxLines = 1,
