@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import app.extensions.filePath
 import app.extensions.icon
 import app.extensions.iconColor
+import app.git.DiffEntryType
 import app.git.GitManager
 import app.git.StageStatus
 import app.theme.headerBackground
@@ -43,6 +44,7 @@ import org.eclipse.jgit.diff.DiffEntry
 @Composable
 fun UncommitedChanges(
     gitManager: GitManager,
+    selectedEntryType: DiffEntryType?,
     onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
@@ -55,11 +57,27 @@ fun UncommitedChanges(
         gitManager.loadStatus()
     }
 
-    val (staged, unstaged) = if (stageStatus is StageStatus.Loaded) {
-        stageStatus.staged to stageStatus.unstaged
+    val staged: List<DiffEntry>
+    val unstaged: List<DiffEntry>
+    if (stageStatus is StageStatus.Loaded) {
+        staged = stageStatus.staged
+        unstaged = stageStatus.unstaged
+        LaunchedEffect(staged) {
+            if(selectedEntryType != null) {
+                checkIfSelectedEntryShouldBeUpdated(
+                    selectedEntryType = selectedEntryType,
+                    staged = staged,
+                    unstaged = unstaged,
+                    onStagedDiffEntrySelected = onStagedDiffEntrySelected,
+                    onUnstagedDiffEntrySelected = onUnstagedDiffEntrySelected,
+                )
+            }
+        }
     } else {
-        listOf<DiffEntry>() to listOf<DiffEntry>() // return 2 empty lists if still loading
+        staged = listOf<DiffEntry>()
+        unstaged = listOf<DiffEntry>() // return empty lists if still loading
     }
+
 
     var commitMessage by remember { mutableStateOf("") }
     val doCommit = {
@@ -167,6 +185,40 @@ fun UncommitedChanges(
                 }
             }
         }
+    }
+}
+
+fun checkIfSelectedEntryShouldBeUpdated(
+    selectedEntryType: DiffEntryType,
+    staged: List<DiffEntry>,
+    unstaged: List<DiffEntry>,
+    onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
+    onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
+) {
+    val selectedDiffEntry = selectedEntryType.diffEntry
+    val selectedEntryTypeNewId = selectedDiffEntry.newId.name()
+
+    if (selectedEntryType is DiffEntryType.StagedDiff) {
+        val entryType = staged.firstOrNull { it.newPath == selectedDiffEntry.newPath }
+
+        if(
+            entryType != null &&
+            selectedEntryTypeNewId != entryType.newId.name()
+        ) {
+            onStagedDiffEntrySelected(entryType)
+        } else if (entryType == null)
+            onStagedDiffEntrySelected(null)
+    } else if(selectedEntryType is DiffEntryType.UnstagedDiff) {
+        val entryType = unstaged.firstOrNull {
+            if(selectedDiffEntry.changeType == DiffEntry.ChangeType.DELETE)
+                it.oldPath == selectedDiffEntry.oldPath
+            else
+                it.newPath == selectedDiffEntry.newPath
+        }
+
+        if(entryType != null) {
+            onUnstagedDiffEntrySelected(entryType)
+        } else onStagedDiffEntrySelected(null)
     }
 }
 

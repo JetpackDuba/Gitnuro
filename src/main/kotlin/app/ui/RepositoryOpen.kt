@@ -127,6 +127,7 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                 if (selectedItem == SelectedItem.UncommitedChanges) {
                                     UncommitedChanges(
                                         gitManager = gitManager,
+                                        selectedEntryType = diffSelected,
                                         onStagedDiffEntrySelected = { diffEntry ->
                                             diffSelected = if (diffEntry != null)
                                                 DiffEntryType.StagedDiff(diffEntry)

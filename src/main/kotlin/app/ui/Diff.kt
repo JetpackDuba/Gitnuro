@@ -28,7 +28,7 @@ import org.eclipse.jgit.diff.DiffEntry
 fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: () -> Unit) {
     var text by remember { mutableStateOf(listOf<Hunk>()) }
 
-    LaunchedEffect(diffEntryType.diffEntry) {
+    LaunchedEffect(Unit) {
         text = gitManager.diffFormat(diffEntryType)
 
 
