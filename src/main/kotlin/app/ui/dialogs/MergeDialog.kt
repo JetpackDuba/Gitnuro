@@ -74,7 +74,8 @@ fun MergeDialog(
                 )
 
                 Text(
-                    "Fast forward",
+                    text = "Fast forward if possible",
+                    color = MaterialTheme.colors.primaryTextColor,
                     modifier = Modifier
                         .padding(start = 8.dp)
                 )
