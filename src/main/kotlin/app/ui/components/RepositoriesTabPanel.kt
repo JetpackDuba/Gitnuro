@@ -57,13 +57,13 @@ fun RepositoriesTabPanel(
                     val isTabSelected = selectedTabKey == tab.key
                     val index = tabs.indexOf(tab)
                     val nextIndex = if (index == 0 && tabs.count() >= 2) {
-                        1
+                        1 // If the first tab is selected, select the next one
                     } else if (index == tabs.count() -1 && tabs.count() >= 2)
-                        index - 1
+                        index - 1 // If the last tab is selected, select the previous one
                     else if (tabs.count() >= 2)
-                        index
+                        index // If any in between tab is selected, select the next one
                     else
-                        -1
+                        -1 // If there aren't any additional tabs once we remove this one
 
                     val nextKey = if (nextIndex >= 0)
                         tabs[nextIndex].key
@@ -76,8 +76,9 @@ fun RepositoriesTabPanel(
                         } else {
                             tabsIdentifier++
 
-                            onTabSelected(tabsIdentifier)
+                            // Create a new tab if the tabs list is empty after removing the current one
                             newTabContent(tabsIdentifier)
+                            onTabSelected(tabsIdentifier)
                         }
                     }
 
