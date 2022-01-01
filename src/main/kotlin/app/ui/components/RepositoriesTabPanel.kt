@@ -30,7 +30,6 @@ fun RepositoriesTabPanel(
     tabs: List<TabInformation>,
     selectedTabKey: Int,
     onTabSelected: (Int) -> Unit,
-    onTabsUpdated: (List<TabInformation>) -> Unit,
     onTabClosed: (Int) -> Unit,
     newTabContent: (key: Int) -> TabInformation,
 ) {
@@ -41,14 +40,10 @@ fun RepositoriesTabPanel(
     TabPanel(
         modifier = modifier,
         onNewTabClicked = {
-            val tabsCopy = tabs.toMutableList()
-
             tabsIdentifier++
 
-            tabsCopy.add(newTabContent(tabsIdentifier))
-
+            newTabContent(tabsIdentifier)
             onTabSelected(tabsIdentifier)
-            onTabsUpdated(tabsCopy)
         }
     ) {
         items(items = tabs) { tab ->
@@ -62,17 +57,16 @@ fun RepositoriesTabPanel(
                     val isTabSelected = selectedTabKey == tab.key
                     val index = tabs.indexOf(tab)
                     val nextIndex = if (index == 0 && tabs.count() >= 2) {
-                        0
-                    } else if (tabs.count() >= 2)
+                        1
+                    } else if (index == tabs.count() -1 && tabs.count() >= 2)
                         index - 1
+                    else if (tabs.count() >= 2)
+                        index
                     else
                         -1
 
-                    val tabsCopy = tabs.toMutableList()
-                    tabsCopy.remove(tab)
-
                     val nextKey = if (nextIndex >= 0)
-                        tabsCopy[nextIndex].key
+                        tabs[nextIndex].key
                     else
                         -1
 
@@ -82,16 +76,12 @@ fun RepositoriesTabPanel(
                         } else {
                             tabsIdentifier++
 
-                            tabsCopy.add(
-                                newTabContent(tabsIdentifier)
-                            )
-
                             onTabSelected(tabsIdentifier)
+                            newTabContent(tabsIdentifier)
                         }
                     }
 
                     onTabClosed(tab.key)
-                    onTabsUpdated(tabsCopy)
                 }
             )
         }

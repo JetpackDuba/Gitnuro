@@ -10,6 +10,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -66,10 +67,12 @@ class Main {
                 icon = painterResource("logo.svg"),
             ) {
                 var showSettingsDialog by remember { mutableStateOf(false) }
+                val tabs = mutableStateMapOf<Int, TabInformation>()
 
                 AppTheme(theme = theme) {
                     Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
                         AppTabs(
+                            tabs = tabs,
                             onOpenSettings = {
                                 showSettingsDialog = true
                             }
@@ -90,9 +93,15 @@ class Main {
 
     @Composable
     fun AppTabs(
+        tabs: SnapshotStateMap<Int, TabInformation>,
         onOpenSettings: () -> Unit,
     ) {
-        val tabs = remember {
+
+        val tabsInformationList = tabs.map { it.value }.sortedBy { it.key }
+
+        println("Tabs count ${tabs.count()}")
+
+        LaunchedEffect(Unit) {
             val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
             var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
                 newAppTab(
@@ -107,29 +116,37 @@ class Main {
                 )
             }
 
-            mutableStateOf(repoTabs)
+            repoTabs.forEach {
+                tabs[it.key] = it
+            } // Store list of tabs in the map
+
+            println("After reading prefs, got ${tabs.count()} tabs")
         }
 
         val selectedTabKey = remember { mutableStateOf(0) }
+
+        println("Selected tab key: ${selectedTabKey.value}")
 
         Column(
             modifier = Modifier.background(MaterialTheme.colors.background)
         ) {
             Tabs(
                 tabs = tabs,
+                tabsInformationList = tabsInformationList,
                 selectedTabKey = selectedTabKey,
                 onOpenSettings = onOpenSettings
             )
 
-            TabsContent(tabs.value, selectedTabKey.value)
+            TabsContent(tabsInformationList, selectedTabKey.value)
         }
     }
 
     @Composable
     fun Tabs(
-        tabs: MutableState<List<TabInformation>>,
+        tabs: SnapshotStateMap<Int, TabInformation>,
         selectedTabKey: MutableState<Int>,
         onOpenSettings: () -> Unit,
+        tabsInformationList: List<TabInformation>,
     ) {
         Row(
             modifier = Modifier
@@ -140,21 +157,24 @@ class Main {
             RepositoriesTabPanel(
                 modifier = Modifier
                     .weight(1f),
-                tabs = tabs.value,
+                tabs = tabsInformationList,
                 selectedTabKey = selectedTabKey.value,
                 onTabSelected = { newSelectedTabKey ->
+                    println("New selected tab key $newSelectedTabKey")
                     selectedTabKey.value = newSelectedTabKey
                 },
                 newTabContent = { key ->
-                    newAppTab(
+                    val newAppTab = newAppTab(
                         key = key
                     )
-                },
-                onTabsUpdated = { tabInformationList ->
-                    tabs.value = tabInformationList
+
+                    tabs[key] = newAppTab
+
+                    newAppTab
                 },
                 onTabClosed = { key ->
                     appStateManager.repositoryTabRemoved(key)
+                    tabs.remove(key)
                 }
             )
             IconButton(
