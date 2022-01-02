@@ -231,6 +231,7 @@ class GitManager @Inject constructor(
     private suspend fun refreshRepositoryInfo() {
         statusManager.loadRepositoryStatus(safeGit)
         statusManager.loadHasUncommitedChanges(safeGit)
+        statusManager.loadStatus(safeGit)
         branchesManager.loadBranches(safeGit)
         remotesManager.loadRemotes(safeGit, branchesManager.remoteBranches(safeGit))
         tagsManager.loadTags(safeGit)
