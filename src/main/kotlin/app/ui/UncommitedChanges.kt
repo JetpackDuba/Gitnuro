@@ -30,9 +30,11 @@ import androidx.compose.ui.unit.sp
 import app.extensions.filePath
 import app.extensions.icon
 import app.extensions.iconColor
+import app.extensions.isMerging
 import app.git.DiffEntryType
 import app.git.GitManager
 import app.git.StageStatus
+import app.git.StatusEntry
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
@@ -57,8 +59,8 @@ fun UncommitedChanges(
         gitManager.loadStatus()
     }
 
-    val staged: List<DiffEntry>
-    val unstaged: List<DiffEntry>
+    val staged: List<StatusEntry>
+    val unstaged: List<StatusEntry>
     if (stageStatus is StageStatus.Loaded) {
         staged = stageStatus.staged
         unstaged = stageStatus.unstaged
@@ -74,8 +76,8 @@ fun UncommitedChanges(
             }
         }
     } else {
-        staged = listOf<DiffEntry>()
-        unstaged = listOf<DiffEntry>() // return empty lists if still loading
+        staged = listOf<StatusEntry>()
+        unstaged = listOf<StatusEntry>() // return empty lists if still loading
     }
 
 
@@ -178,8 +180,14 @@ fun UncommitedChanges(
                     enabled = canCommit,
                     shape = RectangleShape,
                 ) {
+                    val buttonText = if(repositoryState.isMerging)
+                        "Merge"
+                    else if (repositoryState.isRebasing)
+                        "Continue rebasing"
+                    else
+                        "Commit"
                     Text(
-                        text = "Commit",
+                        text = buttonText,
                         fontSize = 14.sp,
                     )
                 }
@@ -190,8 +198,8 @@ fun UncommitedChanges(
 
 fun checkIfSelectedEntryShouldBeUpdated(
     selectedEntryType: DiffEntryType,
-    staged: List<DiffEntry>,
-    unstaged: List<DiffEntry>,
+    staged: List<StatusEntry>,
+    unstaged: List<StatusEntry>,
     onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
@@ -199,26 +207,29 @@ fun checkIfSelectedEntryShouldBeUpdated(
     val selectedEntryTypeNewId = selectedDiffEntry.newId.name()
 
     if (selectedEntryType is DiffEntryType.StagedDiff) {
-        val entryType = staged.firstOrNull { it.newPath == selectedDiffEntry.newPath }
+        val entryType = staged.firstOrNull { stagedEntry -> stagedEntry.diffEntry.newPath == selectedDiffEntry.newPath }?.diffEntry
 
         if(
             entryType != null &&
             selectedEntryTypeNewId != entryType.newId.name()
         ) {
             onStagedDiffEntrySelected(entryType)
-        } else if (entryType == null)
+
+        } else if (entryType == null) {
             onStagedDiffEntrySelected(null)
+        }
     } else if(selectedEntryType is DiffEntryType.UnstagedDiff) {
-        val entryType = unstaged.firstOrNull {
+        val entryType = unstaged.firstOrNull { unstagedEntry ->
             if(selectedDiffEntry.changeType == DiffEntry.ChangeType.DELETE)
-                it.oldPath == selectedDiffEntry.oldPath
+                unstagedEntry.diffEntry.oldPath == selectedDiffEntry.oldPath
             else
-                it.newPath == selectedDiffEntry.newPath
+                unstagedEntry.diffEntry.newPath == selectedDiffEntry.newPath
         }
 
         if(entryType != null) {
-            onUnstagedDiffEntrySelected(entryType)
-        } else onStagedDiffEntrySelected(null)
+            onUnstagedDiffEntrySelected(entryType.diffEntry)
+        } else
+            onStagedDiffEntrySelected(null)
     }
 }
 
@@ -229,7 +240,7 @@ private fun EntriesList(
     title: String,
     actionTitle: String,
     actionColor: Color,
-    diffEntries: List<DiffEntry>,
+    diffEntries: List<StatusEntry>,
     onDiffEntrySelected: (DiffEntry) -> Unit,
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
     onReset: (DiffEntry) -> Unit,
@@ -266,9 +277,10 @@ private fun EntriesList(
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background),
         ) {
-            itemsIndexed(diffEntries) { index, diffEntry ->
+            itemsIndexed(diffEntries) { index, statusEntry ->
+                val diffEntry = statusEntry.diffEntry
                 FileEntry(
-                    diffEntry = diffEntry,
+                    statusEntry = statusEntry,
                     actionTitle = actionTitle,
                     actionColor = actionColor,
                     onClick = {
@@ -296,7 +308,7 @@ private fun EntriesList(
 )
 @Composable
 private fun FileEntry(
-    diffEntry: DiffEntry,
+    statusEntry: StatusEntry,
     actionTitle: String,
     actionColor: Color,
     onClick: () -> Unit,
@@ -304,6 +316,7 @@ private fun FileEntry(
     onReset: () -> Unit,
 ) {
     var active by remember { mutableStateOf(false) }
+    val diffEntry = statusEntry.diffEntry
 
     Box(
         modifier = Modifier
@@ -338,12 +351,12 @@ private fun FileEntry(
             ) {
 
                 Icon(
-                    imageVector = diffEntry.icon,
+                    imageVector = statusEntry.icon,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .size(16.dp),
-                    tint = diffEntry.iconColor,
+                    tint = statusEntry.iconColor,
                 )
 
                 Text(

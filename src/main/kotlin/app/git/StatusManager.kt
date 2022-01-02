@@ -1,12 +1,16 @@
 package app.git
 
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import app.di.RawFileManagerFactory
-import app.extensions.filePath
-import app.extensions.hasUntrackedChanges
-import app.extensions.isMerging
-import app.extensions.withoutLineEnding
+import app.extensions.*
 import app.git.diff.Hunk
 import app.git.diff.LineType
+import app.theme.conflictFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -66,38 +70,53 @@ class StatusManager @Inject constructor(
             loadHasUncommitedChanges(git)
             val currentBranch = branchesManager.currentBranchRef(git)
             val repositoryState = git.repository.repositoryState
-            val staged = git.diff().apply {
-                if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
-                    setOldTree(EmptyTreeIterator()) // Required if the repository is empty
 
-                setCached(true)
-            }
+            val staged = git
+                .diff()
+                .setShowNameAndStatusOnly(true).apply {
+                    if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
+                        setOldTree(EmptyTreeIterator()) // Required if the repository is empty
+
+                    setCached(true)
+                }
                 .call()
                 // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
-                .groupBy { it.oldPath }
+                // TODO: Test if we should group by old path or new path
+                .groupBy {
+                    if(it.newPath != "/dev/null")
+                        it.newPath
+                    else
+                        it.oldPath
+                }
                 .map {
                     val entries = it.value
 
-                    if (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
-                        entries.filter { entry -> entry.oldPath != "/dev/null" }
-                    else
-                        entries
-                }.flatten()
+                    val hasConflicts =
+                        (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+
+                    StatusEntry(entries.first(), isConflict = hasConflicts)
+                }
 
             ensureActive()
 
             val unstaged = git
                 .diff()
+                .setShowNameAndStatusOnly(true)
                 .call()
-                .groupBy { it.oldPath }
+                .groupBy {
+                    if(it.oldPath != "/dev/null")
+                        it.oldPath
+                    else
+                        it.newPath
+                }
                 .map {
                     val entries = it.value
 
-                    if (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
-                        entries.filter { entry -> entry.newPath != "/dev/null" }
-                    else
-                        entries
-                }.flatten()
+                    val hasConflicts =
+                        (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+
+                    StatusEntry(entries.first(), isConflict = hasConflicts)
+                }
 
             ensureActive()
             _stageStatus.value = StageStatus.Loaded(staged, unstaged)
@@ -209,7 +228,7 @@ class StatusManager @Inject constructor(
 
             loadStatus(git)
         } finally {
-            if(completedWithErrors)
+            if (completedWithErrors)
                 dirCache.unlock()
         }
     }
@@ -301,5 +320,23 @@ class StatusManager @Inject constructor(
 
 sealed class StageStatus {
     object Loading : StageStatus()
-    data class Loaded(val staged: List<DiffEntry>, val unstaged: List<DiffEntry>) : StageStatus()
+    data class Loaded(val staged: List<StatusEntry>, val unstaged: List<StatusEntry>) : StageStatus()
+}
+
+data class StatusEntry(val diffEntry: DiffEntry, val isConflict: Boolean) {
+    val icon: ImageVector
+        get() {
+            return if (isConflict)
+                Icons.Default.Warning
+            else
+                diffEntry.icon
+        }
+    val iconColor: Color
+        @Composable
+        get() {
+            return if (isConflict)
+                MaterialTheme.colors.conflictFile
+            else
+                diffEntry.iconColor
+        }
 }

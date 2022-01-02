@@ -86,6 +86,10 @@ val Colors.modifyFile: Color
     get() = modifyFileLight
 
 @get:Composable
+val Colors.conflictFile: Color
+    get() = conflictFileLight
+
+@get:Composable
 val Colors.headerText: Color
     get() = if (isLight) primary else mainTextDark
 
