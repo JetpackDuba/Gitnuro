@@ -4,7 +4,6 @@ import app.git.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
@@ -19,6 +18,13 @@ class StatusViewModel @Inject constructor(
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
 
+    private val _commitMessage = MutableStateFlow("")
+    val commitMessage: StateFlow<String> = _commitMessage
+    var newCommitMessage: String
+        get() = commitMessage.value
+        set(value) {
+            _commitMessage.value = value
+        }
 
     private val _hasUncommitedChanges = MutableStateFlow<Boolean>(false)
     val hasUncommitedChanges: StateFlow<Boolean>
@@ -37,7 +43,6 @@ class StatusViewModel @Inject constructor(
     }
 
 
-
     fun unstageAll() = tabState.safeProcessing { git ->
         statusManager.unstageAll(git)
 
@@ -51,14 +56,13 @@ class StatusViewModel @Inject constructor(
     }
 
 
-
     fun resetStaged(diffEntry: DiffEntry) = tabState.runOperation { git ->
         statusManager.reset(git, diffEntry, staged = true)
 
         return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
-    fun resetUnstaged(diffEntry: DiffEntry) =tabState.runOperation { git ->
+    fun resetUnstaged(diffEntry: DiffEntry) = tabState.runOperation { git ->
         statusManager.reset(git, diffEntry, staged = false)
 
         return@runOperation RefreshType.UNCOMMITED_CHANGES
@@ -90,7 +94,6 @@ class StatusViewModel @Inject constructor(
 
         return@safeProcessing RefreshType.ALL_DATA
     }
-
 
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {

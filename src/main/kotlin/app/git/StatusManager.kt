@@ -85,8 +85,6 @@ class StatusManager @Inject constructor(
             dirCacheEditor.commit()
 
             completedWithErrors = false
-
-//            loadStatus(git)
         } finally {
             if (completedWithErrors)
                 dirCache.unlock()

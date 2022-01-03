@@ -51,8 +51,9 @@ fun UncommitedChanges(
     onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
-    val stageStatus = stageStatusState.value
+    val commitMessage by statusViewModel.commitMessage.collectAsState()
 
+    val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
     if (stageStatus is StageStatus.Loaded) {
@@ -74,11 +75,10 @@ fun UncommitedChanges(
         unstaged = listOf<StatusEntry>() // return empty lists if still loading
     }
 
-    var commitMessage by remember { mutableStateOf("") }
     val doCommit = {
         statusViewModel.commit(commitMessage)
         onStagedDiffEntrySelected(null)
-        commitMessage = ""
+        statusViewModel.newCommitMessage = ""
     }
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
 
@@ -158,7 +158,7 @@ fun UncommitedChanges(
                                 false
                         },
                     value = commitMessage,
-                    onValueChange = { commitMessage = it },
+                    onValueChange = { statusViewModel.newCommitMessage = it },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
                     colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp),
