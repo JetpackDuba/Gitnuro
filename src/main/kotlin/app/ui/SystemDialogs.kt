@@ -1,9 +1,9 @@
 import app.extensions.runCommand
-import app.git.GitManager
+import app.git.TabViewModel
 import javax.swing.JFileChooser
 
 
-fun openRepositoryDialog(gitManager: GitManager) {
+fun openRepositoryDialog(gitManager: TabViewModel) {
     val os = System.getProperty("os.name")
     val appStateManager = gitManager.appStateManager
     val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
@@ -29,7 +29,7 @@ fun openRepositoryDialog(gitManager: GitManager) {
 }
 
 private fun openRepositoryDialog(
-    gitManager: GitManager,
+    gitManager: TabViewModel,
     latestDirectoryOpened: String
 ) {
 

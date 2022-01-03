@@ -13,23 +13,23 @@ import androidx.compose.ui.unit.dp
 import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.extensions.isLocal
 import app.extensions.simpleName
-import app.git.GitManager
+import app.git.TabViewModel
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
 import app.ui.components.entryHeight
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.dialogs.MergeDialog
+import app.viewmodels.BranchesViewModel
 import org.eclipse.jgit.lib.Ref
 
 @Composable
 fun Branches(
-    gitManager: GitManager,
+    branchesViewModel: BranchesViewModel,
     onBranchClicked: (Ref) -> Unit,
-
-    ) {
-    val branches by gitManager.branches.collectAsState()
-    val currentBranch by gitManager.currentBranch.collectAsState()
+) {
+    val branches by branchesViewModel.branches.collectAsState()
+    val currentBranch by branchesViewModel.currentBranch.collectAsState()
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
 
     Column {
@@ -48,9 +48,9 @@ fun Branches(
                         branch = branch,
                         isCurrentBranch = currentBranch == branch.name,
                         onBranchClicked = { onBranchClicked(branch) },
-                        onCheckoutBranch = { gitManager.checkoutRef(branch) },
+                        onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                         onMergeBranch = { setMergeBranch(branch) },
-                        onDeleteBranch = { gitManager.deleteBranch(branch) },
+                        onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
                     )
                 }
             }
@@ -62,7 +62,7 @@ fun Branches(
             currentBranch,
             mergeBranchName = mergeBranch.name,
             onReject = { setMergeBranch(null) },
-            onAccept = { ff -> gitManager.mergeBranch(mergeBranch, ff) }
+            onAccept = { ff -> branchesViewModel.mergeBranch(mergeBranch, ff) }
         )
     }
 }

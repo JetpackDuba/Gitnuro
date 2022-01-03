@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.dirName
 import app.extensions.dirPath
-import app.git.GitManager
+import app.git.TabViewModel
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.dialogs.CloneDialog
@@ -33,7 +33,7 @@ import java.net.URI
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun WelcomePage(
-    gitManager: GitManager,
+    gitManager: TabViewModel,
 ) {
     val appStateManager = gitManager.appStateManager
     var showCloneView by remember { mutableStateOf(false) }

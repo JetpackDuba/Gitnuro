@@ -12,7 +12,6 @@ import app.git.diff.Hunk
 import app.git.diff.LineType
 import app.theme.conflictFile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
@@ -31,100 +30,14 @@ import javax.inject.Inject
 
 
 class StatusManager @Inject constructor(
-    private val branchesManager: BranchesManager,
     private val rawFileManagerFactory: RawFileManagerFactory,
 ) {
-    private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
-    val stageStatus: StateFlow<StageStatus> = _stageStatus
-
-    private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
-    val repositoryState: StateFlow<RepositoryState> = _repositoryState
-
-    private val _hasUncommitedChanges = MutableStateFlow<Boolean>(false)
-    val hasUncommitedChanges: StateFlow<Boolean>
-        get() = _hasUncommitedChanges
-
-    suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
-        _hasUncommitedChanges.value = checkHasUncommitedChanges(git)
-    }
-
-    suspend fun checkHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
+    suspend fun hasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
         val status = git
             .status()
             .call()
 
         return@withContext status.hasUncommittedChanges() || status.hasUntrackedChanges()
-    }
-
-    suspend fun loadRepositoryStatus(git: Git) = withContext(Dispatchers.IO) {
-        _repositoryState.value = git.repository.repositoryState
-    }
-
-    suspend fun loadStatus(git: Git) = withContext(Dispatchers.IO) {
-        val previousStatus = _stageStatus.value
-        _stageStatus.value = StageStatus.Loading
-
-        try {
-            loadRepositoryStatus(git)
-
-            loadHasUncommitedChanges(git)
-            val currentBranch = branchesManager.currentBranchRef(git)
-            val repositoryState = git.repository.repositoryState
-
-            val staged = git
-                .diff()
-                .setShowNameAndStatusOnly(true).apply {
-                    if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
-                        setOldTree(EmptyTreeIterator()) // Required if the repository is empty
-
-                    setCached(true)
-                }
-                .call()
-                // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
-                // TODO: Test if we should group by old path or new path
-                .groupBy {
-                    if(it.newPath != "/dev/null")
-                        it.newPath
-                    else
-                        it.oldPath
-                }
-                .map {
-                    val entries = it.value
-
-                    val hasConflicts =
-                        (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
-
-                    StatusEntry(entries.first(), isConflict = hasConflicts)
-                }
-
-            ensureActive()
-
-            val unstaged = git
-                .diff()
-                .setShowNameAndStatusOnly(true)
-                .call()
-                .groupBy {
-                    if(it.oldPath != "/dev/null")
-                        it.oldPath
-                    else
-                        it.newPath
-                }
-                .map {
-                    val entries = it.value
-
-                    val hasConflicts =
-                        (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
-
-                    StatusEntry(entries.first(), isConflict = hasConflicts)
-                }
-
-            ensureActive()
-            _stageStatus.value = StageStatus.Loaded(staged, unstaged)
-        } catch (ex: Exception) {
-            _stageStatus.value = previousStatus
-            throw ex
-        }
-
     }
 
     suspend fun stage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
@@ -137,8 +50,6 @@ class StatusManager @Inject constructor(
                 .addFilepattern(diffEntry.filePath)
                 .call()
         }
-
-        loadStatus(git)
     }
 
     suspend fun stageHunk(git: Git, diffEntry: DiffEntry, hunk: Hunk) = withContext(Dispatchers.IO) {
@@ -175,7 +86,7 @@ class StatusManager @Inject constructor(
 
             completedWithErrors = false
 
-            loadStatus(git)
+//            loadStatus(git)
         } finally {
             if (completedWithErrors)
                 dirCache.unlock()
@@ -226,7 +137,7 @@ class StatusManager @Inject constructor(
 
             completedWithErrors = false
 
-            loadStatus(git)
+//            loadStatus(git)
         } finally {
             if (completedWithErrors)
                 dirCache.unlock()
@@ -271,8 +182,6 @@ class StatusManager @Inject constructor(
         git.reset()
             .addPath(diffEntry.filePath)
             .call()
-
-        loadStatus(git)
     }
 
     suspend fun commit(git: Git, message: String) = withContext(Dispatchers.IO) {
@@ -280,8 +189,6 @@ class StatusManager @Inject constructor(
             .setMessage(message)
             .setAllowEmpty(false)
             .call()
-
-        loadStatus(git)
     }
 
     suspend fun reset(git: Git, diffEntry: DiffEntry, staged: Boolean) = withContext(Dispatchers.IO) {
@@ -297,15 +204,13 @@ class StatusManager @Inject constructor(
             .addPath(diffEntry.filePath)
             .call()
 
-        loadStatus(git)
+//        loadStatus(git)
     }
 
     suspend fun unstageAll(git: Git) = withContext(Dispatchers.IO) {
         git
             .reset()
             .call()
-
-        loadStatus(git)
     }
 
     suspend fun stageAll(git: Git) = withContext(Dispatchers.IO) {
@@ -313,15 +218,58 @@ class StatusManager @Inject constructor(
             .add()
             .addFilepattern(".")
             .call()
+    }
 
-        loadStatus(git)
+    suspend fun getStaged(git: Git, currentBranch: Ref?, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
+        return@withContext git
+            .diff()
+            .setShowNameAndStatusOnly(true).apply {
+                if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
+                    setOldTree(EmptyTreeIterator()) // Required if the repository is empty
+
+                setCached(true)
+            }
+            .call()
+            // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
+            // TODO: Test if we should group by old path or new path
+            .groupBy {
+                if(it.newPath != "/dev/null")
+                    it.newPath
+                else
+                    it.oldPath
+            }
+            .map {
+                val entries = it.value
+
+                val hasConflicts =
+                    (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+
+                StatusEntry(entries.first(), isConflict = hasConflicts)
+            }
+    }
+
+    suspend fun getUnstaged(git: Git, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
+        return@withContext git
+            .diff()
+            .setShowNameAndStatusOnly(true)
+            .call()
+            .groupBy {
+                if(it.oldPath != "/dev/null")
+                    it.oldPath
+                else
+                    it.newPath
+            }
+            .map {
+                val entries = it.value
+
+                val hasConflicts =
+                    (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+
+                StatusEntry(entries.first(), isConflict = hasConflicts)
+            }
     }
 }
 
-sealed class StageStatus {
-    object Loading : StageStatus()
-    data class Loaded(val staged: List<StatusEntry>, val unstaged: List<StatusEntry>) : StageStatus()
-}
 
 data class StatusEntry(val diffEntry: DiffEntry, val isConflict: Boolean) {
     val icon: ImageVector

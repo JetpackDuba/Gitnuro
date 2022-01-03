@@ -24,20 +24,14 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.zIndex
 import app.di.DaggerAppComponent
-import app.git.GitManager
 import app.theme.AppTheme
-import app.ui.AppTab
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 import app.ui.dialogs.SettingsDialog
 import javax.inject.Inject
-import javax.inject.Provider
 
 class Main {
     private val appComponent = DaggerAppComponent.create()
-
-    @Inject
-    lateinit var gitManagerProvider: Provider<GitManager>
 
     @Inject
     lateinit var appStateManager: AppStateManager
@@ -47,7 +41,7 @@ class Main {
 
     init {
         appComponent.inject(this)
-
+        println("AppStateManagerReference $appStateManager")
         appStateManager.loadRepositoriesTabs()
     }
 
@@ -200,19 +194,11 @@ class Main {
     ): TabInformation {
 
         return TabInformation(
-            title = tabName,
-            key = key
-        ) {
-            val gitManager = remember { gitManagerProvider.get() }
-            gitManager.onRepositoryChanged = { path ->
-                if (path == null) {
-                    appStateManager.repositoryTabRemoved(key)
-                } else
-                    appStateManager.repositoryTabChanged(key, path)
-            }
-
-            AppTab(gitManager, path, tabName)
-        }
+            tabName = tabName,
+            key = key,
+            path = path,
+            appComponent = appComponent,
+        )
     }
 }
 

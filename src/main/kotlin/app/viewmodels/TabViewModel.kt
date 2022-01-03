@@ -6,6 +6,7 @@ import app.app.newErrorNow
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import app.git.diff.Hunk
+import app.viewmodels.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
@@ -22,15 +22,18 @@ import java.io.File
 import javax.inject.Inject
 
 
-class GitManager @Inject constructor(
-    private val statusManager: StatusManager,
-    private val logManager: LogManager,
+class TabViewModel @Inject constructor(
+    val logViewModel: LogViewModel,
+    val branchesViewModel: BranchesViewModel,
+    val tagsViewModel: TagsViewModel,
+    val remotesViewModel: RemotesViewModel,
+    val statusViewModel: StatusViewModel,
+    val diffViewModel: DiffViewModel,
+    private val repositoryManager: RepositoryManager,
     private val remoteOperationsManager: RemoteOperationsManager,
-    private val branchesManager: BranchesManager,
     private val stashManager: StashManager,
     private val diffManager: DiffManager,
-    private val tagsManager: TagsManager,
-    private val remotesManager: RemotesManager,
+    private val tabState: TabState,
     val errorsManager: ErrorsManager,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
@@ -50,22 +53,31 @@ class GitManager @Inject constructor(
     val processing: StateFlow<Boolean>
         get() = _processing
 
-    private val _lastTimeChecked = MutableStateFlow(System.currentTimeMillis())
-    val lastTimeChecked: StateFlow<Long>
-        get() = _lastTimeChecked
-
-    val stageStatus: StateFlow<StageStatus> = statusManager.stageStatus
-    val repositoryState: StateFlow<RepositoryState> = statusManager.repositoryState
-    val logStatus: StateFlow<LogStatus> = logManager.logStatus
-    val branches: StateFlow<List<Ref>> = branchesManager.branches
-    val tags: StateFlow<List<Ref>> = tagsManager.tags
-    val currentBranch: StateFlow<String> = branchesManager.currentBranch
     val stashStatus: StateFlow<StashStatus> = stashManager.stashStatus
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
     val cloneStatus: StateFlow<CloneStatus> = remoteOperationsManager.cloneStatus
-    val remotes: StateFlow<List<RemoteInfo>> = remotesManager.remotes
 
-    private var git: Git? = null
+    private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
+    val repositoryState: StateFlow<RepositoryState> = _repositoryState
+
+    init {
+        managerScope.launch {
+            tabState.refreshData.collect { refreshType ->
+                when (refreshType) {
+                    RefreshType.NONE -> println("Not refreshing...")
+                    RefreshType.ALL_DATA -> refreshRepositoryInfo()
+                    RefreshType.ONLY_LOG -> refreshLog()
+                    RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
+                }
+            }
+        }
+    }
+
+    private fun refreshLog() = tabState.runOperation { git ->
+        logViewModel.refresh(git)
+
+        return@runOperation RefreshType.NONE
+    }
 
     /**
      * Property that indicates if a git operation is running
@@ -74,7 +86,7 @@ class GitManager @Inject constructor(
 
     private val safeGit: Git
         get() {
-            val git = this.git
+            val git = this.tabState.git
             if (git == null) {
                 _repositorySelectionStatus.value = RepositorySelectionStatus.None
                 throw CancellationException()
@@ -110,19 +122,25 @@ class GitManager @Inject constructor(
             try {
                 repository.workTree // test if repository is valid
                 _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
-                git = Git(repository)
+                tabState.git = Git(repository)
 
                 onRepositoryChanged(repository.directory.parent)
                 refreshRepositoryInfo()
                 launch {
                     watchRepositoryChanges()
                 }
+
+                println("AppStateManagerReference $appStateManager")
             } catch (ex: Exception) {
                 ex.printStackTrace()
                 onRepositoryChanged(null)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
             }
         }
+    }
+
+    suspend fun loadRepositoryState(git: Git) = withContext(Dispatchers.IO) {
+        _repositoryState.value = repositoryManager.getRepositoryState(git)
     }
 
     private suspend fun watchRepositoryChanges() {
@@ -135,78 +153,35 @@ class GitManager @Inject constructor(
             if (!operationRunning) { // Only update if there isn't any process running
                 safeProcessing(showError = false) {
                     println("Changes detected, loading status")
-                    val hasUncommitedChanges = statusManager.hasUncommitedChanges.value
-                    statusManager.loadHasUncommitedChanges(safeGit)
-                    statusManager.loadStatus(safeGit)
+//                    val hasUncommitedChanges = statusManager.hasUncommitedChanges.value
+//                    statusManager.loadHasUncommitedChanges(safeGit)
+//                    statusManager.loadStatus(safeGit)
 
-                    if(!hasUncommitedChanges) {
-                        logManager.loadLog(safeGit)
-                    }
+                    statusViewModel.refresh(safeGit)
+                    checkUncommitedChanges()
                 }
             }
         }
     }
 
-    fun loadLog() = managerScope.launch {
-        coLoadLog()
+    private suspend fun loadLog() {
+        logViewModel.loadLog(safeGit)
     }
 
-    private suspend fun coLoadLog() {
-        logManager.loadLog(safeGit)
-    }
-
-    suspend fun loadStatus() {
-        val hadUncommitedChanges = statusManager.hasUncommitedChanges.value
-
-        statusManager.loadStatus(safeGit)
-
-        val hasNowUncommitedChanges = statusManager.hasUncommitedChanges.value
+    suspend fun checkUncommitedChanges() {
+        val uncommitedChangesStateChanged = statusViewModel.updateHasUncommitedChanges(safeGit)
 
         // Update the log only if the uncommitedChanges status has changed
-        if (hasNowUncommitedChanges != hadUncommitedChanges)
-            coLoadLog()
+        if (uncommitedChangesStateChanged)
+            loadLog()
     }
-
-    fun stage(diffEntry: DiffEntry) = managerScope.launch {
-        runOperation {
-            statusManager.stage(safeGit, diffEntry)
-        }
-    }
-
-    fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = managerScope.launch {
-        runOperation {
-            statusManager.stageHunk(safeGit, diffEntry, hunk)
-        }
-    }
-
-    fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = managerScope.launch {
-        runOperation {
-            statusManager.unstageHunk(safeGit, diffEntry, hunk)
-        }
-    }
-
-    fun unstage(diffEntry: DiffEntry) = managerScope.launch {
-        runOperation {
-            statusManager.unstage(safeGit, diffEntry)
-        }
-    }
-
-    fun commit(message: String) = managerScope.launch {
-        safeProcessing {
-            statusManager.commit(safeGit, message)
-            refreshRepositoryInfo()
-        }
-    }
-
-    val hasUncommitedChanges: StateFlow<Boolean>
-        get() = statusManager.hasUncommitedChanges
 
     suspend fun diffFormat(diffEntryType: DiffEntryType): List<Hunk> {
         try {
             return diffManager.diffFormat(safeGit, diffEntryType)
         } catch (ex: Exception) {
             ex.printStackTrace()
-            loadStatus()
+            checkUncommitedChanges()
             return listOf()
         }
     }
@@ -214,7 +189,7 @@ class GitManager @Inject constructor(
     fun pull() = managerScope.launch {
         safeProcessing {
             remoteOperationsManager.pull(safeGit)
-            coLoadLog()
+            loadLog()
         }
     }
 
@@ -223,26 +198,27 @@ class GitManager @Inject constructor(
             try {
                 remoteOperationsManager.push(safeGit)
             } finally {
-                coLoadLog()
+                loadLog()
             }
         }
     }
 
     private suspend fun refreshRepositoryInfo() {
-        statusManager.loadRepositoryStatus(safeGit)
-        statusManager.loadHasUncommitedChanges(safeGit)
-        statusManager.loadStatus(safeGit)
-        branchesManager.loadBranches(safeGit)
-        remotesManager.loadRemotes(safeGit, branchesManager.remoteBranches(safeGit))
-        tagsManager.loadTags(safeGit)
+        logViewModel.refresh(safeGit)
+        branchesViewModel.refresh(safeGit)
+        remotesViewModel.refresh(safeGit)
+        tagsViewModel.refresh(safeGit)
+        statusViewModel.refresh(safeGit)
+        loadRepositoryState(safeGit)
+
         stashManager.loadStashList(safeGit)
-        coLoadLog()
+        loadLog()
     }
 
     fun stash() = managerScope.launch {
         safeProcessing {
             stashManager.stash(safeGit)
-            loadStatus()
+            checkUncommitedChanges()
             loadLog()
         }
     }
@@ -250,40 +226,9 @@ class GitManager @Inject constructor(
     fun popStash() = managerScope.launch {
         safeProcessing {
             stashManager.popStash(safeGit)
-            loadStatus()
+            checkUncommitedChanges()
             loadLog()
         }
-    }
-
-    fun createBranch(branchName: String) = managerScope.launch {
-        safeProcessing {
-            branchesManager.createBranch(safeGit, branchName)
-            coLoadLog()
-        }
-    }
-
-    fun deleteBranch(branch: Ref) = managerScope.launch {
-        safeProcessing {
-            branchesManager.deleteBranch(safeGit, branch)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun deleteTag(tag: Ref) = managerScope.launch {
-        safeProcessing {
-            tagsManager.deleteTag(safeGit, tag)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun resetStaged(diffEntry: DiffEntry) = managerScope.launch {
-        statusManager.reset(safeGit, diffEntry, staged = true)
-        loadLog()
-    }
-
-    fun resetUnstaged(diffEntry: DiffEntry) = managerScope.launch {
-        statusManager.reset(safeGit, diffEntry, staged = false)
-        loadLog()
     }
 
     fun credentialsDenied() {
@@ -302,68 +247,8 @@ class GitManager @Inject constructor(
         return diffManager.commitDiffEntries(safeGit, commit)
     }
 
-    fun unstageAll() = managerScope.launch {
-        safeProcessing {
-            statusManager.unstageAll(safeGit)
-        }
-    }
-
-    fun stageAll() = managerScope.launch {
-        safeProcessing {
-            statusManager.stageAll(safeGit)
-        }
-    }
-
-    fun checkoutCommit(revCommit: RevCommit) = managerScope.launch {
-        safeProcessing {
-            logManager.checkoutCommit(safeGit, revCommit)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun revertCommit(revCommit: RevCommit) = managerScope.launch {
-        safeProcessing {
-            logManager.revertCommit(safeGit, revCommit)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = managerScope.launch {
-        safeProcessing {
-            logManager.resetToCommit(safeGit, revCommit, resetType = resetType)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun createBranchOnCommit(branch: String, revCommit: RevCommit) = managerScope.launch {
-        safeProcessing {
-            branchesManager.createBranchOnCommit(safeGit, branch, revCommit)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun createTagOnCommit(tag: String, revCommit: RevCommit) = managerScope.launch {
-        safeProcessing {
-            tagsManager.createTagOnCommit(safeGit, tag, revCommit)
-            refreshRepositoryInfo()
-        }
-    }
-
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
-    fun checkoutRef(ref: Ref) = managerScope.launch {
-        safeProcessing {
-            logManager.checkoutRef(safeGit, ref)
-            refreshRepositoryInfo()
-        }
-    }
-
-    fun mergeBranch(ref: Ref, fastForward: Boolean) = managerScope.launch {
-        safeProcessing {
-            branchesManager.mergeBranch(safeGit, ref, fastForward)
-            refreshRepositoryInfo()
-        }
-    }
 
     fun dispose() {
         managerScope.cancel()
@@ -377,7 +262,6 @@ class GitManager @Inject constructor(
         return safeGit.repository.parseCommit(objectId)
     }
 
-    @Synchronized
     private suspend fun safeProcessing(showError: Boolean = true, callback: suspend () -> Unit) {
         _processing.value = true
         operationRunning = true
@@ -395,13 +279,10 @@ class GitManager @Inject constructor(
         }
     }
 
-    private inline fun runOperation(block: () -> Unit) {
-        operationRunning = true
-        try {
-            block()
-        } finally {
-            operationRunning = false
-        }
+    fun updatedDiffEntry(diffSelected: DiffEntryType) = tabState.runOperation { git ->
+        diffViewModel.updateDiff(git , diffSelected)
+
+        return@runOperation RefreshType.NONE
     }
 }
 

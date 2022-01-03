@@ -3,7 +3,6 @@ package app.ui
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -12,14 +11,13 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.git.GitManager
+import app.git.TabViewModel
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
@@ -32,7 +30,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun CommitChanges(
-    gitManager: GitManager,
+    gitManager: TabViewModel,
     commit: RevCommit,
     onDiffSelected: (DiffEntry) -> Unit
 ) {

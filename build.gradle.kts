@@ -44,7 +44,7 @@ tasks.withType<KotlinCompile>() {
 compose.desktop {
     application {
         mainClass = "MainKt"
-
+//
         nativeDistributions {
             includeAllModules = true
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.AppImage)

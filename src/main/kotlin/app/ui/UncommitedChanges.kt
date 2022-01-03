@@ -28,36 +28,30 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.filePath
-import app.extensions.icon
-import app.extensions.iconColor
 import app.extensions.isMerging
 import app.git.DiffEntryType
-import app.git.GitManager
-import app.git.StageStatus
 import app.git.StatusEntry
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
+import app.viewmodels.StageStatus
+import app.viewmodels.StatusViewModel
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.RepositoryState
 
 @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun UncommitedChanges(
-    gitManager: GitManager,
+    statusViewModel: StatusViewModel,
     selectedEntryType: DiffEntryType?,
+    repositoryState: RepositoryState,
     onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
-    val stageStatusState = gitManager.stageStatus.collectAsState()
+    val stageStatusState = statusViewModel.stageStatus.collectAsState()
     val stageStatus = stageStatusState.value
-    val lastCheck by gitManager.lastTimeChecked.collectAsState()
-    val repositoryState by gitManager.repositoryState.collectAsState()
-
-    LaunchedEffect(lastCheck) {
-        gitManager.loadStatus()
-    }
 
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
@@ -83,7 +77,7 @@ fun UncommitedChanges(
 
     var commitMessage by remember { mutableStateOf("") }
     val doCommit = {
-        gitManager.commit(commitMessage)
+        statusViewModel.commit(commitMessage)
         onStagedDiffEntrySelected(null)
         commitMessage = ""
     }
@@ -111,13 +105,13 @@ fun UncommitedChanges(
             diffEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
-                gitManager.unstage(it)
+                statusViewModel.unstage(it)
             },
             onReset = { diffEntry ->
-                gitManager.resetStaged(diffEntry)
+                statusViewModel.resetStaged(diffEntry)
             },
             onAllAction = {
-                gitManager.unstageAll()
+                statusViewModel.unstageAll()
             }
         )
 
@@ -132,13 +126,13 @@ fun UncommitedChanges(
             diffEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
-                gitManager.stage(it)
+                statusViewModel.stage(it)
             },
             onReset = { diffEntry ->
-                gitManager.resetUnstaged(diffEntry)
+                statusViewModel.resetUnstaged(diffEntry)
             },
             {
-                gitManager.stageAll()
+                statusViewModel.stageAll()
             },
             allActionTitle = "Stage all"
         )

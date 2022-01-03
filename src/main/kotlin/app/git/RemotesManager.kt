@@ -10,22 +10,18 @@ import org.eclipse.jgit.transport.RemoteConfig
 import javax.inject.Inject
 
 class RemotesManager @Inject constructor() {
-    private val _remotes = MutableStateFlow<List<RemoteInfo>>(listOf())
-    val remotes: StateFlow<List<RemoteInfo>>
-        get() = _remotes
+
 
     suspend fun loadRemotes(git: Git, allRemoteBranches: List<Ref>) = withContext(Dispatchers.IO) {
         val remotes = git.remoteList()
             .call()
 
-        val remoteInfoList = remotes.map { remoteConfig ->
+        return@withContext remotes.map { remoteConfig ->
             val remoteBranches = allRemoteBranches.filter { branch ->
                 branch.name.startsWith("refs/remotes/${remoteConfig.name}")
             }
             RemoteInfo(remoteConfig, remoteBranches)
         }
-
-        _remotes.value = remoteInfoList
     }
 }
 

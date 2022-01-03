@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import app.git.GitManager
+import app.git.TabViewModel
 import app.git.StashStatus
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
@@ -15,7 +15,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun Stashes(
-    gitManager: GitManager,
+    gitManager: TabViewModel,
     onStashSelected: (commit: RevCommit) -> Unit,
 ) {
     val stashStatusState = gitManager.stashStatus.collectAsState()

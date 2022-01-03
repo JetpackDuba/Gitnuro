@@ -10,16 +10,8 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class TagsManager @Inject constructor() {
-
-    private val _tags = MutableStateFlow<List<Ref>>(listOf())
-    val tags: StateFlow<List<Ref>>
-        get() = _tags
-
-    suspend fun loadTags(git: Git) = withContext(Dispatchers.IO) {
-        val branchList = git.tagList().call()
-
-
-        _tags.value = branchList
+    suspend fun getTags(git: Git) = withContext(Dispatchers.IO) {
+        return@withContext git.tagList().call()
     }
 
     suspend fun createTagOnCommit(git: Git, tag: String, revCommit: RevCommit) = withContext(Dispatchers.IO) {

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.LoadingRepository
 import app.credentials.CredentialsState
-import app.git.GitManager
+import app.git.TabViewModel
 import app.git.RepositorySelectionStatus
 import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
@@ -30,7 +30,7 @@ import kotlinx.coroutines.delay
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTab(
-    gitManager: GitManager,
+    gitManager: TabViewModel,
     repositoryPath: String?,
     tabName: MutableState<String>
 ) {
@@ -101,7 +101,7 @@ fun AppTab(
                             LoadingRepository()
                         }
                         is RepositorySelectionStatus.Open -> {
-                            RepositoryOpenPage(gitManager = gitManager)
+                            RepositoryOpenPage(tabViewModel = gitManager)
                         }
                     }
                 }
@@ -158,7 +158,7 @@ fun AppTab(
 }
 
 @Composable
-fun CredentialsDialog(gitManager: GitManager) {
+fun CredentialsDialog(gitManager: TabViewModel) {
     val credentialsState by gitManager.credentialsState.collectAsState()
 
     if (credentialsState == CredentialsState.HttpCredentialsRequested) {

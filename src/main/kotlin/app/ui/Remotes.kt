@@ -12,16 +12,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.extensions.simpleVisibleName
-import app.git.GitManager
+import app.git.TabViewModel
 import app.git.RemoteInfo
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
 import app.ui.components.entryHeight
+import app.viewmodels.RemotesViewModel
 
 @Composable
-fun Remotes(gitManager: GitManager) {
-    val remotes by gitManager.remotes.collectAsState()
+fun Remotes(remotesViewModel: RemotesViewModel) {
+    val remotes by remotesViewModel.remotes.collectAsState()
 
     Column {
         SideMenuEntry("Remotes")

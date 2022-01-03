@@ -21,17 +21,8 @@ import javax.inject.Inject
 
 class LogManager @Inject constructor(
     private val statusManager: StatusManager,
-    private val branchesManager: BranchesManager,
 ) {
-    private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
-
-    val logStatus: StateFlow<LogStatus>
-        get() = _logStatus
-
-    suspend fun loadLog(git: Git) = withContext(Dispatchers.IO) {
-        _logStatus.value = LogStatus.Loading
-
-        val currentBranch = branchesManager.currentBranchRef(git)
+    suspend fun loadLog(git: Git, currentBranch: Ref?) = withContext(Dispatchers.IO) {
         val commitList = GraphCommitList()
         val repositoryState = git.repository.repositoryState
 
@@ -45,7 +36,7 @@ class LogManager @Inject constructor(
                 walk.markStartAllRefs(Constants.R_REMOTES)
                 walk.markStartAllRefs(Constants.R_TAGS)
 
-                if (statusManager.checkHasUncommitedChanges(git))
+                if (statusManager.hasUncommitedChanges(git))
                     commitList.addUncommitedChangesGraphCommit(logList.first())
 
                 commitList.source(walk)
@@ -55,9 +46,8 @@ class LogManager @Inject constructor(
             ensureActive()
 
         }
-        val loadedStatus = LogStatus.Loaded(commitList, currentBranch)
 
-        _logStatus.value = loadedStatus
+        return@withContext commitList
     }
 
     suspend fun checkoutCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
@@ -65,19 +55,6 @@ class LogManager @Inject constructor(
             .checkout()
             .setName(revCommit.name)
             .call()
-    }
-
-    suspend fun checkoutRef(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
-        git.checkout().apply {
-            setName(ref.name)
-            if (ref.isBranch && ref.name.startsWith("refs/remotes/")) {
-                setCreateBranch(true)
-                setName(ref.simpleName)
-                setStartPoint(ref.objectId.name)
-                setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-            }
-            call()
-        }
     }
 
     suspend fun revertCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
@@ -106,9 +83,4 @@ enum class ResetType {
     SOFT,
     MIXED,
     HARD,
-}
-
-sealed class LogStatus {
-    object Loading : LogStatus()
-    class Loaded(val plotCommitList: GraphCommitList, val currentBranch: Ref?) : LogStatus()
 }

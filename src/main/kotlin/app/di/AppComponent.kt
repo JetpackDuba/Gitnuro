@@ -1,5 +1,6 @@
 package app.di
 
+import app.AppStateManager
 import app.Main
 import dagger.Component
 import javax.inject.Singleton
@@ -8,4 +9,5 @@ import javax.inject.Singleton
 @Component
 interface AppComponent {
     fun inject(main: Main)
+    fun appStateManager(): AppStateManager
 }

@@ -20,8 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import app.AppStateManager
+import app.di.AppComponent
+import app.di.DaggerTabComponent
+import app.git.TabViewModel
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
+import app.ui.AppTab
+import javax.inject.Inject
 
 
 @Composable
@@ -48,7 +54,7 @@ fun RepositoriesTabPanel(
     ) {
         items(items = tabs) { tab ->
             Tab(
-                title = tab.title,
+                title = tab.tabName,
                 selected = tab.key == selectedTabKey,
                 onClick = {
                     onTabSelected(tab.key)
@@ -154,7 +160,33 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
 }
 
 class TabInformation(
-    val title: MutableState<String>,
+    val tabName: MutableState<String>,
     val key: Int,
+    val path: String?,
+    appComponent: AppComponent,
+) {
+    @Inject
+    lateinit var gitManager: TabViewModel
+
+    @Inject
+    lateinit var appStateManager: AppStateManager
+
     val content: @Composable (TabInformation) -> Unit
-)
+
+    init {
+        val tabComponent = DaggerTabComponent.builder()
+            .appComponent(appComponent)
+            .build()
+        tabComponent.inject(this)
+
+        gitManager.onRepositoryChanged = { path ->
+            if (path == null) {
+                appStateManager.repositoryTabRemoved(key)
+            } else
+                appStateManager.repositoryTabChanged(key, path)
+        }
+        content = {
+            AppTab(gitManager, path, tabName)
+        }
+    }
+}
