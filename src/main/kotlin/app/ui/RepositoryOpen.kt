@@ -1,12 +1,11 @@
 package app.ui
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.git.DiffEntryType
-import app.git.TabViewModel
+import app.viewmodels.TabViewModel
 import app.ui.dialogs.NewBranchDialog
 import app.ui.log.Log
 import openRepositoryDialog
@@ -20,22 +19,13 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 @Composable
 fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val repositoryState by tabViewModel.repositoryState.collectAsState()
-
-    var diffSelected by remember {
-        mutableStateOf<DiffEntryType?>(null)
-    }
-
-    LaunchedEffect(diffSelected) {
-        diffSelected?.let { safeDiffSelected ->
-            tabViewModel.updatedDiffEntry(safeDiffSelected)
-        }
-    }
+    val diffSelected by tabViewModel.diffSelected.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
 
     val (selectedItem, setSelectedItem) = remember { mutableStateOf<SelectedItem>(SelectedItem.None) }
     LaunchedEffect(selectedItem) {
-        diffSelected = null
+        tabViewModel.newDiffSelected = null
     }
 
     if (showNewBranchDialog) {
@@ -104,26 +94,24 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 modifier = Modifier
                                     .fillMaxSize()
                             ) {
-//                                Crossfade(targetState = diffSelected) { diffEntry ->
-                                    when (diffSelected) {
-                                        null -> {
-                                            Log(
-                                                tabViewModel = tabViewModel,
-                                                repositoryState = repositoryState,
-                                                logViewModel = tabViewModel.logViewModel,
-                                                selectedItem = selectedItem,
-                                                onItemSelected = {
-                                                    setSelectedItem(it)
-                                                },
-                                            )
-                                        }
-                                        else -> {
-                                            Diff(
-                                                diffViewModel = tabViewModel.diffViewModel,
-                                                onCloseDiffView = { diffSelected = null })
-                                        }
+                                when (diffSelected) {
+                                    null -> {
+                                        Log(
+                                            tabViewModel = tabViewModel,
+                                            repositoryState = repositoryState,
+                                            logViewModel = tabViewModel.logViewModel,
+                                            selectedItem = selectedItem,
+                                            onItemSelected = {
+                                                setSelectedItem(it)
+                                            },
+                                        )
                                     }
-//                                }
+                                    else -> {
+                                        Diff(
+                                            diffViewModel = tabViewModel.diffViewModel,
+                                            onCloseDiffView = { tabViewModel.newDiffSelected = null })
+                                    }
+                                }
                             }
                         }
 
@@ -138,13 +126,13 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                         selectedEntryType = diffSelected,
                                         repositoryState = repositoryState,
                                         onStagedDiffEntrySelected = { diffEntry ->
-                                            diffSelected = if (diffEntry != null)
+                                            tabViewModel.newDiffSelected = if (diffEntry != null)
                                                 DiffEntryType.StagedDiff(diffEntry)
                                             else
                                                 null
                                         },
                                         onUnstagedDiffEntrySelected = { diffEntry ->
-                                            diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
+                                            tabViewModel.newDiffSelected = DiffEntryType.UnstagedDiff(diffEntry)
                                         }
                                     )
                                 } else if (selectedItem is SelectedItem.CommitBasedItem) {
@@ -152,7 +140,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                         gitManager = tabViewModel,
                                         commit = selectedItem.revCommit,
                                         onDiffSelected = { diffEntry ->
-                                            diffSelected = DiffEntryType.CommitDiff(diffEntry)
+                                            tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                         }
                                     )
                                 }

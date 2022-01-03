@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import app.AppStateManager
 import app.di.AppComponent
 import app.di.DaggerTabComponent
-import app.git.TabViewModel
+import app.viewmodels.TabViewModel
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
 import app.ui.AppTab

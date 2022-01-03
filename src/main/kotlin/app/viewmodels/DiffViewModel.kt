@@ -1,5 +1,9 @@
 package app.viewmodels
 
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import app.git.*
 import app.git.diff.Hunk
 import kotlinx.coroutines.Dispatchers
@@ -20,8 +24,29 @@ class DiffViewModel @Inject constructor(
     private val _diffResult = MutableStateFlow<DiffResult?>(null)
     val diffResult: StateFlow<DiffResult?> = _diffResult
 
+    val lazyListState = MutableStateFlow(
+        LazyListState(
+        0,
+        0
+        )
+    )
+
     suspend fun updateDiff(git: Git, diffEntryType: DiffEntryType) = withContext(Dispatchers.IO) {
+        val oldDiffEntryType = _diffResult.value?.diffEntryType
+
         _diffResult.value = null
+
+        // If it's a different file or different state (index or workdir), reset the scroll state
+        if(oldDiffEntryType != null &&
+            (oldDiffEntryType.diffEntry.oldPath != diffEntryType.diffEntry.oldPath ||
+            oldDiffEntryType.diffEntry.newPath != diffEntryType.diffEntry.newPath ||
+            oldDiffEntryType::class != diffEntryType::class)
+        ) {
+            lazyListState.value = LazyListState(
+                0,
+                0
+            )
+        }
 
         val hunks = diffManager.diffFormat(git, diffEntryType)
 

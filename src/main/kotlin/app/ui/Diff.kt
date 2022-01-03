@@ -16,8 +16,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
-import app.git.TabViewModel
-import app.git.diff.Hunk
 import app.git.diff.LineType
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
@@ -55,10 +53,11 @@ fun Diff(
             Text("Close diff")
         }
 
+        val scrollState by diffViewModel.lazyListState.collectAsState()
         ScrollableLazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-//                .padding(16.dp)
+                .fillMaxSize(),
+            state = scrollState
         ) {
             itemsIndexed(hunks) { index, hunk ->
                 val hunksSeparation = if (index == 0)

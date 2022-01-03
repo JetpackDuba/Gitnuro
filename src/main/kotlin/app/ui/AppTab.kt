@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.LoadingRepository
 import app.credentials.CredentialsState
-import app.git.TabViewModel
-import app.git.RepositorySelectionStatus
+import app.viewmodels.TabViewModel
+import app.viewmodels.RepositorySelectionStatus
 import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
 import kotlinx.coroutines.delay

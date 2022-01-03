@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.extensions.isLocal
 import app.extensions.simpleName
-import app.git.TabViewModel
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry

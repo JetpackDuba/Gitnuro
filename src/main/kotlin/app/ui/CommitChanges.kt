@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.git.TabViewModel
+import app.viewmodels.TabViewModel
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor

@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.git.TabViewModel
+import app.viewmodels.TabViewModel
 import app.git.graph.GraphNode
 import app.theme.*
 import app.ui.SelectedItem

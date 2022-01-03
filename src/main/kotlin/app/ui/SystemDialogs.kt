@@ -1,5 +1,5 @@
 import app.extensions.runCommand
-import app.git.TabViewModel
+import app.viewmodels.TabViewModel
 import javax.swing.JFileChooser
 
 

@@ -1,12 +1,11 @@
-package app.git
+package app.viewmodels
 
 import app.AppStateManager
 import app.app.ErrorsManager
 import app.app.newErrorNow
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
-import app.git.diff.Hunk
-import app.viewmodels.*
+import app.git.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,6 +37,7 @@ class TabViewModel @Inject constructor(
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
 ) {
+
     val repositoryName: String
         get() = safeGit.repository.directory.parentFile.name
 
@@ -56,6 +56,16 @@ class TabViewModel @Inject constructor(
     val stashStatus: StateFlow<StashStatus> = stashManager.stashStatus
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
     val cloneStatus: StateFlow<CloneStatus> = remoteOperationsManager.cloneStatus
+
+    private val _diffSelected = MutableStateFlow<DiffEntryType?>(null)
+    val diffSelected : StateFlow<DiffEntryType?> = _diffSelected
+    var newDiffSelected: DiffEntryType?
+        get() = diffSelected.value
+        set(value){
+            _diffSelected.value = value
+
+            updateDiffEntry()
+        }
 
     private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
     val repositoryState: StateFlow<RepositoryState> = _repositoryState
@@ -153,12 +163,10 @@ class TabViewModel @Inject constructor(
             if (!operationRunning) { // Only update if there isn't any process running
                 safeProcessing(showError = false) {
                     println("Changes detected, loading status")
-//                    val hasUncommitedChanges = statusManager.hasUncommitedChanges.value
-//                    statusManager.loadHasUncommitedChanges(safeGit)
-//                    statusManager.loadStatus(safeGit)
-
                     statusViewModel.refresh(safeGit)
                     checkUncommitedChanges()
+
+                    updateDiffEntry()
                 }
             }
         }
@@ -174,16 +182,8 @@ class TabViewModel @Inject constructor(
         // Update the log only if the uncommitedChanges status has changed
         if (uncommitedChangesStateChanged)
             loadLog()
-    }
 
-    suspend fun diffFormat(diffEntryType: DiffEntryType): List<Hunk> {
-        try {
-            return diffManager.diffFormat(safeGit, diffEntryType)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            checkUncommitedChanges()
-            return listOf()
-        }
+        updateDiffEntry()
     }
 
     fun pull() = managerScope.launch {
@@ -279,8 +279,12 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    fun updatedDiffEntry(diffSelected: DiffEntryType) = tabState.runOperation { git ->
-        diffViewModel.updateDiff(git , diffSelected)
+    fun updateDiffEntry() = tabState.runOperation { git ->
+        val diffSelected = diffSelected.value
+
+        if(diffSelected != null) {
+            diffViewModel.updateDiff(git, diffSelected)
+        }
 
         return@runOperation RefreshType.NONE
     }

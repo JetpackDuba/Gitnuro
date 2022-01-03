@@ -12,7 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
-import app.git.TabViewModel
+import app.viewmodels.TabViewModel
 import app.theme.primaryTextColor
 import java.io.File
 

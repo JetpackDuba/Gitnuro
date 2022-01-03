@@ -74,7 +74,6 @@ fun UncommitedChanges(
         unstaged = listOf<StatusEntry>() // return empty lists if still loading
     }
 
-
     var commitMessage by remember { mutableStateOf("") }
     val doCommit = {
         statusViewModel.commit(commitMessage)
@@ -190,6 +189,7 @@ fun UncommitedChanges(
     }
 }
 
+// TODO: This logic should be part of the diffViewModel where it gets the latest version of the diffEntry
 fun checkIfSelectedEntryShouldBeUpdated(
     selectedEntryType: DiffEntryType,
     staged: List<StatusEntry>,

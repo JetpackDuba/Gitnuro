@@ -15,14 +15,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class BranchesManager @Inject constructor() {
-    private val _branches = MutableStateFlow<List<Ref>>(listOf())
-    val branches: StateFlow<List<Ref>>
-        get() = _branches
-
-    private val _currentBranch = MutableStateFlow<String>("")
-    val currentBranch: StateFlow<String>
-        get() = _currentBranch
-
     /**
      * Returns the current branch in [Ref]. If the repository is new, the current branch will be null.
      */

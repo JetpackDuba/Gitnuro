@@ -26,32 +26,28 @@ class StatusViewModel @Inject constructor(
 
     fun stage(diffEntry: DiffEntry) = tabState.runOperation { git ->
         statusManager.stage(git, diffEntry)
-        loadStatus(git)
 
-        return@runOperation RefreshType.NONE
+        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
     fun unstage(diffEntry: DiffEntry) = tabState.runOperation { git ->
         statusManager.unstage(git, diffEntry)
-        loadStatus(git)
 
-        return@runOperation RefreshType.NONE
+        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
 
 
     fun unstageAll() = tabState.safeProcessing { git ->
         statusManager.unstageAll(git)
-        loadStatus(git)
 
-        return@safeProcessing RefreshType.NONE
+        return@safeProcessing RefreshType.UNCOMMITED_CHANGES
     }
 
     fun stageAll() = tabState.safeProcessing { git ->
         statusManager.stageAll(git)
-        loadStatus(git)
 
-        return@safeProcessing RefreshType.NONE
+        return@safeProcessing RefreshType.UNCOMMITED_CHANGES
     }
 
 
