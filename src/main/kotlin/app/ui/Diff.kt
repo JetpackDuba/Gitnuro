@@ -84,10 +84,10 @@ fun Diff(
                         val buttonText: String
                         val color: Color
                         if (diffEntryType is DiffEntryType.StagedDiff) {
-                            buttonText = "Unstage"
+                            buttonText = "Unstage hunk"
                             color = MaterialTheme.colors.error
                         } else {
-                            buttonText = "Stage"
+                            buttonText = "Stage hunk"
                             color = MaterialTheme.colors.primary
                         }
 
