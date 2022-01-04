@@ -32,6 +32,7 @@ fun Diff(
     val diffResult = diffResultState.value ?: return
 
     val diffEntryType = diffResult.diffEntryType
+    val diffEntry = diffEntryType.diffEntry
     val hunks = diffResult.hunks
 
     Column(
@@ -40,17 +41,35 @@ fun Diff(
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
-        OutlinedButton(
-            modifier = Modifier
-                .padding(vertical = 16.dp, horizontal = 16.dp)
-                .align(Alignment.End),
-            onClick = onCloseDiffView,
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = MaterialTheme.colors.background,
-                contentColor = MaterialTheme.colors.primary,
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Close diff")
+            val filePath = if(diffEntry.newPath != "/dev/null")
+                diffEntry.newPath
+            else
+                diffEntry.oldPath
+
+            Text(
+                text = filePath,
+                color = MaterialTheme.colors.primaryTextColor,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(horizontal = 16.dp),
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            OutlinedButton(
+                modifier = Modifier
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
+                onClick = onCloseDiffView,
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colors.background,
+                    contentColor = MaterialTheme.colors.primary,
+                )
+            ) {
+                Text("Close diff")
+            }
         }
 
         val scrollState by diffViewModel.lazyListState.collectAsState()
