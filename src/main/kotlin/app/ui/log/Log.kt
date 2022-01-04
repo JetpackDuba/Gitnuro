@@ -34,8 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.git.GitManager
-import app.git.LogStatus
+import app.viewmodels.TabViewModel
 import app.git.graph.GraphNode
 import app.theme.*
 import app.ui.SelectedItem
@@ -47,6 +46,8 @@ import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.NewTagDialog
 import app.ui.dialogs.ResetBranchDialog
+import app.viewmodels.LogStatus
+import app.viewmodels.LogViewModel
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
@@ -70,13 +71,14 @@ private const val CANVAS_MIN_WIDTH = 100
 )
 @Composable
 fun Log(
-    gitManager: GitManager,
+    tabViewModel: TabViewModel,
+    logViewModel: LogViewModel,
     selectedItem: SelectedItem,
     onItemSelected: (SelectedItem) -> Unit,
+    repositoryState: RepositoryState,
 ) {
-    val logStatusState = gitManager.logStatus.collectAsState()
+    val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
-    val repositoryState by gitManager.repositoryState.collectAsState()
     val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
@@ -86,6 +88,7 @@ fun Log(
     }
 
     if (logStatus is LogStatus.Loaded) {
+        val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
         val scrollState = rememberLazyListState()
 
@@ -102,7 +105,7 @@ fun Log(
         }
 
         LogDialogs(
-            gitManager,
+            logViewModel,
             currentBranch = logStatus.currentBranch,
             onResetShowLogDialog = { showLogDialog.value = LogDialog.None },
             showLogDialog = showLogDialog.value,
@@ -114,7 +117,7 @@ fun Log(
                 .background(MaterialTheme.colors.background)
                 .fillMaxSize()
         ) {
-            val hasUncommitedChanges by gitManager.hasUncommitedChanges.collectAsState()
+//            val hasUncommitedChanges by tabViewModel.hasUncommitedChanges.collectAsState()
             val weightMod = remember { mutableStateOf(0f) }
             var graphWidth = (CANVAS_MIN_WIDTH + weightMod.value).dp
 
@@ -131,11 +134,12 @@ fun Log(
                     .background(MaterialTheme.colors.background)
                     .fillMaxSize(),
             ) {
+                //TODO: Shouldn't this be an item of the graph?
                 if (hasUncommitedChanges)
                     item {
                         UncommitedChangesLine(
                             selected = selectedItem == SelectedItem.UncommitedChanges,
-                            hasPreviousCommits = commitList.count() > 0,
+                            hasPreviousCommits = commitList.isNotEmpty(),
                             graphWidth = graphWidth,
                             weightMod = weightMod,
                             repositoryState = repositoryState,
@@ -146,7 +150,7 @@ fun Log(
                     }
                 items(items = commitList) { graphNode ->
                     CommitLine(
-                        gitManager = gitManager,
+                        logViewModel = logViewModel,
                         graphNode = graphNode,
                         selected = selectedCommit?.name == graphNode.name,
                         weightMod = weightMod,
@@ -169,7 +173,7 @@ fun Log(
 
 @Composable
 fun LogDialogs(
-    gitManager: GitManager,
+    logViewModel: LogViewModel,
     onResetShowLogDialog: () -> Unit,
     showLogDialog: LogDialog,
     currentBranch: Ref?,
@@ -179,7 +183,7 @@ fun LogDialogs(
             NewBranchDialog(
                 onReject = onResetShowLogDialog,
                 onAccept = { branchName ->
-                    gitManager.createBranchOnCommit(branchName, showLogDialog.graphNode)
+                    logViewModel.createBranchOnCommit(branchName, showLogDialog.graphNode)
                     onResetShowLogDialog()
                 }
             )
@@ -188,7 +192,7 @@ fun LogDialogs(
             NewTagDialog(
                 onReject = onResetShowLogDialog,
                 onAccept = { tagName ->
-                    gitManager.createTagOnCommit(tagName, showLogDialog.graphNode)
+                    logViewModel.createTagOnCommit(tagName, showLogDialog.graphNode)
                     onResetShowLogDialog()
                 }
             )
@@ -200,7 +204,7 @@ fun LogDialogs(
                     mergeBranchName = showLogDialog.ref.simpleName,
                     onReject = onResetShowLogDialog,
                     onAccept = { ff ->
-                        gitManager.mergeBranch(showLogDialog.ref, ff)
+                        logViewModel.mergeBranch(showLogDialog.ref, ff)
                         onResetShowLogDialog()
                     }
                 )
@@ -208,7 +212,7 @@ fun LogDialogs(
         is LogDialog.ResetBranch -> ResetBranchDialog(
             onReject = onResetShowLogDialog,
             onAccept = { resetType ->
-                gitManager.resetToCommit(showLogDialog.graphNode, resetType)
+                logViewModel.resetToCommit(showLogDialog.graphNode, resetType)
                 onResetShowLogDialog()
             }
         )
@@ -324,7 +328,7 @@ fun UncommitedChangesLine(
 
 @Composable
 fun CommitLine(
-    gitManager: GitManager,
+    logViewModel: LogViewModel,
     graphNode: GraphNode,
     selected: Boolean,
     weightMod: MutableState<Float>,
@@ -348,9 +352,7 @@ fun CommitLine(
                 listOf(
                     ContextMenuItem(
                         label = "Checkout commit",
-                        onClick = {
-                            gitManager.checkoutCommit(graphNode)
-                        }),
+                        onClick = { logViewModel.checkoutCommit(graphNode) }),
                     ContextMenuItem(
                         label = "Create branch",
                         onClick = showCreateNewBranch
@@ -361,7 +363,7 @@ fun CommitLine(
                     ),
                     ContextMenuItem(
                         label = "Revert commit",
-                        onClick = { gitManager.revertCommit(graphNode) }
+                        onClick = { logViewModel.revertCommit(graphNode) }
                     ),
 
                     ContextMenuItem(
@@ -403,10 +405,10 @@ fun CommitLine(
                     refs = commitRefs,
                     nodeColor = nodeColor,
                     currentBranch = currentBranch,
-                    onCheckoutRef = { ref -> gitManager.checkoutRef(ref) },
+                    onCheckoutRef = { ref -> logViewModel.checkoutRef(ref) },
                     onMergeBranch = { ref -> onMergeBranch(ref) },
-                    onDeleteBranch = { ref -> gitManager.deleteBranch(ref) },
-                    onDeleteTag = { ref -> gitManager.deleteTag(ref) },
+                    onDeleteBranch = { ref -> logViewModel.deleteBranch(ref) },
+                    onDeleteTag = { ref -> logViewModel.deleteTag(ref) },
                 )
             }
         }

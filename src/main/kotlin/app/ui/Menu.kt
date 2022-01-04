@@ -17,14 +17,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
+import app.viewmodels.MenuViewModel
 
 @Composable
-fun GMenu(
+fun Menu(
+    menuViewModel: MenuViewModel,
     onRepositoryOpen: () -> Unit,
-    onPull: () -> Unit,
-    onPush: () -> Unit,
-    onStash: () -> Unit,
-    onPopStash: () -> Unit,
     onCreateBranch: () -> Unit,
 ) {
     Row(
@@ -47,17 +45,13 @@ fun GMenu(
         MenuButton(
             title = "Pull",
             icon = painterResource("download.svg"),
-            onClick = {
-                onPull()
-            },
+            onClick = { menuViewModel.pull() },
         )
 
         MenuButton(
             title = "Push",
             icon = painterResource("upload.svg"),
-            onClick = {
-                onPush()
-            },
+            onClick = { menuViewModel.push() },
         )
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -76,12 +70,12 @@ fun GMenu(
         MenuButton(
             title = "Stash",
             icon = painterResource("stash.svg"),
-            onClick = onStash,
+            onClick = { menuViewModel.stash() },
         )
         MenuButton(
             title = "Pop",
             icon = painterResource("apply_stash.svg"),
-            onClick = onPopStash,
+            onClick = { menuViewModel.popStash() },
         )
 
         Spacer(modifier = Modifier.weight(1f))

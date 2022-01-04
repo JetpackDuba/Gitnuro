@@ -1,9 +1,12 @@
 package app.git
 
+import app.extensions.isBranch
+import app.extensions.simpleName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.api.MergeCommand
@@ -12,14 +15,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class BranchesManager @Inject constructor() {
-    private val _branches = MutableStateFlow<List<Ref>>(listOf())
-    val branches: StateFlow<List<Ref>>
-        get() = _branches
-
-    private val _currentBranch = MutableStateFlow<String>("")
-    val currentBranch: StateFlow<String>
-        get() = _currentBranch
-
     /**
      * Returns the current branch in [Ref]. If the repository is new, the current branch will be null.
      */
@@ -30,17 +25,6 @@ class BranchesManager @Inject constructor() {
             .fullBranch
 
         return branchList.firstOrNull { it.name == branchName }
-    }
-
-    suspend fun loadBranches(git: Git) = withContext(Dispatchers.IO) {
-        val branchList = getBranches(git)
-
-        val branchName = git
-            .repository
-            .fullBranch
-
-        _branches.value = branchList
-        _currentBranch.value = branchName
     }
 
     suspend fun getBranches(git: Git) = withContext(Dispatchers.IO) {
@@ -55,8 +39,6 @@ class BranchesManager @Inject constructor() {
             .setCreateBranch(true)
             .setName(branchName)
             .call()
-
-        loadBranches(git)
     }
 
     suspend fun createBranchOnCommit(git: Git, branch: String, revCommit: RevCommit) = withContext(Dispatchers.IO) {
@@ -94,5 +76,18 @@ class BranchesManager @Inject constructor() {
             .branchList()
             .setListMode(ListBranchCommand.ListMode.REMOTE)
             .call()
+    }
+
+    suspend fun checkoutRef(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
+        git.checkout().apply {
+            setName(ref.name)
+            if (ref.isBranch && ref.name.startsWith("refs/remotes/")) {
+                setCreateBranch(true)
+                setName(ref.simpleName)
+                setStartPoint(ref.objectId.name)
+                setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+            }
+            call()
+        }
     }
 }

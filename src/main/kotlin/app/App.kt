@@ -10,7 +10,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,20 +23,16 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.zIndex
 import app.di.DaggerAppComponent
-import app.git.GitManager
 import app.theme.AppTheme
-import app.ui.AppTab
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 import app.ui.dialogs.SettingsDialog
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
-import javax.inject.Provider
 
-class Main {
+class App {
     private val appComponent = DaggerAppComponent.create()
-
-    @Inject
-    lateinit var gitManagerProvider: Provider<GitManager>
 
     @Inject
     lateinit var appStateManager: AppStateManager
@@ -45,83 +40,90 @@ class Main {
     @Inject
     lateinit var appPreferences: AppPreferences
 
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     init {
         appComponent.inject(this)
-
-        appStateManager.loadRepositoriesTabs()
+        println("AppStateManagerReference $appStateManager")
     }
 
-    fun start() = application {
-        var isOpen by remember { mutableStateOf(true) }
-        val theme by appPreferences.themeState.collectAsState()
-        if (isOpen) {
-            Window(
-                title = "Gitnuro",
-                onCloseRequest = {
-                    isOpen = false
-                },
-                state = rememberWindowState(
-                    placement = WindowPlacement.Maximized,
-                    size = DpSize(1280.dp, 720.dp)
-                ),
-                icon = painterResource("logo.svg"),
-            ) {
-                var showSettingsDialog by remember { mutableStateOf(false) }
-                val tabs = mutableStateMapOf<Int, TabInformation>()
+    private val tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
 
-                AppTheme(theme = theme) {
-                    Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-                        AppTabs(
-                            tabs = tabs,
-                            onOpenSettings = {
-                                showSettingsDialog = true
-                            }
-                        )
-                    }
+    fun start(){
+        appStateManager.loadRepositoriesTabs()
+        loadTabs()
 
-                    if (showSettingsDialog) {
-                        SettingsDialog(
-                            appPreferences = appPreferences,
-                            onDismiss = { showSettingsDialog = false }
-                        )
+        application {
+            var isOpen by remember { mutableStateOf(true) }
+            val theme by appPreferences.themeState.collectAsState()
+
+            if (isOpen) {
+                Window(
+                    title = "Gitnuro",
+                    onCloseRequest = {
+                        isOpen = false
+                    },
+                    state = rememberWindowState(
+                        placement = WindowPlacement.Maximized,
+                        size = DpSize(1280.dp, 720.dp)
+                    ),
+                    icon = painterResource("logo.svg"),
+                ) {
+                    var showSettingsDialog by remember { mutableStateOf(false) }
+
+                    AppTheme(theme = theme) {
+                        Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+                            AppTabs(
+                                onOpenSettings = {
+                                    showSettingsDialog = true
+                                }
+                            )
+                        }
+
+                        if (showSettingsDialog) {
+                            SettingsDialog(
+                                appPreferences = appPreferences,
+                                onDismiss = { showSettingsDialog = false }
+                            )
+                        }
                     }
                 }
+            } else {
+                appScope.cancel("Closing app")
+                this.exitApplication()
             }
         }
+    }
+
+    private fun loadTabs() {
+        val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
+        var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
+            newAppTab(
+                key = repositoryTab.key,
+                path = repositoryTab.value
+            )
+        }
+
+        if (repoTabs.isEmpty()) {
+            repoTabs = listOf(
+                newAppTab()
+            )
+        }
+
+        tabsFlow.value = repoTabs
+
+        println("After reading prefs, got ${tabsFlow.value.count()} tabs")
     }
 
 
     @Composable
     fun AppTabs(
-        tabs: SnapshotStateMap<Int, TabInformation>,
         onOpenSettings: () -> Unit,
     ) {
-
-        val tabsInformationList = tabs.map { it.value }.sortedBy { it.key }
+        val tabs by tabsFlow.collectAsState()
+        val tabsInformationList = tabs.sortedBy { it.key }
 
         println("Tabs count ${tabs.count()}")
-
-        LaunchedEffect(Unit) {
-            val repositoriesSavedTabs = appStateManager.openRepositoriesPathsTabs
-            var repoTabs = repositoriesSavedTabs.map { repositoryTab ->
-                newAppTab(
-                    key = repositoryTab.key,
-                    path = repositoryTab.value
-                )
-            }
-
-            if (repoTabs.isEmpty()) {
-                repoTabs = listOf(
-                    newAppTab()
-                )
-            }
-
-            repoTabs.forEach {
-                tabs[it.key] = it
-            } // Store list of tabs in the map
-
-            println("After reading prefs, got ${tabs.count()} tabs")
-        }
 
         val selectedTabKey = remember { mutableStateOf(0) }
 
@@ -131,22 +133,44 @@ class Main {
             modifier = Modifier.background(MaterialTheme.colors.background)
         ) {
             Tabs(
-                tabs = tabs,
                 tabsInformationList = tabsInformationList,
                 selectedTabKey = selectedTabKey,
-                onOpenSettings = onOpenSettings
+                onOpenSettings = onOpenSettings,
+                onAddedTab = { tabInfo ->
+                    addTab(tabs, tabInfo)
+                },
+                onRemoveTab = { key ->
+                    removeTab(tabs, key)
+                }
             )
 
             TabsContent(tabsInformationList, selectedTabKey.value)
         }
     }
 
+    private fun removeTab(tabs: List<TabInformation>, key: Int) = appScope.launch(Dispatchers.IO) {
+        // Stop any running jobs
+        val tabToRemove = tabs.firstOrNull { it.key == key } ?: return@launch
+        tabToRemove.tabViewModel.dispose()
+
+        // Remove tab from persistent tabs storage
+        appStateManager.repositoryTabRemoved(key)
+
+        // Remove from tabs flow
+        tabsFlow.value = tabs.filter { tab -> tab.key != key }
+    }
+
+    fun addTab(tabsList: List<TabInformation>, tabInformation: TabInformation) = appScope.launch(Dispatchers.IO) {
+        tabsFlow.value = tabsList.toMutableList().apply { add(tabInformation) }
+    }
+
     @Composable
     fun Tabs(
-        tabs: SnapshotStateMap<Int, TabInformation>,
         selectedTabKey: MutableState<Int>,
         onOpenSettings: () -> Unit,
         tabsInformationList: List<TabInformation>,
+        onAddedTab: (TabInformation) -> Unit,
+        onRemoveTab: (Int) -> Unit,
     ) {
         Row(
             modifier = Modifier
@@ -168,14 +192,10 @@ class Main {
                         key = key
                     )
 
-                    tabs[key] = newAppTab
-
+                    onAddedTab(newAppTab)
                     newAppTab
                 },
-                onTabClosed = { key ->
-                    appStateManager.repositoryTabRemoved(key)
-                    tabs.remove(key)
-                }
+                onTabClosed = onRemoveTab
             )
             IconButton(
                 modifier = Modifier
@@ -200,19 +220,11 @@ class Main {
     ): TabInformation {
 
         return TabInformation(
-            title = tabName,
-            key = key
-        ) {
-            val gitManager = remember { gitManagerProvider.get() }
-            gitManager.onRepositoryChanged = { path ->
-                if (path == null) {
-                    appStateManager.repositoryTabRemoved(key)
-                } else
-                    appStateManager.repositoryTabChanged(key, path)
-            }
-
-            AppTab(gitManager, path, tabName)
-        }
+            tabName = tabName,
+            key = key,
+            path = path,
+            appComponent = appComponent,
+        )
     }
 }
 

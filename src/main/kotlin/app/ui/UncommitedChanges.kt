@@ -28,37 +28,32 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.filePath
-import app.extensions.icon
-import app.extensions.iconColor
 import app.extensions.isMerging
 import app.git.DiffEntryType
-import app.git.GitManager
-import app.git.StageStatus
 import app.git.StatusEntry
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
+import app.viewmodels.StageStatus
+import app.viewmodels.StatusViewModel
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.RepositoryState
 
 @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
 fun UncommitedChanges(
-    gitManager: GitManager,
+    statusViewModel: StatusViewModel,
     selectedEntryType: DiffEntryType?,
+    repositoryState: RepositoryState,
     onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
 ) {
-    val stageStatusState = gitManager.stageStatus.collectAsState()
+    val stageStatusState = statusViewModel.stageStatus.collectAsState()
+    val commitMessage by statusViewModel.commitMessage.collectAsState()
+
     val stageStatus = stageStatusState.value
-    val lastCheck by gitManager.lastTimeChecked.collectAsState()
-    val repositoryState by gitManager.repositoryState.collectAsState()
-
-    LaunchedEffect(lastCheck) {
-        gitManager.loadStatus()
-    }
-
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
     if (stageStatus is StageStatus.Loaded) {
@@ -80,12 +75,10 @@ fun UncommitedChanges(
         unstaged = listOf<StatusEntry>() // return empty lists if still loading
     }
 
-
-    var commitMessage by remember { mutableStateOf("") }
     val doCommit = {
-        gitManager.commit(commitMessage)
+        statusViewModel.commit(commitMessage)
         onStagedDiffEntrySelected(null)
-        commitMessage = ""
+        statusViewModel.newCommitMessage = ""
     }
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
 
@@ -111,13 +104,13 @@ fun UncommitedChanges(
             diffEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
-                gitManager.unstage(it)
+                statusViewModel.unstage(it)
             },
             onReset = { diffEntry ->
-                gitManager.resetStaged(diffEntry)
+                statusViewModel.resetStaged(diffEntry)
             },
             onAllAction = {
-                gitManager.unstageAll()
+                statusViewModel.unstageAll()
             }
         )
 
@@ -132,13 +125,13 @@ fun UncommitedChanges(
             diffEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
-                gitManager.stage(it)
+                statusViewModel.stage(it)
             },
             onReset = { diffEntry ->
-                gitManager.resetUnstaged(diffEntry)
+                statusViewModel.resetUnstaged(diffEntry)
             },
             {
-                gitManager.stageAll()
+                statusViewModel.stageAll()
             },
             allActionTitle = "Stage all"
         )
@@ -165,7 +158,7 @@ fun UncommitedChanges(
                                 false
                         },
                     value = commitMessage,
-                    onValueChange = { commitMessage = it },
+                    onValueChange = { statusViewModel.newCommitMessage = it },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
                     colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp),
@@ -196,6 +189,7 @@ fun UncommitedChanges(
     }
 }
 
+// TODO: This logic should be part of the diffViewModel where it gets the latest version of the diffEntry
 fun checkIfSelectedEntryShouldBeUpdated(
     selectedEntryType: DiffEntryType,
     staged: List<StatusEntry>,

@@ -36,7 +36,7 @@ dependencies {
 
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
-    kotlinOptions.allWarningsAsErrors = true
+    kotlinOptions.allWarningsAsErrors = false
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
 }
 
@@ -44,7 +44,7 @@ tasks.withType<KotlinCompile>() {
 compose.desktop {
     application {
         mainClass = "MainKt"
-
+//
         nativeDistributions {
             includeAllModules = true
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.AppImage)

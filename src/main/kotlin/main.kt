@@ -1,8 +1,8 @@
 import androidx.compose.ui.ExperimentalComposeUiApi
-import app.Main
+import app.App
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
-    val main = Main()
+    val main = App()
     main.start()
 }

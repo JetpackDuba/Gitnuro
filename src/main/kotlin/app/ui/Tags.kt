@@ -13,20 +13,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.extensions.simpleName
-import app.git.GitManager
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
 import app.ui.components.entryHeight
 import app.ui.context_menu.tagContextMenuItems
+import app.viewmodels.TagsViewModel
 import org.eclipse.jgit.lib.Ref
 
 @Composable
 fun Tags(
-    gitManager: GitManager,
+    tagsViewModel: TagsViewModel,
     onTagClicked: (Ref) -> Unit,
 ) {
-    val tagsState = gitManager.tags.collectAsState()
+    val tagsState = tagsViewModel.tags.collectAsState()
     val tags = tagsState.value
 
     Column {
@@ -46,8 +46,8 @@ fun Tags(
                     TagRow(
                         tag = tag,
                         onTagClicked = { onTagClicked(tag) },
-                        onCheckoutTag = { gitManager.checkoutRef(tag) },
-                        onDeleteTag = { gitManager.deleteTag(tag) }
+                        onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
+                        onDeleteTag = { tagsViewModel.deleteTag(tag) }
                     )
                 }
             }

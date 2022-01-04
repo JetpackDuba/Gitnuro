@@ -1,12 +1,11 @@
 package app.ui
 
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.git.DiffEntryType
-import app.git.GitManager
+import app.viewmodels.TabViewModel
 import app.ui.dialogs.NewBranchDialog
 import app.ui.log.Log
 import openRepositoryDialog
@@ -18,17 +17,14 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @OptIn(ExperimentalSplitPaneApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
-fun RepositoryOpenPage(gitManager: GitManager) {
-    var diffSelected by remember {
-        mutableStateOf<DiffEntryType?>(null)
-    }
+fun RepositoryOpenPage(tabViewModel: TabViewModel) {
+    val repositoryState by tabViewModel.repositoryState.collectAsState()
+    val diffSelected by tabViewModel.diffSelected.collectAsState()
+    val selectedItem by tabViewModel.selectedItem.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
-
-    val (selectedItem, setSelectedItem) = remember { mutableStateOf<SelectedItem>(SelectedItem.None) }
-
     LaunchedEffect(selectedItem) {
-        diffSelected = null
+        tabViewModel.newDiffSelected = null
     }
 
     if (showNewBranchDialog) {
@@ -37,21 +33,18 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                 showNewBranchDialog = false
             },
             onAccept = { branchName ->
-                gitManager.createBranch(branchName)
+                tabViewModel.branchesViewModel.createBranch(branchName)
                 showNewBranchDialog = false
             }
         )
     }
 
     Column {
-        GMenu(
+        Menu(
+            menuViewModel = tabViewModel.menuViewModel,
             onRepositoryOpen = {
-                openRepositoryDialog(gitManager = gitManager)
+                openRepositoryDialog(gitManager = tabViewModel)
             },
-            onPull = { gitManager.pull() },
-            onPush = { gitManager.push() },
-            onStash = { gitManager.stash() },
-            onPopStash = { gitManager.popStash() },
             onCreateBranch = { showNewBranchDialog = true }
         )
 
@@ -65,24 +58,22 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                             .fillMaxHeight()
                     ) {
                         Branches(
-                            gitManager = gitManager,
+                            branchesViewModel = tabViewModel.branchesViewModel,
                             onBranchClicked = {
-                                val commit = gitManager.findCommit(it.objectId)
-                                setSelectedItem(SelectedItem.Ref(commit))
+                                tabViewModel.newSelectedRef(it.objectId)
                             }
                         )
-                        Remotes(gitManager = gitManager)
+                        Remotes(remotesViewModel = tabViewModel.remotesViewModel)
                         Tags(
-                            gitManager = gitManager,
+                            tagsViewModel = tabViewModel.tagsViewModel,
                             onTagClicked = {
-                                val commit = gitManager.findCommit(it.objectId)
-                                setSelectedItem(SelectedItem.Ref(commit))
+                                tabViewModel.newSelectedRef(it.objectId)
                             }
                         )
                         Stashes(
-                            gitManager = gitManager,
+                            stashesViewModel = tabViewModel.stashesViewModel,
                             onStashSelected = { stash ->
-                                setSelectedItem(SelectedItem.Stash(stash))
+                                tabViewModel.newSelectedStash(stash)
                             }
                         )
                     }
@@ -97,23 +88,22 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                 modifier = Modifier
                                     .fillMaxSize()
                             ) {
-                                Crossfade(targetState = diffSelected) { diffEntry ->
-                                    when (diffEntry) {
-                                        null -> {
-                                            Log(
-                                                gitManager = gitManager,
-                                                selectedItem = selectedItem,
-                                                onItemSelected = {
-                                                    setSelectedItem(it)
-                                                },
-                                            )
-                                        }
-                                        else -> {
-                                            Diff(
-                                                gitManager = gitManager,
-                                                diffEntryType = diffEntry,
-                                                onCloseDiffView = { diffSelected = null })
-                                        }
+                                when (diffSelected) {
+                                    null -> {
+                                        Log(
+                                            tabViewModel = tabViewModel,
+                                            repositoryState = repositoryState,
+                                            logViewModel = tabViewModel.logViewModel,
+                                            selectedItem = selectedItem,
+                                            onItemSelected = {
+                                                tabViewModel.newSelectedItem(it)
+                                            },
+                                        )
+                                    }
+                                    else -> {
+                                        Diff(
+                                            diffViewModel = tabViewModel.diffViewModel,
+                                            onCloseDiffView = { tabViewModel.newDiffSelected = null })
                                     }
                                 }
                             }
@@ -124,26 +114,27 @@ fun RepositoryOpenPage(gitManager: GitManager) {
                                 modifier = Modifier
                                     .fillMaxHeight()
                             ) {
-                                if (selectedItem == SelectedItem.UncommitedChanges) {
+                                val safeSelectedItem = selectedItem
+                                if (safeSelectedItem == SelectedItem.UncommitedChanges) {
                                     UncommitedChanges(
-                                        gitManager = gitManager,
+                                        statusViewModel = tabViewModel.statusViewModel,
                                         selectedEntryType = diffSelected,
+                                        repositoryState = repositoryState,
                                         onStagedDiffEntrySelected = { diffEntry ->
-                                            diffSelected = if (diffEntry != null)
+                                            tabViewModel.newDiffSelected = if (diffEntry != null)
                                                 DiffEntryType.StagedDiff(diffEntry)
                                             else
                                                 null
                                         },
                                         onUnstagedDiffEntrySelected = { diffEntry ->
-                                            diffSelected = DiffEntryType.UnstagedDiff(diffEntry)
+                                            tabViewModel.newDiffSelected = DiffEntryType.UnstagedDiff(diffEntry)
                                         }
                                     )
-                                } else if (selectedItem is SelectedItem.CommitBasedItem) {
+                                } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                                     CommitChanges(
-                                        gitManager = gitManager,
-                                        commit = selectedItem.revCommit,
+                                        commitChangesViewModel = tabViewModel.commitChangesViewModel,
                                         onDiffSelected = { diffEntry ->
-                                            diffSelected = DiffEntryType.CommitDiff(diffEntry)
+                                            tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                         }
                                     )
                                 }

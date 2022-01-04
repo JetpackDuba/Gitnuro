@@ -16,24 +16,23 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
-import app.git.GitManager
-import app.git.diff.Hunk
 import app.git.diff.LineType
 import app.theme.primaryTextColor
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
+import app.viewmodels.DiffViewModel
 import org.eclipse.jgit.diff.DiffEntry
 
 @Composable
-fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: () -> Unit) {
-    var text by remember { mutableStateOf(listOf<Hunk>()) }
+fun Diff(
+    diffViewModel: DiffViewModel,
+    onCloseDiffView: () -> Unit,
+) {
+    val diffResultState = diffViewModel.diffResult.collectAsState()
+    val diffResult = diffResultState.value ?: return
 
-    LaunchedEffect(Unit) {
-        text = gitManager.diffFormat(diffEntryType)
-
-
-        if (text.isEmpty()) onCloseDiffView()
-    }
+    val diffEntryType = diffResult.diffEntryType
+    val hunks = diffResult.hunks
 
     Column(
         modifier = Modifier
@@ -54,12 +53,13 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
             Text("Close diff")
         }
 
+        val scrollState by diffViewModel.lazyListState.collectAsState()
         ScrollableLazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-//                .padding(16.dp)
+                .fillMaxSize(),
+            state = scrollState
         ) {
-            itemsIndexed(text) { index, hunk ->
+            itemsIndexed(hunks) { index, hunk ->
                 val hunksSeparation = if (index == 0)
                     0.dp
                 else
@@ -96,9 +96,9 @@ fun Diff(gitManager: GitManager, diffEntryType: DiffEntryType, onCloseDiffView: 
                             backgroundButton = color,
                             onClick = {
                                 if (diffEntryType is DiffEntryType.StagedDiff) {
-                                    gitManager.unstageHunk(diffEntryType.diffEntry, hunk)
+                                    diffViewModel.unstageHunk(diffEntryType.diffEntry, hunk)
                                 } else {
-                                    gitManager.stageHunk(diffEntryType.diffEntry, hunk)
+                                    diffViewModel.stageHunk(diffEntryType.diffEntry, hunk)
                                 }
                             }
                         )

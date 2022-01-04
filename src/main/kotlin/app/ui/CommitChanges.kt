@@ -3,23 +3,18 @@ package app.ui
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.git.GitManager
+import app.viewmodels.TabViewModel
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
@@ -27,20 +22,38 @@ import app.theme.secondaryTextColor
 import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TooltipText
+import app.viewmodels.CommitChangesStatus
+import app.viewmodels.CommitChangesViewModel
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun CommitChanges(
-    gitManager: GitManager,
-    commit: RevCommit,
+    commitChangesViewModel: CommitChangesViewModel,
     onDiffSelected: (DiffEntry) -> Unit
 ) {
-    var diff by remember { mutableStateOf(emptyList<DiffEntry>()) }
-    LaunchedEffect(commit) {
-        diff = gitManager.diffListFromCommit(commit)
-    }
+    val commitChangesStatusState = commitChangesViewModel.commitChangesStatus.collectAsState()
 
+    when(val commitChangesStatus = commitChangesStatusState.value) {
+        CommitChangesStatus.Loading -> {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        }
+        is CommitChangesStatus.Loaded -> {
+            CommitChangesView(
+                commit = commitChangesStatus.commit,
+                changes = commitChangesStatus.changes,
+                onDiffSelected = onDiffSelected,
+            )
+        }
+    }
+}
+
+@Composable
+fun CommitChangesView(
+    commit: RevCommit,
+    changes: List<DiffEntry>,
+    onDiffSelected: (DiffEntry) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -92,7 +105,7 @@ fun CommitChanges(
             )
 
 
-            CommitLogChanges(diff, onDiffSelected = onDiffSelected)
+            CommitLogChanges(changes, onDiffSelected = onDiffSelected)
         }
     }
 }

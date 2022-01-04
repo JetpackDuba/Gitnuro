@@ -20,8 +20,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import app.AppStateManager
+import app.di.AppComponent
+import app.di.DaggerTabComponent
+import app.viewmodels.TabViewModel
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
+import app.ui.AppTab
+import javax.inject.Inject
+import kotlin.io.path.Path
+import kotlin.io.path.name
 
 
 @Composable
@@ -48,7 +56,7 @@ fun RepositoriesTabPanel(
     ) {
         items(items = tabs) { tab ->
             Tab(
-                title = tab.title,
+                title = tab.tabName,
                 selected = tab.key == selectedTabKey,
                 onClick = {
                     onTabSelected(tab.key)
@@ -154,7 +162,38 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
 }
 
 class TabInformation(
-    val title: MutableState<String>,
+    val tabName: MutableState<String>,
     val key: Int,
+    val path: String?,
+    appComponent: AppComponent,
+) {
+    @Inject
+    lateinit var tabViewModel: TabViewModel
+
+    @Inject
+    lateinit var appStateManager: AppStateManager
+
     val content: @Composable (TabInformation) -> Unit
-)
+
+    init {
+        val tabComponent = DaggerTabComponent.builder()
+            .appComponent(appComponent)
+            .build()
+        tabComponent.inject(this)
+
+        //TODO: This shouldn't be here, should be in the parent method
+        tabViewModel.onRepositoryChanged = { path ->
+            if (path == null) {
+                appStateManager.repositoryTabRemoved(key)
+            } else {
+                tabName.value = Path(path).name
+                appStateManager.repositoryTabChanged(key, path)
+            }
+        }
+        if(path != null)
+            tabViewModel.openRepository(path)
+        content = {
+            AppTab(tabViewModel)
+        }
+    }
+}

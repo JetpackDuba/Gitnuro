@@ -12,13 +12,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
-import app.git.GitManager
+import app.viewmodels.TabViewModel
 import app.theme.primaryTextColor
 import java.io.File
 
 @Composable
 fun CloneDialog(
-    gitManager: GitManager,
+    gitManager: TabViewModel,
     onClose: () -> Unit
 ) {
     val cloneStatus = gitManager.cloneStatus.collectAsState()
