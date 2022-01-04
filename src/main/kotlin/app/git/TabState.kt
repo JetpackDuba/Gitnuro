@@ -4,6 +4,7 @@ import app.app.Error
 import app.app.newErrorNow
 import app.di.TabScope
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -46,13 +47,11 @@ class TabState @Inject constructor() {
     @set:Synchronized
     var operationRunning = false
 
-
     private val _processing = MutableStateFlow(false)
-    val processing: StateFlow<Boolean>
-        get() = _processing
+    val processing: StateFlow<Boolean> = _processing
 
     fun safeProcessing(showError: Boolean = true, callback: suspend (git: Git) -> RefreshType) =
-        managerScope.launch {
+        managerScope.launch(Dispatchers.IO) {
             mutex.withLock {
                 _processing.value = true
                 operationRunning = true
@@ -74,7 +73,30 @@ class TabState @Inject constructor() {
             }
         }
 
-    fun runOperation(block: suspend (git: Git) -> RefreshType) = managerScope.launch {
+    fun safeProcessingWihoutGit(showError: Boolean = true, callback: suspend () -> RefreshType) =
+        managerScope.launch(Dispatchers.IO) {
+            mutex.withLock {
+                _processing.value = true
+                operationRunning = true
+
+                try {
+                    val refreshType = callback()
+
+                    if (refreshType != RefreshType.NONE)
+                        _refreshData.emit(refreshType)
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+
+                    if (showError)
+                        _errors.emit(newErrorNow(ex, ex.localizedMessage))
+                } finally {
+                    _processing.value = false
+                    operationRunning = false
+                }
+            }
+        }
+
+    fun runOperation(block: suspend (git: Git) -> RefreshType) = managerScope.launch(Dispatchers.IO) {
         operationRunning = true
         try {
             val refreshType = block(safeGit)

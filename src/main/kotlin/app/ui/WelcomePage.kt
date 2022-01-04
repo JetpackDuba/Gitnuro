@@ -33,9 +33,9 @@ import java.net.URI
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun WelcomePage(
-    gitManager: TabViewModel,
+    tabViewModel: TabViewModel,
 ) {
-    val appStateManager = gitManager.appStateManager
+    val appStateManager = tabViewModel.appStateManager
     var showCloneView by remember { mutableStateOf(false) }
 
 //    Crossfade(showCloneView) {
@@ -69,7 +69,7 @@ fun WelcomePage(
                     .padding(bottom = 8.dp),
                 title = "Open a repository",
                 painter = painterResource("open.svg"),
-                onClick = { openRepositoryDialog(gitManager) }
+                onClick = { openRepositoryDialog(tabViewModel) }
             )
 
             ButtonTile(
@@ -136,7 +136,7 @@ fun WelcomePage(
                     ) {
                         TextButton(
                             onClick = {
-                                gitManager.openRepository(repo)
+                                tabViewModel.openRepository(repo)
                             }
                         ) {
                             Text(
@@ -161,7 +161,7 @@ fun WelcomePage(
 
     if (showCloneView)
         MaterialDialog {
-            CloneDialog(gitManager, onClose = { showCloneView = false })
+            CloneDialog(tabViewModel, onClose = { showCloneView = false })
         }
 //        Popup(focusable = true, onDismissRequest = { showCloneView = false }, alignment = Alignment.Center) {
 //

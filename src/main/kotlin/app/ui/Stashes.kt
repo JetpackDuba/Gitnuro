@@ -6,19 +6,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import app.viewmodels.TabViewModel
-import app.git.StashStatus
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
+import app.viewmodels.StashStatus
+import app.viewmodels.StashesViewModel
 import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun Stashes(
-    gitManager: TabViewModel,
+    stashesViewModel: StashesViewModel,
     onStashSelected: (commit: RevCommit) -> Unit,
 ) {
-    val stashStatusState = gitManager.stashStatus.collectAsState()
+    val stashStatusState = stashesViewModel.stashStatus.collectAsState()
     val stashStatus = stashStatusState.value
 
     val stashList = if (stashStatus is StashStatus.Loaded)

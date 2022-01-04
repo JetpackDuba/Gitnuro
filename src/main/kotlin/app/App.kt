@@ -149,6 +149,14 @@ class App {
     }
 
     private fun removeTab(tabs: List<TabInformation>, key: Int) = appScope.launch(Dispatchers.IO) {
+        // Stop any running jobs
+        val tabToRemove = tabs.firstOrNull { it.key == key } ?: return@launch
+        tabToRemove.tabViewModel.dispose()
+
+        // Remove tab from persistent tabs storage
+        appStateManager.repositoryTabRemoved(key)
+
+        // Remove from tabs flow
         tabsFlow.value = tabs.filter { tab -> tab.key != key }
     }
 
@@ -187,10 +195,7 @@ class App {
                     onAddedTab(newAppTab)
                     newAppTab
                 },
-                onTabClosed = { key ->
-                    appStateManager.repositoryTabRemoved(key)
-                    onRemoveTab(key)
-                }
+                onTabClosed = onRemoveTab
             )
             IconButton(
                 modifier = Modifier

@@ -28,6 +28,8 @@ import app.theme.tabColorActive
 import app.theme.tabColorInactive
 import app.ui.AppTab
 import javax.inject.Inject
+import kotlin.io.path.Path
+import kotlin.io.path.name
 
 
 @Composable
@@ -166,7 +168,7 @@ class TabInformation(
     appComponent: AppComponent,
 ) {
     @Inject
-    lateinit var gitManager: TabViewModel
+    lateinit var tabViewModel: TabViewModel
 
     @Inject
     lateinit var appStateManager: AppStateManager
@@ -180,14 +182,18 @@ class TabInformation(
         tabComponent.inject(this)
 
         //TODO: This shouldn't be here, should be in the parent method
-        gitManager.onRepositoryChanged = { path ->
+        tabViewModel.onRepositoryChanged = { path ->
             if (path == null) {
                 appStateManager.repositoryTabRemoved(key)
-            } else
+            } else {
+                tabName.value = Path(path).name
                 appStateManager.repositoryTabChanged(key, path)
+            }
         }
+        if(path != null)
+            tabViewModel.openRepository(path)
         content = {
-            AppTab(gitManager, path, tabName)
+            AppTab(tabViewModel)
         }
     }
 }

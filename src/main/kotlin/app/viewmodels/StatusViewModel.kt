@@ -26,9 +26,7 @@ class StatusViewModel @Inject constructor(
             _commitMessage.value = value
         }
 
-    private val _hasUncommitedChanges = MutableStateFlow<Boolean>(false)
-    val hasUncommitedChanges: StateFlow<Boolean>
-        get() = _hasUncommitedChanges
+    private var lastUncommitedChangesState = false
 
     fun stage(diffEntry: DiffEntry) = tabState.runOperation { git ->
         statusManager.stage(git, diffEntry)
@@ -68,7 +66,7 @@ class StatusViewModel @Inject constructor(
         return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
-    suspend fun loadStatus(git: Git) {
+    private suspend fun loadStatus(git: Git) {
         val previousStatus = _stageStatus.value
 
         try {
@@ -85,8 +83,8 @@ class StatusViewModel @Inject constructor(
         }
     }
 
-    suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
-        _hasUncommitedChanges.value = statusManager.hasUncommitedChanges(git)
+    private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
+        lastUncommitedChangesState = statusManager.hasUncommitedChanges(git)
     }
 
     fun commit(message: String) = tabState.safeProcessing { git ->
@@ -94,7 +92,6 @@ class StatusViewModel @Inject constructor(
 
         return@safeProcessing RefreshType.ALL_DATA
     }
-
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
         loadStatus(git)
@@ -105,11 +102,12 @@ class StatusViewModel @Inject constructor(
      * Checks if there are uncommited changes and returns if the state has changed (
      */
     suspend fun updateHasUncommitedChanges(git: Git): Boolean {
-        val hadUncommitedChanges = hasUncommitedChanges.value
+        val hadUncommitedChanges = this.lastUncommitedChangesState
 
         loadStatus(git)
+        loadHasUncommitedChanges(git)
 
-        val hasNowUncommitedChanges = hasUncommitedChanges.value
+        val hasNowUncommitedChanges = this.lastUncommitedChangesState
 
         // Return true to update the log only if the uncommitedChanges status has changed
         return (hasNowUncommitedChanges != hadUncommitedChanges)

@@ -20,10 +20,9 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val repositoryState by tabViewModel.repositoryState.collectAsState()
     val diffSelected by tabViewModel.diffSelected.collectAsState()
+    val selectedItem by tabViewModel.selectedItem.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
-
-    val (selectedItem, setSelectedItem) = remember { mutableStateOf<SelectedItem>(SelectedItem.None) }
     LaunchedEffect(selectedItem) {
         tabViewModel.newDiffSelected = null
     }
@@ -41,14 +40,11 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     }
 
     Column {
-        GMenu(
+        Menu(
+            menuViewModel = tabViewModel.menuViewModel,
             onRepositoryOpen = {
                 openRepositoryDialog(gitManager = tabViewModel)
             },
-            onPull = { tabViewModel.pull() },
-            onPush = { tabViewModel.push() },
-            onStash = { tabViewModel.stash() },
-            onPopStash = { tabViewModel.popStash() },
             onCreateBranch = { showNewBranchDialog = true }
         )
 
@@ -64,22 +60,20 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                         Branches(
                             branchesViewModel = tabViewModel.branchesViewModel,
                             onBranchClicked = {
-                                val commit = tabViewModel.findCommit(it.objectId)
-                                setSelectedItem(SelectedItem.Ref(commit))
+                                tabViewModel.newSelectedRef(it.objectId)
                             }
                         )
                         Remotes(remotesViewModel = tabViewModel.remotesViewModel)
                         Tags(
                             tagsViewModel = tabViewModel.tagsViewModel,
                             onTagClicked = {
-                                val commit = tabViewModel.findCommit(it.objectId)
-                                setSelectedItem(SelectedItem.Ref(commit))
+                                tabViewModel.newSelectedRef(it.objectId)
                             }
                         )
                         Stashes(
-                            gitManager = tabViewModel,
+                            stashesViewModel = tabViewModel.stashesViewModel,
                             onStashSelected = { stash ->
-                                setSelectedItem(SelectedItem.Stash(stash))
+                                tabViewModel.newSelectedStash(stash)
                             }
                         )
                     }
@@ -102,7 +96,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                             logViewModel = tabViewModel.logViewModel,
                                             selectedItem = selectedItem,
                                             onItemSelected = {
-                                                setSelectedItem(it)
+                                                tabViewModel.newSelectedItem(it)
                                             },
                                         )
                                     }
@@ -120,7 +114,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 modifier = Modifier
                                     .fillMaxHeight()
                             ) {
-                                if (selectedItem == SelectedItem.UncommitedChanges) {
+                                val safeSelectedItem = selectedItem
+                                if (safeSelectedItem == SelectedItem.UncommitedChanges) {
                                     UncommitedChanges(
                                         statusViewModel = tabViewModel.statusViewModel,
                                         selectedEntryType = diffSelected,
@@ -135,10 +130,9 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                             tabViewModel.newDiffSelected = DiffEntryType.UnstagedDiff(diffEntry)
                                         }
                                     )
-                                } else if (selectedItem is SelectedItem.CommitBasedItem) {
+                                } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                                     CommitChanges(
-                                        gitManager = tabViewModel,
-                                        commit = selectedItem.revCommit,
+                                        commitChangesViewModel = tabViewModel.commitChangesViewModel,
                                         onDiffSelected = { diffEntry ->
                                             tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                         }

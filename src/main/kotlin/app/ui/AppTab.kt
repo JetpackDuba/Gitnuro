@@ -27,33 +27,15 @@ import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
 import kotlinx.coroutines.delay
 
+// TODO onDispose sometimes is called when changing tabs, therefore losing the tab state
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTab(
-    gitManager: TabViewModel,
-    repositoryPath: String?,
-    tabName: MutableState<String>
+    tabViewModel: TabViewModel,
 ) {
-    DisposableEffect(gitManager) {
-        if (repositoryPath != null)
-            gitManager.openRepository(repositoryPath)
-
-        // TODO onDispose sometimes is called when changing tabs, therefore losing the tab state
-        onDispose {
-            println("onDispose called for $tabName")
-            gitManager.dispose()
-        }
-    }
-
-    val errorManager = remember(gitManager) { // TODO Is remember here necessary?
-        gitManager.errorsManager
-    }
-
+    val errorManager = tabViewModel.errorsManager
     val lastError by errorManager.lastError.collectAsState()
-
-    var showError by remember {
-        mutableStateOf(false)
-    }
+    var showError by remember { mutableStateOf(false) }
 
     if (lastError != null)
         LaunchedEffect(lastError) {
@@ -62,13 +44,8 @@ fun AppTab(
             showError = false
         }
 
-
-    val repositorySelectionStatus by gitManager.repositorySelectionStatus.collectAsState()
-    val isProcessing by gitManager.processing.collectAsState()
-
-    if (repositorySelectionStatus is RepositorySelectionStatus.Open) {
-        tabName.value = gitManager.repositoryName
-    }
+    val repositorySelectionStatus by tabViewModel.repositorySelectionStatus.collectAsState()
+    val isProcessing by tabViewModel.processing.collectAsState()
 
     Box {
         Column(
@@ -87,7 +64,7 @@ fun AppTab(
                     .alpha(linearProgressAlpha)
             )
 
-            CredentialsDialog(gitManager)
+            CredentialsDialog(tabViewModel)
 
             Box(modifier = Modifier.fillMaxSize()) {
                 Crossfade(targetState = repositorySelectionStatus) {
@@ -95,13 +72,13 @@ fun AppTab(
                     @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
                     when (repositorySelectionStatus) {
                         RepositorySelectionStatus.None -> {
-                            WelcomePage(gitManager = gitManager)
+                            WelcomePage(tabViewModel = tabViewModel)
                         }
                         RepositorySelectionStatus.Loading -> {
                             LoadingRepository()
                         }
                         is RepositorySelectionStatus.Open -> {
-                            RepositoryOpenPage(tabViewModel = gitManager)
+                            RepositoryOpenPage(tabViewModel = tabViewModel)
                         }
                     }
                 }

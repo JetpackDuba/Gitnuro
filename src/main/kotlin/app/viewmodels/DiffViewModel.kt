@@ -1,17 +1,10 @@
 package app.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import app.git.*
 import app.git.diff.Hunk
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import javax.inject.Inject
 
@@ -31,7 +24,7 @@ class DiffViewModel @Inject constructor(
         )
     )
 
-    suspend fun updateDiff(git: Git, diffEntryType: DiffEntryType) = withContext(Dispatchers.IO) {
+    fun updateDiff(diffEntryType: DiffEntryType) = tabState.runOperation { git ->
         val oldDiffEntryType = _diffResult.value?.diffEntryType
 
         _diffResult.value = null
@@ -51,6 +44,8 @@ class DiffViewModel @Inject constructor(
         val hunks = diffManager.diffFormat(git, diffEntryType)
 
         _diffResult.value = DiffResult(diffEntryType, hunks)
+
+        return@runOperation RefreshType.NONE
     }
 
     fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation { git ->

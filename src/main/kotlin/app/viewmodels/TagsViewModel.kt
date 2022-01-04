@@ -21,7 +21,7 @@ class TagsViewModel @Inject constructor(
     val tags: StateFlow<List<Ref>>
         get() = _tags
 
-    suspend fun loadTags(git: Git) = withContext(Dispatchers.IO) {
+    private suspend fun loadTags(git: Git) = withContext(Dispatchers.IO) {
         val tagsList = tagsManager.getTags(git)
 
         _tags.value = tagsList

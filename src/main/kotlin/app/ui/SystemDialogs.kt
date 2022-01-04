@@ -29,7 +29,7 @@ fun openRepositoryDialog(gitManager: TabViewModel) {
 }
 
 private fun openRepositoryDialog(
-    gitManager: TabViewModel,
+    tabViewModel: TabViewModel,
     latestDirectoryOpened: String
 ) {
 
@@ -42,5 +42,5 @@ private fun openRepositoryDialog(
     fileChooser.showSaveDialog(null)
 
     if (fileChooser.selectedFile != null)
-        gitManager.openRepository(fileChooser.selectedFile)
+        tabViewModel.openRepository(fileChooser.selectedFile)
 }
