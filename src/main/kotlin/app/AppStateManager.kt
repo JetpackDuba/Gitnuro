@@ -57,7 +57,7 @@ class AppStateManager @Inject constructor(
         appPreferences.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
     }
 
-    fun loadRepositoriesTabs() = appStateScope.launch(Dispatchers.IO) {
+    fun loadRepositoriesTabs() {
         val repositoriesSaved = appPreferences.latestTabsOpened
 
         if (repositoriesSaved.isNotEmpty()) {

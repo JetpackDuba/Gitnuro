@@ -179,6 +179,7 @@ class TabInformation(
             .build()
         tabComponent.inject(this)
 
+        //TODO: This shouldn't be here, should be in the parent method
         gitManager.onRepositoryChanged = { path ->
             if (path == null) {
                 appStateManager.repositoryTabRemoved(key)
