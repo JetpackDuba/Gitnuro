@@ -53,7 +53,6 @@ fun Diff(
                 .fillMaxSize(),
             state = scrollState
         ) {
-            item { Spacer(modifier = Modifier.height(16.dp)) }
             items(hunks) { hunk ->
                 HunkHeader(
                     hunk = hunk,
@@ -139,7 +138,7 @@ fun DiffHeader(diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
         Text(
             text = filePath,
             color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 
