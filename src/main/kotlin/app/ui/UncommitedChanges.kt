@@ -1,5 +1,3 @@
-@file:Suppress("UNUSED_PARAMETER")
-
 package app.ui
 
 import androidx.compose.animation.AnimatedVisibility
@@ -41,7 +39,7 @@ import app.viewmodels.StatusViewModel
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.RepositoryState
 
-@OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun UncommitedChanges(
     statusViewModel: StatusViewModel,

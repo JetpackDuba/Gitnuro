@@ -91,13 +91,12 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 when (diffSelected) {
                                     null -> {
                                         Log(
-                                            tabViewModel = tabViewModel,
-                                            repositoryState = repositoryState,
                                             logViewModel = tabViewModel.logViewModel,
                                             selectedItem = selectedItem,
                                             onItemSelected = {
                                                 tabViewModel.newSelectedItem(it)
                                             },
+                                            repositoryState = repositoryState,
                                         )
                                     }
                                     else -> {

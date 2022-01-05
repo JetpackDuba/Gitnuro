@@ -1,7 +1,5 @@
 @file:OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 
-@file:Suppress("UNUSED_PARAMETER")
-
 package app.ui.log
 
 import androidx.compose.foundation.*
@@ -34,7 +32,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.viewmodels.TabViewModel
 import app.git.graph.GraphNode
 import app.theme.*
 import app.ui.SelectedItem
@@ -71,7 +68,6 @@ private const val CANVAS_MIN_WIDTH = 100
 )
 @Composable
 fun Log(
-    tabViewModel: TabViewModel,
     logViewModel: LogViewModel,
     selectedItem: SelectedItem,
     onItemSelected: (SelectedItem) -> Unit,

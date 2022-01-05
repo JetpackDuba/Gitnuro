@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package app.git.graph
 
 import org.eclipse.jgit.lib.AnyObjectId
@@ -67,58 +65,6 @@ open class GraphNode(id: AnyObjectId?) : RevCommit(id), IGraphNode {
         get() {
             return children.size
         }
-
-    /**
-     * Get the nth child from this commit's child list.
-     *
-     * @param nth
-     * child index to obtain. Must be in the range 0 through
-     * [.getChildCount]-1.
-     * @return the specified child.
-     * @throws ArrayIndexOutOfBoundsException
-     * an invalid child index was specified.
-     */
-    fun getChild(nth: Int): GraphNode {
-        return children[nth]
-    }
-
-    /**
-     * Determine if the given commit is a child (descendant) of this commit.
-     *
-     * @param c
-     * the commit to test.
-     * @return true if the given commit built on top of this commit.
-     */
-    fun isChild(c: GraphNode): Boolean {
-        for (a in children)
-            if (a === c)
-                return true
-
-        return false
-    }
-
-    /**
-     * Get the number of refs for this commit.
-     *
-     * @return number of refs; always a positive value but can be 0.
-     */
-    fun getRefCount(): Int {
-        return refs.size
-    }
-
-    /**
-     * Get the nth Ref from this commit's ref list.
-     *
-     * @param nth
-     * ref index to obtain. Must be in the range 0 through
-     * [.getRefCount]-1.
-     * @return the specified ref.
-     * @throws ArrayIndexOutOfBoundsException
-     * an invalid ref index was specified.
-     */
-    fun getRef(nth: Int): Ref {
-        return refs[nth]
-    }
 
 
     /** {@inheritDoc}  */

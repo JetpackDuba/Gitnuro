@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package app.git.graph
 
 import org.eclipse.jgit.lib.ObjectId
