@@ -137,10 +137,10 @@ class App {
                 selectedTabKey = selectedTabKey,
                 onOpenSettings = onOpenSettings,
                 onAddedTab = { tabInfo ->
-                    addTab(tabs, tabInfo)
+                    addTab(tabInfo)
                 },
                 onRemoveTab = { key ->
-                    removeTab(tabs, key)
+                    removeTab(key)
                 }
             )
 
@@ -148,8 +148,9 @@ class App {
         }
     }
 
-    private fun removeTab(tabs: List<TabInformation>, key: Int) = appScope.launch(Dispatchers.IO) {
+    private fun removeTab(key: Int) = appScope.launch(Dispatchers.IO) {
         // Stop any running jobs
+        val tabs = tabsFlow.value
         val tabToRemove = tabs.firstOrNull { it.key == key } ?: return@launch
         tabToRemove.tabViewModel.dispose()
 
@@ -157,11 +158,11 @@ class App {
         appStateManager.repositoryTabRemoved(key)
 
         // Remove from tabs flow
-        tabsFlow.value = tabs.filter { tab -> tab.key != key }
+        tabsFlow.value = tabsFlow.value.filter { tab -> tab.key != key }
     }
 
-    fun addTab(tabsList: List<TabInformation>, tabInformation: TabInformation) = appScope.launch(Dispatchers.IO) {
-        tabsFlow.value = tabsList.toMutableList().apply { add(tabInformation) }
+    fun addTab(tabInformation: TabInformation) = appScope.launch(Dispatchers.IO) {
+        tabsFlow.value = tabsFlow.value.toMutableList().apply { add(tabInformation) }
     }
 
     @Composable

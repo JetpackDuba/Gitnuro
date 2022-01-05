@@ -69,7 +69,7 @@ fun RepositoriesTabPanel(
                     } else if (index == tabs.count() -1 && tabs.count() >= 2)
                         index - 1 // If the last tab is selected, select the previous one
                     else if (tabs.count() >= 2)
-                        index // If any in between tab is selected, select the next one
+                        index + 1 // If any in between tab is selected, select the next one
                     else
                         -1 // If there aren't any additional tabs once we remove this one
 
