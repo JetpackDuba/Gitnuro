@@ -41,9 +41,14 @@ class DiffViewModel @Inject constructor(
             )
         }
 
-        val hunks = diffManager.diffFormat(git, diffEntryType)
-
-        _diffResult.value = DiffResult(diffEntryType, hunks)
+        //TODO: Just a workaround when trying to diff binary files
+        try {
+            val hunks = diffManager.diffFormat(git, diffEntryType)
+            _diffResult.value = DiffResult(diffEntryType, hunks)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            _diffResult.value = DiffResult(diffEntryType, emptyList())
+        }
 
         return@runOperation RefreshType.NONE
     }
