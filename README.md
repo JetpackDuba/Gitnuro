@@ -4,7 +4,7 @@ A FOSS Git client based on (Jetbrains) Compose and JGit.
 
 The main goal of Gitnuro is to provide a multiplatform open source Git client without any kind of constraint to how you can use it nor relying on web technologies.
 
-The project it is still in alpha and many feature are lacking or missing, but it's somewhat usable for basic usage. 
+The project it is still in alpha and many features are lacking or missing, but can be good for basic usage. 
 
 Right now you CAN:
 
@@ -37,7 +37,24 @@ Right now you CAN'T:
 - Side by side diff in text files.
 - Start a new local repository.
 - View stashes in the log tree.
+- View file history
+- Blame file.
+- Search by commit message/author/commit id.
 - Multiple customization settings.
+
+## Releases
+
+I'll create releases once we hit beta stage.
+
+
+## Steps to build
+
+Note: Requires minimum JDK 16.
+
+- Clone the project
+- Open terminal/shell in the project folder
+- `./gradlew run` to run the project 
+- `./gradlew tasks` to view other build options (native building requires java >=15)
 
 
 Feel free to open issues for bugs or sugestions.
