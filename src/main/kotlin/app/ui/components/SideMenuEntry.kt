@@ -21,9 +21,8 @@ fun SideMenuEntry(
 ) {
     Row(
         modifier = Modifier
-            .height(40.dp)
-            .fillMaxWidth()
-            .clickable(onClick = {}),
+            .height(32.dp)
+            .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
 

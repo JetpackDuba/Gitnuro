@@ -252,7 +252,7 @@ private fun EntriesList(
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.headerText,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 maxLines = 1,
             )
 
@@ -337,7 +337,7 @@ private fun FileEntry(
         ) {
             Row(
                 modifier = Modifier
-                    .height(48.dp)
+                    .height(40.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -356,7 +356,7 @@ private fun FileEntry(
                     modifier = Modifier.weight(1f, fill = true),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    fontSize = 14.sp,
+                    fontSize = 13.sp,
                     color = MaterialTheme.colors.primaryTextColor,
                 )
             }
@@ -368,15 +368,13 @@ private fun FileEntry(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            Button(
+            SecondaryButton(
                 onClick = onButtonClick,
+                text = actionTitle,
+                backgroundButton = actionColor,
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
-                elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = actionColor)
-            ) {
-                Text(actionTitle, fontSize = 12.sp)
-            }
+            )
         }
     }
 }

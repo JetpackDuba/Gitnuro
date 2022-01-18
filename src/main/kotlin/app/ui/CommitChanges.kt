@@ -101,7 +101,7 @@ fun CommitChangesView(
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.headerText,
                 maxLines = 1,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
             )
 
 
@@ -153,7 +153,7 @@ fun Author(commit: RevCommit) {
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     tooltipTitle = authorIdent.`when`.toSystemDateTimeString()
                 )
 
@@ -185,7 +185,7 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
 
             Column(
                 modifier = Modifier
-                    .height(48.dp)
+                    .height(40.dp)
                     .fillMaxWidth()
                     .clickable {
                         selectedIndex.value = index
@@ -211,7 +211,7 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
                         modifier = Modifier.padding(horizontal = 8.dp),
                         color = textColor,
                         maxLines = 1,
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
