@@ -1,18 +1,18 @@
 package app.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,14 +84,16 @@ fun HunkHeader(
     diffViewModel: DiffViewModel,
 ) {
     Row(
-    modifier = Modifier
-    .background(MaterialTheme.colors.surface)
-    .padding(vertical = 4.dp)
-    .fillMaxWidth()
+        modifier = Modifier
+            .background(MaterialTheme.colors.surface)
+            .padding(vertical = 4.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = hunk.header,
             color = MaterialTheme.colors.primaryTextColor,
+            fontSize = 13.sp,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -127,10 +129,12 @@ fun HunkHeader(
 @Composable
 fun DiffHeader(diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.surface),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val filePath = if(diffEntry.newPath != "/dev/null")
+        val filePath = if (diffEntry.newPath != "/dev/null")
             diffEntry.newPath
         else
             diffEntry.oldPath
@@ -138,22 +142,20 @@ fun DiffHeader(diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
         Text(
             text = filePath,
             color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 14.sp,
+            fontSize = 13.sp,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
-        OutlinedButton(
-            modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp),
-            onClick = onCloseDiffView,
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = MaterialTheme.colors.background,
-                contentColor = MaterialTheme.colors.primary,
-            )
+        IconButton(
+            onClick = onCloseDiffView
         ) {
-            Text("Close diff")
+            Image(
+                painter = painterResource("close.svg"),
+                contentDescription = "Close diff",
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+            )
         }
     }
 }
@@ -171,16 +173,16 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
             MaterialTheme.colors.background
         }
     }
-    Row (
+    Row(
         modifier = Modifier
             .background(backgroundColor)
     ) {
-        val oldLineText = if(line.lineType == LineType.REMOVED || line.lineType == LineType.CONTEXT) {
+        val oldLineText = if (line.lineType == LineType.REMOVED || line.lineType == LineType.CONTEXT) {
             formattedLineNumber(line.displayOldLineNumber, highestLineNumberLength)
         } else
             emptyLineNumber(highestLineNumberLength)
 
-        val newLineText = if(line.lineType == LineType.ADDED || line.lineType == LineType.CONTEXT) {
+        val newLineText = if (line.lineType == LineType.ADDED || line.lineType == LineType.CONTEXT) {
             formattedLineNumber(line.displayNewLineNumber, highestLineNumberLength)
         } else
             emptyLineNumber(highestLineNumberLength)
@@ -203,7 +205,7 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
             color = MaterialTheme.colors.primaryTextColor,
             maxLines = 1,
             fontFamily = FontFamily.Monospace,
-            fontSize = 14.sp,
+            fontSize = 13.sp,
         )
     }
 }
@@ -217,14 +219,14 @@ fun LineNumber(text: String) {
             .background(MaterialTheme.colors.surface)
             .padding(horizontal = 4.dp),
         fontFamily = FontFamily.Monospace,
-        fontSize = 14.sp,
+        fontSize = 13.sp,
     )
 }
 
 
 fun formattedLineNumber(number: Int, charactersCount: Int): String {
     val numberStr = number.toString()
-    return if(numberStr.count() == charactersCount)
+    return if (numberStr.count() == charactersCount)
         numberStr
     else {
         val lengthDiff = charactersCount - numberStr.count()
