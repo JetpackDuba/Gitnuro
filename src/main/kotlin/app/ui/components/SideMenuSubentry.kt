@@ -54,7 +54,7 @@ fun SideMenuSubentry(
             fontSize = 13.sp,
             fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
             color = MaterialTheme.colors.primaryTextColor,
-            overflow = TextOverflow.Ellipsis,
+            softWrap = false,
         )
 
         additionalInfo()

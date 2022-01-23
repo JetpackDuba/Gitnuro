@@ -355,7 +355,7 @@ private fun FileEntry(
                     text = diffEntry.filePath,
                     modifier = Modifier.weight(1f, fill = true),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    softWrap = false,
                     fontSize = 13.sp,
                     color = MaterialTheme.colors.primaryTextColor,
                 )

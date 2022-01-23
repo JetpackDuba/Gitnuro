@@ -212,7 +212,7 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
                         color = textColor,
                         maxLines = 1,
                         fontSize = 13.sp,
-                        overflow = TextOverflow.Ellipsis,
+                        softWrap = false,
                     )
                 }
 
