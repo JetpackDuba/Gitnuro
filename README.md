@@ -59,7 +59,7 @@ Note: Requires minimum JDK 16.
 
 Feel free to open issues for bugs or sugestions.
 
-## Screenshots (latest update: 04 jan 2021)
+## Screenshots (latest update: 04 jan 2022)
 ![Example 1](/res/img/gitnuro_example_1.png)
 ![Example 2](/res/img/gitnuro_example_2.png)
 ![Example 3](/res/img/gitnuro_example_3.png)
