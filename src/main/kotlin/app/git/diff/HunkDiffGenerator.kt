@@ -1,6 +1,7 @@
 package app.git.diff
 
 import app.extensions.lineAt
+import app.git.EntryContent
 import app.git.RawFileManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -11,6 +12,7 @@ import org.eclipse.jgit.patch.FileHeader.PatchType
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.nio.file.Path
 import kotlin.math.max
 import kotlin.math.min
 
@@ -37,11 +39,19 @@ class HunkDiffGenerator @AssistedInject constructor(
         diffFormatter.scan(oldTreeIterator, newTreeIterator)
     }
 
-    fun format(ent: DiffEntry): List<Hunk>  {
+    fun format(ent: DiffEntry): DiffResult  {
         val fileHeader = diffFormatter.toFileHeader(ent)
+
         val rawOld = rawFileManager.getRawContent(DiffEntry.Side.OLD, ent)
         val rawNew = rawFileManager.getRawContent(DiffEntry.Side.NEW, ent)
-        return format(fileHeader, rawOld, rawNew)
+
+        // todo won't work for new files
+        return if(rawOld is EntryContent.Text && rawNew is EntryContent.Text)
+            DiffResult.Text(format(fileHeader, rawOld.rawText, rawNew.rawText))
+        else if(rawOld is EntryContent.ImageBinary && rawNew is EntryContent.ImageBinary)
+            DiffResult.Images(rawOld.tempFilePath, rawNew.tempFilePath)
+        else
+            DiffResult.Text(emptyList())
     }
 
     /**
@@ -142,4 +152,9 @@ class HunkDiffGenerator @AssistedInject constructor(
     private fun end(edit: Edit, a: Int, b: Int): Boolean {
         return edit.endA <= a && edit.endB <= b
     }
+}
+
+sealed class DiffResult {
+    data class Text(val hunks: List<Hunk>): DiffResult()
+    data class Images(val oldTempFile: Path, val newTempsFile: Path): DiffResult()
 }

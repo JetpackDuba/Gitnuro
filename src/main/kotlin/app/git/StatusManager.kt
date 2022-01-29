@@ -12,8 +12,6 @@ import app.git.diff.Hunk
 import app.git.diff.LineType
 import app.theme.conflictFile
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
@@ -60,8 +58,12 @@ class StatusManager @Inject constructor(
 
         try {
             val rawFileManager = rawFileManagerFactory.create(git.repository)
-            val rawFile = rawFileManager.getRawContent(DiffEntry.Side.OLD, diffEntry)
-            val textLines = getTextLines(rawFile).toMutableList()
+            val entryContent = rawFileManager.getRawContent(DiffEntry.Side.OLD, diffEntry)
+
+            if(entryContent !is EntryContent.Text)
+                return@withContext
+
+            val textLines = getTextLines(entryContent.rawText).toMutableList()
 
             val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
 
@@ -80,7 +82,7 @@ class StatusManager @Inject constructor(
                 }
             }
 
-            val stagedFileText = textLines.joinToString(rawFile.lineDelimiter)
+            val stagedFileText = textLines.joinToString(entryContent.rawText.lineDelimiter)
             dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
             dirCacheEditor.commit()
 
@@ -99,8 +101,12 @@ class StatusManager @Inject constructor(
         try {
 
             val rawFileManager = rawFileManagerFactory.create(git.repository)
-            val rawFile = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
-            val textLines = getTextLines(rawFile).toMutableList()
+            val entryContent = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
+
+            if(entryContent !is EntryContent.Text)
+                return@withContext
+
+            val textLines = getTextLines(entryContent.rawText).toMutableList()
 
             val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
 
@@ -129,7 +135,7 @@ class StatusManager @Inject constructor(
                 linesAdded++
             }
 
-            val stagedFileText = textLines.joinToString(rawFile.lineDelimiter)
+            val stagedFileText = textLines.joinToString(entryContent.rawText.lineDelimiter)
             dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
             dirCacheEditor.commit()
 

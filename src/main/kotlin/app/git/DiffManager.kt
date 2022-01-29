@@ -3,8 +3,8 @@ package app.git
 import app.di.HunkDiffGeneratorFactory
 import app.di.RawFileManagerFactory
 import app.extensions.fullData
+import app.git.diff.DiffResult
 import app.git.diff.Hunk
-import app.git.diff.HunkDiffGenerator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -26,13 +26,12 @@ class DiffManager @Inject constructor(
     private val rawFileManagerFactory: RawFileManagerFactory,
     private val hunkDiffGeneratorFactory: HunkDiffGeneratorFactory,
 ) {
-    suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): List<Hunk> = withContext(Dispatchers.IO) {
+    suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): DiffResult = withContext(Dispatchers.IO) {
         val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()
         val repository = git.repository
 
         DiffFormatter(byteArrayOutputStream).use { formatter ->
-
             formatter.setRepository(repository)
 
             val oldTree = DirCacheIterator(repository.readDirCache())
@@ -49,7 +48,7 @@ class DiffManager @Inject constructor(
         val rawFileManager = rawFileManagerFactory.create(repository)
         val hunkDiffGenerator = hunkDiffGeneratorFactory.create(repository, rawFileManager)
 
-        val hunks = mutableListOf<Hunk>()
+        var diffResult: DiffResult
 
         hunkDiffGenerator.use {
             if (diffEntryType is DiffEntryType.UnstagedDiff) {
@@ -58,10 +57,10 @@ class DiffManager @Inject constructor(
                 hunkDiffGenerator.scan(oldTree, newTree)
             }
 
-            hunks.addAll(hunkDiffGenerator.format(diffEntry))
+            diffResult = hunkDiffGenerator.format(diffEntry)
         }
 
-        return@withContext hunks
+        return@withContext diffResult
     }
 
     suspend fun commitDiffEntries(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {

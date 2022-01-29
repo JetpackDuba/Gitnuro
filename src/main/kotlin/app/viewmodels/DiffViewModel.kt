@@ -2,6 +2,7 @@ package app.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
 import app.git.*
+import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +15,8 @@ class DiffViewModel @Inject constructor(
     private val statusManager: StatusManager,
 ) {
     // TODO Maybe use a sealed class instead of a null to represent that a diff is not selected?
-    private val _diffResult = MutableStateFlow<DiffResult?>(null)
-    val diffResult: StateFlow<DiffResult?> = _diffResult
+    private val _diffResult = MutableStateFlow<ViewDiffResult?>(null)
+    val diffResult: StateFlow<ViewDiffResult?> = _diffResult
 
     val lazyListState = MutableStateFlow(
         LazyListState(
@@ -44,10 +45,10 @@ class DiffViewModel @Inject constructor(
         //TODO: Just a workaround when trying to diff binary files
         try {
             val hunks = diffManager.diffFormat(git, diffEntryType)
-            _diffResult.value = DiffResult(diffEntryType, hunks)
+            _diffResult.value = ViewDiffResult(diffEntryType, hunks)
         } catch (ex: Exception) {
             ex.printStackTrace()
-            _diffResult.value = DiffResult(diffEntryType, emptyList())
+            _diffResult.value = ViewDiffResult(diffEntryType, DiffResult.Text(emptyList()))
         }
 
         return@runOperation RefreshType.NONE
@@ -66,4 +67,4 @@ class DiffViewModel @Inject constructor(
     }
 }
 
-data class DiffResult(val diffEntryType: DiffEntryType, val hunks: List<Hunk>)
+data class ViewDiffResult(val diffEntryType: DiffEntryType, val diffResult: DiffResult)

@@ -12,11 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
+import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
 import app.git.diff.LineType
@@ -25,6 +27,8 @@ import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
 import org.eclipse.jgit.diff.DiffEntry
+import java.io.FileInputStream
+import kotlin.io.path.absolutePathString
 import kotlin.math.max
 
 @Composable
@@ -33,11 +37,11 @@ fun Diff(
     onCloseDiffView: () -> Unit,
 ) {
     val diffResultState = diffViewModel.diffResult.collectAsState()
-    val diffResult = diffResultState.value ?: return
+    val viewDiffResult = diffResultState.value ?: return
 
-    val diffEntryType = diffResult.diffEntryType
+    val diffEntryType = viewDiffResult.diffEntryType
     val diffEntry = diffEntryType.diffEntry
-    val hunks = diffResult.hunks
+    val diffResult = viewDiffResult.diffResult
 
     Column(
         modifier = Modifier
@@ -46,35 +50,75 @@ fun Diff(
             .fillMaxSize()
     ) {
         DiffHeader(diffEntry, onCloseDiffView)
+        if (diffResult is DiffResult.Text) {
+            TextDiff(diffEntryType, diffViewModel, diffResult)
+        } else if (diffResult is DiffResult.Images) {
+            ImagesDiff(diffResult)
+        }
+    }
+}
 
-        val scrollState by diffViewModel.lazyListState.collectAsState()
-        ScrollableLazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-            state = scrollState
-        ) {
-            items(hunks) { hunk ->
-                HunkHeader(
-                    hunk = hunk,
-                    diffEntryType = diffEntryType,
-                    diffViewModel = diffViewModel,
-                )
+@Composable
+fun ImagesDiff(diffResult: DiffResult.Images) {
+    val oldImagePath = diffResult.oldTempFile
+    val newImagePath = diffResult.newTempsFile
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Red),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Image(
+            bitmap = loadImageBitmap(inputStream = FileInputStream(oldImagePath.absolutePathString())),
+            contentDescription = null,
+            modifier = Modifier.fillMaxWidth(0.5f)
+                .background(Color.Yellow),
+        )
+        Spacer(
+            modifier = Modifier.fillMaxWidth(0.1f)
+                .background(Color.Green),
+        )
+        Image(
+            bitmap = loadImageBitmap(inputStream = FileInputStream(newImagePath.absolutePathString())),
+            contentDescription = null,
+            modifier = Modifier.fillMaxWidth()
+                .background(Color.Blue),
+        )
+    }
+}
 
-                SelectionContainer {
-                    Column {
-                        val oldHighestLineNumber = hunk.lines.maxOf { it.displayOldLineNumber }
-                        val newHighestLineNumber = hunk.lines.maxOf { it.displayNewLineNumber }
-                        val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
-                        val highestLineNumberLength = highestLineNumber.toString().count()
+@Composable
+fun TextDiff(diffEntryType: DiffEntryType, diffViewModel: DiffViewModel, diffResult: DiffResult.Text) {
+    val hunks = diffResult.hunks
 
-                        hunk.lines.forEach { line ->
-                            DiffLine(highestLineNumberLength, line)
-                        }
+    val scrollState by diffViewModel.lazyListState.collectAsState()
+    ScrollableLazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = scrollState
+    ) {
+        items(hunks) { hunk ->
+            HunkHeader(
+                hunk = hunk,
+                diffEntryType = diffEntryType,
+                diffViewModel = diffViewModel,
+            )
+
+            SelectionContainer {
+                Column {
+                    val oldHighestLineNumber = hunk.lines.maxOf { it.displayOldLineNumber }
+                    val newHighestLineNumber = hunk.lines.maxOf { it.displayNewLineNumber }
+                    val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
+                    val highestLineNumberLength = highestLineNumber.toString().count()
+
+                    hunk.lines.forEach { line ->
+                        DiffLine(highestLineNumberLength, line)
                     }
                 }
             }
         }
     }
+
 }
 
 @Composable
