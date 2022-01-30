@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
+import app.git.EntryContent
 import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
@@ -28,6 +29,7 @@ import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
 import org.eclipse.jgit.diff.DiffEntry
 import java.io.FileInputStream
+import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.math.max
 
@@ -52,39 +54,101 @@ fun Diff(
         DiffHeader(diffEntry, onCloseDiffView)
         if (diffResult is DiffResult.Text) {
             TextDiff(diffEntryType, diffViewModel, diffResult)
-        } else if (diffResult is DiffResult.Images) {
-            ImagesDiff(diffResult)
+        } else if (diffResult is DiffResult.NonText) {
+            NonTextDiff(diffResult)
         }
     }
 }
 
 @Composable
-fun ImagesDiff(diffResult: DiffResult.Images) {
-    val oldImagePath = diffResult.oldTempFile
-    val newImagePath = diffResult.newTempsFile
+fun NonTextDiff(diffResult: DiffResult.NonText) {
+    val oldBinaryContent = diffResult.oldBinaryContent
+    val newBinaryContent = diffResult.newBinaryContent
+
+    val showOldAndNew = oldBinaryContent != EntryContent.Missing && newBinaryContent != EntryContent.Missing
+
     Row(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red),
+            .fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Image(
-            bitmap = loadImageBitmap(inputStream = FileInputStream(oldImagePath.absolutePathString())),
-            contentDescription = null,
-            modifier = Modifier.fillMaxWidth(0.5f)
-                .background(Color.Yellow),
-        )
-        Spacer(
-            modifier = Modifier.fillMaxWidth(0.1f)
-                .background(Color.Green),
-        )
-        Image(
-            bitmap = loadImageBitmap(inputStream = FileInputStream(newImagePath.absolutePathString())),
-            contentDescription = null,
-            modifier = Modifier.fillMaxWidth()
-                .background(Color.Blue),
-        )
+
+        if (showOldAndNew) {
+            Column(
+                modifier = Modifier.weight(0.5f)
+                    .padding(start = 24.dp, end = 8.dp, top = 24.dp, bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                SideTitle("Old")
+                SideDiff(oldBinaryContent)
+            }
+            Column(
+                modifier = Modifier.weight(0.5f)
+                    .padding(start = 8.dp, end = 24.dp, top = 24.dp, bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                SideTitle("New")
+                SideDiff(newBinaryContent)
+            }
+        } else if(oldBinaryContent != EntryContent.Missing) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .padding(all = 24.dp),
+            ) {
+                SideDiff(oldBinaryContent)
+            }
+        } else if(newBinaryContent != EntryContent.Missing) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .padding(all = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                SideTitle("Binary file")
+                Spacer(modifier = Modifier.height(24.dp))
+                SideDiff(newBinaryContent)
+            }
+        }
     }
+}
+
+@Composable
+fun SideTitle(text: String) {
+    Text(
+        text = text,
+        fontSize = 20.sp,
+        color = MaterialTheme.colors.primaryTextColor,
+    )
+}
+
+@Composable
+fun SideDiff(entryContent: EntryContent) {
+    when (entryContent) {
+        EntryContent.Binary -> BinaryDiff()
+        is EntryContent.ImageBinary -> ImageDiff(entryContent.tempFilePath)
+        else -> {}
+//        is EntryContent.Text -> //TODO maybe have a text view if the file was a binary before?
+// TODO Show some info about this       EntryContent.TooLargeEntry -> TODO()
+    }
+}
+
+@Composable
+fun ImageDiff(tempImagePath: Path) {
+    Image(
+        bitmap = loadImageBitmap(inputStream = FileInputStream(tempImagePath.absolutePathString())),
+        contentDescription = null,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+@Composable
+fun BinaryDiff() {
+    Image(
+        painter = painterResource("binary.svg"),
+        contentDescription = null,
+        modifier = Modifier.width(400.dp),
+        colorFilter = ColorFilter.tint(MaterialTheme.colors.primary)
+    )
 }
 
 @Composable

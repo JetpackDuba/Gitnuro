@@ -30,7 +30,6 @@ class RawFileManager @AssistedInject constructor(
         "png",
         "jpg",
         "jpeg",
-        "svg"
     )
 
     init {
@@ -72,7 +71,7 @@ class RawFileManager @AssistedInject constructor(
         println("Data's size is ${ldr.size}")
 
         val tempDir = createTempDirectory("gitnuro${repository.directory.absolutePath.replace("/", "_")}")
-        val tempFile = createTempFile(tempDir, prefix = "${entry.newPath}_${side.name}")
+        val tempFile = createTempFile(tempDir, prefix = "${entry.newPath.replace("/", "_")}_${side.name}")
         println("Temp file generated: ${tempFile.absolutePathString()}")
 
         val out = FileOutputStream(tempFile.toFile())
@@ -102,7 +101,8 @@ sealed class EntryContent {
     object Missing: EntryContent()
     object InvalidObjectBlob: EntryContent()
     data class Text(val rawText: RawText): EntryContent()
-    data class ImageBinary(val tempFilePath: Path): EntryContent()
-    object Binary: EntryContent()
+    sealed class BinaryContent() : EntryContent()
+    data class ImageBinary(val tempFilePath: Path): BinaryContent()
+    object Binary: BinaryContent()
     object TooLargeEntry: EntryContent()
 }
