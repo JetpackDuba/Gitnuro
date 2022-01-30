@@ -12,11 +12,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
+import app.git.EntryContent
+import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
 import app.git.diff.LineType
@@ -25,6 +28,9 @@ import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
 import org.eclipse.jgit.diff.DiffEntry
+import java.io.FileInputStream
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
 import kotlin.math.max
 
 @Composable
@@ -33,11 +39,11 @@ fun Diff(
     onCloseDiffView: () -> Unit,
 ) {
     val diffResultState = diffViewModel.diffResult.collectAsState()
-    val diffResult = diffResultState.value ?: return
+    val viewDiffResult = diffResultState.value ?: return
 
-    val diffEntryType = diffResult.diffEntryType
+    val diffEntryType = viewDiffResult.diffEntryType
     val diffEntry = diffEntryType.diffEntry
-    val hunks = diffResult.hunks
+    val diffResult = viewDiffResult.diffResult
 
     Column(
         modifier = Modifier
@@ -46,35 +52,137 @@ fun Diff(
             .fillMaxSize()
     ) {
         DiffHeader(diffEntry, onCloseDiffView)
+        if (diffResult is DiffResult.Text) {
+            TextDiff(diffEntryType, diffViewModel, diffResult)
+        } else if (diffResult is DiffResult.NonText) {
+            NonTextDiff(diffResult)
+        }
+    }
+}
 
-        val scrollState by diffViewModel.lazyListState.collectAsState()
-        ScrollableLazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-            state = scrollState
-        ) {
-            items(hunks) { hunk ->
-                HunkHeader(
-                    hunk = hunk,
-                    diffEntryType = diffEntryType,
-                    diffViewModel = diffViewModel,
-                )
+@Composable
+fun NonTextDiff(diffResult: DiffResult.NonText) {
+    val oldBinaryContent = diffResult.oldBinaryContent
+    val newBinaryContent = diffResult.newBinaryContent
 
-                SelectionContainer {
-                    Column {
-                        val oldHighestLineNumber = hunk.lines.maxOf { it.displayOldLineNumber }
-                        val newHighestLineNumber = hunk.lines.maxOf { it.displayNewLineNumber }
-                        val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
-                        val highestLineNumberLength = highestLineNumber.toString().count()
+    val showOldAndNew = oldBinaryContent != EntryContent.Missing && newBinaryContent != EntryContent.Missing
 
-                        hunk.lines.forEach { line ->
-                            DiffLine(highestLineNumberLength, line)
-                        }
+    Row(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+
+        if (showOldAndNew) {
+            Column(
+                modifier = Modifier.weight(0.5f)
+                    .padding(start = 24.dp, end = 8.dp, top = 24.dp, bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                SideTitle("Old")
+                SideDiff(oldBinaryContent)
+            }
+            Column(
+                modifier = Modifier.weight(0.5f)
+                    .padding(start = 8.dp, end = 24.dp, top = 24.dp, bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                SideTitle("New")
+                SideDiff(newBinaryContent)
+            }
+        } else if(oldBinaryContent != EntryContent.Missing) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .padding(all = 24.dp),
+            ) {
+                SideDiff(oldBinaryContent)
+            }
+        } else if(newBinaryContent != EntryContent.Missing) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .padding(all = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                SideTitle("Binary file")
+                Spacer(modifier = Modifier.height(24.dp))
+                SideDiff(newBinaryContent)
+            }
+        }
+    }
+}
+
+@Composable
+fun SideTitle(text: String) {
+    Text(
+        text = text,
+        fontSize = 20.sp,
+        color = MaterialTheme.colors.primaryTextColor,
+    )
+}
+
+@Composable
+fun SideDiff(entryContent: EntryContent) {
+    when (entryContent) {
+        EntryContent.Binary -> BinaryDiff()
+        is EntryContent.ImageBinary -> ImageDiff(entryContent.tempFilePath)
+        else -> {}
+//        is EntryContent.Text -> //TODO maybe have a text view if the file was a binary before?
+// TODO Show some info about this       EntryContent.TooLargeEntry -> TODO()
+    }
+}
+
+@Composable
+fun ImageDiff(tempImagePath: Path) {
+    Image(
+        bitmap = loadImageBitmap(inputStream = FileInputStream(tempImagePath.absolutePathString())),
+        contentDescription = null,
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
+@Composable
+fun BinaryDiff() {
+    Image(
+        painter = painterResource("binary.svg"),
+        contentDescription = null,
+        modifier = Modifier.width(400.dp),
+        colorFilter = ColorFilter.tint(MaterialTheme.colors.primary)
+    )
+}
+
+@Composable
+fun TextDiff(diffEntryType: DiffEntryType, diffViewModel: DiffViewModel, diffResult: DiffResult.Text) {
+    val hunks = diffResult.hunks
+
+    val scrollState by diffViewModel.lazyListState.collectAsState()
+    ScrollableLazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = scrollState
+    ) {
+        items(hunks) { hunk ->
+            HunkHeader(
+                hunk = hunk,
+                diffEntryType = diffEntryType,
+                diffViewModel = diffViewModel,
+            )
+
+            SelectionContainer {
+                Column {
+                    val oldHighestLineNumber = hunk.lines.maxOf { it.displayOldLineNumber }
+                    val newHighestLineNumber = hunk.lines.maxOf { it.displayNewLineNumber }
+                    val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
+                    val highestLineNumberLength = highestLineNumber.toString().count()
+
+                    hunk.lines.forEach { line ->
+                        DiffLine(highestLineNumberLength, line)
                     }
                 }
             }
         }
     }
+
 }
 
 @Composable

@@ -5,14 +5,18 @@ import dagger.assisted.AssistedInject
 import org.eclipse.jgit.diff.ContentSource
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawText
-import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.FileMode
-import org.eclipse.jgit.lib.ObjectReader
-import org.eclipse.jgit.lib.Repository
+import org.eclipse.jgit.errors.BinaryBlobException
+import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.storage.pack.PackConfig
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.WorkingTreeIterator
 import org.eclipse.jgit.util.LfsFactory
+import java.io.FileOutputStream
+import java.nio.file.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.createTempDirectory
+import kotlin.io.path.createTempFile
+
 
 private const val DEFAULT_BINARY_FILE_THRESHOLD = PackConfig.DEFAULT_BIG_FILE_THRESHOLD
 
@@ -21,6 +25,12 @@ class RawFileManager @AssistedInject constructor(
 ) : AutoCloseable {
     private var reader: ObjectReader = repository.newObjectReader()
     private var source: ContentSource.Pair
+
+    private val imageFormatsSupported = listOf(
+        "png",
+        "jpg",
+        "jpeg",
+    )
 
     init {
         val cs = ContentSource.create(reader)
@@ -38,18 +48,61 @@ class RawFileManager @AssistedInject constructor(
             ContentSource.create(reader)
     }
 
-    fun getRawContent(side: DiffEntry.Side, entry: DiffEntry): RawText {
-        if (entry.getMode(side) === FileMode.MISSING) return RawText.EMPTY_TEXT
-        if (entry.getMode(side).objectType != Constants.OBJ_BLOB) return RawText.EMPTY_TEXT
+    fun getRawContent(side: DiffEntry.Side, entry: DiffEntry): EntryContent {
+        if (entry.getMode(side) === FileMode.MISSING) return EntryContent.Missing
+        if (entry.getMode(side).objectType != Constants.OBJ_BLOB) return EntryContent.InvalidObjectBlob
 
         val ldr = LfsFactory.getInstance().applySmudgeFilter(
             repository,
             source.open(side, entry), entry.diffAttribute
         )
-        return RawText.load(ldr, DEFAULT_BINARY_FILE_THRESHOLD)
+
+        return try {
+            EntryContent.Text(RawText.load(ldr, DEFAULT_BINARY_FILE_THRESHOLD))
+        } catch (ex: BinaryBlobException) {
+            if(isImage(entry)) {
+                generateImageBinary(ldr, entry, side)
+            } else
+                EntryContent.Binary
+        }
     }
+
+    private fun generateImageBinary(ldr: ObjectLoader, entry: DiffEntry, side: DiffEntry.Side): EntryContent.ImageBinary {
+        println("Data's size is ${ldr.size}")
+
+        val tempDir = createTempDirectory("gitnuro${repository.directory.absolutePath.replace("/", "_")}")
+        val tempFile = createTempFile(tempDir, prefix = "${entry.newPath.replace("/", "_")}_${side.name}")
+        println("Temp file generated: ${tempFile.absolutePathString()}")
+
+        val out = FileOutputStream(tempFile.toFile())
+        out.use {
+            ldr.copyTo(out)
+        }
+
+        return EntryContent.ImageBinary(tempFile)
+    }
+
+    // todo check if it's an image checking the binary format, checking the extension is a temporary workaround
+    private fun isImage(entry: DiffEntry): Boolean {
+        val path = entry.newPath
+        val fileExtension = path.split(".").lastOrNull() ?: return false
+
+        return imageFormatsSupported.contains(fileExtension)
+    }
+
+//    fun isBinary() = RawText.isBinary()
 
     override fun close() {
         reader.close()
     }
+}
+
+sealed class EntryContent {
+    object Missing: EntryContent()
+    object InvalidObjectBlob: EntryContent()
+    data class Text(val rawText: RawText): EntryContent()
+    sealed class BinaryContent() : EntryContent()
+    data class ImageBinary(val tempFilePath: Path): BinaryContent()
+    object Binary: BinaryContent()
+    object TooLargeEntry: EntryContent()
 }

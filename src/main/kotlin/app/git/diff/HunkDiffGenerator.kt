@@ -1,6 +1,7 @@
 package app.git.diff
 
 import app.extensions.lineAt
+import app.git.EntryContent
 import app.git.RawFileManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -11,10 +12,14 @@ import org.eclipse.jgit.patch.FileHeader.PatchType
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InvalidObjectException
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 import kotlin.math.max
 import kotlin.math.min
 
 private const val CONTEXT_LINES = 3
+
 /**
  * Generator of [Hunk] lists from [DiffEntry]
  */
@@ -37,11 +42,53 @@ class HunkDiffGenerator @AssistedInject constructor(
         diffFormatter.scan(oldTreeIterator, newTreeIterator)
     }
 
-    fun format(ent: DiffEntry): List<Hunk>  {
+    fun format(ent: DiffEntry): DiffResult {
         val fileHeader = diffFormatter.toFileHeader(ent)
+
         val rawOld = rawFileManager.getRawContent(DiffEntry.Side.OLD, ent)
         val rawNew = rawFileManager.getRawContent(DiffEntry.Side.NEW, ent)
-        return format(fileHeader, rawOld, rawNew)
+
+        if(rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
+            throw InvalidObjectException("Invalid object in diff format")
+
+        var diffResult: DiffResult = DiffResult.Text(emptyList())
+
+        // If we can, generate text diff (if one of the files has never been a binary file)
+        val hasGeneratedTextDiff = canGenerateTextDiff(rawOld, rawNew) { oldRawText, newRawText ->
+            diffResult = DiffResult.Text(format(fileHeader, oldRawText, newRawText))
+        }
+
+        if (!hasGeneratedTextDiff) {
+            diffResult = DiffResult.NonText(rawOld, rawNew)
+        }
+
+        return diffResult
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    private fun canGenerateTextDiff(
+        rawOld: EntryContent,
+        rawNew: EntryContent,
+        onText: (oldRawText: RawText, newRawText: RawText) -> Unit
+    ): Boolean {
+
+        val rawOldText = when (rawOld) {
+            is EntryContent.Text -> rawOld.rawText
+            EntryContent.Missing -> RawText.EMPTY_TEXT
+            else -> null
+        }
+
+        val newOldText = when (rawNew) {
+            is EntryContent.Text -> rawNew.rawText
+            EntryContent.Missing -> RawText.EMPTY_TEXT
+            else -> null
+        }
+
+        return if(rawOldText != null && newOldText != null) {
+            onText(rawOldText, newOldText)
+            true
+        } else
+            false
     }
 
     /**
@@ -142,4 +189,12 @@ class HunkDiffGenerator @AssistedInject constructor(
     private fun end(edit: Edit, a: Int, b: Int): Boolean {
         return edit.endA <= a && edit.endB <= b
     }
+}
+
+sealed class DiffResult {
+    data class Text(val hunks: List<Hunk>) : DiffResult()
+    data class NonText(
+        val oldBinaryContent: EntryContent,
+        val newBinaryContent: EntryContent,
+    ) : DiffResult()
 }
