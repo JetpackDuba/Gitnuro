@@ -16,7 +16,7 @@ val accentGrayLight = Color(0xFFCCCCCC)
 
 val backgroundColorLight = Color(0xFFFFFFFF)
 val backgroundColorDark = Color(0xFF0E1621)
-val surfaceColorLight = Color(0xFFEBEFF7)
+val surfaceColorLight = Color(0xFFe9ecf7)
 val surfaceColorDark = Color(0xFF182533)
 val headerBackgroundLight = Color(0xFFF4F6FA)
 val headerBackgroundDark = Color(0xFF303132)
@@ -25,8 +25,5 @@ val addFileLight = Color(0xFF32A852)
 val deleteFileLight = errorColor
 val modifyFileLight = primary
 val conflictFileLight = Color(0xFFFFB638)
-
-val tabColorActiveDark = Color(0xFF606061)
-val tabColorInactiveDark = Color(0xFF262626)
 
 val dialogBackgroundColor = Color(0xAA000000)

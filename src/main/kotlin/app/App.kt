@@ -175,7 +175,7 @@ class App {
     ) {
         Row(
             modifier = Modifier
-                .padding(top = 4.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
+                .padding(top = 4.dp, bottom = 0.dp, start = 4.dp, end = 4.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {

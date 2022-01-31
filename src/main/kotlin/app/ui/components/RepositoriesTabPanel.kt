@@ -2,10 +2,7 @@ package app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -18,11 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.AppStateManager
 import app.di.AppComponent
 import app.di.DaggerTabComponent
+import app.theme.primaryTextColor
 import app.viewmodels.TabViewModel
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
@@ -127,7 +126,11 @@ fun TabPanel(
 
 @Composable
 fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
-    Card {
+    val elevation = if(selected) {
+        3.dp
+    } else
+        0.dp
+    Box {
         val backgroundColor = if (selected)
             MaterialTheme.colors.tabColorActive
         else
@@ -135,16 +138,17 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
 
         Box(
             modifier = Modifier
-                .padding(horizontal = 1.dp)
-                .height(36.dp)
-                .clip(RoundedCornerShape(5.dp))
-                .background(backgroundColor)
-                .clickable { onClick() },
+                .width(180.dp)
+                .shadow(elevation = elevation)
+                .padding(start = 2.dp, end = 2.dp, top = 2.dp)
+                .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp))
+                .clickable { onClick() }
+                .background(backgroundColor),
         ) {
             Text(
                 text = title.value,
                 modifier = Modifier
-                    .padding(vertical = 8.dp, horizontal = 32.dp),
+                    .padding(vertical = 8.dp, horizontal = 16.dp),
                 color = contentColorFor(backgroundColor),
             )
             IconButton(
@@ -152,9 +156,9 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(horizontal = 8.dp)
-                    .size(16.dp)
+                    .size(14.dp)
             ) {
-                Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
+                Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colors.primaryTextColor)
             }
 
         }

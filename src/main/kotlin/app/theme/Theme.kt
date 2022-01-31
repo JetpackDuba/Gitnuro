@@ -95,11 +95,11 @@ val Colors.headerText: Color
 
 
 val Colors.tabColorActive: Color
-    get() = if (isLight) primary else tabColorActiveDark
+    get() = if (isLight) surfaceColorLight else surfaceColorDark
 
 
 val Colors.tabColorInactive: Color
-    get() = if (isLight) primaryLight else tabColorInactiveDark
+    get() = if (isLight) backgroundColorLight else backgroundColorDark
 
 
 enum class Themes(val displayName: String) {
