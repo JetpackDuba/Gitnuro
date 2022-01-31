@@ -37,12 +37,16 @@ fun AppTab(
     val lastError by errorManager.lastError.collectAsState()
     var showError by remember { mutableStateOf(false) }
 
-    if (lastError != null)
+    println("lastError $lastError")
+
+
+    if (lastError != null) {
         LaunchedEffect(lastError) {
             showError = true
             delay(5000)
             showError = false
         }
+    }
 
     val repositorySelectionStatus by tabViewModel.repositorySelectionStatus.collectAsState()
     val isProcessing by tabViewModel.processing.collectAsState()
@@ -68,7 +72,6 @@ fun AppTab(
 
             Box(modifier = Modifier.fillMaxSize()) {
                 Crossfade(targetState = repositorySelectionStatus) {
-
                     @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
                     when (repositorySelectionStatus) {
                         RepositorySelectionStatus.None -> {
@@ -90,6 +93,7 @@ fun AppTab(
 
         val safeLastError = lastError
         if (safeLastError != null) {
+            println("safeLastError $safeLastError\nshowError $showError")
             AnimatedVisibility(
                 visible = showError,
                 modifier = Modifier
@@ -122,7 +126,7 @@ fun AppTab(
                         ) // TODO Add more  descriptive title
 
                         Text(
-                            text = safeLastError.message,
+                            text = lastError?.message ?: "",
                             modifier = Modifier
                                 .padding(top = 8.dp, bottom = 16.dp)
                                 .widthIn(max = 600.dp)

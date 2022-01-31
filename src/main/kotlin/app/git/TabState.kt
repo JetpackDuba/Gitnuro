@@ -1,7 +1,7 @@
 package app.git
 
-import app.app.Error
-import app.app.newErrorNow
+import app.ErrorsManager
+import app.newErrorNow
 import app.di.TabScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,9 @@ import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @TabScope
-class TabState @Inject constructor() {
+class TabState @Inject constructor(
+    val errorsManager: ErrorsManager,
+) {
     var git: Git? = null
     val safeGit: Git
         get() {
@@ -34,10 +36,7 @@ class TabState @Inject constructor() {
 
     private val _refreshData = MutableSharedFlow<RefreshType>()
     val refreshData: Flow<RefreshType> = _refreshData
-    suspend fun refreshData(refreshType: RefreshType) = _refreshData.emit(refreshType)
 
-    private val _errors = MutableSharedFlow<Error>()
-    val errors: Flow<Error> = _errors
     val managerScope = CoroutineScope(SupervisorJob())
 
 
@@ -65,7 +64,7 @@ class TabState @Inject constructor() {
                     ex.printStackTrace()
 
                     if (showError)
-                        _errors.emit(newErrorNow(ex, ex.localizedMessage))
+                        errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
                 } finally {
                     _processing.value = false
                     operationRunning = false
@@ -88,7 +87,7 @@ class TabState @Inject constructor() {
                     ex.printStackTrace()
 
                     if (showError)
-                        _errors.emit(newErrorNow(ex, ex.localizedMessage))
+                        errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
                 } finally {
                     _processing.value = false
                     operationRunning = false

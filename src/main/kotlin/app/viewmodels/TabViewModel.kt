@@ -1,16 +1,19 @@
 package app.viewmodels
 
 import app.AppStateManager
-import app.app.ErrorsManager
-import app.app.newErrorNow
+import app.ErrorsManager
+import app.newErrorNow
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import app.git.*
 import app.ui.SelectedItem
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
@@ -34,10 +37,10 @@ class TabViewModel @Inject constructor(
     private val repositoryManager: RepositoryManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
-    val errorsManager: ErrorsManager,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
 ) {
+    val errorsManager: ErrorsManager = tabState.errorsManager
     private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.None)
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
 
