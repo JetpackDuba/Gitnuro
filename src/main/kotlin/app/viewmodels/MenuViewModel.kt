@@ -19,11 +19,7 @@ class MenuViewModel @Inject constructor(
     }
 
     fun push() = tabState.safeProcessing { git ->
-        try {
-            remoteOperationsManager.push(git)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
+        remoteOperationsManager.push(git)
 
         return@safeProcessing RefreshType.ONLY_LOG
     }
