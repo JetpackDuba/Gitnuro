@@ -37,9 +37,6 @@ fun AppTab(
     val lastError by errorManager.lastError.collectAsState()
     var showError by remember { mutableStateOf(false) }
 
-    println("lastError $lastError")
-
-
     if (lastError != null) {
         LaunchedEffect(lastError) {
             showError = true
@@ -93,7 +90,6 @@ fun AppTab(
 
         val safeLastError = lastError
         if (safeLastError != null) {
-            println("safeLastError $safeLastError\nshowError $showError")
             AnimatedVisibility(
                 visible = showError,
                 modifier = Modifier
