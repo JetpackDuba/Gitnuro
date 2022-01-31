@@ -17,23 +17,23 @@ Right now you CAN:
 - Commit.
 - Reset commits.
 - Revert commits.
-- Merge commits (still lacking).
+- Merge.
+- Rebase.
 - Create and delete branches locally.
 - Create and delete tags locally.
 - View remote branches.
 - Pull and push.
 - Stash and pop stash.
 - Checkout a commit (detached HEAD).
+- View changes/diff in images (side to side comparison).
 
 Right now you CAN'T:
 
-- Rebase.
 - Rebase interactive.
 - Manage remotes.
 - Remove branches from remote.
 - Remove tags from remote.
 - Force push.
-- View changes/diff in images (side to side comparison).
 - Side by side diff in text files.
 - Start a new local repository.
 - View stashes in the log tree.
