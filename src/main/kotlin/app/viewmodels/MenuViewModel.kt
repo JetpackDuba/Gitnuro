@@ -4,6 +4,8 @@ import app.git.RefreshType
 import app.git.RemoteOperationsManager
 import app.git.StashManager
 import app.git.TabState
+import java.awt.Desktop
+import java.io.File
 import javax.inject.Inject
 
 class MenuViewModel @Inject constructor(
@@ -37,5 +39,11 @@ class MenuViewModel @Inject constructor(
         stashManager.popStash(git)
 
         return@safeProcessing RefreshType.UNCOMMITED_CHANGES
+    }
+
+    fun openFolderInFileExplorer() = tabState.runOperation { git ->
+        Desktop.getDesktop().open(git.repository.directory.parentFile)
+
+        return@runOperation RefreshType.NONE
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
 import app.viewmodels.MenuViewModel
 
+// TODO Add tooltips to all the buttons
 @Composable
 fun Menu(
     menuViewModel: MenuViewModel,
@@ -79,6 +80,12 @@ fun Menu(
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
+        IconMenuButton(
+            modifier = Modifier.padding(end = 8.dp),
+            icon = painterResource("source.svg"),
+            onClick = { menuViewModel.openFolderInFileExplorer() },
+        )
     }
 }
 
@@ -118,6 +125,42 @@ fun MenuButton(
                 text = title,
                 fontSize = 12.sp,
                 color = MaterialTheme.colors.primaryTextColor
+            )
+        }
+
+    }
+}
+
+@Composable
+fun IconMenuButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: Painter,
+    onClick: () -> Unit
+) {
+    val iconColor = if (enabled) {
+        MaterialTheme.colors.primary
+    } else {
+        MaterialTheme.colors.secondaryVariant
+    }
+
+    OutlinedButton(
+        modifier = modifier
+            .padding(horizontal = 2.dp),
+        enabled = enabled,
+        onClick = onClick,
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .size(24.dp),
+                colorFilter = ColorFilter.tint(iconColor),
             )
         }
 
