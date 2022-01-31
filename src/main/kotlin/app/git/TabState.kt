@@ -95,13 +95,18 @@ class TabState @Inject constructor(
             }
         }
 
-    fun runOperation(block: suspend (git: Git) -> RefreshType) = managerScope.launch(Dispatchers.IO) {
+    fun runOperation(showError: Boolean = false, block: suspend (git: Git) -> RefreshType) = managerScope.launch(Dispatchers.IO) {
         operationRunning = true
         try {
             val refreshType = block(safeGit)
 
             if (refreshType != RefreshType.NONE)
                 _refreshData.emit(refreshType)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+
+            if (showError)
+                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
             operationRunning = false
         }
