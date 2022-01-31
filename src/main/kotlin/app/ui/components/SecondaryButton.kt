@@ -14,11 +14,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.primaryTextColor
 
 @Composable
 fun SecondaryButton(
     modifier: Modifier = Modifier,
     text: String,
+    textColor: Color = Color.White,
     backgroundButton: Color,
     onClick: () -> Unit,
 ) {
@@ -32,7 +34,7 @@ fun SecondaryButton(
         Text(
             text = text,
             fontSize = 12.sp,
-            color = MaterialTheme.colors.contentColorFor(backgroundButton),
+            color = textColor,
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
         )
     }

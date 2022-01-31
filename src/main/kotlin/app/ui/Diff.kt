@@ -24,6 +24,8 @@ import app.git.diff.Hunk
 import app.git.diff.Line
 import app.git.diff.LineType
 import app.theme.primaryTextColor
+import app.theme.stageButton
+import app.theme.unstageButton
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
@@ -213,10 +215,10 @@ fun HunkHeader(
             val color: Color
             if (diffEntryType is DiffEntryType.StagedDiff) {
                 buttonText = "Unstage hunk"
-                color = MaterialTheme.colors.error
+                color = MaterialTheme.colors.unstageButton
             } else {
                 buttonText = "Stage hunk"
-                color = MaterialTheme.colors.primary
+                color = MaterialTheme.colors.stageButton
             }
 
             SecondaryButton(

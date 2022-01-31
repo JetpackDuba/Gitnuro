@@ -13,6 +13,7 @@ private val DarkColorPalette = darkColors(
     secondary = secondary,
     surface = surfaceColorDark,
     background = backgroundColorDark,
+    error = errorColor
 )
 
 private val LightColorPalette = lightColors(
@@ -100,6 +101,14 @@ val Colors.tabColorActive: Color
 
 val Colors.tabColorInactive: Color
     get() = if (isLight) backgroundColorLight else backgroundColorDark
+
+val Colors.stageButton: Color
+    get() = if (isLight) primary else primaryDark
+
+val Colors.unstageButton: Color
+    get() = error
+
+
 
 
 enum class Themes(val displayName: String) {

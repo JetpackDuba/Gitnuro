@@ -141,7 +141,7 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                 .width(180.dp)
                 .shadow(elevation = elevation)
                 .padding(start = 2.dp, end = 2.dp, top = 2.dp)
-                .clip(RoundedCornerShape(topStart = 5.dp, topEnd = 5.dp))
+                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                 .clickable { onClick() }
                 .background(backgroundColor),
         ) {

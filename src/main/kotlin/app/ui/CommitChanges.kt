@@ -63,7 +63,7 @@ fun CommitChangesView(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(horizontal = 8.dp),
         ) {
             SelectionContainer {
                 Text(

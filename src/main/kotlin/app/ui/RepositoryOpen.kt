@@ -1,6 +1,8 @@
 package app.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -87,6 +89,10 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
+                                    .border(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colors.primary,
+                                    )
                             ) {
                                 when (diffSelected) {
                                     null -> {

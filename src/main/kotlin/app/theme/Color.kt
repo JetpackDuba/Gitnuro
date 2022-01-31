@@ -10,7 +10,7 @@ val mainText = Color(0xFF212934)
 val mainTextDark = Color(0xFFFFFFFF)
 val secondaryText = Color(0xFF595858)
 val secondaryTextDark = Color(0xFFCCCBCB)
-val errorColor = Color(0xFFFA4B4B)
+val errorColor = Color(0xFFc93838)
 val primaryGrayLight = Color(0xFF464646)
 val accentGrayLight = Color(0xFFCCCCCC)
 

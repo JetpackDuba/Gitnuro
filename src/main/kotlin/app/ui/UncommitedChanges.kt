@@ -28,9 +28,7 @@ import app.extensions.filePath
 import app.extensions.isMerging
 import app.git.DiffEntryType
 import app.git.StatusEntry
-import app.theme.headerBackground
-import app.theme.headerText
-import app.theme.primaryTextColor
+import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.StageStatus
@@ -91,13 +89,13 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Staged",
             allActionTitle = "Unstage all",
             actionTitle = "Unstage",
-            actionColor = MaterialTheme.colors.error,
+            actionColor = MaterialTheme.colors.unstageButton,
             diffEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
@@ -113,12 +111,12 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(start = 8.dp, end = 8.dp, top = 4.dp)
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Unstaged",
             actionTitle = "Stage",
-            actionColor = MaterialTheme.colors.primary,
+            actionColor = MaterialTheme.colors.stageButton,
             diffEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {

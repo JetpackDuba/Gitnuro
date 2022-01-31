@@ -106,7 +106,6 @@ fun Log(
 
         Column(
             modifier = Modifier
-                .padding(8.dp)
                 .background(MaterialTheme.colors.background)
                 .fillMaxSize()
         ) {
