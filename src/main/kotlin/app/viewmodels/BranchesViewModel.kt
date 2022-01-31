@@ -23,10 +23,19 @@ class BranchesViewModel @Inject constructor(
         get() = _currentBranch
 
     suspend fun loadBranches(git: Git) {
+        _currentBranch.value = branchesManager.currentBranchRef(git)?.name ?: ""
+
         val branchesList = branchesManager.getBranches(git)
 
+        // set selected branch as the first one always
+        val selectedBranch = branchesList.find { it.name == _currentBranch.value }
+        if(selectedBranch != null) {
+            branchesList.remove(selectedBranch)
+            branchesList.add(0, selectedBranch)
+        }
+
+
         _branches.value = branchesList
-        _currentBranch.value = branchesManager.currentBranchRef(git)?.name ?: ""
     }
 
     fun createBranch(branchName: String) = tabState.safeProcessing { git ->
