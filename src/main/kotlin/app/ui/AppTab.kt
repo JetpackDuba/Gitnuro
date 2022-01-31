@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -118,11 +119,13 @@ fun AppTab(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Medium,
                             modifier = Modifier
-                                .padding(top = 16.dp)
+                                .padding(top = 16.dp),
+                            color = Color.White,
                         ) // TODO Add more  descriptive title
 
                         Text(
                             text = lastError?.message ?: "",
+                            color = Color.White,
                             modifier = Modifier
                                 .padding(top = 8.dp, bottom = 16.dp)
                                 .widthIn(max = 600.dp)
