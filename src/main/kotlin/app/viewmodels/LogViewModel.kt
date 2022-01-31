@@ -4,7 +4,6 @@ import app.git.*
 import app.git.graph.GraphCommitList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -14,7 +13,9 @@ class LogViewModel @Inject constructor(
     private val logManager: LogManager,
     private val statusManager: StatusManager,
     private val branchesManager: BranchesManager,
+    private val rebaseManager: RebaseManager,
     private val tagsManager: TagsManager,
+    private val mergeManager: MergeManager,
     private val tabState: TabState,
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
@@ -69,7 +70,7 @@ class LogViewModel @Inject constructor(
     }
 
     fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing { git ->
-        branchesManager.mergeBranch(git, ref, fastForward)
+        mergeManager.mergeBranch(git, ref, fastForward)
 
         return@safeProcessing RefreshType.ALL_DATA
     }
@@ -88,6 +89,12 @@ class LogViewModel @Inject constructor(
 
     suspend fun refresh(git: Git) {
         loadLog(git)
+    }
+
+    fun rebaseBranch(ref: Ref) = tabState.safeProcessing { git ->
+        rebaseManager.rebaseBranch(git, ref)
+
+        return@safeProcessing RefreshType.ALL_DATA
     }
 }
 

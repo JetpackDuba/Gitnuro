@@ -25,7 +25,7 @@ class LogManager @Inject constructor(
     suspend fun loadLog(git: Git, currentBranch: Ref?) = withContext(Dispatchers.IO) {
         val commitList = GraphCommitList()
         val repositoryState = git.repository.repositoryState
-
+        println("Repository state ${repositoryState.description}")
         if(currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(2).call().toList()
 

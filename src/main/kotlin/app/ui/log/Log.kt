@@ -39,10 +39,7 @@ import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.context_menu.tagContextMenuItems
-import app.ui.dialogs.MergeDialog
-import app.ui.dialogs.NewBranchDialog
-import app.ui.dialogs.NewTagDialog
-import app.ui.dialogs.ResetBranchDialog
+import app.ui.dialogs.*
 import app.viewmodels.LogStatus
 import app.viewmodels.LogViewModel
 import org.eclipse.jgit.lib.Ref
@@ -156,6 +153,7 @@ fun Log(
                         showCreateNewTag = { showLogDialog.value = LogDialog.NewTag(graphNode) },
                         resetBranch = { showLogDialog.value = LogDialog.ResetBranch(graphNode) },
                         onMergeBranch = { ref -> showLogDialog.value = LogDialog.MergeBranch(ref) },
+                        onRebaseBranch = { ref -> showLogDialog.value = LogDialog.RebaseBranch(ref) },
                         onRevCommitSelected = {
                             onItemSelected(SelectedItem.Commit(graphNode))
                         }
@@ -212,6 +210,19 @@ fun LogDialogs(
                 onResetShowLogDialog()
             }
         )
+        is LogDialog.RebaseBranch -> {
+            if(currentBranch != null) {
+                RebaseDialog(
+                    currentBranchName = currentBranch.simpleName,
+                    rebaseBranchName = showLogDialog.ref.simpleName,
+                    onReject = onResetShowLogDialog,
+                    onAccept = {
+                        logViewModel.rebaseBranch(showLogDialog.ref)
+                        onResetShowLogDialog()
+                    }
+                )
+            }
+        }
         LogDialog.None -> {
         }
     }
@@ -334,6 +345,7 @@ fun CommitLine(
     showCreateNewTag: () -> Unit,
     resetBranch: (GraphNode) -> Unit,
     onMergeBranch: (Ref) -> Unit,
+    onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: (GraphNode) -> Unit,
 ) {
     val commitRefs = graphNode.refs
@@ -405,6 +417,7 @@ fun CommitLine(
                     onMergeBranch = { ref -> onMergeBranch(ref) },
                     onDeleteBranch = { ref -> logViewModel.deleteBranch(ref) },
                     onDeleteTag = { ref -> logViewModel.deleteTag(ref) },
+                    onRebaseBranch = { ref -> onRebaseBranch(ref) },
                 )
             }
         }
@@ -422,6 +435,7 @@ fun CommitMessage(
     onCheckoutRef: (ref: Ref) -> Unit,
     onMergeBranch: (ref: Ref) -> Unit,
     onDeleteBranch: (ref: Ref) -> Unit,
+    onRebaseBranch: (ref: Ref) -> Unit,
     onDeleteTag: (ref: Ref) -> Unit,
 ) {
     val textColor = if (selected) {
@@ -467,6 +481,7 @@ fun CommitMessage(
                             onCheckoutBranch = { onCheckoutRef(ref) },
                             onMergeBranch = { onMergeBranch(ref) },
                             onDeleteBranch = { onDeleteBranch(ref) },
+                            onRebaseBranch = { onRebaseBranch(ref) },
                         )
                     }
                 }
@@ -644,6 +659,7 @@ fun BranchChip(
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
+    onRebaseBranch: () -> Unit,
     color: Color,
 ) {
     val contextMenuItemsList = {
@@ -653,6 +669,7 @@ fun BranchChip(
             onCheckoutBranch = onCheckoutBranch,
             onMergeBranch = onMergeBranch,
             onDeleteBranch = onDeleteBranch,
+            onRebaseBranch = onRebaseBranch,
         )
     }
 

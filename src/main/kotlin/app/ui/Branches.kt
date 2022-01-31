@@ -19,6 +19,7 @@ import app.ui.components.SideMenuSubentry
 import app.ui.components.entryHeight
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.dialogs.MergeDialog
+import app.ui.dialogs.RebaseDialog
 import app.viewmodels.BranchesViewModel
 import org.eclipse.jgit.lib.Ref
 
@@ -30,6 +31,7 @@ fun Branches(
     val branches by branchesViewModel.branches.collectAsState()
     val currentBranch by branchesViewModel.currentBranch.collectAsState()
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
+    val (rebaseBranch, setRebaseBranch) = remember { mutableStateOf<Ref?>(null) }
 
     Column {
         SideMenuEntry("Local branches")
@@ -43,13 +45,14 @@ fun Branches(
         Box(modifier = Modifier.heightIn(max = maxHeight.dp)) {
             ScrollableLazyColumn(modifier = Modifier.fillMaxWidth()) {
                 itemsIndexed(branches) { _, branch ->
-                    BranchRow(
+                    BranchLineEntry(
                         branch = branch,
                         isCurrentBranch = currentBranch == branch.name,
                         onBranchClicked = { onBranchClicked(branch) },
                         onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                         onMergeBranch = { setMergeBranch(branch) },
-                        onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
+                        onRebaseBranch = { branchesViewModel.deleteBranch(branch) },
+                        onDeleteBranch = { setRebaseBranch(branch) },
                     )
                 }
             }
@@ -64,16 +67,26 @@ fun Branches(
             onAccept = { ff -> branchesViewModel.mergeBranch(mergeBranch, ff) }
         )
     }
+
+    if (rebaseBranch != null) {
+        RebaseDialog(
+            currentBranch,
+            rebaseBranchName = rebaseBranch.name,
+            onReject = { setRebaseBranch(null) },
+            onAccept = { branchesViewModel.rebaseBranch(rebaseBranch) }
+        )
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun BranchRow(
+private fun BranchLineEntry(
     branch: Ref,
     isCurrentBranch: Boolean,
     onBranchClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
+    onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
 ) {
     ContextMenuArea(
@@ -84,6 +97,7 @@ private fun BranchRow(
                 onCheckoutBranch = onCheckoutBranch,
                 onMergeBranch = onMergeBranch,
                 onDeleteBranch = onDeleteBranch,
+                onRebaseBranch = onRebaseBranch,
             )
         }
     ) {

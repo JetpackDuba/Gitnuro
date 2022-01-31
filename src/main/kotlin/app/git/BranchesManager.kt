@@ -3,13 +3,8 @@ package app.git
 import app.extensions.isBranch
 import app.extensions.simpleName
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.CreateBranchCommand
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.ListBranchCommand
-import org.eclipse.jgit.api.MergeCommand
+import org.eclipse.jgit.api.*
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
@@ -47,19 +42,6 @@ class BranchesManager @Inject constructor() {
             .setCreateBranch(true)
             .setName(branch)
             .setStartPoint(revCommit)
-            .call()
-    }
-
-    suspend fun mergeBranch(git: Git, branch: Ref, fastForward: Boolean) = withContext(Dispatchers.IO) {
-        val fastForwardMode = if (fastForward)
-            MergeCommand.FastForwardMode.FF
-        else
-            MergeCommand.FastForwardMode.NO_FF
-
-        git
-            .merge()
-            .include(branch)
-            .setFastForward(fastForwardMode)
             .call()
     }
 

@@ -9,20 +9,27 @@ fun branchContextMenuItems(
     isLocal: Boolean,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
+    onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
 ): List<ContextMenuItem> {
-    return mutableListOf(
-        ContextMenuItem(
-            label = "Checkout branch",
-            onClick = onCheckoutBranch
-        ),
-
-        ).apply {
+    return mutableListOf<ContextMenuItem>().apply {
         if (!isCurrentBranch) {
+            add(
+                ContextMenuItem(
+                    label = "Checkout branch",
+                    onClick = onCheckoutBranch
+                )
+            )
             add(
                 ContextMenuItem(
                     label = "Merge branch",
                     onClick = onMergeBranch
+                )
+            )
+            add(
+                ContextMenuItem(
+                    label = "Rebase branch",
+                    onClick = onRebaseBranch
                 )
             )
         }

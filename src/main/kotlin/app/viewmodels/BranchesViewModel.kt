@@ -1,8 +1,6 @@
 package app.viewmodels
 
-import app.git.BranchesManager
-import app.git.RefreshType
-import app.git.TabState
+import app.git.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
@@ -12,6 +10,8 @@ import javax.inject.Inject
 
 class BranchesViewModel @Inject constructor(
     private val branchesManager: BranchesManager,
+    private val rebaseManager: RebaseManager,
+    private val mergeManager: MergeManager,
     private val tabState: TabState,
 ) {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
@@ -37,7 +37,7 @@ class BranchesViewModel @Inject constructor(
     }
 
     fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing { git ->
-        branchesManager.mergeBranch(git, ref, fastForward)
+        mergeManager.mergeBranch(git, ref, fastForward)
 
         return@safeProcessing RefreshType.ALL_DATA
     }
@@ -56,5 +56,11 @@ class BranchesViewModel @Inject constructor(
 
     suspend fun refresh(git: Git) {
         loadBranches(git)
+    }
+
+    fun rebaseBranch(ref: Ref) = tabState.safeProcessing { git ->
+        rebaseManager.rebaseBranch(git, ref)
+
+        return@safeProcessing RefreshType.ALL_DATA
     }
 }

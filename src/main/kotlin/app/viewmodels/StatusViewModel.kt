@@ -14,6 +14,8 @@ class StatusViewModel @Inject constructor(
     private val statusManager: StatusManager,
     private val branchesManager: BranchesManager,
     private val repositoryManager: RepositoryManager,
+    private val rebaseManager: RebaseManager,
+    private val mergeManager: MergeManager,
 ) {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
@@ -111,6 +113,30 @@ class StatusViewModel @Inject constructor(
 
         // Return true to update the log only if the uncommitedChanges status has changed
         return (hasNowUncommitedChanges != hadUncommitedChanges)
+    }
+
+    fun continueRebase() = tabState.safeProcessing { git ->
+        rebaseManager.continueRebase(git)
+
+        return@safeProcessing RefreshType.ALL_DATA
+    }
+
+    fun abortRebase() = tabState.safeProcessing { git ->
+        rebaseManager.abortRebase(git)
+
+        return@safeProcessing RefreshType.ALL_DATA
+    }
+
+    fun skipRebase() = tabState.safeProcessing { git ->
+        rebaseManager.skipRebase(git)
+
+        return@safeProcessing RefreshType.ALL_DATA
+    }
+
+    fun abortMerge() = tabState.safeProcessing { git ->
+        mergeManager.abortBranch(git)
+
+        return@safeProcessing RefreshType.ALL_DATA
     }
 }
 

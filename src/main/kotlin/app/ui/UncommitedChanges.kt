@@ -22,7 +22,6 @@ import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.filePath
@@ -58,7 +57,7 @@ fun UncommitedChanges(
         staged = stageStatus.staged
         unstaged = stageStatus.unstaged
         LaunchedEffect(staged) {
-            if(selectedEntryType != null) {
+            if (selectedEntryType != null) {
                 checkIfSelectedEntryShouldBeUpdated(
                     selectedEntryType = selectedEntryType,
                     staged = staged,
@@ -69,8 +68,8 @@ fun UncommitedChanges(
             }
         }
     } else {
-        staged = listOf<StatusEntry>()
-        unstaged = listOf<StatusEntry>() // return empty lists if still loading
+        staged = listOf()
+        unstaged = listOf() // return empty lists if still loading
     }
 
     val doCommit = {
@@ -134,16 +133,20 @@ fun UncommitedChanges(
             allActionTitle = "Stage all"
         )
 
-        Card(
+        Column(
             modifier = Modifier
                 .padding(8.dp)
-                .height(192.dp)
+                .run {
+                    // When rebasing, we don't need a fixed size as we don't show the message TextField
+                    if(!repositoryState.isRebasing) {
+                        height(192.dp)
+                    } else
+                        this
+                }
                 .fillMaxWidth()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
+            // Don't show the message TextField when rebasing as it can't be edited
+            if (!repositoryState.isRebasing)
                 TextField(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -159,31 +162,130 @@ fun UncommitedChanges(
                     onValueChange = { statusViewModel.newCommitMessage = it },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
                     colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
-                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
+                    textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 )
 
-                Button(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    onClick = {
-                        doCommit()
-                    },
-                    enabled = canCommit,
-                    shape = RectangleShape,
-                ) {
-                    val buttonText = if(repositoryState.isMerging)
-                        "Merge"
-                    else if (repositoryState.isRebasing)
-                        "Continue rebasing"
-                    else
-                        "Commit"
-                    Text(
-                        text = buttonText,
-                        fontSize = 14.sp,
-                    )
+            when {
+                repositoryState.isMerging -> MergeButtons(
+                    haveConflictsBeenSolved = unstaged.isEmpty(),
+                    onAbort = { statusViewModel.abortMerge() },
+                    onMerge = { doCommit() }
+                )
+                repositoryState.isRebasing -> RebasingButtons(
+                    canContinue = staged.isNotEmpty() || unstaged.isNotEmpty(),
+                    haveConflictsBeenSolved = unstaged.isEmpty(),
+                    onAbort = { statusViewModel.abortRebase() },
+                    onContinue = { statusViewModel.continueRebase() },
+                    onSkip = { statusViewModel.skipRebase() },
+                )
+                else -> {
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        onClick = doCommit,
+                        enabled = canCommit,
+                        shape = RectangleShape,
+                    ) {
+
+                        Text(
+                            text = "Commit",
+                            fontSize = 14.sp,
+                        )
+                    }
                 }
             }
         }
+    }
+
+}
+
+@Composable
+fun MergeButtons(
+    haveConflictsBeenSolved: Boolean,
+    onAbort: () -> Unit,
+    onMerge: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(
+            onClick = onAbort,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp, end = 4.dp),
+        ) {
+            Text(
+                text = "Abort",
+                fontSize = 14.sp,
+            )
+        }
+
+        Button(
+            onClick = onMerge,
+            enabled = haveConflictsBeenSolved,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp, end = 4.dp),
+        ) {
+            Text(
+                text = "Merge",
+                fontSize = 14.sp,
+            )
+        }
+
+    }
+}
+
+@Composable
+fun RebasingButtons(
+    canContinue: Boolean,
+    haveConflictsBeenSolved: Boolean,
+    onAbort: () -> Unit,
+    onContinue: () -> Unit,
+    onSkip: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Button(
+            onClick = onAbort,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 8.dp, end = 4.dp),
+        ) {
+            Text(
+                text = "Abort",
+                fontSize = 14.sp,
+            )
+        }
+
+        if (canContinue) {
+            Button(
+                onClick = onContinue,
+                enabled = haveConflictsBeenSolved,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp, end = 4.dp),
+            ) {
+                Text(
+                    text = "Continue",
+                    fontSize = 14.sp,
+                )
+            }
+        } else {
+            Button(
+                onClick = onSkip,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp, end = 4.dp),
+            ) {
+                Text(
+                    text = "Skip",
+                    fontSize = 14.sp,
+                )
+            }
+        }
+
     }
 }
 
@@ -199,9 +301,10 @@ fun checkIfSelectedEntryShouldBeUpdated(
     val selectedEntryTypeNewId = selectedDiffEntry.newId.name()
 
     if (selectedEntryType is DiffEntryType.StagedDiff) {
-        val entryType = staged.firstOrNull { stagedEntry -> stagedEntry.diffEntry.newPath == selectedDiffEntry.newPath }?.diffEntry
+        val entryType =
+            staged.firstOrNull { stagedEntry -> stagedEntry.diffEntry.newPath == selectedDiffEntry.newPath }?.diffEntry
 
-        if(
+        if (
             entryType != null &&
             selectedEntryTypeNewId != entryType.newId.name()
         ) {
@@ -210,15 +313,15 @@ fun checkIfSelectedEntryShouldBeUpdated(
         } else if (entryType == null) {
             onStagedDiffEntrySelected(null)
         }
-    } else if(selectedEntryType is DiffEntryType.UnstagedDiff) {
+    } else if (selectedEntryType is DiffEntryType.UnstagedDiff) {
         val entryType = unstaged.firstOrNull { unstagedEntry ->
-            if(selectedDiffEntry.changeType == DiffEntry.ChangeType.DELETE)
+            if (selectedDiffEntry.changeType == DiffEntry.ChangeType.DELETE)
                 unstagedEntry.diffEntry.oldPath == selectedDiffEntry.oldPath
             else
                 unstagedEntry.diffEntry.newPath == selectedDiffEntry.newPath
         }
 
-        if(entryType != null) {
+        if (entryType != null) {
             onUnstagedDiffEntrySelected(entryType.diffEntry)
         } else
             onStagedDiffEntrySelected(null)
