@@ -26,6 +26,7 @@ Right now you CAN:
 - Stash and pop stash.
 - Checkout a commit (detached HEAD).
 - View changes/diff in images (side to side comparison).
+- Force push.
 
 Right now you CAN'T:
 
@@ -33,7 +34,6 @@ Right now you CAN'T:
 - Manage remotes.
 - Remove branches from remote.
 - Remove tags from remote.
-- Force push.
 - Side by side diff in text files.
 - Start a new local repository.
 - View stashes in the log tree.
@@ -59,7 +59,10 @@ Note: Requires minimum JDK 16.
 
 Feel free to open issues for bugs or sugestions.
 
-## Screenshots (latest update: 04 jan 2022)
+## Screenshots (latest update: 01 feb 2022)
 ![Example 1](/res/img/gitnuro_example_1.png)
 ![Example 2](/res/img/gitnuro_example_2.png)
 ![Example 3](/res/img/gitnuro_example_3.png)
+![Example 4](/res/img/gitnuro_example_4.png)
+![Example 5](/res/img/gitnuro_example_5.png)
+![Example 6](/res/img/gitnuro_example_6.png)
