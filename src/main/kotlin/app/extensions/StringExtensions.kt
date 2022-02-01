@@ -31,6 +31,6 @@ val String.dirPath: String
     }
 
 val String.withoutLineEnding: String
-get() = this
-    .removeSuffix("\n")
-    .removeSuffix("\r\n")
+    get() = this
+        .removeSuffix("\n")
+        .removeSuffix("\r\n")

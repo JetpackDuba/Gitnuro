@@ -28,7 +28,7 @@ fun AvatarImage(
             .clip(CircleShape)
     ) {
         val avatar = rememberAvatar(personIdent.emailAddress)
-        if(avatar == null) {
+        if (avatar == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

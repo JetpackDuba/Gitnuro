@@ -20,8 +20,8 @@ class DiffViewModel @Inject constructor(
 
     val lazyListState = MutableStateFlow(
         LazyListState(
-        0,
-        0
+            0,
+            0
         )
     )
 
@@ -31,10 +31,10 @@ class DiffViewModel @Inject constructor(
         _diffResult.value = null
 
         // If it's a different file or different state (index or workdir), reset the scroll state
-        if(oldDiffEntryType != null &&
+        if (oldDiffEntryType != null &&
             (oldDiffEntryType.diffEntry.oldPath != diffEntryType.diffEntry.oldPath ||
-            oldDiffEntryType.diffEntry.newPath != diffEntryType.diffEntry.newPath ||
-            oldDiffEntryType::class != diffEntryType::class)
+                    oldDiffEntryType.diffEntry.newPath != diffEntryType.diffEntry.newPath ||
+                    oldDiffEntryType::class != diffEntryType::class)
         ) {
             lazyListState.value = LazyListState(
                 0,

@@ -7,9 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.git.DiffEntryType
-import app.viewmodels.TabViewModel
 import app.ui.dialogs.NewBranchDialog
 import app.ui.log.Log
+import app.viewmodels.TabViewModel
 import openRepositoryDialog
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi

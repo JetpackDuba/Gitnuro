@@ -2,10 +2,10 @@ package app.viewmodels
 
 import app.AppStateManager
 import app.ErrorsManager
-import app.newErrorNow
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import app.git.*
+import app.newErrorNow
 import app.ui.SelectedItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -215,7 +215,7 @@ class TabViewModel @Inject constructor(
     }
 
     fun newSelectedRef(objectId: ObjectId?) = tabState.runOperation { git ->
-        if(objectId == null) {
+        if (objectId == null) {
             newSelectedItem(SelectedItem.None)
             return@runOperation RefreshType.NONE
         }
@@ -233,7 +233,7 @@ class TabViewModel @Inject constructor(
     fun newSelectedItem(selectedItem: SelectedItem) {
         _selectedItem.value = selectedItem
 
-        if(selectedItem is SelectedItem.CommitBasedItem) {
+        if (selectedItem is SelectedItem.CommitBasedItem) {
             commitChangesViewModel.loadChanges(selectedItem.revCommit)
         }
     }

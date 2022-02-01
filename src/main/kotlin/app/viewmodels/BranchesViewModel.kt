@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class BranchesViewModel @Inject constructor(
@@ -29,7 +28,7 @@ class BranchesViewModel @Inject constructor(
 
         // set selected branch as the first one always
         val selectedBranch = branchesList.find { it.name == _currentBranch.value }
-        if(selectedBranch != null) {
+        if (selectedBranch != null) {
             branchesList.remove(selectedBranch)
             branchesList.add(0, selectedBranch)
         }
@@ -51,7 +50,7 @@ class BranchesViewModel @Inject constructor(
         return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun deleteBranch(branch: Ref) =tabState.safeProcessing { git ->
+    fun deleteBranch(branch: Ref) = tabState.safeProcessing { git ->
         branchesManager.deleteBranch(git, branch)
 
         return@safeProcessing RefreshType.ALL_DATA

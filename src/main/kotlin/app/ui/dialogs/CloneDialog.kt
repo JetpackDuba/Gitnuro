@@ -12,8 +12,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
-import app.viewmodels.TabViewModel
 import app.theme.primaryTextColor
+import app.viewmodels.TabViewModel
 import java.io.File
 
 @Composable

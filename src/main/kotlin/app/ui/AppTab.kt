@@ -22,10 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.LoadingRepository
 import app.credentials.CredentialsState
-import app.viewmodels.TabViewModel
-import app.viewmodels.RepositorySelectionStatus
 import app.ui.dialogs.PasswordDialog
 import app.ui.dialogs.UserPasswordDialog
+import app.viewmodels.RepositorySelectionStatus
+import app.viewmodels.TabViewModel
 import kotlinx.coroutines.delay
 
 // TODO onDispose sometimes is called when changing tabs, therefore losing the tab state

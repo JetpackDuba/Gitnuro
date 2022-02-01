@@ -1,16 +1,10 @@
 package app.git
 
-import app.extensions.isBranch
-import app.extensions.isMerging
-import app.extensions.simpleName
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphWalk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.Constants
@@ -26,7 +20,7 @@ class LogManager @Inject constructor(
         val commitList = GraphCommitList()
         val repositoryState = git.repository.repositoryState
         println("Repository state ${repositoryState.description}")
-        if(currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
+        if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(2).call().toList()
 
             val walk = GraphWalk(git.repository)

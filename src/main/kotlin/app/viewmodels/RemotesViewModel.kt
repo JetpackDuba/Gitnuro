@@ -3,14 +3,11 @@ package app.viewmodels
 import app.git.BranchesManager
 import app.git.RemoteInfo
 import app.git.RemotesManager
-import app.git.TabState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.transport.RemoteConfig
 import javax.inject.Inject
 
 class RemotesViewModel @Inject constructor(

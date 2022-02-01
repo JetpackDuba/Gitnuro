@@ -14,7 +14,6 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InvalidObjectException
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 import kotlin.math.max
 import kotlin.math.min
 
@@ -48,7 +47,7 @@ class HunkDiffGenerator @AssistedInject constructor(
         val rawOld = rawFileManager.getRawContent(DiffEntry.Side.OLD, ent)
         val rawNew = rawFileManager.getRawContent(DiffEntry.Side.NEW, ent)
 
-        if(rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
+        if (rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
             throw InvalidObjectException("Invalid object in diff format")
 
         var diffResult: DiffResult = DiffResult.Text(emptyList())
@@ -84,7 +83,7 @@ class HunkDiffGenerator @AssistedInject constructor(
             else -> null
         }
 
-        return if(rawOldText != null && newOldText != null) {
+        return if (rawOldText != null && newOldText != null) {
             onText(rawOldText, newOldText)
             true
         } else

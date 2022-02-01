@@ -53,7 +53,7 @@ object NetworkImageLoader {
 fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null): ImageBitmap? {
     val networkImageLoader = NetworkImageLoader
     var image by remember(url) {
-        val placeHolderImage = if(placeHolderImageRes != null)
+        val placeHolderImage = if (placeHolderImageRes != null)
             useResource(placeHolderImageRes) {
                 Image.makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
             }

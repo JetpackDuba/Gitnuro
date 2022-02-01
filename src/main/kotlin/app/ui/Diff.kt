@@ -6,8 +6,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -92,14 +96,14 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 SideTitle("New")
                 SideDiff(newBinaryContent)
             }
-        } else if(oldBinaryContent != EntryContent.Missing) {
+        } else if (oldBinaryContent != EntryContent.Missing) {
             Box(
                 modifier = Modifier.fillMaxSize()
                     .padding(all = 24.dp),
             ) {
                 SideDiff(oldBinaryContent)
             }
-        } else if(newBinaryContent != EntryContent.Missing) {
+        } else if (newBinaryContent != EntryContent.Missing) {
             Column(
                 modifier = Modifier.fillMaxSize()
                     .padding(all = 24.dp),

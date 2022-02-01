@@ -22,10 +22,10 @@ class MergeManager @Inject constructor() {
             .call()
     }
 
-    suspend fun abortBranch(git: Git) = withContext(Dispatchers.IO) {
-        git.repository.writeMergeCommitMsg(null);
-        git.repository.writeMergeHeads(null);
+    suspend fun abortMerge(git: Git) = withContext(Dispatchers.IO) {
+        git.repository.writeMergeCommitMsg(null)
+        git.repository.writeMergeHeads(null)
 
-        git.reset().setMode(ResetCommand.ResetType.HARD).call();
+        git.reset().setMode(ResetCommand.ResetType.HARD).call()
     }
 }

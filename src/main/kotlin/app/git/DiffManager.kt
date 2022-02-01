@@ -4,7 +4,6 @@ import app.di.HunkDiffGeneratorFactory
 import app.di.RawFileManagerFactory
 import app.extensions.fullData
 import app.git.diff.DiffResult
-import app.git.diff.Hunk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git

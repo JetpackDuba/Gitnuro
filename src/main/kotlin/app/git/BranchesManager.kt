@@ -4,7 +4,9 @@ import app.extensions.isBranch
 import app.extensions.simpleName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.*
+import org.eclipse.jgit.api.CreateBranchCommand
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.ListBranchCommand
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject

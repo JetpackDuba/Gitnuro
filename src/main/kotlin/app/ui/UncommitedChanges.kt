@@ -58,7 +58,7 @@ fun UncommitedChanges(
     if (stageStatus is StageStatus.Loaded) {
         staged = stageStatus.staged
         unstaged = stageStatus.unstaged
-        
+
         LaunchedEffect(staged) {
             if (selectedEntryType != null) {
                 checkIfSelectedEntryShouldBeUpdated(
@@ -154,7 +154,7 @@ fun UncommitedChanges(
                 .padding(8.dp)
                 .run {
                     // When rebasing, we don't need a fixed size as we don't show the message TextField
-                    if(!repositoryState.isRebasing) {
+                    if (!repositoryState.isRebasing) {
                         height(192.dp)
                     } else
                         this

@@ -1,20 +1,24 @@
 package app.ui
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.viewmodels.TabViewModel
 import app.theme.headerBackground
 import app.theme.headerText
 import app.theme.primaryTextColor
@@ -34,7 +38,7 @@ fun CommitChanges(
 ) {
     val commitChangesStatusState = commitChangesViewModel.commitChangesStatus.collectAsState()
 
-    when(val commitChangesStatus = commitChangesStatusState.value) {
+    when (val commitChangesStatus = commitChangesStatusState.value) {
         CommitChangesStatus.Loading -> {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }

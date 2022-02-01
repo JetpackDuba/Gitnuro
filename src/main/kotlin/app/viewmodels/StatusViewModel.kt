@@ -135,7 +135,7 @@ class StatusViewModel @Inject constructor(
     }
 
     fun abortMerge() = tabState.safeProcessing { git ->
-        mergeManager.abortBranch(git)
+        mergeManager.abortMerge(git)
 
         return@safeProcessing RefreshType.ALL_DATA
     }

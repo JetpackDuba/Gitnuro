@@ -2,7 +2,10 @@ package app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -16,16 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.AppStateManager
 import app.di.AppComponent
 import app.di.DaggerTabComponent
 import app.theme.primaryTextColor
-import app.viewmodels.TabViewModel
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
 import app.ui.AppTab
+import app.viewmodels.TabViewModel
 import javax.inject.Inject
 import kotlin.io.path.Path
 import kotlin.io.path.name
@@ -65,7 +67,7 @@ fun RepositoriesTabPanel(
                     val index = tabs.indexOf(tab)
                     val nextIndex = if (index == 0 && tabs.count() >= 2) {
                         1 // If the first tab is selected, select the next one
-                    } else if (index == tabs.count() -1 && tabs.count() >= 2)
+                    } else if (index == tabs.count() - 1 && tabs.count() >= 2)
                         index - 1 // If the last tab is selected, select the previous one
                     else if (tabs.count() >= 2)
                         index + 1 // If any in between tab is selected, select the next one
@@ -126,7 +128,7 @@ fun TabPanel(
 
 @Composable
 fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
-    val elevation = if(selected) {
+    val elevation = if (selected) {
         3.dp
     } else
         0.dp
@@ -194,7 +196,7 @@ class TabInformation(
                 appStateManager.repositoryTabChanged(key, path)
             }
         }
-        if(path != null)
+        if (path != null)
             tabViewModel.openRepository(path)
         content = {
             AppTab(tabViewModel)

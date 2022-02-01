@@ -61,14 +61,18 @@ class RawFileManager @AssistedInject constructor(
         return try {
             EntryContent.Text(RawText.load(ldr, DEFAULT_BINARY_FILE_THRESHOLD))
         } catch (ex: BinaryBlobException) {
-            if(isImage(entry)) {
+            if (isImage(entry)) {
                 generateImageBinary(ldr, entry, side)
             } else
                 EntryContent.Binary
         }
     }
 
-    private fun generateImageBinary(ldr: ObjectLoader, entry: DiffEntry, side: DiffEntry.Side): EntryContent.ImageBinary {
+    private fun generateImageBinary(
+        ldr: ObjectLoader,
+        entry: DiffEntry,
+        side: DiffEntry.Side
+    ): EntryContent.ImageBinary {
         println("Data's size is ${ldr.size}")
 
         val tempDir = createTempDirectory("gitnuro${repository.directory.absolutePath.replace("/", "_")}")
@@ -99,11 +103,11 @@ class RawFileManager @AssistedInject constructor(
 }
 
 sealed class EntryContent {
-    object Missing: EntryContent()
-    object InvalidObjectBlob: EntryContent()
-    data class Text(val rawText: RawText): EntryContent()
+    object Missing : EntryContent()
+    object InvalidObjectBlob : EntryContent()
+    data class Text(val rawText: RawText) : EntryContent()
     sealed class BinaryContent() : EntryContent()
-    data class ImageBinary(val tempFilePath: Path): BinaryContent()
-    object Binary: BinaryContent()
-    object TooLargeEntry: EntryContent()
+    data class ImageBinary(val tempFilePath: Path) : BinaryContent()
+    object Binary : BinaryContent()
+    object TooLargeEntry : EntryContent()
 }

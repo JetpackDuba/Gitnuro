@@ -75,7 +75,7 @@ class LogViewModel @Inject constructor(
         return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun deleteBranch(branch: Ref) =tabState.safeProcessing { git ->
+    fun deleteBranch(branch: Ref) = tabState.safeProcessing { git ->
         branchesManager.deleteBranch(git, branch)
 
         return@safeProcessing RefreshType.ALL_DATA
@@ -100,5 +100,6 @@ class LogViewModel @Inject constructor(
 
 sealed class LogStatus {
     object Loading : LogStatus()
-    class Loaded(val hasUncommitedChanges: Boolean, val plotCommitList: GraphCommitList, val currentBranch: Ref?) : LogStatus()
+    class Loaded(val hasUncommitedChanges: Boolean, val plotCommitList: GraphCommitList, val currentBranch: Ref?) :
+        LogStatus()
 }

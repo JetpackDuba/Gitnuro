@@ -60,7 +60,7 @@ class StatusManager @Inject constructor(
             val rawFileManager = rawFileManagerFactory.create(git.repository)
             val entryContent = rawFileManager.getRawContent(DiffEntry.Side.OLD, diffEntry)
 
-            if(entryContent !is EntryContent.Text)
+            if (entryContent !is EntryContent.Text)
                 return@withContext
 
             val textLines = getTextLines(entryContent.rawText).toMutableList()
@@ -103,7 +103,7 @@ class StatusManager @Inject constructor(
             val rawFileManager = rawFileManagerFactory.create(git.repository)
             val entryContent = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
 
-            if(entryContent !is EntryContent.Text)
+            if (entryContent !is EntryContent.Text)
                 return@withContext
 
             val textLines = getTextLines(entryContent.rawText).toMutableList()
@@ -224,33 +224,34 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun getStaged(git: Git, currentBranch: Ref?, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
-        return@withContext git
-            .diff()
-            .setShowNameAndStatusOnly(true).apply {
-                if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
-                    setOldTree(EmptyTreeIterator()) // Required if the repository is empty
+    suspend fun getStaged(git: Git, currentBranch: Ref?, repositoryState: RepositoryState) =
+        withContext(Dispatchers.IO) {
+            return@withContext git
+                .diff()
+                .setShowNameAndStatusOnly(true).apply {
+                    if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
+                        setOldTree(EmptyTreeIterator()) // Required if the repository is empty
 
-                setCached(true)
-            }
-            .call()
-            // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
-            // TODO: Test if we should group by old path or new path
-            .groupBy {
-                if(it.newPath != "/dev/null")
-                    it.newPath
-                else
-                    it.oldPath
-            }
-            .map {
-                val entries = it.value
+                    setCached(true)
+                }
+                .call()
+                // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
+                // TODO: Test if we should group by old path or new path
+                .groupBy {
+                    if (it.newPath != "/dev/null")
+                        it.newPath
+                    else
+                        it.oldPath
+                }
+                .map {
+                    val entries = it.value
 
-                val hasConflicts =
-                    (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+                    val hasConflicts =
+                        (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
 
-                StatusEntry(entries.first(), isConflict = hasConflicts)
-            }
-    }
+                    StatusEntry(entries.first(), isConflict = hasConflicts)
+                }
+        }
 
     suspend fun getUnstaged(git: Git, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
         return@withContext git
@@ -258,7 +259,7 @@ class StatusManager @Inject constructor(
             .setShowNameAndStatusOnly(true)
             .call()
             .groupBy {
-                if(it.oldPath != "/dev/null")
+                if (it.oldPath != "/dev/null")
                     it.oldPath
                 else
                     it.newPath

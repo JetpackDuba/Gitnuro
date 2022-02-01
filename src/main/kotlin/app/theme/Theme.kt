@@ -109,8 +109,6 @@ val Colors.unstageButton: Color
     get() = error
 
 
-
-
 enum class Themes(val displayName: String) {
     LIGHT("Light"),
     DARK("Dark")

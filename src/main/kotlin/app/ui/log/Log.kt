@@ -210,7 +210,7 @@ fun LogDialogs(
             }
         )
         is LogDialog.RebaseBranch -> {
-            if(currentBranch != null) {
+            if (currentBranch != null) {
                 RebaseDialog(
                     currentBranchName = currentBranch.simpleName,
                     rebaseBranchName = showLogDialog.ref.simpleName,

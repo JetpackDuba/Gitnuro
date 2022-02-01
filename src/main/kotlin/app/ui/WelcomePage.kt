@@ -20,11 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.dirName
 import app.extensions.dirPath
-import app.viewmodels.TabViewModel
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.dialogs.CloneDialog
 import app.ui.dialogs.MaterialDialog
+import app.viewmodels.TabViewModel
 import openRepositoryDialog
 import java.awt.Desktop
 import java.net.URI

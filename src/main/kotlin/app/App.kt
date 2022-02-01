@@ -49,7 +49,7 @@ class App {
 
     private val tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
 
-    fun start(){
+    fun start() {
         appStateManager.loadRepositoriesTabs()
         loadTabs()
 

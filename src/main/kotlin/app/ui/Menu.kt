@@ -2,7 +2,10 @@
 
 package app.ui
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,13 +21,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
-import app.ui.context_menu.pullContextMenuItems
-import app.viewmodels.MenuViewModel
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import app.ui.context_menu.DropDownContent
 import app.ui.context_menu.DropDownContentData
+import app.ui.context_menu.pullContextMenuItems
 import app.ui.context_menu.pushContextMenuItems
+import app.viewmodels.MenuViewModel
 
 // TODO Add tooltips to all the buttons
 @Composable
@@ -199,7 +200,7 @@ fun ExtendedMenuButton(
                 .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topEnd = 3.dp, bottomEnd = 3.dp))
                 .clickable {
                     showDropDownMenu = true
-               },
+                },
             contentAlignment = Alignment.Center,
         ) {
             Icon(
