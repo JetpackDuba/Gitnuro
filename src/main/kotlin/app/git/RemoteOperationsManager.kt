@@ -20,7 +20,7 @@ class RemoteOperationsManager @Inject constructor(
     val cloneStatus: StateFlow<CloneStatus>
         get() = _cloneStatus
 
-    suspend fun pull(git: Git) = withContext(Dispatchers.IO) {
+    suspend fun pull(git: Git, rebase: Boolean) = withContext(Dispatchers.IO) {
         git
             .pull()
             .setTransportConfigCallback {
@@ -30,6 +30,7 @@ class RemoteOperationsManager @Inject constructor(
                     it.credentialsProvider = HttpCredentialsProvider()
                 }
             }
+            .setRebase(rebase)
             .setCredentialsProvider(CredentialsProvider.getDefault())
             .call()
     }

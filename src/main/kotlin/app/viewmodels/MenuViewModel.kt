@@ -12,8 +12,8 @@ class MenuViewModel @Inject constructor(
     private val remoteOperationsManager: RemoteOperationsManager,
     private val stashManager: StashManager,
 ) {
-    fun pull() = tabState.safeProcessing { git ->
-        remoteOperationsManager.pull(git)
+    fun pull(rebase: Boolean = false) = tabState.safeProcessing { git ->
+        remoteOperationsManager.pull(git, rebase)
 
         return@safeProcessing RefreshType.ONLY_LOG
     }
