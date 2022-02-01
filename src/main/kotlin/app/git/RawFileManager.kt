@@ -30,6 +30,7 @@ class RawFileManager @AssistedInject constructor(
         "png",
         "jpg",
         "jpeg",
+        "webp",
     )
 
     init {
@@ -87,7 +88,7 @@ class RawFileManager @AssistedInject constructor(
         val path = entry.newPath
         val fileExtension = path.split(".").lastOrNull() ?: return false
 
-        return imageFormatsSupported.contains(fileExtension)
+        return imageFormatsSupported.contains(fileExtension.lowercase())
     }
 
 //    fun isBinary() = RawText.isBinary()
