@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+
 package app.ui
 
 import androidx.compose.animation.AnimatedVisibility
@@ -31,12 +33,13 @@ import app.git.StatusEntry
 import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
+import app.ui.context_menu.stagedEntriesContextMenuItems
+import app.ui.context_menu.unstagedEntriesContextMenuItems
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.RepositoryState
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun UncommitedChanges(
     statusViewModel: StatusViewModel,
@@ -51,9 +54,11 @@ fun UncommitedChanges(
     val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
+
     if (stageStatus is StageStatus.Loaded) {
         staged = stageStatus.staged
         unstaged = stageStatus.unstaged
+        
         LaunchedEffect(staged) {
             if (selectedEntryType != null) {
                 checkIfSelectedEntryShouldBeUpdated(
@@ -101,8 +106,13 @@ fun UncommitedChanges(
             onDiffEntryOptionSelected = {
                 statusViewModel.unstage(it)
             },
-            onReset = { diffEntry ->
-                statusViewModel.resetStaged(diffEntry)
+            onGenerateContextMenu = { diffEntry ->
+                stagedEntriesContextMenuItems(
+                    diffEntry = diffEntry,
+                    onReset = {
+                        statusViewModel.resetUnstaged(diffEntry)
+                    },
+                )
             },
             onAllAction = {
                 statusViewModel.unstageAll()
@@ -122,13 +132,21 @@ fun UncommitedChanges(
             onDiffEntryOptionSelected = {
                 statusViewModel.stage(it)
             },
-            onReset = { diffEntry ->
-                statusViewModel.resetUnstaged(diffEntry)
+            onGenerateContextMenu = { diffEntry ->
+                unstagedEntriesContextMenuItems(
+                    diffEntry = diffEntry,
+                    onReset = {
+                        statusViewModel.resetUnstaged(diffEntry)
+                    },
+                    onDelete = {
+                        statusViewModel.deleteFile(diffEntry)
+                    }
+                )
             },
-            {
+            allActionTitle = "Stage all",
+            onAllAction = {
                 statusViewModel.stageAll()
-            },
-            allActionTitle = "Stage all"
+            }
         )
 
         Column(
@@ -326,7 +344,7 @@ fun checkIfSelectedEntryShouldBeUpdated(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun EntriesList(
     modifier: Modifier,
@@ -336,7 +354,7 @@ private fun EntriesList(
     diffEntries: List<StatusEntry>,
     onDiffEntrySelected: (DiffEntry) -> Unit,
     onDiffEntryOptionSelected: (DiffEntry) -> Unit,
-    onReset: (DiffEntry) -> Unit,
+    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
     onAllAction: () -> Unit,
     allActionTitle: String,
 ) {
@@ -382,9 +400,7 @@ private fun EntriesList(
                     onButtonClick = {
                         onDiffEntryOptionSelected(diffEntry)
                     },
-                    onReset = {
-                        onReset(diffEntry)
-                    }
+                    onGenerateContextMenu = onGenerateContextMenu,
                 )
 
                 if (index < diffEntries.size - 1) {
@@ -406,7 +422,7 @@ private fun FileEntry(
     actionColor: Color,
     onClick: () -> Unit,
     onButtonClick: () -> Unit,
-    onReset: () -> Unit,
+    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
 ) {
     var active by remember { mutableStateOf(false) }
     val diffEntry = statusEntry.diffEntry
@@ -428,12 +444,7 @@ private fun FileEntry(
     ) {
         ContextMenuArea(
             items = {
-                listOf(
-                    ContextMenuItem(
-                        label = "Reset",
-                        onClick = onReset
-                    )
-                )
+                onGenerateContextMenu(diffEntry)
             },
         ) {
             Row(

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
+import java.io.File
 import javax.inject.Inject
 
 class StatusViewModel @Inject constructor(
@@ -137,6 +138,16 @@ class StatusViewModel @Inject constructor(
         mergeManager.abortBranch(git)
 
         return@safeProcessing RefreshType.ALL_DATA
+    }
+
+    fun deleteFile(diffEntry: DiffEntry) = tabState.runOperation {
+        val path = diffEntry.newPath
+
+        val fileToDelete = File(path)
+
+        fileToDelete.delete()
+
+        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 }
 
