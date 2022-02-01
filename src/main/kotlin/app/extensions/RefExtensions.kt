@@ -46,17 +46,17 @@ val Ref.isBranch: Boolean
     }
 
 val Ref.isTag: Boolean
-    get() = this is ObjectIdRef.PeeledTag
+    get() = this.name.startsWith(Constants.R_TAGS)
 
 val Ref.isLocal: Boolean
     get() = !this.isRemote
 
 val Ref.isRemote: Boolean
-    get() = this.name.startsWith("refs/remotes/")
+    get() = this.name.startsWith(Constants.R_REMOTES)
 
 
 fun Ref.isSameBranch(otherRef: Ref?): Boolean {
-    if (this.name == "HEAD" && otherRef == null)
+    if (this.name == Constants.HEAD && otherRef == null)
         return true
 
     if (otherRef == null)
