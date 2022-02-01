@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import app.ui.context_menu.DropDownContent
 import app.ui.context_menu.DropDownContentData
+import app.ui.context_menu.pushContextMenuItems
 
 // TODO Add tooltips to all the buttons
 @Composable
@@ -60,10 +61,15 @@ fun Menu(
             )
         )
 
-        MenuButton(
+        ExtendedMenuButton(
             title = "Push",
             icon = painterResource("upload.svg"),
             onClick = { menuViewModel.push() },
+            extendedListItems = pushContextMenuItems(
+                onForcePush = {
+                    menuViewModel.push(true)
+                }
+            )
         )
 
         Spacer(modifier = Modifier.width(16.dp))

@@ -35,12 +35,13 @@ class RemoteOperationsManager @Inject constructor(
             .call()
     }
 
-    suspend fun push(git: Git) = withContext(Dispatchers.IO) {
+    suspend fun push(git: Git, force: Boolean) = withContext(Dispatchers.IO) {
         val currentBranchRefSpec = git.repository.fullBranch
 
         val pushResult = git
             .push()
             .setRefSpecs(RefSpec(currentBranchRefSpec))
+            .setForce(force)
             .setPushTags()
             .setTransportConfigCallback {
                 if (it is SshTransport) {
