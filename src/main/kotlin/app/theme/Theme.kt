@@ -54,24 +54,21 @@ val Colors.secondaryTextColor: Color
     get() = if (isLight) secondaryText else secondaryTextDark
 
 @get:Composable
-val Colors.accent: Color
-    get() = primaryLight
-
-@get:Composable
-val Colors.primaryGray: Color
-    get() = primaryGrayLight
-
-@get:Composable
-val Colors.accentGray: Color
-    get() = accentGrayLight
-
-@get:Composable
 val Colors.headerBackground: Color
     get() {
         return if (isLight)
             headerBackgroundLight
         else
             headerBackgroundDark
+    }
+
+@get:Composable
+val Colors.graphHeaderBackground: Color
+    get() {
+        return if (isLight)
+            headerBackgroundLight
+        else
+            graphHeaderBackgroundDark
     }
 
 @get:Composable

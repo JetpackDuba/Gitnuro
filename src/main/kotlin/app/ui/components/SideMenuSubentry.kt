@@ -16,9 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.ENTRY_HEIGHT
 import app.theme.primaryTextColor
-
-const val entryHeight = 40
 
 @Composable
 fun SideMenuSubentry(
@@ -31,7 +30,7 @@ fun SideMenuSubentry(
 ) {
     Row(
         modifier = Modifier
-            .height(entryHeight.dp)
+            .height(ENTRY_HEIGHT.dp)
             .fillMaxWidth()
             .clickable(onClick = onClick)
             .padding(start = extraPadding),

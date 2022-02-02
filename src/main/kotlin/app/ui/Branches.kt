@@ -2,7 +2,11 @@ package app.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -10,13 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import app.MAX_SIDE_PANEL_ITEMS_HEIGHT
 import app.extensions.isLocal
 import app.extensions.simpleName
+import app.maxSidePanelHeight
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
 import app.ui.components.SideMenuSubentry
-import app.ui.components.entryHeight
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.RebaseDialog
@@ -32,29 +35,27 @@ fun Branches(
     val currentBranch by branchesViewModel.currentBranch.collectAsState()
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
     val (rebaseBranch, setRebaseBranch) = remember { mutableStateOf<Ref?>(null) }
+    val maxHeight = remember(branches) { maxSidePanelHeight(branches.count()) }
 
     Column {
         SideMenuEntry("Local branches")
 
-        val branchesHeight = branches.count() * entryHeight
-        val maxHeight = if (branchesHeight < MAX_SIDE_PANEL_ITEMS_HEIGHT)
-            branchesHeight
-        else
-            MAX_SIDE_PANEL_ITEMS_HEIGHT
-
-        Box(modifier = Modifier.heightIn(max = maxHeight.dp)) {
-            ScrollableLazyColumn(modifier = Modifier.fillMaxWidth()) {
-                itemsIndexed(branches) { _, branch ->
-                    BranchLineEntry(
-                        branch = branch,
-                        isCurrentBranch = currentBranch == branch.name,
-                        onBranchClicked = { onBranchClicked(branch) },
-                        onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
-                        onMergeBranch = { setMergeBranch(branch) },
-                        onRebaseBranch = { branchesViewModel.deleteBranch(branch) },
-                        onDeleteBranch = { setRebaseBranch(branch) },
-                    )
-                }
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = maxHeight.dp)
+                .background(MaterialTheme.colors.background)
+        ) {
+            itemsIndexed(branches) { _, branch ->
+                BranchLineEntry(
+                    branch = branch,
+                    isCurrentBranch = currentBranch == branch.name,
+                    onBranchClicked = { onBranchClicked(branch) },
+                    onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
+                    onMergeBranch = { setMergeBranch(branch) },
+                    onRebaseBranch = { branchesViewModel.deleteBranch(branch) },
+                    onDeleteBranch = { setRebaseBranch(branch) },
+                )
             }
         }
     }

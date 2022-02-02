@@ -236,7 +236,7 @@ fun GraphHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(32.dp)
-            .background(MaterialTheme.colors.headerBackground),
+            .background(MaterialTheme.colors.graphHeaderBackground),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -244,7 +244,6 @@ fun GraphHeader(
                 .width(graphWidth)
                 .padding(start = 8.dp),
             text = "Graph",
-            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colors.headerText,
             fontSize = 14.sp,
             maxLines = 1,
@@ -261,7 +260,6 @@ fun GraphHeader(
                 .padding(start = 8.dp)
                 .width(graphWidth),
             text = "Message",
-            fontWeight = FontWeight.Bold,
             color = MaterialTheme.colors.headerText,
             fontSize = 14.sp,
             maxLines = 1,
