@@ -58,6 +58,9 @@ fun Menu(
             extendedListItems = pullContextMenuItems(
                 onPullRebase = {
                     menuViewModel.pull(true)
+                },
+                onFetchAll = {
+                    menuViewModel.fetchAll()
                 }
             )
         )

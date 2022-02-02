@@ -13,6 +13,7 @@ import org.eclipse.jgit.transport.*
 import java.io.File
 import javax.inject.Inject
 
+
 class RemoteOperationsManager @Inject constructor(
     private val sessionManager: GSessionManager
 ) {
@@ -33,6 +34,25 @@ class RemoteOperationsManager @Inject constructor(
             .setRebase(rebase)
             .setCredentialsProvider(CredentialsProvider.getDefault())
             .call()
+    }
+
+    suspend fun fetchAll(git: Git) = withContext(Dispatchers.IO) {
+        val remotes = git.remoteList().call()
+
+        for (remote in remotes) {
+            git.fetch()
+                .setRemote(remote.name)
+                .setRefSpecs(remote.fetchRefSpecs)
+                .setTransportConfigCallback {
+                    if (it is SshTransport) {
+                        it.sshSessionFactory = sessionManager.generateSshSessionFactory()
+                    } else if (it is HttpTransport) {
+                        it.credentialsProvider = HttpCredentialsProvider()
+                    }
+                }
+                .setCredentialsProvider(CredentialsProvider.getDefault())
+                .call()
+        }
     }
 
     suspend fun push(git: Git, force: Boolean) = withContext(Dispatchers.IO) {

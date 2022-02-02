@@ -15,7 +15,13 @@ class MenuViewModel @Inject constructor(
     fun pull(rebase: Boolean = false) = tabState.safeProcessing { git ->
         remoteOperationsManager.pull(git, rebase)
 
-        return@safeProcessing RefreshType.ONLY_LOG
+        return@safeProcessing RefreshType.ALL_DATA
+    }
+
+    fun fetchAll() = tabState.safeProcessing { git ->
+        remoteOperationsManager.fetchAll(git)
+
+        return@safeProcessing RefreshType.ALL_DATA
     }
 
     fun push(force: Boolean = false) = tabState.safeProcessing { git ->
