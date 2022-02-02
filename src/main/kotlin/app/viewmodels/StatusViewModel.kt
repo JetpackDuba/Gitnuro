@@ -140,10 +140,10 @@ class StatusViewModel @Inject constructor(
         return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun deleteFile(diffEntry: DiffEntry) = tabState.runOperation {
+    fun deleteFile(diffEntry: DiffEntry) = tabState.runOperation { git ->
         val path = diffEntry.newPath
 
-        val fileToDelete = File(path)
+        val fileToDelete = File(git.repository.directory.parent, path)
 
         fileToDelete.delete()
 
