@@ -53,8 +53,8 @@ fun Branches(
                     onBranchClicked = { onBranchClicked(branch) },
                     onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                     onMergeBranch = { setMergeBranch(branch) },
-                    onRebaseBranch = { branchesViewModel.deleteBranch(branch) },
-                    onDeleteBranch = { setRebaseBranch(branch) },
+                    onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
+                    onRebaseBranch = { setRebaseBranch(branch) },
                 )
             }
         }
