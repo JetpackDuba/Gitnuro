@@ -368,7 +368,7 @@ private fun EntriesList(
                     .padding(vertical = 8.dp)
                     .fillMaxWidth(),
                 text = title,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colors.headerText,
                 fontSize = 13.sp,
