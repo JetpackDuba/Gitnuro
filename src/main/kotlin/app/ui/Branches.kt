@@ -2,12 +2,7 @@ package app.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -16,9 +11,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.extensions.isLocal
 import app.extensions.simpleName
-import app.maxSidePanelHeight
-import app.ui.components.ScrollableLazyColumn
-import app.ui.components.SideMenuEntry
+import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.dialogs.MergeDialog
@@ -35,29 +28,21 @@ fun Branches(
     val currentBranch by branchesViewModel.currentBranch.collectAsState()
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
     val (rebaseBranch, setRebaseBranch) = remember { mutableStateOf<Ref?>(null) }
-    val maxHeight = remember(branches) { maxSidePanelHeight(branches.count()) }
 
-    Column {
-        SideMenuEntry("Local branches")
-
-        ScrollableLazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = maxHeight.dp)
-                .background(MaterialTheme.colors.background)
-        ) {
-            itemsIndexed(branches) { _, branch ->
-                BranchLineEntry(
-                    branch = branch,
-                    isCurrentBranch = currentBranch == branch.name,
-                    onBranchClicked = { onBranchClicked(branch) },
-                    onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
-                    onMergeBranch = { setMergeBranch(branch) },
-                    onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
-                    onRebaseBranch = { setRebaseBranch(branch) },
-                )
-            }
-        }
+    SideMenuPanel(
+        title = "Local branches",
+        icon = painterResource("branch.svg"),
+        items = branches
+    ) { branch ->
+        BranchLineEntry(
+            branch = branch,
+            isCurrentBranch = currentBranch == branch.name,
+            onBranchClicked = { onBranchClicked(branch) },
+            onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
+            onMergeBranch = { setMergeBranch(branch) },
+            onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
+            onRebaseBranch = { setRebaseBranch(branch) },
+        )
     }
 
     if (mergeBranch != null) {

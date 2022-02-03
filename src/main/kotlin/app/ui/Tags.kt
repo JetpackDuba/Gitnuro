@@ -12,11 +12,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.extensions.simpleName
 import app.maxSidePanelHeight
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
+import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.context_menu.tagContextMenuItems
 import app.viewmodels.TagsViewModel
@@ -29,31 +31,20 @@ fun Tags(
 ) {
     val tagsState = tagsViewModel.tags.collectAsState()
     val tags = tagsState.value
-    val maxHeight = remember(tags) { maxSidePanelHeight(tags.count()) }
 
-    Column {
-        SideMenuEntry(
-            text = "Tags",
-        )
-
-        ScrollableLazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = maxHeight.dp)
-                .background(MaterialTheme.colors.background)
-        ) {
-            items(items = tags) { tag ->
-                TagRow(
-                    tag = tag,
-                    onTagClicked = { onTagClicked(tag) },
-                    onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
-                    onDeleteTag = { tagsViewModel.deleteTag(tag) }
-                )
-            }
+    SideMenuPanel(
+        title = "Tags",
+        items = tags,
+        icon = painterResource("tag.svg"),
+        itemContent = { tag ->
+            TagRow(
+                tag = tag,
+                onTagClicked = { onTagClicked(tag) },
+                onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
+                onDeleteTag = { tagsViewModel.deleteTag(tag) }
+            )
         }
-
-    }
-
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.maxSidePanelHeight
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SideMenuEntry
+import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.viewmodels.StashStatus
 import app.viewmodels.StashesViewModel
@@ -32,29 +34,18 @@ fun Stashes(
     else
         listOf()
 
-    val maxHeight = remember(stashList) { maxSidePanelHeight(stashList.count()) }
 
-    Column {
-        SideMenuEntry(
-            text = "Stashes",
-        )
-
-        ScrollableLazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(max = maxHeight.dp)
-                .background(MaterialTheme.colors.background)
-        ) {
-            items(items = stashList) { stash ->
-                StashRow(
-                    stash = stash,
-                    onClick = {
-                        onStashSelected(stash)
-                    }
-                )
-            }
+    SideMenuPanel(
+        title = "Stashes",
+        icon = painterResource("stash.svg"),
+        items = stashList,
+        itemContent = { stashInfo ->
+            StashRow(
+                stash = stashInfo,
+                onClick = { onStashSelected(stashInfo) }
+            )
         }
-    }
+    )
 
 }
 
