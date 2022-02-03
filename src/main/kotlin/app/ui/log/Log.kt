@@ -322,6 +322,7 @@ fun UncommitedChangesLine(
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.padding(start = 16.dp),
                 fontSize = 14.sp,
+                maxLines = 1,
                 color = textColor,
             )
 
@@ -761,6 +762,7 @@ fun RefChip(
                     text = ref.simpleVisibleName,
                     color = MaterialTheme.colors.primaryTextColor,
                     fontSize = 13.sp,
+                    maxLines = 1,
                     modifier = Modifier
                         .padding(horizontal = 6.dp)
                 )
