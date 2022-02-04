@@ -1,5 +1,6 @@
 package app.git
 
+import app.TempFilesManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.eclipse.jgit.diff.ContentSource
@@ -14,14 +15,14 @@ import org.eclipse.jgit.util.LfsFactory
 import java.io.FileOutputStream
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
-import kotlin.io.path.createTempDirectory
 import kotlin.io.path.createTempFile
 
 
 private const val DEFAULT_BINARY_FILE_THRESHOLD = PackConfig.DEFAULT_BIG_FILE_THRESHOLD
 
 class RawFileManager @AssistedInject constructor(
-    @Assisted private val repository: Repository
+    @Assisted private val repository: Repository,
+    private val tempFilesManager: TempFilesManager,
 ) : AutoCloseable {
     private var reader: ObjectReader = repository.newObjectReader()
     private var source: ContentSource.Pair
@@ -75,8 +76,10 @@ class RawFileManager @AssistedInject constructor(
     ): EntryContent.ImageBinary {
         println("Data's size is ${ldr.size}")
 
-        val tempDir = createTempDirectory("gitnuro${repository.directory.absolutePath.replace("/", "_")}")
+        val tempDir = tempFilesManager.tempDir
+
         val tempFile = createTempFile(tempDir, prefix = "${entry.newPath.replace("/", "_")}_${side.name}")
+        tempFile.toFile().deleteOnExit()
         println("Temp file generated: ${tempFile.absolutePathString()}")
 
         val out = FileOutputStream(tempFile.toFile())
