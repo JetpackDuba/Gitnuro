@@ -27,7 +27,7 @@ class MenuViewModel @Inject constructor(
     fun push(force: Boolean = false) = tabState.safeProcessing { git ->
         remoteOperationsManager.push(git, force)
 
-        return@safeProcessing RefreshType.ONLY_LOG
+        return@safeProcessing RefreshType.ALL_DATA
     }
 
     fun stash() = tabState.safeProcessing { git ->
