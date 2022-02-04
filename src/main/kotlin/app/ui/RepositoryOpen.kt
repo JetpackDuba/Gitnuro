@@ -65,7 +65,12 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 tabViewModel.newSelectedRef(it.objectId)
                             }
                         )
-                        Remotes(remotesViewModel = tabViewModel.remotesViewModel)
+                        Remotes(
+                            remotesViewModel = tabViewModel.remotesViewModel,
+                            onBranchClicked = {
+                                tabViewModel.newSelectedRef(it.objectId)
+                            }
+                        )
                         Tags(
                             tagsViewModel = tabViewModel.tagsViewModel,
                             onTagClicked = {

@@ -9,6 +9,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
+import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.transport.*
 import java.io.File
 import javax.inject.Inject
@@ -25,11 +26,7 @@ class RemoteOperationsManager @Inject constructor(
         git
             .pull()
             .setTransportConfigCallback {
-                if (it is SshTransport) {
-                    it.sshSessionFactory = sessionManager.generateSshSessionFactory()
-                } else if (it is HttpTransport) {
-                    it.credentialsProvider = HttpCredentialsProvider()
-                }
+                handleTransportCredentials(it)
             }
             .setRebase(rebase)
             .setCredentialsProvider(CredentialsProvider.getDefault())
@@ -44,11 +41,7 @@ class RemoteOperationsManager @Inject constructor(
                 .setRemote(remote.name)
                 .setRefSpecs(remote.fetchRefSpecs)
                 .setTransportConfigCallback {
-                    if (it is SshTransport) {
-                        it.sshSessionFactory = sessionManager.generateSshSessionFactory()
-                    } else if (it is HttpTransport) {
-                        it.credentialsProvider = HttpCredentialsProvider()
-                    }
+                    handleTransportCredentials(it)
                 }
                 .setCredentialsProvider(CredentialsProvider.getDefault())
                 .call()
@@ -64,11 +57,7 @@ class RemoteOperationsManager @Inject constructor(
             .setForce(force)
             .setPushTags()
             .setTransportConfigCallback {
-                if (it is SshTransport) {
-                    it.sshSessionFactory = sessionManager.generateSshSessionFactory()
-                } else if (it is HttpTransport) {
-                    it.credentialsProvider = HttpCredentialsProvider()
-                }
+                handleTransportCredentials(it)
             }
             .call()
 
@@ -85,6 +74,40 @@ class RemoteOperationsManager @Inject constructor(
 
             throw Exception(error.toString())
         }
+    }
+
+    private fun handleTransportCredentials(transport: Transport?) {
+        if (transport is SshTransport) {
+            transport.sshSessionFactory = sessionManager.generateSshSessionFactory()
+        } else if (transport is HttpTransport) {
+            transport.credentialsProvider = HttpCredentialsProvider()
+        }
+    }
+
+    suspend fun deleteBranch(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
+        git
+            .branchDelete()
+            .setBranchNames(ref.name)
+            .call()
+
+        val branchSplit = ref.name.split("/").toMutableList()
+        val remoteName = branchSplit[2] // Remote name
+        repeat(3) {
+            branchSplit.removeAt(0)
+        }
+
+        val branchName = "refs/heads/${branchSplit.joinToString("/")}"
+
+        val refSpec = RefSpec()
+            .setSource(null)
+            .setDestination(branchName)
+        git.push()
+            .setTransportConfigCallback {
+                handleTransportCredentials(it)
+            }
+            .setRefSpecs(refSpec)
+            .setRemote(remoteName)
+            .call()
     }
 
     private val RemoteRefUpdate.Status.isRejected: Boolean
@@ -140,11 +163,7 @@ class RemoteOperationsManager @Inject constructor(
 
                 })
                 .setTransportConfigCallback {
-                    if (it is SshTransport) {
-                        it.sshSessionFactory = sessionManager.generateSshSessionFactory()
-                    } else if (it is HttpTransport) {
-                        it.credentialsProvider = HttpCredentialsProvider()
-                    }
+                    handleTransportCredentials(it)
                 }
                 .call()
 
@@ -157,6 +176,7 @@ class RemoteOperationsManager @Inject constructor(
     fun resetCloneStatus() {
         _cloneStatus.value = CloneStatus.None
     }
+
 
 }
 

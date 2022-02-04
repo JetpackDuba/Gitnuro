@@ -1,18 +1,19 @@
 package app.viewmodels
 
-import app.git.BranchesManager
-import app.git.RemoteInfo
-import app.git.RemotesManager
+import app.git.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class RemotesViewModel @Inject constructor(
     private val remotesManager: RemotesManager,
+    private val remoteOperationsManager: RemoteOperationsManager,
     private val branchesManager: BranchesManager,
+    private val tabState: TabState,
 ) {
     private val _remotes = MutableStateFlow<List<RemoteInfo>>(listOf())
     val remotes: StateFlow<List<RemoteInfo>>
@@ -32,6 +33,12 @@ class RemotesViewModel @Inject constructor(
         }
 
         _remotes.value = remoteInfoList
+    }
+
+    fun deleteBranch(ref: Ref) = tabState.safeProcessing { git ->
+        remoteOperationsManager.deleteBranch(git, ref)
+
+        return@safeProcessing RefreshType.ALL_DATA
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
