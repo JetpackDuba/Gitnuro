@@ -28,12 +28,12 @@ Right now you CAN:
 - Checkout a commit (detached HEAD).
 - View changes/diff in images (side to side comparison).
 - Force push.
+- Remove branches from remote.
 
 Right now you CAN'T:
 
 - Rebase interactive.
 - Manage remotes.
-- Remove branches from remote.
 - Remove tags from remote.
 - Side by side diff in text files.
 - Start a new local repository.
@@ -41,7 +41,6 @@ Right now you CAN'T:
 - View file history
 - Blame file.
 - Search by commit message/author/commit id.
-- Multiple customization settings.
 
 ## Releases
 
