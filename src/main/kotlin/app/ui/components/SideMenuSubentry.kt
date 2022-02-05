@@ -33,7 +33,7 @@ fun SideMenuSubentry(
             .height(ENTRY_HEIGHT.dp)
             .fillMaxWidth()
             .run {
-                if(onClick != null)
+                if (onClick != null)
                     clickable(onClick = onClick)
                 else
                     this

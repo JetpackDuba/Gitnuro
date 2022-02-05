@@ -45,9 +45,9 @@ class TabState @Inject constructor(
      */
     @set:Synchronized
     var operationRunning = false
-    get() {
-        return field || mutex.isLocked
-    }
+        get() {
+            return field || mutex.isLocked
+        }
 
     private val _processing = MutableStateFlow(false)
     val processing: StateFlow<Boolean> = _processing

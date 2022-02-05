@@ -163,9 +163,9 @@ class TabViewModel @Inject constructor(
         stashesViewModel.refresh(git)
     }
 
-    private suspend fun refreshRepositoryInfo() = tabState.safeProcessing (
+    private suspend fun refreshRepositoryInfo() = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-    ){ git ->
+    ) { git ->
         logViewModel.refresh(git)
         branchesViewModel.refresh(git)
         remotesViewModel.refresh(git)

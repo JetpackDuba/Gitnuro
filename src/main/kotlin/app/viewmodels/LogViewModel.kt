@@ -38,13 +38,13 @@ class LogViewModel @Inject constructor(
         logManager.checkoutCommit(git, revCommit)
     }
 
-    fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing (
+    fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         logManager.revertCommit(git, revCommit)
     }
 
-    fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = tabState.safeProcessing (
+    fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         logManager.resetToCommit(git, revCommit, resetType = resetType)
@@ -52,36 +52,36 @@ class LogViewModel @Inject constructor(
 
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-    )  { git ->
+    ) { git ->
         branchesManager.checkoutRef(git, ref)
     }
 
 
-    fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing (
+    fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         branchesManager.createBranchOnCommit(git, branch, revCommit)
     }
 
-    fun createTagOnCommit(tag: String, revCommit: RevCommit) = tabState.safeProcessing (
+    fun createTagOnCommit(tag: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         tagsManager.createTagOnCommit(git, tag, revCommit)
     }
 
-    fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing (
+    fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         mergeManager.mergeBranch(git, ref, fastForward)
     }
 
-    fun deleteBranch(branch: Ref) = tabState.safeProcessing (
+    fun deleteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         branchesManager.deleteBranch(git, branch)
     }
 
-    fun deleteTag(tag: Ref) = tabState.safeProcessing (
+    fun deleteTag(tag: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         tagsManager.deleteTag(git, tag)
@@ -91,7 +91,7 @@ class LogViewModel @Inject constructor(
         loadLog(git)
     }
 
-    fun rebaseBranch(ref: Ref) = tabState.safeProcessing (
+    fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         rebaseManager.rebaseBranch(git, ref)

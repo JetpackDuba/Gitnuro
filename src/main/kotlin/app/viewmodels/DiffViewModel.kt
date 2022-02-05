@@ -25,7 +25,7 @@ class DiffViewModel @Inject constructor(
         )
     )
 
-    fun updateDiff(diffEntryType: DiffEntryType) = tabState.runOperation (
+    fun updateDiff(diffEntryType: DiffEntryType) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
         val oldDiffEntryType = _diffResult.value?.diffEntryType
@@ -54,13 +54,13 @@ class DiffViewModel @Inject constructor(
         }
     }
 
-    fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation (
+    fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
         statusManager.stageHunk(git, diffEntry, hunk)
     }
 
-    fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation (
+    fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
         statusManager.unstageHunk(git, diffEntry, hunk)
