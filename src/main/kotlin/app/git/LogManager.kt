@@ -70,9 +70,38 @@ class LogManager @Inject constructor(
             .setRef(revCommit.name)
             .call()
     }
+
+    suspend fun latestMessage(git: Git): String = withContext(Dispatchers.IO) {
+        try {
+            val log = git.log().setMaxCount(1).call()
+            val latestCommitNode = log.firstOrNull()
+
+            return@withContext if(latestCommitNode == null)
+                ""
+            else
+                latestCommitNode.fullMessage
+
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            return@withContext ""
+        }
+
+    }
+
+    suspend fun hasPreviousCommits(git: Git): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val log = git.log().setMaxCount(1).call()
+            val latestCommitNode = log.firstOrNull()
+
+            return@withContext latestCommitNode != null
+
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            return@withContext false
+        }
+    }
 }
 
-// TODO Move this to
 enum class ResetType {
     SOFT,
     MIXED,

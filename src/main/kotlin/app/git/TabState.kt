@@ -122,6 +122,8 @@ class TabState @Inject constructor(
             if (showError)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
+            operationRunning = false
+
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
                 _refreshData.emit(refreshType)
         }

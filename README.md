@@ -18,6 +18,7 @@ Right now you CAN:
 - Commit.
 - Reset commits.
 - Revert commits.
+- Amend previous commit.
 - Merge.
 - Rebase.
 - Create and delete branches locally.

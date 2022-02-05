@@ -17,6 +17,7 @@ class StatusViewModel @Inject constructor(
     private val repositoryManager: RepositoryManager,
     private val rebaseManager: RebaseManager,
     private val mergeManager: MergeManager,
+    private val logManager: LogManager,
 ) {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
@@ -28,6 +29,8 @@ class StatusViewModel @Inject constructor(
         set(value) {
             _commitMessage.value = value
         }
+
+    var hasPreviousCommits = true // When false, disable "amend previous commit"
 
     private var lastUncommitedChangesState = false
 
@@ -89,10 +92,15 @@ class StatusViewModel @Inject constructor(
         lastUncommitedChangesState = statusManager.hasUncommitedChanges(git)
     }
 
-    fun commit(message: String) = tabState.safeProcessing(
+    fun commit(message: String, amend: Boolean) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        statusManager.commit(git, message)
+        val commitMessage = if(amend && message.isBlank()) {
+            logManager.latestMessage(git)
+        } else
+            message
+
+        statusManager.commit(git, commitMessage, amend)
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -110,6 +118,7 @@ class StatusViewModel @Inject constructor(
         loadHasUncommitedChanges(git)
 
         val hasNowUncommitedChanges = this.lastUncommitedChangesState
+        hasPreviousCommits = logManager.hasPreviousCommits(git)
 
         // Return true to update the log only if the uncommitedChanges status has changed
         return (hasNowUncommitedChanges != hadUncommitedChanges)

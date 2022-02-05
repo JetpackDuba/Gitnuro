@@ -10,6 +10,8 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -33,6 +35,8 @@ import app.git.StatusEntry
 import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
+import app.ui.context_menu.DropDownContent
+import app.ui.context_menu.DropDownContentData
 import app.ui.context_menu.stagedEntriesContextMenuItems
 import app.ui.context_menu.unstagedEntriesContextMenuItems
 import app.viewmodels.StageStatus
@@ -75,12 +79,14 @@ fun UncommitedChanges(
         unstaged = listOf() // return empty lists if still loading
     }
 
-    val doCommit = {
-        statusViewModel.commit(commitMessage)
+    val doCommit = { amend: Boolean ->
+        statusViewModel.commit(commitMessage, amend)
         onStagedDiffEntrySelected(null)
         statusViewModel.newCommitMessage = ""
     }
+
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
+    val canAmend = (commitMessage.isNotEmpty() || staged.isNotEmpty()) && statusViewModel.hasPreviousCommits
 
     Column {
         AnimatedVisibility(
@@ -90,7 +96,6 @@ fun UncommitedChanges(
         ) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-
 
         EntriesList(
             modifier = Modifier
@@ -169,7 +174,7 @@ fun UncommitedChanges(
                         .weight(weight = 1f, fill = true)
                         .onPreviewKeyEvent {
                             if (it.isCtrlPressed && it.key == Key.Enter && canCommit) {
-                                doCommit()
+                                doCommit(false)
                                 true
                             } else
                                 false
@@ -185,7 +190,7 @@ fun UncommitedChanges(
                 repositoryState.isMerging -> MergeButtons(
                     haveConflictsBeenSolved = unstaged.isEmpty(),
                     onAbort = { statusViewModel.abortMerge() },
-                    onMerge = { doCommit() }
+                    onMerge = { doCommit(false) }
                 )
                 repositoryState.isRebasing -> RebasingButtons(
                     canContinue = staged.isNotEmpty() || unstaged.isNotEmpty(),
@@ -194,25 +199,84 @@ fun UncommitedChanges(
                     onContinue = { statusViewModel.continueRebase() },
                     onSkip = { statusViewModel.skipRebase() },
                 )
-                else -> {
-                    Button(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        onClick = doCommit,
-                        enabled = canCommit,
-                        shape = RectangleShape,
-                    ) {
-
-                        Text(
-                            text = "Commit",
-                            fontSize = 14.sp,
-                        )
-                    }
-                }
+                else -> UncommitedChangesButtons(
+                    canCommit = canCommit,
+                    canAmend = canAmend,
+                    onCommit = { amend -> doCommit(amend) },
+                )
             }
         }
     }
 
+}
+
+@Composable
+fun UncommitedChangesButtons(
+    canCommit: Boolean,
+    canAmend: Boolean,
+    onCommit: (Boolean) -> Unit
+) {
+    var showDropDownMenu by remember { mutableStateOf(false) }
+
+
+    Row(
+        modifier = Modifier
+            .padding(top = 2.dp)
+    ) {
+        Button(
+            modifier = Modifier
+                .weight(1f)
+                .height(40.dp),
+            onClick = { onCommit(false) },
+            enabled = canCommit,
+            shape = RectangleShape,
+        ) {
+            Text(
+                text = "Commit",
+                fontSize = 14.sp,
+            )
+        }
+        Spacer(
+            modifier = Modifier
+                .width(1.dp)
+                .height(40.dp),
+        )
+
+        Box(
+            modifier = Modifier
+                .height(40.dp)
+                .background(MaterialTheme.colors.primary)
+                .clickable { showDropDownMenu = true },
+        ) {
+            Icon(
+                Icons.Default.ArrowDropDown,
+                contentDescription = null,
+                tint = MaterialTheme.colors.inversePrimaryTextColor,
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .align(Alignment.Center),
+            )
+            DropdownMenu(
+                onDismissRequest = {
+                    showDropDownMenu = false
+                },
+                content = {
+                    DropDownContent(
+                        enabled = canAmend,
+                        dropDownContentData = DropDownContentData(
+                            label = "Amend previous commit",
+                            icon = null,
+                            onClick = { onCommit(true) }
+                        ),
+                        onDismiss = { showDropDownMenu = false }
+                    )
+                },
+                expanded = showDropDownMenu,
+            )
+
+        }
+//        }
+    }
 }
 
 @Composable

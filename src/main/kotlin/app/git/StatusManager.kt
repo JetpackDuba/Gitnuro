@@ -188,10 +188,11 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun commit(git: Git, message: String) = withContext(Dispatchers.IO) {
+    suspend fun commit(git: Git, message: String, amend: Boolean) = withContext(Dispatchers.IO) {
         git.commit()
             .setMessage(message)
             .setAllowEmpty(false)
+            .setAmend(amend)
             .call()
     }
 

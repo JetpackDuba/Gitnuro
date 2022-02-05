@@ -8,8 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun DropDownContent(dropDownContentData: DropDownContentData, onDismiss: () -> Unit) {
+fun DropDownContent(
+    dropDownContentData: DropDownContentData,
+    enabled: Boolean = true,
+    onDismiss: () -> Unit,
+) {
     DropdownMenuItem(
+        enabled = enabled,
         onClick = {
             dropDownContentData.onClick()
             onDismiss()
