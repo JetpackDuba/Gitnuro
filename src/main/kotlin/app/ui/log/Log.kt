@@ -370,6 +370,10 @@ fun CommitLine(
                         label = "Revert commit",
                         onClick = { logViewModel.revertCommit(graphNode) }
                     ),
+                    ContextMenuItem(
+                        label = "Cherry-pick commit",
+                        onClick = { logViewModel.cherrypickCommit(graphNode) }
+                    ),
 
                     ContextMenuItem(
                         label = "Reset current branch to this commit",

@@ -56,6 +56,11 @@ class LogViewModel @Inject constructor(
         branchesManager.checkoutRef(git, ref)
     }
 
+    fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing (
+        refreshType = RefreshType.ONLY_LOG,
+    ) { git ->
+        mergeManager.cherryPickCommit(git, revCommit)
+    }
 
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

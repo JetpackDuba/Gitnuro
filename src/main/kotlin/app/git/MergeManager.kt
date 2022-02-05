@@ -6,6 +6,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class MergeManager @Inject constructor() {
@@ -27,5 +28,11 @@ class MergeManager @Inject constructor() {
         git.repository.writeMergeHeads(null)
 
         git.reset().setMode(ResetCommand.ResetType.HARD).call()
+    }
+
+    suspend fun cherryPickCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
+        git.cherryPick()
+            .include(revCommit)
+            .call()
     }
 }
