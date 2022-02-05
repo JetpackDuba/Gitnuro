@@ -85,11 +85,6 @@ class RemoteOperationsManager @Inject constructor(
     }
 
     suspend fun deleteBranch(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
-        git
-            .branchDelete()
-            .setBranchNames(ref.name)
-            .call()
-
         val branchSplit = ref.name.split("/").toMutableList()
         val remoteName = branchSplit[2] // Remote name
         repeat(3) {
@@ -101,12 +96,32 @@ class RemoteOperationsManager @Inject constructor(
         val refSpec = RefSpec()
             .setSource(null)
             .setDestination(branchName)
-        git.push()
+
+        val pushResult = git.push()
             .setTransportConfigCallback {
                 handleTransportCredentials(it)
             }
             .setRefSpecs(refSpec)
             .setRemote(remoteName)
+            .call()
+
+        val results =
+            pushResult.map { it.remoteUpdates.filter { remoteRefUpdate -> remoteRefUpdate.status.isRejected } }
+                .flatten()
+        if (results.isNotEmpty()) {
+            val error = StringBuilder()
+
+            results.forEach { result ->
+                error.append(result.statusMessage)
+                error.append("\n")
+            }
+
+            throw Exception(error.toString())
+        }
+
+        git
+            .branchDelete()
+            .setBranchNames(ref.name)
             .call()
     }
 
