@@ -15,8 +15,8 @@ class RemotesViewModel @Inject constructor(
     private val branchesManager: BranchesManager,
     private val tabState: TabState,
 ) {
-    private val _remotes = MutableStateFlow<List<RemoteInfo>>(listOf())
-    val remotes: StateFlow<List<RemoteInfo>>
+    private val _remotes = MutableStateFlow<List<RemoteView>>(listOf())
+    val remotes: StateFlow<List<RemoteView>>
         get() = _remotes
 
     suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
@@ -32,7 +32,11 @@ class RemotesViewModel @Inject constructor(
             RemoteInfo(remoteConfig, remoteBranches)
         }
 
-        _remotes.value = remoteInfoList
+        val remoteViewList = remoteInfoList.map { remoteInfo ->
+            RemoteView(remoteInfo, true)
+        }
+
+        _remotes.value = remoteViewList
     }
 
     fun deleteBranch(ref: Ref) = tabState.safeProcessing { git ->
@@ -44,5 +48,16 @@ class RemotesViewModel @Inject constructor(
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
         loadRemotes(git)
     }
+
+    fun onRemoteClicked(remoteInfo: RemoteView) {
+        val remotes = _remotes.value
+        val newRemoteInfo = remoteInfo.copy(isExpanded = !remoteInfo.isExpanded)
+        val newRemotesList = remotes.toMutableList()
+        val indexToReplace = newRemotesList.indexOf(remoteInfo)
+        newRemotesList[indexToReplace] = newRemoteInfo
+
+        _remotes.value = newRemotesList
+    }
 }
 
+data class RemoteView(val remoteInfo: RemoteInfo, val isExpanded: Boolean)

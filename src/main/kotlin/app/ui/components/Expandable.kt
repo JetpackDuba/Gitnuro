@@ -11,25 +11,37 @@ import androidx.compose.ui.Modifier
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun VerticalExpandable(
+    isExpanded: MutableState<Boolean> = remember { mutableStateOf(true) },
     header: @Composable () -> Unit,
     child: @Composable () -> Unit,
 ) {
-    var isExpanded by remember {
-        mutableStateOf(true)
-    }
+    VerticalExpandable(
+        isExpanded = isExpanded.value,
+        onExpand = { isExpanded.value = !isExpanded.value },
+        header = header,
+        child = child,
+    )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun VerticalExpandable(
+    isExpanded: Boolean,
+    onExpand: () -> Unit,
+    header: @Composable () -> Unit,
+    child: @Composable () -> Unit,
+) {
     Column {
         Box(
             modifier = Modifier.clickable {
-                isExpanded = !isExpanded
+                onExpand()
             }
         ) {
             header()
         }
 
-        AnimatedVisibility(visible = isExpanded) {
+        if(isExpanded) {
             child()
         }
-
     }
-
 }

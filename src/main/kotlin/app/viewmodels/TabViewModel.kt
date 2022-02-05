@@ -217,11 +217,10 @@ class TabViewModel @Inject constructor(
     fun newSelectedRef(objectId: ObjectId?) = tabState.runOperation { git ->
         if (objectId == null) {
             newSelectedItem(SelectedItem.None)
-            return@runOperation RefreshType.NONE
+        } else {
+            val commit = findCommit(git, objectId)
+            newSelectedItem(SelectedItem.Ref(commit))
         }
-
-        val commit = findCommit(git, objectId)
-        newSelectedItem(SelectedItem.Ref(commit))
 
         return@runOperation RefreshType.NONE
     }
