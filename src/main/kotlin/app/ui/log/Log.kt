@@ -26,7 +26,6 @@ import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -759,7 +758,7 @@ fun RefChip(
                     )
                 }
                 Text(
-                    text = ref.simpleVisibleName,
+                    text = ref.simpleLogName,
                     color = MaterialTheme.colors.primaryTextColor,
                     fontSize = 13.sp,
                     maxLines = 1,

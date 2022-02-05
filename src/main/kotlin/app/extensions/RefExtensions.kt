@@ -24,7 +24,7 @@ val Ref.simpleName: String
         }
     }
 
-val Ref.simpleVisibleName: String
+val Ref.simpleLogName: String
     get() {
         return when {
             this.name == Constants.HEAD -> {

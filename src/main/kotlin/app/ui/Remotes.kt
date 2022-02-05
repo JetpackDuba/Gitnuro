@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import app.extensions.simpleVisibleName
+import app.extensions.simpleName
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.components.VerticalExpandable
@@ -80,7 +80,7 @@ private fun RemoteRow(
                     }
                 ) {
                     SideMenuSubentry(
-                        text = branch.simpleVisibleName,
+                        text = branch.simpleName,
                         extraPadding = 8.dp,
                         iconResourcePath = "branch.svg",
                         onClick = { onBranchClicked(branch) }
