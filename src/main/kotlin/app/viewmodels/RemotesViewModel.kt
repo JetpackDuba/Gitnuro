@@ -39,10 +39,10 @@ class RemotesViewModel @Inject constructor(
         _remotes.value = remoteViewList
     }
 
-    fun deleteBranch(ref: Ref) = tabState.safeProcessing { git ->
+    fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing (
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         remoteOperationsManager.deleteBranch(git, ref)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {

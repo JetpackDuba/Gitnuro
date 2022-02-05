@@ -44,7 +44,7 @@ fun Remotes(
             RemoteRow(
                 remote = remoteInfo,
                 onBranchClicked = { branch -> onBranchClicked(branch) },
-                onDeleteBranch = { branch -> remotesViewModel.deleteBranch(branch) },
+                onDeleteBranch = { branch -> remotesViewModel.deleteRemoteBranch(branch) },
                 onRemoteClicked = { remotesViewModel.onRemoteClicked(remoteInfo) }
             )
         }

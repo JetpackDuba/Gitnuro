@@ -31,42 +31,41 @@ class StatusViewModel @Inject constructor(
 
     private var lastUncommitedChangesState = false
 
-    fun stage(diffEntry: DiffEntry) = tabState.runOperation { git ->
+    fun stage(diffEntry: DiffEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         statusManager.stage(git, diffEntry)
-
-        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
-    fun unstage(diffEntry: DiffEntry) = tabState.runOperation { git ->
+    fun unstage(diffEntry: DiffEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         statusManager.unstage(git, diffEntry)
-
-        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
 
-    fun unstageAll() = tabState.safeProcessing { git ->
+    fun unstageAll() = tabState.safeProcessing(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         statusManager.unstageAll(git)
-
-        return@safeProcessing RefreshType.UNCOMMITED_CHANGES
     }
 
-    fun stageAll() = tabState.safeProcessing { git ->
+    fun stageAll() = tabState.safeProcessing(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         statusManager.stageAll(git)
-
-        return@safeProcessing RefreshType.UNCOMMITED_CHANGES
     }
 
-
-    fun resetStaged(diffEntry: DiffEntry) = tabState.runOperation { git ->
+    fun resetStaged(diffEntry: DiffEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         statusManager.reset(git, diffEntry, staged = true)
-
-        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
-    fun resetUnstaged(diffEntry: DiffEntry) = tabState.runOperation { git ->
+    fun resetUnstaged(diffEntry: DiffEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         statusManager.reset(git, diffEntry, staged = false)
-
-        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 
     private suspend fun loadStatus(git: Git) {
@@ -90,10 +89,10 @@ class StatusViewModel @Inject constructor(
         lastUncommitedChangesState = statusManager.hasUncommitedChanges(git)
     }
 
-    fun commit(message: String) = tabState.safeProcessing { git ->
+    fun commit(message: String) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         statusManager.commit(git, message)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -116,38 +115,38 @@ class StatusViewModel @Inject constructor(
         return (hasNowUncommitedChanges != hadUncommitedChanges)
     }
 
-    fun continueRebase() = tabState.safeProcessing { git ->
+    fun continueRebase() = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         rebaseManager.continueRebase(git)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun abortRebase() = tabState.safeProcessing { git ->
+    fun abortRebase() = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         rebaseManager.abortRebase(git)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun skipRebase() = tabState.safeProcessing { git ->
+    fun skipRebase() = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         rebaseManager.skipRebase(git)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun abortMerge() = tabState.safeProcessing { git ->
+    fun abortMerge() = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         mergeManager.abortMerge(git)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun deleteFile(diffEntry: DiffEntry) = tabState.runOperation { git ->
+    fun deleteFile(diffEntry: DiffEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         val path = diffEntry.newPath
 
         val fileToDelete = File(git.repository.directory.parent, path)
 
         fileToDelete.delete()
-
-        return@runOperation RefreshType.UNCOMMITED_CHANGES
     }
 }
 

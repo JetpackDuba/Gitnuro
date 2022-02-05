@@ -16,14 +16,14 @@ class CommitChangesViewModel @Inject constructor(
     private val _commitChangesStatus = MutableStateFlow<CommitChangesStatus>(CommitChangesStatus.Loading)
     val commitChangesStatus: StateFlow<CommitChangesStatus> = _commitChangesStatus
 
-    fun loadChanges(commit: RevCommit) = tabState.runOperation { git ->
+    fun loadChanges(commit: RevCommit) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
         _commitChangesStatus.value = CommitChangesStatus.Loading
 
         val changes = diffManager.commitDiffEntries(git, commit)
 
         _commitChangesStatus.value = CommitChangesStatus.Loaded(commit, changes)
-
-        return@runOperation RefreshType.NONE
     }
 }
 

@@ -12,39 +12,43 @@ class MenuViewModel @Inject constructor(
     private val remoteOperationsManager: RemoteOperationsManager,
     private val stashManager: StashManager,
 ) {
-    fun pull(rebase: Boolean = false) = tabState.safeProcessing { git ->
+    fun pull(rebase: Boolean = false) = tabState.safeProcessing (
+        refreshType = RefreshType.ALL_DATA,
+        refreshEvenIfCrashes = true,
+    ) { git ->
         remoteOperationsManager.pull(git, rebase)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun fetchAll() = tabState.safeProcessing { git ->
+    fun fetchAll() = tabState.safeProcessing (
+        refreshType = RefreshType.ALL_DATA,
+        refreshEvenIfCrashes = true,
+    ) { git ->
         remoteOperationsManager.fetchAll(git)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun push(force: Boolean = false) = tabState.safeProcessing { git ->
+    fun push(force: Boolean = false) = tabState.safeProcessing (
+        refreshType = RefreshType.ALL_DATA,
+        refreshEvenIfCrashes = true,
+    ) { git ->
         remoteOperationsManager.push(git, force)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun stash() = tabState.safeProcessing { git ->
+    fun stash() = tabState.safeProcessing (
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         stashManager.stash(git)
-
-        return@safeProcessing RefreshType.UNCOMMITED_CHANGES
     }
 
-    fun popStash() = tabState.safeProcessing { git ->
+    fun popStash() = tabState.safeProcessing (
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
         stashManager.popStash(git)
-
-        return@safeProcessing RefreshType.UNCOMMITED_CHANGES
     }
 
-    fun openFolderInFileExplorer() = tabState.runOperation(showError = true) { git ->
+    fun openFolderInFileExplorer() = tabState.runOperation(
+        showError = true,
+        refreshType = RefreshType.NONE,
+    )  { git ->
         Desktop.getDesktop().open(git.repository.directory.parentFile)
-
-        return@runOperation RefreshType.NONE
     }
 }

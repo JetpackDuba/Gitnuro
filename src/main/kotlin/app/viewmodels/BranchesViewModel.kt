@@ -37,38 +37,38 @@ class BranchesViewModel @Inject constructor(
         _branches.value = branchesList
     }
 
-    fun createBranch(branchName: String) = tabState.safeProcessing { git ->
+    fun createBranch(branchName: String) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+    ) { git ->
         branchesManager.createBranch(git, branchName)
         this.loadBranches(git)
-
-        return@safeProcessing RefreshType.NONE
     }
 
-    fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing { git ->
+    fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         mergeManager.mergeBranch(git, ref, fastForward)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun deleteBranch(branch: Ref) = tabState.safeProcessing { git ->
+    fun deleteBranch(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         branchesManager.deleteBranch(git, branch)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun checkoutRef(ref: Ref) = tabState.safeProcessing { git ->
+    fun checkoutRef(ref: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         branchesManager.checkoutRef(git, ref)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
     suspend fun refresh(git: Git) {
         loadBranches(git)
     }
 
-    fun rebaseBranch(ref: Ref) = tabState.safeProcessing { git ->
+    fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         rebaseManager.rebaseBranch(git, ref)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 }

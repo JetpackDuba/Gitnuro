@@ -81,10 +81,10 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    private fun refreshLog() = tabState.runOperation { git ->
+    private fun refreshLog() = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
         logViewModel.refresh(git)
-
-        return@runOperation RefreshType.NONE
     }
 
     fun openRepository(directory: String) {
@@ -125,8 +125,6 @@ class TabViewModel @Inject constructor(
             onRepositoryChanged(null)
             errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         }
-
-        return@safeProcessingWihoutGit RefreshType.NONE
     }
 
     private suspend fun loadRepositoryState(git: Git) = withContext(Dispatchers.IO) {
@@ -149,7 +147,9 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkUncommitedChanges(isFsChange: Boolean = false) = tabState.runOperation { git ->
+    private suspend fun checkUncommitedChanges(isFsChange: Boolean = false) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
         val uncommitedChangesStateChanged = statusViewModel.updateHasUncommitedChanges(git)
 
         // Update the log only if the uncommitedChanges status has changed
@@ -161,11 +161,11 @@ class TabViewModel @Inject constructor(
         // Stashes list should only be updated if we are doing a stash operation, however it's a small operation
         // that we can afford to do when doing other operations
         stashesViewModel.refresh(git)
-
-        return@runOperation RefreshType.NONE
     }
 
-    private suspend fun refreshRepositoryInfo() = tabState.safeProcessing { git ->
+    private suspend fun refreshRepositoryInfo() = tabState.safeProcessing (
+        refreshType = RefreshType.NONE,
+    ){ git ->
         logViewModel.refresh(git)
         branchesViewModel.refresh(git)
         remotesViewModel.refresh(git)
@@ -173,8 +173,6 @@ class TabViewModel @Inject constructor(
         statusViewModel.refresh(git)
         stashesViewModel.refresh(git)
         loadRepositoryState(git)
-
-        return@safeProcessing RefreshType.NONE
     }
 
     fun credentialsDenied() {
@@ -198,8 +196,6 @@ class TabViewModel @Inject constructor(
 
     fun clone(directory: File, url: String) = tabState.safeProcessingWihoutGit {
         remoteOperationsManager.clone(directory, url)
-
-        return@safeProcessingWihoutGit RefreshType.NONE
     }
 
     private fun findCommit(git: Git, objectId: ObjectId): RevCommit {
@@ -214,15 +210,15 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    fun newSelectedRef(objectId: ObjectId?) = tabState.runOperation { git ->
+    fun newSelectedRef(objectId: ObjectId?) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
         if (objectId == null) {
             newSelectedItem(SelectedItem.None)
         } else {
             val commit = findCommit(git, objectId)
             newSelectedItem(SelectedItem.Ref(commit))
         }
-
-        return@runOperation RefreshType.NONE
     }
 
     fun newSelectedStash(stash: RevCommit) {

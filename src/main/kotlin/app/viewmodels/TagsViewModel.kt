@@ -27,16 +27,16 @@ class TagsViewModel @Inject constructor(
         _tags.value = tagsList
     }
 
-    fun checkoutRef(ref: Ref) = tabState.safeProcessing { git ->
+    fun checkoutRef(ref: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         branchesManager.checkoutRef(git, ref)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
-    fun deleteTag(tag: Ref) = tabState.safeProcessing { git ->
+    fun deleteTag(tag: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
         tagsManager.deleteTag(git, tag)
-
-        return@safeProcessing RefreshType.ALL_DATA
     }
 
     suspend fun refresh(git: Git) {

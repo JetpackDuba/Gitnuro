@@ -45,21 +45,49 @@ class TabState @Inject constructor(
      */
     @set:Synchronized
     var operationRunning = false
+    get() {
+        return field || mutex.isLocked
+    }
 
     private val _processing = MutableStateFlow(false)
     val processing: StateFlow<Boolean> = _processing
 
-    fun safeProcessing(showError: Boolean = true, callback: suspend (git: Git) -> RefreshType) =
+    fun safeProcessing(
+        showError: Boolean = true,
+        refreshType: RefreshType,
+        refreshEvenIfCrashes: Boolean = false,
+        callback: suspend (git: Git) -> Unit
+    ) =
+        managerScope.launch(Dispatchers.IO) {
+            mutex.withLock {
+                var hasProcessFailed = false
+                _processing.value = true
+
+                try {
+                    callback(safeGit)
+                } catch (ex: Exception) {
+                    hasProcessFailed = true
+                    ex.printStackTrace()
+
+                    if (showError)
+                        errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+                } finally {
+                    _processing.value = false
+
+                    if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
+                        _refreshData.emit(refreshType)
+                }
+            }
+        }
+
+    fun safeProcessingWihoutGit(showError: Boolean = true, callback: suspend () -> Unit) =
         managerScope.launch(Dispatchers.IO) {
             mutex.withLock {
                 _processing.value = true
                 operationRunning = true
 
                 try {
-                    val refreshType = callback(safeGit)
-
-                    if (refreshType != RefreshType.NONE)
-                        _refreshData.emit(refreshType)
+                    callback()
                 } catch (ex: Exception) {
                     ex.printStackTrace()
 
@@ -72,46 +100,32 @@ class TabState @Inject constructor(
             }
         }
 
-    fun safeProcessingWihoutGit(showError: Boolean = true, callback: suspend () -> RefreshType) =
-        managerScope.launch(Dispatchers.IO) {
-            mutex.withLock {
-                _processing.value = true
-                operationRunning = true
+    fun runOperation(
+        showError: Boolean = false,
+        refreshType: RefreshType,
+        refreshEvenIfCrashes: Boolean = false,
+        block: suspend (git: Git) -> Unit
+    ) = managerScope.launch(Dispatchers.IO) {
+        var hasProcessFailed = false
 
-                try {
-                    val refreshType = callback()
+        operationRunning = true
+        try {
+            block(safeGit)
 
-                    if (refreshType != RefreshType.NONE)
-                        _refreshData.emit(refreshType)
-                } catch (ex: Exception) {
-                    ex.printStackTrace()
+            if (refreshType != RefreshType.NONE)
+                _refreshData.emit(refreshType)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
 
-                    if (showError)
-                        errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
-                } finally {
-                    _processing.value = false
-                    operationRunning = false
-                }
-            }
+            hasProcessFailed = true
+
+            if (showError)
+                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+        } finally {
+            if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
+                _refreshData.emit(refreshType)
         }
-
-    fun runOperation(showError: Boolean = false, block: suspend (git: Git) -> RefreshType) =
-        managerScope.launch(Dispatchers.IO) {
-            operationRunning = true
-            try {
-                val refreshType = block(safeGit)
-
-                if (refreshType != RefreshType.NONE)
-                    _refreshData.emit(refreshType)
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-
-                if (showError)
-                    errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
-            } finally {
-                operationRunning = false
-            }
-        }
+    }
 }
 
 enum class RefreshType {

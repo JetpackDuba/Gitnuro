@@ -110,7 +110,7 @@ fun UncommitedChanges(
                 stagedEntriesContextMenuItems(
                     diffEntry = diffEntry,
                     onReset = {
-                        statusViewModel.resetUnstaged(diffEntry)
+                        statusViewModel.resetStaged(diffEntry)
                     },
                 )
             },
