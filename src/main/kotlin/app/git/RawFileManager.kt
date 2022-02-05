@@ -98,8 +98,6 @@ class RawFileManager @AssistedInject constructor(
         return imageFormatsSupported.contains(fileExtension.lowercase())
     }
 
-//    fun isBinary() = RawText.isBinary()
-
     override fun close() {
         reader.close()
     }
