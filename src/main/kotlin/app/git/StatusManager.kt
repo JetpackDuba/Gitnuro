@@ -98,8 +98,8 @@ class StatusManager @Inject constructor(
         val dirCache = repository.lockDirCache()
         val dirCacheEditor = dirCache.editor()
         var completedWithErrors = true
-        try {
 
+        try {
             val rawFileManager = rawFileManagerFactory.create(git.repository)
             val entryContent = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
 
@@ -140,8 +140,6 @@ class StatusManager @Inject constructor(
             dirCacheEditor.commit()
 
             completedWithErrors = false
-
-//            loadStatus(git)
         } finally {
             if (completedWithErrors)
                 dirCache.unlock()
@@ -208,8 +206,6 @@ class StatusManager @Inject constructor(
             .checkout()
             .addPath(diffEntry.filePath)
             .call()
-
-//        loadStatus(git)
     }
 
     suspend fun unstageAll(git: Git) = withContext(Dispatchers.IO) {
@@ -227,8 +223,9 @@ class StatusManager @Inject constructor(
 
     suspend fun getStaged(git: Git, currentBranch: Ref?, repositoryState: RepositoryState) =
         withContext(Dispatchers.IO) {
-            return@withContext git
-                .diff()
+            val statusEntries: List<StatusEntry>
+
+            val status = git.diff()
                 .setShowNameAndStatusOnly(true).apply {
                     if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
                         setOldTree(EmptyTreeIterator()) // Required if the repository is empty
@@ -236,22 +233,28 @@ class StatusManager @Inject constructor(
                     setCached(true)
                 }
                 .call()
-                // TODO: Grouping and fitlering allows us to remove duplicates when conflicts appear, requires more testing (what happens in windows? /dev/null is a unix thing)
-                // TODO: Test if we should group by old path or new path
-                .groupBy {
+
+            statusEntries = if(repositoryState.isMerging || repositoryState.isRebasing) {
+                status.groupBy {
                     if (it.newPath != "/dev/null")
                         it.newPath
                     else
                         it.oldPath
                 }
-                .map {
-                    val entries = it.value
+                    .map {
+                        val entries = it.value
 
-                    val hasConflicts =
-                        (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+                        val hasConflicts = (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
 
-                    StatusEntry(entries.first(), isConflict = hasConflicts)
+                        StatusEntry(entries.first(), isConflict = hasConflicts)
+                    }
+            } else {
+                status.map {
+                    StatusEntry(it, isConflict = false)
                 }
+            }
+
+            return@withContext statusEntries
         }
 
     suspend fun getUnstaged(git: Git, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
@@ -274,6 +277,42 @@ class StatusManager @Inject constructor(
                 StatusEntry(entries.first(), isConflict = hasConflicts)
             }
     }
+
+    suspend fun getStatusSummary(git: Git, currentBranch: Ref?, repositoryState: RepositoryState): StatusSummary {
+        val staged = getStaged(git, currentBranch, repositoryState)
+        val allChanges = staged.toMutableList()
+        println("Staged: $staged")
+
+        val unstaged = getUnstaged(git, repositoryState)
+        println("Unstaged: $unstaged")
+
+        allChanges.addAll(unstaged)
+        val groupedChanges = allChanges.groupBy {
+            if (it.diffEntry.newPath != "/dev/null")
+                it.diffEntry.newPath
+            else
+                it.diffEntry.oldPath
+        }
+        val changesGrouped = groupedChanges.map {
+            it.value
+        }.flatten()
+            .groupBy {
+                it.diffEntry.changeType
+            }
+
+        val deletedCount = changesGrouped[DiffEntry.ChangeType.DELETE].countOrZero()
+        val addedCount = changesGrouped[DiffEntry.ChangeType.ADD].countOrZero()
+
+        val modifiedCount = changesGrouped[DiffEntry.ChangeType.MODIFY].countOrZero() +
+                changesGrouped[DiffEntry.ChangeType.RENAME].countOrZero() +
+                changesGrouped[DiffEntry.ChangeType.COPY].countOrZero()
+
+        return StatusSummary(
+            modifiedCount = modifiedCount,
+            deletedCount = deletedCount,
+            addedCount = addedCount,
+        )
+    }
 }
 
 
@@ -294,3 +333,5 @@ data class StatusEntry(val diffEntry: DiffEntry, val isConflict: Boolean) {
                 diffEntry.iconColor
         }
 }
+
+data class StatusSummary(val modifiedCount: Int, val deletedCount: Int, val addedCount: Int)

@@ -134,10 +134,5 @@ enum class RefreshType {
     NONE,
     ALL_DATA,
     ONLY_LOG,
-
-    /**
-     * Requires to update the status if currently selected and update the log if there has been a change
-     * in the "uncommited changes" state (if there were changes before but not anymore and vice-versa)
-     */
     UNCOMMITED_CHANGES,
 }

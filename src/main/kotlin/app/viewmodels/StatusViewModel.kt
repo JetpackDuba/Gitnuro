@@ -108,22 +108,6 @@ class StatusViewModel @Inject constructor(
         loadHasUncommitedChanges(git)
     }
 
-    /**
-     * Checks if there are uncommited changes and returns if the state has changed (
-     */
-    suspend fun updateHasUncommitedChanges(git: Git): Boolean {
-        val hadUncommitedChanges = this.lastUncommitedChangesState
-
-        loadStatus(git)
-        loadHasUncommitedChanges(git)
-
-        val hasNowUncommitedChanges = this.lastUncommitedChangesState
-        hasPreviousCommits = logManager.hasPreviousCommits(git)
-
-        // Return true to update the log only if the uncommitedChanges status has changed
-        return (hasNowUncommitedChanges != hadUncommitedChanges)
-    }
-
     fun continueRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->

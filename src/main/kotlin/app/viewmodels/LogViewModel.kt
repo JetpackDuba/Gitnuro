@@ -16,6 +16,7 @@ class LogViewModel @Inject constructor(
     private val rebaseManager: RebaseManager,
     private val tagsManager: TagsManager,
     private val mergeManager: MergeManager,
+    private val repositoryManager: RepositoryManager,
     private val tabState: TabState,
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
@@ -23,13 +24,23 @@ class LogViewModel @Inject constructor(
     val logStatus: StateFlow<LogStatus>
         get() = _logStatus
 
-    suspend fun loadLog(git: Git) {
+    private suspend fun loadLog(git: Git) {
         _logStatus.value = LogStatus.Loading
 
         val currentBranch = branchesManager.currentBranchRef(git)
         val log = logManager.loadLog(git, currentBranch)
         val hasUncommitedChanges = statusManager.hasUncommitedChanges(git)
-        _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch)
+
+        val statsSummary = if (hasUncommitedChanges) {
+            statusManager.getStatusSummary(
+                git = git,
+                currentBranch = currentBranch,
+                repositoryState = repositoryManager.getRepositoryState(git),
+            )
+        } else
+            StatusSummary(0, 0, 0)
+
+        _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statsSummary)
     }
 
     fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
@@ -56,7 +67,7 @@ class LogViewModel @Inject constructor(
         branchesManager.checkoutRef(git, ref)
     }
 
-    fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing (
+    fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ONLY_LOG,
     ) { git ->
         mergeManager.cherryPickCommit(git, revCommit)
@@ -92,6 +103,37 @@ class LogViewModel @Inject constructor(
         tagsManager.deleteTag(git, tag)
     }
 
+    suspend fun refreshUncommitedChanges(git: Git) {
+        uncommitedChangesLoadLog(git)
+    }
+
+    private suspend fun uncommitedChangesLoadLog(git: Git) {
+        val currentBranch = branchesManager.currentBranchRef(git)
+        val hasUncommitedChanges = statusManager.hasUncommitedChanges(git)
+
+        val statsSummary = if (hasUncommitedChanges) {
+            statusManager.getStatusSummary(
+                git = git,
+                currentBranch = currentBranch,
+                repositoryState = repositoryManager.getRepositoryState(git),
+            )
+        } else
+            StatusSummary(0, 0, 0)
+
+        val previousLogStatusValue = _logStatus.value
+
+        if(previousLogStatusValue is LogStatus.Loaded) {
+            val newLogStatusValue = LogStatus.Loaded(
+                hasUncommitedChanges = hasUncommitedChanges,
+                plotCommitList =  previousLogStatusValue.plotCommitList,
+                currentBranch = currentBranch,
+                statusSummary = statsSummary,
+            )
+
+            _logStatus.value = newLogStatusValue
+        }
+    }
+
     suspend fun refresh(git: Git) {
         loadLog(git)
     }
@@ -105,6 +147,10 @@ class LogViewModel @Inject constructor(
 
 sealed class LogStatus {
     object Loading : LogStatus()
-    class Loaded(val hasUncommitedChanges: Boolean, val plotCommitList: GraphCommitList, val currentBranch: Ref?) :
-        LogStatus()
+    class Loaded(
+        val hasUncommitedChanges: Boolean,
+        val plotCommitList: GraphCommitList,
+        val currentBranch: Ref?,
+        val statusSummary: StatusSummary,
+    ) : LogStatus()
 }

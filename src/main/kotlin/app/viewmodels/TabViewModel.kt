@@ -75,7 +75,7 @@ class TabViewModel @Inject constructor(
                     RefreshType.NONE -> println("Not refreshing...")
                     RefreshType.ALL_DATA -> refreshRepositoryInfo()
                     RefreshType.ONLY_LOG -> refreshLog()
-                    RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges(false)
+                    RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
                 }
             }
         }
@@ -140,21 +140,18 @@ class TabViewModel @Inject constructor(
         ).collect {
             if (!tabState.operationRunning) { // Only update if there isn't any process running
                 println("Changes detected, loading status")
-                checkUncommitedChanges(isFsChange = true)
+                checkUncommitedChanges()
 
                 updateDiffEntry()
             }
         }
     }
 
-    private suspend fun checkUncommitedChanges(isFsChange: Boolean = false) = tabState.runOperation(
+    private suspend fun checkUncommitedChanges() = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        val uncommitedChangesStateChanged = statusViewModel.updateHasUncommitedChanges(git)
-
-        // Update the log only if the uncommitedChanges status has changed
-        if ((uncommitedChangesStateChanged && isFsChange) || !isFsChange)
-            logViewModel.refresh(git)
+        statusViewModel.refresh(git)
+        logViewModel.refreshUncommitedChanges(git)
 
         updateDiffEntry()
 

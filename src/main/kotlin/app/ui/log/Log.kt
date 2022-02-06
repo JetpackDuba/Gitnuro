@@ -14,6 +14,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -22,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
@@ -31,6 +36,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
+import app.git.StatusSummary
 import app.git.graph.GraphNode
 import app.theme.*
 import app.ui.SelectedItem
@@ -131,6 +137,7 @@ fun Log(
                         UncommitedChangesLine(
                             selected = selectedItem == SelectedItem.UncommitedChanges,
                             hasPreviousCommits = commitList.isNotEmpty(),
+                            statusSummary = logStatus.statusSummary,
                             graphWidth = graphWidth,
                             weightMod = weightMod,
                             repositoryState = repositoryState,
@@ -273,7 +280,8 @@ fun UncommitedChangesLine(
     graphWidth: Dp,
     weightMod: MutableState<Float>,
     onUncommitedChangesSelected: () -> Unit,
-    repositoryState: RepositoryState
+    repositoryState: RepositoryState,
+    statusSummary: StatusSummary
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -287,8 +295,9 @@ fun UncommitedChangesLine(
             .clickable {
                 onUncommitedChangesSelected()
             },
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        UncommitedChangesGraphLine(
+        UncommitedChangesGraphNode(
             modifier = Modifier
                 .width(graphWidth),
             hasPreviousCommits = hasPreviousCommits,
@@ -304,29 +313,82 @@ fun UncommitedChangesLine(
                 )
         )
 
-        Column(
-            modifier = Modifier.fillMaxHeight(),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Spacer(modifier = Modifier.weight(2f))
-
-            val text = when {
-                repositoryState.isRebasing -> "Pending changes to rebase"
-                repositoryState.isMerging -> "Pending changes to merge"
-                else -> "Uncommited changes"
-            }
-
-            Text(
-                text = text,
-                fontStyle = FontStyle.Italic,
-                modifier = Modifier.padding(start = 16.dp),
-                fontSize = 14.sp,
-                maxLines = 1,
-                color = textColor,
-            )
-
-            Spacer(modifier = Modifier.weight(2f))
+        val text = when {
+            repositoryState.isRebasing -> "Pending changes to rebase"
+            repositoryState.isMerging -> "Pending changes to merge"
+            else -> "Uncommited changes"
         }
+
+        Text(
+            text = text,
+            fontStyle = FontStyle.Italic,
+            modifier = Modifier.padding(start = 16.dp),
+            fontSize = 14.sp,
+            maxLines = 1,
+            color = textColor,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        LogStatusSummary(
+            statusSummary = statusSummary,
+            modifier = Modifier.padding(horizontal = 8.dp),
+        )
+    }
+}
+
+@Composable
+fun LogStatusSummary(statusSummary: StatusSummary, modifier: Modifier) {
+    Row(
+        modifier = modifier,
+    ) {
+        if (statusSummary.modifiedCount > 0) {
+            SummaryEntry(
+                count = statusSummary.modifiedCount,
+                icon = Icons.Default.Edit,
+                color = MaterialTheme.colors.modifyFile,
+            )
+        }
+
+        if (statusSummary.addedCount > 0) {
+            SummaryEntry(
+                count = statusSummary.addedCount,
+                icon = Icons.Default.Add,
+                color = MaterialTheme.colors.addFile,
+            )
+        }
+
+        if (statusSummary.deletedCount > 0) {
+            SummaryEntry(
+                count = statusSummary.deletedCount,
+                icon = Icons.Default.Delete,
+                color = MaterialTheme.colors.deleteFile,
+            )
+        }
+    }
+}
+
+@Composable
+fun SummaryEntry(
+    count: Int,
+    icon: ImageVector,
+    color: Color
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = count.toString(),
+            color = MaterialTheme.colors.primaryTextColor,
+        )
+
+        Icon(
+            imageVector = icon,
+            tint = color,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp)
+        )
     }
 }
 
@@ -623,7 +685,7 @@ fun CommitNode(
 }
 
 @Composable
-fun UncommitedChangesGraphLine(
+fun UncommitedChangesGraphNode(
     modifier: Modifier = Modifier,
     hasPreviousCommits: Boolean,
 ) {
