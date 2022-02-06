@@ -21,7 +21,6 @@ import org.eclipse.jgit.lib.Ref
 @Composable
 fun Remotes(
     remotesViewModel: RemotesViewModel,
-    onBranchClicked: (Ref) -> Unit,
 ) {
     val remotes by remotesViewModel.remotes.collectAsState()
 
@@ -43,7 +42,7 @@ fun Remotes(
         itemContent = { remoteInfo ->
             RemoteRow(
                 remote = remoteInfo,
-                onBranchClicked = { branch -> onBranchClicked(branch) },
+                onBranchClicked = { branch -> remotesViewModel.selectBranch(branch) },
                 onDeleteBranch = { branch -> remotesViewModel.deleteRemoteBranch(branch) },
                 onRemoteClicked = { remotesViewModel.onRemoteClicked(remoteInfo) }
             )

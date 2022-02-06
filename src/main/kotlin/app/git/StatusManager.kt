@@ -281,10 +281,8 @@ class StatusManager @Inject constructor(
     suspend fun getStatusSummary(git: Git, currentBranch: Ref?, repositoryState: RepositoryState): StatusSummary {
         val staged = getStaged(git, currentBranch, repositoryState)
         val allChanges = staged.toMutableList()
-        println("Staged: $staged")
 
         val unstaged = getUnstaged(git, repositoryState)
-        println("Unstaged: $unstaged")
 
         allChanges.addAll(unstaged)
         val groupedChanges = allChanges.groupBy {

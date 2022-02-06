@@ -15,7 +15,6 @@ import org.eclipse.jgit.lib.Ref
 @Composable
 fun Tags(
     tagsViewModel: TagsViewModel,
-    onTagClicked: (Ref) -> Unit,
 ) {
     val tagsState = tagsViewModel.tags.collectAsState()
     val tags = tagsState.value
@@ -27,7 +26,7 @@ fun Tags(
         itemContent = { tag ->
             TagRow(
                 tag = tag,
-                onTagClicked = { onTagClicked(tag) },
+                onTagClicked = { tagsViewModel.selectTag(tag) },
                 onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
                 onDeleteTag = { tagsViewModel.deleteTag(tag) }
             )

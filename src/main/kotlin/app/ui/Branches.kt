@@ -22,7 +22,6 @@ import org.eclipse.jgit.lib.Ref
 @Composable
 fun Branches(
     branchesViewModel: BranchesViewModel,
-    onBranchClicked: (Ref) -> Unit,
 ) {
     val branches by branchesViewModel.branches.collectAsState()
     val currentBranch by branchesViewModel.currentBranch.collectAsState()
@@ -37,7 +36,7 @@ fun Branches(
         BranchLineEntry(
             branch = branch,
             isCurrentBranch = currentBranch == branch.name,
-            onBranchClicked = { onBranchClicked(branch) },
+            onBranchClicked = { branchesViewModel.selectBranch(branch) },
             onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
             onMergeBranch = { setMergeBranch(branch) },
             onDeleteBranch = { branchesViewModel.deleteBranch(branch) },

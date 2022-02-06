@@ -2,6 +2,7 @@ package app.viewmodels
 
 import app.git.*
 import app.git.graph.GraphCommitList
+import app.ui.SelectedItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
@@ -142,6 +143,10 @@ class LogViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         rebaseManager.rebaseBranch(git, ref)
+    }
+
+    fun selectLogLine(selectedItem: SelectedItem) {
+        tabState.newSelectedItem(selectedItem)
     }
 }
 

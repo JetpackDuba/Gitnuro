@@ -41,8 +41,7 @@ class TabViewModel @Inject constructor(
     private val fileChangesWatcher: FileChangesWatcher,
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
-    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.None)
-    val selectedItem: StateFlow<SelectedItem> = _selectedItem
+    val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
     private val credentialsStateManager = CredentialsStateManager
 
@@ -75,10 +74,18 @@ class TabViewModel @Inject constructor(
                     RefreshType.NONE -> println("Not refreshing...")
                     RefreshType.ALL_DATA -> refreshRepositoryInfo()
                     RefreshType.ONLY_LOG -> refreshLog()
+                    RefreshType.STASHES -> refreshStashes()
                     RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
+                    RefreshType.UNCOMMITED_CHANGES_AND_LOG -> checkUncommitedChanges(true)
                 }
             }
         }
+    }
+
+    private fun refreshStashes() = tabState.runOperation(
+        refreshType = RefreshType.NONE
+    ) { git ->
+        stashesViewModel.refresh(git)
     }
 
     private fun refreshLog() = tabState.runOperation(
@@ -147,11 +154,18 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    private suspend fun checkUncommitedChanges() = tabState.runOperation(
+    private suspend fun checkUncommitedChanges(fullUpdateLog: Boolean = false) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        statusViewModel.refresh(git)
-        logViewModel.refreshUncommitedChanges(git)
+        val uncommitedChangesStateChanged = statusViewModel.updateHasUncommitedChanges(git)
+
+        println("Has uncommitedChangesStateChanged $uncommitedChangesStateChanged")
+
+        // Update the log only if the uncommitedChanges status has changed or requested
+        if (uncommitedChangesStateChanged || fullUpdateLog)
+            logViewModel.refresh(git)
+        else
+            logViewModel.refreshUncommitedChanges(git)
 
         updateDiffEntry()
 
@@ -195,38 +209,11 @@ class TabViewModel @Inject constructor(
         remoteOperationsManager.clone(directory, url)
     }
 
-    private fun findCommit(git: Git, objectId: ObjectId): RevCommit {
-        return git.repository.parseCommit(objectId)
-    }
-
     private fun updateDiffEntry() {
         val diffSelected = diffSelected.value
 
         if (diffSelected != null) {
             diffViewModel.updateDiff(diffSelected)
-        }
-    }
-
-    fun newSelectedRef(objectId: ObjectId?) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        if (objectId == null) {
-            newSelectedItem(SelectedItem.None)
-        } else {
-            val commit = findCommit(git, objectId)
-            newSelectedItem(SelectedItem.Ref(commit))
-        }
-    }
-
-    fun newSelectedStash(stash: RevCommit) {
-        newSelectedItem(SelectedItem.Stash(stash))
-    }
-
-    fun newSelectedItem(selectedItem: SelectedItem) {
-        _selectedItem.value = selectedItem
-
-        if (selectedItem is SelectedItem.CommitBasedItem) {
-            commitChangesViewModel.loadChanges(selectedItem.revCommit)
         }
     }
 }

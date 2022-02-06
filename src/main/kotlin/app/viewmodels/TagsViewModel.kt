@@ -39,6 +39,10 @@ class TagsViewModel @Inject constructor(
         tagsManager.deleteTag(git, tag)
     }
 
+    fun selectTag(tag: Ref) {
+        tabState.newSelectedRef(tag.objectId)
+    }
+
     suspend fun refresh(git: Git) {
         loadTags(git)
     }

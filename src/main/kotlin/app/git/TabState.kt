@@ -3,6 +3,7 @@ package app.git
 import app.ErrorsManager
 import app.di.TabScope
 import app.newErrorNow
+import app.ui.SelectedItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,6 +15,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -21,12 +24,14 @@ import kotlin.coroutines.cancellation.CancellationException
 class TabState @Inject constructor(
     val errorsManager: ErrorsManager,
 ) {
+    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.None)
+    val selectedItem: StateFlow<SelectedItem> = _selectedItem
+
     var git: Git? = null
     val safeGit: Git
         get() {
             val git = this.git
             if (git == null) {
-//                _repositorySelectionStatus.value = RepositorySelectionStatus.None
                 throw CancellationException("Null git object")
             } else
                 return git
@@ -128,11 +133,44 @@ class TabState @Inject constructor(
                 _refreshData.emit(refreshType)
         }
     }
+
+    fun newSelectedStash(stash: RevCommit) {
+        newSelectedItem(SelectedItem.Stash(stash))
+    }
+
+    fun noneSelected() {
+        newSelectedItem(SelectedItem.None)
+    }
+
+    fun newSelectedRef(objectId: ObjectId?) = runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        if (objectId == null) {
+            newSelectedItem(SelectedItem.None)
+        } else {
+            val commit = findCommit(git, objectId)
+            newSelectedItem(SelectedItem.Ref(commit))
+        }
+    }
+
+    private fun findCommit(git: Git, objectId: ObjectId): RevCommit {
+        return git.repository.parseCommit(objectId)
+    }
+
+    fun newSelectedItem(selectedItem: SelectedItem) {
+        _selectedItem.value = selectedItem
+        println(selectedItem)
+//        if (selectedItem is SelectedItem.CommitBasedItem) {
+//            commitChangesViewModel.loadChanges(selectedItem.revCommit)
+//        }
+    }
 }
 
 enum class RefreshType {
     NONE,
     ALL_DATA,
     ONLY_LOG,
+    STASHES,
     UNCOMMITED_CHANGES,
+    UNCOMMITED_CHANGES_AND_LOG,
 }

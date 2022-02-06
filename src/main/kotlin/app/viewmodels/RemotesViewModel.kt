@@ -58,6 +58,10 @@ class RemotesViewModel @Inject constructor(
 
         _remotes.value = newRemotesList
     }
+
+    fun selectBranch(ref: Ref) {
+        tabState.newSelectedRef(ref.objectId)
+    }
 }
 
 data class RemoteView(val remoteInfo: RemoteInfo, val isExpanded: Boolean)

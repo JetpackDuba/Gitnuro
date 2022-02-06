@@ -34,13 +34,13 @@ class MenuViewModel @Inject constructor(
     }
 
     fun stash() = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         stashManager.stash(git)
     }
 
     fun popStash() = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         stashManager.popStash(git)
     }

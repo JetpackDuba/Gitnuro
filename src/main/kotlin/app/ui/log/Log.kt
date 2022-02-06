@@ -72,7 +72,6 @@ private const val CANVAS_MIN_WIDTH = 100
 fun Log(
     logViewModel: LogViewModel,
     selectedItem: SelectedItem,
-    onItemSelected: (SelectedItem) -> Unit,
     repositoryState: RepositoryState,
 ) {
     val logStatusState = logViewModel.logStatus.collectAsState()
@@ -114,7 +113,6 @@ fun Log(
                 .background(MaterialTheme.colors.background)
                 .fillMaxSize()
         ) {
-//            val hasUncommitedChanges by tabViewModel.hasUncommitedChanges.collectAsState()
             val weightMod = remember { mutableStateOf(0f) }
             var graphWidth = (CANVAS_MIN_WIDTH + weightMod.value).dp
 
@@ -131,7 +129,6 @@ fun Log(
                     .background(MaterialTheme.colors.background)
                     .fillMaxSize(),
             ) {
-                //TODO: Shouldn't this be an item of the graph?
                 if (hasUncommitedChanges)
                     item {
                         UncommitedChangesLine(
@@ -142,7 +139,7 @@ fun Log(
                             weightMod = weightMod,
                             repositoryState = repositoryState,
                             onUncommitedChangesSelected = {
-                                onItemSelected(SelectedItem.UncommitedChanges)
+                                logViewModel.selectLogLine(SelectedItem.UncommitedChanges)
                             }
                         )
                     }
@@ -160,7 +157,7 @@ fun Log(
                         onMergeBranch = { ref -> showLogDialog.value = LogDialog.MergeBranch(ref) },
                         onRebaseBranch = { ref -> showLogDialog.value = LogDialog.RebaseBranch(ref) },
                         onRevCommitSelected = {
-                            onItemSelected(SelectedItem.Commit(graphNode))
+                            logViewModel.selectLogLine(SelectedItem.Commit(graphNode))
                         }
                     )
                 }

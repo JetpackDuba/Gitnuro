@@ -8,10 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -34,8 +31,13 @@ import org.eclipse.jgit.revwalk.RevCommit
 @Composable
 fun CommitChanges(
     commitChangesViewModel: CommitChangesViewModel,
-    onDiffSelected: (DiffEntry) -> Unit
+    onDiffSelected: (DiffEntry) -> Unit,
+    selectedItem: SelectedItem.CommitBasedItem
 ) {
+    LaunchedEffect(selectedItem) {
+        commitChangesViewModel.loadChanges(selectedItem.revCommit)
+    }
+
     val commitChangesStatusState = commitChangesViewModel.commitChangesStatus.collectAsState()
 
     when (val commitChangesStatus = commitChangesStatusState.value) {

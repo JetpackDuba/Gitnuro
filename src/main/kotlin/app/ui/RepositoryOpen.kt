@@ -51,7 +51,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
         )
 
         Row {
-            HorizontalSplitPane() {
+            HorizontalSplitPane {
                 first(minSize = 200.dp) {
                     Column(
                         modifier = Modifier
@@ -61,27 +61,15 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                     ) {
                         Branches(
                             branchesViewModel = tabViewModel.branchesViewModel,
-                            onBranchClicked = {
-                                tabViewModel.newSelectedRef(it.objectId)
-                            }
                         )
                         Remotes(
                             remotesViewModel = tabViewModel.remotesViewModel,
-                            onBranchClicked = {
-                                tabViewModel.newSelectedRef(it.objectId)
-                            }
                         )
                         Tags(
                             tagsViewModel = tabViewModel.tagsViewModel,
-                            onTagClicked = {
-                                tabViewModel.newSelectedRef(it.objectId)
-                            }
                         )
                         Stashes(
                             stashesViewModel = tabViewModel.stashesViewModel,
-                            onStashSelected = { stash ->
-                                tabViewModel.newSelectedStash(stash)
-                            }
                         )
                     }
                 }
@@ -104,9 +92,6 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                         Log(
                                             logViewModel = tabViewModel.logViewModel,
                                             selectedItem = selectedItem,
-                                            onItemSelected = {
-                                                tabViewModel.newSelectedItem(it)
-                                            },
                                             repositoryState = repositoryState,
                                         )
                                     }
@@ -143,6 +128,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                                     CommitChanges(
                                         commitChangesViewModel = tabViewModel.commitChangesViewModel,
+                                        selectedItem = safeSelectedItem,
                                         onDiffSelected = { diffEntry ->
                                             tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                         }

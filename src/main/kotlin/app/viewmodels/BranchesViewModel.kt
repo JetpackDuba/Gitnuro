@@ -71,4 +71,8 @@ class BranchesViewModel @Inject constructor(
     ) { git ->
         rebaseManager.rebaseBranch(git, ref)
     }
+
+    fun selectBranch(ref: Ref) {
+        tabState.newSelectedRef(ref.objectId)
+    }
 }
