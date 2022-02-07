@@ -526,41 +526,41 @@ fun CommitLine(
 ) {
     val commitRefs = graphNode.refs
 
-    Box(modifier = Modifier
-        .clickable {
-            onRevCommitSelected(graphNode)
-        }
-        .padding(start = graphWidth + PADDING_BETWEEN_DIVIDER_AND_MESSAGE.dp)
-    ) {
-        ContextMenuArea(
-            items = {
-                listOf(
-                    ContextMenuItem(
-                        label = "Checkout commit",
-                        onClick = { logViewModel.checkoutCommit(graphNode) }),
-                    ContextMenuItem(
-                        label = "Create branch",
-                        onClick = showCreateNewBranch
-                    ),
-                    ContextMenuItem(
-                        label = "Create tag",
-                        onClick = showCreateNewTag
-                    ),
-                    ContextMenuItem(
-                        label = "Revert commit",
-                        onClick = { logViewModel.revertCommit(graphNode) }
-                    ),
-                    ContextMenuItem(
-                        label = "Cherry-pick commit",
-                        onClick = { logViewModel.cherrypickCommit(graphNode) }
-                    ),
+    ContextMenuArea(
+        items = {
+            listOf(
+                ContextMenuItem(
+                    label = "Checkout commit",
+                    onClick = { logViewModel.checkoutCommit(graphNode) }),
+                ContextMenuItem(
+                    label = "Create branch",
+                    onClick = showCreateNewBranch
+                ),
+                ContextMenuItem(
+                    label = "Create tag",
+                    onClick = showCreateNewTag
+                ),
+                ContextMenuItem(
+                    label = "Revert commit",
+                    onClick = { logViewModel.revertCommit(graphNode) }
+                ),
+                ContextMenuItem(
+                    label = "Cherry-pick commit",
+                    onClick = { logViewModel.cherrypickCommit(graphNode) }
+                ),
 
-                    ContextMenuItem(
-                        label = "Reset current branch to this commit",
-                        onClick = { resetBranch(graphNode) }
-                    )
+                ContextMenuItem(
+                    label = "Reset current branch to this commit",
+                    onClick = { resetBranch(graphNode) }
                 )
-            },
+            )
+        },
+    ) {
+        Box(modifier = Modifier
+            .clickable {
+                onRevCommitSelected(graphNode)
+            }
+            .padding(start = graphWidth + PADDING_BETWEEN_DIVIDER_AND_MESSAGE.dp)
         ) {
             Row(
                 modifier = Modifier
