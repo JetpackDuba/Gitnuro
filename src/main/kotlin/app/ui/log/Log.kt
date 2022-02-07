@@ -177,6 +177,10 @@ fun Log(
                         .align(Alignment.BottomStart)
                         .width(graphWidth)
                         .padding(start = 4.dp, bottom = 4.dp),
+                    style = LocalScrollbarStyle.current.copy(
+                        unhoverColor = MaterialTheme.colors.scrollbarUnhover,
+                        hoverColor = MaterialTheme.colors.scrollbarHover,
+                    ),
                     adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
             }
@@ -428,7 +432,10 @@ fun UncommitedChangesLine(
             .clickable {
                 onUncommitedChangesSelected()
             }
-            .padding(start = graphWidth + PADDING_BETWEEN_DIVIDER_AND_MESSAGE.dp),
+            .padding(
+                start = graphWidth + PADDING_BETWEEN_DIVIDER_AND_MESSAGE.dp,
+                end = 4.dp,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val text = when {
@@ -545,7 +552,8 @@ fun CommitLine(
             Row(
                 modifier = Modifier
                     .height(40.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(end = 4.dp,),
             ) {
                 val nodeColor = colors[graphNode.lane.position % colors.size]
                 CommitMessage(

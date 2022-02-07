@@ -105,6 +105,12 @@ val Colors.stageButton: Color
 val Colors.unstageButton: Color
     get() = error
 
+val Colors.scrollbarUnhover: Color
+    get() = if (isLight) unhoverScrollbarColorLight else unhoverScrollbarColorDark
+
+val Colors.scrollbarHover: Color
+    get() = if (isLight) hoverScrollbarColorLight else hoverScrollbarColorDark
+
 
 enum class Themes(val displayName: String) {
     LIGHT("Light"),

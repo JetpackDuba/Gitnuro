@@ -11,8 +11,6 @@ val mainTextDark = Color(0xFFFFFFFF)
 val secondaryText = Color(0xFF595858)
 val secondaryTextDark = Color(0xFFCCCBCB)
 val errorColor = Color(0xFFc93838)
-val primaryGrayLight = Color(0xFF464646)
-val accentGrayLight = Color(0xFFCCCCCC)
 
 val backgroundColorLight = Color(0xFFFFFFFF)
 val backgroundColorDark = Color(0xFF0E1621)
@@ -28,3 +26,7 @@ val modifyFileLight = primary
 val conflictFileLight = Color(0xFFFFB638)
 
 val dialogBackgroundColor = Color(0xAA000000)
+val unhoverScrollbarColorLight = Color.LightGray
+val unhoverScrollbarColorDark = Color.Gray
+val hoverScrollbarColorLight = primary
+val hoverScrollbarColorDark = Color.LightGray
