@@ -46,6 +46,7 @@ import app.ui.SelectedItem
 import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.context_menu.branchContextMenuItems
+import app.ui.context_menu.logContextMenu
 import app.ui.context_menu.tagContextMenuItems
 import app.ui.dialogs.*
 import app.viewmodels.LogStatus
@@ -91,7 +92,9 @@ fun Log(
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
         val verticalScrollState = rememberLazyListState()
-        verticalScrollState.isScrollInProgress
+
+        // With this method, whenever the scroll changes, the log is recomposed and the graph list is updated with
+        // the proper scroll position
         verticalScrollState.observeScrollChanges()
 
         LaunchedEffect(selectedCommit) {
@@ -139,6 +142,8 @@ fun Log(
                     hasUncommitedChanges = hasUncommitedChanges,
                 )
 
+                // The commits' messages list overlaps with the graph list to catch all the click events but leaves
+                // a padding, so it doesn't cover the graph
                 MessagesList(
                     scrollState = verticalScrollState,
                     hasUncommitedChanges = hasUncommitedChanges,
@@ -240,12 +245,7 @@ fun GraphList(
 
     val graphRealWidth = remember(commitList, graphWidth) {
         val maxLinePosition = commitList.maxOf { it.lane.position }
-        val calculatedGraphWidth = ((maxLinePosition + 2) * 30f).dp
-
-        if (calculatedGraphWidth < graphWidth)
-            graphWidth
-        else
-            calculatedGraphWidth
+        ((maxLinePosition + 2) * 30f).dp
     }
 
     Box(
@@ -524,35 +524,15 @@ fun CommitLine(
     onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: (GraphNode) -> Unit,
 ) {
-    val commitRefs = graphNode.refs
-
     ContextMenuArea(
         items = {
-            listOf(
-                ContextMenuItem(
-                    label = "Checkout commit",
-                    onClick = { logViewModel.checkoutCommit(graphNode) }),
-                ContextMenuItem(
-                    label = "Create branch",
-                    onClick = showCreateNewBranch
-                ),
-                ContextMenuItem(
-                    label = "Create tag",
-                    onClick = showCreateNewTag
-                ),
-                ContextMenuItem(
-                    label = "Revert commit",
-                    onClick = { logViewModel.revertCommit(graphNode) }
-                ),
-                ContextMenuItem(
-                    label = "Cherry-pick commit",
-                    onClick = { logViewModel.cherrypickCommit(graphNode) }
-                ),
-
-                ContextMenuItem(
-                    label = "Reset current branch to this commit",
-                    onClick = { resetBranch(graphNode) }
-                )
+            logContextMenu(
+                onCheckoutCommit = { logViewModel.checkoutCommit(graphNode) },
+                onCreateNewBranch = showCreateNewBranch,
+                onCreateNewTag = showCreateNewTag,
+                onRevertCommit = { logViewModel.revertCommit(graphNode) },
+                onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
+                onResetBranch = { resetBranch(graphNode) },
             )
         },
     ) {
@@ -572,7 +552,7 @@ fun CommitLine(
                     modifier = Modifier.weight(1f),
                     commit = graphNode,
                     selected = selected,
-                    refs = commitRefs,
+                    refs = graphNode.refs,
                     nodeColor = nodeColor,
                     currentBranch = currentBranch,
                     onCheckoutRef = { ref -> logViewModel.checkoutRef(ref) },
