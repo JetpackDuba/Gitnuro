@@ -7,6 +7,8 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -37,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
 import app.git.StatusSummary
+import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
 import app.theme.*
 import app.ui.SelectedItem
@@ -61,9 +64,9 @@ private val colors = listOf(
 )
 
 private const val CANVAS_MIN_WIDTH = 100
+private const val PADDING_BETWEEN_DIVIDER_AND_MESSAGE = 8
 
 // TODO Min size for message column
-// TODO Horizontal scroll for the graph
 @OptIn(
     ExperimentalFoundationApi::class,
     ExperimentalComposeUiApi::class
@@ -87,7 +90,9 @@ fun Log(
     if (logStatus is LogStatus.Loaded) {
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
-        val scrollState = rememberLazyListState()
+        val verticalScrollState = rememberLazyListState()
+        verticalScrollState.isScrollInProgress
+        verticalScrollState.observeScrollChanges()
 
         LaunchedEffect(selectedCommit) {
             // Scroll to commit if a Ref is selected
@@ -97,7 +102,7 @@ fun Log(
                 // Index can be -1 if the ref points to a commit that is not shown in the graph due to the limited
                 // number of displayed commits.
                 if (index >= 0)
-                    scrollState.scrollToItem(index)
+                    verticalScrollState.scrollToItem(index)
             }
         }
 
@@ -123,46 +128,175 @@ fun Log(
                 graphWidth = graphWidth,
                 weightMod = weightMod,
             )
-            ScrollableLazyColumn(
+
+            val horizontalScrollState = rememberScrollState(0)
+            Box {
+                GraphList(
+                    commitList = commitList,
+                    stateHorizontal = horizontalScrollState,
+                    graphWidth = graphWidth,
+                    scrollState = verticalScrollState,
+                    hasUncommitedChanges = hasUncommitedChanges,
+                )
+
+                MessagesList(
+                    scrollState = verticalScrollState,
+                    hasUncommitedChanges = hasUncommitedChanges,
+                    selectedCommit = selectedCommit,
+                    logStatus = logStatus,
+                    repositoryState = repositoryState,
+                    selectedItem = selectedItem,
+                    commitList = commitList,
+                    logViewModel = logViewModel,
+                    graphWidth = graphWidth,
+                    onShowLogDialog = { dialog ->
+                        showLogDialog.value = dialog
+                    }
+                )
+
+                DividerLog(
+                    modifier = Modifier
+                        .draggable(
+                            rememberDraggableState {
+                                weightMod.value += it
+                            },
+                            Orientation.Horizontal
+                        ),
+                    graphWidth = graphWidth,
+                )
+
+                // Scrollbar used to scroll horizontally the graph nodes
+                // Added after every component to have the highest priority when clicking
+                HorizontalScrollbar(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .width(graphWidth)
+                        .padding(start = 4.dp, bottom = 4.dp),
+                    adapter = rememberScrollbarAdapter(horizontalScrollState)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun MessagesList(
+    scrollState: LazyListState,
+    hasUncommitedChanges: Boolean,
+    selectedCommit: RevCommit?,
+    logStatus: LogStatus.Loaded,
+    repositoryState: RepositoryState,
+    selectedItem: SelectedItem,
+    commitList: GraphCommitList,
+    logViewModel: LogViewModel,
+    onShowLogDialog: (LogDialog) -> Unit,
+    graphWidth: Dp,
+) {
+    ScrollableLazyColumn(
+        state = scrollState,
+        modifier = Modifier
+            .fillMaxSize(),
+    ) {
+        if (hasUncommitedChanges)
+            item {
+                UncommitedChangesLine(
+                    graphWidth = graphWidth,
+                    selected = selectedItem == SelectedItem.UncommitedChanges,
+                    statusSummary = logStatus.statusSummary,
+                    repositoryState = repositoryState,
+                    onUncommitedChangesSelected = {
+                        logViewModel.selectLogLine(SelectedItem.UncommitedChanges)
+                    }
+                )
+            }
+        items(items = commitList) { graphNode ->
+            CommitLine(
+                graphWidth = graphWidth,
+                logViewModel = logViewModel,
+                graphNode = graphNode,
+                selected = selectedCommit?.name == graphNode.name,
+                currentBranch = logStatus.currentBranch,
+                showCreateNewBranch = { onShowLogDialog(LogDialog.NewBranch(graphNode)) },
+                showCreateNewTag = { onShowLogDialog(LogDialog.NewTag(graphNode)) },
+                resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
+                onMergeBranch = { ref -> onShowLogDialog(LogDialog.MergeBranch(ref)) },
+                onRebaseBranch = { ref -> onShowLogDialog(LogDialog.RebaseBranch(ref)) },
+                onRevCommitSelected = {
+                    logViewModel.selectLogLine(SelectedItem.Commit(graphNode))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun GraphList(
+    commitList: GraphCommitList,
+    stateHorizontal: ScrollState = rememberScrollState(0),
+    graphWidth: Dp,
+    scrollState: LazyListState,
+    hasUncommitedChanges: Boolean
+) {
+
+    val graphRealWidth = remember(commitList, graphWidth) {
+        val maxLinePosition = commitList.maxOf { it.lane.position }
+        val calculatedGraphWidth = ((maxLinePosition + 2) * 30f).dp
+
+        if (calculatedGraphWidth < graphWidth)
+            graphWidth
+        else
+            calculatedGraphWidth
+    }
+
+    Box(
+        Modifier
+            .width(graphWidth)
+            .fillMaxHeight()
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .horizontalScroll(stateHorizontal)
+                .padding(bottom = 8.dp)
+        ) {
+            LazyColumn(
                 state = scrollState,
                 modifier = Modifier
-                    .background(MaterialTheme.colors.background)
-                    .fillMaxSize(),
+                    .width(graphRealWidth)
             ) {
-                if (hasUncommitedChanges)
+                if (hasUncommitedChanges) {
                     item {
-                        UncommitedChangesLine(
-                            selected = selectedItem == SelectedItem.UncommitedChanges,
-                            hasPreviousCommits = commitList.isNotEmpty(),
-                            statusSummary = logStatus.statusSummary,
-                            graphWidth = graphWidth,
-                            weightMod = weightMod,
-                            repositoryState = repositoryState,
-                            onUncommitedChangesSelected = {
-                                logViewModel.selectLogLine(SelectedItem.UncommitedChanges)
-                            }
+                        Row(
+                            modifier = Modifier
+                                .height(40.dp)
+                                .fillMaxWidth(),
+                        ) {
+                            UncommitedChangesGraphNode(
+                                modifier = Modifier
+                                    .width(graphWidth),
+                                hasPreviousCommits = commitList.isNotEmpty(),
+                            )
+                        }
+                    }
+                }
+
+                items(items = commitList) { graphNode ->
+                    val nodeColor = colors[graphNode.lane.position % colors.size]
+                    Row(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .fillMaxWidth(),
+                    ) {
+                        CommitsGraphLine(
+                            modifier = Modifier
+                                .fillMaxHeight(),
+                            plotCommit = graphNode,
+                            nodeColor = nodeColor,
                         )
                     }
-                items(items = commitList) { graphNode ->
-                    CommitLine(
-                        logViewModel = logViewModel,
-                        graphNode = graphNode,
-                        selected = selectedCommit?.name == graphNode.name,
-                        weightMod = weightMod,
-                        graphWidth = graphWidth,
-                        currentBranch = logStatus.currentBranch,
-                        showCreateNewBranch = { showLogDialog.value = LogDialog.NewBranch(graphNode) },
-                        showCreateNewTag = { showLogDialog.value = LogDialog.NewTag(graphNode) },
-                        resetBranch = { showLogDialog.value = LogDialog.ResetBranch(graphNode) },
-                        onMergeBranch = { ref -> showLogDialog.value = LogDialog.MergeBranch(ref) },
-                        onRebaseBranch = { ref -> showLogDialog.value = LogDialog.RebaseBranch(ref) },
-                        onRevCommitSelected = {
-                            logViewModel.selectLogLine(SelectedItem.Commit(graphNode))
-                        }
-                    )
                 }
             }
-
         }
     }
 }
@@ -252,10 +386,14 @@ fun GraphHeader(
             maxLines = 1,
         )
 
-        DividerLog(
-            modifier = Modifier.draggable(rememberDraggableState {
-                weightMod.value += it
-            }, Orientation.Horizontal)
+        SimpleDividerLog(
+            modifier = Modifier
+                .draggable(
+                    rememberDraggableState {
+                        weightMod.value += it
+                    },
+                    Orientation.Horizontal
+                ),
         )
 
         Text(
@@ -272,13 +410,11 @@ fun GraphHeader(
 
 @Composable
 fun UncommitedChangesLine(
-    selected: Boolean,
-    hasPreviousCommits: Boolean,
     graphWidth: Dp,
-    weightMod: MutableState<Float>,
-    onUncommitedChangesSelected: () -> Unit,
+    selected: Boolean,
     repositoryState: RepositoryState,
-    statusSummary: StatusSummary
+    statusSummary: StatusSummary,
+    onUncommitedChangesSelected: () -> Unit,
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -291,25 +427,10 @@ fun UncommitedChangesLine(
             .fillMaxWidth()
             .clickable {
                 onUncommitedChangesSelected()
-            },
+            }
+            .padding(start = graphWidth + PADDING_BETWEEN_DIVIDER_AND_MESSAGE.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        UncommitedChangesGraphNode(
-            modifier = Modifier
-                .width(graphWidth),
-            hasPreviousCommits = hasPreviousCommits,
-        )
-
-        DividerLog(
-            modifier = Modifier
-                .draggable(
-                    rememberDraggableState {
-                        weightMod.value += it
-                    },
-                    Orientation.Horizontal
-                )
-        )
-
         val text = when {
             repositoryState.isRebasing -> "Pending changes to rebase"
             repositoryState.isMerging -> "Pending changes to merge"
@@ -391,11 +512,10 @@ fun SummaryEntry(
 
 @Composable
 fun CommitLine(
+    graphWidth: Dp,
     logViewModel: LogViewModel,
     graphNode: GraphNode,
     selected: Boolean,
-    weightMod: MutableState<Float>,
-    graphWidth: Dp,
     currentBranch: Ref?,
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
@@ -410,6 +530,7 @@ fun CommitLine(
         .clickable {
             onRevCommitSelected(graphNode)
         }
+        .padding(start = graphWidth + PADDING_BETWEEN_DIVIDER_AND_MESSAGE.dp)
     ) {
         ContextMenuArea(
             items = {
@@ -447,25 +568,6 @@ fun CommitLine(
                     .fillMaxWidth(),
             ) {
                 val nodeColor = colors[graphNode.lane.position % colors.size]
-
-                CommitsGraphLine(
-                    modifier = Modifier
-                        .width(graphWidth)
-                        .fillMaxHeight(),
-                    plotCommit = graphNode,
-                    nodeColor = nodeColor,
-                )
-
-                DividerLog(
-                    modifier = Modifier
-                        .draggable(
-                            rememberDraggableState {
-                                weightMod.value += it
-                            },
-                            Orientation.Horizontal
-                        )
-                )
-
                 CommitMessage(
                     modifier = Modifier.weight(1f),
                     commit = graphNode,
@@ -573,9 +675,10 @@ fun CommitMessage(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DividerLog(modifier: Modifier) {
+fun DividerLog(modifier: Modifier, graphWidth: Dp) {
     Box(
         modifier = Modifier
+            .padding(start = graphWidth)
             .width(8.dp)
             .then(modifier)
             .pointerHoverIcon(PointerIconDefaults.Hand)
@@ -588,6 +691,12 @@ fun DividerLog(modifier: Modifier) {
                 .align(Alignment.Center)
         )
     }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun SimpleDividerLog(modifier: Modifier) {
+    DividerLog(modifier, graphWidth = 0.dp)
 }
 
 
