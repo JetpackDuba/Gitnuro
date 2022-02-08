@@ -11,7 +11,7 @@ val String.md5: String
 
 val String.dirName: String
     get() {
-        val parts = this.split("/")
+        val parts = this.split(systemSeparator)
 
         return if (parts.isNotEmpty())
             parts.last()
@@ -21,11 +21,11 @@ val String.dirName: String
 
 val String.dirPath: String
     get() {
-        val parts = this.split("/").toMutableList()
+        val parts = this.split(systemSeparator).toMutableList()
 
         return if (parts.count() > 1) {
             parts.removeLast()
-            parts.joinToString("/")
+            parts.joinToString(systemSeparator)
         } else
             this
     }

@@ -1,6 +1,7 @@
 package app.git
 
 import app.TempFilesManager
+import app.extensions.systemSeparator
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.eclipse.jgit.diff.ContentSource
@@ -74,13 +75,10 @@ class RawFileManager @AssistedInject constructor(
         entry: DiffEntry,
         side: DiffEntry.Side
     ): EntryContent.ImageBinary {
-        println("Data's size is ${ldr.size}")
-
         val tempDir = tempFilesManager.tempDir
 
-        val tempFile = createTempFile(tempDir, prefix = "${entry.newPath.replace("/", "_")}_${side.name}")
+        val tempFile = createTempFile(tempDir, prefix = "${entry.newPath.replace(systemSeparator, "_")}_${side.name}")
         tempFile.toFile().deleteOnExit()
-        println("Temp file generated: ${tempFile.absolutePathString()}")
 
         val out = FileOutputStream(tempFile.toFile())
         out.use {
