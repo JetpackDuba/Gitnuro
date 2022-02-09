@@ -21,10 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
-import app.ui.context_menu.DropDownContent
-import app.ui.context_menu.DropDownContentData
-import app.ui.context_menu.pullContextMenuItems
-import app.ui.context_menu.pushContextMenuItems
+import app.ui.context_menu.*
 import app.viewmodels.MenuViewModel
 
 // TODO Add tooltips to all the buttons
@@ -34,6 +31,8 @@ fun Menu(
     onRepositoryOpen: () -> Unit,
     onCreateBranch: () -> Unit,
 ) {
+    var showAdditionalOptionsDropDownMenu by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .padding(vertical = 4.dp)
@@ -93,6 +92,7 @@ fun Menu(
             icon = painterResource("stash.svg"),
             onClick = { menuViewModel.stash() },
         )
+
         MenuButton(
             title = "Pop",
             icon = painterResource("apply_stash.svg"),
@@ -101,11 +101,33 @@ fun Menu(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        IconMenuButton(
-            modifier = Modifier.padding(end = 8.dp),
-            icon = painterResource("source.svg"),
-            onClick = { menuViewModel.openFolderInFileExplorer() },
-        )
+        Box {
+            IconMenuButton(
+                modifier = Modifier.padding(end = 8.dp),
+                icon = painterResource("more_vert.svg"),
+                onClick = {
+                    showAdditionalOptionsDropDownMenu = true
+                },
+            )
+            DropdownMenu(
+                expanded = showAdditionalOptionsDropDownMenu,
+                content = {
+                    val menuOptions = remember {
+                        repositoryAdditionalOptionsMenu(
+                            onOpenRepositoryOnFileExplorer = { menuViewModel.openFolderInFileExplorer() },
+                            onForceRepositoryRefresh = { menuViewModel.refresh() },
+                        )
+                    }
+                    for (item in menuOptions) {
+                        DropDownContent(
+                            dropDownContentData = item,
+                            onDismiss = { showAdditionalOptionsDropDownMenu = false }
+                        )
+                    }
+                },
+                onDismissRequest = { showAdditionalOptionsDropDownMenu = false }
+            )
+        }
     }
 }
 
@@ -240,9 +262,8 @@ fun IconMenuButton(
         MaterialTheme.colors.secondaryVariant
     }
 
-    OutlinedButton(
-        modifier = modifier
-            .padding(horizontal = 2.dp),
+    IconButton(
+        modifier = modifier,
         enabled = enabled,
         onClick = onClick,
     ) {

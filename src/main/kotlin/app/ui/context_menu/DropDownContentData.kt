@@ -1,9 +1,9 @@
 package app.ui.context_menu
 
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 
 data class DropDownContentData(
     val label: String,
-    val icon: ImageVector? = null,
+    val icon: String? = null,
     val onClick: () -> Unit,
 )

@@ -51,4 +51,10 @@ class MenuViewModel @Inject constructor(
     ) { git ->
         Desktop.getDesktop().open(git.repository.directory.parentFile)
     }
+
+    fun refresh() = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ){
+        // Nothing to do here
+    }
 }
