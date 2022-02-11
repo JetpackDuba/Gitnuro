@@ -132,7 +132,8 @@ fun SideDiff(entryContent: EntryContent) {
     when (entryContent) {
         EntryContent.Binary -> BinaryDiff()
         is EntryContent.ImageBinary -> ImageDiff(entryContent.tempFilePath)
-        else -> {}
+        else -> {
+        }
 //        is EntryContent.Text -> //TODO maybe have a text view if the file was a binary before?
 // TODO Show some info about this       EntryContent.TooLargeEntry -> TODO()
     }
@@ -162,28 +163,31 @@ fun TextDiff(diffEntryType: DiffEntryType, diffViewModel: DiffViewModel, diffRes
     val hunks = diffResult.hunks
 
     val scrollState by diffViewModel.lazyListState.collectAsState()
-    ScrollableLazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        state = scrollState
-    ) {
-        items(hunks) { hunk ->
-            HunkHeader(
-                hunk = hunk,
-                diffEntryType = diffEntryType,
-                diffViewModel = diffViewModel,
-            )
+    SelectionContainer {
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            state = scrollState
+        ) {
 
-            SelectionContainer {
-                Column {
-                    val oldHighestLineNumber = hunk.lines.maxOf { it.displayOldLineNumber }
-                    val newHighestLineNumber = hunk.lines.maxOf { it.displayNewLineNumber }
-                    val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
-                    val highestLineNumberLength = highestLineNumber.toString().count()
-
-                    hunk.lines.forEach { line ->
-                        DiffLine(highestLineNumberLength, line)
+            for (hunk in hunks) {
+                item {
+                    DisableSelection {
+                        HunkHeader(
+                            hunk = hunk,
+                            diffEntryType = diffEntryType,
+                            diffViewModel = diffViewModel,
+                        )
                     }
+                }
+
+                val oldHighestLineNumber = hunk.lines.maxOf { it.displayOldLineNumber }
+                val newHighestLineNumber = hunk.lines.maxOf { it.displayNewLineNumber }
+                val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
+                val highestLineNumberLength = highestLineNumber.toString().count()
+
+                items(hunk.lines) { line ->
+                    DiffLine(highestLineNumberLength, line)
                 }
             }
         }
