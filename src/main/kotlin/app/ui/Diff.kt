@@ -290,6 +290,7 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
     Row(
         modifier = Modifier
             .background(backgroundColor)
+            .height(IntrinsicSize.Min)
     ) {
         val oldLineText = if (line.lineType == LineType.REMOVED || line.lineType == LineType.CONTEXT) {
             formattedLineNumber(line.displayOldLineNumber, highestLineNumberLength)
@@ -315,7 +316,7 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
             text = line.text,
             modifier = Modifier
                 .padding(start = 8.dp)
-                .fillMaxWidth(),
+                .fillMaxSize(),
             color = MaterialTheme.colors.primaryTextColor,
             maxLines = 1,
             fontFamily = FontFamily.Monospace,
@@ -331,6 +332,7 @@ fun LineNumber(text: String) {
         color = MaterialTheme.colors.primaryTextColor,
         modifier = Modifier
             .background(MaterialTheme.colors.surface)
+            .fillMaxHeight()
             .padding(horizontal = 4.dp),
         fontFamily = FontFamily.Monospace,
         fontSize = 13.sp,
