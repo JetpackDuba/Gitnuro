@@ -1,6 +1,7 @@
 import app.extensions.runCommand
 import app.viewmodels.TabViewModel
 import javax.swing.JFileChooser
+import javax.swing.UIManager
 
 
 fun openRepositoryDialog(gitManager: TabViewModel) {
@@ -32,6 +33,7 @@ private fun openRepositoryDialog(
     tabViewModel: TabViewModel,
     latestDirectoryOpened: String
 ) {
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
 
     val fileChooser = if (latestDirectoryOpened.isEmpty())
         JFileChooser()
