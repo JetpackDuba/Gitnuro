@@ -1,9 +1,6 @@
 package app.viewmodels
 
-import app.git.RefreshType
-import app.git.RemoteOperationsManager
-import app.git.StashManager
-import app.git.TabState
+import app.git.*
 import java.awt.Desktop
 import javax.inject.Inject
 
@@ -11,6 +8,7 @@ class MenuViewModel @Inject constructor(
     private val tabState: TabState,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val stashManager: StashManager,
+    private val statusManager: StatusManager,
 ) {
     fun pull(rebase: Boolean = false) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
@@ -36,6 +34,7 @@ class MenuViewModel @Inject constructor(
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
+        statusManager.stageUntrackedFiles(git)
         stashManager.stash(git)
     }
 

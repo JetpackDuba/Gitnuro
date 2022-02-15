@@ -234,7 +234,7 @@ class StatusManager @Inject constructor(
                 }
                 .call()
 
-            statusEntries = if(repositoryState.isMerging || repositoryState.isRebasing) {
+            statusEntries = if (repositoryState.isMerging || repositoryState.isRebasing) {
                 status.groupBy {
                     if (it.newPath != "/dev/null")
                         it.newPath
@@ -244,7 +244,8 @@ class StatusManager @Inject constructor(
                     .map {
                         val entries = it.value
 
-                        val hasConflicts = (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
+                        val hasConflicts =
+                            (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
 
                         StatusEntry(entries.first(), isConflict = hasConflicts)
                     }
@@ -310,6 +311,26 @@ class StatusManager @Inject constructor(
             deletedCount = deletedCount,
             addedCount = addedCount,
         )
+    }
+
+    suspend fun stageUntrackedFiles(git: Git) = withContext(Dispatchers.IO) {
+        val diffEntries = git
+            .diff()
+            .setShowNameAndStatusOnly(true)
+            .call()
+
+        val addedEntries = diffEntries.filter { it.changeType == DiffEntry.ChangeType.ADD }
+
+        if(addedEntries.isNotEmpty()) {
+            val addCommand = git
+                .add()
+
+            for (entry in addedEntries) {
+                addCommand.addFilepattern(entry.newPath)
+            }
+
+            addCommand.call()
+        }
     }
 }
 
