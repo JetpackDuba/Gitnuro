@@ -152,6 +152,7 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                 modifier = Modifier
                     .padding(vertical = 8.dp, horizontal = 16.dp),
                 color = contentColorFor(backgroundColor),
+                maxLines = 1,
             )
             IconButton(
                 onClick = onCloseTab,
