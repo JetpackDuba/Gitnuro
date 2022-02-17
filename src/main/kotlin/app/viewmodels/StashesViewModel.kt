@@ -21,7 +21,7 @@ class StashesViewModel @Inject constructor(
     suspend fun loadStashes(git: Git) {
         _stashStatus.value = StashStatus.Loading
         val stashList = stashManager.getStashList(git)
-        _stashStatus.value = StashStatus.Loaded(stashList.toList()) // TODO: Is the list cast necessary?
+        _stashStatus.value = StashStatus.Loaded(stashList.toList())
     }
 
     suspend fun refresh(git: Git) {

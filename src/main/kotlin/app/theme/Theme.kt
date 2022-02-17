@@ -54,6 +54,13 @@ val Colors.secondaryTextColor: Color
     get() = if (isLight) secondaryText else secondaryTextDark
 
 @get:Composable
+val Colors.semiSecondaryTextColor: Color
+    get() = if (isLight)
+        secondaryText.copy(alpha = 0.3f)
+    else
+        secondaryTextDark.copy(alpha = 0.3f)
+
+@get:Composable
 val Colors.headerBackground: Color
     get() {
         return if (isLight)

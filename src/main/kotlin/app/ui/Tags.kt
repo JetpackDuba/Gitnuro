@@ -12,6 +12,7 @@ import app.ui.context_menu.tagContextMenuItems
 import app.viewmodels.TagsViewModel
 import org.eclipse.jgit.lib.Ref
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Tags(
     tagsViewModel: TagsViewModel,

@@ -1,19 +1,30 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package app.ui
 
 import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.extensions.simpleName
+import app.theme.primaryTextColor
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.components.VerticalExpandable
 import app.ui.context_menu.remoteBranchesContextMenu
+import app.ui.context_menu.remoteContextMenu
+import app.ui.dialogs.EditRemotesDialog
 import app.viewmodels.RemoteView
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.lib.Ref
@@ -23,6 +34,7 @@ fun Remotes(
     remotesViewModel: RemotesViewModel,
 ) {
     val remotes by remotesViewModel.remotes.collectAsState()
+    var showEditRemotesDialog by remember { mutableStateOf(false) }
 
     val itemsCount = remember(remotes) {
         val allBranches = remotes.filter { remoteView ->
@@ -34,11 +46,39 @@ fun Remotes(
         allBranches.count() + remotes.count()
     }
 
+    if (showEditRemotesDialog) {
+        EditRemotesDialog(
+            remotesViewModel = remotesViewModel,
+            onDismiss = {
+                showEditRemotesDialog = false
+            },
+        )
+    }
+
     SideMenuPanel(
         title = "Remotes",
         icon = painterResource("cloud.svg"),
         items = remotes,
         itemsCountForMaxHeight = itemsCount,
+        contextItems = {
+            remoteContextMenu { showEditRemotesDialog = true }
+        },
+        headerHoverIcon = {
+            IconButton(
+                onClick = { showEditRemotesDialog = true },
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(16.dp),
+            ) {
+                Icon(
+                    painter = painterResource("settings.svg"),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    tint = MaterialTheme.colors.primaryTextColor,
+                )
+            }
+        },
         itemContent = { remoteInfo ->
             RemoteRow(
                 remote = remoteInfo,
@@ -49,6 +89,7 @@ fun Remotes(
         }
     )
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

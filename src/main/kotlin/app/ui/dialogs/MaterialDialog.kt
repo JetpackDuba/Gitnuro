@@ -18,6 +18,8 @@ import app.theme.dialogBackgroundColor
 @Composable
 fun MaterialDialog(
     alignment: Alignment = Alignment.Center,
+    paddingHorizontal: Dp = 16.dp,
+    paddingVertical: Dp = 16.dp,
     content: @Composable () -> Unit
 ) {
     Popup(
@@ -41,7 +43,10 @@ fun MaterialDialog(
                 modifier = Modifier
                     .clip(RoundedCornerShape(15.dp))
                     .background(MaterialTheme.colors.background)
-                    .padding(all = 16.dp)
+                    .padding(
+                        horizontal = paddingHorizontal,
+                        vertical = paddingVertical,
+                    )
             ) {
                 content()
             }

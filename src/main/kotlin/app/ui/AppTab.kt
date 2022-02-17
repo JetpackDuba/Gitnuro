@@ -98,7 +98,7 @@ fun AppTab(
                     .padding(end = 32.dp, bottom = 32.dp)
             ) {
                 val interactionSource = remember { MutableInteractionSource() }
-
+                // TODO: Rework popup to appear on top of every other UI component, even dialogs
                 Card(
                     modifier = Modifier
                         .defaultMinSize(minWidth = 200.dp, minHeight = 100.dp)

@@ -77,9 +77,16 @@ class TabViewModel @Inject constructor(
                     RefreshType.STASHES -> refreshStashes()
                     RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
                     RefreshType.UNCOMMITED_CHANGES_AND_LOG -> checkUncommitedChanges(true)
+                    RefreshType.REMOTES -> refreshRemotes()
                 }
             }
         }
+    }
+
+    private fun refreshRemotes() = tabState.runOperation(
+        refreshType = RefreshType.NONE
+    ) { git ->
+        remotesViewModel.refresh(git)
     }
 
     private fun refreshStashes() = tabState.runOperation(

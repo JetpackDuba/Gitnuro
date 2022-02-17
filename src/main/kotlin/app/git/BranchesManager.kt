@@ -55,6 +55,14 @@ class BranchesManager @Inject constructor() {
             .call()
     }
 
+    suspend fun deleteLocallyRemoteBranches(git: Git, branches: List<String>) = withContext(Dispatchers.IO) {
+        git
+            .branchDelete()
+            .setBranchNames(*branches.toTypedArray())
+            .setForce(true)
+            .call()
+    }
+
     suspend fun remoteBranches(git: Git) = withContext(Dispatchers.IO) {
         git
             .branchList()

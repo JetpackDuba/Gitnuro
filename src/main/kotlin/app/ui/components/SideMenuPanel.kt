@@ -1,5 +1,7 @@
 package app.ui.components
 
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,16 +23,23 @@ fun <T> SideMenuPanel(
     items: List<T>,
     itemsCountForMaxHeight: Int = items.count(),
     itemContent: @Composable (T) -> Unit,
+    headerHoverIcon: @Composable (() -> Unit)? = null,
+    contextItems: () -> List<ContextMenuItem> = { emptyList() },
 ) {
     val maxHeight = remember(items) { maxSidePanelHeight(itemsCountForMaxHeight) }
 
     VerticalExpandable(
         header = {
-            SideMenuEntry(
-                text = title,
-                icon = icon,
-                itemsCount = items.count()
-            )
+            ContextMenuArea(
+                items = contextItems
+            ) {
+                SideMenuEntry(
+                    text = title,
+                    icon = icon,
+                    itemsCount = items.count(),
+                    hoverIcon = headerHoverIcon
+                )
+            }
         },
     ) {
         ScrollableLazyColumn(

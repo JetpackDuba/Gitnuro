@@ -14,11 +14,13 @@ import app.extensions.simpleName
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.context_menu.branchContextMenuItems
+import app.ui.context_menu.remoteContextMenu
 import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.RebaseDialog
 import app.viewmodels.BranchesViewModel
 import org.eclipse.jgit.lib.Ref
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Branches(
     branchesViewModel: BranchesViewModel,
@@ -31,18 +33,19 @@ fun Branches(
     SideMenuPanel(
         title = "Local branches",
         icon = painterResource("branch.svg"),
-        items = branches
-    ) { branch ->
-        BranchLineEntry(
-            branch = branch,
-            isCurrentBranch = currentBranch == branch.name,
-            onBranchClicked = { branchesViewModel.selectBranch(branch) },
-            onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
-            onMergeBranch = { setMergeBranch(branch) },
-            onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
-            onRebaseBranch = { setRebaseBranch(branch) },
-        )
-    }
+        items = branches,
+        itemContent = { branch ->
+            BranchLineEntry(
+                branch = branch,
+                isCurrentBranch = currentBranch == branch.name,
+                onBranchClicked = { branchesViewModel.selectBranch(branch) },
+                onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
+                onMergeBranch = { setMergeBranch(branch) },
+                onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
+                onRebaseBranch = { setRebaseBranch(branch) },
+            )
+        }
+    )
 
     if (mergeBranch != null) {
         MergeDialog(

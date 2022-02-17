@@ -159,10 +159,6 @@ class TabState @Inject constructor(
 
     fun newSelectedItem(selectedItem: SelectedItem) {
         _selectedItem.value = selectedItem
-        println(selectedItem)
-//        if (selectedItem is SelectedItem.CommitBasedItem) {
-//            commitChangesViewModel.loadChanges(selectedItem.revCommit)
-//        }
     }
 }
 
@@ -173,4 +169,5 @@ enum class RefreshType {
     STASHES,
     UNCOMMITED_CHANGES,
     UNCOMMITED_CHANGES_AND_LOG,
+    REMOTES,
 }
