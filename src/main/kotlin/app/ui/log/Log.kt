@@ -65,6 +65,7 @@ private val colors = listOf(
 )
 
 private const val CANVAS_MIN_WIDTH = 100
+private const val MIN_GRAPH_LINES = 2
 private const val PADDING_BETWEEN_DIVIDER_AND_MESSAGE = 8
 
 // TODO Min size for message column
@@ -246,9 +247,12 @@ fun GraphList(
     scrollState: LazyListState,
     hasUncommitedChanges: Boolean
 ) {
-
     val graphRealWidth = remember(commitList, graphWidth) {
-        val maxLinePosition = commitList.maxOf { it.lane.position }
+        val maxLinePosition = if (commitList.isNotEmpty())
+            commitList.maxOf { it.lane.position }
+        else
+            MIN_GRAPH_LINES
+
         ((maxLinePosition + 2) * 30f).dp
     }
 
@@ -553,7 +557,7 @@ fun CommitLine(
                 modifier = Modifier
                     .height(40.dp)
                     .fillMaxWidth()
-                    .padding(end = 4.dp,),
+                    .padding(end = 4.dp),
             ) {
                 val nodeColor = colors[graphNode.lane.position % colors.size]
                 CommitMessage(
