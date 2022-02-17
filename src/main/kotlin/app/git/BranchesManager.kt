@@ -21,7 +21,17 @@ class BranchesManager @Inject constructor() {
             .repository
             .fullBranch
 
-        return branchList.firstOrNull { it.name == branchName }
+        var branchFound = branchList.firstOrNull {
+            it.name == branchName
+        }
+
+        if(branchFound == null) {
+            branchFound = branchList.firstOrNull {
+                it.objectId.name == branchName // Try to get the HEAD
+            }
+        }
+
+        return branchFound
     }
 
     suspend fun getBranches(git: Git) = withContext(Dispatchers.IO) {
