@@ -30,11 +30,11 @@ Right now you CAN:
 - View changes/diff in images (side to side comparison).
 - Force push.
 - Remove branches from remote.
+- Manage remotes.
 
 Right now you CAN'T:
 
 - Rebase interactive.
-- Manage remotes.
 - Remove tags from remote.
 - Side by side diff in text files.
 - Start a new local repository.
