@@ -19,7 +19,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
-import app.theme.semiSecondaryTextColor
+import app.theme.borderColor
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
@@ -102,7 +102,7 @@ fun EditRemotesDialog(
                     .border(
                         width = 1.dp,
                         shape = RoundedCornerShape(5.dp),
-                        color = MaterialTheme.colors.semiSecondaryTextColor,
+                        color = MaterialTheme.colors.borderColor,
                     )
                     .background(MaterialTheme.colors.surface)
             ) {
@@ -190,7 +190,7 @@ fun EditRemotesDialog(
                     modifier = Modifier
                         .fillMaxHeight()
                         .width(1.dp)
-                        .background(MaterialTheme.colors.semiSecondaryTextColor)
+                        .background(MaterialTheme.colors.borderColor)
                 )
 
                 Column(

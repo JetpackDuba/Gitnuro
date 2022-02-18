@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -16,8 +17,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.key
@@ -223,19 +226,28 @@ fun UncommitedChangesButtons(
         modifier = Modifier
             .padding(top = 2.dp)
     ) {
-        Button(
+        ConfirmationButton(
+            text = "Commit",
             modifier = Modifier
                 .weight(1f)
                 .height(40.dp),
             onClick = { onCommit(false) },
             enabled = canCommit,
-            shape = RectangleShape,
-        ) {
-            Text(
-                text = "Commit",
-                fontSize = 14.sp,
-            )
-        }
+            shape = MaterialTheme.shapes.small.copy(topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+        )
+//        Button(
+//            modifier = Modifier
+//                .weight(1f)
+//                .height(40.dp),
+//            onClick = { onCommit(false) },
+//            enabled = canCommit,
+//            shape = RectangleShape,
+//        ) {
+//            Text(
+//                text = "Commit",
+//                fontSize = 14.sp,
+//            )
+//        }
         Spacer(
             modifier = Modifier
                 .width(1.dp)
@@ -245,13 +257,14 @@ fun UncommitedChangesButtons(
         Box(
             modifier = Modifier
                 .height(40.dp)
-                .background(MaterialTheme.colors.primary)
-                .clickable { showDropDownMenu = true },
+                .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
+                .background(MaterialTheme.colors.confirmationButton)
+                .clickable { showDropDownMenu = true }
         ) {
             Icon(
                 Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                tint = MaterialTheme.colors.inversePrimaryTextColor,
+                tint = Color.White,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .align(Alignment.Center),
@@ -273,9 +286,7 @@ fun UncommitedChangesButtons(
                 },
                 expanded = showDropDownMenu,
             )
-
         }
-//        }
     }
 }
 
@@ -295,19 +306,14 @@ fun MergeButtons(
             onClick = onAbort
         )
 
-        Button(
-            onClick = onMerge,
-            enabled = haveConflictsBeenSolved,
+        ConfirmationButton(
+            text = "Merge",
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp, end = 4.dp),
-        ) {
-            Text(
-                text = "Merge",
-                fontSize = 14.sp,
-            )
-        }
-
+            enabled = haveConflictsBeenSolved,
+            onClick = onMerge,
+        )
     }
 }
 
@@ -330,30 +336,22 @@ fun RebasingButtons(
         )
 
         if (canContinue) {
-            Button(
-                onClick = onContinue,
+            ConfirmationButton(
+                text = "Continue",
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp, end = 4.dp),
                 enabled = haveConflictsBeenSolved,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 8.dp, end = 4.dp),
-            ) {
-                Text(
-                    text = "Continue",
-                    fontSize = 14.sp,
-                )
-            }
+                onClick = onContinue,
+            )
         } else {
-            Button(
-                onClick = onSkip,
+            ConfirmationButton(
+                text = "Skip",
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 8.dp, end = 4.dp),
-            ) {
-                Text(
-                    text = "Skip",
-                    fontSize = 14.sp,
-                )
-            }
+                onClick = onSkip,
+            )
         }
 
     }
@@ -365,7 +363,7 @@ fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
         onClick = onClick,
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.unstageButton,
+            backgroundColor = MaterialTheme.colors.abortButton,
             contentColor = Color.White
         )
     ) {
@@ -375,6 +373,32 @@ fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
         )
     }
 }
+
+@Composable
+fun ConfirmationButton(
+    text: String,
+    modifier: Modifier,
+    enabled: Boolean = true,
+    shape: Shape = MaterialTheme.shapes.small,
+    onClick: () -> Unit,
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = MaterialTheme.colors.confirmationButton,
+            contentColor = Color.White
+        )
+    ) {
+        Text(
+            text = text,
+            fontSize = 14.sp,
+        )
+    }
+}
+
 
 // TODO: This logic should be part of the diffViewModel where it gets the latest version of the diffEntry
 fun checkIfSelectedEntryShouldBeUpdated(

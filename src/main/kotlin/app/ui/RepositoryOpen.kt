@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.git.DiffEntryType
+import app.theme.borderColor
 import app.ui.dialogs.NewBranchDialog
 import app.ui.log.Log
 import app.viewmodels.TabViewModel
@@ -83,8 +84,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .border(
-                                        width = 2.dp,
-                                        color = MaterialTheme.colors.primary,
+                                        width = 1.dp,
+                                        color = MaterialTheme.colors.borderColor,
                                     )
                             ) {
                                 when (diffSelected) {

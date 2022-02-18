@@ -54,11 +54,11 @@ val Colors.secondaryTextColor: Color
     get() = if (isLight) secondaryText else secondaryTextDark
 
 @get:Composable
-val Colors.semiSecondaryTextColor: Color
+val Colors.borderColor: Color
     get() = if (isLight)
-        secondaryText.copy(alpha = 0.3f)
+        borderColorLight
     else
-        secondaryTextDark.copy(alpha = 0.3f)
+        borderColorDark
 
 @get:Composable
 val Colors.headerBackground: Color
@@ -111,6 +111,12 @@ val Colors.stageButton: Color
 
 val Colors.unstageButton: Color
     get() = error
+
+val Colors.abortButton: Color
+    get() = error
+
+val Colors.confirmationButton: Color
+    get() = if (isLight) primary else primaryDark
 
 val Colors.scrollbarUnhover: Color
     get() = if (isLight) unhoverScrollbarColorLight else unhoverScrollbarColorDark

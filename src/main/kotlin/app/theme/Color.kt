@@ -10,6 +10,8 @@ val mainText = Color(0xFF212934)
 val mainTextDark = Color(0xFFFFFFFF)
 val secondaryText = Color(0xFF595858)
 val secondaryTextDark = Color(0xFFCCCBCB)
+val borderColorLight = Color(0xFF989898)
+val borderColorDark = Color(0xFF989898)
 val errorColor = Color(0xFFc93838)
 
 val backgroundColorLight = Color(0xFFFFFFFF)
