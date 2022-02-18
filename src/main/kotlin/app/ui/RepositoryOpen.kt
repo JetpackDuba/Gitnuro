@@ -2,6 +2,7 @@ package app.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -84,8 +85,9 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .border(
-                                        width = 1.dp,
+                                        width = 2.dp,
                                         color = MaterialTheme.colors.borderColor,
+                                        shape = RoundedCornerShape(4.dp)
                                     )
                             ) {
                                 when (diffSelected) {
