@@ -288,17 +288,12 @@ fun MergeButtons(
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Button(
-            onClick = onAbort,
+        AbortButton(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp, end = 4.dp),
-        ) {
-            Text(
-                text = "Abort",
-                fontSize = 14.sp,
-            )
-        }
+            onClick = onAbort
+        )
 
         Button(
             onClick = onMerge,
@@ -327,17 +322,12 @@ fun RebasingButtons(
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        Button(
-            onClick = onAbort,
+        AbortButton(
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 8.dp, end = 4.dp),
-        ) {
-            Text(
-                text = "Abort",
-                fontSize = 14.sp,
-            )
-        }
+            onClick = onAbort
+        )
 
         if (canContinue) {
             Button(
@@ -366,6 +356,23 @@ fun RebasingButtons(
             }
         }
 
+    }
+}
+
+@Composable
+fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = MaterialTheme.colors.unstageButton,
+            contentColor = Color.White
+        )
+    ) {
+        Text(
+            text = "Abort",
+            fontSize = 14.sp,
+        )
     }
 }
 
