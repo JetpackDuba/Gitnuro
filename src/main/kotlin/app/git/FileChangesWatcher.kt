@@ -1,6 +1,8 @@
 package app.git
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import java.io.IOException
 import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
@@ -42,6 +44,6 @@ class FileChangesWatcher @Inject constructor() {
             key.pollEvents()
             key.reset()
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
 }
