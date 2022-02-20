@@ -155,8 +155,6 @@ class TabViewModel @Inject constructor(
             if (!tabState.operationRunning) { // Only update if there isn't any process running
                 println("Changes detected, loading status")
                 checkUncommitedChanges()
-
-                updateDiffEntry()
             }
         }
     }
