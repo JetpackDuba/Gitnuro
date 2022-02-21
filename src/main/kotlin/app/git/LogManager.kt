@@ -13,10 +13,8 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 
-class LogManager @Inject constructor(
-    private val statusManager: StatusManager,
-) {
-    suspend fun loadLog(git: Git, currentBranch: Ref?) = withContext(Dispatchers.IO) {
+class LogManager @Inject constructor() {
+    suspend fun loadLog(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean) = withContext(Dispatchers.IO) {
         val commitList = GraphCommitList()
         val repositoryState = git.repository.repositoryState
         println("Repository state ${repositoryState.description}")
@@ -30,7 +28,7 @@ class LogManager @Inject constructor(
                 walk.markStartAllRefs(Constants.R_REMOTES)
                 walk.markStartAllRefs(Constants.R_TAGS)
 
-                if (statusManager.hasUncommitedChanges(git))
+                if (hasUncommitedChanges)
                     commitList.addUncommitedChangesGraphCommit(logList.first())
 
                 commitList.source(walk)
