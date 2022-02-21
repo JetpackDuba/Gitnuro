@@ -6,6 +6,7 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import app.DropDownOption
 
 private val DarkColorPalette = darkColors(
     primary = primaryLight,
@@ -125,9 +126,12 @@ val Colors.scrollbarHover: Color
     get() = if (isLight) hoverScrollbarColorLight else hoverScrollbarColorDark
 
 
-enum class Themes(val displayName: String) {
+enum class Themes(val displayName: String) : DropDownOption {
     LIGHT("Light"),
-    DARK("Dark")
+    DARK("Dark");
+
+    override val optionName: String
+        get() = displayName
 }
 
 val themesList = listOf(
