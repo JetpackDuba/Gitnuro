@@ -321,7 +321,7 @@ class StatusManager @Inject constructor(
 
         val addedEntries = diffEntries.filter { it.changeType == DiffEntry.ChangeType.ADD }
 
-        if(addedEntries.isNotEmpty()) {
+        if (addedEntries.isNotEmpty()) {
             val addCommand = git
                 .add()
 

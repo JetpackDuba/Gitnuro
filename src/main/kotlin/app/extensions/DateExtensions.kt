@@ -11,7 +11,7 @@ fun Date.toSmartSystemString(): String {
     val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
 
     val zoneId = ZoneId.systemDefault()
-    val localDate = this.toInstant().atZone(zoneId).toLocalDate();
+    val localDate = this.toInstant().atZone(zoneId).toLocalDate()
     val currentTime = LocalDate.now(zoneId)
 
     var result = sdf.format(this)

@@ -2,14 +2,15 @@ package app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -60,7 +61,7 @@ fun SideMenuEntry(
             overflow = TextOverflow.Ellipsis,
         )
 
-        if(hoverIcon != null && isHovered) {
+        if (hoverIcon != null && isHovered) {
             hoverIcon()
         } else
             Text(

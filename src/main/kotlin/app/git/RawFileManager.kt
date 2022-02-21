@@ -15,7 +15,6 @@ import org.eclipse.jgit.treewalk.WorkingTreeIterator
 import org.eclipse.jgit.util.LfsFactory
 import java.io.FileOutputStream
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile
 
 
@@ -105,7 +104,7 @@ sealed class EntryContent {
     object Missing : EntryContent()
     object InvalidObjectBlob : EntryContent()
     data class Text(val rawText: RawText) : EntryContent()
-    sealed class BinaryContent() : EntryContent()
+    sealed class BinaryContent : EntryContent()
     data class ImageBinary(val tempFilePath: Path) : BinaryContent()
     object Binary : BinaryContent()
     object TooLargeEntry : EntryContent()

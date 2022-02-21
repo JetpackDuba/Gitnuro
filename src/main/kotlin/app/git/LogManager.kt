@@ -76,7 +76,7 @@ class LogManager @Inject constructor(
             val log = git.log().setMaxCount(1).call()
             val latestCommitNode = log.firstOrNull()
 
-            return@withContext if(latestCommitNode == null)
+            return@withContext if (latestCommitNode == null)
                 ""
             else
                 latestCommitNode.fullMessage

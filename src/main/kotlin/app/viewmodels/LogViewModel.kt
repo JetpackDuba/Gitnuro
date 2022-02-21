@@ -123,10 +123,10 @@ class LogViewModel @Inject constructor(
 
         val previousLogStatusValue = _logStatus.value
 
-        if(previousLogStatusValue is LogStatus.Loaded) {
+        if (previousLogStatusValue is LogStatus.Loaded) {
             val newLogStatusValue = LogStatus.Loaded(
                 hasUncommitedChanges = hasUncommitedChanges,
-                plotCommitList =  previousLogStatusValue.plotCommitList,
+                plotCommitList = previousLogStatusValue.plotCommitList,
                 currentBranch = currentBranch,
                 statusSummary = statsSummary,
             )

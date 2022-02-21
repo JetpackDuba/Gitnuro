@@ -14,7 +14,6 @@ import app.extensions.simpleName
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.context_menu.branchContextMenuItems
-import app.ui.context_menu.remoteContextMenu
 import app.ui.dialogs.MergeDialog
 import app.ui.dialogs.RebaseDialog
 import app.viewmodels.BranchesViewModel

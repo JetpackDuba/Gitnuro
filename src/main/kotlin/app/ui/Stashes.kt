@@ -42,7 +42,7 @@ fun Stashes(
                     },
                     onDelete = {
                         stashesViewModel.deleteStash(stash)
-                   },
+                    },
                 )
             )
         }

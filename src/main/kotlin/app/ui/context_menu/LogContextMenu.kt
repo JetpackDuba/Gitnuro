@@ -14,7 +14,8 @@ fun logContextMenu(
 ) = listOf(
     ContextMenuItem(
         label = "Checkout commit",
-        onClick = onCheckoutCommit),
+        onClick = onCheckoutCommit
+    ),
     ContextMenuItem(
         label = "Create branch",
         onClick = onCreateNewBranch

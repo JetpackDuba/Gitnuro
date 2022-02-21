@@ -95,7 +95,7 @@ class StatusViewModel @Inject constructor(
     fun commit(message: String, amend: Boolean) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        val commitMessage = if(amend && message.isBlank()) {
+        val commitMessage = if (amend && message.isBlank()) {
             logManager.latestMessage(git)
         } else
             message

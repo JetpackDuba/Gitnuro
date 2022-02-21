@@ -4,6 +4,7 @@ import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
 
+// Remotes can have slashes in the name, but we won't care about it, known issue
 private const val REMOTE_PREFIX_LENGTH = 3
 private const val LOCAL_PREFIX_LENGTH = 2
 
@@ -53,7 +54,6 @@ val Ref.isLocal: Boolean
 
 val Ref.isRemote: Boolean
     get() = this.name.startsWith(Constants.R_REMOTES)
-
 
 fun Ref.isSameBranch(otherRef: Ref?): Boolean {
     if (this.name == Constants.HEAD && otherRef == null)

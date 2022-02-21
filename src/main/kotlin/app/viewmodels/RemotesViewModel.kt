@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RemoteSetUrlCommand
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.transport.URIish
 import javax.inject.Inject
 
 class RemotesViewModel @Inject constructor(
@@ -68,7 +67,7 @@ class RemotesViewModel @Inject constructor(
     }
 
     fun deleteRemote(remoteName: String, isNew: Boolean) = tabState.safeProcessing(
-        refreshType = if(isNew) RefreshType.REMOTES else RefreshType.ALL_DATA,
+        refreshType = if (isNew) RefreshType.REMOTES else RefreshType.ALL_DATA,
         showError = true,
     ) { git ->
         remotesManager.deleteRemote(git, remoteName)
@@ -88,11 +87,11 @@ class RemotesViewModel @Inject constructor(
         refreshType = RefreshType.REMOTES,
         showError = true,
     ) { git ->
-        if(selectedRemoteConfig.fetchUri.isBlank()) {
+        if (selectedRemoteConfig.fetchUri.isBlank()) {
             throw InvalidRemoteUrlException("Invalid empty fetch URI")
         }
 
-        if(selectedRemoteConfig.pushUri.isBlank()) {
+        if (selectedRemoteConfig.pushUri.isBlank()) {
             throw InvalidRemoteUrlException("Invalid empty push URI")
         }
 
@@ -101,16 +100,16 @@ class RemotesViewModel @Inject constructor(
         updateRemote(selectedRemoteConfig) // Sets both, fetch and push uri
     }
 
-    fun updateRemote(selectedRemoteConfig: RemoteWrapper)  = tabState.runOperation(
+    fun updateRemote(selectedRemoteConfig: RemoteWrapper) = tabState.runOperation(
         refreshType = RefreshType.REMOTES,
         showError = true,
     ) { git ->
 
-        if(selectedRemoteConfig.fetchUri.isBlank()) {
+        if (selectedRemoteConfig.fetchUri.isBlank()) {
             throw InvalidRemoteUrlException("Invalid empty fetch URI")
         }
 
-        if(selectedRemoteConfig.pushUri.isBlank()) {
+        if (selectedRemoteConfig.pushUri.isBlank()) {
             throw InvalidRemoteUrlException("Invalid empty push URI")
         }
 

@@ -25,7 +25,7 @@ class BranchesManager @Inject constructor() {
             it.name == branchName
         }
 
-        if(branchFound == null) {
+        if (branchFound == null) {
             branchFound = branchList.firstOrNull {
                 it.objectId.name == branchName // Try to get the HEAD
             }

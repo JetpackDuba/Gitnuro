@@ -53,7 +53,7 @@ class MenuViewModel @Inject constructor(
 
     fun refresh() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-    ){
+    ) {
         // Nothing to do here
     }
 }

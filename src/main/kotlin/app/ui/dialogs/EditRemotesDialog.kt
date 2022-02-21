@@ -17,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import app.theme.borderColor
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
-import app.theme.borderColor
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
@@ -115,7 +115,7 @@ fun EditRemotesDialog(
                         modifier = Modifier.weight(1f)
                     ) {
                         items(remotesEditorData.listRemotes) { remote ->
-                            val background = if(remote == selectedRemote) {
+                            val background = if (remote == selectedRemote) {
                                 MaterialTheme.colors.background
                             } else
                                 MaterialTheme.colors.surface

@@ -36,8 +36,8 @@ class RemoteOperationsManager @Inject constructor(
         if (!pullResult.isSuccessful) {
             var message = "Pull failed"
 
-            if(rebase) {
-                message = when(pullResult.rebaseResult.status) {
+            if (rebase) {
+                message = when (pullResult.rebaseResult.status) {
                     RebaseResult.Status.UNCOMMITTED_CHANGES -> "The pull with rebase has failed because you have got uncommited changes"
                     RebaseResult.Status.CONFLICTS -> "Pull with rebase has conflicts, fix them to continue"
                     else -> message
