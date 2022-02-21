@@ -510,13 +510,14 @@ fun SummaryEntry(
         Text(
             text = count.toString(),
             color = MaterialTheme.colors.primaryTextColor,
+            fontSize = 14.sp,
         )
 
         Icon(
             imageVector = icon,
             tint = color,
             contentDescription = null,
-            modifier = Modifier.size(16.dp)
+            modifier = Modifier.size(14.dp)
         )
     }
 }

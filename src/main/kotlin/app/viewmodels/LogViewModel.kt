@@ -30,16 +30,16 @@ class LogViewModel @Inject constructor(
 
         val currentBranch = branchesManager.currentBranchRef(git)
 
-        val statsSummary = statusManager.getStatusSummary(
+        val statusSummary = statusManager.getStatusSummary(
             git = git,
             currentBranch = currentBranch,
             repositoryState = repositoryManager.getRepositoryState(git),
         )
 
-        val hasUncommitedChanges = statsSummary.addedCount + statsSummary.deletedCount + statsSummary.modifiedCount > 0
+        val hasUncommitedChanges = statusSummary.addedCount + statusSummary.deletedCount + statusSummary.modifiedCount > 0
         val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges)
 
-        _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statsSummary)
+        _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary)
     }
 
     fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
