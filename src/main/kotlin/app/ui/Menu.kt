@@ -69,8 +69,11 @@ fun Menu(
             icon = painterResource("upload.svg"),
             onClick = { menuViewModel.push() },
             extendedListItems = pushContextMenuItems(
+                onPushWithTags = {
+                    menuViewModel.push(force = false, pushTags = true)
+                },
                 onForcePush = {
-                    menuViewModel.push(true)
+                    menuViewModel.push(force = true)
                 }
             )
         )

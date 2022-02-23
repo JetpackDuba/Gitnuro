@@ -24,11 +24,11 @@ class MenuViewModel @Inject constructor(
         remoteOperationsManager.fetchAll(git)
     }
 
-    fun push(force: Boolean = false) = tabState.safeProcessing(
+    fun push(force: Boolean = false, pushTags: Boolean = false) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashes = true,
     ) { git ->
-        remoteOperationsManager.push(git, force)
+        remoteOperationsManager.push(git, force, pushTags)
     }
 
     fun stash() = tabState.safeProcessing(
