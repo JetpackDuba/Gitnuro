@@ -60,6 +60,11 @@ val Ref.isBranch: Boolean
         return this is ObjectIdRef.PeeledNonTag
     }
 
+val Ref.isHead: Boolean
+    get() {
+        return this.name == Constants.HEAD
+    }
+
 val Ref.isTag: Boolean
     get() = this.name.startsWith(Constants.R_TAGS)
 

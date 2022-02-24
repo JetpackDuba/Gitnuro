@@ -25,7 +25,9 @@ fun Branches(
     branchesViewModel: BranchesViewModel,
 ) {
     val branches by branchesViewModel.branches.collectAsState()
-    val currentBranch by branchesViewModel.currentBranch.collectAsState()
+    val currentBranchState = branchesViewModel.currentBranch.collectAsState()
+    val currentBranch = currentBranchState.value
+
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
     val (rebaseBranch, setRebaseBranch) = remember { mutableStateOf<Ref?>(null) }
 
@@ -36,8 +38,8 @@ fun Branches(
         itemContent = { branch ->
             BranchLineEntry(
                 branch = branch,
-                currentBranchName = currentBranch,
-                isCurrentBranch = currentBranch == branch.name,
+                currentBranch = currentBranch,
+                isCurrentBranch = currentBranch?.name == branch.name,
                 onBranchClicked = { branchesViewModel.selectBranch(branch) },
                 onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                 onMergeBranch = { setMergeBranch(branch) },
@@ -49,18 +51,18 @@ fun Branches(
         }
     )
 
-    if (mergeBranch != null) {
+    if (mergeBranch != null && currentBranch != null) {
         MergeDialog(
-            currentBranch,
+            currentBranchName = currentBranch.simpleName,
             mergeBranchName = mergeBranch.name,
             onReject = { setMergeBranch(null) },
             onAccept = { ff -> branchesViewModel.mergeBranch(mergeBranch, ff) }
         )
     }
 
-    if (rebaseBranch != null) {
+    if (rebaseBranch != null && currentBranch != null) {
         RebaseDialog(
-            currentBranch,
+            currentBranchName = currentBranch.simpleName,
             rebaseBranchName = rebaseBranch.name,
             onReject = { setRebaseBranch(null) },
             onAccept = { branchesViewModel.rebaseBranch(rebaseBranch) }
@@ -72,7 +74,7 @@ fun Branches(
 @Composable
 private fun BranchLineEntry(
     branch: Ref,
-    currentBranchName: String,
+    currentBranch: Ref?,
     isCurrentBranch: Boolean,
     onBranchClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
@@ -86,7 +88,7 @@ private fun BranchLineEntry(
         items = {
             branchContextMenuItems(
                 branch = branch,
-                currentBranchName = currentBranchName,
+                currentBranch = currentBranch,
                 isCurrentBranch = isCurrentBranch,
                 isLocal = branch.isLocal,
                 onCheckoutBranch = onCheckoutBranch,

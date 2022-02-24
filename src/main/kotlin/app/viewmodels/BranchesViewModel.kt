@@ -18,17 +18,17 @@ class BranchesViewModel @Inject constructor(
     val branches: StateFlow<List<Ref>>
         get() = _branches
 
-    private val _currentBranch = MutableStateFlow<String>("")
-    val currentBranch: StateFlow<String>
+    private val _currentBranch = MutableStateFlow<Ref?>(null)
+    val currentBranch: StateFlow<Ref?>
         get() = _currentBranch
 
     suspend fun loadBranches(git: Git) {
-        _currentBranch.value = branchesManager.currentBranchRef(git)?.name ?: ""
+        _currentBranch.value = branchesManager.currentBranchRef(git)
 
         val branchesList = branchesManager.getBranches(git)
 
         // set selected branch as the first one always
-        val selectedBranch = branchesList.find { it.name == _currentBranch.value }
+        val selectedBranch = branchesList.find { it.name == _currentBranch.value?.name }
         if (selectedBranch != null) {
             branchesList.remove(selectedBranch)
             branchesList.add(0, selectedBranch)

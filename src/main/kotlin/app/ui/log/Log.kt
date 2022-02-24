@@ -636,7 +636,7 @@ fun CommitMessage(
                         BranchChip(
                             ref = ref,
                             color = nodeColor,
-                            currentBranch = currentBranch?.name.orEmpty(),
+                            currentBranch = currentBranch,
                             isCurrentBranch = ref.isSameBranch(currentBranch),
                             onCheckoutBranch = { onCheckoutRef(ref) },
                             onMergeBranch = { onMergeBranch(ref) },
@@ -825,7 +825,7 @@ fun BranchChip(
     modifier: Modifier = Modifier,
     isCurrentBranch: Boolean = false,
     ref: Ref,
-    currentBranch: String,
+    currentBranch: Ref?,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
@@ -837,7 +837,7 @@ fun BranchChip(
     val contextMenuItemsList = {
         branchContextMenuItems(
             branch = ref,
-            currentBranchName = currentBranch,
+            currentBranch = currentBranch,
             isCurrentBranch = isCurrentBranch,
             isLocal = ref.isLocal,
             onCheckoutBranch = onCheckoutBranch,
