@@ -1,17 +1,26 @@
 package app.git
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import java.io.IOException
 import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
 import java.nio.file.attribute.BasicFileAttributes
 import javax.inject.Inject
 
+private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 500L
 
 class FileChangesWatcher @Inject constructor() {
-    suspend fun watchDirectoryPath(pathStr: String, ignoredDirsPath: List<String>) = flow {
+    private var lastNotify = 0L
+    private var asyncJob: Job? = null
+
+    private val _changesNotifier = MutableSharedFlow<Long>()
+    val changesNotifier: SharedFlow<Long> = _changesNotifier
+
+    suspend fun watchDirectoryPath(pathStr: String, ignoredDirsPath: List<String>) = withContext(Dispatchers.IO) {
+        println(ignoredDirsPath)
+
         val watchService = FileSystems.getDefault().newWatchService()
 
         val path = Paths.get(pathStr)
@@ -40,10 +49,33 @@ class FileChangesWatcher @Inject constructor() {
 
         var key: WatchKey
         while (watchService.take().also { key = it } != null) {
-            this.emit(Unit)
             key.pollEvents()
+
+            println("Polled events")
+
+            asyncJob?.cancel()
+
+            // Sometimes external apps can run filesystem multiple operations in a fraction of a second.
+            // To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
+            // the app by constantly running "git status".
+            val currentTimeMillis = System.currentTimeMillis()
+            val diffTime = currentTimeMillis - lastNotify
+
+            if (diffTime > MIN_TIME_IN_MS_BETWEEN_REFRESHES) {
+                _changesNotifier.emit(currentTimeMillis)
+                println("Sync emit with diff time $diffTime")
+            } else {
+                asyncJob = async {
+                    delay(MIN_TIME_IN_MS_BETWEEN_REFRESHES)
+                    println("Async emit")
+                    if (isActive)
+                        _changesNotifier.emit(currentTimeMillis)
+                }
+            }
+
+            lastNotify = currentTimeMillis
+
             key.reset()
         }
-    }.flowOn(Dispatchers.IO)
-
+    }
 }

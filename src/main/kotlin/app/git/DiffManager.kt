@@ -87,7 +87,7 @@ class DiffManager @Inject constructor(
     }
 }
 
-fun prepareTreeParser(repository: Repository, commit: RevCommit): AbstractTreeIterator? {
+fun prepareTreeParser(repository: Repository, commit: RevCommit): AbstractTreeIterator {
     // from the commit we can build the tree which allows us to construct the TreeParser
     RevWalk(repository).use { walk ->
         val tree: RevTree = walk.parseTree(commit.tree.id)

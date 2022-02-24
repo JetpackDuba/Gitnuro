@@ -7,13 +7,10 @@ import app.credentials.CredentialsStateManager
 import app.git.*
 import app.newErrorNow
 import app.ui.SelectedItem
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
@@ -148,15 +145,18 @@ class TabViewModel @Inject constructor(
     private suspend fun watchRepositoryChanges(git: Git) = tabState.managerScope.launch(Dispatchers.IO) {
         val ignored = git.status().call().ignoredNotInIndex.toList()
 
+        launch {
+            fileChangesWatcher.changesNotifier.collect {
+                if (!tabState.operationRunning) { // Only update if there isn't any process running
+                    println("Changes detected, loading status")
+                    checkUncommitedChanges()
+                }
+            }
+        }
         fileChangesWatcher.watchDirectoryPath(
             pathStr = git.repository.directory.parent,
             ignoredDirsPath = ignored,
-        ).collect {
-            if (!tabState.operationRunning) { // Only update if there isn't any process running
-                println("Changes detected, loading status")
-                checkUncommitedChanges()
-            }
-        }
+        )
     }
 
     private suspend fun checkUncommitedChanges(fullUpdateLog: Boolean = false) = tabState.runOperation(
