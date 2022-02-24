@@ -220,7 +220,7 @@ fun CommitLogChanges(
                 Row {
                     Icon(
                         modifier = Modifier
-                            .padding(start = 8.dp)
+                            .padding(horizontal = 8.dp)
                             .size(16.dp),
                         imageVector = diffEntry.icon,
                         contentDescription = null,
