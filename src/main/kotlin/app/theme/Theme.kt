@@ -47,6 +47,10 @@ val Colors.primaryTextColor: Color
     get() = if (isLight) mainText else mainTextDark
 
 @get:Composable
+val Colors.halfPrimary: Color
+    get() = primary.copy(alpha = 0.8f)
+
+@get:Composable
 val Colors.inversePrimaryTextColor: Color
     get() = if (isLight) mainTextDark else mainText
 

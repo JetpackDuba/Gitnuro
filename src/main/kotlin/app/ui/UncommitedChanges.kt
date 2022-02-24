@@ -28,9 +28,12 @@ import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.fileName
 import app.extensions.filePath
+import app.extensions.parentDirectoryPath
 import app.extensions.isMerging
 import app.git.DiffEntryType
 import app.git.StatusEntry
@@ -558,8 +561,17 @@ private fun FileEntry(
                 )
 
                 Text(
-                    text = diffEntry.filePath,
-                    modifier = Modifier.weight(1f, fill = true),
+                    text = diffEntry.parentDirectoryPath,
+                    modifier = Modifier.weight(1f, fill = false),
+                    maxLines = 1,
+                    softWrap = false,
+                    fontSize = 13.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colors.secondaryTextColor,
+                )
+                Text(
+                    text = diffEntry.fileName,
+                    modifier = Modifier.weight(1f, fill = false),
                     maxLines = 1,
                     softWrap = false,
                     fontSize = 13.sp,

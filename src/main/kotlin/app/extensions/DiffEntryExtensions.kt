@@ -13,12 +13,44 @@ import app.theme.addFile
 import app.theme.modifyFile
 import org.eclipse.jgit.diff.DiffEntry
 
-val DiffEntry.filePath: String
+val DiffEntry.parentDirectoryPath: String
     get() {
-        return if (this.changeType == DiffEntry.ChangeType.DELETE) {
+        val path = if (this.changeType == DiffEntry.ChangeType.DELETE) {
             this.oldPath
         } else
             this.newPath
+
+        val pathSplit = path.split(systemSeparator).toMutableList()
+        pathSplit.removeLast()
+
+        val directoryPath = pathSplit.joinToString(systemSeparator)
+
+        return if (directoryPath.isEmpty())
+            ""
+        else
+            "${directoryPath}/"
+    }
+
+val DiffEntry.fileName: String
+    get() {
+        val path = if (this.changeType == DiffEntry.ChangeType.DELETE) {
+            this.oldPath
+        } else
+            this.newPath
+
+        val pathSplit = path.split(systemSeparator)
+
+        return pathSplit.lastOrNull() ?: ""
+    }
+
+val DiffEntry.filePath: String
+    get() {
+        val path = if (this.changeType == DiffEntry.ChangeType.DELETE) {
+            this.oldPath
+        } else
+            this.newPath
+
+        return path
     }
 
 val DiffEntry.icon: ImageVector

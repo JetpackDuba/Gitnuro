@@ -11,15 +11,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
-import app.theme.headerBackground
-import app.theme.headerText
-import app.theme.primaryTextColor
-import app.theme.secondaryTextColor
+import app.theme.*
 import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TooltipText
@@ -184,10 +183,16 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
             .fillMaxSize()
     ) {
         itemsIndexed(items = diffEntries) { index, diffEntry ->
-            val textColor = if (selectedIndex.value == index) {
-                MaterialTheme.colors.primary
-            } else
-                MaterialTheme.colors.primaryTextColor
+            val textColor: Color
+            val secondaryTextColor: Color
+
+            if (selectedIndex.value == index) {
+                textColor = MaterialTheme.colors.primary
+                secondaryTextColor = MaterialTheme.colors.halfPrimary
+            } else {
+                textColor = MaterialTheme.colors.primaryTextColor
+                secondaryTextColor = MaterialTheme.colors.secondaryTextColor
+            }
 
             Column(
                 modifier = Modifier
@@ -213,12 +218,21 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
                     )
 
                     Text(
-                        text = diffEntry.filePath,
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        color = textColor,
+                        text = diffEntry.parentDirectoryPath,
+                        modifier = Modifier.weight(1f, fill = false),
                         maxLines = 1,
-                        fontSize = 13.sp,
                         softWrap = false,
+                        fontSize = 13.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        color = secondaryTextColor,
+                    )
+                    Text(
+                        text = diffEntry.fileName,
+                        modifier = Modifier.weight(1f, fill = false),
+                        maxLines = 1,
+                        softWrap = false,
+                        fontSize = 13.sp,
+                        color = textColor,
                     )
                 }
 
