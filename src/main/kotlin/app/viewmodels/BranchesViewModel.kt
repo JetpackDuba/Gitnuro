@@ -11,6 +11,7 @@ class BranchesViewModel @Inject constructor(
     private val branchesManager: BranchesManager,
     private val rebaseManager: RebaseManager,
     private val mergeManager: MergeManager,
+    private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
 ) {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
@@ -74,5 +75,26 @@ class BranchesViewModel @Inject constructor(
 
     fun selectBranch(ref: Ref) {
         tabState.newSelectedRef(ref.objectId)
+    }
+
+    fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        remoteOperationsManager.pushToBranch(
+            git = git,
+            force = false,
+            pushTags = false,
+            remoteBranch = branch,
+        )
+    }
+
+    fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        remoteOperationsManager.pullFromBranch(
+            git = git,
+            rebase = false,
+            remoteBranch = branch,
+        )
     }
 }

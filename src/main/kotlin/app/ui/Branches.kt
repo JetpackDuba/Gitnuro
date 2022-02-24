@@ -36,12 +36,15 @@ fun Branches(
         itemContent = { branch ->
             BranchLineEntry(
                 branch = branch,
+                currentBranchName = currentBranch,
                 isCurrentBranch = currentBranch == branch.name,
                 onBranchClicked = { branchesViewModel.selectBranch(branch) },
                 onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                 onMergeBranch = { setMergeBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
                 onRebaseBranch = { setRebaseBranch(branch) },
+                onPushToRemoteBranch = { branchesViewModel.pushToRemoteBranch(branch) },
+                onPullFromRemoteBranch = { branchesViewModel.pullFromRemoteBranch(branch) },
             )
         }
     )
@@ -69,22 +72,29 @@ fun Branches(
 @Composable
 private fun BranchLineEntry(
     branch: Ref,
+    currentBranchName: String,
     isCurrentBranch: Boolean,
     onBranchClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
+    onPushToRemoteBranch: () -> Unit,
+    onPullFromRemoteBranch: () -> Unit,
 ) {
     ContextMenuArea(
         items = {
             branchContextMenuItems(
+                branch = branch,
+                currentBranchName = currentBranchName,
                 isCurrentBranch = isCurrentBranch,
                 isLocal = branch.isLocal,
                 onCheckoutBranch = onCheckoutBranch,
                 onMergeBranch = onMergeBranch,
                 onDeleteBranch = onDeleteBranch,
                 onRebaseBranch = onRebaseBranch,
+                onPushToRemoteBranch = onPushToRemoteBranch,
+                onPullFromRemoteBranch = onPullFromRemoteBranch,
             )
         }
     ) {

@@ -573,6 +573,8 @@ fun CommitLine(
                     onDeleteBranch = { ref -> logViewModel.deleteBranch(ref) },
                     onDeleteTag = { ref -> logViewModel.deleteTag(ref) },
                     onRebaseBranch = { ref -> onRebaseBranch(ref) },
+                    onPushRemoteBranch = { ref -> logViewModel.pushToRemoteBranch(ref) },
+                    onPullRemoteBranch = { ref -> logViewModel.pullFromRemoteBranch(ref) },
                 )
             }
         }
@@ -592,6 +594,8 @@ fun CommitMessage(
     onDeleteBranch: (ref: Ref) -> Unit,
     onRebaseBranch: (ref: Ref) -> Unit,
     onDeleteTag: (ref: Ref) -> Unit,
+    onPushRemoteBranch: (ref: Ref) -> Unit,
+    onPullRemoteBranch: (ref: Ref) -> Unit,
 ) {
     val textColor = if (selected) {
         MaterialTheme.colors.primary
@@ -632,11 +636,14 @@ fun CommitMessage(
                         BranchChip(
                             ref = ref,
                             color = nodeColor,
+                            currentBranch = currentBranch?.name.orEmpty(),
                             isCurrentBranch = ref.isSameBranch(currentBranch),
                             onCheckoutBranch = { onCheckoutRef(ref) },
                             onMergeBranch = { onMergeBranch(ref) },
                             onDeleteBranch = { onDeleteBranch(ref) },
                             onRebaseBranch = { onRebaseBranch(ref) },
+                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
+                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
                         )
                     }
                 }
@@ -818,20 +825,27 @@ fun BranchChip(
     modifier: Modifier = Modifier,
     isCurrentBranch: Boolean = false,
     ref: Ref,
+    currentBranch: String,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
     onRebaseBranch: () -> Unit,
+    onPushRemoteBranch: () -> Unit,
+    onPullRemoteBranch: () -> Unit,
     color: Color,
 ) {
     val contextMenuItemsList = {
         branchContextMenuItems(
+            branch = ref,
+            currentBranchName = currentBranch,
             isCurrentBranch = isCurrentBranch,
             isLocal = ref.isLocal,
             onCheckoutBranch = onCheckoutBranch,
             onMergeBranch = onMergeBranch,
             onDeleteBranch = onDeleteBranch,
             onRebaseBranch = onRebaseBranch,
+            onPushToRemoteBranch = onPushRemoteBranch,
+            onPullFromRemoteBranch = onPullRemoteBranch,
         )
     }
 

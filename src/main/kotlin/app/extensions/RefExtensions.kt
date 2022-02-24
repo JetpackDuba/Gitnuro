@@ -41,6 +41,20 @@ val Ref.simpleLogName: String
         }
     }
 
+val Ref.remoteName: String
+    get() {
+        if(this.isLocal) {
+            throw Exception("Trying to get remote name from a local branch")
+        }
+        val remoteWithoutPrefix = name.replace("refs/remotes/", "")
+        val remoteName = remoteWithoutPrefix.split("/").firstOrNull()
+
+        if(remoteName == null)
+            throw Exception("Invalid remote name")
+        else
+            return remoteName
+    }
+
 val Ref.isBranch: Boolean
     get() {
         return this is ObjectIdRef.PeeledNonTag

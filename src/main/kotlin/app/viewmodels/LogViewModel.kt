@@ -1,5 +1,6 @@
 package app.viewmodels
 
+import app.extensions.simpleName
 import app.git.*
 import app.git.graph.GraphCommitList
 import app.ui.SelectedItem
@@ -18,6 +19,7 @@ class LogViewModel @Inject constructor(
     private val tagsManager: TagsManager,
     private val mergeManager: MergeManager,
     private val repositoryManager: RepositoryManager,
+    private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
@@ -40,6 +42,27 @@ class LogViewModel @Inject constructor(
         val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges)
 
         _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary)
+    }
+
+    fun pushToRemoteBranch(branch: Ref)  = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        remoteOperationsManager.pushToBranch(
+            git = git,
+            force = false,
+            pushTags = false,
+            remoteBranch = branch,
+        )
+    }
+
+    fun pullFromRemoteBranch(branch: Ref)  = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        remoteOperationsManager.pullFromBranch(
+            git = git,
+            rebase = false,
+            remoteBranch = branch,
+        )
     }
 
     fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(

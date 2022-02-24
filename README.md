@@ -6,7 +6,7 @@ The main goal of Gitnuro is to provide a multiplatform open source Git client wi
 can use it nor relying on web technologies.
 
 The project it is still in alpha and many features are lacking or missing, but can be good for basic usage.
-
+q
 Right now you CAN:
 
 - View diffs for text based files.

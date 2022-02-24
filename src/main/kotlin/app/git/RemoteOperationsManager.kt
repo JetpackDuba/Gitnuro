@@ -2,6 +2,8 @@ package app.git
 
 import app.credentials.GSessionManager
 import app.credentials.HttpCredentialsProvider
+import app.extensions.remoteName
+import app.extensions.simpleName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -48,6 +50,33 @@ class RemoteOperationsManager @Inject constructor(
         }
     }
 
+    suspend fun pullFromBranch(git: Git, rebase: Boolean, remoteBranch: Ref) = withContext(Dispatchers.IO) {
+        val pullResult = git
+            .pull()
+            .setTransportConfigCallback {
+                handleTransportCredentials(it)
+            }
+            .setRemote(remoteBranch.remoteName)
+            .setRemoteBranchName(remoteBranch.simpleName)
+            .setRebase(rebase)
+            .setCredentialsProvider(CredentialsProvider.getDefault())
+            .call()
+
+        if (!pullResult.isSuccessful) {
+            var message = "Pull failed"
+
+            if (rebase) {
+                message = when (pullResult.rebaseResult.status) {
+                    RebaseResult.Status.UNCOMMITTED_CHANGES -> "The pull with rebase has failed because you have got uncommited changes"
+                    RebaseResult.Status.CONFLICTS -> "Pull with rebase has conflicts, fix them to continue"
+                    else -> message
+                }
+            }
+
+            throw Exception(message)
+        }
+    }
+
     suspend fun fetchAll(git: Git) = withContext(Dispatchers.IO) {
         val remotes = git.remoteList().call()
 
@@ -71,7 +100,7 @@ class RemoteOperationsManager @Inject constructor(
             .setRefSpecs(RefSpec(currentBranchRefSpec))
             .setForce(force)
             .apply {
-                if(pushTags)
+                if (pushTags)
                     setPushTags()
             }
             .setTransportConfigCallback {
@@ -93,6 +122,39 @@ class RemoteOperationsManager @Inject constructor(
             throw Exception(error.toString())
         }
     }
+
+    suspend fun pushToBranch(git: Git, force: Boolean, pushTags: Boolean, remoteBranch: Ref) =
+        withContext(Dispatchers.IO) {
+            val currentBranchRefSpec = git.repository.fullBranch
+
+            val pushResult = git
+                .push()
+                .setRefSpecs(RefSpec("$currentBranchRefSpec:${remoteBranch.simpleName}"))
+                .setRemote(remoteBranch.remoteName)
+                .setForce(force)
+                .apply {
+                    if (pushTags)
+                        setPushTags()
+                }
+                .setTransportConfigCallback {
+                    handleTransportCredentials(it)
+                }
+                .call()
+
+            val results =
+                pushResult.map { it.remoteUpdates.filter { remoteRefUpdate -> remoteRefUpdate.status.isRejected } }
+                    .flatten()
+            if (results.isNotEmpty()) {
+                val error = StringBuilder()
+
+                results.forEach { result ->
+                    error.append(result.statusMessage)
+                    error.append("\n")
+                }
+
+                throw Exception(error.toString())
+            }
+        }
 
     private fun handleTransportCredentials(transport: Transport?) {
         if (transport is SshTransport) {
