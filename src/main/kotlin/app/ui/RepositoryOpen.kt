@@ -132,6 +132,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                     CommitChanges(
                                         commitChangesViewModel = tabViewModel.commitChangesViewModel,
                                         selectedItem = safeSelectedItem,
+                                        diffSelected = diffSelected,
                                         onDiffSelected = { diffEntry ->
                                             tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                         }

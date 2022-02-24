@@ -32,9 +32,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.fileName
-import app.extensions.filePath
-import app.extensions.parentDirectoryPath
 import app.extensions.isMerging
+import app.extensions.parentDirectoryPath
 import app.git.DiffEntryType
 import app.git.StatusEntry
 import app.theme.*
@@ -110,6 +109,7 @@ fun UncommitedChanges(
             title = "Staged",
             allActionTitle = "Unstage all",
             actionTitle = "Unstage",
+            selectedEntryType = selectedEntryType,
             actionColor = MaterialTheme.colors.unstageButton,
             diffEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
@@ -153,10 +153,11 @@ fun UncommitedChanges(
                     }
                 )
             },
-            allActionTitle = "Stage all",
             onAllAction = {
                 statusViewModel.stageAll()
-            }
+            },
+            allActionTitle = "Stage all",
+            selectedEntryType = selectedEntryType
         )
 
         Column(
@@ -223,7 +224,6 @@ fun UncommitedChangesButtons(
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
 
-
     Row(
         modifier = Modifier
             .padding(top = 2.dp)
@@ -237,19 +237,6 @@ fun UncommitedChangesButtons(
             enabled = canCommit,
             shape = MaterialTheme.shapes.small.copy(topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
         )
-//        Button(
-//            modifier = Modifier
-//                .weight(1f)
-//                .height(40.dp),
-//            onClick = { onCommit(false) },
-//            enabled = canCommit,
-//            shape = RectangleShape,
-//        ) {
-//            Text(
-//                text = "Commit",
-//                fontSize = 14.sp,
-//            )
-//        }
         Spacer(
             modifier = Modifier
                 .width(1.dp)
@@ -454,6 +441,7 @@ private fun EntriesList(
     onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
     onAllAction: () -> Unit,
     allActionTitle: String,
+    selectedEntryType: DiffEntryType?,
 ) {
     Column(
         modifier = modifier
@@ -487,8 +475,10 @@ private fun EntriesList(
         ) {
             itemsIndexed(diffEntries) { index, statusEntry ->
                 val diffEntry = statusEntry.diffEntry
+                val isEntrySelected = selectedEntryType?.diffEntry == diffEntry
                 FileEntry(
                     statusEntry = statusEntry,
+                    isSelected = isEntrySelected,
                     actionTitle = actionTitle,
                     actionColor = actionColor,
                     onClick = {
@@ -515,6 +505,7 @@ private fun EntriesList(
 @Composable
 private fun FileEntry(
     statusEntry: StatusEntry,
+    isSelected: Boolean,
     actionTitle: String,
     actionColor: Color,
     onClick: () -> Unit,
@@ -523,6 +514,17 @@ private fun FileEntry(
 ) {
     var active by remember { mutableStateOf(false) }
     val diffEntry = statusEntry.diffEntry
+
+    val textColor: Color
+    val secondaryTextColor: Color
+
+    if (isSelected) {
+        textColor = MaterialTheme.colors.primary
+        secondaryTextColor = MaterialTheme.colors.halfPrimary
+    } else {
+        textColor = MaterialTheme.colors.primaryTextColor
+        secondaryTextColor = MaterialTheme.colors.secondaryTextColor
+    }
 
     Box(
         modifier = Modifier
@@ -567,7 +569,7 @@ private fun FileEntry(
                     softWrap = false,
                     fontSize = 13.sp,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = secondaryTextColor,
                 )
                 Text(
                     text = diffEntry.fileName,
@@ -575,7 +577,7 @@ private fun FileEntry(
                     maxLines = 1,
                     softWrap = false,
                     fontSize = 13.sp,
-                    color = MaterialTheme.colors.primaryTextColor,
+                    color = textColor,
                 )
             }
         }

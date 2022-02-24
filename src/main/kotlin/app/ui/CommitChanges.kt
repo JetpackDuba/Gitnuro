@@ -3,6 +3,7 @@ package app.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.*
+import app.git.DiffEntryType
 import app.theme.*
 import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
@@ -30,8 +32,9 @@ import org.eclipse.jgit.revwalk.RevCommit
 @Composable
 fun CommitChanges(
     commitChangesViewModel: CommitChangesViewModel,
+    selectedItem: SelectedItem.CommitBasedItem,
     onDiffSelected: (DiffEntry) -> Unit,
-    selectedItem: SelectedItem.CommitBasedItem
+    diffSelected: DiffEntryType?
 ) {
     LaunchedEffect(selectedItem) {
         commitChangesViewModel.loadChanges(selectedItem.revCommit)
@@ -45,6 +48,7 @@ fun CommitChanges(
         }
         is CommitChangesStatus.Loaded -> {
             CommitChangesView(
+                diffSelected = diffSelected,
                 commit = commitChangesStatus.commit,
                 changes = commitChangesStatus.changes,
                 onDiffSelected = onDiffSelected,
@@ -57,7 +61,8 @@ fun CommitChanges(
 fun CommitChangesView(
     commit: RevCommit,
     changes: List<DiffEntry>,
-    onDiffSelected: (DiffEntry) -> Unit
+    onDiffSelected: (DiffEntry) -> Unit,
+    diffSelected: DiffEntryType?
 ) {
     Column(
         modifier = Modifier
@@ -110,7 +115,11 @@ fun CommitChangesView(
             )
 
 
-            CommitLogChanges(changes, onDiffSelected = onDiffSelected)
+            CommitLogChanges(
+                diffSelected = diffSelected,
+                diffEntries = changes,
+                onDiffSelected = onDiffSelected
+            )
         }
     }
 }
@@ -175,18 +184,20 @@ fun Author(commit: RevCommit) {
 }
 
 @Composable
-fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -> Unit) {
-    val selectedIndex = remember(diffEntries) { mutableStateOf(-1) }
-
+fun CommitLogChanges(
+    diffEntries: List<DiffEntry>,
+    onDiffSelected: (DiffEntry) -> Unit,
+    diffSelected: DiffEntryType?
+) {
     ScrollableLazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        itemsIndexed(items = diffEntries) { index, diffEntry ->
+        items(items = diffEntries) { diffEntry ->
             val textColor: Color
             val secondaryTextColor: Color
 
-            if (selectedIndex.value == index) {
+            if (diffSelected?.diffEntry == diffEntry) {
                 textColor = MaterialTheme.colors.primary
                 secondaryTextColor = MaterialTheme.colors.halfPrimary
             } else {
@@ -199,7 +210,6 @@ fun CommitLogChanges(diffEntries: List<DiffEntry>, onDiffSelected: (DiffEntry) -
                     .height(40.dp)
                     .fillMaxWidth()
                     .clickable {
-                        selectedIndex.value = index
                         onDiffSelected(diffEntry)
                     },
                 verticalArrangement = Arrangement.Center,
