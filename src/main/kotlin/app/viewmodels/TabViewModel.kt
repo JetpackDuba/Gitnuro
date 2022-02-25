@@ -20,6 +20,7 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import javax.inject.Inject
 
+private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 500L
 
 class TabViewModel @Inject constructor(
     val logViewModel: LogViewModel,
@@ -144,12 +145,42 @@ class TabViewModel @Inject constructor(
 
     private suspend fun watchRepositoryChanges(git: Git) = tabState.managerScope.launch(Dispatchers.IO) {
         val ignored = git.status().call().ignoredNotInIndex.toList()
+        var asyncJob: Job? = null
+        var lastNotify = 0L
+        var hasGitDirChanged = false
 
         launch {
-            fileChangesWatcher.changesNotifier.collect {
+            fileChangesWatcher.changesNotifier.collect { latestUpdateChangedGitDir ->
                 if (!tabState.operationRunning) { // Only update if there isn't any process running
-                    println("Changes detected, loading status")
-                    checkUncommitedChanges()
+                    if(latestUpdateChangedGitDir) {
+                        hasGitDirChanged = true
+                    }
+
+                    asyncJob?.cancel()
+
+                    // Sometimes external apps can run filesystem multiple operations in a fraction of a second.
+                    // To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
+                    // the app by constantly running "git status".
+                    val currentTimeMillis = System.currentTimeMillis()
+                    val diffTime = currentTimeMillis - lastNotify
+
+                    // When .git dir has changed, do the refresh with a delay to avoid doing operations while a git
+                    // operation may be running
+                    if (diffTime > MIN_TIME_IN_MS_BETWEEN_REFRESHES && !hasGitDirChanged) {
+                        updateApp(false)
+                        println("Sync emit with diff time $diffTime")
+                    } else {
+                        asyncJob = async {
+                            delay(MIN_TIME_IN_MS_BETWEEN_REFRESHES)
+                            println("Async emit")
+                            if (isActive)
+                                updateApp(hasGitDirChanged)
+
+                            hasGitDirChanged = false
+                        }
+                    }
+
+                    lastNotify = currentTimeMillis
                 }
             }
         }
@@ -157,6 +188,18 @@ class TabViewModel @Inject constructor(
             pathStr = git.repository.directory.parent,
             ignoredDirsPath = ignored,
         )
+    }
+
+    suspend fun updateApp(hasGitDirChanged: Boolean) {
+        if(hasGitDirChanged) {
+            println("Changes detected in git directory, full refresh")
+
+            refreshRepositoryInfo()
+        } else {
+            println("Changes detected, partial refresh")
+
+            checkUncommitedChanges()
+        }
     }
 
     private suspend fun checkUncommitedChanges(fullUpdateLog: Boolean = false) = tabState.runOperation(
@@ -182,13 +225,13 @@ class TabViewModel @Inject constructor(
     private suspend fun refreshRepositoryInfo() = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
     ) { git ->
+        loadRepositoryState(git)
         logViewModel.refresh(git)
         branchesViewModel.refresh(git)
         remotesViewModel.refresh(git)
         tagsViewModel.refresh(git)
         statusViewModel.refresh(git)
         stashesViewModel.refresh(git)
-        loadRepositoryState(git)
     }
 
     fun credentialsDenied() {
