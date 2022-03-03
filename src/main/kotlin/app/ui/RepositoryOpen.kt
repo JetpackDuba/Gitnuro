@@ -13,6 +13,7 @@ import app.ui.dialogs.NewBranchDialog
 import app.ui.log.Log
 import app.viewmodels.TabViewModel
 import openRepositoryDialog
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
@@ -119,13 +120,20 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                                         selectedEntryType = diffSelected,
                                         repositoryState = repositoryState,
                                         onStagedDiffEntrySelected = { diffEntry ->
-                                            tabViewModel.newDiffSelected = if (diffEntry != null)
-                                                DiffEntryType.StagedDiff(diffEntry)
-                                            else
+                                            tabViewModel.newDiffSelected = if (diffEntry != null) {
+                                                if (repositoryState == RepositoryState.SAFE)
+                                                    DiffEntryType.SafeStagedDiff(diffEntry)
+                                                else
+                                                    DiffEntryType.UnsafeStagedDiff(diffEntry)
+                                            } else {
                                                 null
+                                            }
                                         },
                                         onUnstagedDiffEntrySelected = { diffEntry ->
-                                            tabViewModel.newDiffSelected = DiffEntryType.UnstagedDiff(diffEntry)
+                                            if (repositoryState == RepositoryState.SAFE)
+                                                tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
+                                            else
+                                                tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
                                         }
                                     )
                                 } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {

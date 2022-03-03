@@ -216,7 +216,7 @@ fun HunkHeader(
 
         Spacer(modifier = Modifier.weight(1f))
         if (
-            (diffEntryType is DiffEntryType.StagedDiff || diffEntryType is DiffEntryType.UnstagedDiff) &&
+            (diffEntryType is DiffEntryType.SafeStagedDiff || diffEntryType is DiffEntryType.SafeUnstagedDiff) &&
             diffEntryType.diffEntry.changeType == DiffEntry.ChangeType.MODIFY
         ) {
             val buttonText: String
