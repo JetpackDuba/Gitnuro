@@ -152,6 +152,8 @@ class TabViewModel @Inject constructor(
         launch {
             fileChangesWatcher.changesNotifier.collect { latestUpdateChangedGitDir ->
                 if (!tabState.operationRunning) { // Only update if there isn't any process running
+                    println("Detected changes in the repository's directory")
+
                     if(latestUpdateChangedGitDir) {
                         hasGitDirChanged = true
                     }
@@ -181,6 +183,8 @@ class TabViewModel @Inject constructor(
                     }
 
                     lastNotify = currentTimeMillis
+                } else {
+                    println("Ignoring changed occurred during operation running...")
                 }
             }
         }

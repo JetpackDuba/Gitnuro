@@ -1,9 +1,12 @@
 package app.git
 
 import app.extensions.systemSeparator
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 import java.io.IOException
 import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
@@ -47,7 +50,7 @@ class FileChangesWatcher @Inject constructor() {
 
         var key: WatchKey
         while (watchService.take().also { key = it } != null) {
-            key.pollEvents()
+            val events = key.pollEvents()
 
             println("Polled events on dir ${keys[key]}")
 
@@ -58,6 +61,27 @@ class FileChangesWatcher @Inject constructor() {
             println("Has git dir changed: $hasGitDirectoryChanged")
 
             _changesNotifier.emit(hasGitDirectoryChanged)
+
+            // Check if new directories have been added to add them to the watchService
+            launch(Dispatchers.IO) {
+                for (event in events) {
+                    if (event.kind() == ENTRY_CREATE) {
+                        try {
+                            val eventFile = File(dir.toAbsolutePath().toString() + systemSeparator + event.context())
+
+                            if (eventFile.isDirectory) {
+                                val eventPath = eventFile.toPath()
+                                println("New directory $eventFile detected, adding it to watchService")
+                                val watchKey =
+                                    eventPath.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
+                                keys[watchKey] = eventPath
+                            }
+                        } catch (ex: Exception) {
+                            ex.printStackTrace()
+                        }
+                    }
+                }
+            }
 
             key.reset()
         }
