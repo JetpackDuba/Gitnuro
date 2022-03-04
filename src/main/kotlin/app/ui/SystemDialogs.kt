@@ -22,18 +22,21 @@ fun openRepositoryDialog(gitManager: TabViewModel) {
             if (!openDirectory.isNullOrEmpty())
                 gitManager.openRepository(openDirectory)
         } else
-            openRepositoryDialog(gitManager, latestDirectoryOpened)
+            openRepositoryDialog(gitManager, latestDirectoryOpened, true)
     } else {
-        openRepositoryDialog(gitManager, latestDirectoryOpened)
+        openRepositoryDialog(gitManager, latestDirectoryOpened, false)
     }
 
 }
 
 private fun openRepositoryDialog(
     tabViewModel: TabViewModel,
-    latestDirectoryOpened: String
+    latestDirectoryOpened: String,
+    isLinux: Boolean,
 ) {
-    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+    if (!isLinux) {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
+    }
 
     val fileChooser = if (latestDirectoryOpened.isEmpty())
         JFileChooser()
