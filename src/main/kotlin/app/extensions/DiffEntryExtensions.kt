@@ -20,10 +20,10 @@ val DiffEntry.parentDirectoryPath: String
         } else
             this.newPath
 
-        val pathSplit = path.split(systemSeparator).toMutableList()
+        val pathSplit = path.split("/").toMutableList()
         pathSplit.removeLast()
 
-        val directoryPath = pathSplit.joinToString(systemSeparator)
+        val directoryPath = pathSplit.joinToString("/")
 
         return if (directoryPath.isEmpty())
             ""
@@ -38,7 +38,7 @@ val DiffEntry.fileName: String
         } else
             this.newPath
 
-        val pathSplit = path.split(systemSeparator)
+        val pathSplit = path.split("/")
 
         return pathSplit.lastOrNull() ?: ""
     }
