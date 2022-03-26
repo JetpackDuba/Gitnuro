@@ -8,7 +8,7 @@ plugins {
     kotlin("kapt") version "1.6.10"
     kotlin("plugin.serialization") version "1.6.10"
     // __LATEST_COMPOSE_RELEASE_VERSION__
-    id("org.jetbrains.compose") version "1.1.0"
+    id("org.jetbrains.compose") version "1.1.1"
 }
 
 group = "aeab13.github"
