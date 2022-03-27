@@ -54,3 +54,25 @@ compose.desktop {
         }
     }
 }
+
+
+task("fatJar", type = Jar::class) {
+    archiveBaseName.set("${project.name}-fat")
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes["Implementation-Title"] = "Gitnuro"
+        attributes["Implementation-Version"] = projectVersion
+        attributes["Main-Class"] = "MainKt"
+    }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+        exclude(
+            "META-INF/MANIFEST.MF",
+            "META-INF/*.SF",
+            "META-INF/*.DSA",
+            "META-INF/*.RSA",
+        )
+    }
+    with(tasks.jar.get() as CopySpec)
+}
