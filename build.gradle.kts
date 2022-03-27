@@ -51,7 +51,7 @@ compose.desktop {
         nativeDistributions {
             includeAllModules = true
             packageName = name
-            packageVersion = "0.1.0"
+            packageVersion = projectVersion
         }
     }
 }
