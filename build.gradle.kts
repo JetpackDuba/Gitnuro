@@ -11,8 +11,10 @@ plugins {
     id("org.jetbrains.compose") version "1.1.1"
 }
 
-group = "aeab13.github"
-version = "1.0"
+val projectVersion = "0.1.0"
+
+group = "com.jetpackduba"
+version = projectVersion
 
 repositories {
     mavenCentral()
