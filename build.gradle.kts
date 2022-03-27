@@ -1,6 +1,7 @@
 import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.jvm.tasks.Jar
 
 plugins {
     // __KOTLIN_COMPOSE_VERSION__
@@ -12,6 +13,7 @@ plugins {
 }
 
 val projectVersion = "0.1.0"
+val name = "Gitnuro"
 
 group = "com.jetpackduba"
 version = projectVersion
@@ -29,14 +31,14 @@ dependencies {
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.0.0.202111291000-r")
-    implementation("org.apache.sshd:sshd-core:2.7.0")
-    implementation("com.google.dagger:dagger:2.40.5")
+    implementation("org.apache.sshd:sshd-core:2.8.0")
+    implementation("com.google.dagger:dagger:2.41")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-    kapt("com.google.dagger:dagger-compiler:2.40.5")
+    kapt("com.google.dagger:dagger-compiler:2.41")
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
     kotlinOptions.allWarningsAsErrors = true
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
 }
@@ -45,12 +47,11 @@ tasks.withType<KotlinCompile>() {
 compose.desktop {
     application {
         mainClass = "MainKt"
-//
+
         nativeDistributions {
             includeAllModules = true
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.AppImage)
-            packageName = "Gitnuro"
-            packageVersion = "1.0.0"
+            packageName = name
+            packageVersion = "0.1.0"
         }
     }
 }
@@ -62,7 +63,7 @@ task("fatJar", type = Jar::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
-        attributes["Implementation-Title"] = "Gitnuro"
+        attributes["Implementation-Title"] = name
         attributes["Implementation-Version"] = projectVersion
         attributes["Main-Class"] = "MainKt"
     }
