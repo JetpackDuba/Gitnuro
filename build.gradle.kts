@@ -35,6 +35,16 @@ dependencies {
     implementation("com.google.dagger:dagger:2.41")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     kapt("com.google.dagger:dagger-compiler:2.41")
+    testImplementation(platform("org.junit:junit-bom:5.8.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.mockk:mockk:1.12.3")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 tasks.withType<KotlinCompile>() {
