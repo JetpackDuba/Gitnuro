@@ -106,21 +106,7 @@ class TabViewModel @Inject constructor(
     fun openRepository(directory: File) = tabState.safeProcessingWihoutGit {
         println("Trying to open repository ${directory.absoluteFile}")
 
-        val gitDirectory = if (directory.name == ".git") {
-            directory
-        } else {
-            val gitDir = File(directory, ".git")
-            if (gitDir.exists() && gitDir.isDirectory) {
-                gitDir
-            } else
-                directory
-        }
-
-        val builder = FileRepositoryBuilder()
-        val repository: Repository = builder.setGitDir(gitDirectory)
-            .readEnvironment() // scan environment GIT_* variables
-            .findGitDir() // scan up the file system tree
-            .build()
+        val repository: Repository = repositoryManager.openRepository(directory)
 
         try {
             repository.workTree // test if repository is valid
