@@ -87,6 +87,7 @@ fun UncommitedChanges(
         statusViewModel.commit(commitMessage, amend)
         onStagedDiffEntrySelected(null)
         statusViewModel.savedCommitMessage = ""
+        commitMessage = ""
     }
 
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
