@@ -22,14 +22,7 @@ class StatusViewModel @Inject constructor(
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
 
-    private val _commitMessage = MutableStateFlow("")
-    val commitMessage: StateFlow<String> = _commitMessage
-    var newCommitMessage: String
-        get() = commitMessage.value
-        set(value) {
-            _commitMessage.value = value
-        }
-
+    var savedCommitMessage: String = ""
     var hasPreviousCommits = true // When false, disable "amend previous commit"
 
     private var lastUncommitedChangesState = false
