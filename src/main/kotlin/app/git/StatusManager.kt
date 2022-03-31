@@ -19,6 +19,7 @@ import org.eclipse.jgit.diff.RawText
 import org.eclipse.jgit.dircache.DirCacheEditor.PathEdit
 import org.eclipse.jgit.dircache.DirCacheEntry
 import org.eclipse.jgit.lib.*
+import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -29,6 +30,7 @@ import javax.inject.Inject
 
 class StatusManager @Inject constructor(
     private val rawFileManagerFactory: RawFileManagerFactory,
+    private val submodulesManager: SubmodulesManager,
 ) {
     suspend fun hasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
         val status = git
@@ -259,10 +261,14 @@ class StatusManager @Inject constructor(
         }
 
     suspend fun getUnstaged(git: Git, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
+        val uninitializedSubmodules = submodulesManager.uninitializedSubmodules(git)
+
         return@withContext git
             .diff()
-            .setShowNameAndStatusOnly(true)
             .call()
+            .filter {
+                !uninitializedSubmodules.containsKey(it.oldPath) // Filter out uninitialized modules directories
+            }
             .groupBy {
                 if (it.oldPath != "/dev/null")
                     it.oldPath
