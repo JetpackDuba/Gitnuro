@@ -107,7 +107,7 @@ fun WelcomePage(
                 title = "Source code",
                 painter = painterResource("code.svg"),
                 onClick = {
-                    Desktop.getDesktop().browse(URI("https://github.com/aeab13/Gitnuro"))
+                    Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro"))
                 }
             )
 
@@ -115,7 +115,7 @@ fun WelcomePage(
                 title = "Report a bug",
                 painter = painterResource("bug.svg"),
                 onClick = {
-                    Desktop.getDesktop().browse(URI("https://github.com/aeab13/Gitnuro/issues"))
+                    Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro/issues"))
                 }
             )
         }
