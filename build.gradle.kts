@@ -68,7 +68,7 @@ compose.desktop {
 
 
 task("fatJar", type = Jar::class) {
-    archiveBaseName.set("${project.name}-fat")
+    archiveBaseName.set("$name-$projectVersion")
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 

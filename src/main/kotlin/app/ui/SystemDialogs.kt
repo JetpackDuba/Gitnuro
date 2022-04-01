@@ -4,9 +4,9 @@ import javax.swing.JFileChooser
 import javax.swing.UIManager
 
 
-fun openRepositoryDialog(gitManager: TabViewModel) {
+fun openRepositoryDialog(tabViewModel: TabViewModel) {
     val os = System.getProperty("os.name")
-    val appStateManager = gitManager.appStateManager
+    val appStateManager = tabViewModel.appStateManager
     val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
 
 
@@ -20,11 +20,11 @@ fun openRepositoryDialog(gitManager: TabViewModel) {
             )?.replace("\n", "")
 
             if (!openDirectory.isNullOrEmpty())
-                gitManager.openRepository(openDirectory)
+                tabViewModel.openRepository(openDirectory)
         } else
-            openRepositoryDialog(gitManager, latestDirectoryOpened, true)
+            openRepositoryDialog(tabViewModel, latestDirectoryOpened, true)
     } else {
-        openRepositoryDialog(gitManager, latestDirectoryOpened, false)
+        openRepositoryDialog(tabViewModel, latestDirectoryOpened, false)
     }
 
 }

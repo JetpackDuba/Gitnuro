@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -17,6 +18,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -24,6 +26,8 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.zIndex
 import app.di.DaggerAppComponent
 import app.theme.AppTheme
+import app.theme.primaryTextColor
+import app.theme.secondaryTextColor
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 import app.ui.dialogs.SettingsDialog
@@ -257,6 +261,15 @@ private fun TabsContent(tabs: List<TabInformation>, selectedTabKey: Int) {
 }
 
 @Composable
-fun LoadingRepository() {
-    Box { }
+fun LoadingRepository(repoPath: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Opening repository", fontSize = 36.sp, color = MaterialTheme.colors.primaryTextColor)
+            Text(repoPath, fontSize = 24.sp, color = MaterialTheme.colors.secondaryTextColor)
+        }
+    }
 }

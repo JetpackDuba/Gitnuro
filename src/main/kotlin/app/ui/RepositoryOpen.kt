@@ -48,7 +48,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
         Menu(
             menuViewModel = tabViewModel.menuViewModel,
             onRepositoryOpen = {
-                openRepositoryDialog(gitManager = tabViewModel)
+                openRepositoryDialog(tabViewModel = tabViewModel)
             },
             onCreateBranch = { showNewBranchDialog = true }
         )

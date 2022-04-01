@@ -46,7 +46,8 @@ fun AppTab(
         }
     }
 
-    val repositorySelectionStatus by tabViewModel.repositorySelectionStatus.collectAsState()
+    val repositorySelectionStatus = tabViewModel.repositorySelectionStatus.collectAsState()
+    val repositorySelectionStatusValue = repositorySelectionStatus.value
     val isProcessing by tabViewModel.processing.collectAsState()
 
     Box {
@@ -71,12 +72,12 @@ fun AppTab(
             Box(modifier = Modifier.fillMaxSize()) {
                 Crossfade(targetState = repositorySelectionStatus) {
                     @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
-                    when (repositorySelectionStatus) {
+                    when (repositorySelectionStatusValue) {
                         RepositorySelectionStatus.None -> {
                             WelcomePage(tabViewModel = tabViewModel)
                         }
-                        RepositorySelectionStatus.Loading -> {
-                            LoadingRepository()
+                        is RepositorySelectionStatus.Opening -> {
+                            LoadingRepository(repositorySelectionStatusValue.path)
                         }
                         is RepositorySelectionStatus.Open -> {
                             RepositoryOpenPage(tabViewModel = tabViewModel)

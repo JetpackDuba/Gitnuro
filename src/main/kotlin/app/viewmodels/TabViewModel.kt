@@ -12,11 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
-import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import javax.inject.Inject
 
@@ -106,6 +103,8 @@ class TabViewModel @Inject constructor(
     fun openRepository(directory: File) = tabState.safeProcessingWihoutGit {
         println("Trying to open repository ${directory.absoluteFile}")
 
+        _repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
+
         val repository: Repository = repositoryManager.openRepository(directory)
 
         try {
@@ -122,6 +121,7 @@ class TabViewModel @Inject constructor(
             ex.printStackTrace()
             onRepositoryChanged(null)
             errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+            _repositorySelectionStatus.value = RepositorySelectionStatus.None
         }
     }
 
@@ -259,6 +259,6 @@ class TabViewModel @Inject constructor(
 
 sealed class RepositorySelectionStatus {
     object None : RepositorySelectionStatus()
-    object Loading : RepositorySelectionStatus()
+    data class Opening(val path: String) : RepositorySelectionStatus()
     data class Open(val repository: Repository) : RepositorySelectionStatus()
 }
