@@ -32,9 +32,8 @@ fun logContextMenu(
         label = "Cherry-pick commit",
         onClick = onCherryPickCommit
     ),
-
     ContextMenuItem(
         label = "Reset current branch to this commit",
         onClick = onResetBranch
-    )
+    ),
 )

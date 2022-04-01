@@ -54,6 +54,7 @@ import app.viewmodels.LogStatus
 import app.viewmodels.LogViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import openDirectoryDialog
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
@@ -339,9 +340,8 @@ fun MessagesList(
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
                 onMergeBranch = { ref -> onShowLogDialog(LogDialog.MergeBranch(ref)) },
                 onRebaseBranch = { ref -> onShowLogDialog(LogDialog.RebaseBranch(ref)) },
-                onRevCommitSelected = {
-                    logViewModel.selectLogLine(graphNode)
-                })
+                onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
+            )
         }
     }
 }
@@ -609,10 +609,10 @@ fun CommitLine(
     matchesSearchFilter: Boolean?,
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
-    resetBranch: (GraphNode) -> Unit,
+    resetBranch: () -> Unit,
     onMergeBranch: (Ref) -> Unit,
     onRebaseBranch: (Ref) -> Unit,
-    onRevCommitSelected: (GraphNode) -> Unit,
+    onRevCommitSelected: () -> Unit,
 ) {
     ContextMenuArea(
         items = {
@@ -622,13 +622,13 @@ fun CommitLine(
                 onCreateNewTag = showCreateNewTag,
                 onRevertCommit = { logViewModel.revertCommit(graphNode) },
                 onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
-                onResetBranch = { resetBranch(graphNode) },
+                onResetBranch = { resetBranch() },
             )
         },
     ) {
         Box(
             modifier = Modifier.clickable {
-                onRevCommitSelected(graphNode)
+                onRevCommitSelected()
             }.padding(start = graphWidth)
                 .height(40.dp)
         ) {

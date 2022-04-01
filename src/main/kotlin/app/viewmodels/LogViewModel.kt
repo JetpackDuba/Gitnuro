@@ -263,14 +263,14 @@ class LogViewModel @Inject constructor(
     suspend fun selectPreviousFilterCommit() {
         val logSearchFilterResultsValue = logSearchFilterResults.value
 
-        if(logSearchFilterResultsValue !is LogSearch.SearchResults) {
+        if (logSearchFilterResultsValue !is LogSearch.SearchResults) {
             return
         }
 
         val index = logSearchFilterResultsValue.index
         val commits = logSearchFilterResultsValue.commits
 
-        if(index == NONE_MATCHING_INDEX || index == FIRST_INDEX)
+        if (index == NONE_MATCHING_INDEX || index == FIRST_INDEX)
             return
 
         val newIndex = index - 1
@@ -283,7 +283,7 @@ class LogViewModel @Inject constructor(
     suspend fun selectNextFilterCommit() {
         val logSearchFilterResultsValue = logSearchFilterResults.value
 
-        if(logSearchFilterResultsValue !is LogSearch.SearchResults) {
+        if (logSearchFilterResultsValue !is LogSearch.SearchResults) {
             return
         }
 
@@ -291,7 +291,7 @@ class LogViewModel @Inject constructor(
         val commits = logSearchFilterResultsValue.commits
         val totalCount = logSearchFilterResultsValue.totalCount
 
-        if(index == NONE_MATCHING_INDEX || index == totalCount)
+        if (index == NONE_MATCHING_INDEX || index == totalCount)
             return
 
         val newIndex = index + 1
