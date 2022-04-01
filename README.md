@@ -31,15 +31,16 @@ Right now you CAN:
 - Force push.
 - Remove branches from remote.
 - Manage remotes.
+- Start a new local repository.
 
 Right now you CAN'T:
 
+- Create/Apply patches
 - Rebase interactive.
 - Remove tags from remote.
 - Side by side diff in text files.
-- Start a new local repository.
 - View stashes in the log tree.
-- View file history
+- View file history.
 - Blame file.
 - Search by commit message/author/commit id.
 
