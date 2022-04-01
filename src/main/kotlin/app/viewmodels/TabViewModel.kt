@@ -254,6 +254,12 @@ class TabViewModel @Inject constructor(
             diffViewModel.updateDiff(diffSelected)
         }
     }
+
+    fun initLocalRepository(dir: String) = tabState.managerScope.launch(Dispatchers.IO){
+        val repoDir = File(dir)
+        repositoryManager.initLocalRepo(repoDir)
+        openRepository(repoDir)
+    }
 }
 
 

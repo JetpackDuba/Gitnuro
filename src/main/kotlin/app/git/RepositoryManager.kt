@@ -8,6 +8,8 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import javax.inject.Inject
 
+private const val INITIAL_BRANCH_NAME = "main"
+
 class RepositoryManager @Inject constructor() {
     suspend fun getRepositoryState(git: Git) = withContext(Dispatchers.IO) {
         return@withContext git.repository.repositoryState
@@ -29,5 +31,12 @@ class RepositoryManager @Inject constructor() {
             .readEnvironment() // scan environment GIT_* variables
             .findGitDir() // scan up the file system tree
             .build()
+    }
+
+    suspend fun initLocalRepo(repoDir: File): Unit = withContext(Dispatchers.IO) {
+        Git.init()
+            .setInitialBranch(INITIAL_BRANCH_NAME)
+            .setDirectory(repoDir)
+            .call()
     }
 }

@@ -25,6 +25,7 @@ import app.theme.secondaryTextColor
 import app.ui.dialogs.CloneDialog
 import app.ui.dialogs.MaterialDialog
 import app.viewmodels.TabViewModel
+import openDirectoryDialog
 import openRepositoryDialog
 import java.awt.Desktop
 import java.net.URI
@@ -87,7 +88,11 @@ fun WelcomePage(
                     .padding(bottom = 8.dp),
                 title = "Start a local repository",
                 painter = painterResource("open.svg"),
-                onClick = { }
+                onClick = {
+                    val dir = openDirectoryDialog()
+                    if(dir != null)
+                        tabViewModel.initLocalRepository(dir)
+                }
             )
 
             Text(
