@@ -255,7 +255,9 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    fun initLocalRepository(dir: String) = tabState.managerScope.launch(Dispatchers.IO){
+    fun initLocalRepository(dir: String) = tabState.safeProcessingWihoutGit(
+        showError = true,
+    ) {
         val repoDir = File(dir)
         repositoryManager.initLocalRepo(repoDir)
         openRepository(repoDir)
