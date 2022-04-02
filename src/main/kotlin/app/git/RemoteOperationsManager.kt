@@ -4,11 +4,10 @@ import app.credentials.GSessionManager
 import app.credentials.HttpCredentialsProvider
 import app.extensions.remoteName
 import app.extensions.simpleName
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.lib.ProgressMonitor
@@ -16,15 +15,12 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.transport.*
 import java.io.File
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 
 class RemoteOperationsManager @Inject constructor(
     private val sessionManager: GSessionManager
 ) {
-    private val _cloneStatus = MutableStateFlow<CloneStatus>(CloneStatus.None)
-    val cloneStatus: StateFlow<CloneStatus>
-        get() = _cloneStatus
-
     suspend fun pull(git: Git, rebase: Boolean) = withContext(Dispatchers.IO) {
         val pullResult = git
             .pull()
@@ -226,59 +222,69 @@ class RemoteOperationsManager @Inject constructor(
 
         }
 
-    suspend fun clone(directory: File, url: String) = withContext(Dispatchers.IO) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun clone(directory: File, url: String): Flow<CloneStatus> = callbackFlow {
         try {
-            _cloneStatus.value = CloneStatus.Cloning(0)
+            ensureActive()
+            this.trySend(CloneStatus.Cloning(0))
 
             Git.cloneRepository()
                 .setDirectory(directory)
                 .setURI(url)
-                .setProgressMonitor(object : ProgressMonitor {
-                    override fun start(totalTasks: Int) {
-                        println("ProgressMonitor Start")
-                    }
+                .setProgressMonitor(
+                    object : ProgressMonitor {
+                        override fun start(totalTasks: Int) {
+                            println("ProgressMonitor Start with total tasks of: $totalTasks")
+                        }
 
-                    override fun beginTask(title: String?, totalWork: Int) {
-                        println("ProgressMonitor Begin task")
-                    }
+                        override fun beginTask(title: String?, totalWork: Int) {
+                            println("ProgressMonitor Begin task with title: $title")
+                        }
 
-                    override fun update(completed: Int) {
-                        println("ProgressMonitor Update $completed")
-                        _cloneStatus.value = CloneStatus.Cloning(completed)
-                    }
+                        override fun update(completed: Int) {
+                            println("ProgressMonitor Update $completed")
+                            ensureActive()
+                            trySend(CloneStatus.Cloning(completed))
+                        }
 
-                    override fun endTask() {
-                        println("ProgressMonitor End task")
-                        _cloneStatus.value = CloneStatus.CheckingOut
-                    }
+                        override fun endTask() {
+                            println("ProgressMonitor End task")
+                            ensureActive()
+                            trySend(CloneStatus.CheckingOut)
+                        }
 
-                    override fun isCancelled(): Boolean {
-                        return !isActive
+                        override fun isCancelled(): Boolean {
+                            return !isActive
+                        }
                     }
-
-                })
+                )
                 .setTransportConfigCallback {
                     handleTransportCredentials(it)
                 }
                 .call()
 
-            _cloneStatus.value = CloneStatus.Completed
+            ensureActive()
+            trySend(CloneStatus.Completed(directory))
+            channel.close()
         } catch (ex: Exception) {
-            _cloneStatus.value = CloneStatus.Fail(ex.localizedMessage)
+            if(ex.cause?.cause is CancellationException) {
+                println("Clone cancelled")
+            } else {
+                trySend(CloneStatus.Fail(ex.localizedMessage))
+            }
+
+            channel.close()
         }
+
+        awaitClose()
     }
-
-    fun resetCloneStatus() {
-        _cloneStatus.value = CloneStatus.None
-    }
-
-
 }
 
 sealed class CloneStatus {
     object None : CloneStatus()
     data class Cloning(val progress: Int) : CloneStatus()
+    object Cancelling : CloneStatus()
     object CheckingOut : CloneStatus()
     data class Fail(val reason: String) : CloneStatus()
-    object Completed : CloneStatus()
+    data class Completed(val repoDir: File) : CloneStatus()
 }

@@ -13,6 +13,7 @@ val secondaryTextDark = Color(0xFFCCCBCB)
 val borderColorLight = Color(0xFF989898)
 val borderColorDark = Color(0xFF989898)
 val errorColor = Color(0xFFc93838)
+val onErrorColor = Color(0xFFFFFFFF)
 
 val backgroundColorLight = Color(0xFFFFFFFF)
 val backgroundColorDark = Color(0xFF0E1621)

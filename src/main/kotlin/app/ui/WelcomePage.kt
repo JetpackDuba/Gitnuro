@@ -23,7 +23,6 @@ import app.extensions.dirPath
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.dialogs.CloneDialog
-import app.ui.dialogs.MaterialDialog
 import app.viewmodels.TabViewModel
 import openDirectoryDialog
 import openRepositoryDialog
@@ -90,7 +89,7 @@ fun WelcomePage(
                 painter = painterResource("open.svg"),
                 onClick = {
                     val dir = openDirectoryDialog()
-                    if(dir != null)
+                    if (dir != null)
                         tabViewModel.initLocalRepository(dir)
                 }
             )
@@ -163,23 +162,23 @@ fun WelcomePage(
         }
     }
 
+    LaunchedEffect(showCloneView) {
+        if (showCloneView)
+            tabViewModel.cloneViewModel.reset() // Reset dialog before showing it
+    }
+
 
     if (showCloneView)
-        MaterialDialog {
-            CloneDialog(tabViewModel, onClose = { showCloneView = false })
-        }
-//        Popup(focusable = true, onDismissRequest = { showCloneView = false }, alignment = Alignment.Center) {
-//
-//        }
-
-//        PopupAlertDialogProvider.AlertDialog(onDismissRequest = {}) {
-//
-//            CloneDialog(gitManager, onClose = { showCloneView = false })
-//        }
-
-//        }
-//    }
-
+        CloneDialog(
+            tabViewModel.cloneViewModel,
+            onClose = {
+                showCloneView = false
+                tabViewModel.cloneViewModel.reset()
+            },
+            onOpenRepository = { dir ->
+                tabViewModel.openRepository(dir)
+            },
+        )
 }
 
 @Composable

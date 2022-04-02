@@ -14,7 +14,8 @@ private val DarkColorPalette = darkColors(
     secondary = secondary,
     surface = surfaceColorDark,
     background = backgroundColorDark,
-    error = errorColor
+    error = errorColor,
+    onError = onErrorColor,
 )
 
 private val LightColorPalette = lightColors(
@@ -23,10 +24,8 @@ private val LightColorPalette = lightColors(
     secondary = secondary,
     background = backgroundColorLight,
     surface = surfaceColorLight,
-    error = errorColor
-    /* Other default colors to override
-
-    */
+    error = errorColor,
+    onError = onErrorColor,
 )
 
 @Composable

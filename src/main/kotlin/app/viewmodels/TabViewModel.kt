@@ -19,6 +19,11 @@ import javax.inject.Inject
 
 private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 500L
 
+/**
+ * Contains all the information related to a tab and its subcomponents (smaller composables like the log, branches,
+ * commit changes, etc.). It holds a reference to every view model because this class lives as long as the tab is open (survives
+ * across full app recompositions), therefore, tab's content can be recreated with these view models.
+ */
 class TabViewModel @Inject constructor(
     val logViewModel: LogViewModel,
     val branchesViewModel: BranchesViewModel,
@@ -29,8 +34,8 @@ class TabViewModel @Inject constructor(
     val menuViewModel: MenuViewModel,
     val stashesViewModel: StashesViewModel,
     val commitChangesViewModel: CommitChangesViewModel,
+    val cloneViewModel: CloneViewModel,
     private val repositoryManager: RepositoryManager,
-    private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
@@ -47,7 +52,6 @@ class TabViewModel @Inject constructor(
     val processing: StateFlow<Boolean> = tabState.processing
 
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
-    val cloneStatus: StateFlow<CloneStatus> = remoteOperationsManager.cloneStatus
 
     private val _diffSelected = MutableStateFlow<DiffEntryType?>(null)
     val diffSelected: StateFlow<DiffEntryType?> = _diffSelected
@@ -241,10 +245,6 @@ class TabViewModel @Inject constructor(
 
     fun dispose() {
         tabState.managerScope.cancel()
-    }
-
-    fun clone(directory: File, url: String) = tabState.safeProcessingWihoutGit {
-        remoteOperationsManager.clone(directory, url)
     }
 
     private fun updateDiffEntry() {

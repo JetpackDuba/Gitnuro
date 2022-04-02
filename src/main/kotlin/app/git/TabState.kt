@@ -85,14 +85,14 @@ class TabState @Inject constructor(
             }
         }
 
-    fun safeProcessingWihoutGit(showError: Boolean = true, callback: suspend () -> Unit) =
+    fun safeProcessingWihoutGit(showError: Boolean = true, callback: suspend CoroutineScope.() -> Unit) =
         managerScope.launch(Dispatchers.IO) {
             mutex.withLock {
                 _processing.value = true
                 operationRunning = true
 
                 try {
-                    callback()
+                    this.callback()
                 } catch (ex: Exception) {
                     ex.printStackTrace()
 
