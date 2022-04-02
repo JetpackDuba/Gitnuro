@@ -1,5 +1,4 @@
 import org.jetbrains.compose.compose
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.jvm.tasks.Jar
 
@@ -13,7 +12,7 @@ plugins {
 }
 
 val projectVersion = "0.1.0"
-val name = "Gitnuro"
+val projectName = "Gitnuro"
 
 group = "com.jetpackduba"
 version = projectVersion
@@ -68,7 +67,7 @@ compose.desktop {
 
 
 task("fatJar", type = Jar::class) {
-    archiveBaseName.set("$name-$projectVersion")
+    archiveBaseName.set(projectName)
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
