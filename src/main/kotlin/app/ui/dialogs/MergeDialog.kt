@@ -15,6 +15,7 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.theme.primaryTextColor
+import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -94,13 +95,12 @@ fun MergeDialog(
                 ) {
                     Text("Cancel")
                 }
-                Button(
+                PrimaryButton(
                     onClick = {
                         onAccept(fastForwardCheck)
-                    }
-                ) {
-                    Text("Merge")
-                }
+                    },
+                    text = "Merge"
+                )
             }
         }
     }

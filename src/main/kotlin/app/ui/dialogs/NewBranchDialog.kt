@@ -16,6 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
+import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -69,7 +70,7 @@ fun NewBranchDialog(
                 ) {
                     Text("Cancel")
                 }
-                Button(
+                PrimaryButton(
                     modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
                         this.previous = branchFieldFocusRequester
                         this.next = branchFieldFocusRequester
@@ -77,10 +78,9 @@ fun NewBranchDialog(
                     enabled = branchField.isNotEmpty(),
                     onClick = {
                         onAccept(branchField)
-                    }
-                ) {
-                    Text("Create branch")
-                }
+                    },
+                    text = "Create branch"
+                )
             }
         }
     }

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
+import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -79,16 +80,15 @@ fun PasswordDialog(
                 ) {
                     Text("Cancel")
                 }
-                Button(
+                PrimaryButton(
                     modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
                         this.previous = passwordFieldFocusRequester
                     },
                     onClick = {
                         onAccept(passwordField)
-                    }
-                ) {
-                    Text("Ok")
-                }
+                    },
+                    text = "Continue"
+                )
             }
 
         }

@@ -16,6 +16,7 @@ private val DarkColorPalette = darkColors(
     background = backgroundColorDark,
     error = errorColor,
     onError = onErrorColor,
+    onPrimary = onPrimary,
 )
 
 private val LightColorPalette = lightColors(
@@ -26,6 +27,7 @@ private val LightColorPalette = lightColors(
     surface = surfaceColorLight,
     error = errorColor,
     onError = onErrorColor,
+    onPrimary = onPrimary,
 )
 
 @Composable

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import app.theme.borderColor
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.ui.components.PrimaryButton
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
@@ -297,7 +298,11 @@ fun EditRemotesDialog(
                                     }
                                 }
 
-                                Button(
+                                val text = if (selectedRemote.isNew)
+                                    "Add new remote"
+                                else
+                                    "Save ${selectedRemote.remoteName} changes"
+                                PrimaryButton(
                                     modifier = Modifier,
                                     enabled = remoteChanged,
                                     onClick = {
@@ -306,14 +311,8 @@ fun EditRemotesDialog(
                                         else
                                             remotesViewModel.updateRemote(selectedRemote)
                                     },
-                                ) {
-                                    val text = if (selectedRemote.isNew)
-                                        "Add new remote"
-                                    else
-                                        "Save ${selectedRemote.remoteName} changes"
-
-                                    Text(text)
-                                }
+                                    text = text,
+                                )
                             }
                         }
                     }

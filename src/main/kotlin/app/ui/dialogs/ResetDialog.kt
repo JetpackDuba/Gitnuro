@@ -16,6 +16,7 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.unit.dp
 import app.git.ResetType
 import app.theme.primaryTextColor
+import app.ui.components.PrimaryButton
 
 @Composable
 fun ResetBranchDialog(
@@ -64,13 +65,12 @@ fun ResetBranchDialog(
                 ) {
                     Text("Cancel")
                 }
-                Button(
+                PrimaryButton(
                     onClick = {
                         onAccept(resetType)
-                    }
-                ) {
-                    Text("Reset branch")
-                }
+                    },
+                    text = "Reset branch"
+                )
             }
         }
     }
