@@ -111,10 +111,16 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
 
     private fun markStartRef(ref: Ref) {
         try {
-            val refTarget: Any = parseAny(ref.leaf.objectId)
+            val refTarget = parseAny(ref.leaf.objectId)
 
-            if (refTarget is RevCommit)
-                markStart(refTarget)
+            when (refTarget) {
+                is RevCommit -> markStart(refTarget)
+                // RevTag case handles commits without branches but only tags.
+                is RevTag -> {
+                    val commit = lookupCommit(refTarget.`object`)
+                    markStart(commit)
+                }
+            }
         } catch (e: MissingObjectException) {
             // Ignore missing Refs
         }

@@ -54,7 +54,6 @@ import app.viewmodels.LogStatus
 import app.viewmodels.LogViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import openDirectoryDialog
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
@@ -69,7 +68,13 @@ private val colors = listOf(
 )
 
 private const val CANVAS_MIN_WIDTH = 100
-private const val MIN_GRAPH_LINES = 2
+private const val MIN_GRAPH_LANES = 2
+
+/**
+ * Additional number of lanes to simulate to create a margin at the end of the graph.
+ */
+private const val MARGIN_GRAPH_LANES = 2
+private const val LANE_WIDTH = 30f
 private const val DIVIDER_WIDTH = 8
 
 // TODO Min size for message column
@@ -355,10 +360,12 @@ fun GraphList(
     hasUncommitedChanges: Boolean,
 ) {
     val graphRealWidth = remember(commitList, graphWidth) {
-        val maxLinePosition = if (commitList.isNotEmpty()) commitList.maxOf { it.lane.position }
-        else MIN_GRAPH_LINES
+        val maxLinePosition = if (commitList.isNotEmpty())
+            commitList.maxOf { it.lane.position }
+        else
+            MIN_GRAPH_LANES
 
-        ((maxLinePosition + 2) * 30f).dp
+        ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
     }
 
     Box(

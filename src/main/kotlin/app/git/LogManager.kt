@@ -24,6 +24,10 @@ class LogManager @Inject constructor() {
             val walk = GraphWalk(git.repository)
 
             walk.use {
+                // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
+                // by the rebase)
+                walk.markStart(walk.lookupCommit(logList.first()))
+
                 walk.markStartAllRefs(Constants.R_HEADS)
                 walk.markStartAllRefs(Constants.R_REMOTES)
                 walk.markStartAllRefs(Constants.R_TAGS)
