@@ -6,8 +6,8 @@ The main goal of Gitnuro is to provide a multiplatform open source Git client wi
 can use it nor relying on web technologies.
 
 The project it is still in alpha and many features are lacking or missing, but can be good for basic usage.
-q
-Right now you CAN:
+
+Gitnuro features:
 
 - View diffs for text based files.
 - View your history log and all its branches.
@@ -32,8 +32,9 @@ Right now you CAN:
 - Remove branches from remote.
 - Manage remotes.
 - Start a new local repository.
+- Search by commit message/author/commit id.
 
-Right now you CAN'T:
+Missing:
 
 - Create/Apply patches
 - Rebase interactive.
@@ -42,7 +43,7 @@ Right now you CAN'T:
 - View stashes in the log tree.
 - View file history.
 - Blame file.
-- Search by commit message/author/commit id.
+- Submodules support.
 
 ## Releases
 
