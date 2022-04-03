@@ -47,7 +47,11 @@ class CloneViewModel @Inject constructor(
             }
 
             // Take the last element of the path/URL to generate obtain the repo name
-            val repoName = urlSplit.lastOrNull()?.replace(".git", "")
+            var repoName = urlSplit.lastOrNull()
+
+            if(repoName?.endsWith(".git") == true) {
+                repoName = repoName.removeSuffix(".git")
+            }
 
             if (repoName.isNullOrBlank()) {
                 _cloneStatus.value = CloneStatus.Fail("Check your URL and try again")
