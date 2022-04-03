@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
 import app.theme.primaryTextColor
+import app.ui.components.PrimaryButton
 import app.viewmodels.CloneViewModel
 import openDirectoryDialog
 import java.io.File
@@ -39,11 +40,8 @@ fun CloneDialog(
                 .animateContentSize()
         ) {
             when (cloneStatusValue) {
-                CloneStatus.CheckingOut -> {
-                    Cloning(cloneViewModel)
-                }
                 is CloneStatus.Cloning -> {
-                    Cloning(cloneViewModel)
+                    Cloning(cloneViewModel, cloneStatusValue)
                 }
                 is CloneStatus.Cancelling -> {
                     onClose()
@@ -197,7 +195,7 @@ private fun CloneInput(
             ) {
                 Text("Cancel")
             }
-            Button(
+            PrimaryButton(
                 onClick = {
                     cloneViewModel.clone(directory, url)
                 },
@@ -205,23 +203,42 @@ private fun CloneInput(
                     .focusOrder(cloneButtonFocusRequester) {
                         previous = directoryButtonFocusRequester
                         next = cancelButtonFocusRequester
-                    }
-            ) {
-                Text("Clone")
-            }
+                    },
+                text = "Clone"
+            )
         }
     }
 }
 
 @Composable
-private fun Cloning(cloneViewModel: CloneViewModel) {
+private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatus.Cloning) {
     Column (
         modifier = Modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 
-        CircularProgressIndicator(modifier = Modifier.padding(horizontal = 16.dp))
+
+        val progress = remember(cloneStatusValue) {
+            val total = cloneStatusValue.total
+
+            if(total == 0) // Prevent division by 0
+                -1f
+            else
+                cloneStatusValue.progress / total.toFloat()
+        }
+
+        if(progress >= 0f)
+            CircularProgressIndicator(
+                modifier = Modifier.padding(vertical = 16.dp),
+                progress = progress
+            )
+        else // Show indeterminate if we do not know the total (aka total == 0 or progress == -1)
+            CircularProgressIndicator(
+                modifier = Modifier.padding(vertical = 16.dp),
+            )
+
+        Text(cloneStatusValue.taskName, color = MaterialTheme.colors.primaryTextColor)
 
         TextButton(
             modifier = Modifier

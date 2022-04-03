@@ -224,9 +224,13 @@ class RemoteOperationsManager @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     fun clone(directory: File, url: String): Flow<CloneStatus> = callbackFlow {
+        var lastTitle: String = ""
+        var lastTotalWork = 0
+        var progress = 0
+
         try {
             ensureActive()
-            this.trySend(CloneStatus.Cloning(0))
+            trySend(CloneStatus.Cloning("Starting...", progress, lastTotalWork))
 
             Git.cloneRepository()
                 .setDirectory(directory)
@@ -239,18 +243,22 @@ class RemoteOperationsManager @Inject constructor(
 
                         override fun beginTask(title: String?, totalWork: Int) {
                             println("ProgressMonitor Begin task with title: $title")
+                            lastTitle = title.orEmpty()
+                            lastTotalWork = totalWork
+                            progress = 0
+                            trySend(CloneStatus.Cloning(lastTitle, progress, lastTotalWork))
                         }
 
                         override fun update(completed: Int) {
                             println("ProgressMonitor Update $completed")
                             ensureActive()
-                            trySend(CloneStatus.Cloning(completed))
+
+                            progress += completed
+                            trySend(CloneStatus.Cloning(lastTitle, progress, lastTotalWork))
                         }
 
                         override fun endTask() {
                             println("ProgressMonitor End task")
-                            ensureActive()
-                            trySend(CloneStatus.CheckingOut)
                         }
 
                         override fun isCancelled(): Boolean {
@@ -282,9 +290,8 @@ class RemoteOperationsManager @Inject constructor(
 
 sealed class CloneStatus {
     object None : CloneStatus()
-    data class Cloning(val progress: Int) : CloneStatus()
+    data class Cloning(val taskName: String, val progress: Int, val total: Int) : CloneStatus()
     object Cancelling : CloneStatus()
-    object CheckingOut : CloneStatus()
     data class Fail(val reason: String) : CloneStatus()
     data class Completed(val repoDir: File) : CloneStatus()
 }
