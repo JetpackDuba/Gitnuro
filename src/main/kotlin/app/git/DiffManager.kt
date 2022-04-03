@@ -93,7 +93,7 @@ fun prepareTreeParser(repository: Repository, commit: RevCommit): AbstractTreeIt
         val tree: RevTree = walk.parseTree(commit.tree.id)
         val treeParser = CanonicalTreeParser()
         repository.newObjectReader().use { reader -> treeParser.reset(reader, tree.id) }
-        walk.dispose()
+
         return treeParser
     }
 }
