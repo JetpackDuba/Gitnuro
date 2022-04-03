@@ -348,6 +348,10 @@ fun MessagesList(
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
             )
         }
+
+        item {
+            Box(modifier = Modifier.height(20.dp))
+        }
     }
 }
 
@@ -402,6 +406,10 @@ fun GraphList(
                             nodeColor = nodeColor,
                         )
                     }
+                }
+
+                item {
+                    Box(modifier = Modifier.height(20.dp))
                 }
             }
         }
