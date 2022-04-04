@@ -747,13 +747,14 @@ fun CommitMessage(
         }
         Text(
             text = commit.shortMessage,
-            modifier = Modifier.padding(start = 8.dp),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .weight(1f),
             fontSize = 14.sp,
             color = if (matchesSearchFilter == false) secondaryTextColor else textColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(modifier = Modifier.weight(2f))
 
         Text(
             text = commit.committerIdent.`when`.toSmartSystemString(),
