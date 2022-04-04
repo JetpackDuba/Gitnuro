@@ -1,10 +1,18 @@
 package app.di
 
+import app.di.modules.NetworkModule
 import app.ui.components.TabInformation
 import dagger.Component
 
 @TabScope
-@Component(dependencies = [AppComponent::class])
+@Component(
+    modules = [
+        NetworkModule::class,
+    ],
+    dependencies = [
+        AppComponent::class
+    ],
+)
 interface TabComponent {
     fun inject(tabInformation: TabInformation)
 }

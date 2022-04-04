@@ -1,5 +1,6 @@
 package app.viewmodels
 
+import app.AppPreferences
 import app.AppStateManager
 import app.ErrorsManager
 import app.credentials.CredentialsState
@@ -7,6 +8,8 @@ import app.credentials.CredentialsStateManager
 import app.git.*
 import app.newErrorNow
 import app.ui.SelectedItem
+import app.updates.Update
+import app.updates.UpdatesRepository
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,6 +42,7 @@ class TabViewModel @Inject constructor(
     private val tabState: TabState,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
+    private val updatesRepository: UpdatesRepository,
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
@@ -261,6 +265,15 @@ class TabViewModel @Inject constructor(
         val repoDir = File(dir)
         repositoryManager.initLocalRepo(repoDir)
         openRepository(repoDir)
+    }
+
+    suspend fun latestRelease(): Update? = withContext(Dispatchers.IO) {
+        try {
+            updatesRepository.latestRelease()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            null
+        }
     }
 }
 

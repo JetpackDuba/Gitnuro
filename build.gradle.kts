@@ -11,6 +11,7 @@ plugins {
     id("org.jetbrains.compose") version "1.1.1"
 }
 
+// Remember to update Constants.APP_VERSION when changing this version
 val projectVersion = "0.1.0"
 val projectName = "Gitnuro"
 
@@ -22,8 +23,6 @@ repositories {
     google()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
 }
-
-
 
 dependencies {
     implementation(compose.desktop.currentOs)
@@ -37,6 +36,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.8.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.mockk:mockk:1.12.3")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 }
 
 tasks.test {

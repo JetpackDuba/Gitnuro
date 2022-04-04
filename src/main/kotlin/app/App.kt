@@ -48,7 +48,6 @@ class App {
 
     init {
         appComponent.inject(this)
-        println("AppStateManagerReference $appStateManager")
     }
 
     private val tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
