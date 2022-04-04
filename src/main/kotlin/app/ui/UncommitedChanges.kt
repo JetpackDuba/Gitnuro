@@ -566,15 +566,17 @@ private fun FileEntry(
                     tint = statusEntry.iconColor,
                 )
 
-                Text(
-                    text = diffEntry.parentDirectoryPath,
-                    modifier = Modifier.weight(1f, fill = false),
-                    maxLines = 1,
-                    softWrap = false,
-                    fontSize = 13.sp,
-                    overflow = TextOverflow.Ellipsis,
-                    color = secondaryTextColor,
-                )
+                if(diffEntry.parentDirectoryPath.isNotEmpty()) {
+                    Text(
+                        text = diffEntry.parentDirectoryPath,
+                        modifier = Modifier.weight(1f, fill = false),
+                        maxLines = 1,
+                        softWrap = false,
+                        fontSize = 13.sp,
+                        overflow = TextOverflow.Ellipsis,
+                        color = secondaryTextColor,
+                    )
+                }
                 Text(
                     text = diffEntry.fileName,
                     modifier = Modifier.weight(1f, fill = false),
