@@ -60,8 +60,13 @@ compose.desktop {
 
         nativeDistributions {
             includeAllModules = true
-            packageName = name
-            packageVersion = projectVersion
+            packageName = projectName
+            version = projectVersion
+            description = "Multiplatform Git client"
+            
+            windows {
+                iconFile.set(project.file("icons/icon.ico"))
+            }
         }
     }
 }
