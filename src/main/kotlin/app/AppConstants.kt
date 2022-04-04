@@ -3,7 +3,7 @@ package app
 object AppConstants {
     val openSourceProjects = listOf(
         Project("Apache SSHD", "https://mina.apache.org/sshd-project/", apache__2_0),
-        Project("Google/Dagger", "https://dagger.dev/", apache__2_0),
+        Project("Google Dagger", "https://dagger.dev/", apache__2_0),
         Project("Jetbrains Compose", "https://www.jetbrains.com/lp/compose-mpp/", apache__2_0),
         Project("JGit", "https://www.eclipse.org/jgit/", edl),
         Project("JUnit 5", "https://junit.org/junit5/", edl),
