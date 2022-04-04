@@ -62,7 +62,7 @@ class App {
 
             if (isOpen) {
                 Window(
-                    title = "Gitnuro",
+                    title = AppConstants.APP_NAME,
                     onCloseRequest = {
                         isOpen = false
                     },

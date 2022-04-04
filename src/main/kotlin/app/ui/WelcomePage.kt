@@ -119,7 +119,7 @@ fun HomeButtons(
         modifier = Modifier.padding(end = 32.dp),
     ) {
         Text(
-            text = "Gitnuro",
+            text = AppConstants.APP_NAME,
             fontSize = 32.sp,
             color = MaterialTheme.colors.primaryTextColor,
             modifier = Modifier.padding(bottom = 16.dp),
