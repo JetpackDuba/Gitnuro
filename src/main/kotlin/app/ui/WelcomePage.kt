@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.AppConstants
+import app.AppStateManager
 import app.extensions.dirName
 import app.extensions.dirPath
 import app.theme.primaryTextColor
@@ -60,118 +61,15 @@ fun WelcomePage(
             verticalAlignment = Alignment.Top,
             modifier = Modifier.align(BiasAlignment(0f, -0.5f))
         ) {
-            Column(
-                modifier = Modifier.padding(end = 32.dp),
-            ) {
-                Text(
-                    text = "Gitnuro",
-                    fontSize = 32.sp,
-                    color = MaterialTheme.colors.primaryTextColor,
-                    modifier = Modifier.padding(bottom = 16.dp),
-                )
-
-                ButtonTile(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    title = "Open a repository",
-                    painter = painterResource("open.svg"),
-                    onClick = { openRepositoryDialog(tabViewModel) })
-
-                ButtonTile(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    title = "Clone a repository",
-                    painter = painterResource("download.svg"),
-                    onClick = {
-                        showCloneView = true
-                    }
-                )
-
-                ButtonTile(
-                    modifier = Modifier.padding(bottom = 8.dp),
-                    title = "Start a local repository",
-                    painter = painterResource("open.svg"),
-                    onClick = {
-                        val dir = openDirectoryDialog()
-                        if (dir != null) tabViewModel.initLocalRepository(dir)
-                    }
-                )
-
-                Text(
-                    text = "About Gitnuro",
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colors.primaryTextColor,
-                    modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
-                )
-
-                IconTextButton(
-                    title = "Source code",
-                    painter = painterResource("code.svg"),
-                    onClick = {
-                        Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro"))
-                    }
-                )
-
-                IconTextButton(
-                    title = "Report a bug",
-                    painter = painterResource("bug.svg"),
-                    onClick = {
-                        Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro/issues"))
-                    }
-                )
-
-                if(newUpdate != null) {
-                    IconTextButton(
-                        title = "New update ${newUpdate?.appVersion} available ",
-                        painter = painterResource("grade.svg"),
-                        iconColor = MaterialTheme.colors.secondary,
-                        onClick = {
-                            newUpdate?.downloadUrl?.let {
-                                Desktop.getDesktop().browse(URI(it))
-                            }
-                        }
-                    )
+            HomeButtons(
+                newUpdate = newUpdate,
+                tabViewModel = tabViewModel,
+                onShowCloneView = {
+                    showCloneView = true
                 }
-            }
+            )
 
-            Column(
-                modifier = Modifier
-                    .padding(start = 32.dp),
-            ) {
-                Text(
-                    text = "Recent",
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(top = 48.dp, bottom = 8.dp),
-                    color = MaterialTheme.colors.primaryTextColor,
-                )
-                LazyColumn {
-                    items(items = appStateManager.latestOpenedRepositoriesPaths) { repo ->
-                        val repoDirName = repo.dirName
-                        val repoDirPath = repo.dirPath
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            TextButton(
-                                onClick = {
-                                tabViewModel.openRepository(repo)
-                            }
-                            ) {
-                                Text(
-                                    text = repoDirName,
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colors.primary,
-                                )
-                            }
-
-                            Text(
-                                text = repoDirPath,
-                                fontSize = 14.sp,
-                                modifier = Modifier.padding(start = 4.dp),
-                                color = MaterialTheme.colors.secondaryTextColor
-                            )
-                        }
-                    }
-                }
-            }
+            RecentRepositories(appStateManager, tabViewModel)
         }
 
         Text(
@@ -199,6 +97,136 @@ fun WelcomePage(
             tabViewModel.openRepository(dir)
         },
     )
+}
+
+@Composable
+fun HomeButtons(
+    newUpdate: Update?,
+    tabViewModel: TabViewModel,
+    onShowCloneView: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.padding(end = 32.dp),
+    ) {
+        Text(
+            text = "Gitnuro",
+            fontSize = 32.sp,
+            color = MaterialTheme.colors.primaryTextColor,
+            modifier = Modifier.padding(bottom = 16.dp),
+        )
+
+        ButtonTile(
+            modifier = Modifier.padding(bottom = 8.dp),
+            title = "Open a repository",
+            painter = painterResource("open.svg"),
+            onClick = { openRepositoryDialog(tabViewModel) })
+
+        ButtonTile(
+            modifier = Modifier.padding(bottom = 8.dp),
+            title = "Clone a repository",
+            painter = painterResource("download.svg"),
+            onClick = onShowCloneView
+        )
+
+        ButtonTile(
+            modifier = Modifier.padding(bottom = 8.dp),
+            title = "Start a local repository",
+            painter = painterResource("open.svg"),
+            onClick = {
+                val dir = openDirectoryDialog()
+                if (dir != null) tabViewModel.initLocalRepository(dir)
+            }
+        )
+
+        Text(
+            text = "About Gitnuro",
+            fontSize = 18.sp,
+            color = MaterialTheme.colors.primaryTextColor,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
+        )
+
+        IconTextButton(
+            title = "Source code",
+            painter = painterResource("code.svg"),
+            onClick = {
+                Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro"))
+            }
+        )
+
+        IconTextButton(
+            title = "Report a bug",
+            painter = painterResource("bug.svg"),
+            onClick = {
+                Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro/issues"))
+            }
+        )
+
+        if(newUpdate != null) {
+            IconTextButton(
+                title = "New update ${newUpdate.appVersion} available ",
+                painter = painterResource("grade.svg"),
+                iconColor = MaterialTheme.colors.secondary,
+                onClick = {
+                    Desktop.getDesktop().browse(URI(newUpdate.downloadUrl))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewModel) {
+    Column(
+        modifier = Modifier
+            .padding(start = 32.dp),
+    ) {
+        val latestOpenedRepositoriesPaths = appStateManager.latestOpenedRepositoriesPaths
+        Text(
+            text = "Recent",
+            fontSize = 18.sp,
+            modifier = Modifier.padding(top = 48.dp, bottom = 8.dp),
+            color = MaterialTheme.colors.primaryTextColor,
+        )
+
+        if(latestOpenedRepositoriesPaths.isEmpty()) {
+            Text(
+                "Nothing to see here, open a repository first!",
+                color = MaterialTheme.colors.secondaryTextColor,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+        } else {
+            LazyColumn {
+                items(items = latestOpenedRepositoriesPaths) { repo ->
+                    val repoDirName = repo.dirName
+                    val repoDirPath = repo.dirPath
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        TextButton(
+                            onClick = {
+                                tabViewModel.openRepository(repo)
+                            }
+                        ) {
+                            Text(
+                                text = repoDirName,
+                                fontSize = 14.sp,
+                                color = MaterialTheme.colors.primary,
+                            )
+                        }
+
+                        Text(
+                            text = repoDirPath,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(start = 4.dp),
+                            color = MaterialTheme.colors.secondaryTextColor
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
