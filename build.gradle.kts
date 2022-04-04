@@ -3,11 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    // __KOTLIN_COMPOSE_VERSION__
+    // Kotlin version must match compose version
     kotlin("jvm") version "1.6.10"
     kotlin("kapt") version "1.6.10"
     kotlin("plugin.serialization") version "1.6.10"
-    // __LATEST_COMPOSE_RELEASE_VERSION__
     id("org.jetbrains.compose") version "1.1.1"
 }
 
