@@ -45,9 +45,6 @@ Missing:
 - Blame file.
 - Submodules support.
 
-## Releases
-
-I'll create releases once we hit beta stage.
 
 ## Steps to build
 
