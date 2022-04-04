@@ -23,15 +23,15 @@ import app.AppConstants
 import app.AppStateManager
 import app.extensions.dirName
 import app.extensions.dirPath
+import app.extensions.openUrlInBrowser
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.ui.dialogs.AppInfoDialog
 import app.ui.dialogs.CloneDialog
 import app.updates.Update
 import app.viewmodels.TabViewModel
 import openDirectoryDialog
 import openRepositoryDialog
-import java.awt.Desktop
-import java.net.URI
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -41,12 +41,13 @@ fun WelcomePage(
 ) {
     val appStateManager = tabViewModel.appStateManager
     var showCloneView by remember { mutableStateOf(false) }
+    var showAdditionalInfo by remember { mutableStateOf(false) }
     var newUpdate by remember { mutableStateOf<Update?>(null) }
 
     LaunchedEffect(Unit) {
         val latestRelease = tabViewModel.latestRelease()
 
-        if(latestRelease != null && latestRelease.appCode > AppConstants.APP_VERSION_CODE) {
+        if (latestRelease != null && latestRelease.appCode > AppConstants.APP_VERSION_CODE) {
             newUpdate = latestRelease
         }
     }
@@ -64,9 +65,8 @@ fun WelcomePage(
             HomeButtons(
                 newUpdate = newUpdate,
                 tabViewModel = tabViewModel,
-                onShowCloneView = {
-                    showCloneView = true
-                }
+                onShowCloneView = { showCloneView = true },
+                onShowAdditionalInfo = { showAdditionalInfo = true },
             )
 
             RecentRepositories(appStateManager, tabViewModel)
@@ -83,20 +83,29 @@ fun WelcomePage(
     }
 
     LaunchedEffect(showCloneView) {
-        if (showCloneView) tabViewModel.cloneViewModel.reset() // Reset dialog before showing it
+        if (showCloneView) {
+            tabViewModel.cloneViewModel.reset() // Reset dialog before showing it
+        }
     }
 
+    if (showCloneView) {
+        CloneDialog(
+            tabViewModel.cloneViewModel,
+            onClose = {
+                showCloneView = false
+                tabViewModel.cloneViewModel.reset()
+            },
+            onOpenRepository = { dir ->
+                tabViewModel.openRepository(dir)
+            },
+        )
+    }
 
-    if (showCloneView) CloneDialog(
-        tabViewModel.cloneViewModel,
-        onClose = {
-            showCloneView = false
-            tabViewModel.cloneViewModel.reset()
-        },
-        onOpenRepository = { dir ->
-            tabViewModel.openRepository(dir)
-        },
-    )
+    if (showAdditionalInfo) {
+        AppInfoDialog(
+            onClose = { showAdditionalInfo = false },
+        )
+    }
 }
 
 @Composable
@@ -104,6 +113,7 @@ fun HomeButtons(
     newUpdate: Update?,
     tabViewModel: TabViewModel,
     onShowCloneView: () -> Unit,
+    onShowAdditionalInfo: () -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(end = 32.dp),
@@ -149,7 +159,7 @@ fun HomeButtons(
             title = "Source code",
             painter = painterResource("code.svg"),
             onClick = {
-                Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro"))
+                openUrlInBrowser("https://github.com/JetpackDuba/Gitnuro")
             }
         )
 
@@ -157,17 +167,23 @@ fun HomeButtons(
             title = "Report a bug",
             painter = painterResource("bug.svg"),
             onClick = {
-                Desktop.getDesktop().browse(URI("https://github.com/JetpackDuba/Gitnuro/issues"))
+                openUrlInBrowser("https://github.com/JetpackDuba/Gitnuro/issues")
             }
         )
 
-        if(newUpdate != null) {
+        IconTextButton(
+            title = "Additional information",
+            painter = painterResource("info.svg"),
+            onClick = onShowAdditionalInfo
+        )
+
+        if (newUpdate != null) {
             IconTextButton(
                 title = "New update ${newUpdate.appVersion} available ",
                 painter = painterResource("grade.svg"),
                 iconColor = MaterialTheme.colors.secondary,
                 onClick = {
-                    Desktop.getDesktop().browse(URI(newUpdate.downloadUrl))
+                    openUrlInBrowser(newUpdate.downloadUrl)
                 }
             )
         }
@@ -188,7 +204,7 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
             color = MaterialTheme.colors.primaryTextColor,
         )
 
-        if(latestOpenedRepositoriesPaths.isEmpty()) {
+        if (latestOpenedRepositoriesPaths.isEmpty()) {
             Text(
                 "Nothing to see here, open a repository first!",
                 color = MaterialTheme.colors.secondaryTextColor,
