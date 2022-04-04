@@ -30,12 +30,14 @@ class StashesViewModel @Inject constructor(
 
     fun applyStash(stashInfo: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshEvenIfCrashes = true,
     ) { git ->
         stashManager.applyStash(git, stashInfo)
     }
 
     fun popStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshEvenIfCrashes = true,
     ) { git ->
         stashManager.popStash(git, stash)
 
