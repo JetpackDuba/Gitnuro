@@ -126,7 +126,7 @@ class StatusManager @Inject constructor(
             // Restore previously removed lines to the index
             for (line in removedLines) {
                 // Check how many lines before this one have been deleted
-                val previouslyRemovedLines = addedLines.count { it.newLineNumber <= line.newLineNumber } - 1
+                val previouslyRemovedLines = addedLines.count { it.newLineNumber < line.newLineNumber }
                 textLines.add(line.newLineNumber + linesAdded - previouslyRemovedLines, line.text.withoutLineEnding)
                 linesAdded++
             }
