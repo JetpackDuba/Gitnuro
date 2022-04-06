@@ -1,8 +1,5 @@
 package app.git
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -10,17 +7,18 @@ import app.di.RawFileManagerFactory
 import app.extensions.*
 import app.git.diff.Hunk
 import app.git.diff.LineType
-import app.theme.conflictFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawText
 import org.eclipse.jgit.dircache.DirCacheEditor.PathEdit
 import org.eclipse.jgit.dircache.DirCacheEntry
-import org.eclipse.jgit.lib.*
-import org.eclipse.jgit.submodule.SubmoduleStatusType
-import org.eclipse.jgit.treewalk.EmptyTreeIterator
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.FileMode
+import org.eclipse.jgit.lib.ObjectInserter
+import org.eclipse.jgit.lib.Repository
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -40,14 +38,14 @@ class StatusManager @Inject constructor(
         return@withContext status.hasUncommittedChanges() || status.hasUntrackedChanges()
     }
 
-    suspend fun stage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
-        if (diffEntry.changeType == DiffEntry.ChangeType.DELETE) {
+    suspend fun stage(git: Git, statusEntry: StatusEntry) = withContext(Dispatchers.IO) {
+        if (statusEntry.statusType == StatusType.REMOVED) {
             git.rm()
-                .addFilepattern(diffEntry.filePath)
+                .addFilepattern(statusEntry.filePath)
                 .call()
         } else {
             git.add()
-                .addFilepattern(diffEntry.filePath)
+                .addFilepattern(statusEntry.filePath)
                 .call()
         }
     }
@@ -132,7 +130,7 @@ class StatusManager @Inject constructor(
             // Restore previously removed lines to the index
             for (line in removedLines) {
                 // Check how many lines before this one have been deleted
-                val previouslyRemovedLines = addedLines.count { it.newLineNumber <= line.newLineNumber } - 1
+                val previouslyRemovedLines = addedLines.count { it.newLineNumber < line.newLineNumber }
                 textLines.add(line.newLineNumber + linesAdded - previouslyRemovedLines, line.text.withoutLineEnding)
                 linesAdded++
             }
@@ -182,9 +180,9 @@ class StatusManager @Inject constructor(
         }
     }
 
-    suspend fun unstage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
+    suspend fun unstage(git: Git, statusEntry: StatusEntry) = withContext(Dispatchers.IO) {
         git.reset()
-            .addPath(diffEntry.filePath)
+            .addPath(statusEntry.filePath)
             .call()
     }
 
@@ -196,17 +194,17 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun reset(git: Git, diffEntry: DiffEntry, staged: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun reset(git: Git, statusEntry: StatusEntry, staged: Boolean) = withContext(Dispatchers.IO) {
         if (staged) {
             git
                 .reset()
-                .addPath(diffEntry.filePath)
+                .addPath(statusEntry.filePath)
                 .call()
         }
 
         git
             .checkout()
-            .addPath(diffEntry.filePath)
+            .addPath(statusEntry.filePath)
             .call()
     }
 
@@ -223,99 +221,86 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun getStaged(git: Git, currentBranch: Ref?, repositoryState: RepositoryState) =
+    suspend fun getStatus(git: Git) =
         withContext(Dispatchers.IO) {
-            val statusEntries: List<StatusEntry>
-
-            val status = git.diff()
-                .setShowNameAndStatusOnly(true).apply {
-                    if (currentBranch == null && !repositoryState.isMerging && !repositoryState.isRebasing)
-                        setOldTree(EmptyTreeIterator()) // Required if the repository is empty
-
-                    setCached(true)
-                }
+            git
+                .status()
                 .call()
-
-            statusEntries = if (repositoryState.isMerging || repositoryState.isRebasing) {
-                status.groupBy {
-                    if (it.newPath != "/dev/null")
-                        it.newPath
-                    else
-                        it.oldPath
-                }
-                    .map {
-                        val entries = it.value
-
-                        val hasConflicts =
-                            (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
-
-                        StatusEntry(entries.first(), isConflict = hasConflicts)
-                    }
-            } else {
-                status.map {
-                    StatusEntry(it, isConflict = false)
-                }
-            }
-
-            return@withContext statusEntries
         }
 
-    suspend fun getUnstaged(git: Git, repositoryState: RepositoryState) = withContext(Dispatchers.IO) {
-        val uninitializedSubmodules = submodulesManager.uninitializedSubmodules(git)
-
-        return@withContext git
-            .diff()
-            .call()
-            .filter {
-                !uninitializedSubmodules.containsKey(it.oldPath) // Filter out uninitialized modules directories
+    suspend fun getStaged(status: Status) =
+        withContext(Dispatchers.IO) {
+            val added = status.added.map {
+                StatusEntry(it, StatusType.ADDED)
             }
-            .groupBy {
-                if (it.oldPath != "/dev/null")
-                    it.oldPath
-                else
-                    it.newPath
+            val modified = status.changed.map {
+                StatusEntry(it, StatusType.MODIFIED)
             }
-            .map {
-                val entries = it.value
-
-                val hasConflicts =
-                    (entries.count() > 1 && (repositoryState.isMerging || repositoryState.isRebasing))
-
-                StatusEntry(entries.first(), isConflict = hasConflicts)
+            val removed = status.removed.map {
+                StatusEntry(it, StatusType.REMOVED)
             }
+
+            return@withContext flatListOf(
+                added,
+                modified,
+                removed,
+            )
+        }
+
+    suspend fun getUnstaged(status: Status) = withContext(Dispatchers.IO) {
+        // TODO Test uninitialized modules after the refactor
+//        val uninitializedSubmodules = submodulesManager.uninitializedSubmodules(git)
+
+        val added = status.untracked.map {
+            StatusEntry(it, StatusType.ADDED)
+        }
+        val modified = status.modified.map {
+            StatusEntry(it, StatusType.MODIFIED)
+        }
+        val removed = status.missing.map {
+            StatusEntry(it, StatusType.REMOVED)
+        }
+        val conflicting = status.conflicting.map {
+            StatusEntry(it, StatusType.CONFLICTING)
+        }
+
+        return@withContext flatListOf(
+            added,
+            modified,
+            removed,
+            conflicting,
+        )
     }
 
-    suspend fun getStatusSummary(git: Git, currentBranch: Ref?, repositoryState: RepositoryState): StatusSummary {
-        val staged = getStaged(git, currentBranch, repositoryState)
+    suspend fun getStatusSummary(git: Git): StatusSummary {
+        val status = getStatus(git)
+        val staged = getStaged(status)
         val allChanges = staged.toMutableList()
 
-        val unstaged = getUnstaged(git, repositoryState)
+        val unstaged = getUnstaged(status)
 
         allChanges.addAll(unstaged)
         val groupedChanges = allChanges.groupBy {
-            if (it.diffEntry.newPath != "/dev/null")
-                it.diffEntry.newPath
-            else
-                it.diffEntry.oldPath
+
         }
         val changesGrouped = groupedChanges.map {
             it.value
         }.flatten()
             .groupBy {
-                it.diffEntry.changeType
+                it.statusType
             }
 
-        val deletedCount = changesGrouped[DiffEntry.ChangeType.DELETE].countOrZero()
-        val addedCount = changesGrouped[DiffEntry.ChangeType.ADD].countOrZero()
+        val deletedCount = changesGrouped[StatusType.REMOVED].countOrZero()
+        val addedCount = changesGrouped[StatusType.ADDED].countOrZero()
 
-        val modifiedCount = changesGrouped[DiffEntry.ChangeType.MODIFY].countOrZero() +
-                changesGrouped[DiffEntry.ChangeType.RENAME].countOrZero() +
-                changesGrouped[DiffEntry.ChangeType.COPY].countOrZero()
+        val modifiedCount = changesGrouped[StatusType.MODIFIED].countOrZero()
+        val conflictingCount = changesGrouped[StatusType.CONFLICTING].countOrZero()
 
         return StatusSummary(
             modifiedCount = modifiedCount,
             deletedCount = deletedCount,
             addedCount = addedCount,
+            conflictingCount = conflictingCount,
         )
     }
 
@@ -341,22 +326,30 @@ class StatusManager @Inject constructor(
 }
 
 
-data class StatusEntry(val diffEntry: DiffEntry, val isConflict: Boolean) {
+data class StatusEntry(val filePath: String, val statusType: StatusType) {
     val icon: ImageVector
-        get() {
-            return if (isConflict)
-                Icons.Default.Warning
-            else
-                diffEntry.icon
-        }
+        get() = statusType.icon
+
     val iconColor: Color
         @Composable
-        get() {
-            return if (isConflict)
-                MaterialTheme.colors.conflictFile
-            else
-                diffEntry.iconColor
-        }
+        get() = statusType.iconColor
 }
 
-data class StatusSummary(val modifiedCount: Int, val deletedCount: Int, val addedCount: Int)
+enum class StatusType {
+    ADDED,
+    MODIFIED,
+    REMOVED,
+    CONFLICTING,
+}
+
+data class StatusSummary(
+    val modifiedCount: Int,
+    val deletedCount: Int,
+    val addedCount: Int,
+    val conflictingCount: Int,
+) {
+    val total = modifiedCount +
+            deletedCount +
+            addedCount +
+            conflictingCount
+}

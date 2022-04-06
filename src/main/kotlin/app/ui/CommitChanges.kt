@@ -197,7 +197,7 @@ fun CommitLogChanges(
             val textColor: Color
             val secondaryTextColor: Color
 
-            if (diffSelected?.diffEntry == diffEntry) {
+            if (diffSelected is DiffEntryType.CommitDiff && diffSelected.diffEntry == diffEntry) {
                 textColor = MaterialTheme.colors.primary
                 secondaryTextColor = MaterialTheme.colors.halfPrimary
             } else {

@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.diff.DiffEntry
 import java.io.File
 import javax.inject.Inject
 
@@ -27,16 +26,16 @@ class StatusViewModel @Inject constructor(
 
     private var lastUncommitedChangesState = false
 
-    fun stage(diffEntry: DiffEntry) = tabState.runOperation(
+    fun stage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.stage(git, diffEntry)
+        statusManager.stage(git, statusEntry)
     }
 
-    fun unstage(diffEntry: DiffEntry) = tabState.runOperation(
+    fun unstage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.unstage(git, diffEntry)
+        statusManager.unstage(git, statusEntry)
     }
 
 
@@ -52,16 +51,16 @@ class StatusViewModel @Inject constructor(
         statusManager.stageAll(git)
     }
 
-    fun resetStaged(diffEntry: DiffEntry) = tabState.runOperation(
+    fun resetStaged(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.reset(git, diffEntry, staged = true)
+        statusManager.reset(git, statusEntry, staged = true)
     }
 
-    fun resetUnstaged(diffEntry: DiffEntry) = tabState.runOperation(
+    fun resetUnstaged(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.reset(git, diffEntry, staged = false)
+        statusManager.reset(git, statusEntry, staged = false)
     }
 
     private suspend fun loadStatus(git: Git) {
@@ -69,10 +68,9 @@ class StatusViewModel @Inject constructor(
 
         try {
             _stageStatus.value = StageStatus.Loading
-            val repositoryState = repositoryManager.getRepositoryState(git)
-            val currentBranchRef = branchesManager.currentBranchRef(git)
-            val staged = statusManager.getStaged(git, currentBranchRef, repositoryState)
-            val unstaged = statusManager.getUnstaged(git, repositoryState)
+            val status = statusManager.getStatus(git)
+            val staged = statusManager.getStaged(status)
+            val unstaged = statusManager.getUnstaged(status)
 
             _stageStatus.value = StageStatus.Loaded(staged, unstaged)
         } catch (ex: Exception) {
@@ -141,10 +139,10 @@ class StatusViewModel @Inject constructor(
         mergeManager.abortMerge(git)
     }
 
-    fun deleteFile(diffEntry: DiffEntry) = tabState.runOperation(
+    fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        val path = diffEntry.newPath
+        val path = statusEntry.filePath
 
         val fileToDelete = File(git.repository.directory.parent, path)
 

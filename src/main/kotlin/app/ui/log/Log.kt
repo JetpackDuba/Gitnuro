@@ -590,6 +590,14 @@ fun LogStatusSummary(statusSummary: StatusSummary, modifier: Modifier) {
                 color = MaterialTheme.colors.deleteFile,
             )
         }
+
+        if (statusSummary.conflictingCount > 0) {
+            SummaryEntry(
+                count = statusSummary.conflictingCount,
+                icon = Icons.Default.Warning,
+                color = MaterialTheme.colors.conflictFile,
+            )
+        }
     }
 }
 

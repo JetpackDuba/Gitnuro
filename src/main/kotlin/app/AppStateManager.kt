@@ -19,7 +19,7 @@ class AppStateManager @Inject constructor(
     val latestOpenedRepositoriesPaths: List<String>
         get() = _latestOpenedRepositoriesPaths
 
-    private val appStateScope = CoroutineScope(SupervisorJob() + Dispatchers.IO) // TODO Stop this when closing the app
+    val appStateScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     val latestOpenedRepositoryPath: String
         get() = _latestOpenedRepositoriesPaths.firstOrNull() ?: ""
@@ -73,5 +73,9 @@ class AppStateManager @Inject constructor(
             val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)
             _latestOpenedRepositoriesPaths.addAll(repositories)
         }
+    }
+
+    fun cancelCoroutines() {
+        appStateScope.cancel("Closing app")
     }
 }

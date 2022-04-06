@@ -56,18 +56,14 @@ class LogViewModel @Inject constructor(
 
         val statusSummary = statusManager.getStatusSummary(
             git = git,
-            currentBranch = currentBranch,
-            repositoryState = repositoryManager.getRepositoryState(git),
         )
 
-        val hasUncommitedChanges =
-            statusSummary.addedCount + statusSummary.deletedCount + statusSummary.modifiedCount > 0
+        val hasUncommitedChanges = statusSummary.total > 0
         val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges)
 
         _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary)
 
         // Remove search filter if the log has been updated
-        // TODO: Should we just update the search instead of closing it?
         _logSearchFilterResults.value = LogSearch.NotSearching
     }
 
@@ -163,11 +159,9 @@ class LogViewModel @Inject constructor(
         val statsSummary = if (hasUncommitedChanges) {
             statusManager.getStatusSummary(
                 git = git,
-                currentBranch = currentBranch,
-                repositoryState = repositoryManager.getRepositoryState(git),
             )
         } else
-            StatusSummary(0, 0, 0)
+            StatusSummary(0, 0, 0, 0)
 
         val previousLogStatusValue = _logStatus.value
 

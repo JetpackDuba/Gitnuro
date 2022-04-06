@@ -1,6 +1,7 @@
 package app.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
+import app.exceptions.MissingDiffEntryException
 import app.git.*
 import app.git.diff.DiffResult
 import app.git.diff.Hunk
@@ -14,8 +15,7 @@ class DiffViewModel @Inject constructor(
     private val diffManager: DiffManager,
     private val statusManager: StatusManager,
 ) {
-    // TODO Maybe use a sealed class instead of a null to represent that a diff is not selected?
-    private val _diffResult = MutableStateFlow<ViewDiffResult?>(null)
+    private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading)
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
 
     val lazyListState = MutableStateFlow(
@@ -25,18 +25,23 @@ class DiffViewModel @Inject constructor(
         )
     )
 
+    // TODO Cancel job if the user closed the diff view while loading
     fun updateDiff(diffEntryType: DiffEntryType) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        val oldDiffEntryType = _diffResult.value?.diffEntryType
+        var oldDiffEntryType: DiffEntryType? = null
+        val oldDiffResult = _diffResult.value
 
-        _diffResult.value = null
+        if(oldDiffResult is ViewDiffResult.Loaded) {
+            oldDiffEntryType = oldDiffResult.diffEntryType
+        }
+
+        _diffResult.value = ViewDiffResult.Loading
 
         // If it's a different file or different state (index or workdir), reset the scroll state
         if (oldDiffEntryType != null &&
-            (oldDiffEntryType.diffEntry.oldPath != diffEntryType.diffEntry.oldPath ||
-                    oldDiffEntryType.diffEntry.newPath != diffEntryType.diffEntry.newPath ||
-                    oldDiffEntryType::class != diffEntryType::class)
+            oldDiffEntryType is DiffEntryType.UncommitedDiff && diffEntryType is DiffEntryType.UncommitedDiff &&
+            oldDiffEntryType.statusEntry.filePath != diffEntryType.statusEntry.filePath
         ) {
             lazyListState.value = LazyListState(
                 0,
@@ -44,13 +49,14 @@ class DiffViewModel @Inject constructor(
             )
         }
 
-        //TODO: Just a workaround when trying to diff binary files
         try {
-            val hunks = diffManager.diffFormat(git, diffEntryType)
-            _diffResult.value = ViewDiffResult(diffEntryType, hunks)
+            val diffFormat = diffManager.diffFormat(git, diffEntryType)
+            _diffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
         } catch (ex: Exception) {
-            ex.printStackTrace()
-            _diffResult.value = ViewDiffResult(diffEntryType, DiffResult.Text(emptyList()))
+            if(ex is MissingDiffEntryException) {
+                _diffResult.value = ViewDiffResult.DiffNotFound
+            } else
+                ex.printStackTrace()
         }
     }
 
@@ -67,4 +73,9 @@ class DiffViewModel @Inject constructor(
     }
 }
 
-data class ViewDiffResult(val diffEntryType: DiffEntryType, val diffResult: DiffResult)
+
+sealed interface ViewDiffResult {
+    object Loading: ViewDiffResult
+    object DiffNotFound: ViewDiffResult
+    data class Loaded(val diffEntryType: DiffEntryType, val diffResult: DiffResult): ViewDiffResult
+}

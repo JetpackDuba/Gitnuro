@@ -2,14 +2,14 @@ package app.extensions
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import app.git.StatusEntry
+import app.git.StatusType
 import app.theme.addFile
+import app.theme.conflictFile
 import app.theme.modifyFile
 import org.eclipse.jgit.diff.DiffEntry
 
@@ -29,6 +29,26 @@ val DiffEntry.parentDirectoryPath: String
             ""
         else
             "${directoryPath}/"
+    }
+
+val StatusEntry.parentDirectoryPath: String
+    get() {
+        val pathSplit = this.filePath.split("/").toMutableList()
+        pathSplit.removeLast()
+
+        val directoryPath = pathSplit.joinToString("/")
+
+        return if (directoryPath.isEmpty())
+            ""
+        else
+            "${directoryPath}/"
+    }
+
+val StatusEntry.fileName: String
+    get() {
+        val pathSplit = filePath.split("/")
+
+        return pathSplit.lastOrNull() ?: ""
     }
 
 val DiffEntry.fileName: String
@@ -53,6 +73,16 @@ val DiffEntry.filePath: String
         return path
     }
 
+val StatusType.icon: ImageVector
+    get() {
+        return when (this) {
+            StatusType.ADDED -> Icons.Default.Add
+            StatusType.MODIFIED -> Icons.Default.Edit
+            StatusType.REMOVED -> Icons.Default.Delete
+            StatusType.CONFLICTING -> Icons.Default.Warning
+        }
+    }
+
 val DiffEntry.icon: ImageVector
     get() {
         return when (this.changeType) {
@@ -62,6 +92,17 @@ val DiffEntry.icon: ImageVector
             DiffEntry.ChangeType.COPY -> Icons.Default.Add
             DiffEntry.ChangeType.RENAME -> Icons.Default.Refresh
             else -> throw NotImplementedError("Unexpected ChangeType")
+        }
+    }
+
+val StatusType.iconColor: Color
+    @Composable
+    get() {
+        return when (this) {
+            StatusType.ADDED -> MaterialTheme.colors.addFile
+            StatusType.MODIFIED -> MaterialTheme.colors.modifyFile
+            StatusType.REMOVED -> MaterialTheme.colors.error
+            StatusType.CONFLICTING -> MaterialTheme.colors.conflictFile
         }
     }
 

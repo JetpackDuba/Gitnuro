@@ -45,16 +45,16 @@ import app.ui.context_menu.stagedEntriesContextMenuItems
 import app.ui.context_menu.unstagedEntriesContextMenuItems
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
-import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.RepositoryState
+import kotlin.reflect.KClass
 
 @Composable
 fun UncommitedChanges(
     statusViewModel: StatusViewModel,
     selectedEntryType: DiffEntryType?,
     repositoryState: RepositoryState,
-    onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
-    onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
+    onStagedDiffEntrySelected: (StatusEntry?) -> Unit,
+    onUnstagedDiffEntrySelected: (StatusEntry) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
     var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage) }
@@ -66,18 +66,6 @@ fun UncommitedChanges(
     if (stageStatus is StageStatus.Loaded) {
         staged = stageStatus.staged
         unstaged = stageStatus.unstaged
-
-        LaunchedEffect(staged) {
-            if (selectedEntryType != null) {
-                checkIfSelectedEntryShouldBeUpdated(
-                    selectedEntryType = selectedEntryType,
-                    staged = staged,
-                    unstaged = unstaged,
-                    onStagedDiffEntrySelected = onStagedDiffEntrySelected,
-                    onUnstagedDiffEntrySelected = onUnstagedDiffEntrySelected,
-                )
-            }
-        }
     } else {
         staged = listOf()
         unstaged = listOf() // return empty lists if still loading
@@ -110,9 +98,9 @@ fun UncommitedChanges(
             title = "Staged",
             allActionTitle = "Unstage all",
             actionTitle = "Unstage",
-            selectedEntryType = selectedEntryType,
+            selectedEntryType = if(selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.unstageButton,
-            diffEntries = staged,
+            statusEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 statusViewModel.unstage(it)
@@ -127,7 +115,7 @@ fun UncommitedChanges(
             },
             onAllAction = {
                 statusViewModel.unstageAll()
-            }
+            },
         )
 
         EntriesList(
@@ -137,20 +125,21 @@ fun UncommitedChanges(
                 .fillMaxWidth(),
             title = "Unstaged",
             actionTitle = "Stage",
+            selectedEntryType = if(selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.stageButton,
-            diffEntries = unstaged,
+            statusEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 statusViewModel.stage(it)
             },
-            onGenerateContextMenu = { diffEntry ->
+            onGenerateContextMenu = { statusEntry ->
                 unstagedEntriesContextMenuItems(
-                    diffEntry = diffEntry,
+                    statusEntry = statusEntry,
                     onReset = {
-                        statusViewModel.resetUnstaged(diffEntry)
+                        statusViewModel.resetUnstaged(statusEntry)
                     },
                     onDelete = {
-                        statusViewModel.deleteFile(diffEntry)
+                        statusViewModel.deleteFile(statusEntry)
                     }
                 )
             },
@@ -158,7 +147,6 @@ fun UncommitedChanges(
                 statusViewModel.stageAll()
             },
             allActionTitle = "Stage all",
-            selectedEntryType = selectedEntryType
         )
 
         Column(
@@ -392,46 +380,6 @@ fun ConfirmationButton(
     }
 }
 
-
-// TODO: This logic should be part of the diffViewModel where it gets the latest version of the diffEntry
-fun checkIfSelectedEntryShouldBeUpdated(
-    selectedEntryType: DiffEntryType,
-    staged: List<StatusEntry>,
-    unstaged: List<StatusEntry>,
-    onStagedDiffEntrySelected: (DiffEntry?) -> Unit,
-    onUnstagedDiffEntrySelected: (DiffEntry) -> Unit,
-) {
-    val selectedDiffEntry = selectedEntryType.diffEntry
-    val selectedEntryTypeNewId = selectedDiffEntry.newId.name()
-
-    if (selectedEntryType is DiffEntryType.StagedDiff) {
-        val entryType =
-            staged.firstOrNull { stagedEntry -> stagedEntry.diffEntry.newPath == selectedDiffEntry.newPath }?.diffEntry
-
-        if (
-            entryType != null &&
-            selectedEntryTypeNewId != entryType.newId.name()
-        ) {
-            onStagedDiffEntrySelected(entryType)
-
-        } else if (entryType == null) {
-            onStagedDiffEntrySelected(null)
-        }
-    } else if (selectedEntryType is DiffEntryType.UnstagedDiff) {
-        val entryType = unstaged.firstOrNull { unstagedEntry ->
-            if (selectedDiffEntry.changeType == DiffEntry.ChangeType.DELETE)
-                unstagedEntry.diffEntry.oldPath == selectedDiffEntry.oldPath
-            else
-                unstagedEntry.diffEntry.newPath == selectedDiffEntry.newPath
-        }
-
-        if (entryType != null) {
-            onUnstagedDiffEntrySelected(entryType.diffEntry)
-        } else
-            onStagedDiffEntrySelected(null)
-    }
-}
-
 @OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun EntriesList(
@@ -439,10 +387,10 @@ private fun EntriesList(
     title: String,
     actionTitle: String,
     actionColor: Color,
-    diffEntries: List<StatusEntry>,
-    onDiffEntrySelected: (DiffEntry) -> Unit,
-    onDiffEntryOptionSelected: (DiffEntry) -> Unit,
-    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
+    statusEntries: List<StatusEntry>,
+    onDiffEntrySelected: (StatusEntry) -> Unit,
+    onDiffEntryOptionSelected: (StatusEntry) -> Unit,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
     onAllAction: () -> Unit,
     allActionTitle: String,
     selectedEntryType: DiffEntryType?,
@@ -477,24 +425,25 @@ private fun EntriesList(
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background),
         ) {
-            itemsIndexed(diffEntries) { index, statusEntry ->
-                val diffEntry = statusEntry.diffEntry
-                val isEntrySelected = selectedEntryType?.diffEntry == diffEntry
+            itemsIndexed(statusEntries) { index, statusEntry ->
+                val isEntrySelected = selectedEntryType != null &&
+                        selectedEntryType is DiffEntryType.UncommitedDiff && // Added for smartcast
+                        selectedEntryType.statusEntry == statusEntry
                 FileEntry(
                     statusEntry = statusEntry,
                     isSelected = isEntrySelected,
                     actionTitle = actionTitle,
                     actionColor = actionColor,
                     onClick = {
-                        onDiffEntrySelected(diffEntry)
+                        onDiffEntrySelected(statusEntry)
                     },
                     onButtonClick = {
-                        onDiffEntryOptionSelected(diffEntry)
+                        onDiffEntryOptionSelected(statusEntry)
                     },
                     onGenerateContextMenu = onGenerateContextMenu,
                 )
 
-                if (index < diffEntries.size - 1) {
+                if (index < statusEntries.size - 1) {
                     Divider(modifier = Modifier.fillMaxWidth())
                 }
             }
@@ -514,10 +463,9 @@ private fun FileEntry(
     actionColor: Color,
     onClick: () -> Unit,
     onButtonClick: () -> Unit,
-    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
 ) {
     var active by remember { mutableStateOf(false) }
-    val diffEntry = statusEntry.diffEntry
 
     val textColor: Color
     val secondaryTextColor: Color
@@ -547,7 +495,7 @@ private fun FileEntry(
     ) {
         ContextMenuArea(
             items = {
-                onGenerateContextMenu(diffEntry)
+                onGenerateContextMenu(statusEntry)
             },
         ) {
             Row(
@@ -566,9 +514,9 @@ private fun FileEntry(
                     tint = statusEntry.iconColor,
                 )
 
-                if(diffEntry.parentDirectoryPath.isNotEmpty()) {
+                if(statusEntry.parentDirectoryPath.isNotEmpty()) {
                     Text(
-                        text = diffEntry.parentDirectoryPath,
+                        text = statusEntry.parentDirectoryPath,
                         modifier = Modifier.weight(1f, fill = false),
                         maxLines = 1,
                         softWrap = false,
@@ -578,7 +526,7 @@ private fun FileEntry(
                     )
                 }
                 Text(
-                    text = diffEntry.fileName,
+                    text = statusEntry.fileName,
                     modifier = Modifier.weight(1f, fill = false),
                     maxLines = 1,
                     softWrap = false,
