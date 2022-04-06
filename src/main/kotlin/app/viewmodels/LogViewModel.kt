@@ -56,8 +56,6 @@ class LogViewModel @Inject constructor(
 
         val statusSummary = statusManager.getStatusSummary(
             git = git,
-            currentBranch = currentBranch,
-            repositoryState = repositoryManager.getRepositoryState(git),
         )
 
         val hasUncommitedChanges =
@@ -163,8 +161,6 @@ class LogViewModel @Inject constructor(
         val statsSummary = if (hasUncommitedChanges) {
             statusManager.getStatusSummary(
                 git = git,
-                currentBranch = currentBranch,
-                repositoryState = repositoryManager.getRepositoryState(git),
             )
         } else
             StatusSummary(0, 0, 0)

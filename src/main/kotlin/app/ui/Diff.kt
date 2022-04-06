@@ -7,9 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
 import app.git.EntryContent
+import app.git.StatusType
 import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
@@ -33,6 +36,7 @@ import app.theme.unstageButton
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
+import app.viewmodels.ViewDiffResult
 import org.eclipse.jgit.diff.DiffEntry
 import java.io.FileInputStream
 import java.nio.file.Path
@@ -47,22 +51,33 @@ fun Diff(
     val diffResultState = diffViewModel.diffResult.collectAsState()
     val viewDiffResult = diffResultState.value ?: return
 
-    val diffEntryType = viewDiffResult.diffEntryType
-    val diffEntry = diffEntryType.diffEntry
-    val diffResult = viewDiffResult.diffResult
-
     Column(
         modifier = Modifier
             .padding(8.dp)
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
-        DiffHeader(diffEntry, onCloseDiffView)
-        if (diffResult is DiffResult.Text) {
-            TextDiff(diffEntryType, diffViewModel, diffResult)
-        } else if (diffResult is DiffResult.NonText) {
-            NonTextDiff(diffResult)
+        when (viewDiffResult) {
+            ViewDiffResult.DiffNotFound -> { onCloseDiffView() }
+            is ViewDiffResult.Loaded -> {
+                val diffEntryType = viewDiffResult.diffEntryType
+                val diffEntry = viewDiffResult.diffResult.diffEntry
+                val diffResult = viewDiffResult.diffResult
+
+                DiffHeader(diffEntry, onCloseDiffView)
+
+                if (diffResult is DiffResult.Text) {
+                    TextDiff(diffEntryType, diffViewModel, diffResult)
+                } else if (diffResult is DiffResult.NonText) {
+                    NonTextDiff(diffResult)
+                }
+            }
+            ViewDiffResult.Loading -> {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
         }
+
+
     }
 }
 
@@ -175,8 +190,9 @@ fun TextDiff(diffEntryType: DiffEntryType, diffViewModel: DiffViewModel, diffRes
                     DisableSelection {
                         HunkHeader(
                             hunk = hunk,
-                            diffEntryType = diffEntryType,
                             diffViewModel = diffViewModel,
+                            diffEntryType = diffEntryType,
+                            diffEntry =diffResult.diffEntry,
                         )
                     }
                 }
@@ -200,6 +216,7 @@ fun HunkHeader(
     hunk: Hunk,
     diffEntryType: DiffEntryType,
     diffViewModel: DiffViewModel,
+    diffEntry: DiffEntry,
 ) {
     Row(
         modifier = Modifier
@@ -215,9 +232,12 @@ fun HunkHeader(
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
+        // Hunks options are only visible when repository is a normal state (not during merge/rebase)
         if (
             (diffEntryType is DiffEntryType.SafeStagedDiff || diffEntryType is DiffEntryType.SafeUnstagedDiff) &&
-            diffEntryType.diffEntry.changeType == DiffEntry.ChangeType.MODIFY
+            (diffEntryType is DiffEntryType.UncommitedDiff && // Added just to make smartcast work
+                    diffEntryType.statusEntry.statusType == StatusType.MODIFIED)
         ) {
             val buttonText: String
             val color: Color
@@ -234,9 +254,9 @@ fun HunkHeader(
                 backgroundButton = color,
                 onClick = {
                     if (diffEntryType is DiffEntryType.StagedDiff) {
-                        diffViewModel.unstageHunk(diffEntryType.diffEntry, hunk)
+                        diffViewModel.unstageHunk(diffEntry, hunk)
                     } else {
-                        diffViewModel.stageHunk(diffEntryType.diffEntry, hunk)
+                        diffViewModel.stageHunk(diffEntry, hunk)
                     }
                 }
             )

@@ -1,8 +1,5 @@
 package app.git
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -10,7 +7,6 @@ import app.di.RawFileManagerFactory
 import app.extensions.*
 import app.git.diff.Hunk
 import app.git.diff.LineType
-import app.theme.conflictFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -38,14 +34,14 @@ class StatusManager @Inject constructor(
         return@withContext status.hasUncommittedChanges() || status.hasUntrackedChanges()
     }
 
-    suspend fun stage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
-        if (diffEntry.changeType == DiffEntry.ChangeType.DELETE) {
+    suspend fun stage(git: Git, statusEntry: StatusEntry) = withContext(Dispatchers.IO) {
+        if (statusEntry.statusType == StatusType.REMOVED) {
             git.rm()
-                .addFilepattern(diffEntry.filePath)
+                .addFilepattern(statusEntry.filePath)
                 .call()
         } else {
             git.add()
-                .addFilepattern(diffEntry.filePath)
+                .addFilepattern(statusEntry.filePath)
                 .call()
         }
     }
@@ -180,9 +176,9 @@ class StatusManager @Inject constructor(
         }
     }
 
-    suspend fun unstage(git: Git, diffEntry: DiffEntry) = withContext(Dispatchers.IO) {
+    suspend fun unstage(git: Git, statusEntry: StatusEntry) = withContext(Dispatchers.IO) {
         git.reset()
-            .addPath(diffEntry.filePath)
+            .addPath(statusEntry.filePath)
             .call()
     }
 
@@ -194,17 +190,17 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun reset(git: Git, diffEntry: DiffEntry, staged: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun reset(git: Git, statusEntry: StatusEntry, staged: Boolean) = withContext(Dispatchers.IO) {
         if (staged) {
             git
                 .reset()
-                .addPath(diffEntry.filePath)
+                .addPath(statusEntry.filePath)
                 .call()
         }
 
         git
             .checkout()
-            .addPath(diffEntry.filePath)
+            .addPath(statusEntry.filePath)
             .call()
     }
 
@@ -221,7 +217,7 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun getStaged(git: Git, currentBranch: Ref?, repositoryState: RepositoryState) =
+    suspend fun getStaged(git: Git) =
         withContext(Dispatchers.IO) {
 
             // TODO Test on an empty repository or with a non-default state like merging or rebasing
@@ -275,8 +271,8 @@ class StatusManager @Inject constructor(
         )
     }
 
-    suspend fun getStatusSummary(git: Git, currentBranch: Ref?, repositoryState: RepositoryState): StatusSummary {
-        val staged = getStaged(git, currentBranch, repositoryState)
+    suspend fun getStatusSummary(git: Git): StatusSummary {
+        val staged = getStaged(git)
         val allChanges = staged.toMutableList()
 
         val unstaged = getUnstaged(git)
@@ -326,7 +322,7 @@ class StatusManager @Inject constructor(
 }
 
 
-data class StatusEntry(val entry: String, val statusType: StatusType) {
+data class StatusEntry(val filePath: String, val statusType: StatusType) {
     val icon: ImageVector
         get() = statusType.icon
 

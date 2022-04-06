@@ -2,6 +2,7 @@ package app.git
 
 import app.di.HunkDiffGeneratorFactory
 import app.di.RawFileManagerFactory
+import app.exceptions.MissingDiffEntryException
 import app.extensions.fullData
 import app.git.diff.DiffResult
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,7 @@ import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -26,9 +28,9 @@ class DiffManager @Inject constructor(
     private val hunkDiffGeneratorFactory: HunkDiffGeneratorFactory,
 ) {
     suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): DiffResult = withContext(Dispatchers.IO) {
-        val diffEntry = diffEntryType.diffEntry
         val byteArrayOutputStream = ByteArrayOutputStream()
         val repository = git.repository
+        val diffEntry: DiffEntry
 
         DiffFormatter(byteArrayOutputStream).use { formatter ->
             formatter.setRepository(repository)
@@ -38,6 +40,24 @@ class DiffManager @Inject constructor(
 
             if (diffEntryType is DiffEntryType.UnstagedDiff)
                 formatter.scan(oldTree, newTree)
+
+             diffEntry = when (diffEntryType) {
+                is DiffEntryType.CommitDiff -> {
+                    diffEntryType.diffEntry
+                }
+                is DiffEntryType.UncommitedDiff -> {
+                    val statusEntry = diffEntryType.statusEntry
+
+                    val firstDiffEntry = git.diff()
+                        .setPathFilter(PathFilter.create(statusEntry.filePath))
+                        .setCached(diffEntryType is DiffEntryType.StagedDiff)
+                        .call()
+                        .firstOrNull()
+                        ?: throw MissingDiffEntryException("Diff entry not found")
+
+                    firstDiffEntry
+                }
+             }
 
             formatter.format(diffEntry)
 

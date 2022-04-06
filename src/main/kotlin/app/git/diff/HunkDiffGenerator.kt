@@ -50,15 +50,15 @@ class HunkDiffGenerator @AssistedInject constructor(
         if (rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
             throw InvalidObjectException("Invalid object in diff format")
 
-        var diffResult: DiffResult = DiffResult.Text(emptyList())
+        var diffResult: DiffResult = DiffResult.Text(ent, emptyList())
 
         // If we can, generate text diff (if one of the files has never been a binary file)
         val hasGeneratedTextDiff = canGenerateTextDiff(rawOld, rawNew) { oldRawText, newRawText ->
-            diffResult = DiffResult.Text(format(fileHeader, oldRawText, newRawText))
+            diffResult = DiffResult.Text(ent, format(fileHeader, oldRawText, newRawText))
         }
 
         if (!hasGeneratedTextDiff) {
-            diffResult = DiffResult.NonText(rawOld, rawNew)
+            diffResult = DiffResult.NonText(ent, rawOld, rawNew)
         }
 
         return diffResult
@@ -190,10 +190,17 @@ class HunkDiffGenerator @AssistedInject constructor(
     }
 }
 
-sealed class DiffResult {
-    data class Text(val hunks: List<Hunk>) : DiffResult()
-    data class NonText(
+sealed class DiffResult(
+    val diffEntry: DiffEntry,
+) {
+    class Text(
+        diffEntry: DiffEntry,
+        val hunks: List<Hunk>
+    ) : DiffResult(diffEntry)
+
+    class NonText(
+        diffEntry: DiffEntry,
         val oldBinaryContent: EntryContent,
         val newBinaryContent: EntryContent,
-    ) : DiffResult()
+    ) : DiffResult(diffEntry)
 }
