@@ -10,11 +10,15 @@ import app.git.diff.LineType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawText
 import org.eclipse.jgit.dircache.DirCacheEditor.PathEdit
 import org.eclipse.jgit.dircache.DirCacheEntry
-import org.eclipse.jgit.lib.*
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.FileMode
+import org.eclipse.jgit.lib.ObjectInserter
+import org.eclipse.jgit.lib.Repository
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -217,21 +221,22 @@ class StatusManager @Inject constructor(
             .call()
     }
 
-    suspend fun getStaged(git: Git) =
+    suspend fun getStatus(git: Git) =
         withContext(Dispatchers.IO) {
-
-            // TODO Test on an empty repository or with a non-default state like merging or rebasing
-            val statusResult = git
+            git
                 .status()
                 .call()
+        }
 
-            val added = statusResult.added.map {
+    suspend fun getStaged(status: Status) =
+        withContext(Dispatchers.IO) {
+            val added = status.added.map {
                 StatusEntry(it, StatusType.ADDED)
             }
-            val modified = statusResult.changed.map {
+            val modified = status.changed.map {
                 StatusEntry(it, StatusType.MODIFIED)
             }
-            val removed = statusResult.removed.map {
+            val removed = status.removed.map {
                 StatusEntry(it, StatusType.REMOVED)
             }
 
@@ -242,24 +247,20 @@ class StatusManager @Inject constructor(
             )
         }
 
-    suspend fun getUnstaged(git: Git) = withContext(Dispatchers.IO) {
+    suspend fun getUnstaged(status: Status) = withContext(Dispatchers.IO) {
         // TODO Test uninitialized modules after the refactor
 //        val uninitializedSubmodules = submodulesManager.uninitializedSubmodules(git)
 
-        val statusResult = git
-            .status()
-            .call()
-
-        val added = statusResult.untracked.map {
+        val added = status.untracked.map {
             StatusEntry(it, StatusType.ADDED)
         }
-        val modified = statusResult.modified.map {
+        val modified = status.modified.map {
             StatusEntry(it, StatusType.MODIFIED)
         }
-        val removed = statusResult.missing.map {
+        val removed = status.missing.map {
             StatusEntry(it, StatusType.REMOVED)
         }
-        val conflicting = statusResult.conflicting.map {
+        val conflicting = status.conflicting.map {
             StatusEntry(it, StatusType.CONFLICTING)
         }
 
@@ -272,10 +273,11 @@ class StatusManager @Inject constructor(
     }
 
     suspend fun getStatusSummary(git: Git): StatusSummary {
-        val staged = getStaged(git)
+        val status = getStatus(git)
+        val staged = getStaged(status)
         val allChanges = staged.toMutableList()
 
-        val unstaged = getUnstaged(git)
+        val unstaged = getUnstaged(status)
 
         allChanges.addAll(unstaged)
         val groupedChanges = allChanges.groupBy {

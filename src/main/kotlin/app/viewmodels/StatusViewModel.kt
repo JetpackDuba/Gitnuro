@@ -68,8 +68,9 @@ class StatusViewModel @Inject constructor(
 
         try {
             _stageStatus.value = StageStatus.Loading
-            val staged = statusManager.getStaged(git)
-            val unstaged = statusManager.getUnstaged(git)
+            val status = statusManager.getStatus(git)
+            val staged = statusManager.getStaged(status)
+            val unstaged = statusManager.getUnstaged(status)
 
             _stageStatus.value = StageStatus.Loaded(staged, unstaged)
         } catch (ex: Exception) {
