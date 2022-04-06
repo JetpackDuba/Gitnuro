@@ -29,7 +29,7 @@ class CloneViewModel @Inject constructor(
     fun clone(directoryPath: String, url: String) {
         cloneJob = tabState.safeProcessingWihoutGit {
             if (directoryPath.isBlank()) {
-                _cloneStatus.value = CloneStatus.Fail("Check your URL and try again")
+                _cloneStatus.value = CloneStatus.Fail("Check your directory")
                 return@safeProcessingWihoutGit
             }
 
