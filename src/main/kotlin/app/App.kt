@@ -44,8 +44,6 @@ class App {
     @Inject
     lateinit var appPreferences: AppPreferences
 
-    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     init {
         appComponent.inject(this)
     }
@@ -92,7 +90,7 @@ class App {
                     }
                 }
             } else {
-                appScope.cancel("Closing app")
+                appStateManager.cancelCoroutines()
                 this.exitApplication()
             }
         }
@@ -151,7 +149,7 @@ class App {
         }
     }
 
-    private fun removeTab(key: Int) = appScope.launch(Dispatchers.IO) {
+    private fun removeTab(key: Int) = appStateManager.appStateScope.launch(Dispatchers.IO) {
         // Stop any running jobs
         val tabs = tabsFlow.value
         val tabToRemove = tabs.firstOrNull { it.key == key } ?: return@launch
@@ -164,7 +162,7 @@ class App {
         tabsFlow.value = tabsFlow.value.filter { tab -> tab.key != key }
     }
 
-    fun addTab(tabInformation: TabInformation) = appScope.launch(Dispatchers.IO) {
+    fun addTab(tabInformation: TabInformation) = appStateManager.appStateScope.launch(Dispatchers.IO) {
         tabsFlow.value = tabsFlow.value.toMutableList().apply { add(tabInformation) }
     }
 

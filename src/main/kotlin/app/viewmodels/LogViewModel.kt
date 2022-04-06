@@ -65,7 +65,6 @@ class LogViewModel @Inject constructor(
         _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary)
 
         // Remove search filter if the log has been updated
-        // TODO: Should we just update the search instead of closing it?
         _logSearchFilterResults.value = LogSearch.NotSearching
     }
 

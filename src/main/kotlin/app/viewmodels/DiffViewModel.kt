@@ -15,7 +15,6 @@ class DiffViewModel @Inject constructor(
     private val diffManager: DiffManager,
     private val statusManager: StatusManager,
 ) {
-    // TODO Maybe use a sealed class instead of a null to represent that a diff is not selected?
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading)
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
 
