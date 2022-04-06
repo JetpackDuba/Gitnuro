@@ -292,11 +292,13 @@ class StatusManager @Inject constructor(
         val addedCount = changesGrouped[StatusType.ADDED].countOrZero()
 
         val modifiedCount = changesGrouped[StatusType.MODIFIED].countOrZero()
+        val conflictingCount = changesGrouped[StatusType.CONFLICTING].countOrZero()
 
         return StatusSummary(
             modifiedCount = modifiedCount,
             deletedCount = deletedCount,
             addedCount = addedCount,
+            conflictingCount = conflictingCount,
         )
     }
 
@@ -338,4 +340,14 @@ enum class StatusType {
     CONFLICTING,
 }
 
-data class StatusSummary(val modifiedCount: Int, val deletedCount: Int, val addedCount: Int)
+data class StatusSummary(
+    val modifiedCount: Int,
+    val deletedCount: Int,
+    val addedCount: Int,
+    val conflictingCount: Int,
+) {
+    val total = modifiedCount +
+            deletedCount +
+            addedCount +
+            conflictingCount
+}

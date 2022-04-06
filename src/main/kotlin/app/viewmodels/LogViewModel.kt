@@ -58,8 +58,7 @@ class LogViewModel @Inject constructor(
             git = git,
         )
 
-        val hasUncommitedChanges =
-            statusSummary.addedCount + statusSummary.deletedCount + statusSummary.modifiedCount > 0
+        val hasUncommitedChanges = statusSummary.total > 0
         val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges)
 
         _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary)
@@ -162,7 +161,7 @@ class LogViewModel @Inject constructor(
                 git = git,
             )
         } else
-            StatusSummary(0, 0, 0)
+            StatusSummary(0, 0, 0, 0)
 
         val previousLogStatusValue = _logStatus.value
 
