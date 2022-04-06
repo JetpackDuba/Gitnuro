@@ -72,7 +72,7 @@ class StatusViewModel @Inject constructor(
             val repositoryState = repositoryManager.getRepositoryState(git)
             val currentBranchRef = branchesManager.currentBranchRef(git)
             val staged = statusManager.getStaged(git, currentBranchRef, repositoryState)
-            val unstaged = statusManager.getUnstaged(git, repositoryState)
+            val unstaged = statusManager.getUnstaged(git)
 
             _stageStatus.value = StageStatus.Loaded(staged, unstaged)
         } catch (ex: Exception) {

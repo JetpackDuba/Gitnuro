@@ -2,16 +2,18 @@ package app.ui.context_menu
 
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
+import app.git.StatusEntry
+import app.git.StatusType
 import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalFoundationApi::class)
 fun unstagedEntriesContextMenuItems(
-    diffEntry: DiffEntry,
+    statusEntry: StatusEntry,
     onReset: () -> Unit,
     onDelete: () -> Unit,
 ): List<ContextMenuItem> {
     return mutableListOf<ContextMenuItem>().apply {
-        if (diffEntry.changeType != DiffEntry.ChangeType.ADD) {
+        if (statusEntry.statusType != StatusType.ADDED) {
             add(
                 ContextMenuItem(
                     label = "Reset",
@@ -20,7 +22,7 @@ fun unstagedEntriesContextMenuItems(
             )
         }
 
-        if (diffEntry.changeType != DiffEntry.ChangeType.DELETE) {
+        if (statusEntry.statusType != StatusType.REMOVED) {
             add(
                 ContextMenuItem(
                     label = "Delete file",

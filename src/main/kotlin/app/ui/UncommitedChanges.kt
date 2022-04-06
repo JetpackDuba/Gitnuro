@@ -112,7 +112,7 @@ fun UncommitedChanges(
             actionTitle = "Unstage",
             selectedEntryType = selectedEntryType,
             actionColor = MaterialTheme.colors.unstageButton,
-            diffEntries = staged,
+            statusEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 statusViewModel.unstage(it)
@@ -138,14 +138,14 @@ fun UncommitedChanges(
             title = "Unstaged",
             actionTitle = "Stage",
             actionColor = MaterialTheme.colors.stageButton,
-            diffEntries = unstaged,
+            statusEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 statusViewModel.stage(it)
             },
             onGenerateContextMenu = { diffEntry ->
                 unstagedEntriesContextMenuItems(
-                    diffEntry = diffEntry,
+                    statusEntry = diffEntry,
                     onReset = {
                         statusViewModel.resetUnstaged(diffEntry)
                     },
@@ -439,10 +439,10 @@ private fun EntriesList(
     title: String,
     actionTitle: String,
     actionColor: Color,
-    diffEntries: List<StatusEntry>,
-    onDiffEntrySelected: (DiffEntry) -> Unit,
-    onDiffEntryOptionSelected: (DiffEntry) -> Unit,
-    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
+    statusEntries: List<StatusEntry>,
+    onDiffEntrySelected: (StatusEntry) -> Unit,
+    onDiffEntryOptionSelected: (StatusEntry) -> Unit,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
     onAllAction: () -> Unit,
     allActionTitle: String,
     selectedEntryType: DiffEntryType?,
@@ -477,8 +477,7 @@ private fun EntriesList(
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background),
         ) {
-            itemsIndexed(diffEntries) { index, statusEntry ->
-                val diffEntry = statusEntry.diffEntry
+            itemsIndexed(statusEntries) { index, statusEntry ->
                 val isEntrySelected = selectedEntryType?.diffEntry == diffEntry
                 FileEntry(
                     statusEntry = statusEntry,
@@ -494,7 +493,7 @@ private fun EntriesList(
                     onGenerateContextMenu = onGenerateContextMenu,
                 )
 
-                if (index < diffEntries.size - 1) {
+                if (index < statusEntries.size - 1) {
                     Divider(modifier = Modifier.fillMaxWidth())
                 }
             }
@@ -517,7 +516,6 @@ private fun FileEntry(
     onGenerateContextMenu: (DiffEntry) -> List<ContextMenuItem>,
 ) {
     var active by remember { mutableStateOf(false) }
-    val diffEntry = statusEntry.diffEntry
 
     val textColor: Color
     val secondaryTextColor: Color

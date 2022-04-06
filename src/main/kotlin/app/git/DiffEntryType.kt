@@ -2,7 +2,7 @@ package app.git
 
 import org.eclipse.jgit.diff.DiffEntry
 
-sealed class DiffEntryType(val diffEntry: DiffEntry) {
+sealed class DiffEntryType(val statusEntry: StatusEntry) {
     class CommitDiff(diffEntry: DiffEntry) : DiffEntryType(diffEntry)
 
     sealed class UnstagedDiff(diffEntry: DiffEntry) : DiffEntryType(diffEntry)
