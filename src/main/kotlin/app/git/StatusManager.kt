@@ -71,7 +71,7 @@ class StatusManager @Inject constructor(
             for (line in hunkLines) {
                 when (line.lineType) {
                     LineType.ADDED -> {
-                        textLines.add(line.oldLineNumber + linesAdded, line.text.withoutLineEnding)
+                        textLines.add(line.oldLineNumber + linesAdded, line.text)
                         linesAdded++
                     }
                     LineType.REMOVED -> {
@@ -82,7 +82,7 @@ class StatusManager @Inject constructor(
                 }
             }
 
-            val stagedFileText = textLines.joinToString(entryContent.rawText.lineDelimiter)
+            val stagedFileText = textLines.joinToString("")
             dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
             dirCacheEditor.commit()
 
@@ -100,7 +100,7 @@ class StatusManager @Inject constructor(
         var completedWithErrors = true
 
         try {
-            val rawFileManager = rawFileManagerFactory.create(git.repository)
+            val rawFileManager = rawFileManagerFactory.create(repository)
             val entryContent = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
 
             if (entryContent !is EntryContent.Text)
@@ -131,11 +131,11 @@ class StatusManager @Inject constructor(
             for (line in removedLines) {
                 // Check how many lines before this one have been deleted
                 val previouslyRemovedLines = addedLines.count { it.newLineNumber < line.newLineNumber }
-                textLines.add(line.newLineNumber + linesAdded - previouslyRemovedLines, line.text.withoutLineEnding)
+                textLines.add(line.newLineNumber + linesAdded - previouslyRemovedLines, line.text)
                 linesAdded++
             }
 
-            val stagedFileText = textLines.joinToString(entryContent.rawText.lineDelimiter)
+            val stagedFileText = textLines.joinToString("")
             dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
             dirCacheEditor.commit()
 
@@ -147,8 +147,23 @@ class StatusManager @Inject constructor(
     }
 
     private fun getTextLines(rawFile: RawText): List<String> {
-        val content = rawFile.rawContent.toString(Charsets.UTF_8)
-        return content.split(rawFile.lineDelimiter).toMutableList()
+        val content = rawFile.rawContent.toString(Charsets.UTF_8)//.removeSuffix(rawFile.lineDelimiter)
+
+        var splitted: List<String> = content.split(rawFile.lineDelimiter).toMutableList().apply {
+            if(this.last() == "")
+                removeLast()
+        }
+
+        splitted = splitted.mapIndexed { index, line ->
+            val lineWithBreak = line + rawFile.lineDelimiter
+
+            if(index == splitted.count() - 1 && !content.endsWith(lineWithBreak)) {
+                line
+            } else
+                lineWithBreak
+        }
+
+        return splitted
     }
 
     private class HunkEdit(
