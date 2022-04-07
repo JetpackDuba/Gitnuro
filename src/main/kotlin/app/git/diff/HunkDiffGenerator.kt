@@ -129,7 +129,7 @@ class HunkDiffGenerator @AssistedInject constructor(
                         oldCurrentLine < oldRawText.size() - 1 || // If it's not the last
                         (oldCurrentLine == oldRawText.size() - 1 && !oldRawText.isMissingNewlineAtEnd) // Or is the last and contains new line at the end
                     ) {
-                        lineText += oldRawText.lineDelimiter
+                        lineText += oldRawText.lineDelimiter.orEmpty()
                     }
 
                     lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.REMOVED))
@@ -142,7 +142,7 @@ class HunkDiffGenerator @AssistedInject constructor(
                         newCurrentLine < newRawText.size() - 1 || // If it's not the last
                         (newCurrentLine == newRawText.size() - 1 && !newRawText.isMissingNewlineAtEnd) // Or is the last and contains new line at the end
                     ) {
-                        lineText += newRawText.lineDelimiter
+                        lineText += newRawText.lineDelimiter.orEmpty()
                     }
 
                     lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.ADDED))
