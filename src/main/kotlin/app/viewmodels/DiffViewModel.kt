@@ -54,6 +54,7 @@ class DiffViewModel @Inject constructor(
             _diffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
         } catch (ex: Exception) {
             if(ex is MissingDiffEntryException) {
+                tabState.refreshData(refreshType = RefreshType.UNCOMMITED_CHANGES)
                 _diffResult.value = ViewDiffResult.DiffNotFound
             } else
                 ex.printStackTrace()

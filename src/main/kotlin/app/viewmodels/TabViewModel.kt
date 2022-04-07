@@ -20,7 +20,7 @@ import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
 import javax.inject.Inject
 
-private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 500L
+private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 1000L
 
 /**
  * Contains all the information related to a tab and its subcomponents (smaller composables like the log, branches,

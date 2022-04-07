@@ -134,6 +134,10 @@ class TabState @Inject constructor(
         }
     }
 
+    suspend fun refreshData(refreshType: RefreshType) {
+        _refreshData.emit(refreshType)
+    }
+
     fun newSelectedStash(stash: RevCommit) {
         newSelectedItem(SelectedItem.Stash(stash))
     }
