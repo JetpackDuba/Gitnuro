@@ -4,6 +4,7 @@ import app.di.HunkDiffGeneratorFactory
 import app.di.RawFileManagerFactory
 import app.exceptions.MissingDiffEntryException
 import app.extensions.fullData
+import app.extensions.isMerging
 import app.git.diff.DiffResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,6 +18,7 @@ import org.eclipse.jgit.revwalk.RevTree
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
+import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
@@ -26,6 +28,8 @@ import javax.inject.Inject
 class DiffManager @Inject constructor(
     private val rawFileManagerFactory: RawFileManagerFactory,
     private val hunkDiffGeneratorFactory: HunkDiffGeneratorFactory,
+    private val branchesManager: BranchesManager,
+    private val repositoryManager: RepositoryManager,
 ) {
     suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): DiffResult = withContext(Dispatchers.IO) {
         val byteArrayOutputStream = ByteArrayOutputStream()
@@ -41,23 +45,33 @@ class DiffManager @Inject constructor(
             if (diffEntryType is DiffEntryType.UnstagedDiff)
                 formatter.scan(oldTree, newTree)
 
-             diffEntry = when (diffEntryType) {
+            diffEntry = when (diffEntryType) {
                 is DiffEntryType.CommitDiff -> {
                     diffEntryType.diffEntry
                 }
                 is DiffEntryType.UncommitedDiff -> {
                     val statusEntry = diffEntryType.statusEntry
-
+                    val cached = diffEntryType is DiffEntryType.StagedDiff
                     val firstDiffEntry = git.diff()
                         .setPathFilter(PathFilter.create(statusEntry.filePath))
-                        .setCached(diffEntryType is DiffEntryType.StagedDiff)
+                        .setCached(cached).apply {
+                            val repositoryState = repositoryManager.getRepositoryState(git)
+                            if (
+                                branchesManager.currentBranchRef(git) == null &&
+                                !repositoryState.isMerging &&
+                                !repositoryState.isRebasing &&
+                                cached
+                            ) {
+                                setOldTree(EmptyTreeIterator()) // Required if the repository is empty
+                            }
+                        }
                         .call()
                         .firstOrNull()
                         ?: throw MissingDiffEntryException("Diff entry not found")
 
                     firstDiffEntry
                 }
-             }
+            }
 
             formatter.format(diffEntry)
 
