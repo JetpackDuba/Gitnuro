@@ -72,7 +72,6 @@ private fun CloneInput(
 ) {
     var url by remember { mutableStateOf(cloneViewModel.url) }
     var directory by remember { mutableStateOf(cloneViewModel.directory) }
-    var errorHasBeenNoticed by remember { mutableStateOf(false) }
 
     val urlFocusRequester = remember { FocusRequester() }
     val directoryFocusRequester = remember { FocusRequester() }
@@ -108,8 +107,9 @@ private fun CloneInput(
             maxLines = 1,
             value = url,
             onValueChange = {
-                errorHasBeenNoticed = true
+                cloneViewModel.resetStateIfError()
                 url = it
+                cloneViewModel.url = url
             }
         )
 
@@ -132,14 +132,15 @@ private fun CloneInput(
                 label = { Text("Directory") },
                 value = directory,
                 onValueChange = {
-                    errorHasBeenNoticed = true
+                    cloneViewModel.resetStateIfError()
                     directory = it
+                    cloneViewModel.directory = directory
                 }
             )
 
             IconButton(
                 onClick = {
-                    errorHasBeenNoticed = true
+                    cloneViewModel.resetStateIfError()
                     val newDirectory = openDirectoryDialog()
                     if (newDirectory != null)
                         directory = newDirectory
@@ -158,7 +159,7 @@ private fun CloneInput(
             }
         }
 
-        AnimatedVisibility(errorMessage != null && !errorHasBeenNoticed) {
+        AnimatedVisibility(errorMessage != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()

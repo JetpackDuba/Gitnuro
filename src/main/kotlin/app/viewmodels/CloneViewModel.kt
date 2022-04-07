@@ -29,12 +29,12 @@ class CloneViewModel @Inject constructor(
     fun clone(directoryPath: String, url: String) {
         cloneJob = tabState.safeProcessingWihoutGit {
             if (directoryPath.isBlank()) {
-                _cloneStatus.value = CloneStatus.Fail("Check your directory")
+                _cloneStatus.value = CloneStatus.Fail("Invalid empty directory")
                 return@safeProcessingWihoutGit
             }
 
             if (url.isBlank()) {
-                _cloneStatus.value = CloneStatus.Fail("Check your URL and try again")
+                _cloneStatus.value = CloneStatus.Fail("Invalid empty URL")
                 return@safeProcessingWihoutGit
             }
 
@@ -86,5 +86,9 @@ class CloneViewModel @Inject constructor(
     fun cancelClone() {
         cloneJob?.cancel()
         _cloneStatus.value = CloneStatus.Cancelling
+    }
+
+    fun resetStateIfError() {
+        _cloneStatus.value = CloneStatus.None
     }
 }
