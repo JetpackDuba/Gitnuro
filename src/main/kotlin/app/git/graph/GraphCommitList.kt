@@ -26,6 +26,9 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     private val freePositions = TreeSet<Int>()
     private val activeLanes = HashSet<GraphLane>(32)
 
+    var maxLine = 0
+        private set
+
     /** number of (child) commits on a lane  */
     private val laneLength = HashMap<GraphLane, Int?>(
         32
@@ -345,5 +348,9 @@ class GraphCommitList : RevCommitList<GraphNode>() {
             for (l in graphNode.forkingOffLanes) blockedPositions.set(l.position)
             for (l in graphNode.mergingLanes) blockedPositions.set(l.position)
         }
+    }
+
+    fun calcMaxLine() {
+        maxLine = this.maxOf { it.lane.position }
     }
 }

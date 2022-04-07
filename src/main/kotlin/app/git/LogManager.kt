@@ -43,6 +43,8 @@ class LogManager @Inject constructor() {
 
         }
 
+        commitList.calcMaxLine()
+
         return@withContext commitList
     }
 

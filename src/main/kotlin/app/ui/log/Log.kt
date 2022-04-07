@@ -241,7 +241,7 @@ fun SearchFilter(
                 .focusRequester(textFieldFocusRequester)
                 .onPreviewKeyEvent {
                     when {
-                        it.key == Key.Enter && it.type == KeyEventType.KeyUp-> {
+                        it.key == Key.Enter && it.type == KeyEventType.KeyUp -> {
                             scope.launch {
                                 logViewModel.selectNextFilterCommit()
                             }
@@ -334,7 +334,8 @@ fun MessagesList(
                 })
         }
         items(items = commitList) { graphNode ->
-            CommitLine(graphWidth = graphWidth,
+            CommitLine(
+                graphWidth = graphWidth,
                 logViewModel = logViewModel,
                 graphNode = graphNode,
                 selected = selectedCommit?.name == graphNode.name,
@@ -363,14 +364,12 @@ fun GraphList(
     scrollState: LazyListState,
     hasUncommitedChanges: Boolean,
 ) {
-    val graphRealWidth = remember(commitList, graphWidth) {
-        val maxLinePosition = if (commitList.isNotEmpty())
-            commitList.maxOf { it.lane.position }
-        else
-            MIN_GRAPH_LANES
+    val maxLinePosition = if (commitList.isNotEmpty())
+        commitList.maxLine
+    else
+        MIN_GRAPH_LANES
 
-        ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
-    }
+    val graphRealWidth = ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
 
     Box(
         Modifier.width(graphWidth).fillMaxHeight()
