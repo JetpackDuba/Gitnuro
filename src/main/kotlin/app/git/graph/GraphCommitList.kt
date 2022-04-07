@@ -351,6 +351,8 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     }
 
     fun calcMaxLine() {
-        maxLine = this.maxOf { it.lane.position }
+        if(this.isNotEmpty()) {
+            maxLine = this.maxOf { it.lane.position }
+        }
     }
 }

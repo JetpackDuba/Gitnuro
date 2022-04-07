@@ -75,7 +75,7 @@ class TabState @Inject constructor(
                     ex.printStackTrace()
 
                     if (showError)
-                        errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+                        errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
                 } finally {
                     _processing.value = false
 
