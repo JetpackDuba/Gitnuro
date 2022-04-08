@@ -32,7 +32,6 @@ import javax.inject.Inject
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
-
 @Composable
 fun RepositoriesTabPanel(
     modifier: Modifier = Modifier,
@@ -180,8 +179,6 @@ class TabInformation(
     @Inject
     lateinit var appStateManager: AppStateManager
 
-    val content: @Composable (TabInformation) -> Unit
-
     init {
         val tabComponent = DaggerTabComponent.builder()
             .appComponent(appComponent)
@@ -199,8 +196,5 @@ class TabInformation(
         }
         if (path != null)
             tabViewModel.openRepository(path)
-        content = {
-            AppTab(tabViewModel)
-        }
     }
 }
