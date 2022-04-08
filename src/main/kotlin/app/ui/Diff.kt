@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
@@ -345,6 +346,7 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
             maxLines = 1,
             fontFamily = FontFamily.Monospace,
             fontSize = 13.sp,
+            overflow = TextOverflow.Visible,
         )
     }
 }
