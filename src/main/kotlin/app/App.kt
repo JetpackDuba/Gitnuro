@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,7 @@ import app.di.DaggerAppComponent
 import app.theme.AppTheme
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.ui.AppTab
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 import app.ui.dialogs.SettingsDialog
@@ -232,28 +234,13 @@ class App {
 
 @Composable
 private fun TabsContent(tabs: List<TabInformation>, selectedTabKey: Int) {
-    LazyColumn(
+    val selectedTab = tabs.firstOrNull { it.key == selectedTabKey } ?: return
+
+    Box(
         modifier = Modifier
             .fillMaxSize(),
     ) {
-        items(items = tabs, key = { it.key }) {
-            val isItemSelected = it.key == selectedTabKey
-
-            var tabMod: Modifier = if (!isItemSelected)
-                Modifier.size(0.dp)
-            else
-                Modifier
-                    .fillParentMaxSize()
-
-            tabMod = tabMod.background(MaterialTheme.colors.primary)
-                .alpha(if (isItemSelected) 1f else -1f)
-                .zIndex(if (isItemSelected) 1f else -1f)
-            Box(
-                modifier = tabMod,
-            ) {
-                it.content(it)
-            }
-        }
+        AppTab(selectedTab.tabViewModel)
     }
 }
 

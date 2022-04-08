@@ -28,9 +28,9 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val selectedItem by tabViewModel.selectedItem.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
-    LaunchedEffect(selectedItem) {
-        tabViewModel.newDiffSelected = null
-    }
+//    LaunchedEffect(selectedItem) {
+//        tabViewModel.newDiffSelected = null
+//    }
 
     if (showNewBranchDialog) {
         NewBranchDialog(

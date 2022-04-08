@@ -101,7 +101,7 @@ fun Log(
     if (logStatus is LogStatus.Loaded) {
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
-        val verticalScrollState = rememberLazyListState()
+        val verticalScrollState by logViewModel.lazyListState.collectAsState()
         val searchFilter = logViewModel.logSearchFilterResults.collectAsState()
         val searchFilterValue = searchFilter.value
         // With this method, whenever the scroll changes, the log is recomposed and the graph list is updated with

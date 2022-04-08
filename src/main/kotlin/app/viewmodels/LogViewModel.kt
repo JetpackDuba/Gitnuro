@@ -1,5 +1,6 @@
 package app.viewmodels
 
+import androidx.compose.foundation.lazy.LazyListState
 import app.git.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
@@ -31,7 +32,6 @@ class LogViewModel @Inject constructor(
     private val rebaseManager: RebaseManager,
     private val tagsManager: TagsManager,
     private val mergeManager: MergeManager,
-    private val repositoryManager: RepositoryManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
 ) {
@@ -45,6 +45,12 @@ class LogViewModel @Inject constructor(
     private val _focusCommit = MutableSharedFlow<GraphNode>()
     val focusCommit: SharedFlow<GraphNode> = _focusCommit
 
+    val lazyListState = MutableStateFlow(
+        LazyListState(
+            0,
+            0
+        )
+    )
 
     private val _logSearchFilterResults = MutableStateFlow<LogSearch>(LogSearch.NotSearching)
     val logSearchFilterResults: StateFlow<LogSearch> = _logSearchFilterResults
