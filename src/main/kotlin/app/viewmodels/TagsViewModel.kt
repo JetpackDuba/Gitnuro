@@ -16,7 +16,7 @@ class TagsViewModel @Inject constructor(
     private val tabState: TabState,
     private val branchesManager: BranchesManager,
     private val tagsManager: TagsManager,
-) {
+) : ExpandableViewModel() {
     private val _tags = MutableStateFlow<List<Ref>>(listOf())
     val tags: StateFlow<List<Ref>>
         get() = _tags

@@ -4,6 +4,7 @@ import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import app.extensions.simpleName
 import app.ui.components.SideMenuPanel
@@ -19,11 +20,14 @@ fun Tags(
 ) {
     val tagsState = tagsViewModel.tags.collectAsState()
     val tags = tagsState.value
+    val isExpanded by tagsViewModel.isExpanded.collectAsState()
 
     SideMenuPanel(
         title = "Tags",
         items = tags,
         icon = painterResource("tag.svg"),
+        isExpanded = isExpanded,
+        onExpand = { tagsViewModel.onExpand() },
         itemContent = { tag ->
             TagRow(
                 tag = tag,

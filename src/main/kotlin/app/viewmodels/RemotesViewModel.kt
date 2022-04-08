@@ -17,7 +17,7 @@ class RemotesViewModel @Inject constructor(
     private val remoteOperationsManager: RemoteOperationsManager,
     private val branchesManager: BranchesManager,
     private val tabState: TabState,
-) {
+) : ExpandableViewModel() {
     private val _remotes = MutableStateFlow<List<RemoteView>>(listOf())
     val remotes: StateFlow<List<RemoteView>>
         get() = _remotes

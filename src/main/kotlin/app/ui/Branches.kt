@@ -26,6 +26,7 @@ fun Branches(
 ) {
     val branches by branchesViewModel.branches.collectAsState()
     val currentBranchState = branchesViewModel.currentBranch.collectAsState()
+    val isExpanded by branchesViewModel.isExpanded.collectAsState()
     val currentBranch = currentBranchState.value
 
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
@@ -35,6 +36,8 @@ fun Branches(
         title = "Local branches",
         icon = painterResource("branch.svg"),
         items = branches,
+        isExpanded = isExpanded,
+        onExpand = { branchesViewModel.onExpand() },
         itemContent = { branch ->
             BranchLineEntry(
                 branch = branch,

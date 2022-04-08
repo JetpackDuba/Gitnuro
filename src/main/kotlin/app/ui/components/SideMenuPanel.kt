@@ -21,6 +21,8 @@ fun <T> SideMenuPanel(
     title: String,
     icon: Painter? = null,
     items: List<T>,
+    isExpanded: Boolean = false,
+    onExpand: () -> Unit,
     itemsCountForMaxHeight: Int = items.count(),
     itemContent: @Composable (T) -> Unit,
     headerHoverIcon: @Composable (() -> Unit)? = null,
@@ -29,6 +31,8 @@ fun <T> SideMenuPanel(
     val maxHeight = remember(items) { maxSidePanelHeight(itemsCountForMaxHeight) }
 
     VerticalExpandable(
+        isExpanded = isExpanded,
+        onExpand = onExpand,
         header = {
             ContextMenuArea(
                 items = contextItems

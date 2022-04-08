@@ -7,6 +7,7 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
@@ -21,6 +22,7 @@ fun Stashes(
 ) {
     val stashStatusState = stashesViewModel.stashStatus.collectAsState()
     val stashStatus = stashStatusState.value
+    val isExpanded by stashesViewModel.isExpanded.collectAsState()
 
     val stashList = if (stashStatus is StashStatus.Loaded)
         stashStatus.stashes
@@ -31,6 +33,8 @@ fun Stashes(
         title = "Stashes",
         icon = painterResource("stash.svg"),
         items = stashList,
+        isExpanded = isExpanded,
+        onExpand = { stashesViewModel.onExpand() },
         itemContent = { stash ->
             StashRow(
                 stash = stash,

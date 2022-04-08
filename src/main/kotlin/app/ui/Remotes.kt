@@ -33,6 +33,7 @@ fun Remotes(
 ) {
     val remotes by remotesViewModel.remotes.collectAsState()
     var showEditRemotesDialog by remember { mutableStateOf(false) }
+    val isExpanded by remotesViewModel.isExpanded.collectAsState()
 
     val itemsCount = remember(remotes) {
         val allBranches = remotes.filter { remoteView ->
@@ -58,6 +59,8 @@ fun Remotes(
         icon = painterResource("cloud.svg"),
         items = remotes,
         itemsCountForMaxHeight = itemsCount,
+        isExpanded = isExpanded,
+        onExpand = { remotesViewModel.onExpand() },
         contextItems = {
             remoteContextMenu { showEditRemotesDialog = true }
         },
@@ -84,7 +87,7 @@ fun Remotes(
                 onDeleteBranch = { branch -> remotesViewModel.deleteRemoteBranch(branch) },
                 onRemoteClicked = { remotesViewModel.onRemoteClicked(remoteInfo) }
             )
-        }
+        },
     )
 }
 
