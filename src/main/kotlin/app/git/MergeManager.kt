@@ -1,9 +1,11 @@
 package app.git
 
+import app.exceptions.UncommitedChangesDetectedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
+import org.eclipse.jgit.api.MergeResult
 import org.eclipse.jgit.api.ResetCommand
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -16,11 +18,15 @@ class MergeManager @Inject constructor() {
         else
             MergeCommand.FastForwardMode.NO_FF
 
-        git
+        val mergeResult = git
             .merge()
             .include(branch)
             .setFastForward(fastForwardMode)
             .call()
+
+        if(mergeResult.mergeStatus == MergeResult.MergeStatus.FAILED) {
+            throw UncommitedChangesDetectedException("Merge failed, makes sure you repository doesn't contain uncommited changes.")
+        }
     }
 
     suspend fun abortMerge(git: Git) = withContext(Dispatchers.IO) {
