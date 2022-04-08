@@ -2,7 +2,9 @@ package app
 
 import app.di.TabScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -13,16 +15,16 @@ class ErrorsManager @Inject constructor() {
     val errorsList: StateFlow<List<Error>>
         get() = _errorsList
 
-    private val _lastError = MutableStateFlow<Error?>(null)
-    val lastError: StateFlow<Error?> = _lastError
+    private val _error = MutableSharedFlow<Error?>()
+    val error: SharedFlow<Error?> = _error
 
     suspend fun addError(error: Error) = withContext(Dispatchers.IO) {
         _errorsList.value = _errorsList.value.toMutableList().apply {
             add(error)
         }
 
-        _lastError.value = error
-        println("LastError flow: ${_lastError.value}")
+        _error.emit(error)
+        println("LastError flow: $error")
     }
 
     fun removeError(error: Error) {

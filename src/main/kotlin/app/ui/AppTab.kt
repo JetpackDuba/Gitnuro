@@ -34,14 +34,14 @@ fun AppTab(
     tabViewModel: TabViewModel,
 ) {
     val errorManager = tabViewModel.errorsManager
-    val lastError by errorManager.lastError.collectAsState()
-    var showError by remember { mutableStateOf(false) }
+    val lastError by errorManager.error.collectAsState(null)
+    val showError by tabViewModel.showError.collectAsState()
 
     if (lastError != null) {
         LaunchedEffect(lastError) {
-            showError = true
+            tabViewModel.showError.value = true
             delay(5000)
-            showError = false
+            tabViewModel.showError.value = false
         }
     }
 

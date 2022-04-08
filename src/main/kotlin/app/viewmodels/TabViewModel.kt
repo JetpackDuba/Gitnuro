@@ -70,6 +70,8 @@ class TabViewModel @Inject constructor(
     private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
     val repositoryState: StateFlow<RepositoryState> = _repositoryState
 
+    val showError = MutableStateFlow(false)
+
     init {
         tabState.managerScope.launch {
             tabState.refreshData.collect { refreshType ->
