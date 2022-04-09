@@ -5,6 +5,7 @@ import app.git.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
 import app.ui.SelectedItem
+import app.ui.log.LogDialog
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -13,6 +14,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
+import javax.inject.Provider
 
 /**
  * Represents when the search filter is not being used or the results list is empty
@@ -34,8 +36,12 @@ class LogViewModel @Inject constructor(
     private val mergeManager: MergeManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
+    private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
+
+    var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
+        private set
 
     val logStatus: StateFlow<LogStatus>
         get() = _logStatus
@@ -44,6 +50,9 @@ class LogViewModel @Inject constructor(
 
     private val _focusCommit = MutableSharedFlow<GraphNode>()
     val focusCommit: SharedFlow<GraphNode> = _focusCommit
+
+    private val _logDialog = MutableStateFlow<LogDialog>(LogDialog.None)
+    val logDialog: StateFlow<LogDialog> = _logDialog
 
     val lazyListState = MutableStateFlow(
         LazyListState(
@@ -300,6 +309,15 @@ class LogViewModel @Inject constructor(
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
         _focusCommit.emit(newCommitToSelect)
+    }
+
+    fun showDialog(dialog: LogDialog) {
+        rebaseInteractiveViewModel =  if(dialog is LogDialog.RebaseInteractive) {
+            rebaseInteractiveViewModelProvider.get()
+        } else
+            null
+
+        _logDialog.value = dialog
     }
 
     fun closeSearch() {

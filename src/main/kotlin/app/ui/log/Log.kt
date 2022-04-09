@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -90,7 +89,7 @@ fun Log(
     val scope = rememberCoroutineScope()
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
-    val showLogDialog = remember { mutableStateOf<LogDialog>(LogDialog.None) }
+    val showLogDialog by logViewModel.logDialog.collectAsState()
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit
@@ -124,8 +123,8 @@ fun Log(
         LogDialogs(
             logViewModel,
             currentBranch = logStatus.currentBranch,
-            onResetShowLogDialog = { showLogDialog.value = LogDialog.None },
-            showLogDialog = showLogDialog.value,
+            onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
+            showLogDialog = showLogDialog,
         )
 
         Column(
@@ -169,7 +168,7 @@ fun Log(
                     logViewModel = logViewModel,
                     graphWidth = graphWidth,
                     onShowLogDialog = { dialog ->
-                        showLogDialog.value = dialog
+                        logViewModel.showDialog(dialog)
                     })
 
                 DividerLog(
@@ -346,6 +345,7 @@ fun MessagesList(
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
                 onMergeBranch = { ref -> onShowLogDialog(LogDialog.MergeBranch(ref)) },
                 onRebaseBranch = { ref -> onShowLogDialog(LogDialog.RebaseBranch(ref)) },
+                onRebaseInteractive = { onShowLogDialog(LogDialog.RebaseInteractive(graphNode)) },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
             )
         }
@@ -458,6 +458,13 @@ fun LogDialogs(
                         onResetShowLogDialog()
                     })
             }
+        }
+        is LogDialog.RebaseInteractive -> {
+            RebaseInteractiveDialog(
+                revCommit = showLogDialog.revCommit,
+                rebaseInteractiveViewModel = checkNotNull(logViewModel.rebaseInteractiveViewModel), // Never null, value should be set before showing dialog
+                onClose = onResetShowLogDialog,
+            )
         }
         LogDialog.None -> {
         }
@@ -635,6 +642,7 @@ fun CommitLine(
     onMergeBranch: (Ref) -> Unit,
     onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: () -> Unit,
+    onRebaseInteractive: () -> Unit,
 ) {
     ContextMenuArea(
         items = {
@@ -644,6 +652,7 @@ fun CommitLine(
                 onCreateNewTag = showCreateNewTag,
                 onRevertCommit = { logViewModel.revertCommit(graphNode) },
                 onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
+                onRebaseInteractive = onRebaseInteractive,
                 onResetBranch = { resetBranch() },
             )
         },

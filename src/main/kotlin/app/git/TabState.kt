@@ -4,14 +4,11 @@ import app.ErrorsManager
 import app.di.TabScope
 import app.newErrorNow
 import app.ui.SelectedItem
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
@@ -127,7 +124,15 @@ class TabState @Inject constructor(
             if (showError)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
-            operationRunning = false
+            launch {
+                // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
+                // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
+                // refresh because there have been changes in the git dir). This can be easily triggered by interactive
+                // rebase.
+                delay(500)
+                operationRunning = false
+            }
+
 
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
                 _refreshData.emit(refreshType)

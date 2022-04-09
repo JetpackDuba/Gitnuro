@@ -5,8 +5,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand
+import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
 import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class RebaseManager @Inject constructor() {
@@ -37,6 +39,15 @@ class RebaseManager @Inject constructor() {
     suspend fun skipRebase(git: Git) = withContext(Dispatchers.IO) {
         git.rebase()
             .setOperation(RebaseCommand.Operation.SKIP)
+            .call()
+    }
+
+    suspend fun rebaseInteractive(git: Git, interactiveHandler: InteractiveHandler, commit: RevCommit) {
+        //TODO Check possible rebase errors by checking the result
+        git.rebase()
+            .runInteractively(interactiveHandler)
+            .setOperation(RebaseCommand.Operation.BEGIN)
+            .setUpstream(commit)
             .call()
     }
 }

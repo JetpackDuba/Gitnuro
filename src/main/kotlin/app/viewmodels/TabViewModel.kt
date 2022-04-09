@@ -255,6 +255,7 @@ class TabViewModel @Inject constructor(
 
     private fun updateDiffEntry() {
         val diffSelected = diffSelected.value
+        println("Update diff entry $diffSelected")
 
         if (diffSelected != null) {
             diffViewModel.updateDiff(diffSelected)

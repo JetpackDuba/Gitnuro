@@ -11,6 +11,7 @@ fun logContextMenu(
     onRevertCommit: () -> Unit,
     onCherryPickCommit: () -> Unit,
     onResetBranch: () -> Unit,
+    onRebaseInteractive: () -> Unit,
 ) = listOf(
     ContextMenuItem(
         label = "Checkout commit",
@@ -23,6 +24,10 @@ fun logContextMenu(
     ContextMenuItem(
         label = "Create tag",
         onClick = onCreateNewTag
+    ),
+    ContextMenuItem(
+        label = "Rebase interactive",
+        onClick = onRebaseInteractive
     ),
     ContextMenuItem(
         label = "Revert commit",
