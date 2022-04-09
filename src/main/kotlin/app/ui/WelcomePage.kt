@@ -76,6 +76,7 @@ fun WelcomePage(
             "Version ${AppConstants.APP_VERSION}",
             color = MaterialTheme.colors.primaryTextColor,
             fontSize = 12.sp,
+            maxLines = 1,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 16.dp, end = 16.dp)
@@ -121,6 +122,7 @@ fun HomeButtons(
         Text(
             text = AppConstants.APP_NAME,
             fontSize = 32.sp,
+            maxLines = 1,
             color = MaterialTheme.colors.primaryTextColor,
             modifier = Modifier.padding(bottom = 16.dp),
         )
@@ -228,6 +230,7 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
                             Text(
                                 text = repoDirName,
                                 fontSize = 14.sp,
+                                maxLines = 1,
                                 color = MaterialTheme.colors.primary,
                             )
                         }
@@ -236,6 +239,7 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
                             text = repoDirPath,
                             fontSize = 14.sp,
                             modifier = Modifier.padding(start = 4.dp),
+                            maxLines = 1,
                             color = MaterialTheme.colors.secondaryTextColor
                         )
                     }
@@ -271,6 +275,7 @@ fun ButtonTile(
 
             Text(
                 text = title,
+                maxLines = 1,
             )
         }
     }
@@ -301,6 +306,7 @@ fun IconTextButton(
 
             Text(
                 text = title,
+                maxLines = 1,
             )
         }
     }
