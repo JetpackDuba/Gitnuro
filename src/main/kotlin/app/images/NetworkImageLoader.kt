@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
 import org.jetbrains.skia.Image
+import java.io.FileNotFoundException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -33,7 +34,8 @@ object NetworkImageLoader {
             }
 
         } catch (ex: Exception) {
-            ex.printStackTrace()
+            if(ex !is FileNotFoundException)
+                ex.printStackTrace()
         }
 
         // If a previous return hasn't been called, something has gone wrong, return null
