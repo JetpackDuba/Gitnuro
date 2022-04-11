@@ -117,8 +117,12 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
                 is RevCommit -> markStart(refTarget)
                 // RevTag case handles commits without branches but only tags.
                 is RevTag -> {
-                    val commit = lookupCommit(refTarget.`object`)
-                    markStart(commit)
+                    if(refTarget.`object` is RevCommit) {
+                        val commit = lookupCommit(refTarget.`object`)
+                        markStart(commit)
+                    } else {
+                        println("Tag ${refTarget.tagName} is pointing to ${refTarget.`object`::class.simpleName}")
+                    }
                 }
             }
         } catch (e: MissingObjectException) {
