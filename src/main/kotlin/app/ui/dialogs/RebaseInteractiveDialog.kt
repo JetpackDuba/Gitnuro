@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
+import app.ui.components.ScrollableLazyColumn
 import app.viewmodels.RebaseInteractiveState
 import app.viewmodels.RebaseInteractiveViewModel
 import org.eclipse.jgit.lib.RebaseTodoLine
@@ -75,7 +76,7 @@ fun RebaseStateLoaded(
             modifier = Modifier.padding(all = 16.dp)
         )
 
-        LazyColumn(modifier = Modifier.weight(1f)) {
+        ScrollableLazyColumn(modifier = Modifier.weight(1f)) {
             items(rebaseState.stepsList) { rebaseTodoLine ->
                 RebaseCommit(
                     rebaseLine = rebaseTodoLine,

@@ -61,9 +61,6 @@ class RebaseInteractiveViewModel @Inject constructor(
             git = git,
             interactiveHandler = object : InteractiveHandler {
                 override fun prepareSteps(steps: MutableList<RebaseTodoLine>?) {
-
-
-
                     for (step in steps ?: emptyList()) {
                         val foundStep = newSteps.firstOrNull { it.commit.name() == step.commit.name() }
 
@@ -74,7 +71,8 @@ class RebaseInteractiveViewModel @Inject constructor(
                 }
 
                 override fun modifyCommitMessage(commit: String): String {
-                    val step = rewordSteps.removeLast()
+                    // This can be called when there aren't any reword steps if squash is used.
+                    val step = rewordSteps.removeLastOrNull() ?: return commit
 
                     return rebaseState.messages[step.commit.name()]
                         ?: throw InvalidMessageException("Message for commit $commit is unexpectedly null")
