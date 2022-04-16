@@ -1,5 +1,6 @@
 package app.viewmodels
 
+import app.exceptions.InvalidMessageException
 import app.git.RebaseManager
 import app.git.RefreshType
 import app.git.TabState
@@ -23,7 +24,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     private var interactiveHandler = object : InteractiveHandler {
         override fun prepareSteps(steps: MutableList<RebaseTodoLine>?) {
-            _rebaseState.value = RebaseInteractiveState.Loaded(steps?.reversed() ?: emptyList())
+            _rebaseState.value = RebaseInteractiveState.Loaded(steps?.reversed() ?: emptyList(), emptyMap())
         }
 
         override fun modifyCommitMessage(commit: String?): String {
@@ -35,21 +36,33 @@ class RebaseInteractiveViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         rebaseManager.rebaseInteractive(git, interactiveHandler, revCommit)
+
+        val rebaseState = _rebaseState.value
+
+        if (rebaseState is RebaseInteractiveState.Loaded) {
+            val messages = rebaseManager.rebaseLinesFullMessage(git, rebaseState.stepsList, revCommit)
+            _rebaseState.value = rebaseState.copy(messages = messages)
+        }
     }
 
     fun continueRebaseInteractive() = tabState.runOperation(
         refreshType = RefreshType.ONLY_LOG,
     ) { git ->
+        val rebaseState = _rebaseState.value
+        if (rebaseState !is RebaseInteractiveState.Loaded) {
+            println("continueRebaseInteractive called when rebaseState is not Loaded")
+            return@runOperation // Should never happen, just in case
+        }
+
+        val newSteps = rebaseState.stepsList
+        val rewordSteps = ArrayDeque<RebaseTodoLine>(newSteps.filter { it.action == Action.REWORD })
+
         rebaseManager.rebaseInteractive(
             git = git,
             interactiveHandler = object : InteractiveHandler {
                 override fun prepareSteps(steps: MutableList<RebaseTodoLine>?) {
-                    val rebaseState = _rebaseState.value
 
-                    if(rebaseState !is RebaseInteractiveState.Loaded)
-                        return
 
-                    val newSteps = rebaseState.stepsList
 
                     for (step in steps ?: emptyList()) {
                         val foundStep = newSteps.firstOrNull { it.commit.name() == step.commit.name() }
@@ -60,21 +73,37 @@ class RebaseInteractiveViewModel @Inject constructor(
                     }
                 }
 
-                override fun modifyCommitMessage(commit: String?): String {
-                    return commit.orEmpty()
+                override fun modifyCommitMessage(commit: String): String {
+                    val step = rewordSteps.removeLast()
+
+                    return rebaseState.messages[step.commit.name()]
+                        ?: throw InvalidMessageException("Message for commit $commit is unexpectedly null")
                 }
             },
             commit = revCommit
         )
     }
 
+    fun onCommitMessageChanged(commit: AbbreviatedObjectId, message: String) {
+        val rebaseState = _rebaseState.value
+
+        if (rebaseState !is RebaseInteractiveState.Loaded)
+            return
+
+        val messagesMap = rebaseState.messages.toMutableMap()
+        messagesMap[commit.name()] = message
+
+        _rebaseState.value = rebaseState.copy(messages = messagesMap)
+    }
+
     fun onCommitActionChanged(commit: AbbreviatedObjectId, action: Action) {
         val rebaseState = _rebaseState.value
 
-        if(rebaseState !is RebaseInteractiveState.Loaded)
+        if (rebaseState !is RebaseInteractiveState.Loaded)
             return
 
-        val newStepsList = rebaseState.stepsList.toMutableList() // Change the list reference to update the flow with .toList()
+        val newStepsList =
+            rebaseState.stepsList.toMutableList() // Change the list reference to update the flow with .toList()
 
         val stepIndex = newStepsList.indexOfFirst {
             it.commit == commit
@@ -85,7 +114,7 @@ class RebaseInteractiveViewModel @Inject constructor(
             val newTodoLine = RebaseTodoLine(action, step.commit, step.shortMessage)
             newStepsList[stepIndex] = newTodoLine
 
-            _rebaseState.value = RebaseInteractiveState.Loaded(newStepsList)
+            _rebaseState.value = rebaseState.copy(stepsList = newStepsList)
         }
     }
 }
@@ -93,7 +122,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
 sealed interface RebaseInteractiveState {
     object Loading : RebaseInteractiveState
-    data class Loaded(val stepsList: List<RebaseTodoLine>) : RebaseInteractiveState
+    data class Loaded(val stepsList: List<RebaseTodoLine>, val messages: Map<String, String>) : RebaseInteractiveState
     data class Failed(val error: String) : RebaseInteractiveState
     object Finished : RebaseInteractiveState
 }

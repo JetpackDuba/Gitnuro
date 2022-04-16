@@ -66,7 +66,6 @@ fun RebaseStateLoaded(
     rebaseState: RebaseInteractiveState.Loaded,
     onCancel: () -> Unit,
 ) {
-
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -80,9 +79,13 @@ fun RebaseStateLoaded(
             items(rebaseState.stepsList) { rebaseTodoLine ->
                 RebaseCommit(
                     rebaseLine = rebaseTodoLine,
+                    message = rebaseState.messages[rebaseTodoLine.commit.name()],
                     onActionChanged = { newAction ->
                         rebaseInteractiveViewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
-                    }
+                    },
+                    onMessageChanged = { newMessage ->
+                        rebaseInteractiveViewModel.onCommitMessageChanged(rebaseTodoLine.commit, newMessage)
+                    },
                 )
             }
         }
@@ -108,8 +111,21 @@ fun RebaseStateLoaded(
 }
 
 @Composable
-fun RebaseCommit(rebaseLine: RebaseTodoLine, onActionChanged: (Action) -> Unit) {
-    Row (
+fun RebaseCommit(
+    rebaseLine: RebaseTodoLine,
+    message: String?,
+    onActionChanged: (Action) -> Unit,
+    onMessageChanged: (String) -> Unit,
+) {
+    val action = rebaseLine.action
+    var newMessage by remember(rebaseLine.commit.name(), action) {
+        if(action == Action.REWORD) {
+            mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/ } else
+            mutableStateOf(rebaseLine.shortMessage) // If it's not reword, use the original shortMessage
+
+    }
+
+    Row(
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         ActionDropdown(
@@ -120,9 +136,13 @@ fun RebaseCommit(rebaseLine: RebaseTodoLine, onActionChanged: (Action) -> Unit) 
         OutlinedTextField(
             modifier = Modifier
                 .weight(1f)
-                .height(48.dp),
-            value = rebaseLine.shortMessage,
-            onValueChange = {},
+                .heightIn(min = 48.dp),
+            enabled = rebaseLine.action == Action.REWORD,
+            value = newMessage,
+            onValueChange = {
+                newMessage = it
+                onMessageChanged(it)
+            },
             colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
         )
@@ -167,10 +187,8 @@ fun ActionDropdown(
 val actions = listOf(
     Action.PICK,
     Action.REWORD,
-//    RebaseTodoLine.Action.EDIT,
     Action.SQUASH,
     Action.FIXUP,
-//    RebaseTodoLine.Action.COMMENT,
 )
 
 
