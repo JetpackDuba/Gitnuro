@@ -11,7 +11,7 @@ plugins {
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "0.1.1"
+val projectVersion = "0.2.0"
 val projectName = "Gitnuro"
 
 group = "com.jetpackduba"
