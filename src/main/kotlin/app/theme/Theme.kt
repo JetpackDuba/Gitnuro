@@ -40,6 +40,7 @@ fun AppTheme(theme: Themes = Themes.LIGHT, content: @Composable() () -> Unit) {
     MaterialTheme(
         colors = colors,
         content = content,
+        typography = typography,
     )
 }
 
