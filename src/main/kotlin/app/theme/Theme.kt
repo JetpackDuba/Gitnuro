@@ -11,7 +11,7 @@ import app.DropDownOption
 private val DarkColorPalette = darkColors(
     primary = primaryLight,
     primaryVariant = primaryDark,
-    secondary = secondary,
+    secondary = secondaryDark,
     surface = surfaceColorDark,
     background = backgroundColorDark,
     error = errorColor,
@@ -22,7 +22,7 @@ private val DarkColorPalette = darkColors(
 private val LightColorPalette = lightColors(
     primary = primary,
     primaryVariant = primaryDark,
-    secondary = secondary,
+    secondary = secondaryLight,
     background = backgroundColorLight,
     surface = surfaceColorLight,
     error = errorColor,
@@ -42,6 +42,10 @@ fun AppTheme(theme: Themes = Themes.LIGHT, content: @Composable() () -> Unit) {
         content = content,
     )
 }
+
+@get:Composable
+val Colors.backgroundSelected: Color
+    get() = if (isLight) backgroundColorSelectedLight else backgroundColorSelectedDark
 
 @get:Composable
 val Colors.primaryTextColor: Color

@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.backgroundIf
 import app.extensions.fileName
 import app.extensions.isMerging
 import app.extensions.parentDirectoryPath
@@ -467,17 +468,6 @@ private fun FileEntry(
 ) {
     var active by remember { mutableStateOf(false) }
 
-    val textColor: Color
-    val secondaryTextColor: Color
-
-    if (isSelected) {
-        textColor = MaterialTheme.colors.primary
-        secondaryTextColor = MaterialTheme.colors.halfPrimary
-    } else {
-        textColor = MaterialTheme.colors.primaryTextColor
-        secondaryTextColor = MaterialTheme.colors.secondaryTextColor
-    }
-
     Box(
         modifier = Modifier
             .clickable { onClick() }
@@ -501,7 +491,8 @@ private fun FileEntry(
             Row(
                 modifier = Modifier
                     .height(40.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
 
@@ -522,7 +513,7 @@ private fun FileEntry(
                         softWrap = false,
                         fontSize = 13.sp,
                         overflow = TextOverflow.Ellipsis,
-                        color = secondaryTextColor,
+                        color = MaterialTheme.colors.secondaryTextColor,
                     )
                 }
                 Text(
@@ -531,7 +522,7 @@ private fun FileEntry(
                     maxLines = 1,
                     softWrap = false,
                     fontSize = 13.sp,
-                    color = textColor,
+                    color = MaterialTheme.colors.primaryTextColor,
                 )
             }
         }

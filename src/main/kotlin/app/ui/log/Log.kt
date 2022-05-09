@@ -51,11 +51,11 @@ import app.ui.dialogs.*
 import app.viewmodels.LogSearch
 import app.viewmodels.LogStatus
 import app.viewmodels.LogViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import kotlinx.coroutines.flow.collect
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -148,6 +148,8 @@ fun Log(
             Box {
                 GraphList(
                     commitList = commitList,
+                    selectedCommit = selectedCommit,
+                    selectedItem = selectedItem,
                     stateHorizontal = horizontalScrollState,
                     graphWidth = graphWidth,
                     scrollState = verticalScrollState,
@@ -325,7 +327,7 @@ fun MessagesList(
     ) {
         if (hasUncommitedChanges) item {
             UncommitedChangesLine(graphWidth = graphWidth,
-                selected = selectedItem == SelectedItem.UncommitedChanges,
+                isSelected = selectedItem == SelectedItem.UncommitedChanges,
                 statusSummary = logStatus.statusSummary,
                 repositoryState = repositoryState,
                 onUncommitedChangesSelected = {
@@ -337,7 +339,7 @@ fun MessagesList(
                 graphWidth = graphWidth,
                 logViewModel = logViewModel,
                 graphNode = graphNode,
-                selected = selectedCommit?.name == graphNode.name,
+                isSelected = selectedCommit?.name == graphNode.name,
                 currentBranch = logStatus.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
                 showCreateNewBranch = { onShowLogDialog(LogDialog.NewBranch(graphNode)) },
@@ -363,20 +365,33 @@ fun GraphList(
     graphWidth: Dp,
     scrollState: LazyListState,
     hasUncommitedChanges: Boolean,
+    selectedCommit: RevCommit?,
+    selectedItem: SelectedItem,
 ) {
     val maxLinePosition = if (commitList.isNotEmpty())
         commitList.maxLine
     else
         MIN_GRAPH_LANES
 
-    val graphRealWidth = ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
+    var graphRealWidth = ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
+
+    // Using remember(graphRealWidth, graphWidth) makes the selected background color glitch when changing tabs
+    if (graphRealWidth < graphWidth) {
+        graphRealWidth = graphWidth
+    }
+
 
     Box(
-        Modifier.width(graphWidth).fillMaxHeight()
+        Modifier
+            .width(graphWidth)
+            .fillMaxHeight()
     ) {
 
         Box(
-            modifier = Modifier.fillMaxSize().horizontalScroll(stateHorizontal).padding(bottom = 8.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .horizontalScroll(stateHorizontal)
+                .padding(bottom = 8.dp)
         ) {
             LazyColumn(
                 state = scrollState, modifier = Modifier.width(graphRealWidth)
@@ -387,8 +402,9 @@ fun GraphList(
                             modifier = Modifier.height(40.dp).fillMaxWidth(),
                         ) {
                             UncommitedChangesGraphNode(
-                                modifier = Modifier.width(graphWidth),
+                                modifier = Modifier.fillMaxSize(),
                                 hasPreviousCommits = commitList.isNotEmpty(),
+                                isSelected = selectedItem is SelectedItem.UncommitedChanges,
                             )
                         }
                     }
@@ -396,13 +412,17 @@ fun GraphList(
 
                 items(items = commitList) { graphNode ->
                     val nodeColor = colors[graphNode.lane.position % colors.size]
+
                     Row(
-                        modifier = Modifier.height(40.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .height(40.dp)
+                            .fillMaxWidth(),
                     ) {
                         CommitsGraphLine(
-                            modifier = Modifier.fillMaxHeight(),
+                            modifier = Modifier.fillMaxSize(),
                             plotCommit = graphNode,
                             nodeColor = nodeColor,
+                            isSelected = selectedCommit?.name == graphNode.name,
                         )
                     }
                 }
@@ -526,22 +546,20 @@ fun GraphHeader(
 @Composable
 fun UncommitedChangesLine(
     graphWidth: Dp,
-    selected: Boolean,
+    isSelected: Boolean,
     repositoryState: RepositoryState,
     statusSummary: StatusSummary,
     onUncommitedChangesSelected: () -> Unit,
 ) {
-    val textColor = if (selected) {
-        MaterialTheme.colors.primary
-    } else MaterialTheme.colors.primaryTextColor
-
     Row(
-        modifier = Modifier.height(40.dp).fillMaxWidth().clickable {
-            onUncommitedChangesSelected()
-        }.padding(
-            start = graphWidth + DIVIDER_WIDTH.dp,
-            end = 4.dp,
-        ),
+        modifier = Modifier.height(40.dp)
+            .fillMaxWidth()
+            .clickable { onUncommitedChangesSelected() }
+            .padding(
+                start = graphWidth + DIVIDER_WIDTH.dp,
+                end = 4.dp,
+            )
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val text = when {
@@ -556,7 +574,7 @@ fun UncommitedChangesLine(
             modifier = Modifier.padding(start = 16.dp),
             fontSize = 14.sp,
             maxLines = 1,
-            color = textColor,
+            color = MaterialTheme.colors.primaryTextColor,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -633,7 +651,7 @@ fun CommitLine(
     graphWidth: Dp,
     logViewModel: LogViewModel,
     graphNode: GraphNode,
-    selected: Boolean,
+    isSelected: Boolean,
     currentBranch: Ref?,
     matchesSearchFilter: Boolean?,
     showCreateNewBranch: () -> Unit,
@@ -658,10 +676,12 @@ fun CommitLine(
         },
     ) {
         Box(
-            modifier = Modifier.clickable {
-                onRevCommitSelected()
-            }.padding(start = graphWidth)
+            modifier = Modifier
+                .clickable { onRevCommitSelected() }
+                .padding(start = graphWidth)
                 .height(40.dp)
+                .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
+
         ) {
 
             if (matchesSearchFilter == true) {
@@ -682,7 +702,6 @@ fun CommitLine(
                 val nodeColor = colors[graphNode.lane.position % colors.size]
                 CommitMessage(
                     commit = graphNode,
-                    selected = selected,
                     refs = graphNode.refs,
                     nodeColor = nodeColor,
                     matchesSearchFilter = matchesSearchFilter,
@@ -703,7 +722,6 @@ fun CommitLine(
 @Composable
 fun CommitMessage(
     commit: RevCommit,
-    selected: Boolean,
     refs: List<Ref>,
     currentBranch: Ref?,
     nodeColor: Color,
@@ -716,14 +734,6 @@ fun CommitMessage(
     onPushRemoteBranch: (ref: Ref) -> Unit,
     onPullRemoteBranch: (ref: Ref) -> Unit,
 ) {
-    val textColor = if (selected) {
-        MaterialTheme.colors.primary
-    } else MaterialTheme.colors.primaryTextColor
-
-    val secondaryTextColor = if (selected) {
-        MaterialTheme.colors.primary
-    } else MaterialTheme.colors.secondaryTextColor
-
     Row(
         modifier = Modifier.fillMaxSize(),
         verticalAlignment = Alignment.CenterVertically,
@@ -767,7 +777,7 @@ fun CommitMessage(
                 .padding(start = 8.dp)
                 .weight(1f),
             fontSize = 14.sp,
-            color = if (matchesSearchFilter == false) secondaryTextColor else textColor,
+            color = if (matchesSearchFilter == false) MaterialTheme.colors.secondaryTextColor else MaterialTheme.colors.primaryTextColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -776,7 +786,7 @@ fun CommitMessage(
             text = commit.committerIdent.`when`.toSmartSystemString(),
             modifier = Modifier.padding(horizontal = 16.dp),
             fontSize = 12.sp,
-            color = secondaryTextColor,
+            color = MaterialTheme.colors.secondaryTextColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -812,12 +822,16 @@ fun CommitsGraphLine(
     modifier: Modifier = Modifier,
     plotCommit: GraphNode,
     nodeColor: Color,
+    isSelected: Boolean,
 ) {
     val passingLanes = plotCommit.passingLanes
     val forkingOffLanes = plotCommit.forkingOffLanes
     val mergingLanes = plotCommit.mergingLanes
 
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
+    ) {
         val itemPosition = plotCommit.lane.position
 
         Canvas(
@@ -895,8 +909,12 @@ fun CommitNode(
 fun UncommitedChangesGraphNode(
     modifier: Modifier = Modifier,
     hasPreviousCommits: Boolean,
+    isSelected: Boolean,
 ) {
-    Box(modifier = modifier) {
+    Box(
+        modifier = modifier
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
+    ) {
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {

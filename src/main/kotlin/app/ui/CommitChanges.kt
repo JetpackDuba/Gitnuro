@@ -194,24 +194,17 @@ fun CommitLogChanges(
             .fillMaxSize()
     ) {
         items(items = diffEntries) { diffEntry ->
-            val textColor: Color
-            val secondaryTextColor: Color
-
-            if (diffSelected is DiffEntryType.CommitDiff && diffSelected.diffEntry == diffEntry) {
-                textColor = MaterialTheme.colors.primary
-                secondaryTextColor = MaterialTheme.colors.halfPrimary
-            } else {
-                textColor = MaterialTheme.colors.primaryTextColor
-                secondaryTextColor = MaterialTheme.colors.secondaryTextColor
-            }
-
             Column(
                 modifier = Modifier
                     .height(40.dp)
                     .fillMaxWidth()
                     .clickable {
                         onDiffSelected(diffEntry)
-                    },
+                    }
+                    .backgroundIf(
+                        condition = diffSelected is DiffEntryType.CommitDiff && diffSelected.diffEntry == diffEntry,
+                        color = MaterialTheme.colors.backgroundSelected,
+                    ),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Spacer(modifier = Modifier.weight(2f))
@@ -235,7 +228,7 @@ fun CommitLogChanges(
                             softWrap = false,
                             fontSize = 13.sp,
                             overflow = TextOverflow.Ellipsis,
-                            color = secondaryTextColor,
+                            color = MaterialTheme.colors.secondaryTextColor,
                         )
                     }
                     Text(
@@ -244,7 +237,7 @@ fun CommitLogChanges(
                         maxLines = 1,
                         softWrap = false,
                         fontSize = 13.sp,
-                        color = textColor,
+                        color = MaterialTheme.colors.primaryTextColor,
                     )
                 }
 
