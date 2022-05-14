@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
@@ -56,6 +57,7 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import kotlinx.coroutines.flow.collect
+import java.awt.Cursor
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -801,7 +803,7 @@ fun DividerLog(modifier: Modifier, graphWidth: Dp) {
             .padding(start = graphWidth)
             .width(DIVIDER_WIDTH.dp)
             .then(modifier)
-            .pointerHoverIcon(PointerIconDefaults.Hand)
+            .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
     ) {
         Box(
             modifier = Modifier.fillMaxHeight().width(1.dp).background(color = MaterialTheme.colors.primary)
