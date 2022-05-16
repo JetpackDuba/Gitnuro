@@ -72,6 +72,18 @@ class DiffViewModel @Inject constructor(
     ) { git ->
         statusManager.unstageHunk(git, diffEntry, hunk)
     }
+
+    fun stageFile(statusEntry: StatusEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
+        statusManager.stage(git, statusEntry)
+    }
+
+    fun unstageFile(statusEntry: StatusEntry) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+    ) { git ->
+        statusManager.unstage(git, statusEntry)
+    }
 }
 
 

@@ -11,7 +11,6 @@ import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
 import app.git.EntryContent
+import app.git.StatusEntry
 import app.git.StatusType
 import app.git.diff.DiffResult
 import app.git.diff.Hunk
@@ -65,7 +65,13 @@ fun Diff(
                 val diffEntry = viewDiffResult.diffResult.diffEntry
                 val diffResult = viewDiffResult.diffResult
 
-                DiffHeader(diffEntry, onCloseDiffView)
+                DiffHeader(
+                    diffEntryType = diffEntryType,
+                    diffEntry = diffEntry,
+                    onCloseDiffView = onCloseDiffView,
+                    stageFile = { diffViewModel.stageFile(it) },
+                    unstageFile = { diffViewModel.unstageFile(it) },
+                )
 
                 if (diffResult is DiffResult.Text) {
                     TextDiff(diffEntryType, diffViewModel, diffResult)
@@ -266,7 +272,13 @@ fun HunkHeader(
 }
 
 @Composable
-fun DiffHeader(diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
+fun DiffHeader(
+    diffEntryType: DiffEntryType,
+    diffEntry: DiffEntry,
+    onCloseDiffView: () -> Unit,
+    stageFile: (StatusEntry) -> Unit,
+    unstageFile: (StatusEntry) -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -286,6 +298,31 @@ fun DiffHeader(diffEntry: DiffEntry, onCloseDiffView: () -> Unit) {
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
+        if(diffEntryType is DiffEntryType.UncommitedDiff) {
+            val buttonText: String
+            val color: Color
+
+            if (diffEntryType is DiffEntryType.StagedDiff) {
+                buttonText = "Unstage file"
+                color = MaterialTheme.colors.unstageButton
+            } else {
+                buttonText = "Stage file"
+                color = MaterialTheme.colors.stageButton
+            }
+
+            SecondaryButton(
+                text = buttonText,
+                backgroundButton = color,
+                onClick = {
+                    if (diffEntryType is DiffEntryType.StagedDiff) {
+                        unstageFile(diffEntryType.statusEntry)
+                    } else {
+                        stageFile(diffEntryType.statusEntry)
+                    }
+                }
+            )
+        }
 
         IconButton(
             onClick = onCloseDiffView
