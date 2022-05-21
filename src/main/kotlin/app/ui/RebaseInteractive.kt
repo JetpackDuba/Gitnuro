@@ -3,7 +3,6 @@ package app.ui.dialogs
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -19,43 +18,33 @@ import app.viewmodels.RebaseInteractiveState
 import app.viewmodels.RebaseInteractiveViewModel
 import org.eclipse.jgit.lib.RebaseTodoLine
 import org.eclipse.jgit.lib.RebaseTodoLine.Action
-import org.eclipse.jgit.revwalk.RevCommit
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RebaseInteractiveDialog(
+fun RebaseInteractive(
     rebaseInteractiveViewModel: RebaseInteractiveViewModel,
-    revCommit: RevCommit,
-    onClose: () -> Unit,
 ) {
     val rebaseState = rebaseInteractiveViewModel.rebaseState.collectAsState()
     val rebaseStateValue = rebaseState.value
 
-    LaunchedEffect(Unit) {
-        rebaseInteractiveViewModel.revCommit = revCommit
-        rebaseInteractiveViewModel.startRebaseInteractive()
-    }
-
-    MaterialDialog {
-
-        Box(
-            modifier = Modifier
-                .background(MaterialTheme.colors.background)
-                .fillMaxSize(0.8f),
-        ) {
-            when (rebaseStateValue) {
-                is RebaseInteractiveState.Failed -> {}
-                RebaseInteractiveState.Finished -> onClose()
-                is RebaseInteractiveState.Loaded -> {
-                    RebaseStateLoaded(
-                        rebaseInteractiveViewModel,
-                        rebaseStateValue,
-                        onCancel = onClose,
-                    )
-                }
-                RebaseInteractiveState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                }
+    Box(
+        modifier = Modifier
+            .background(MaterialTheme.colors.surface)
+            .fillMaxSize(),
+    ) {
+        when (rebaseStateValue) {
+            is RebaseInteractiveState.Failed -> {}
+            is RebaseInteractiveState.Loaded -> {
+                RebaseStateLoaded(
+                    rebaseInteractiveViewModel,
+                    rebaseStateValue,
+                    onCancel = {
+                        rebaseInteractiveViewModel.cancel()
+                    },
+                )
+            }
+            RebaseInteractiveState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
     }
@@ -73,7 +62,7 @@ fun RebaseStateLoaded(
         Text(
             text = "Rebase interactive",
             color = MaterialTheme.colors.primaryTextColor,
-            modifier = Modifier.padding(all = 16.dp)
+            modifier = Modifier.padding(all = 20.dp)
         )
 
         ScrollableLazyColumn(modifier = Modifier.weight(1f)) {
@@ -102,6 +91,7 @@ fun RebaseStateLoaded(
                 Text("Cancel")
             }
             PrimaryButton(
+                modifier = Modifier.padding(end = 16.dp),
                 onClick = {
                     rebaseInteractiveViewModel.continueRebaseInteractive()
                 },
@@ -120,8 +110,9 @@ fun RebaseCommit(
 ) {
     val action = rebaseLine.action
     var newMessage by remember(rebaseLine.commit.name(), action) {
-        if(action == Action.REWORD) {
-            mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/ } else
+        if (action == Action.REWORD) {
+            mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/
+        } else
             mutableStateOf(rebaseLine.shortMessage) // If it's not reword, use the original shortMessage
 
     }

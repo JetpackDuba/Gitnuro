@@ -5,10 +5,7 @@ import app.di.TabScope
 import app.newErrorNow
 import app.ui.SelectedItem
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
@@ -23,6 +20,8 @@ class TabState @Inject constructor(
 ) {
     private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.None)
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
+    private val _taskEvent = MutableSharedFlow<TaskEvent>()
+    val taskEvent: SharedFlow<TaskEvent> = _taskEvent
 
     var git: Git? = null
     val safeGit: Git
@@ -40,7 +39,6 @@ class TabState @Inject constructor(
     val refreshData: Flow<RefreshType> = _refreshData
 
     val managerScope = CoroutineScope(SupervisorJob())
-
 
     /**
      * Property that indicates if a git operation is running
@@ -139,6 +137,43 @@ class TabState @Inject constructor(
         }
     }
 
+    suspend fun coRunOperation(
+        showError: Boolean = false,
+        refreshType: RefreshType,
+        refreshEvenIfCrashes: Boolean = false,
+        block: suspend (git: Git) -> Unit
+    ) = withContext(Dispatchers.IO) {
+        var hasProcessFailed = false
+
+        operationRunning = true
+        try {
+            block(safeGit)
+
+            if (refreshType != RefreshType.NONE)
+                _refreshData.emit(refreshType)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+
+            hasProcessFailed = true
+
+            if (showError)
+                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+        } finally {
+            launch {
+                // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
+                // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
+                // refresh because there have been changes in the git dir). This can be easily triggered by interactive
+                // rebase.
+                delay(500)
+                operationRunning = false
+            }
+
+
+            if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
+                _refreshData.emit(refreshType)
+        }
+    }
+
     suspend fun refreshData(refreshType: RefreshType) {
         _refreshData.emit(refreshType)
     }
@@ -169,11 +204,16 @@ class TabState @Inject constructor(
     fun newSelectedItem(selectedItem: SelectedItem) {
         _selectedItem.value = selectedItem
     }
+
+    suspend fun emitNewTaskEvent(taskEvent: TaskEvent) {
+        _taskEvent.emit(taskEvent)
+    }
 }
 
 enum class RefreshType {
     NONE,
     ALL_DATA,
+    REPO_STATE,
     ONLY_LOG,
     STASHES,
     UNCOMMITED_CHANGES,

@@ -19,6 +19,7 @@ import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Provider
 
 private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 1000L
 
@@ -38,6 +39,7 @@ class TabViewModel @Inject constructor(
     val stashesViewModel: StashesViewModel,
     val commitChangesViewModel: CommitChangesViewModel,
     val cloneViewModel: CloneViewModel,
+    private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val repositoryManager: RepositoryManager,
     private val tabState: TabState,
     val appStateManager: AppStateManager,
@@ -46,6 +48,9 @@ class TabViewModel @Inject constructor(
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
+
+    var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
+        private set
 
     private val credentialsStateManager = CredentialsStateManager
 
@@ -73,19 +78,40 @@ class TabViewModel @Inject constructor(
     val showError = MutableStateFlow(false)
 
     init {
-        tabState.managerScope.launch {
-            tabState.refreshData.collect { refreshType ->
-                when (refreshType) {
-                    RefreshType.NONE -> println("Not refreshing...")
-                    RefreshType.ALL_DATA -> refreshRepositoryInfo()
-                    RefreshType.ONLY_LOG -> refreshLog()
-                    RefreshType.STASHES -> refreshStashes()
-                    RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
-                    RefreshType.UNCOMMITED_CHANGES_AND_LOG -> checkUncommitedChanges(true)
-                    RefreshType.REMOTES -> refreshRemotes()
+        tabState.managerScope.run {
+            launch {
+                tabState.refreshData.collect { refreshType ->
+                    when (refreshType) {
+                        RefreshType.NONE -> println("Not refreshing...")
+                        RefreshType.ALL_DATA -> refreshRepositoryInfo()
+                        RefreshType.REPO_STATE -> refreshRepositoryState()
+                        RefreshType.ONLY_LOG -> refreshLog()
+                        RefreshType.STASHES -> refreshStashes()
+                        RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
+                        RefreshType.UNCOMMITED_CHANGES_AND_LOG -> checkUncommitedChanges(true)
+                        RefreshType.REMOTES -> refreshRemotes()
+                    }
+                }
+            }
+            launch {
+                tabState.taskEvent.collect { taskEvent ->
+                    when (taskEvent) {
+                        is TaskEvent.RebaseInteractive -> onRebaseInteractive(taskEvent)
+                    }
                 }
             }
         }
+    }
+
+    private fun refreshRepositoryState() = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        loadRepositoryState(git)
+    }
+
+    private suspend fun onRebaseInteractive(taskEvent: TaskEvent.RebaseInteractive) {
+        rebaseInteractiveViewModel = rebaseInteractiveViewModelProvider.get()
+        rebaseInteractiveViewModel?.startRebaseInteractive(taskEvent.revCommit)
     }
 
     private fun refreshRemotes() = tabState.runOperation(
@@ -136,7 +162,18 @@ class TabViewModel @Inject constructor(
     }
 
     private suspend fun loadRepositoryState(git: Git) = withContext(Dispatchers.IO) {
-        _repositoryState.value = repositoryManager.getRepositoryState(git)
+        val newRepoState = repositoryManager.getRepositoryState(git)
+        println("Refreshing repository state $newRepoState")
+        _repositoryState.value = newRepoState
+
+        onRepositoryStateChanged(newRepoState)
+    }
+
+    private fun onRepositoryStateChanged(newRepoState: RepositoryState) {
+        if (newRepoState != RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
+            rebaseInteractiveViewModel?.cancel()
+            rebaseInteractiveViewModel = null
+        }
     }
 
     private suspend fun watchRepositoryChanges(git: Git) = tabState.managerScope.launch(Dispatchers.IO) {
@@ -150,7 +187,7 @@ class TabViewModel @Inject constructor(
                 if (!tabState.operationRunning) { // Only update if there isn't any process running
                     println("Detected changes in the repository's directory")
 
-                    if(latestUpdateChangedGitDir) {
+                    if (latestUpdateChangedGitDir) {
                         hasGitDirChanged = true
                     }
 
@@ -191,7 +228,7 @@ class TabViewModel @Inject constructor(
     }
 
     suspend fun updateApp(hasGitDirChanged: Boolean) {
-        if(hasGitDirChanged) {
+        if (hasGitDirChanged) {
             println("Changes detected in git directory, full refresh")
 
             refreshRepositoryInfo()

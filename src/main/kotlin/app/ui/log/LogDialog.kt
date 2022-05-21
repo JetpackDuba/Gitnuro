@@ -11,5 +11,4 @@ sealed class LogDialog {
     data class ResetBranch(val graphNode: GraphNode) : LogDialog()
     data class MergeBranch(val ref: Ref) : LogDialog()
     data class RebaseBranch(val ref: Ref) : LogDialog()
-    data class RebaseInteractive(val revCommit: RevCommit) : LogDialog()
 }

@@ -36,12 +36,8 @@ class LogViewModel @Inject constructor(
     private val mergeManager: MergeManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
-    private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
-
-    var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
-        private set
 
     val logStatus: StateFlow<LogStatus>
         get() = _logStatus
@@ -312,16 +308,17 @@ class LogViewModel @Inject constructor(
     }
 
     fun showDialog(dialog: LogDialog) {
-        rebaseInteractiveViewModel =  if(dialog is LogDialog.RebaseInteractive) {
-            rebaseInteractiveViewModelProvider.get()
-        } else
-            null
-
         _logDialog.value = dialog
     }
 
     fun closeSearch() {
         _logSearchFilterResults.value = LogSearch.NotSearching
+    }
+
+    fun rebaseInteractive(revCommit: RevCommit) = tabState.runOperation (
+        refreshType = RefreshType.NONE
+    ) {
+        tabState.emitNewTaskEvent(TaskEvent.RebaseInteractive(revCommit))
     }
 }
 

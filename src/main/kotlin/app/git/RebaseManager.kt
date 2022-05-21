@@ -7,10 +7,11 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand
 import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
 import org.eclipse.jgit.api.RebaseResult
+import org.eclipse.jgit.errors.AmbiguousObjectException
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.RebaseTodoLine
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevCommitList
 import org.eclipse.jgit.revwalk.RevWalk
 import javax.inject.Inject
 
@@ -59,20 +60,42 @@ class RebaseManager @Inject constructor(
     suspend fun rebaseLinesFullMessage(
         git: Git,
         rebaseTodoLines: List<RebaseTodoLine>,
-        commit: RevCommit
     ): Map<String, String> = withContext(Dispatchers.IO) {
-        val revWalk = RevWalk(git.repository)
-        markCurrentBranchAsStart(revWalk, git)
 
-        val revCommitList = RevCommitList<RevCommit>()
-        revCommitList.source(revWalk)
-        revCommitList.fillTo(commit, Int.MAX_VALUE)
+        return@withContext rebaseTodoLines.map { line ->
+            val commit = getCommitFromLine(git, line)
+            val fullMessage = commit?.fullMessage ?: line.shortMessage
+            line.commit.name() to fullMessage
+        }.toMap()
+    }
 
-        val commitsList = revCommitList.toList()
+    private fun getCommitFromLine(git: Git, line: RebaseTodoLine): RevCommit? {
+        val resolvedList: List<ObjectId?> = try {
+            listOf(git.repository.resolve("${line.commit.name()}^{commit}"))
+        } catch (ex: AmbiguousObjectException) {
+            ex.candidates.toList()
+        }
 
-        return@withContext rebaseTodoLines.associate { rebaseLine ->
-            val fullMessage = getFullMessage(rebaseLine, commitsList) ?: rebaseLine.shortMessage
-            rebaseLine.commit.name() to fullMessage
+        if (resolvedList.isEmpty()) {
+            println("Commit search failed for line ${line.commit} - ${line.shortMessage}")
+            return null
+        } else if (resolvedList.count() == 1) {
+            val resolvedId = resolvedList.firstOrNull()
+
+            return if (resolvedId == null)
+                null
+            else
+                git.repository.parseCommit(resolvedId)
+        } else {
+            println("Multiple matching commits for line ${line.commit} - ${line.shortMessage}")
+            for (candidateId in resolvedList) {
+                val candidateCommit = git.repository.parseCommit(candidateId)
+                if (line.shortMessage == candidateCommit.shortMessage)
+                    return candidateCommit
+            }
+
+            println("None of the matching commits has a matching short message")
+            return null
         }
     }
 

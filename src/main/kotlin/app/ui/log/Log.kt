@@ -349,7 +349,7 @@ fun MessagesList(
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
                 onMergeBranch = { ref -> onShowLogDialog(LogDialog.MergeBranch(ref)) },
                 onRebaseBranch = { ref -> onShowLogDialog(LogDialog.RebaseBranch(ref)) },
-                onRebaseInteractive = { onShowLogDialog(LogDialog.RebaseInteractive(graphNode)) },
+                onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
             )
         }
@@ -480,13 +480,6 @@ fun LogDialogs(
                         onResetShowLogDialog()
                     })
             }
-        }
-        is LogDialog.RebaseInteractive -> {
-            RebaseInteractiveDialog(
-                revCommit = showLogDialog.revCommit,
-                rebaseInteractiveViewModel = checkNotNull(logViewModel.rebaseInteractiveViewModel), // Never null, value should be set before showing dialog
-                onClose = onResetShowLogDialog,
-            )
         }
         LogDialog.None -> {
         }
