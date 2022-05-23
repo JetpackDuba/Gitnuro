@@ -234,13 +234,16 @@ class App {
 
 @Composable
 private fun TabsContent(tabs: List<TabInformation>, selectedTabKey: Int) {
-    val selectedTab = tabs.firstOrNull { it.key == selectedTabKey } ?: return
+    val selectedTab = tabs.firstOrNull { it.key == selectedTabKey }
 
     Box(
         modifier = Modifier
+            .background(MaterialTheme.colors.background)
             .fillMaxSize(),
     ) {
-        AppTab(selectedTab.tabViewModel)
+        if (selectedTab != null) {
+            AppTab(selectedTab.tabViewModel)
+        }
     }
 }
 
