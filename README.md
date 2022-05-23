@@ -33,11 +33,11 @@ Gitnuro features:
 - Manage remotes.
 - Start a new local repository.
 - Search by commit message/author/commit id.
+- Rebase interactive. (will be available in 0.2.0)
 
 Missing:
 
 - Create/Apply patches
-- Rebase interactive.
 - Remove tags from remote.
 - Side by side diff in text files.
 - View stashes in the log tree.
