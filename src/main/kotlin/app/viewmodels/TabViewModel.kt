@@ -1,6 +1,5 @@
 package app.viewmodels
 
-import app.AppPreferences
 import app.AppStateManager
 import app.ErrorsManager
 import app.credentials.CredentialsState
@@ -15,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
@@ -74,6 +74,9 @@ class TabViewModel @Inject constructor(
 
     private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
     val repositoryState: StateFlow<RepositoryState> = _repositoryState
+
+    private val _blameState = MutableStateFlow<BlameState>(BlameState.None)
+    val blameState: StateFlow<BlameState> = _blameState
 
     val showError = MutableStateFlow(false)
 
@@ -315,6 +318,28 @@ class TabViewModel @Inject constructor(
             null
         }
     }
+
+    fun blameFile(filePath: String) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        _blameState.value = BlameState.Loading(filePath)
+        try {
+            val result = git.blame()
+                .setFilePath(filePath)
+                .setFollowFileRenames(true)
+                .call()
+
+            _blameState.value = BlameState.Loaded(filePath, result)
+        } catch (ex: Exception) {
+            resetBlameState()
+
+            throw ex
+        }
+    }
+
+    fun resetBlameState() {
+        _blameState.value = BlameState.None
+    }
 }
 
 
@@ -322,4 +347,11 @@ sealed class RepositorySelectionStatus {
     object None : RepositorySelectionStatus()
     data class Opening(val path: String) : RepositorySelectionStatus()
     data class Open(val repository: Repository) : RepositorySelectionStatus()
+}
+
+
+sealed interface BlameState {
+    data class Loading(val filePath: String) : BlameState
+    data class Loaded(val filePath: String, val blameResult: BlameResult) : BlameState
+    object None : BlameState
 }

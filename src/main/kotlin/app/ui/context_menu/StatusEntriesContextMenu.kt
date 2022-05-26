@@ -4,13 +4,14 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import app.git.StatusEntry
 import app.git.StatusType
-import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalFoundationApi::class)
-fun unstagedEntriesContextMenuItems(
+fun statusEntriesContextMenuItems(
     statusEntry: StatusEntry,
+    entryType: EntryType,
     onReset: () -> Unit,
-    onDelete: () -> Unit,
+    onDelete: () -> Unit = {},
+    onBlame: () -> Unit,
 ): List<ContextMenuItem> {
     return mutableListOf<ContextMenuItem>().apply {
         if (statusEntry.statusType != StatusType.ADDED) {
@@ -20,9 +21,21 @@ fun unstagedEntriesContextMenuItems(
                     onClick = onReset,
                 )
             )
+
+            if (statusEntry.statusType != StatusType.REMOVED) {
+                add(
+                    ContextMenuItem(
+                        label = "Blame file",
+                        onClick = onBlame,
+                    )
+                )
+            }
         }
 
-        if (statusEntry.statusType != StatusType.REMOVED) {
+        if (
+            entryType == EntryType.UNSTAGED &&
+            statusEntry.statusType != StatusType.REMOVED
+        ) {
             add(
                 ContextMenuItem(
                     label = "Delete file",
@@ -31,4 +44,10 @@ fun unstagedEntriesContextMenuItems(
             )
         }
     }
+}
+
+
+enum class EntryType {
+    STAGED,
+    UNSTAGED,
 }

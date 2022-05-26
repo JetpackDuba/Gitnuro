@@ -33,7 +33,7 @@ class TabState @Inject constructor(
                 return git
         }
 
-    val mutex = Mutex()
+    private val mutex = Mutex()
 
     private val _refreshData = MutableSharedFlow<RefreshType>()
     val refreshData: Flow<RefreshType> = _refreshData

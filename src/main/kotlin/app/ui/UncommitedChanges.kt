@@ -40,14 +40,10 @@ import app.git.StatusEntry
 import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
-import app.ui.context_menu.DropDownContent
-import app.ui.context_menu.DropDownContentData
-import app.ui.context_menu.stagedEntriesContextMenuItems
-import app.ui.context_menu.unstagedEntriesContextMenuItems
+import app.ui.context_menu.*
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
-import kotlin.reflect.KClass
 
 @Composable
 fun UncommitedChanges(
@@ -56,6 +52,7 @@ fun UncommitedChanges(
     repositoryState: RepositoryState,
     onStagedDiffEntrySelected: (StatusEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (StatusEntry) -> Unit,
+    onBlameFile: (String) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
     var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage) }
@@ -106,12 +103,12 @@ fun UncommitedChanges(
             onDiffEntryOptionSelected = {
                 statusViewModel.unstage(it)
             },
-            onGenerateContextMenu = { diffEntry ->
-                stagedEntriesContextMenuItems(
-                    diffEntry = diffEntry,
-                    onReset = {
-                        statusViewModel.resetStaged(diffEntry)
-                    },
+            onGenerateContextMenu = { statusEntry ->
+                statusEntriesContextMenuItems(
+                    statusEntry = statusEntry,
+                    entryType = EntryType.STAGED,
+                    onBlame = { onBlameFile(statusEntry.filePath) },
+                    onReset = { statusViewModel.resetStaged(statusEntry) },
                 )
             },
             onAllAction = {
@@ -134,11 +131,11 @@ fun UncommitedChanges(
                 statusViewModel.stage(it)
             },
             onGenerateContextMenu = { statusEntry ->
-                unstagedEntriesContextMenuItems(
+                statusEntriesContextMenuItems(
                     statusEntry = statusEntry,
-                    onReset = {
-                        statusViewModel.resetUnstaged(statusEntry)
-                    },
+                    entryType = EntryType.UNSTAGED,
+                    onBlame = { onBlameFile(statusEntry.filePath) },
+                    onReset = { statusViewModel.resetUnstaged(statusEntry) },
                     onDelete = {
                         statusViewModel.deleteFile(statusEntry)
                     }

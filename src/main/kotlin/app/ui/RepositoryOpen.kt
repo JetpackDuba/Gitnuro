@@ -14,6 +14,7 @@ import app.theme.primaryTextColor
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.RebaseInteractive
 import app.ui.log.Log
+import app.viewmodels.BlameState
 import app.viewmodels.TabViewModel
 import openRepositoryDialog
 import org.eclipse.jgit.lib.RepositoryState
@@ -29,6 +30,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val repositoryState by tabViewModel.repositoryState.collectAsState()
     val diffSelected by tabViewModel.diffSelected.collectAsState()
     val selectedItem by tabViewModel.selectedItem.collectAsState()
+    val blameState by tabViewModel.blameState.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
 
@@ -63,7 +65,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 onCreateBranch = { showNewBranchDialog = true }
             )
 
-            RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState)
+            RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState)
         }
 
     }
@@ -75,7 +77,8 @@ fun RepoContent(
     tabViewModel: TabViewModel,
     diffSelected: DiffEntryType?,
     selectedItem: SelectedItem,
-    repositoryState: RepositoryState
+    repositoryState: RepositoryState,
+    blameState: BlameState,
 ) {
     Row {
         HorizontalSplitPane {
@@ -115,18 +118,26 @@ fun RepoContent(
                                     shape = RoundedCornerShape(4.dp)
                                 )
                         ) {
-                            when (diffSelected) {
-                                null -> {
-                                    Log(
-                                        logViewModel = tabViewModel.logViewModel,
-                                        selectedItem = selectedItem,
-                                        repositoryState = repositoryState,
-                                    )
-                                }
-                                else -> {
-                                    Diff(
-                                        diffViewModel = tabViewModel.diffViewModel,
-                                        onCloseDiffView = { tabViewModel.newDiffSelected = null })
+                            if (blameState is BlameState.Loaded) {
+                                Blame(
+                                    filePath = blameState.filePath,
+                                    blameResult = blameState.blameResult,
+                                    onClose = { tabViewModel.resetBlameState() }
+                                )
+                            } else {
+                                when (diffSelected) {
+                                    null -> {
+                                        Log(
+                                            logViewModel = tabViewModel.logViewModel,
+                                            selectedItem = selectedItem,
+                                            repositoryState = repositoryState,
+                                        )
+                                    }
+                                    else -> {
+                                        Diff(
+                                            diffViewModel = tabViewModel.diffViewModel,
+                                            onCloseDiffView = { tabViewModel.newDiffSelected = null })
+                                    }
                                 }
                             }
                         }
@@ -144,6 +155,11 @@ fun RepoContent(
                                     selectedEntryType = diffSelected,
                                     repositoryState = repositoryState,
                                     onStagedDiffEntrySelected = { diffEntry ->
+                                        // TODO: Instead of resetting the state, create a new one where the blame
+                                        //  is "on hold". In this state we can show a bar at the bottom so the user
+                                        //  can click on it and return to the blame
+                                        tabViewModel.resetBlameState()
+
                                         tabViewModel.newDiffSelected = if (diffEntry != null) {
                                             if (repositoryState == RepositoryState.SAFE)
                                                 DiffEntryType.SafeStagedDiff(diffEntry)
@@ -154,11 +170,14 @@ fun RepoContent(
                                         }
                                     },
                                     onUnstagedDiffEntrySelected = { diffEntry ->
+                                        tabViewModel.resetBlameState()
+
                                         if (repositoryState == RepositoryState.SAFE)
                                             tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
                                         else
                                             tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
-                                    }
+                                    },
+                                    onBlameFile = { tabViewModel.blameFile(it) }
                                 )
                             } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                                 CommitChanges(
@@ -166,8 +185,10 @@ fun RepoContent(
                                     selectedItem = safeSelectedItem,
                                     diffSelected = diffSelected,
                                     onDiffSelected = { diffEntry ->
+                                        tabViewModel.resetBlameState()
                                         tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
-                                    }
+                                    },
+                                    onBlame = { tabViewModel.blameFile(it) }
                                 )
                             }
                         }

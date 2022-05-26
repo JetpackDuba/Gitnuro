@@ -1,13 +1,10 @@
 package app.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +21,7 @@ import app.theme.*
 import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TooltipText
+import app.ui.context_menu.commitedChangesEntriesContextMenuItems
 import app.viewmodels.CommitChangesStatus
 import app.viewmodels.CommitChangesViewModel
 import org.eclipse.jgit.diff.DiffEntry
@@ -34,7 +32,8 @@ fun CommitChanges(
     commitChangesViewModel: CommitChangesViewModel,
     selectedItem: SelectedItem.CommitBasedItem,
     onDiffSelected: (DiffEntry) -> Unit,
-    diffSelected: DiffEntryType?
+    diffSelected: DiffEntryType?,
+    onBlame: (String) -> Unit,
 ) {
     LaunchedEffect(selectedItem) {
         commitChangesViewModel.loadChanges(selectedItem.revCommit)
@@ -52,6 +51,7 @@ fun CommitChanges(
                 commit = commitChangesStatus.commit,
                 changes = commitChangesStatus.changes,
                 onDiffSelected = onDiffSelected,
+                onBlame = onBlame
             )
         }
     }
@@ -62,7 +62,8 @@ fun CommitChangesView(
     commit: RevCommit,
     changes: List<DiffEntry>,
     onDiffSelected: (DiffEntry) -> Unit,
-    diffSelected: DiffEntryType?
+    diffSelected: DiffEntryType?,
+    onBlame: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -118,7 +119,8 @@ fun CommitChangesView(
             CommitLogChanges(
                 diffSelected = diffSelected,
                 diffEntries = changes,
-                onDiffSelected = onDiffSelected
+                onDiffSelected = onDiffSelected,
+                onBlame = onBlame,
             )
         }
     }
@@ -183,67 +185,78 @@ fun Author(commit: RevCommit) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommitLogChanges(
     diffEntries: List<DiffEntry>,
     onDiffSelected: (DiffEntry) -> Unit,
-    diffSelected: DiffEntryType?
+    diffSelected: DiffEntryType?,
+    onBlame: (String) -> Unit,
 ) {
     ScrollableLazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
         items(items = diffEntries) { diffEntry ->
-            Column(
-                modifier = Modifier
-                    .height(40.dp)
-                    .fillMaxWidth()
-                    .clickable {
-                        onDiffSelected(diffEntry)
-                    }
-                    .backgroundIf(
-                        condition = diffSelected is DiffEntryType.CommitDiff && diffSelected.diffEntry == diffEntry,
-                        color = MaterialTheme.colors.backgroundSelected,
-                    ),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Spacer(modifier = Modifier.weight(2f))
-
-
-                Row {
-                    Icon(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .size(16.dp),
-                        imageVector = diffEntry.icon,
-                        contentDescription = null,
-                        tint = diffEntry.iconColor,
+            ContextMenuArea(
+                items = {
+                    commitedChangesEntriesContextMenuItems(
+                        diffEntry,
+                        onBlame = { onBlame(diffEntry.filePath) }
                     )
+                }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                        .clickable {
+                            onDiffSelected(diffEntry)
+                        }
+                        .backgroundIf(
+                            condition = diffSelected is DiffEntryType.CommitDiff && diffSelected.diffEntry == diffEntry,
+                            color = MaterialTheme.colors.backgroundSelected,
+                        ),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Spacer(modifier = Modifier.weight(2f))
 
-                    if(diffEntry.parentDirectoryPath.isNotEmpty()) {
+
+                    Row {
+                        Icon(
+                            modifier = Modifier
+                                .padding(horizontal = 8.dp)
+                                .size(16.dp),
+                            imageVector = diffEntry.icon,
+                            contentDescription = null,
+                            tint = diffEntry.iconColor,
+                        )
+
+                        if (diffEntry.parentDirectoryPath.isNotEmpty()) {
+                            Text(
+                                text = diffEntry.parentDirectoryPath,
+                                modifier = Modifier.weight(1f, fill = false),
+                                maxLines = 1,
+                                softWrap = false,
+                                fontSize = 13.sp,
+                                overflow = TextOverflow.Ellipsis,
+                                color = MaterialTheme.colors.secondaryTextColor,
+                            )
+                        }
                         Text(
-                            text = diffEntry.parentDirectoryPath,
+                            text = diffEntry.fileName,
                             modifier = Modifier.weight(1f, fill = false),
                             maxLines = 1,
                             softWrap = false,
                             fontSize = 13.sp,
-                            overflow = TextOverflow.Ellipsis,
-                            color = MaterialTheme.colors.secondaryTextColor,
+                            color = MaterialTheme.colors.primaryTextColor,
                         )
                     }
-                    Text(
-                        text = diffEntry.fileName,
-                        modifier = Modifier.weight(1f, fill = false),
-                        maxLines = 1,
-                        softWrap = false,
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colors.primaryTextColor,
-                    )
+
+                    Spacer(modifier = Modifier.weight(2f))
+
+                    Divider()
                 }
-
-                Spacer(modifier = Modifier.weight(2f))
-
-                Divider()
             }
         }
     }
