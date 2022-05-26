@@ -69,6 +69,7 @@ fun Blame(
                         color = MaterialTheme.colors.primaryTextColor,
                         modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                         fontFamily = FontFamily.Monospace,
+                        maxLines = 1,
                     )
                 }
             }
