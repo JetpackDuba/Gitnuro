@@ -64,4 +64,3 @@ Feel free to open issues for bugs or sugestions.
 ![Example 3](/res/img/gitnuro_example_3.png)
 ![Example 4](/res/img/gitnuro_example_4.png)
 ![Example 5](/res/img/gitnuro_example_5.png)
-![Example 6](/res/img/gitnuro_example_6.png)
