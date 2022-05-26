@@ -33,7 +33,9 @@ Gitnuro features:
 - Manage remotes.
 - Start a new local repository.
 - Search by commit message/author/commit id.
-- Rebase interactive. (will be available in 0.2.0)
+- Rebase interactive (will be available in 0.2.0).
+- Blame file (initial support will be available in 0.2.0).
+- View file history (initial support will be available in 0.2.0).
 
 Missing:
 
@@ -41,8 +43,6 @@ Missing:
 - Remove tags from remote.
 - Side by side diff in text files.
 - View stashes in the log tree.
-- View file history.
-- Blame file.
 - Submodules support.
 
 
