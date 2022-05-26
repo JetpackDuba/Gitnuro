@@ -9,5 +9,10 @@ val systemSeparator: String by lazy {
 }
 
 fun openUrlInBrowser(url: String) {
-    Desktop.getDesktop().browse(URI(url))
+    try {
+        Desktop.getDesktop().browse(URI(url))
+    } catch (ex: Exception) {
+        println("Failed to open URL in browser")
+        ex.printStackTrace()
+    }
 }
