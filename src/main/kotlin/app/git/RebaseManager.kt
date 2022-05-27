@@ -50,11 +50,15 @@ class RebaseManager @Inject constructor(
 
     suspend fun rebaseInteractive(git: Git, interactiveHandler: InteractiveHandler, commit: RevCommit) {
         //TODO Check possible rebase errors by checking the result
-        git.rebase()
+        val rebaseResult = git.rebase()
             .runInteractively(interactiveHandler)
             .setOperation(RebaseCommand.Operation.BEGIN)
             .setUpstream(commit)
             .call()
+
+        if (rebaseResult.status == RebaseResult.Status.FAILED) {
+            throw UncommitedChangesDetectedException("Rebase interactive failed.")
+        }
     }
 
     suspend fun rebaseLinesFullMessage(

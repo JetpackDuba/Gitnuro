@@ -75,12 +75,18 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     suspend fun startRebaseInteractive(revCommit: RevCommit) = tabState.runOperation(
         refreshType = RefreshType.ALL_DATA,
+        showError = true
     ) { git ->
         try {
             rebaseManager.rebaseInteractive(git, interactiveHandler, revCommit)
             completed = true
-        } catch (ex: RebaseCancelledException) {
-            println("Rebase cancelled")
+        } catch (ex: Exception) {
+            if(ex is RebaseCancelledException) {
+                println("Rebase cancelled")
+            } else {
+                cancel()
+                throw ex
+            }
         }
     }
 
