@@ -1,10 +1,10 @@
-@file:Suppress("UNUSED_PARAMETER")
-
 package app.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -18,13 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.lineAt
 import app.theme.primaryTextColor
+import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
 import org.eclipse.jgit.blame.BlameResult
+import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun Blame(
     filePath: String,
     blameResult: BlameResult,
+    onSelectCommit: (RevCommit) -> Unit,
     onClose: () -> Unit,
 ) {
     Column {
@@ -45,7 +48,11 @@ fun Blame(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(
-                        modifier = Modifier.width(200.dp).fillMaxHeight().background(MaterialTheme.colors.surface),
+                        modifier = Modifier
+                            .width(200.dp)
+                            .fillMaxHeight()
+                            .background(MaterialTheme.colors.surface)
+                            .clickable { onSelectCommit(commit) },
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
@@ -78,12 +85,67 @@ fun Blame(
 }
 
 @Composable
+fun MinimizedBlame(
+    filePath: String,
+    onExpand: () -> Unit,
+    onClose: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .background(MaterialTheme.colors.surface),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = "Minimized file blame",
+                color = MaterialTheme.colors.primaryTextColor,
+                maxLines = 1,
+                fontSize = 10.sp,
+            )
+            Text(
+                text = filePath,
+                color = MaterialTheme.colors.primaryTextColor,
+                maxLines = 1,
+                fontSize = 12.sp,
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        PrimaryButton(
+            onClick = onExpand,
+            text = "Show",
+        )
+
+        IconButton(
+            onClick = onClose,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            Image(
+                painter = painterResource("close.svg"),
+                contentDescription = "Close blame",
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+            )
+        }
+    }
+}
+
+@Composable
 private fun Header(
     filePath: String,
     onClose: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.surface),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+            .background(MaterialTheme.colors.surface),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -94,12 +156,13 @@ private fun Header(
         )
 
         Spacer(modifier = Modifier.weight(1f))
+
         IconButton(
             onClick = onClose
         ) {
             Image(
                 painter = painterResource("close.svg"),
-                contentDescription = "Close diff",
+                contentDescription = "Close blame",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
             )
         }

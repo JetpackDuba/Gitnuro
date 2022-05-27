@@ -54,7 +54,6 @@ fun Diff(
 
     Column(
         modifier = Modifier
-            .padding(8.dp)
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
@@ -228,7 +227,7 @@ fun HunkHeader(
     Row(
         modifier = Modifier
             .background(MaterialTheme.colors.surface)
-            .padding(vertical = 4.dp)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -282,6 +281,8 @@ fun DiffHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(50.dp)
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
             .background(MaterialTheme.colors.surface),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -351,6 +352,7 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
     }
     Row(
         modifier = Modifier
+            .padding(horizontal = 8.dp)
             .background(backgroundColor)
             .height(IntrinsicSize.Min)
     ) {

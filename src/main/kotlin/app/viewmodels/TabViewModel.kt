@@ -17,6 +17,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
+import org.eclipse.jgit.revwalk.RevCommit
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
@@ -340,6 +341,26 @@ class TabViewModel @Inject constructor(
     fun resetBlameState() {
         _blameState.value = BlameState.None
     }
+
+    fun expandBlame() {
+        val blameState = _blameState.value
+
+        if(blameState is BlameState.Loaded && blameState.isMinimized) {
+            _blameState.value = blameState.copy(isMinimized = false)
+        }
+    }
+
+    fun minimizeBlame() {
+        val blameState = _blameState.value
+
+        if(blameState is BlameState.Loaded && !blameState.isMinimized) {
+            _blameState.value = blameState.copy(isMinimized = true)
+        }
+    }
+
+    fun selectCommit(commit: RevCommit) {
+        tabState.newSelectedItem(SelectedItem.Commit(commit))
+    }
 }
 
 
@@ -352,6 +373,8 @@ sealed class RepositorySelectionStatus {
 
 sealed interface BlameState {
     data class Loading(val filePath: String) : BlameState
-    data class Loaded(val filePath: String, val blameResult: BlameResult) : BlameState
+
+    data class Loaded(val filePath: String, val blameResult: BlameResult, val isMinimized: Boolean = false) : BlameState
+
     object None : BlameState
 }

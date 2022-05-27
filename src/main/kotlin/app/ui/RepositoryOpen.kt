@@ -118,25 +118,38 @@ fun RepoContent(
                                     shape = RoundedCornerShape(4.dp)
                                 )
                         ) {
-                            if (blameState is BlameState.Loaded) {
+                            if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                                 Blame(
                                     filePath = blameState.filePath,
                                     blameResult = blameState.blameResult,
-                                    onClose = { tabViewModel.resetBlameState() }
+                                    onClose = { tabViewModel.resetBlameState() },
+                                    onSelectCommit = { tabViewModel.selectCommit(it) }
                                 )
                             } else {
-                                when (diffSelected) {
-                                    null -> {
-                                        Log(
-                                            logViewModel = tabViewModel.logViewModel,
-                                            selectedItem = selectedItem,
-                                            repositoryState = repositoryState,
-                                        )
+                                Column {
+                                    Box(modifier = Modifier.weight(1f, true)) {
+                                        when (diffSelected) {
+                                            null -> {
+                                                Log(
+                                                    logViewModel = tabViewModel.logViewModel,
+                                                    selectedItem = selectedItem,
+                                                    repositoryState = repositoryState,
+                                                )
+                                            }
+                                            else -> {
+                                                Diff(
+                                                    diffViewModel = tabViewModel.diffViewModel,
+                                                    onCloseDiffView = { tabViewModel.newDiffSelected = null })
+                                            }
+                                        }
                                     }
-                                    else -> {
-                                        Diff(
-                                            diffViewModel = tabViewModel.diffViewModel,
-                                            onCloseDiffView = { tabViewModel.newDiffSelected = null })
+
+                                    if (blameState is BlameState.Loaded) { // BlameState.isMinimized is true here
+                                        MinimizedBlame(
+                                            filePath = blameState.filePath,
+                                            onExpand = { tabViewModel.expandBlame() },
+                                            onClose = { tabViewModel.resetBlameState() }
+                                        )
                                     }
                                 }
                             }
@@ -155,10 +168,7 @@ fun RepoContent(
                                     selectedEntryType = diffSelected,
                                     repositoryState = repositoryState,
                                     onStagedDiffEntrySelected = { diffEntry ->
-                                        // TODO: Instead of resetting the state, create a new one where the blame
-                                        //  is "on hold". In this state we can show a bar at the bottom so the user
-                                        //  can click on it and return to the blame
-                                        tabViewModel.resetBlameState()
+                                        tabViewModel.minimizeBlame()
 
                                         tabViewModel.newDiffSelected = if (diffEntry != null) {
                                             if (repositoryState == RepositoryState.SAFE)
@@ -170,7 +180,7 @@ fun RepoContent(
                                         }
                                     },
                                     onUnstagedDiffEntrySelected = { diffEntry ->
-                                        tabViewModel.resetBlameState()
+                                        tabViewModel.minimizeBlame()
 
                                         if (repositoryState == RepositoryState.SAFE)
                                             tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
@@ -185,7 +195,7 @@ fun RepoContent(
                                     selectedItem = safeSelectedItem,
                                     diffSelected = diffSelected,
                                     onDiffSelected = { diffEntry ->
-                                        tabViewModel.resetBlameState()
+                                        tabViewModel.minimizeBlame()
                                         tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                     },
                                     onBlame = { tabViewModel.blameFile(it) }
