@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package app.ui
 
 import androidx.compose.foundation.Image
@@ -14,9 +16,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -326,7 +331,9 @@ fun DiffHeader(
         }
 
         IconButton(
-            onClick = onCloseDiffView
+            onClick = onCloseDiffView,
+            modifier = Modifier
+                .pointerHoverIcon(PointerIconDefaults.Hand)
         ) {
             Image(
                 painter = painterResource("close.svg"),

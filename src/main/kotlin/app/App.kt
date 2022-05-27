@@ -16,6 +16,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -204,7 +206,8 @@ class App {
             IconButton(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .size(24.dp),
+                    .size(24.dp)
+                    .pointerHoverIcon(PointerIconDefaults.Hand),
                 onClick = onOpenSettings
             ) {
                 Icon(

@@ -31,10 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.extensions.backgroundIf
-import app.extensions.fileName
-import app.extensions.isMerging
-import app.extensions.parentDirectoryPath
+import app.extensions.*
 import app.git.DiffEntryType
 import app.git.StatusEntry
 import app.theme.*
@@ -238,7 +235,7 @@ fun UncommitedChangesButtons(
                 .height(40.dp)
                 .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
                 .background(MaterialTheme.colors.confirmationButton)
-                .clickable { showDropDownMenu = true }
+                .handMouseClickable { showDropDownMenu = true }
         ) {
             Icon(
                 Icons.Default.ArrowDropDown,
@@ -467,7 +464,7 @@ private fun FileEntry(
 
     Box(
         modifier = Modifier
-            .clickable { onClick() }
+            .handMouseClickable { onClick() }
             .fillMaxWidth()
             .pointerMoveFilter(
                 onEnter = {

@@ -14,9 +14,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import app.extensions.handMouseClickable
 import app.theme.borderColor
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
@@ -89,6 +92,8 @@ fun EditRemotesDialog(
 
                 IconButton(
                     onClick = onDismiss,
+                    modifier = Modifier
+                        .pointerHoverIcon(PointerIconDefaults.Hand)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
@@ -126,7 +131,7 @@ fun EditRemotesDialog(
                                 color = MaterialTheme.colors.primaryTextColor,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable {
+                                    .handMouseClickable {
                                         remotesEditorData = remotesEditorData.copy(selectedRemote = remote)
                                     }
                                     .background(background)
@@ -141,7 +146,8 @@ fun EditRemotesDialog(
                             .background(MaterialTheme.colors.background)
                     ) {
                         IconButton(
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(36.dp)
+                                .pointerHoverIcon(PointerIconDefaults.Hand),
                             onClick = {
                                 val remotesWithNew = remotesEditorData.listRemotes.toMutableList()
                                 val newRemote = RemoteWrapper(
@@ -168,7 +174,8 @@ fun EditRemotesDialog(
                             )
                         }
                         IconButton(
-                            modifier = Modifier.size(36.dp),
+                            modifier = Modifier.size(36.dp)
+                                .pointerHoverIcon(PointerIconDefaults.Hand),
                             enabled = selectedRemote != null,
                             onClick = {
                                 if (selectedRemote != null)

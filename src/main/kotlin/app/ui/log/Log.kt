@@ -524,7 +524,8 @@ fun GraphHeader(
             )
 
             IconButton(
-                modifier = Modifier.padding(end = 8.dp),
+                modifier = Modifier.padding(end = 8.dp)
+                    .pointerHoverIcon(PointerIconDefaults.Hand),
                 onClick = onShowSearch
             ) {
                 Icon(
@@ -1022,9 +1023,12 @@ fun RefChip(
     endingContent: @Composable () -> Unit = {},
 ) {
     Box(
-        modifier = Modifier.padding(horizontal = 4.dp).clip(RoundedCornerShape(16.dp))
+        modifier = Modifier
+            .padding(horizontal = 4.dp)
+            .clip(RoundedCornerShape(16.dp))
             .border(width = 2.dp, color = color, shape = RoundedCornerShape(16.dp))
             .combinedClickable(onDoubleClick = onCheckoutRef, onClick = {})
+            .pointerHoverIcon(PointerIconDefaults.Hand)
     ) {
         ContextMenuArea(
             items = contextMenuItemsList

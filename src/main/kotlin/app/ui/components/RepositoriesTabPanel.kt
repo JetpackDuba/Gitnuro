@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package app.ui.components
 
 import androidx.compose.foundation.background
@@ -13,15 +15,19 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.AppStateManager
 import app.di.AppComponent
 import app.di.DaggerTabComponent
+import app.extensions.handMouseClickable
 import app.theme.primaryTextColor
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
@@ -113,7 +119,8 @@ fun TabPanel(
             IconButton(
                 onClick = onNewTabClicked,
                 modifier = Modifier
-                    .size(36.dp),
+                    .size(36.dp)
+                    .pointerHoverIcon(PointerIconDefaults.Hand),
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -144,7 +151,7 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                 .shadow(elevation = elevation)
                 .padding(start = 2.dp, end = 2.dp, top = 2.dp)
                 .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-                .clickable { onClick() }
+                .handMouseClickable { onClick() }
                 .background(backgroundColor),
             verticalAlignment = Alignment.CenterVertically,
         ) {

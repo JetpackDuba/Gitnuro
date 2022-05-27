@@ -210,7 +210,7 @@ fun CommitLogChanges(
                     modifier = Modifier
                         .height(40.dp)
                         .fillMaxWidth()
-                        .clickable {
+                        .handMouseClickable {
                             onDiffSelected(diffEntry)
                         }
                         .backgroundIf(

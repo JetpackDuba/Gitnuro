@@ -12,6 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.handMouseClickable
 
 @Composable
 fun SecondaryButton(
@@ -26,7 +27,7 @@ fun SecondaryButton(
             .padding(horizontal = 16.dp)
             .clip(RoundedCornerShape(5.dp))
             .background(backgroundButton)
-            .clickable { onClick() },
+            .handMouseClickable { onClick() },
     ) {
         Text(
             text = text,

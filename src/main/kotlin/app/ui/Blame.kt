@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package app.ui
 
 import androidx.compose.foundation.Image
@@ -10,12 +12,16 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.handMouseClickable
 import app.extensions.lineAt
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
@@ -52,7 +58,7 @@ fun Blame(
                             .width(200.dp)
                             .fillMaxHeight()
                             .background(MaterialTheme.colors.surface)
-                            .clickable { onSelectCommit(commit) },
+                            .handMouseClickable { onSelectCommit(commit) },
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
@@ -125,6 +131,7 @@ fun MinimizedBlame(
         IconButton(
             onClick = onClose,
             modifier = Modifier.padding(horizontal = 16.dp)
+                .pointerHoverIcon(PointerIconDefaults.Hand)
         ) {
             Image(
                 painter = painterResource("close.svg"),
@@ -158,7 +165,9 @@ private fun Header(
         Spacer(modifier = Modifier.weight(1f))
 
         IconButton(
-            onClick = onClose
+            onClick = onClose,
+            modifier = Modifier
+                .pointerHoverIcon(PointerIconDefaults.Hand)
         ) {
             Image(
                 painter = painterResource("close.svg"),

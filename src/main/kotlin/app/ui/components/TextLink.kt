@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import app.extensions.handMouseClickable
 import app.extensions.openUrlInBrowser
 import app.theme.primaryTextColor
 
@@ -33,7 +34,7 @@ fun TextLink(
         text = text,
         modifier = Modifier
             .hoverable(hoverInteraction)
-            .clickable {
+            .handMouseClickable {
                 openUrlInBrowser(url)
             }
             .then(modifier),

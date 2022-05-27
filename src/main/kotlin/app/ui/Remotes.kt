@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 
 package app.ui
 
@@ -12,7 +12,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.extensions.simpleName
@@ -69,7 +72,8 @@ fun Remotes(
                 onClick = { showEditRemotesDialog = true },
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .size(16.dp),
+                    .size(16.dp)
+                    .pointerHoverIcon(PointerIconDefaults.Hand),
             ) {
                 Icon(
                     painter = painterResource("settings.svg"),

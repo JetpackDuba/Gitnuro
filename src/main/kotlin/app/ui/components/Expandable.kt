@@ -9,6 +9,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import app.extensions.handMouseClickable
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -20,7 +21,7 @@ fun VerticalExpandable(
 ) {
     Column {
         Box(
-            modifier = Modifier.clickable {
+            modifier = Modifier.handMouseClickable {
                 onExpand()
             }
         ) {

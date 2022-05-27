@@ -17,9 +17,12 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.handMouseClickable
 import app.theme.primaryTextColor
 import app.ui.context_menu.*
 import app.viewmodels.MenuViewModel
@@ -106,7 +109,8 @@ fun Menu(
 
         Box {
             IconMenuButton(
-                modifier = Modifier.padding(end = 8.dp),
+                modifier = Modifier
+                    .padding(end = 8.dp),
                 icon = painterResource("more_vert.svg"),
                 onClick = {
                     showAdditionalOptionsDropDownMenu = true
@@ -151,7 +155,7 @@ fun MenuButton(
     Box(
         modifier = modifier
             .padding(horizontal = 2.dp)
-            .clickable { if (enabled) onClick() }
+            .handMouseClickable { if (enabled) onClick() }
             .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(3.dp))
             .padding(vertical = 8.dp, horizontal = 16.dp),
     ) {
@@ -196,7 +200,7 @@ fun ExtendedMenuButton(
     Row(modifier = Modifier.height(IntrinsicSize.Min)) {
         Box(
             modifier = modifier
-                .clickable { if (enabled) onClick() }
+                .handMouseClickable { if (enabled) onClick() }
                 .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topStart = 3.dp, bottomStart = 3.dp))
                 .padding(vertical = 8.dp, horizontal = 16.dp),
         ) {
@@ -226,7 +230,7 @@ fun ExtendedMenuButton(
                 .width(20.dp)
                 .fillMaxHeight()
                 .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topEnd = 3.dp, bottomEnd = 3.dp))
-                .clickable {
+                .handMouseClickable {
                     showDropDownMenu = true
                 },
             contentAlignment = Alignment.Center,
@@ -266,7 +270,8 @@ fun IconMenuButton(
     }
 
     IconButton(
-        modifier = modifier,
+        modifier = modifier
+            .pointerHoverIcon(PointerIconDefaults.Hand),
         enabled = enabled,
         onClick = onClick,
     ) {
