@@ -66,10 +66,12 @@ fun RebaseStateLoaded(
         )
 
         ScrollableLazyColumn(modifier = Modifier.weight(1f)) {
-            items(rebaseState.stepsList) { rebaseTodoLine ->
+            val stepsList = rebaseState.stepsList
+            items(stepsList) { rebaseTodoLine ->
                 RebaseCommit(
                     rebaseLine = rebaseTodoLine,
                     message = rebaseState.messages[rebaseTodoLine.commit.name()],
+                    isFirst = stepsList.first() == rebaseTodoLine,
                     onActionChanged = { newAction ->
                         rebaseInteractiveViewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
                     },
@@ -104,6 +106,7 @@ fun RebaseStateLoaded(
 @Composable
 fun RebaseCommit(
     rebaseLine: RebaseTodoLine,
+    isFirst: Boolean,
     message: String?,
     onActionChanged: (Action) -> Unit,
     onMessageChanged: (String) -> Unit,
@@ -122,6 +125,7 @@ fun RebaseCommit(
     ) {
         ActionDropdown(
             rebaseLine.action,
+            isFirst = isFirst,
             onActionChanged = onActionChanged,
         )
 
@@ -146,6 +150,7 @@ fun RebaseCommit(
 @Composable
 fun ActionDropdown(
     action: Action,
+    isFirst: Boolean,
     onActionChanged: (Action) -> Unit,
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
@@ -162,7 +167,13 @@ fun ActionDropdown(
             expanded = showDropDownMenu,
             onDismissRequest = { showDropDownMenu = false },
         ) {
-            for (dropDownOption in actions) {
+            val dropDownItems = if (isFirst) {
+                firstItemActions
+            } else {
+                actions
+            }
+
+            for (dropDownOption in dropDownItems) {
                 DropdownMenuItem(
                     onClick = {
                         showDropDownMenu = false
@@ -175,6 +186,11 @@ fun ActionDropdown(
         }
     }
 }
+
+val firstItemActions = listOf(
+    Action.PICK,
+    Action.REWORD,
+)
 
 val actions = listOf(
     Action.PICK,
