@@ -5,6 +5,8 @@ package app.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.DisableSelection
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -21,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.extensions.lineAt
+import app.extensions.toStringWithSpaces
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
@@ -36,55 +39,85 @@ fun Blame(
 ) {
     Column {
         Header(filePath, onClose = onClose)
+        SelectionContainer {
+            ScrollableLazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val contents = blameResult.resultContents
+                val contentsSize = contents.size()
+                val contentSizeLengthInString = contentsSize.toString().count()
 
-        ScrollableLazyColumn(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            val contents = blameResult.resultContents
-            items(contents.size()) { index ->
-                val line = contents.lineAt(index)
-                val author = blameResult.getSourceAuthor(index)
-                val commit = blameResult.getSourceCommit(index)
+                items(contentsSize) { index ->
+                    val line = contents.lineAt(index)
+                    val author = blameResult.getSourceAuthor(index)
+                    val commit = blameResult.getSourceCommit(index)
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().background(MaterialTheme.colors.background)
-                        .height(IntrinsicSize.Min),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .width(200.dp)
-                            .fillMaxHeight()
-                            .background(MaterialTheme.colors.surface)
-                            .handMouseClickable { onSelectCommit(commit) },
-                        verticalArrangement = Arrangement.Center,
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .background(MaterialTheme.colors.background)
+                            .height(IntrinsicSize.Min),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
+
+                        DisableSelection {
+                            LineNumber(
+                                line = index + 1,
+                                highestLineLength = contentSizeLengthInString
+                            )
+
+                            Column(
+                                modifier = Modifier
+                                    .width(200.dp)
+                                    .fillMaxHeight()
+                                    .background(MaterialTheme.colors.surface)
+                                    .handMouseClickable { if (commit != null) onSelectCommit(commit) },
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Text(
+                                    text = author?.name.orEmpty(),
+                                    color = MaterialTheme.colors.primaryTextColor,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    fontSize = 12.sp,
+                                )
+                                Text(
+                                    text = commit?.shortMessage ?: "Uncommited change",
+                                    color = MaterialTheme.colors.primaryTextColor,
+                                    maxLines = 1,
+                                    modifier = Modifier.padding(start = 16.dp),
+                                    fontSize = 10.sp,
+                                )
+                            }
+                        }
+
                         Text(
-                            text = author?.name.orEmpty(),
+                            text = line + blameResult.resultContents.lineDelimiter,
                             color = MaterialTheme.colors.primaryTextColor,
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+                            fontFamily = FontFamily.Monospace,
                             maxLines = 1,
-                            modifier = Modifier.padding(start = 16.dp),
-                            fontSize = 12.sp,
-                        )
-                        Text(
-                            text = commit.shortMessage,
-                            color = MaterialTheme.colors.primaryTextColor,
-                            maxLines = 1,
-                            modifier = Modifier.padding(start = 16.dp),
-                            fontSize = 10.sp,
                         )
                     }
-
-                    Text(
-                        text = line,
-                        color = MaterialTheme.colors.primaryTextColor,
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                        fontFamily = FontFamily.Monospace,
-                        maxLines = 1,
-                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LineNumber(line: Int, highestLineLength: Int) {
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .background(MaterialTheme.colors.surface)
+            .padding(start = 4.dp, end = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = line.toStringWithSpaces(highestLineLength),
+            color = MaterialTheme.colors.primaryTextColor,
+            fontFamily = FontFamily.Monospace,
+        )
     }
 }
 

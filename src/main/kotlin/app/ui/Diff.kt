@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.toStringWithSpaces
 import app.git.DiffEntryType
 import app.git.EntryContent
 import app.git.StatusEntry
@@ -364,12 +365,12 @@ fun DiffLine(highestLineNumberLength: Int, line: Line) {
             .height(IntrinsicSize.Min)
     ) {
         val oldLineText = if (line.lineType == LineType.REMOVED || line.lineType == LineType.CONTEXT) {
-            formattedLineNumber(line.displayOldLineNumber, highestLineNumberLength)
+            line.displayOldLineNumber.toStringWithSpaces(highestLineNumberLength)
         } else
             emptyLineNumber(highestLineNumberLength)
 
         val newLineText = if (line.lineType == LineType.ADDED || line.lineType == LineType.CONTEXT) {
-            formattedLineNumber(line.displayNewLineNumber, highestLineNumberLength)
+            line.displayNewLineNumber.toStringWithSpaces(highestLineNumberLength)
         } else
             emptyLineNumber(highestLineNumberLength)
 
@@ -411,24 +412,6 @@ fun LineNumber(text: String) {
     )
 }
 
-
-fun formattedLineNumber(number: Int, charactersCount: Int): String {
-    val numberStr = number.toString()
-    return if (numberStr.count() == charactersCount)
-        numberStr
-    else {
-        val lengthDiff = charactersCount - numberStr.count()
-        val numberBuilder = StringBuilder()
-        // Add whitespaces before the numbers
-        repeat(lengthDiff) {
-            numberBuilder.append(" ")
-        }
-        numberBuilder.append(numberStr)
-
-        numberBuilder.toString()
-    }
-}
-
 fun emptyLineNumber(charactersCount: Int): String {
     val numberBuilder = StringBuilder()
     // Add whitespaces before the numbers
@@ -438,4 +421,3 @@ fun emptyLineNumber(charactersCount: Int): String {
 
     return numberBuilder.toString()
 }
-
