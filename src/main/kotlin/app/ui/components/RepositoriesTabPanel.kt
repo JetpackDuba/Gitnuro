@@ -3,7 +3,6 @@
 package app.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
@@ -31,7 +30,6 @@ import app.extensions.handMouseClickable
 import app.theme.primaryTextColor
 import app.theme.tabColorActive
 import app.theme.tabColorInactive
-import app.ui.AppTab
 import app.viewmodels.TabViewModel
 import javax.inject.Inject
 import kotlin.io.path.Path

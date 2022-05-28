@@ -2,7 +2,6 @@ package app.ui.context_menu
 
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
-import app.extensions.isBranch
 import app.extensions.isHead
 import app.extensions.simpleLogName
 import org.eclipse.jgit.lib.Ref
