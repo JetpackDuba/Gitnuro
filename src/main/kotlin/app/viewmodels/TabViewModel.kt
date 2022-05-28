@@ -328,7 +328,7 @@ class TabViewModel @Inject constructor(
             val result = git.blame()
                 .setFilePath(filePath)
                 .setFollowFileRenames(true)
-                .call()
+                .call() ?: throw Exception("File is no longer present in the workspace and can't be blamed")
 
             _blameState.value = BlameState.Loaded(filePath, result)
         } catch (ex: Exception) {
@@ -345,7 +345,7 @@ class TabViewModel @Inject constructor(
     fun expandBlame() {
         val blameState = _blameState.value
 
-        if(blameState is BlameState.Loaded && blameState.isMinimized) {
+        if (blameState is BlameState.Loaded && blameState.isMinimized) {
             _blameState.value = blameState.copy(isMinimized = false)
         }
     }
@@ -353,7 +353,7 @@ class TabViewModel @Inject constructor(
     fun minimizeBlame() {
         val blameState = _blameState.value
 
-        if(blameState is BlameState.Loaded && !blameState.isMinimized) {
+        if (blameState is BlameState.Loaded && !blameState.isMinimized) {
             _blameState.value = blameState.copy(isMinimized = true)
         }
     }
