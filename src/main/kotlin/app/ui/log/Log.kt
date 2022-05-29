@@ -779,7 +779,7 @@ fun CommitMessage(
         )
 
         Text(
-            text = commit.committerIdent.`when`.toSmartSystemString(),
+            text = commit.authorIdent.`when`.toSmartSystemString(),
             modifier = Modifier.padding(horizontal = 16.dp),
             fontSize = 12.sp,
             color = MaterialTheme.colors.secondaryTextColor,

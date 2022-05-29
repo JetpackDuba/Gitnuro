@@ -3,7 +3,6 @@ package app.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import app.exceptions.MissingDiffEntryException
 import app.git.*
-import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -87,8 +86,3 @@ class DiffViewModel @Inject constructor(
 }
 
 
-sealed interface ViewDiffResult {
-    object Loading: ViewDiffResult
-    object DiffNotFound: ViewDiffResult
-    data class Loaded(val diffEntryType: DiffEntryType, val diffResult: DiffResult): ViewDiffResult
-}

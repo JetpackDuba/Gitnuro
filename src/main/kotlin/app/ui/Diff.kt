@@ -5,6 +5,7 @@ package app.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -79,12 +80,23 @@ fun Diff(
                 )
 
                 if (diffResult is DiffResult.Text) {
-                    TextDiff(diffEntryType, diffViewModel, diffResult)
+                    val scrollState by diffViewModel.lazyListState.collectAsState()
+
+                    TextDiff(
+                        diffEntryType = diffEntryType,
+                        scrollState = scrollState,
+                        diffResult = diffResult,
+                        onUnstageHunk = { entry, hunk ->
+                            diffViewModel.unstageHunk(entry, hunk)
+                        },
+                    ) { entry, hunk ->
+                        diffViewModel.stageHunk(entry, hunk)
+                    }
                 } else if (diffResult is DiffResult.NonText) {
                     NonTextDiff(diffResult)
                 }
             }
-            ViewDiffResult.Loading -> {
+            ViewDiffResult.Loading, ViewDiffResult.None -> {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
@@ -186,25 +198,29 @@ fun BinaryDiff() {
 }
 
 @Composable
-fun TextDiff(diffEntryType: DiffEntryType, diffViewModel: DiffViewModel, diffResult: DiffResult.Text) {
+fun TextDiff(
+    diffEntryType: DiffEntryType,
+    scrollState: LazyListState,
+    diffResult: DiffResult.Text,
+    onUnstageHunk: (DiffEntry, Hunk) -> Unit,
+    onStageHunk: (DiffEntry, Hunk) -> Unit,
+) {
     val hunks = diffResult.hunks
 
-    val scrollState by diffViewModel.lazyListState.collectAsState()
     SelectionContainer {
         ScrollableLazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
             state = scrollState
         ) {
-
             for (hunk in hunks) {
                 item {
                     DisableSelection {
                         HunkHeader(
                             hunk = hunk,
-                            diffViewModel = diffViewModel,
                             diffEntryType = diffEntryType,
-                            diffEntry =diffResult.diffEntry,
+                            onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, hunk) },
+                            onStageHunk = { onStageHunk(diffResult.diffEntry, hunk) },
                         )
                     }
                 }
@@ -227,8 +243,8 @@ fun TextDiff(diffEntryType: DiffEntryType, diffViewModel: DiffViewModel, diffRes
 fun HunkHeader(
     hunk: Hunk,
     diffEntryType: DiffEntryType,
-    diffViewModel: DiffViewModel,
-    diffEntry: DiffEntry,
+    onUnstageHunk: () -> Unit,
+    onStageHunk: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -266,9 +282,9 @@ fun HunkHeader(
                 backgroundButton = color,
                 onClick = {
                     if (diffEntryType is DiffEntryType.StagedDiff) {
-                        diffViewModel.unstageHunk(diffEntry, hunk)
+                        onUnstageHunk()
                     } else {
-                        diffViewModel.stageHunk(diffEntry, hunk)
+                        onStageHunk()
                     }
                 }
             )
@@ -346,7 +362,10 @@ fun DiffHeader(
 }
 
 @Composable
-fun DiffLine(highestLineNumberLength: Int, line: Line) {
+fun DiffLine(
+    highestLineNumberLength: Int,
+    line: Line,
+) {
     val backgroundColor = when (line.lineType) {
         LineType.ADDED -> {
             Color(0x77a9d49b)

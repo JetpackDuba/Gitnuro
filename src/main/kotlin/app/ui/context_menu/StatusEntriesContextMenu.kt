@@ -12,6 +12,7 @@ fun statusEntriesContextMenuItems(
     onReset: () -> Unit,
     onDelete: () -> Unit = {},
     onBlame: () -> Unit,
+    onHistory: () -> Unit,
 ): List<ContextMenuItem> {
     return mutableListOf<ContextMenuItem>().apply {
         if (statusEntry.statusType != StatusType.ADDED) {
@@ -27,6 +28,13 @@ fun statusEntriesContextMenuItems(
                     ContextMenuItem(
                         label = "Blame file",
                         onClick = onBlame,
+                    )
+                )
+
+                add(
+                    ContextMenuItem(
+                        label = "File history",
+                        onClick = onHistory,
                     )
                 )
             }

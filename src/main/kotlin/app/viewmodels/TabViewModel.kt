@@ -41,6 +41,7 @@ class TabViewModel @Inject constructor(
     val commitChangesViewModel: CommitChangesViewModel,
     val cloneViewModel: CloneViewModel,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
+    private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val repositoryManager: RepositoryManager,
     private val tabState: TabState,
     val appStateManager: AppStateManager,
@@ -78,6 +79,12 @@ class TabViewModel @Inject constructor(
 
     private val _blameState = MutableStateFlow<BlameState>(BlameState.None)
     val blameState: StateFlow<BlameState> = _blameState
+
+    private val _showHistory = MutableStateFlow(false)
+    val showHistory: StateFlow<Boolean> = _showHistory
+
+    var historyViewModel: HistoryViewModel? = null
+        private set
 
     val showError = MutableStateFlow(false)
 
@@ -361,6 +368,17 @@ class TabViewModel @Inject constructor(
     fun selectCommit(commit: RevCommit) {
         tabState.newSelectedItem(SelectedItem.Commit(commit))
     }
+
+    fun fileHistory(filePath: String) {
+        historyViewModel = historyViewModelProvider.get()
+        historyViewModel?.fileHistory(filePath)
+        _showHistory.value = true
+    }
+
+    fun closeHistory() {
+        _showHistory.value = false
+        historyViewModel = null
+    }
 }
 
 
@@ -369,7 +387,6 @@ sealed class RepositorySelectionStatus {
     data class Opening(val path: String) : RepositorySelectionStatus()
     data class Open(val repository: Repository) : RepositorySelectionStatus()
 }
-
 
 sealed interface BlameState {
     data class Loading(val filePath: String) : BlameState

@@ -50,6 +50,7 @@ fun UncommitedChanges(
     onStagedDiffEntrySelected: (StatusEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (StatusEntry) -> Unit,
     onBlameFile: (String) -> Unit,
+    onHistoryFile: (String) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
     var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage) }
@@ -106,6 +107,7 @@ fun UncommitedChanges(
                     entryType = EntryType.STAGED,
                     onBlame = { onBlameFile(statusEntry.filePath) },
                     onReset = { statusViewModel.resetStaged(statusEntry) },
+                    onHistory = { onHistoryFile(statusEntry.filePath) },
                 )
             },
             onAllAction = {
@@ -132,10 +134,11 @@ fun UncommitedChanges(
                     statusEntry = statusEntry,
                     entryType = EntryType.UNSTAGED,
                     onBlame = { onBlameFile(statusEntry.filePath) },
+                    onHistory = { onHistoryFile(statusEntry.filePath) },
                     onReset = { statusViewModel.resetUnstaged(statusEntry) },
                     onDelete = {
                         statusViewModel.deleteFile(statusEntry)
-                    }
+                    },
                 )
             },
             onAllAction = {

@@ -32,6 +32,7 @@ fun CommitChanges(
     onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,
     onBlame: (String) -> Unit,
+    onHistory: (String) -> Unit,
 ) {
     LaunchedEffect(selectedItem) {
         commitChangesViewModel.loadChanges(selectedItem.revCommit)
@@ -49,7 +50,8 @@ fun CommitChanges(
                 commit = commitChangesStatus.commit,
                 changes = commitChangesStatus.changes,
                 onDiffSelected = onDiffSelected,
-                onBlame = onBlame
+                onBlame = onBlame,
+                onHistory = onHistory,
             )
         }
     }
@@ -62,6 +64,7 @@ fun CommitChangesView(
     onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,
     onBlame: (String) -> Unit,
+    onHistory: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -119,6 +122,7 @@ fun CommitChangesView(
                 diffEntries = changes,
                 onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
+                onHistory = onHistory,
             )
         }
     }
@@ -170,7 +174,6 @@ fun Author(commit: RevCommit) {
                     fontSize = 13.sp,
                     tooltipTitle = authorIdent.`when`.toSystemDateTimeString()
                 )
-
             }
 
             Text(
@@ -190,6 +193,7 @@ fun CommitLogChanges(
     onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,
     onBlame: (String) -> Unit,
+    onHistory: (String) -> Unit,
 ) {
     ScrollableLazyColumn(
         modifier = Modifier
@@ -200,7 +204,8 @@ fun CommitLogChanges(
                 items = {
                     commitedChangesEntriesContextMenuItems(
                         diffEntry,
-                        onBlame = { onBlame(diffEntry.filePath) }
+                        onBlame = { onBlame(diffEntry.filePath) },
+                        onHistory = { onHistory(diffEntry.filePath) },
                     )
                 }
             ) {
@@ -218,7 +223,6 @@ fun CommitLogChanges(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Spacer(modifier = Modifier.weight(2f))
-
 
                     Row {
                         Icon(

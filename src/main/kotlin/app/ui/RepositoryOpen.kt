@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalSplitPaneApi::class)
+
 package app.ui
 
 import androidx.compose.foundation.border
@@ -31,6 +33,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val diffSelected by tabViewModel.diffSelected.collectAsState()
     val selectedItem by tabViewModel.selectedItem.collectAsState()
     val blameState by tabViewModel.blameState.collectAsState()
+    val showHistory by tabViewModel.showHistory.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
 
@@ -65,13 +68,12 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 onCreateBranch = { showNewBranchDialog = true }
             )
 
-            RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState)
+            RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
         }
 
     }
 }
 
-@OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 fun RepoContent(
     tabViewModel: TabViewModel,
@@ -79,6 +81,39 @@ fun RepoContent(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
+    showHistory: Boolean,
+) {
+    if(showHistory) {
+        val historyViewModel = tabViewModel.historyViewModel
+
+        if(historyViewModel != null) {
+            FileHistory(
+                historyViewModel = historyViewModel,
+                onClose = {
+                    tabViewModel.closeHistory()
+                }
+            )
+        }
+    } else {
+        MainContentView(
+            tabViewModel,
+            diffSelected,
+            selectedItem,
+            repositoryState,
+            blameState,
+        )
+    }
+
+
+}
+
+@Composable
+fun MainContentView(
+    tabViewModel: TabViewModel,
+    diffSelected: DiffEntryType?,
+    selectedItem: SelectedItem,
+    repositoryState: RepositoryState,
+    blameState: BlameState
 ) {
     Row {
         HorizontalSplitPane {
@@ -187,7 +222,8 @@ fun RepoContent(
                                         else
                                             tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
                                     },
-                                    onBlameFile = { tabViewModel.blameFile(it) }
+                                    onBlameFile = { tabViewModel.blameFile(it) },
+                                    onHistoryFile = { tabViewModel.fileHistory(it) }
                                 )
                             } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                                 CommitChanges(
@@ -198,7 +234,8 @@ fun RepoContent(
                                         tabViewModel.minimizeBlame()
                                         tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
                                     },
-                                    onBlame = { tabViewModel.blameFile(it) }
+                                    onBlame = { tabViewModel.blameFile(it) },
+                                    onHistory = { tabViewModel.fileHistory(it) },
                                 )
                             }
                         }
