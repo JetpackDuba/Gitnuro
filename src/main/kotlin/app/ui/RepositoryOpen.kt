@@ -117,7 +117,7 @@ fun MainContentView(
 ) {
     Row {
         HorizontalSplitPane {
-            first(minSize = 200.dp) {
+            first(minSize = 350.dp) {
                 Column(
                     modifier = Modifier
                         .widthIn(min = 300.dp)
