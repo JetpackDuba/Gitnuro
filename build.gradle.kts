@@ -72,6 +72,7 @@ compose.desktop {
                 jvmArgs(
                     "-Dapple.awt.application.appearance=system"
                 )
+                iconFile.set(project.file("icons/icon.icns"))
             }
         }
     }
