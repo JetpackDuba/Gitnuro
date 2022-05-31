@@ -3,6 +3,9 @@ package app.git
 import app.credentials.GProcess
 import app.credentials.GRemoteSession
 import app.credentials.GSessionManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
@@ -24,18 +27,20 @@ class BeforeRepoAllTestsExtension : BeforeAllCallback, AfterAllCallback {
             repoDir = File(tempDir, "repo")
 
             started = true
-            // Your "before all tests" startup logic goes here
+
             // The following line registers a callback hook when the root test context is shut down
-            context.root.getStore(GLOBAL).put("any unique name", this)
+            context.root.getStore(GLOBAL).put("gitnuro_tests", this)
 
             val remoteOperationsManager = RemoteOperationsManager(GSessionManager { GRemoteSession { GProcess() } })
             remoteOperationsManager.clone(repoDir, REPO_URL)
+                .flowOn(Dispatchers.IO)
+                .collect { newCloneStatus ->
+                    println("Clonning test repository: $newCloneStatus")
+                }
         }
     }
 
     override fun afterAll(context: ExtensionContext?) {
-        // Your "after all tests" logic goes here
-
         tempDir.deleteRecursively()
     }
 }
