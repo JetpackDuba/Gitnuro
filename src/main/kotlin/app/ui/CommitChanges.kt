@@ -151,14 +151,22 @@ fun Author(commit: RevCommit) {
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
+            TooltipText(
+                text = authorIdent.name,
+                color = MaterialTheme.colors.primaryTextColor,
+                maxLines = 1,
+                fontSize = 14.sp,
+                tooltipTitle = authorIdent.emailAddress,
+            )
+
             Row {
-                TooltipText(
-                    text = authorIdent.name,
-                    color = MaterialTheme.colors.primaryTextColor,
+                Text(
+                    text = commit.id.abbreviate(7).name(),
+                    color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
-                    fontSize = 14.sp,
-                    tooltipTitle = authorIdent.emailAddress,
+                    fontSize = 12.sp,
                 )
+
 
                 Spacer(modifier = Modifier.weight(1f, fill = true))
 
@@ -175,13 +183,6 @@ fun Author(commit: RevCommit) {
                     tooltipTitle = authorIdent.`when`.toSystemDateTimeString()
                 )
             }
-
-            Text(
-                text = commit.id.abbreviate(7).name(),
-                color = MaterialTheme.colors.secondaryTextColor,
-                maxLines = 1,
-                fontSize = 12.sp,
-            )
         }
     }
 }

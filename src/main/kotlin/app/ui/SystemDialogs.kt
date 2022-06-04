@@ -68,7 +68,7 @@ private fun openJvmDialog(
         JFileChooser(latestDirectoryOpened)
 
     fileChooser.fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-    fileChooser.showSaveDialog(null)
+    fileChooser.showOpenDialog(null)
 
     return if (fileChooser.selectedFile != null)
         fileChooser.selectedFile.absolutePath
