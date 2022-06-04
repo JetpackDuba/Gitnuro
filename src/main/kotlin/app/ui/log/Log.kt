@@ -33,6 +33,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -156,6 +157,7 @@ fun Log(
                     graphWidth = graphWidth,
                     scrollState = verticalScrollState,
                     hasUncommitedChanges = hasUncommitedChanges,
+                    commitsLimit = logStatus.commitsLimit,
                 )
 
                 // The commits' messages list overlaps with the graph list to catch all the click events but leaves
@@ -171,9 +173,11 @@ fun Log(
                     commitList = commitList,
                     logViewModel = logViewModel,
                     graphWidth = graphWidth,
+                    commitsLimit = logStatus.commitsLimit,
                     onShowLogDialog = { dialog ->
                         logViewModel.showDialog(dialog)
-                    })
+                    }
+                )
 
                 DividerLog(
                     modifier = Modifier.draggable(
@@ -320,6 +324,7 @@ fun MessagesList(
     selectedItem: SelectedItem,
     commitList: GraphCommitList,
     logViewModel: LogViewModel,
+    commitsLimit: Int,
     onShowLogDialog: (LogDialog) -> Unit,
     graphWidth: Dp,
 ) {
@@ -354,6 +359,25 @@ fun MessagesList(
             )
         }
 
+        if (commitsLimit >= 0 && commitsLimit <= commitList.count()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .padding(start = graphWidth + 24.dp)
+                        .height(40.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Text(
+                        text = "The commits list has been limited to $commitsLimit. Access the settings to change it.",
+                        color = MaterialTheme.colors.primaryTextColor,
+                        fontSize = 14.sp,
+                        fontStyle = FontStyle.Italic,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+
         item {
             Box(modifier = Modifier.height(20.dp))
         }
@@ -369,6 +393,7 @@ fun GraphList(
     hasUncommitedChanges: Boolean,
     selectedCommit: RevCommit?,
     selectedItem: SelectedItem,
+    commitsLimit: Int,
 ) {
     val maxLinePosition = if (commitList.isNotEmpty())
         commitList.maxLine
@@ -425,6 +450,16 @@ fun GraphList(
                             plotCommit = graphNode,
                             nodeColor = nodeColor,
                             isSelected = selectedCommit?.name == graphNode.name,
+                        )
+                    }
+                }
+
+                // Spacing when the commits limit is present
+                if (commitsLimit >= 0 && commitsLimit <= commitList.count()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .height(40.dp),
                         )
                     }
                 }
