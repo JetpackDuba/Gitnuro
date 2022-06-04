@@ -304,8 +304,8 @@ fun DiffHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-            .background(MaterialTheme.colors.surface),
+            .background(MaterialTheme.colors.surface)
+            .padding(start = 8.dp, end = 8.dp, top = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val filePath = if (diffEntry.newPath != "/dev/null")
