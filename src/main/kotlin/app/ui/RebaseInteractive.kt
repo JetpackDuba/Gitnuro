@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
 import app.viewmodels.RebaseInteractiveState
@@ -88,7 +90,8 @@ fun RebaseStateLoaded(
                 modifier = Modifier.padding(end = 8.dp),
                 onClick = {
                     onCancel()
-                }
+                },
+                colors = textButtonColors(),
             ) {
                 Text("Cancel")
             }
@@ -139,7 +142,7 @@ fun RebaseCommit(
                 newMessage = it
                 onMessageChanged(it)
             },
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+            colors = outlinedTextFieldColors(),
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
         )
 

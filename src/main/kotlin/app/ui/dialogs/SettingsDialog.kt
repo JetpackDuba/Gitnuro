@@ -12,7 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.AppPreferences
 import app.DropDownOption
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.theme.themesList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -68,6 +70,7 @@ fun SettingsDialog(
                 modifier = Modifier
                     .padding(end = 8.dp)
                     .align(Alignment.End),
+                colors = textButtonColors(),
                 onClick = {
                     savePendingSettings(
                         appPreferences = appPreferences,
@@ -244,10 +247,7 @@ fun SettingIntInput(
                     }
                 }
             },
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = MaterialTheme.colors.background,
-                textColor = MaterialTheme.colors.primaryTextColor,
-            ),
+            colors = outlinedTextFieldColors(),
             maxLines = 1,
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
         )

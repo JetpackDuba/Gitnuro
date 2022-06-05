@@ -26,7 +26,7 @@ fun TextLink(
     val textColor = if (isHovered == colorsInverted) {
         MaterialTheme.colors.primaryTextColor
     } else {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     }
 
     Text(

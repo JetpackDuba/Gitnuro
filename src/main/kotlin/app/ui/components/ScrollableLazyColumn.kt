@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.theme.scrollbarHover
-import app.theme.scrollbarUnhover
+import app.theme.scrollbarNormal
 
 @Composable
 fun ScrollableLazyColumn(
@@ -37,7 +37,7 @@ fun ScrollableLazyColumn(
                 .fillMaxHeight()
                 .padding(end = 4.dp),
             style = LocalScrollbarStyle.current.copy(
-                unhoverColor = MaterialTheme.colors.scrollbarUnhover,
+                unhoverColor = MaterialTheme.colors.scrollbarNormal,
                 hoverColor = MaterialTheme.colors.scrollbarHover,
             ),
             adapter = rememberScrollbarAdapter(

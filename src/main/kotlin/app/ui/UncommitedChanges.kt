@@ -83,7 +83,7 @@ fun UncommitedChanges(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
 
         EntriesList(
@@ -178,7 +178,7 @@ fun UncommitedChanges(
                         statusViewModel.savedCommitMessage = it
                     },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
-                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+                    colors = textFieldColors(),
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 )
 
@@ -237,7 +237,7 @@ fun UncommitedChangesButtons(
             modifier = Modifier
                 .height(40.dp)
                 .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
-                .background(MaterialTheme.colors.confirmationButton)
+                .background(MaterialTheme.colors.primary)
                 .handMouseClickable { showDropDownMenu = true }
         ) {
             Icon(
@@ -367,7 +367,7 @@ fun ConfirmationButton(
         enabled = enabled,
         shape = shape,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.confirmationButton,
+            backgroundColor = MaterialTheme.colors.primary,
             contentColor = Color.White
         )
     ) {

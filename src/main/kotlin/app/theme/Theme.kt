@@ -1,44 +1,27 @@
+@file:Suppress("unused")
+
 package app.theme
 
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import app.DropDownOption
 
-private val DarkColorPalette = darkColors(
-    primary = primaryLight,
-    primaryVariant = primaryDark,
-    secondary = secondaryDark,
-    surface = surfaceColorDark,
-    background = backgroundColorDark,
-    error = errorColor,
-    onError = onErrorColor,
-    onPrimary = onPrimary,
-)
-
-private val LightColorPalette = lightColors(
-    primary = primary,
-    primaryVariant = primaryDark,
-    secondary = secondaryLight,
-    background = backgroundColorLight,
-    surface = surfaceColorLight,
-    error = errorColor,
-    onError = onErrorColor,
-    onPrimary = onPrimary,
-)
+private var appTheme: ColorsScheme = darkTheme
 
 @Composable
-fun AppTheme(theme: Themes = Themes.LIGHT, content: @Composable() () -> Unit) {
-    val colors = when (theme) {
-        Themes.LIGHT -> LightColorPalette
-        Themes.DARK -> DarkColorPalette
+fun AppTheme(selectedTheme: Themes = Themes.DARK, content: @Composable() () -> Unit) {
+    val theme = when (selectedTheme) {
+        Themes.LIGHT -> lightTheme
+        Themes.DARK -> darkTheme
+        Themes.DARK_BLUE -> darkBlueTheme
     }
 
+    appTheme = theme
+
     MaterialTheme(
-        colors = colors,
+        colors = theme.toComposeColors(),
         content = content,
         typography = typography,
     )
@@ -46,99 +29,71 @@ fun AppTheme(theme: Themes = Themes.LIGHT, content: @Composable() () -> Unit) {
 
 @get:Composable
 val Colors.backgroundSelected: Color
-    get() = if (isLight) backgroundColorSelectedLight else backgroundColorSelectedDark
+    get() = appTheme.backgroundSelected
 
 @get:Composable
 val Colors.primaryTextColor: Color
-    get() = if (isLight) mainText else mainTextDark
-
-@get:Composable
-val Colors.halfPrimary: Color
-    get() = primary.copy(alpha = 0.8f)
-
-@get:Composable
-val Colors.inversePrimaryTextColor: Color
-    get() = if (isLight) mainTextDark else mainText
+    get() = appTheme.primaryText
 
 @get:Composable
 val Colors.secondaryTextColor: Color
-    get() = if (isLight) secondaryText else secondaryTextDark
+    get() = appTheme.secondaryText
 
 @get:Composable
 val Colors.borderColor: Color
-    get() = if (isLight)
-        borderColorLight
-    else
-        borderColorDark
+    get() = appTheme.borderColor
 
 @get:Composable
 val Colors.headerBackground: Color
-    get() {
-        return if (isLight)
-            headerBackgroundLight
-        else
-            headerBackgroundDark
-    }
+    get() = appTheme.headerBackground
 
 @get:Composable
 val Colors.graphHeaderBackground: Color
-    get() {
-        return if (isLight)
-            headerBackgroundLight
-        else
-            graphHeaderBackgroundDark
-    }
+    get() = appTheme.graphHeaderBackground
 
 @get:Composable
 val Colors.addFile: Color
-    get() = addFileLight
+    get() = appTheme.addFile
 
 @get:Composable
 val Colors.deleteFile: Color
-    get() = deleteFileLight
+    get() = appTheme.deletedFile
 
 @get:Composable
 val Colors.modifyFile: Color
-    get() = modifyFileLight
+    get() = appTheme.modifiedFile
 
 @get:Composable
 val Colors.conflictFile: Color
-    get() = conflictFileLight
+    get() = appTheme.conflictingFile
 
 @get:Composable
 val Colors.headerText: Color
-    get() = if (isLight) primary else mainTextDark
-
-
-val Colors.tabColorActive: Color
-    get() = if (isLight) surfaceColorLight else surfaceColorDark
-
-
-val Colors.tabColorInactive: Color
-    get() = if (isLight) backgroundColorLight else backgroundColorDark
+    get() = appTheme.onHeader
 
 val Colors.stageButton: Color
-    get() = if (isLight) primary else primaryDark
+    get() = appTheme.primary
 
 val Colors.unstageButton: Color
-    get() = error
+    get() = appTheme.error
 
 val Colors.abortButton: Color
-    get() = error
+    get() = appTheme.error
 
-val Colors.confirmationButton: Color
-    get() = if (isLight) primary else primaryDark
-
-val Colors.scrollbarUnhover: Color
-    get() = if (isLight) unhoverScrollbarColorLight else unhoverScrollbarColorDark
+val Colors.scrollbarNormal: Color
+    get() = appTheme.normalScrollbar
 
 val Colors.scrollbarHover: Color
-    get() = if (isLight) hoverScrollbarColorLight else hoverScrollbarColorDark
+    get() = appTheme.hoverScrollbar
+
+val Colors.dialogOverlay: Color
+    get() = appTheme.dialogOverlay
 
 
 enum class Themes(val displayName: String) : DropDownOption {
     LIGHT("Light"),
-    DARK("Dark");
+    DARK("Dark"),
+    DARK_BLUE("Dark blue");
 
     override val optionName: String
         get() = displayName
@@ -147,4 +102,5 @@ enum class Themes(val displayName: String) : DropDownOption {
 val themesList = listOf(
     Themes.LIGHT,
     Themes.DARK,
+    Themes.DARK_BLUE,
 )

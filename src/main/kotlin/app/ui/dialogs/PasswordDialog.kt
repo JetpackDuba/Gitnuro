@@ -16,6 +16,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
 
@@ -61,6 +62,7 @@ fun PasswordDialog(
                 singleLine = true,
                 label = { Text("Password", fontSize = 14.sp) },
                 textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                colors = outlinedTextFieldColors(),
                 onValueChange = {
                     passwordField = it
                 },

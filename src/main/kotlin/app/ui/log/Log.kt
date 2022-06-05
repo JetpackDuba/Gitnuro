@@ -33,7 +33,6 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -193,7 +192,7 @@ fun Log(
                 HorizontalScrollbar(
                     modifier = Modifier.align(Alignment.BottomStart).width(graphWidth)
                         .padding(start = 4.dp, bottom = 4.dp), style = LocalScrollbarStyle.current.copy(
-                        unhoverColor = MaterialTheme.colors.scrollbarUnhover,
+                        unhoverColor = MaterialTheme.colors.scrollbarNormal,
                         hoverColor = MaterialTheme.colors.scrollbarHover,
                     ), adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
@@ -264,7 +263,7 @@ fun SearchFilter(
             label = {
                 Text("Search by message, author name or commit ID")
             },
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+            colors = textFieldColors(),
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
             trailingIcon = {
                 Row(
@@ -835,7 +834,10 @@ fun DividerLog(modifier: Modifier, graphWidth: Dp) {
             .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
     ) {
         Box(
-            modifier = Modifier.fillMaxHeight().width(1.dp).background(color = MaterialTheme.colors.primary)
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(1.dp)
+                .background(color = MaterialTheme.colors.primaryVariant)
                 .align(Alignment.Center)
         )
     }
@@ -1004,7 +1006,7 @@ fun BranchChip(
                 painter = painterResource("location.svg"),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 6.dp),
-                tint = MaterialTheme.colors.primary,
+                tint = MaterialTheme.colors.primaryVariant,
             )
         }
     }
@@ -1077,7 +1079,7 @@ fun RefChip(
                         modifier = Modifier.padding(6.dp).size(14.dp),
                         painter = painterResource(icon),
                         contentDescription = null,
-                        tint = MaterialTheme.colors.inversePrimaryTextColor,
+                        tint = MaterialTheme.colors.background,
                     )
                 }
                 Text(

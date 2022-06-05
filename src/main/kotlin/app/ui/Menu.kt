@@ -146,9 +146,9 @@ fun MenuButton(
     onClick: () -> Unit
 ) {
     val iconColor = if (enabled) {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     } else {
-        MaterialTheme.colors.secondaryVariant
+        MaterialTheme.colors.secondaryVariant //todo this color isn't specified anywhere
     }
 
     Box(
@@ -189,7 +189,7 @@ fun ExtendedMenuButton(
     extendedListItems: List<DropDownContentData>,
 ) {
     val iconColor = if (enabled) {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     } else {
         MaterialTheme.colors.secondaryVariant
     }
@@ -263,7 +263,7 @@ fun IconMenuButton(
     onClick: () -> Unit
 ) {
     val iconColor = if (enabled) {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     } else {
         MaterialTheme.colors.secondaryVariant
     }

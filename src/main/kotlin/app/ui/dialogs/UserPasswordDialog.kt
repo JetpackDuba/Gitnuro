@@ -16,7 +16,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -64,6 +66,7 @@ fun UserPasswordDialog(
                     },
                 value = userField,
                 singleLine = true,
+                colors = outlinedTextFieldColors(),
                 label = { Text("User", fontSize = 14.sp) },
                 textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 onValueChange = {
@@ -89,6 +92,7 @@ fun UserPasswordDialog(
                 singleLine = true,
                 label = { Text("Password", fontSize = 14.sp) },
                 textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                colors = outlinedTextFieldColors(),
                 onValueChange = {
                     passwordField = it
                 },
@@ -102,6 +106,7 @@ fun UserPasswordDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }

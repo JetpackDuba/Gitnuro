@@ -97,7 +97,7 @@ fun Diff(
                 }
             }
             ViewDiffResult.Loading, ViewDiffResult.None -> {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
             }
         }
 

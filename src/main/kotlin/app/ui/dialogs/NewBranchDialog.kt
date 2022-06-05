@@ -15,7 +15,9 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -53,6 +55,7 @@ fun NewBranchDialog(
                 singleLine = true,
                 label = { Text("New branch name", fontSize = 14.sp) },
                 textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                colors = outlinedTextFieldColors(),
                 onValueChange = {
                     branchField = it
                 },
@@ -64,6 +67,7 @@ fun NewBranchDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }

@@ -14,6 +14,7 @@ import app.AppConstants
 import app.AppConstants.openSourceProjects
 import app.Project
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TextLink
 
@@ -64,7 +65,8 @@ fun AppInfoDialog(
                 modifier = Modifier
                     .padding(top = 16.dp, end = 8.dp)
                     .align(Alignment.End),
-                onClick = onClose
+                onClick = onClose,
+                colors = textButtonColors(),
             ) {
                 Text("Close")
             }

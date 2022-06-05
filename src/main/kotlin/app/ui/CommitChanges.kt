@@ -42,7 +42,7 @@ fun CommitChanges(
 
     when (val commitChangesStatus = commitChangesStatusState.value) {
         CommitChangesStatus.Loading -> {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
         is CommitChangesStatus.Loaded -> {
             CommitChangesView(

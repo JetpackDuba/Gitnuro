@@ -18,7 +18,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 import app.viewmodels.CloneViewModel
 import openDirectoryDialog
@@ -106,6 +108,7 @@ private fun CloneInput(
             textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
             maxLines = 1,
             value = url,
+            colors = outlinedTextFieldColors(),
             onValueChange = {
                 cloneViewModel.resetStateIfError()
                 url = it
@@ -131,6 +134,7 @@ private fun CloneInput(
                 maxLines = 1,
                 label = { Text("Directory") },
                 value = directory,
+                colors = outlinedTextFieldColors(),
                 onValueChange = {
                     cloneViewModel.resetStateIfError()
                     directory = it
@@ -190,6 +194,7 @@ private fun CloneInput(
                         previous = cloneButtonFocusRequester
                         next = urlFocusRequester
                     },
+                colors = textButtonColors(),
                 onClick = {
                     onClose()
                 }
@@ -248,6 +253,7 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
                     end = 8.dp
                 )
                 .align(Alignment.End),
+            colors = textButtonColors(),
             onClick =  {
                 cloneViewModel.cancelClone()
             }

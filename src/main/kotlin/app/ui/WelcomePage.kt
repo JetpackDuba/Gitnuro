@@ -26,6 +26,7 @@ import app.extensions.dirPath
 import app.extensions.openUrlInBrowser
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
+import app.theme.textButtonColors
 import app.ui.dialogs.AppInfoDialog
 import app.ui.dialogs.CloneDialog
 import app.updates.Update
@@ -225,13 +226,13 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
                         TextButton(
                             onClick = {
                                 tabViewModel.openRepository(repo)
-                            }
+                            },
+                            colors = textButtonColors(),
                         ) {
                             Text(
                                 text = repoDirName,
                                 fontSize = 14.sp,
                                 maxLines = 1,
-                                color = MaterialTheme.colors.primary,
                             )
                         }
 
@@ -270,12 +271,13 @@ fun ButtonTile(
                     .size(24.dp),
                 painter = painter,
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primary),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryVariant),
             )
 
             Text(
                 text = title,
                 maxLines = 1,
+                color = MaterialTheme.colors.primaryVariant,
             )
         }
     }
@@ -286,12 +288,13 @@ fun IconTextButton(
     modifier: Modifier = Modifier,
     title: String,
     painter: Painter,
-    iconColor: Color = MaterialTheme.colors.primary,
+    iconColor: Color = MaterialTheme.colors.primaryVariant,
     onClick: () -> Unit,
 ) {
     TextButton(
         onClick = onClick,
-        modifier = modifier.size(width = 280.dp, height = 40.dp)
+        modifier = modifier.size(width = 280.dp, height = 40.dp),
+        colors = textButtonColors(),
     ) {
         Row(
             modifier = Modifier.fillMaxSize(),

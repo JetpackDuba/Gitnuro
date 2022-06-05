@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -67,6 +68,7 @@ fun RebaseDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }

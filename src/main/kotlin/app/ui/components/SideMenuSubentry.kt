@@ -47,7 +47,7 @@ fun SideMenuSubentry(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .size(16.dp),
-            tint = MaterialTheme.colors.primary,
+            tint = MaterialTheme.colors.primaryVariant,
         )
 
         Text(

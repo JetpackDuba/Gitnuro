@@ -13,7 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
-import app.theme.dialogBackgroundColor
+import app.theme.dialogOverlay
 
 @Composable
 fun MaterialDialog(
@@ -36,7 +36,7 @@ fun MaterialDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(dialogBackgroundColor),
+                .background(MaterialTheme.colors.dialogOverlay),
             contentAlignment = alignment,
         ) {
             Box(

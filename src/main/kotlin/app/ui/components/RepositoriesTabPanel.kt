@@ -28,8 +28,6 @@ import app.di.AppComponent
 import app.di.DaggerTabComponent
 import app.extensions.handMouseClickable
 import app.theme.primaryTextColor
-import app.theme.tabColorActive
-import app.theme.tabColorInactive
 import app.viewmodels.TabViewModel
 import javax.inject.Inject
 import kotlin.io.path.Path
@@ -44,9 +42,7 @@ fun RepositoriesTabPanel(
     onTabClosed: (Int) -> Unit,
     newTabContent: (key: Int) -> TabInformation,
 ) {
-    var tabsIdentifier by remember {
-        mutableStateOf(tabs.count())
-    }
+    var tabsIdentifier by remember { mutableStateOf(tabs.count()) }
 
     TabPanel(
         modifier = modifier,
@@ -123,7 +119,7 @@ fun TabPanel(
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = null,
-                    tint = MaterialTheme.colors.primary
+                    tint = MaterialTheme.colors.primaryVariant,
                 )
             }
         }
@@ -138,9 +134,9 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
         0.dp
     Box {
         val backgroundColor = if (selected)
-            MaterialTheme.colors.tabColorActive
+            MaterialTheme.colors.surface
         else
-            MaterialTheme.colors.tabColorInactive
+            MaterialTheme.colors.background
 
         Row(
             modifier = Modifier

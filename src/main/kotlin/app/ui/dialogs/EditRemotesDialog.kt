@@ -19,9 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import app.extensions.handMouseClickable
-import app.theme.borderColor
-import app.theme.primaryTextColor
-import app.theme.secondaryTextColor
+import app.theme.*
 import app.ui.components.PrimaryButton
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
@@ -230,6 +228,7 @@ fun EditRemotesDialog(
                                     },
                                     textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                     maxLines = 1,
+                                    colors = outlinedTextFieldColors(),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
@@ -251,6 +250,7 @@ fun EditRemotesDialog(
                                 },
                                 textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                 maxLines = 1,
+                                colors = outlinedTextFieldColors(),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
@@ -271,6 +271,7 @@ fun EditRemotesDialog(
                                 },
                                 textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                 maxLines = 1,
+                                colors = outlinedTextFieldColors(),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
@@ -289,6 +290,7 @@ fun EditRemotesDialog(
                                     TextButton(
                                         modifier = Modifier.padding(end = 8.dp),
                                         enabled = remoteChanged,
+                                        colors = textButtonColors(),
                                         onClick = {
                                             remotesEditorData = remotesEditorData.copy(
                                                 selectedRemote = selectedRemote.copy(
