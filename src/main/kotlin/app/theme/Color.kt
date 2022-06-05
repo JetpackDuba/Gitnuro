@@ -51,7 +51,7 @@ val darkBlueTheme = ColorsScheme(
     hoverScrollbar = Color(0xFF888888)
 )
 
-val darkTheme = ColorsScheme(
+val darkGrayTheme = ColorsScheme(
     primary = Color(0xFF014F97),
     primaryVariant = Color(0xFFCDEAFF),
     onPrimary = Color(0xFFFFFFFFF),
@@ -61,9 +61,9 @@ val darkTheme = ColorsScheme(
     error = Color(0xFFc93838),
     onError = Color(0xFFFFFFFF),
     background = Color(0xFF16181F),
-    backgroundSelected = Color(0xFF2f3640),
-    surface = Color(0xFF202330),
-    headerBackground = Color(0xFF131E44),
+    backgroundSelected = Color(0xFF32373e),
+    surface = Color(0xFF212731),
+    headerBackground = Color(0xFF21303d),
     borderColor = Color(0xFF989898),
     graphHeaderBackground = Color(0xFF303132),
     addFile = Color(0xFF32A852),
