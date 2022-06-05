@@ -404,7 +404,7 @@ fun DiffLine(
         }
 
         Text(
-            text = line.text.replace("\t", "    "), // this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
+            text = line.text.replace("\t", "    "), // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
             modifier = Modifier
                 .padding(start = 8.dp)
                 .fillMaxSize(),

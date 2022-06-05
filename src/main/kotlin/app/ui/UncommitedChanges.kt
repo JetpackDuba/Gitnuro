@@ -40,6 +40,7 @@ import app.ui.components.SecondaryButton
 import app.ui.context_menu.*
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
+import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
@@ -53,7 +54,7 @@ fun UncommitedChanges(
     onHistoryFile: (String) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
-    var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage) }
+    var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage.message) }
 
     val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
@@ -70,12 +71,17 @@ fun UncommitedChanges(
     val doCommit = { amend: Boolean ->
         statusViewModel.commit(commitMessage, amend)
         onStagedDiffEntrySelected(null)
-        statusViewModel.savedCommitMessage = ""
         commitMessage = ""
     }
 
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
     val canAmend = (commitMessage.isNotEmpty() || staged.isNotEmpty()) && statusViewModel.hasPreviousCommits
+
+    LaunchedEffect(Unit) {
+        statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
+            commitMessage = newCommitMessage
+        }
+    }
 
     Column {
         AnimatedVisibility(
@@ -94,7 +100,7 @@ fun UncommitedChanges(
             title = "Staged",
             allActionTitle = "Unstage all",
             actionTitle = "Unstage",
-            selectedEntryType = if(selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
+            selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.unstageButton,
             statusEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
@@ -122,7 +128,7 @@ fun UncommitedChanges(
                 .fillMaxWidth(),
             title = "Unstaged",
             actionTitle = "Stage",
-            selectedEntryType = if(selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
+            selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.stageButton,
             statusEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
@@ -175,7 +181,8 @@ fun UncommitedChanges(
                     value = commitMessage,
                     onValueChange = {
                         commitMessage = it
-                        statusViewModel.savedCommitMessage = it
+
+                        statusViewModel.updateCommitMessage(it)
                     },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
                     colors = textFieldColors(),
@@ -185,13 +192,19 @@ fun UncommitedChanges(
             when {
                 repositoryState.isMerging -> MergeButtons(
                     haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = { statusViewModel.abortMerge() },
+                    onAbort = {
+                        statusViewModel.abortMerge()
+                        statusViewModel.updateCommitMessage("")
+                    },
                     onMerge = { doCommit(false) }
                 )
                 repositoryState.isRebasing -> RebasingButtons(
                     canContinue = staged.isNotEmpty() || unstaged.isNotEmpty(),
                     haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = { statusViewModel.abortRebase() },
+                    onAbort = {
+                        statusViewModel.abortRebase()
+                        statusViewModel.updateCommitMessage("")
+                    },
                     onContinue = { statusViewModel.continueRebase() },
                     onSkip = { statusViewModel.skipRebase() },
                 )
@@ -502,7 +515,7 @@ private fun FileEntry(
                     tint = statusEntry.iconColor,
                 )
 
-                if(statusEntry.parentDirectoryPath.isNotEmpty()) {
+                if (statusEntry.parentDirectoryPath.isNotEmpty()) {
                     Text(
                         text = statusEntry.parentDirectoryPath,
                         modifier = Modifier.weight(1f, fill = false),
