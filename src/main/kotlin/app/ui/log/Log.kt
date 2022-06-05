@@ -585,10 +585,7 @@ fun UncommitedChangesLine(
         modifier = Modifier.height(40.dp)
             .fillMaxWidth()
             .clickable { onUncommitedChangesSelected() }
-            .padding(
-                start = graphWidth + DIVIDER_WIDTH.dp,
-                end = 4.dp,
-            )
+            .padding(start = graphWidth)
             .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
         verticalAlignment = Alignment.CenterVertically,
     ) {
