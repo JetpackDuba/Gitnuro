@@ -39,15 +39,10 @@ class StatusManager @Inject constructor(
     }
 
     suspend fun stage(git: Git, statusEntry: StatusEntry) = withContext(Dispatchers.IO) {
-        if (statusEntry.statusType == StatusType.REMOVED) {
-            git.rm()
-                .addFilepattern(statusEntry.filePath)
-                .call()
-        } else {
-            git.add()
-                .addFilepattern(statusEntry.filePath)
-                .call()
-        }
+        git.add()
+            .addFilepattern(statusEntry.filePath)
+            .setUpdate(statusEntry.statusType == StatusType.REMOVED)
+            .call()
     }
 
     suspend fun stageHunk(git: Git, diffEntry: DiffEntry, hunk: Hunk) = withContext(Dispatchers.IO) {
@@ -160,7 +155,7 @@ class StatusManager @Inject constructor(
         }
 
         splitted = splitted.mapIndexed { index, line ->
-            val lineWithBreak = line +lineDelimiter.orEmpty()
+            val lineWithBreak = line + lineDelimiter.orEmpty()
 
             if (index == splitted.count() - 1 && !content.endsWith(lineWithBreak)) {
                 line
@@ -238,6 +233,12 @@ class StatusManager @Inject constructor(
         git
             .add()
             .addFilepattern(".")
+            .setUpdate(true) // Modified and deleted files
+            .call()
+        git
+            .add()
+            .addFilepattern(".")
+            .setUpdate(false) // For newly added files
             .call()
     }
 
