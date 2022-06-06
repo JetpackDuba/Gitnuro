@@ -35,7 +35,7 @@ fun ScrollableLazyColumn(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .fillMaxHeight()
-                .padding(end = 4.dp),
+                .padding(end = 2.dp),
             style = LocalScrollbarStyle.current.copy(
                 unhoverColor = MaterialTheme.colors.scrollbarNormal,
                 hoverColor = MaterialTheme.colors.scrollbarHover,

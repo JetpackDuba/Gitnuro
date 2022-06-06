@@ -38,6 +38,7 @@ import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
 import app.git.diff.LineType
+import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.theme.stageButton
 import app.theme.unstageButton
@@ -304,8 +305,8 @@ fun DiffHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
-            .background(MaterialTheme.colors.surface)
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+            .background(MaterialTheme.colors.headerBackground)
+            .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val filePath = if (diffEntry.newPath != "/dev/null")

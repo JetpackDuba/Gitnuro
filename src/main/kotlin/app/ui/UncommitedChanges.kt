@@ -94,7 +94,7 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
+                .padding(end = 8.dp, bottom = 4.dp)
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Staged",
@@ -123,7 +123,7 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp, top = 4.dp)
+                .padding(end = 8.dp, top = 8.dp)
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Unstaged",
@@ -155,7 +155,7 @@ fun UncommitedChanges(
 
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
                 .run {
                     // When rebasing, we don't need a fixed size as we don't show the message TextField
                     if (!repositoryState.isRebasing) {

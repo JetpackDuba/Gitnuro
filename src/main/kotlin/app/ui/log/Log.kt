@@ -229,8 +229,7 @@ fun SearchFilter(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .background(MaterialTheme.colors.graphHeaderBackground),
+            .height(64.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
@@ -530,11 +529,14 @@ fun GraphHeader(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(48.dp).background(MaterialTheme.colors.graphHeaderBackground),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .background(MaterialTheme.colors.headerBackground),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                modifier = Modifier.width(graphWidth).padding(start = 8.dp),
+                modifier = Modifier.width(graphWidth).padding(start = 16.dp),
                 text = "Graph",
                 color = MaterialTheme.colors.headerText,
                 fontSize = 14.sp,
@@ -550,7 +552,9 @@ fun GraphHeader(
             )
 
             Text(
-                modifier = Modifier.padding(start = 8.dp).weight(1f),
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .weight(1f),
                 text = "Message",
                 color = MaterialTheme.colors.headerText,
                 fontSize = 14.sp,
@@ -586,7 +590,8 @@ fun UncommitedChangesLine(
             .fillMaxWidth()
             .clickable { onUncommitedChangesSelected() }
             .padding(start = graphWidth)
-            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
+            .padding(DIVIDER_WIDTH.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val text = when {
