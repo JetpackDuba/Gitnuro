@@ -22,7 +22,7 @@ import app.ui.components.TextLink
 fun AppInfoDialog(
     onClose: () -> Unit,
 ) {
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onClose) {
         Column(
             modifier = Modifier
                 .width(600.dp)

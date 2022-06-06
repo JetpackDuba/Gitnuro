@@ -28,7 +28,16 @@ fun SettingsDialog(
     val commitsLimitEnabled by appPreferences.commitsLimitEnabledFlow.collectAsState()
     var commitsLimit by remember { mutableStateOf(appPreferences.commitsLimit) }
 
-    MaterialDialog {
+    MaterialDialog(
+        onCloseRequested = {
+            savePendingSettings(
+                appPreferences = appPreferences,
+                commitsLimit = commitsLimit,
+            )
+
+            onDismiss()
+        }
+    ) {
         Column(modifier = Modifier.width(720.dp)) {
             Text(
                 text = "Settings",

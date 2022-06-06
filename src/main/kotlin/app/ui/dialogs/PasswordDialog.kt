@@ -30,7 +30,7 @@ fun PasswordDialog(
     val passwordFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),

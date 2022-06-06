@@ -4,6 +4,7 @@ package app.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -13,14 +14,17 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.loadImageBitmap
@@ -59,11 +63,25 @@ fun Diff(
 ) {
     val diffResultState = diffViewModel.diffResult.collectAsState()
     val viewDiffResult = diffResultState.value ?: return
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     Column(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .onPreviewKeyEvent {
+                if (it.key == Key.Escape) {
+                    onCloseDiffView()
+                    true
+                } else
+                    false
+            }
     ) {
         when (viewDiffResult) {
             ViewDiffResult.DiffNotFound -> { onCloseDiffView() }
@@ -323,7 +341,7 @@ fun DiffHeader(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        if(diffEntryType is DiffEntryType.UncommitedDiff) {
+        if (diffEntryType is DiffEntryType.UncommitedDiff) {
             val buttonText: String
             val color: Color
 
@@ -405,7 +423,10 @@ fun DiffLine(
         }
 
         Text(
-            text = line.text.replace("\t", "    "), // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
+            text = line.text.replace(
+                "\t",
+                "    "
+            ), // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
             modifier = Modifier
                 .padding(start = 8.dp)
                 .fillMaxSize(),

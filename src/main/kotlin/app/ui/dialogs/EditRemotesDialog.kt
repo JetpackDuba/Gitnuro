@@ -1,11 +1,9 @@
 package app.ui.dialogs
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -68,6 +66,7 @@ fun EditRemotesDialog(
     MaterialDialog(
         paddingVertical = 8.dp,
         paddingHorizontal = 16.dp,
+        onCloseRequested = onDismiss
     ) {
         Column(
             modifier = Modifier
@@ -102,11 +101,6 @@ fun EditRemotesDialog(
             Row(
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .border(
-                        width = 1.dp,
-                        shape = RoundedCornerShape(5.dp),
-                        color = MaterialTheme.colors.borderColor,
-                    )
                     .background(MaterialTheme.colors.surface)
             ) {
                 Column(

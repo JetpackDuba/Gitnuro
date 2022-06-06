@@ -26,7 +26,7 @@ fun RebaseDialog(
     onReject: () -> Unit,
     onAccept: () -> Unit
 ) {
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),

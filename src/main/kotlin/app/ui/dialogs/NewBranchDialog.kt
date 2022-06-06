@@ -30,7 +30,7 @@ fun NewBranchDialog(
     val branchFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),

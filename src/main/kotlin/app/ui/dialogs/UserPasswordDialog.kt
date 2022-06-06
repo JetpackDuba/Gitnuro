@@ -35,7 +35,9 @@ fun UserPasswordDialog(
     val acceptDialog = {
         onAccept(userField, passwordField)
     }
-    MaterialDialog {
+    MaterialDialog(
+        onCloseRequested = onReject
+    ) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),

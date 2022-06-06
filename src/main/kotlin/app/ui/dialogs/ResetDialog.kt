@@ -27,7 +27,7 @@ fun ResetBranchDialog(
 ) {
     var resetType by remember { mutableStateOf(ResetType.MIXED) }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),

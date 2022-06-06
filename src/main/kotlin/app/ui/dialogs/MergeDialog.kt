@@ -29,7 +29,7 @@ fun MergeDialog(
 ) {
     var fastForwardCheck by remember { mutableStateOf(fastForward) }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),
