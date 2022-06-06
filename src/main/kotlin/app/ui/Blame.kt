@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.extensions.lineAt
 import app.extensions.toStringWithSpaces
+import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
@@ -130,7 +131,7 @@ fun MinimizedBlame(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(52.dp)
             .background(MaterialTheme.colors.surface),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -181,9 +182,9 @@ private fun Header(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-            .background(MaterialTheme.colors.surface),
+            .height(40.dp)
+            .padding(start = 8.dp, end = 8.dp)
+            .background(MaterialTheme.colors.headerBackground),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

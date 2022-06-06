@@ -27,6 +27,7 @@ import app.extensions.handMouseClickable
 import app.extensions.toSmartSystemString
 import app.extensions.toSystemDateTimeString
 import app.git.diff.DiffResult
+import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.components.AvatarImage
@@ -67,9 +68,9 @@ private fun Header(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-            .background(MaterialTheme.colors.surface),
+            .height(40.dp)
+            .padding(start = 8.dp, end = 8.dp)
+            .background(MaterialTheme.colors.headerBackground),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

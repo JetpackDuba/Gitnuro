@@ -304,7 +304,7 @@ fun DiffHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(40.dp)
             .background(MaterialTheme.colors.headerBackground)
             .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
