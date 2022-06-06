@@ -30,6 +30,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -862,6 +863,10 @@ fun CommitsGraphLine(
     val passingLanes = plotCommit.passingLanes
     val forkingOffLanes = plotCommit.forkingOffLanes
     val mergingLanes = plotCommit.mergingLanes
+    val density = LocalDensity.current.density
+    val laneWidthWithDensity = remember(density) {
+        LANE_WIDTH * density
+    }
 
     Box(
         modifier = modifier
@@ -876,40 +881,40 @@ fun CommitsGraphLine(
                 if (plotCommit.childCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset(30f * (itemPosition + 1), this.center.y),
-                        end = Offset(30f * (itemPosition + 1), 0f),
+                        start = Offset( laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset( laneWidthWithDensity * (itemPosition + 1), 0f),
                     )
                 }
 
                 forkingOffLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(30f * (itemPosition + 1), this.center.y),
-                        end = Offset(30f * (plotLane.position + 1), 0f),
+                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
                     )
                 }
 
                 mergingLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(30f * (plotLane.position + 1), this.size.height),
-                        end = Offset(30f * (itemPosition + 1), this.center.y),
+                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                     )
                 }
 
                 if (plotCommit.parentCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset(30f * (itemPosition + 1), this.center.y),
-                        end = Offset(30f * (itemPosition + 1), this.size.height),
+                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset(laneWidthWithDensity * (itemPosition + 1), this.size.height),
                     )
                 }
 
                 passingLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(30f * (plotLane.position + 1), 0f),
-                        end = Offset(30f * (plotLane.position + 1), this.size.height),
+                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
+                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
                     )
                 }
             }
@@ -946,6 +951,11 @@ fun UncommitedChangesGraphNode(
     hasPreviousCommits: Boolean,
     isSelected: Boolean,
 ) {
+    val density = LocalDensity.current.density
+    println("Density is $density")
+    val laneWidthWithDensity = remember(density) {
+        LANE_WIDTH * density
+    }
     Box(
         modifier = modifier
             .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
@@ -957,14 +967,14 @@ fun UncommitedChangesGraphNode(
 
                 if (hasPreviousCommits) drawLine(
                     color = colors[0],
-                    start = Offset(30f, this.center.y),
-                    end = Offset(30f, this.size.height),
+                    start = Offset(laneWidthWithDensity, this.center.y),
+                    end = Offset(laneWidthWithDensity, this.size.height),
                 )
 
                 drawCircle(
                     color = colors[0],
                     radius = 15f,
-                    center = Offset(30f, this.center.y),
+                    center = Offset(laneWidthWithDensity, this.center.y),
                 )
             }
         }
