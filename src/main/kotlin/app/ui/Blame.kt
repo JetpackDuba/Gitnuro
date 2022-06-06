@@ -209,8 +209,8 @@ private fun Header(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-            .padding(start = 8.dp, end = 8.dp)
-            .background(MaterialTheme.colors.headerBackground),
+            .background(MaterialTheme.colors.headerBackground)
+            .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
