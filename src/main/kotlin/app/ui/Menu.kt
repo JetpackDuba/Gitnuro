@@ -32,6 +32,7 @@ fun Menu(
     menuViewModel: MenuViewModel,
     onRepositoryOpen: () -> Unit,
     onCreateBranch: () -> Unit,
+    onStashWithMessage: () -> Unit,
 ) {
     var showAdditionalOptionsDropDownMenu by remember { mutableStateOf(false) }
 
@@ -93,11 +94,14 @@ fun Menu(
 
         Spacer(modifier = Modifier.width(24.dp))
 
-        MenuButton(
+        ExtendedMenuButton(
             modifier = Modifier.padding(end = 8.dp),
             title = "Stash",
             icon = painterResource("stash.svg"),
             onClick = { menuViewModel.stash() },
+            extendedListItems = stashContextMenuItems(
+                onStashWithMessage = onStashWithMessage
+            )
         )
 
         MenuButton(

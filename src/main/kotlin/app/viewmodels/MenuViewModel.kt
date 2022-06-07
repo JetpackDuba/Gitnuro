@@ -35,7 +35,14 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         statusManager.stageUntrackedFiles(git)
-        stashManager.stash(git)
+        stashManager.stash(git, null)
+    }
+
+    fun stashWithMessage(message: String) = tabState.safeProcessing(
+        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+    ) { git ->
+        statusManager.stageUntrackedFiles(git)
+        stashManager.stash(git, message)
     }
 
     fun popStash() = tabState.safeProcessing(

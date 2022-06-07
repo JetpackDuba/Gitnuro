@@ -20,6 +20,7 @@ import app.theme.borderColor
 import app.theme.primaryTextColor
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.RebaseInteractive
+import app.ui.dialogs.StashWithMessageDialog
 import app.ui.log.Log
 import app.viewmodels.BlameState
 import app.viewmodels.TabViewModel
@@ -43,6 +44,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val showHistory by tabViewModel.showHistory.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
+    var showStashWithMessageDialog by remember { mutableStateOf(false) }
 
     if (showNewBranchDialog) {
         NewBranchDialog(
@@ -52,6 +54,16 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
             onAccept = { branchName ->
                 tabViewModel.branchesViewModel.createBranch(branchName)
                 showNewBranchDialog = false
+            }
+        )
+    } else if (showStashWithMessageDialog) {
+        StashWithMessageDialog(
+            onReject = {
+                showStashWithMessageDialog = false
+            },
+            onAccept = { stashMessage ->
+                tabViewModel.menuViewModel.stashWithMessage(stashMessage)
+                showStashWithMessageDialog = false
             }
         )
     }
@@ -72,7 +84,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 onRepositoryOpen = {
                     openRepositoryDialog(tabViewModel = tabViewModel)
                 },
-                onCreateBranch = { showNewBranchDialog = true }
+                onCreateBranch = { showNewBranchDialog = true },
+                onStashWithMessage = { showStashWithMessageDialog = true },
             )
 
             RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
@@ -90,10 +103,10 @@ fun RepoContent(
     blameState: BlameState,
     showHistory: Boolean,
 ) {
-    if(showHistory) {
+    if (showHistory) {
         val historyViewModel = tabViewModel.historyViewModel
 
-        if(historyViewModel != null) {
+        if (historyViewModel != null) {
             FileHistory(
                 historyViewModel = historyViewModel,
                 onClose = {
