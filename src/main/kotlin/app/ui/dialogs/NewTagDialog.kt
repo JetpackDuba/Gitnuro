@@ -44,7 +44,7 @@ fun NewTagDialog(
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent {
-                        if (it.key == Key.Enter) {
+                        if (it.key == Key.Enter && tagField.isBlank()) {
                             onAccept(tagField)
                             true
                         } else {
@@ -79,7 +79,7 @@ fun NewTagDialog(
                         this.previous = tagFieldFocusRequester
                         this.next = tagFieldFocusRequester
                     },
-                    enabled = tagField.isNotEmpty(),
+                    enabled = tagField.isBlank(),
                     onClick = {
                         onAccept(tagField)
                     },

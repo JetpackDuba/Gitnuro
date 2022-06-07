@@ -44,7 +44,7 @@ fun NewBranchDialog(
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent {
-                        if (it.key == Key.Enter) {
+                        if (it.key == Key.Enter && branchField.isNotBlank()) {
                             onAccept(branchField)
                             true
                         } else {
@@ -79,7 +79,7 @@ fun NewBranchDialog(
                         this.previous = branchFieldFocusRequester
                         this.next = branchFieldFocusRequester
                     },
-                    enabled = branchField.isNotEmpty(),
+                    enabled = branchField.isNotBlank(),
                     onClick = {
                         onAccept(branchField)
                     },

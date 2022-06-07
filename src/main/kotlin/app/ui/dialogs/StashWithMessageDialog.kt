@@ -44,7 +44,7 @@ fun StashWithMessageDialog(
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent {
-                        if (it.key == Key.Enter) {
+                        if (it.key == Key.Enter && textField.isNotBlank()) {
                             onAccept(textField)
                             true
                         } else {
@@ -78,7 +78,7 @@ fun StashWithMessageDialog(
                         this.previous = textFieldFocusRequester
                         this.next = textFieldFocusRequester
                     },
-                    enabled = textField.isNotEmpty(),
+                    enabled = textField.isNotBlank(),
                     onClick = {
                         onAccept(textField)
                     },
