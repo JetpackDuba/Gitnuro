@@ -58,6 +58,15 @@ class FileChangesWatcher @Inject constructor() {
 
             val hasGitDirectoryChanged = dir.startsWith("$pathStr$systemSeparator.git$systemSeparator")
 
+            if(events.count() == 1) {
+                val fileChanged = events.first().context().toString()
+                val fullPathOfFileChanged = "$pathStr$systemSeparator.git$systemSeparator$fileChanged"
+
+                // Ignore COMMIT_EDITMSG changes
+                if(isGitMessageFile(pathStr, fullPathOfFileChanged))
+                    return@withContext
+            }
+            
             println("Has git dir changed: $hasGitDirectoryChanged")
 
             _changesNotifier.emit(hasGitDirectoryChanged)
@@ -85,5 +94,11 @@ class FileChangesWatcher @Inject constructor() {
 
             key.reset()
         }
+    }
+
+    private fun isGitMessageFile(repoPath: String, fullPathOfFileChanged: String): Boolean {
+        val gitDir = "$repoPath$systemSeparator.git${systemSeparator}"
+        return fullPathOfFileChanged == "${gitDir}COMMIT_EDITMSG" ||
+                fullPathOfFileChanged == "${gitDir}MERGE_MSG"
     }
 }
