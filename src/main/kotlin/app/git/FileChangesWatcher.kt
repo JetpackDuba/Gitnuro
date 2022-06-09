@@ -52,8 +52,6 @@ class FileChangesWatcher @Inject constructor() {
         while (watchService.take().also { key = it } != null) {
             val events = key.pollEvents()
 
-            println("Polled events on dir ${keys[key]}")
-
             val dir = keys[key] ?: return@withContext
 
             val hasGitDirectoryChanged = dir.startsWith("$pathStr$systemSeparator.git$systemSeparator")
@@ -66,7 +64,7 @@ class FileChangesWatcher @Inject constructor() {
                 if(isGitMessageFile(pathStr, fullPathOfFileChanged))
                     return@withContext
             }
-            
+
             println("Has git dir changed: $hasGitDirectoryChanged")
 
             _changesNotifier.emit(hasGitDirectoryChanged)

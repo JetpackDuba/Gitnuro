@@ -952,7 +952,7 @@ fun UncommitedChangesGraphNode(
     isSelected: Boolean,
 ) {
     val density = LocalDensity.current.density
-    println("Density is $density")
+
     val laneWidthWithDensity = remember(density) {
         LANE_WIDTH * density
     }

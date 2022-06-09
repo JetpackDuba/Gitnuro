@@ -40,8 +40,6 @@ class StatusViewModel @Inject constructor(
     ) { git ->
         val messageToPersist = savedCommitMessage.message.ifBlank { null }
 
-        println("Persisting message: $messageToPersist")
-
         if (git.repository.repositoryState.isMerging) {
             git.repository.writeMergeCommitMsg(messageToPersist)
         } else if (git.repository.repositoryState == RepositoryState.SAFE) {

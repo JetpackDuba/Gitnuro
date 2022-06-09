@@ -119,12 +119,7 @@ class App {
     ) {
         val tabs by tabsFlow.collectAsState()
         val tabsInformationList = tabs.sortedBy { it.key }
-
-        println("Tabs count ${tabs.count()}")
-
         val selectedTabKey = remember { mutableStateOf(0) }
-
-        println("Selected tab key: ${selectedTabKey.value}")
 
         Column(
             modifier = Modifier.background(MaterialTheme.colors.background)
