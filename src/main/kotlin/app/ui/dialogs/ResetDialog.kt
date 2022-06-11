@@ -17,6 +17,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import app.git.ResetType
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @Composable
@@ -26,7 +27,7 @@ fun ResetBranchDialog(
 ) {
     var resetType by remember { mutableStateOf(ResetType.MIXED) }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),
@@ -60,6 +61,7 @@ fun ResetBranchDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }

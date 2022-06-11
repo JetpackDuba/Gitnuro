@@ -61,7 +61,8 @@ fun AppTab(
             LinearProgressIndicator(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .alpha(linearProgressAlpha)
+                    .alpha(linearProgressAlpha),
+                color = MaterialTheme.colors.primaryVariant
             )
 
             CredentialsDialog(tabViewModel)

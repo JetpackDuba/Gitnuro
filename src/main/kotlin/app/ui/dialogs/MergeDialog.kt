@@ -15,6 +15,7 @@ import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -28,7 +29,7 @@ fun MergeDialog(
 ) {
     var fastForwardCheck by remember { mutableStateOf(fastForward) }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),
@@ -89,6 +90,7 @@ fun MergeDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }

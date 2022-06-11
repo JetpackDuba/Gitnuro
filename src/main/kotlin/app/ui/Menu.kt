@@ -32,6 +32,7 @@ fun Menu(
     menuViewModel: MenuViewModel,
     onRepositoryOpen: () -> Unit,
     onCreateBranch: () -> Unit,
+    onStashWithMessage: () -> Unit,
 ) {
     var showAdditionalOptionsDropDownMenu by remember { mutableStateOf(false) }
 
@@ -53,6 +54,7 @@ fun Menu(
         Spacer(modifier = Modifier.weight(1f))
 
         ExtendedMenuButton(
+            modifier = Modifier.padding(end = 8.dp),
             title = "Pull",
             icon = painterResource("download.svg"),
             onClick = { menuViewModel.pull() },
@@ -80,7 +82,7 @@ fun Menu(
             )
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(24.dp))
 
         MenuButton(
             title = "Branch",
@@ -90,12 +92,16 @@ fun Menu(
             },
         )
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(24.dp))
 
-        MenuButton(
+        ExtendedMenuButton(
+            modifier = Modifier.padding(end = 8.dp),
             title = "Stash",
             icon = painterResource("stash.svg"),
             onClick = { menuViewModel.stash() },
+            extendedListItems = stashContextMenuItems(
+                onStashWithMessage = onStashWithMessage
+            )
         )
 
         MenuButton(
@@ -146,16 +152,15 @@ fun MenuButton(
     onClick: () -> Unit
 ) {
     val iconColor = if (enabled) {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     } else {
-        MaterialTheme.colors.secondaryVariant
+        MaterialTheme.colors.secondaryVariant //todo this color isn't specified anywhere
     }
 
     Box(
         modifier = modifier
-            .padding(horizontal = 2.dp)
             .handMouseClickable { if (enabled) onClick() }
-            .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(3.dp))
+            .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(4.dp))
             .padding(vertical = 8.dp, horizontal = 16.dp),
     ) {
         Row(
@@ -189,46 +194,42 @@ fun ExtendedMenuButton(
     extendedListItems: List<DropDownContentData>,
 ) {
     val iconColor = if (enabled) {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     } else {
         MaterialTheme.colors.secondaryVariant
     }
 
     var showDropDownMenu by remember { mutableStateOf(false) }
 
-    Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-        Box(
-            modifier = modifier
+    Row(modifier = modifier.height(IntrinsicSize.Min)) {
+        Row(
+            modifier = Modifier
                 .handMouseClickable { if (enabled) onClick() }
-                .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topStart = 3.dp, bottomStart = 3.dp))
+                .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp))
                 .padding(vertical = 8.dp, horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = icon,
-                    contentDescription = title,
-                    modifier = Modifier
-                        .padding(horizontal = 4.dp)
-                        .size(24.dp),
-                    colorFilter = ColorFilter.tint(iconColor),
-                )
-                Text(
-                    text = title,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colors.primaryTextColor
-                )
-            }
+            Image(
+                painter = icon,
+                contentDescription = title,
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .size(24.dp),
+                colorFilter = ColorFilter.tint(iconColor),
+            )
+            Text(
+                text = title,
+                fontSize = 12.sp,
+                color = MaterialTheme.colors.primaryTextColor
+            )
         }
 
         Box(
-            modifier = modifier
-                .padding(end = 8.dp)
+            modifier = Modifier
                 .width(20.dp)
                 .fillMaxHeight()
-                .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topEnd = 3.dp, bottomEnd = 3.dp))
+                .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
                 .handMouseClickable {
                     showDropDownMenu = true
                 },
@@ -263,7 +264,7 @@ fun IconMenuButton(
     onClick: () -> Unit
 ) {
     val iconColor = if (enabled) {
-        MaterialTheme.colors.primary
+        MaterialTheme.colors.primaryVariant
     } else {
         MaterialTheme.colors.secondaryVariant
     }

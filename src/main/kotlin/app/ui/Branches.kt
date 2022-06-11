@@ -114,7 +114,7 @@ private fun BranchLineEntry(
                     painter = painterResource("location.svg"),
                     contentDescription = null,
                     modifier = Modifier.padding(horizontal = 4.dp),
-                    tint = MaterialTheme.colors.primary,
+                    tint = MaterialTheme.colors.primaryVariant,
                 )
             }
         }

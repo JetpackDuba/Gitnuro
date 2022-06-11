@@ -2,6 +2,7 @@
 
 package app.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,12 +10,17 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import app.git.DiffEntryType
 import app.theme.borderColor
 import app.theme.primaryTextColor
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.RebaseInteractive
+import app.ui.dialogs.StashWithMessageDialog
 import app.ui.log.Log
 import app.viewmodels.BlameState
 import app.viewmodels.TabViewModel
@@ -23,7 +29,9 @@ import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
+import org.jetbrains.compose.splitpane.SplitterScope
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
+import java.awt.Cursor
 
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -36,6 +44,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val showHistory by tabViewModel.showHistory.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
+    var showStashWithMessageDialog by remember { mutableStateOf(false) }
 
     if (showNewBranchDialog) {
         NewBranchDialog(
@@ -45,6 +54,16 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
             onAccept = { branchName ->
                 tabViewModel.branchesViewModel.createBranch(branchName)
                 showNewBranchDialog = false
+            }
+        )
+    } else if (showStashWithMessageDialog) {
+        StashWithMessageDialog(
+            onReject = {
+                showStashWithMessageDialog = false
+            },
+            onAccept = { stashMessage ->
+                tabViewModel.menuViewModel.stashWithMessage(stashMessage)
+                showStashWithMessageDialog = false
             }
         )
     }
@@ -65,7 +84,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 onRepositoryOpen = {
                     openRepositoryDialog(tabViewModel = tabViewModel)
                 },
-                onCreateBranch = { showNewBranchDialog = true }
+                onCreateBranch = { showNewBranchDialog = true },
+                onStashWithMessage = { showStashWithMessageDialog = true },
             )
 
             RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
@@ -83,10 +103,10 @@ fun RepoContent(
     blameState: BlameState,
     showHistory: Boolean,
 ) {
-    if(showHistory) {
+    if (showHistory) {
         val historyViewModel = tabViewModel.historyViewModel
 
-        if(historyViewModel != null) {
+        if (historyViewModel != null) {
             FileHistory(
                 historyViewModel = historyViewModel,
                 onClose = {
@@ -117,11 +137,9 @@ fun MainContentView(
 ) {
     Row {
         HorizontalSplitPane {
-            first(minSize = 200.dp) {
+            first(minSize = 250.dp) {
                 Column(
                     modifier = Modifier
-                        .widthIn(min = 300.dp)
-                        .weight(0.15f)
                         .fillMaxHeight()
                 ) {
                     Branches(
@@ -139,6 +157,10 @@ fun MainContentView(
                 }
             }
 
+            splitter {
+                this.repositorySplitter()
+            }
+
             second {
                 HorizontalSplitPane(
                     splitPaneState = rememberSplitPaneState(0.9f)
@@ -147,11 +169,6 @@ fun MainContentView(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .border(
-                                    width = 2.dp,
-                                    color = MaterialTheme.colors.borderColor,
-                                    shape = RoundedCornerShape(4.dp)
-                                )
                         ) {
                             if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                                 Blame(
@@ -189,6 +206,10 @@ fun MainContentView(
                                 }
                             }
                         }
+                    }
+
+                    splitter {
+                        this.repositorySplitter()
                     }
 
                     second(minSize = 300.dp) {
@@ -243,6 +264,27 @@ fun MainContentView(
                 }
             }
         }
+    }
+}
+
+fun SplitterScope.repositorySplitter() {
+    visiblePart {
+        Box(
+            Modifier
+                .width(8.dp)
+                .fillMaxHeight()
+                .background(Color.Transparent)
+        )
+    }
+    handle {
+        Box(
+            Modifier
+                .markAsHandle()
+                .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+                .background(Color.Transparent)
+                .width(8.dp)
+                .fillMaxHeight()
+        )
     }
 }
 

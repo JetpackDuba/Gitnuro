@@ -40,6 +40,7 @@ import app.ui.components.SecondaryButton
 import app.ui.context_menu.*
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
+import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
@@ -53,7 +54,7 @@ fun UncommitedChanges(
     onHistoryFile: (String) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
-    var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage) }
+    var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage.message) }
 
     val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
@@ -70,12 +71,17 @@ fun UncommitedChanges(
     val doCommit = { amend: Boolean ->
         statusViewModel.commit(commitMessage, amend)
         onStagedDiffEntrySelected(null)
-        statusViewModel.savedCommitMessage = ""
         commitMessage = ""
     }
 
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
     val canAmend = (commitMessage.isNotEmpty() || staged.isNotEmpty()) && statusViewModel.hasPreviousCommits
+
+    LaunchedEffect(Unit) {
+        statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
+            commitMessage = newCommitMessage
+        }
+    }
 
     Column {
         AnimatedVisibility(
@@ -83,18 +89,18 @@ fun UncommitedChanges(
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
 
         EntriesList(
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp, bottom = 4.dp)
+                .padding(end = 8.dp, bottom = 4.dp)
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Staged",
             allActionTitle = "Unstage all",
             actionTitle = "Unstage",
-            selectedEntryType = if(selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
+            selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.unstageButton,
             statusEntries = staged,
             onDiffEntrySelected = onStagedDiffEntrySelected,
@@ -117,12 +123,12 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(start = 8.dp, end = 8.dp, top = 4.dp)
+                .padding(end = 8.dp, top = 8.dp)
                 .weight(5f)
                 .fillMaxWidth(),
             title = "Unstaged",
             actionTitle = "Stage",
-            selectedEntryType = if(selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
+            selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.stageButton,
             statusEntries = unstaged,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
@@ -149,7 +155,7 @@ fun UncommitedChanges(
 
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
                 .run {
                     // When rebasing, we don't need a fixed size as we don't show the message TextField
                     if (!repositoryState.isRebasing) {
@@ -175,23 +181,30 @@ fun UncommitedChanges(
                     value = commitMessage,
                     onValueChange = {
                         commitMessage = it
-                        statusViewModel.savedCommitMessage = it
+
+                        statusViewModel.updateCommitMessage(it)
                     },
                     label = { Text("Write your commit message here", fontSize = 14.sp) },
-                    colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+                    colors = textFieldColors(),
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 )
 
             when {
                 repositoryState.isMerging -> MergeButtons(
                     haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = { statusViewModel.abortMerge() },
+                    onAbort = {
+                        statusViewModel.abortMerge()
+                        statusViewModel.updateCommitMessage("")
+                    },
                     onMerge = { doCommit(false) }
                 )
                 repositoryState.isRebasing -> RebasingButtons(
                     canContinue = staged.isNotEmpty() || unstaged.isNotEmpty(),
                     haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = { statusViewModel.abortRebase() },
+                    onAbort = {
+                        statusViewModel.abortRebase()
+                        statusViewModel.updateCommitMessage("")
+                    },
                     onContinue = { statusViewModel.continueRebase() },
                     onSkip = { statusViewModel.skipRebase() },
                 )
@@ -237,7 +250,7 @@ fun UncommitedChangesButtons(
             modifier = Modifier
                 .height(40.dp)
                 .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
-                .background(MaterialTheme.colors.confirmationButton)
+                .background(MaterialTheme.colors.primary)
                 .handMouseClickable { showDropDownMenu = true }
         ) {
             Icon(
@@ -367,7 +380,7 @@ fun ConfirmationButton(
         enabled = enabled,
         shape = shape,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.confirmationButton,
+            backgroundColor = MaterialTheme.colors.primary,
             contentColor = Color.White
         )
     ) {
@@ -502,7 +515,7 @@ private fun FileEntry(
                     tint = statusEntry.iconColor,
                 )
 
-                if(statusEntry.parentDirectoryPath.isNotEmpty()) {
+                if (statusEntry.parentDirectoryPath.isNotEmpty()) {
                     Text(
                         text = statusEntry.parentDirectoryPath,
                         modifier = Modifier.weight(1f, fill = false),

@@ -1,15 +1,17 @@
 package app.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
+import app.AppPreferences
 import app.git.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
 import app.ui.SelectedItem
 import app.ui.log.LogDialog
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -36,6 +38,7 @@ class LogViewModel @Inject constructor(
     private val mergeManager: MergeManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
+    private val appPreferences: AppPreferences,
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
@@ -57,8 +60,23 @@ class LogViewModel @Inject constructor(
         )
     )
 
+    private val scope = CoroutineScope(Dispatchers.IO)
+
     private val _logSearchFilterResults = MutableStateFlow<LogSearch>(LogSearch.NotSearching)
     val logSearchFilterResults: StateFlow<LogSearch> = _logSearchFilterResults
+
+    init {
+        scope.launch {
+            appPreferences.commitsLimitEnabledFlow.collect {
+                tabState.refreshData(RefreshType.ONLY_LOG)
+            }
+        }
+        scope.launch {
+            appPreferences.commitsLimitFlow.collect {
+                tabState.refreshData(RefreshType.ONLY_LOG)
+            }
+        }
+    }
 
     private suspend fun loadLog(git: Git) {
         _logStatus.value = LogStatus.Loading
@@ -70,9 +88,19 @@ class LogViewModel @Inject constructor(
         )
 
         val hasUncommitedChanges = statusSummary.total > 0
-        val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges)
+        val commitsLimit = if(appPreferences.commitsLimitEnabled) {
+            appPreferences.commitsLimit
+        } else
+            Int.MAX_VALUE
 
-        _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary)
+        val commitsLimitDisplayed = if(appPreferences.commitsLimitEnabled) {
+            appPreferences.commitsLimit
+        } else
+            -1
+
+        val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges, commitsLimit)
+
+        _logStatus.value = LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary, commitsLimitDisplayed)
 
         // Remove search filter if the log has been updated
         _logSearchFilterResults.value = LogSearch.NotSearching
@@ -182,6 +210,7 @@ class LogViewModel @Inject constructor(
                 plotCommitList = previousLogStatusValue.plotCommitList,
                 currentBranch = currentBranch,
                 statusSummary = statsSummary,
+                commitsLimit = previousLogStatusValue.commitsLimit,
             )
 
             _logStatus.value = newLogStatusValue
@@ -329,6 +358,7 @@ sealed class LogStatus {
         val plotCommitList: GraphCommitList,
         val currentBranch: Ref?,
         val statusSummary: StatusSummary,
+        val commitsLimit: Int,
     ) : LogStatus()
 }
 

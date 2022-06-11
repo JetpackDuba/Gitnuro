@@ -15,7 +15,9 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -28,7 +30,7 @@ fun NewTagDialog(
     val tagFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    MaterialDialog {
+    MaterialDialog(onCloseRequested = onReject) {
         Column(
             modifier = Modifier
                 .background(MaterialTheme.colors.background),
@@ -42,7 +44,7 @@ fun NewTagDialog(
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent {
-                        if (it.key == Key.Enter) {
+                        if (it.key == Key.Enter && tagField.isBlank()) {
                             onAccept(tagField)
                             true
                         } else {
@@ -53,6 +55,7 @@ fun NewTagDialog(
                 singleLine = true,
                 label = { Text("New tag name", fontSize = 14.sp) },
                 textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                colors = outlinedTextFieldColors(),
                 onValueChange = {
                     tagField = it
                 },
@@ -64,6 +67,7 @@ fun NewTagDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }
@@ -75,7 +79,7 @@ fun NewTagDialog(
                         this.previous = tagFieldFocusRequester
                         this.next = tagFieldFocusRequester
                     },
-                    enabled = tagField.isNotEmpty(),
+                    enabled = tagField.isBlank(),
                     onClick = {
                         onAccept(tagField)
                     },

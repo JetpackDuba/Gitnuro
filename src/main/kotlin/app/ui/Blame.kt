@@ -4,6 +4,7 @@ package app.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -11,10 +12,17 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
@@ -24,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.extensions.lineAt
 import app.extensions.toStringWithSpaces
+import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
@@ -37,7 +46,25 @@ fun Blame(
     onSelectCommit: (RevCommit) -> Unit,
     onClose: () -> Unit,
 ) {
-    Column {
+
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Column(
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusable()
+            .onPreviewKeyEvent {
+                if (it.key == Key.Escape) {
+                    onClose()
+                    true
+                } else
+                    false
+            },
+    ) {
         Header(filePath, onClose = onClose)
         SelectionContainer {
             ScrollableLazyColumn(
@@ -130,7 +157,7 @@ fun MinimizedBlame(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(52.dp)
             .background(MaterialTheme.colors.surface),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -181,9 +208,9 @@ private fun Header(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-            .background(MaterialTheme.colors.surface),
+            .height(40.dp)
+            .background(MaterialTheme.colors.headerBackground)
+            .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(

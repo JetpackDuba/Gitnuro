@@ -30,6 +30,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -156,6 +157,7 @@ fun Log(
                     graphWidth = graphWidth,
                     scrollState = verticalScrollState,
                     hasUncommitedChanges = hasUncommitedChanges,
+                    commitsLimit = logStatus.commitsLimit,
                 )
 
                 // The commits' messages list overlaps with the graph list to catch all the click events but leaves
@@ -171,9 +173,11 @@ fun Log(
                     commitList = commitList,
                     logViewModel = logViewModel,
                     graphWidth = graphWidth,
+                    commitsLimit = logStatus.commitsLimit,
                     onShowLogDialog = { dialog ->
                         logViewModel.showDialog(dialog)
-                    })
+                    }
+                )
 
                 DividerLog(
                     modifier = Modifier.draggable(
@@ -189,7 +193,7 @@ fun Log(
                 HorizontalScrollbar(
                     modifier = Modifier.align(Alignment.BottomStart).width(graphWidth)
                         .padding(start = 4.dp, bottom = 4.dp), style = LocalScrollbarStyle.current.copy(
-                        unhoverColor = MaterialTheme.colors.scrollbarUnhover,
+                        unhoverColor = MaterialTheme.colors.scrollbarNormal,
                         hoverColor = MaterialTheme.colors.scrollbarHover,
                     ), adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
@@ -226,8 +230,7 @@ fun SearchFilter(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp)
-            .background(MaterialTheme.colors.graphHeaderBackground),
+            .height(64.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
@@ -260,7 +263,7 @@ fun SearchFilter(
             label = {
                 Text("Search by message, author name or commit ID")
             },
-            colors = TextFieldDefaults.textFieldColors(backgroundColor = MaterialTheme.colors.background),
+            colors = textFieldColors(),
             textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
             trailingIcon = {
                 Row(
@@ -320,6 +323,7 @@ fun MessagesList(
     selectedItem: SelectedItem,
     commitList: GraphCommitList,
     logViewModel: LogViewModel,
+    commitsLimit: Int,
     onShowLogDialog: (LogDialog) -> Unit,
     graphWidth: Dp,
 ) {
@@ -354,6 +358,25 @@ fun MessagesList(
             )
         }
 
+        if (commitsLimit >= 0 && commitsLimit <= commitList.count()) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .padding(start = graphWidth + 24.dp)
+                        .height(40.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Text(
+                        text = "The commits list has been limited to $commitsLimit. Access the settings to change it.",
+                        color = MaterialTheme.colors.primaryTextColor,
+                        fontSize = 14.sp,
+                        fontStyle = FontStyle.Italic,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+
         item {
             Box(modifier = Modifier.height(20.dp))
         }
@@ -369,6 +392,7 @@ fun GraphList(
     hasUncommitedChanges: Boolean,
     selectedCommit: RevCommit?,
     selectedItem: SelectedItem,
+    commitsLimit: Int,
 ) {
     val maxLinePosition = if (commitList.isNotEmpty())
         commitList.maxLine
@@ -425,6 +449,16 @@ fun GraphList(
                             plotCommit = graphNode,
                             nodeColor = nodeColor,
                             isSelected = selectedCommit?.name == graphNode.name,
+                        )
+                    }
+                }
+
+                // Spacing when the commits limit is present
+                if (commitsLimit >= 0 && commitsLimit <= commitList.count()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .height(40.dp),
                         )
                     }
                 }
@@ -496,11 +530,14 @@ fun GraphHeader(
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(48.dp).background(MaterialTheme.colors.graphHeaderBackground),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .background(MaterialTheme.colors.headerBackground),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                modifier = Modifier.width(graphWidth).padding(start = 8.dp),
+                modifier = Modifier.width(graphWidth).padding(start = 16.dp),
                 text = "Graph",
                 color = MaterialTheme.colors.headerText,
                 fontSize = 14.sp,
@@ -516,7 +553,9 @@ fun GraphHeader(
             )
 
             Text(
-                modifier = Modifier.padding(start = 8.dp).weight(1f),
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .weight(1f),
                 text = "Message",
                 color = MaterialTheme.colors.headerText,
                 fontSize = 14.sp,
@@ -551,11 +590,9 @@ fun UncommitedChangesLine(
         modifier = Modifier.height(40.dp)
             .fillMaxWidth()
             .clickable { onUncommitedChangesSelected() }
-            .padding(
-                start = graphWidth + DIVIDER_WIDTH.dp,
-                end = 4.dp,
-            )
-            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
+            .padding(start = graphWidth)
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
+            .padding(DIVIDER_WIDTH.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val text = when {
@@ -800,7 +837,10 @@ fun DividerLog(modifier: Modifier, graphWidth: Dp) {
             .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
     ) {
         Box(
-            modifier = Modifier.fillMaxHeight().width(1.dp).background(color = MaterialTheme.colors.primary)
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(1.dp)
+                .background(color = MaterialTheme.colors.primaryVariant)
                 .align(Alignment.Center)
         )
     }
@@ -823,6 +863,10 @@ fun CommitsGraphLine(
     val passingLanes = plotCommit.passingLanes
     val forkingOffLanes = plotCommit.forkingOffLanes
     val mergingLanes = plotCommit.mergingLanes
+    val density = LocalDensity.current.density
+    val laneWidthWithDensity = remember(density) {
+        LANE_WIDTH * density
+    }
 
     Box(
         modifier = modifier
@@ -837,40 +881,40 @@ fun CommitsGraphLine(
                 if (plotCommit.childCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset(30f * (itemPosition + 1), this.center.y),
-                        end = Offset(30f * (itemPosition + 1), 0f),
+                        start = Offset( laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset( laneWidthWithDensity * (itemPosition + 1), 0f),
                     )
                 }
 
                 forkingOffLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(30f * (itemPosition + 1), this.center.y),
-                        end = Offset(30f * (plotLane.position + 1), 0f),
+                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
                     )
                 }
 
                 mergingLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(30f * (plotLane.position + 1), this.size.height),
-                        end = Offset(30f * (itemPosition + 1), this.center.y),
+                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                     )
                 }
 
                 if (plotCommit.parentCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset(30f * (itemPosition + 1), this.center.y),
-                        end = Offset(30f * (itemPosition + 1), this.size.height),
+                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset(laneWidthWithDensity * (itemPosition + 1), this.size.height),
                     )
                 }
 
                 passingLanes.forEach { plotLane ->
                     drawLine(
                         color = colors[plotLane.position % colors.size],
-                        start = Offset(30f * (plotLane.position + 1), 0f),
-                        end = Offset(30f * (plotLane.position + 1), this.size.height),
+                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
+                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
                     )
                 }
             }
@@ -907,6 +951,11 @@ fun UncommitedChangesGraphNode(
     hasPreviousCommits: Boolean,
     isSelected: Boolean,
 ) {
+    val density = LocalDensity.current.density
+
+    val laneWidthWithDensity = remember(density) {
+        LANE_WIDTH * density
+    }
     Box(
         modifier = modifier
             .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
@@ -918,14 +967,14 @@ fun UncommitedChangesGraphNode(
 
                 if (hasPreviousCommits) drawLine(
                     color = colors[0],
-                    start = Offset(30f, this.center.y),
-                    end = Offset(30f, this.size.height),
+                    start = Offset(laneWidthWithDensity, this.center.y),
+                    end = Offset(laneWidthWithDensity, this.size.height),
                 )
 
                 drawCircle(
                     color = colors[0],
                     radius = 15f,
-                    center = Offset(30f, this.center.y),
+                    center = Offset(laneWidthWithDensity, this.center.y),
                 )
             }
         }
@@ -969,7 +1018,7 @@ fun BranchChip(
                 painter = painterResource("location.svg"),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 6.dp),
-                tint = MaterialTheme.colors.primary,
+                tint = MaterialTheme.colors.primaryVariant,
             )
         }
     }
@@ -1042,7 +1091,7 @@ fun RefChip(
                         modifier = Modifier.padding(6.dp).size(14.dp),
                         painter = painterResource(icon),
                         contentDescription = null,
-                        tint = MaterialTheme.colors.inversePrimaryTextColor,
+                        tint = MaterialTheme.colors.background,
                     )
                 }
                 Text(

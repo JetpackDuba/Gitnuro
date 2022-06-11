@@ -42,7 +42,7 @@ fun CommitChanges(
 
     when (val commitChangesStatus = commitChangesStatusState.value) {
         CommitChangesStatus.Loading -> {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
         is CommitChangesStatus.Loaded -> {
             CommitChangesView(
@@ -75,7 +75,7 @@ fun CommitChangesView(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(end = 8.dp),
         ) {
             SelectionContainer {
                 Text(
@@ -100,7 +100,7 @@ fun CommitChangesView(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = true)
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(end = 8.dp, top = 8.dp, bottom = 8.dp)
                 .background(MaterialTheme.colors.background)
         ) {
             Text(

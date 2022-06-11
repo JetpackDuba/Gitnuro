@@ -13,21 +13,21 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
+import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun PasswordDialog(
+fun StashWithMessageDialog(
     onReject: () -> Unit,
-    onAccept: (password: String) -> Unit
+    onAccept: (stashMessage: String) -> Unit
 ) {
-    var passwordField by remember { mutableStateOf("") }
-    val passwordFieldFocusRequester = remember { FocusRequester() }
+    var textField by remember { mutableStateOf("") }
+    val textFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
     MaterialDialog(onCloseRequested = onReject) {
@@ -37,38 +37,28 @@ fun PasswordDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-
-            Text(
-                text = "Introduce your default SSH key's password",
-                modifier = Modifier
-                    .padding(vertical = 8.dp),
-                color = MaterialTheme.colors.primaryTextColor,
-            )
             OutlinedTextField(
-                modifier = Modifier.padding(bottom = 8.dp)
-                    .focusOrder(passwordFieldFocusRequester) {
+                modifier = Modifier
+                    .focusOrder(textFieldFocusRequester) {
                         this.next = buttonFieldFocusRequester
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent {
-                        if (it.key == Key.Enter) {
-                            onAccept(passwordField)
+                        if (it.key == Key.Enter && textField.isNotBlank()) {
+                            onAccept(textField)
                             true
                         } else {
                             false
                         }
                     },
-                value = passwordField,
-                singleLine = true,
-                label = { Text("Password", fontSize = 14.sp) },
+                value = textField,
+                label = { Text("New stash message", fontSize = 14.sp) },
                 textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
-                    passwordField = it
+                    textField = it
                 },
-                visualTransformation = PasswordVisualTransformation()
             )
-
             Row(
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -76,6 +66,7 @@ fun PasswordDialog(
             ) {
                 TextButton(
                     modifier = Modifier.padding(end = 8.dp),
+                    colors = textButtonColors(),
                     onClick = {
                         onReject()
                     }
@@ -84,19 +75,20 @@ fun PasswordDialog(
                 }
                 PrimaryButton(
                     modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                        this.previous = passwordFieldFocusRequester
+                        this.previous = textFieldFocusRequester
+                        this.next = textFieldFocusRequester
                     },
+                    enabled = textField.isNotBlank(),
                     onClick = {
-                        onAccept(passwordField)
+                        onAccept(textField)
                     },
-                    text = "Continue"
+                    text = "Stash"
                 )
             }
-
         }
+    }
 
-        LaunchedEffect(Unit) {
-            passwordFieldFocusRequester.requestFocus()
-        }
+    LaunchedEffect(Unit) {
+        textFieldFocusRequester.requestFocus()
     }
 }

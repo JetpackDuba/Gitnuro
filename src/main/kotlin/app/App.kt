@@ -4,18 +4,11 @@ package app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
@@ -26,7 +19,6 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import androidx.compose.ui.zIndex
 import app.di.DaggerAppComponent
 import app.theme.AppTheme
 import app.theme.primaryTextColor
@@ -76,7 +68,7 @@ class App {
                 ) {
                     var showSettingsDialog by remember { mutableStateOf(false) }
 
-                    AppTheme(theme = theme) {
+                    AppTheme(selectedTheme = theme) {
                         Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
                             AppTabs(
                                 onOpenSettings = {
@@ -127,12 +119,7 @@ class App {
     ) {
         val tabs by tabsFlow.collectAsState()
         val tabsInformationList = tabs.sortedBy { it.key }
-
-        println("Tabs count ${tabs.count()}")
-
         val selectedTabKey = remember { mutableStateOf(0) }
-
-        println("Selected tab key: ${selectedTabKey.value}")
 
         Column(
             modifier = Modifier.background(MaterialTheme.colors.background)
@@ -214,7 +201,7 @@ class App {
                     painter = painterResource("settings.svg"),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    tint = MaterialTheme.colors.primary,
+                    tint = MaterialTheme.colors.primaryVariant,
                 )
             }
         }

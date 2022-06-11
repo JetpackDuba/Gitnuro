@@ -1,11 +1,9 @@
 package app.ui.dialogs
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -19,9 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import app.extensions.handMouseClickable
-import app.theme.borderColor
-import app.theme.primaryTextColor
-import app.theme.secondaryTextColor
+import app.theme.*
 import app.ui.components.PrimaryButton
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
@@ -70,6 +66,7 @@ fun EditRemotesDialog(
     MaterialDialog(
         paddingVertical = 8.dp,
         paddingHorizontal = 16.dp,
+        onCloseRequested = onDismiss
     ) {
         Column(
             modifier = Modifier
@@ -104,11 +101,6 @@ fun EditRemotesDialog(
             Row(
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .border(
-                        width = 1.dp,
-                        shape = RoundedCornerShape(5.dp),
-                        color = MaterialTheme.colors.borderColor,
-                    )
                     .background(MaterialTheme.colors.surface)
             ) {
                 Column(
@@ -230,6 +222,7 @@ fun EditRemotesDialog(
                                     },
                                     textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                     maxLines = 1,
+                                    colors = outlinedTextFieldColors(),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
@@ -251,6 +244,7 @@ fun EditRemotesDialog(
                                 },
                                 textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                 maxLines = 1,
+                                colors = outlinedTextFieldColors(),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
@@ -271,6 +265,7 @@ fun EditRemotesDialog(
                                 },
                                 textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                 maxLines = 1,
+                                colors = outlinedTextFieldColors(),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
@@ -289,6 +284,7 @@ fun EditRemotesDialog(
                                     TextButton(
                                         modifier = Modifier.padding(end = 8.dp),
                                         enabled = remoteChanged,
+                                        colors = textButtonColors(),
                                         onClick = {
                                             remotesEditorData = remotesEditorData.copy(
                                                 selectedRemote = selectedRemote.copy(

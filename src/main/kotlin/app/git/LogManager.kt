@@ -14,12 +14,12 @@ import javax.inject.Inject
 
 
 class LogManager @Inject constructor() {
-    suspend fun loadLog(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean) = withContext(Dispatchers.IO) {
+    suspend fun loadLog(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean, commitsLimit: Int) = withContext(Dispatchers.IO) {
         val commitList = GraphCommitList()
         val repositoryState = git.repository.repositoryState
         println("Repository state ${repositoryState.description}")
         if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
-            val logList = git.log().setMaxCount(2).call().toList()
+            val logList = git.log().setMaxCount(1).call().toList()
 
             val walk = GraphWalk(git.repository)
 
@@ -36,7 +36,7 @@ class LogManager @Inject constructor() {
                     commitList.addUncommitedChangesGraphCommit(logList.first())
 
                 commitList.source(walk)
-                commitList.fillTo(1000) // TODO: Limited commits to show to 1000, add a setting to let the user adjust this
+                commitList.fillTo(commitsLimit)
             }
 
             ensureActive()

@@ -7,10 +7,14 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class StashManager @Inject constructor() {
-    suspend fun stash(git: Git) = withContext(Dispatchers.IO) {
+    suspend fun stash(git: Git, message: String?) = withContext(Dispatchers.IO) {
         git
             .stashCreate()
             .setIncludeUntracked(true)
+            .apply {
+                if (message != null)
+                    setWorkingDirectoryMessage(message)
+            }
             .call()
     }
 

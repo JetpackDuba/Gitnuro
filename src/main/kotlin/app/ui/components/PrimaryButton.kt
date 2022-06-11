@@ -21,7 +21,7 @@ fun PrimaryButton(
         modifier = modifier,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.primaryVariant,
+            backgroundColor = MaterialTheme.colors.primary,
             contentColor = textColor
         ),
     ) {

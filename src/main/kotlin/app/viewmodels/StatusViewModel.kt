@@ -1,19 +1,21 @@
 package app.viewmodels
 
+import app.extensions.isMerging
 import app.git.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
 import javax.inject.Inject
 
 class StatusViewModel @Inject constructor(
     private val tabState: TabState,
     private val statusManager: StatusManager,
-    private val branchesManager: BranchesManager,
-    private val repositoryManager: RepositoryManager,
     private val rebaseManager: RebaseManager,
     private val mergeManager: MergeManager,
     private val logManager: LogManager,
@@ -21,10 +23,29 @@ class StatusViewModel @Inject constructor(
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
 
-    var savedCommitMessage: String = ""
+    var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
+
     var hasPreviousCommits = true // When false, disable "amend previous commit"
 
     private var lastUncommitedChangesState = false
+
+    /**
+     * Notify the UI that the commit message has been changed by the view model
+     */
+    private val _commitMessageChangesFlow = MutableSharedFlow<String>()
+    val commitMessageChangesFlow: SharedFlow<String> = _commitMessageChangesFlow
+
+    private fun persistMessage() = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        val messageToPersist = savedCommitMessage.message.ifBlank { null }
+
+        if (git.repository.repositoryState.isMerging) {
+            git.repository.writeMergeCommitMsg(messageToPersist)
+        } else if (git.repository.repositoryState == RepositoryState.SAFE) {
+            git.repository.writeCommitEditMsg(messageToPersist)
+        }
+    }
 
     fun stage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
@@ -66,6 +87,21 @@ class StatusViewModel @Inject constructor(
     private suspend fun loadStatus(git: Git) {
         val previousStatus = _stageStatus.value
 
+        val requiredMessageType = if (git.repository.repositoryState == RepositoryState.MERGING) {
+            MessageType.MERGE
+        } else {
+            MessageType.NORMAL
+        }
+
+        if (requiredMessageType != savedCommitMessage.messageType) {
+            savedCommitMessage = CommitMessage(messageByRepoState(git), requiredMessageType)
+            _commitMessageChangesFlow.emit(savedCommitMessage.message)
+
+        } else if (savedCommitMessage.message.isEmpty()) {
+            savedCommitMessage = savedCommitMessage.copy(message = messageByRepoState(git))
+            _commitMessageChangesFlow.emit(savedCommitMessage.message)
+        }
+
         try {
             _stageStatus.value = StageStatus.Loading
             val status = statusManager.getStatus(git)
@@ -77,6 +113,17 @@ class StatusViewModel @Inject constructor(
             _stageStatus.value = previousStatus
             throw ex
         }
+    }
+
+    private fun messageByRepoState(git: Git): String {
+        val message: String? = if (git.repository.repositoryState == RepositoryState.MERGING) {
+            git.repository.readMergeCommitMsg()
+        } else {
+            git.repository.readCommitEditMsg()
+        }
+
+        //TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
+        return message.orEmpty().replace("\t", "    ")
     }
 
     private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
@@ -92,6 +139,7 @@ class StatusViewModel @Inject constructor(
             message
 
         statusManager.commit(git, commitMessage, amend)
+        updateCommitMessage("")
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -148,6 +196,11 @@ class StatusViewModel @Inject constructor(
 
         fileToDelete.delete()
     }
+
+    fun updateCommitMessage(message: String) {
+        savedCommitMessage = savedCommitMessage.copy(message = message)
+        persistMessage()
+    }
 }
 
 sealed class StageStatus {
@@ -155,3 +208,9 @@ sealed class StageStatus {
     data class Loaded(val staged: List<StatusEntry>, val unstaged: List<StatusEntry>) : StageStatus()
 }
 
+data class CommitMessage(val message: String, val messageType: MessageType)
+
+enum class MessageType {
+    NORMAL,
+    MERGE;
+}
