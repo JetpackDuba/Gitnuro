@@ -121,8 +121,8 @@ class StatusViewModel @Inject constructor(
                 }
             ) {
                 val status = statusManager.getStatus(git)
-                val staged = statusManager.getStaged(status)
-                val unstaged = statusManager.getUnstaged(status)
+                val staged = statusManager.getStaged(status).sortedBy { it.filePath }
+                val unstaged = statusManager.getUnstaged(status).sortedBy { it.filePath }
 
                 _stageStatus.value = StageStatus.Loaded(staged, unstaged, isPartiallyReloading = false)
             }
