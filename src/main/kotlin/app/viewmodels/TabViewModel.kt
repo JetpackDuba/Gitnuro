@@ -5,6 +5,7 @@ import app.ErrorsManager
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import app.git.*
+import app.logging.printLog
 import app.newErrorNow
 import app.ui.SelectedItem
 import app.updates.Update
@@ -23,6 +24,8 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 1000L
+
+private const val TAG = "TabViewModel"
 
 /**
  * Contains all the information related to a tab and its subcomponents (smaller composables like the log, branches,
@@ -93,7 +96,7 @@ class TabViewModel @Inject constructor(
             launch {
                 tabState.refreshData.collect { refreshType ->
                     when (refreshType) {
-                        RefreshType.NONE -> println("Not refreshing...")
+                        RefreshType.NONE -> printLog(TAG, "Not refreshing...")
                         RefreshType.ALL_DATA -> refreshRepositoryInfo()
                         RefreshType.REPO_STATE -> refreshRepositoryState()
                         RefreshType.ONLY_LOG -> refreshLog()
@@ -148,7 +151,7 @@ class TabViewModel @Inject constructor(
     }
 
     fun openRepository(directory: File) = tabState.safeProcessingWihoutGit {
-        println("Trying to open repository ${directory.absoluteFile}")
+        printLog(TAG, "Trying to open repository ${directory.absoluteFile}")
 
         _repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
 
@@ -174,7 +177,7 @@ class TabViewModel @Inject constructor(
 
     private suspend fun loadRepositoryState(git: Git) = withContext(Dispatchers.IO) {
         val newRepoState = repositoryManager.getRepositoryState(git)
-        println("Refreshing repository state $newRepoState")
+        printLog(TAG, "Refreshing repository state $newRepoState")
         _repositoryState.value = newRepoState
 
         onRepositoryStateChanged(newRepoState)
@@ -196,7 +199,7 @@ class TabViewModel @Inject constructor(
         launch {
             fileChangesWatcher.changesNotifier.collect { latestUpdateChangedGitDir ->
                 if (!tabState.operationRunning) { // Only update if there isn't any process running
-                    println("Detected changes in the repository's directory")
+                    printLog(TAG, "Detected changes in the repository's directory")
 
                     if (latestUpdateChangedGitDir) {
                         hasGitDirChanged = true
@@ -214,11 +217,11 @@ class TabViewModel @Inject constructor(
                     // operation may be running
                     if (diffTime > MIN_TIME_IN_MS_BETWEEN_REFRESHES && !hasGitDirChanged) {
                         updateApp(false)
-                        println("Sync emit with diff time $diffTime")
+                        printLog(TAG, "Sync emit with diff time $diffTime")
                     } else {
                         asyncJob = async {
                             delay(MIN_TIME_IN_MS_BETWEEN_REFRESHES)
-                            println("Async emit")
+                            printLog(TAG, "Async emit")
                             if (isActive)
                                 updateApp(hasGitDirChanged)
 
@@ -228,7 +231,7 @@ class TabViewModel @Inject constructor(
 
                     lastNotify = currentTimeMillis
                 } else {
-                    println("Ignoring changed occurred during operation running...")
+                    printLog(TAG, "Ignoring changed occurred during operation running...")
                 }
             }
         }
@@ -240,11 +243,11 @@ class TabViewModel @Inject constructor(
 
     suspend fun updateApp(hasGitDirChanged: Boolean) {
         if (hasGitDirChanged) {
-            println("Changes detected in git directory, full refresh")
+            printLog(TAG, "Changes detected in git directory, full refresh")
 
             refreshRepositoryInfo()
         } else {
-            println("Changes detected, partial refresh")
+            printLog(TAG, "Changes detected, partial refresh")
 
             checkUncommitedChanges()
         }
@@ -255,7 +258,7 @@ class TabViewModel @Inject constructor(
     ) { git ->
         val uncommitedChangesStateChanged = statusViewModel.updateHasUncommitedChanges(git)
 
-        println("Has uncommitedChangesStateChanged $uncommitedChangesStateChanged")
+        printLog(TAG, "Has uncommitedChangesStateChanged $uncommitedChangesStateChanged")
 
         // Update the log only if the uncommitedChanges status has changed or requested
         if (uncommitedChangesStateChanged || fullUpdateLog)
@@ -303,7 +306,7 @@ class TabViewModel @Inject constructor(
 
     private fun updateDiffEntry() {
         val diffSelected = diffSelected.value
-        println("Update diff entry $diffSelected")
+        printLog(TAG, "Update diff entry $diffSelected")
 
         if (diffSelected != null) {
             diffViewModel.updateDiff(diffSelected)

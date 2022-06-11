@@ -2,6 +2,7 @@ package app.git
 
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphWalk
+import app.logging.printLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -12,12 +13,15 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
+private const val TAG = "LogManager"
 
 class LogManager @Inject constructor() {
     suspend fun loadLog(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean, commitsLimit: Int) = withContext(Dispatchers.IO) {
         val commitList = GraphCommitList()
         val repositoryState = git.repository.repositoryState
-        println("Repository state ${repositoryState.description}")
+
+        printLog(TAG, "Repository state ${repositoryState.description}")
+
         if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(1).call().toList()
 

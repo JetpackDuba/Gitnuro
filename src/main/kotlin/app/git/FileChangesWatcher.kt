@@ -1,6 +1,7 @@
 package app.git
 
 import app.extensions.systemSeparator
+import app.logging.printLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -12,6 +13,8 @@ import java.nio.file.*
 import java.nio.file.StandardWatchEventKinds.*
 import java.nio.file.attribute.BasicFileAttributes
 import javax.inject.Inject
+
+private const val TAG = "FileChangesWatcher"
 
 class FileChangesWatcher @Inject constructor() {
 
@@ -61,11 +64,13 @@ class FileChangesWatcher @Inject constructor() {
                 val fullPathOfFileChanged = "$pathStr$systemSeparator.git$systemSeparator$fileChanged"
 
                 // Ignore COMMIT_EDITMSG changes
-                if(isGitMessageFile(pathStr, fullPathOfFileChanged))
+                if(isGitMessageFile(pathStr, fullPathOfFileChanged)) {
+                    printLog(TAG, "Ignored changes in $fullPathOfFileChanged")
                     return@withContext
+                }
             }
 
-            println("Has git dir changed: $hasGitDirectoryChanged")
+            printLog(TAG, "Has git dir changed: $hasGitDirectoryChanged")
 
             _changesNotifier.emit(hasGitDirectoryChanged)
 
@@ -78,7 +83,7 @@ class FileChangesWatcher @Inject constructor() {
 
                             if (eventFile.isDirectory) {
                                 val eventPath = eventFile.toPath()
-                                println("New directory $eventFile detected, adding it to watchService")
+                                printLog(TAG, "New directory $eventFile detected, adding it to watchService")
                                 val watchKey =
                                     eventPath.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
                                 keys[watchKey] = eventPath
