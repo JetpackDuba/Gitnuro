@@ -28,7 +28,7 @@ fun SideMenuSubentry(
     iconResourcePath: String,
     bold: Boolean = false,
     extraPadding: Dp = 0.dp,
-    onClick: (() -> Unit)? = null,
+    onClick: () -> Unit = {},
     onDoubleClick: (() -> Unit)? = null,
     additionalInfo: @Composable () -> Unit = {}
 ) {
@@ -36,12 +36,7 @@ fun SideMenuSubentry(
         modifier = Modifier
             .height(ENTRY_HEIGHT.dp)
             .fillMaxWidth()
-            .run {
-                if (onClick != null && onDoubleClick != null)
-                    combinedClickable(onClick = onClick, onDoubleClick = onDoubleClick)
-                else
-                    this
-            }
+            .combinedClickable(onClick = onClick, onDoubleClick = onDoubleClick)
             .padding(start = extraPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
