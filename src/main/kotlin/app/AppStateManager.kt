@@ -30,7 +30,7 @@ class AppStateManager @Inject constructor(
             _openRepositoriesPaths[key] = path
 
         // Remove any previously existing path
-        _latestOpenedRepositoriesPaths.remove(path)
+        _latestOpenedRepositoriesPaths.removeIf { it == path }
 
         // Add the latest one to the beginning
         _latestOpenedRepositoriesPaths.add(0, path)
