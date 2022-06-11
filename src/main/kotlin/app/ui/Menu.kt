@@ -29,6 +29,7 @@ import app.viewmodels.MenuViewModel
 // TODO Add tooltips to all the buttons
 @Composable
 fun Menu(
+    modifier: Modifier,
     menuViewModel: MenuViewModel,
     onRepositoryOpen: () -> Unit,
     onCreateBranch: () -> Unit,
@@ -37,10 +38,9 @@ fun Menu(
     var showAdditionalOptionsDropDownMenu by remember { mutableStateOf(false) }
 
     Row(
-        modifier = Modifier
-            .padding(vertical = 4.dp)
-            .fillMaxWidth(),
+        modifier = modifier,
         horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         MenuButton(
             modifier = Modifier.padding(start = 8.dp),
@@ -115,7 +115,8 @@ fun Menu(
         Box {
             IconMenuButton(
                 modifier = Modifier
-                    .padding(end = 8.dp),
+                    .padding(end = 8.dp)
+                    .size(36.dp),
                 icon = painterResource("more_vert.svg"),
                 onClick = {
                     showAdditionalOptionsDropDownMenu = true

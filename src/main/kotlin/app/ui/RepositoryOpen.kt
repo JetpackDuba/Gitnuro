@@ -80,6 +80,9 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
             }
         } else {
             Menu(
+                modifier = Modifier
+                    .padding(top = 4.dp, bottom = 8.dp) // Linear progress bar already take 4 additional dp for top
+                    .fillMaxWidth(),
                 menuViewModel = tabViewModel.menuViewModel,
                 onRepositoryOpen = {
                     openRepositoryDialog(tabViewModel = tabViewModel)
