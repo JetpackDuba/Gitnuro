@@ -422,11 +422,11 @@ private fun EntriesList(
             Text(
                 modifier = Modifier
                     .background(color = MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
                     .fillMaxWidth(),
                 text = title,
                 fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Left,
                 color = MaterialTheme.colors.headerText,
                 fontSize = 13.sp,
                 maxLines = 1,
