@@ -1,6 +1,7 @@
 package app
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -11,6 +12,8 @@ import javax.inject.Singleton
 class AppStateManager @Inject constructor(
     private val appPreferences: AppPreferences,
 ) {
+    private val mutex = Mutex()
+
     private val _openRepositoriesPaths = mutableMapOf<Int, String>()
     val openRepositoriesPathsTabs: Map<Int, String>
         get() = _openRepositoriesPaths
@@ -25,21 +28,26 @@ class AppStateManager @Inject constructor(
         get() = _latestOpenedRepositoriesPaths.firstOrNull() ?: ""
 
     fun repositoryTabChanged(key: Int, path: String) = appStateScope.launch(Dispatchers.IO) {
-        // Do not save already saved repos
-        if (!_openRepositoriesPaths.containsValue(path))
-            _openRepositoriesPaths[key] = path
+        mutex.lock()
+        try {
+            // Do not save already saved repos
+            if (!_openRepositoriesPaths.containsValue(path))
+                _openRepositoriesPaths[key] = path
 
-        // Remove any previously existing path
-        _latestOpenedRepositoriesPaths.removeIf { it == path }
+            // Remove any previously existing path
+            _latestOpenedRepositoriesPaths.removeIf { it == path }
 
-        // Add the latest one to the beginning
-        _latestOpenedRepositoriesPaths.add(0, path)
+            // Add the latest one to the beginning
+            _latestOpenedRepositoriesPaths.add(0, path)
 
-        if (_latestOpenedRepositoriesPaths.count() > 5)
-            _latestOpenedRepositoriesPaths.removeLast()
+            if (_latestOpenedRepositoriesPaths.count() > 5)
+                _latestOpenedRepositoriesPaths.removeLast()
 
-        updateSavedRepositoryTabs()
-        updateLatestRepositoryTabs()
+            updateSavedRepositoryTabs()
+            updateLatestRepositoryTabs()
+        } finally {
+            mutex.unlock()
+        }
     }
 
     fun repositoryTabRemoved(key: Int) = appStateScope.launch(Dispatchers.IO) {
