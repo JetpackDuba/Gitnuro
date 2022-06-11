@@ -2,6 +2,7 @@ package app.git
 
 import app.ErrorsManager
 import app.di.TabScope
+import app.extensions.delayedStateChange
 import app.newErrorNow
 import app.ui.SelectedItem
 import kotlinx.coroutines.*
@@ -61,10 +62,17 @@ class TabState @Inject constructor(
         managerScope.launch(Dispatchers.IO) {
             mutex.withLock {
                 var hasProcessFailed = false
-                _processing.value = true
+                operationRunning = true
 
                 try {
-                    callback(safeGit)
+                    delayedStateChange(
+                        delayMs = 300,
+                        onDelayTriggered = {
+                            _processing.value = true
+                        }
+                    ) {
+                        callback(safeGit)
+                    }
                 } catch (ex: Exception) {
                     hasProcessFailed = true
                     ex.printStackTrace()
@@ -73,6 +81,7 @@ class TabState @Inject constructor(
                         errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
                 } finally {
                     _processing.value = false
+                    operationRunning = false
 
                     if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
                         _refreshData.emit(refreshType)
