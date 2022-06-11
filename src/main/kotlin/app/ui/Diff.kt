@@ -42,10 +42,7 @@ import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
 import app.git.diff.LineType
-import app.theme.headerBackground
-import app.theme.primaryTextColor
-import app.theme.stageButton
-import app.theme.unstageButton
+import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
@@ -267,7 +264,7 @@ fun HunkHeader(
 ) {
     Row(
         modifier = Modifier
-            .background(MaterialTheme.colors.surface)
+            .background(MaterialTheme.colors.secondarySurface)
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -398,7 +395,6 @@ fun DiffLine(
     }
     Row(
         modifier = Modifier
-            .padding(horizontal = 8.dp)
             .background(backgroundColor)
             .height(IntrinsicSize.Min)
     ) {
@@ -445,7 +441,7 @@ fun LineNumber(text: String) {
         text = text,
         color = MaterialTheme.colors.primaryTextColor,
         modifier = Modifier
-            .background(MaterialTheme.colors.surface)
+            .background(MaterialTheme.colors.secondarySurface)
             .fillMaxHeight()
             .padding(horizontal = 4.dp),
         fontFamily = FontFamily.Monospace,

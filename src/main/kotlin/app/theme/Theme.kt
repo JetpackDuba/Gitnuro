@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import app.DropDownOption
 
-private var appTheme: ColorsScheme = darkGrayTheme
+private var appTheme: ColorsScheme = darkBlueTheme
 
 @Composable
 fun AppTheme(selectedTheme: Themes = Themes.DARK, content: @Composable() () -> Unit) {
@@ -85,6 +85,9 @@ val Colors.scrollbarNormal: Color
 
 val Colors.scrollbarHover: Color
     get() = appTheme.hoverScrollbar
+
+val Colors.secondarySurface: Color
+    get() = appTheme.secondarySurface
 
 val Colors.dialogOverlay: Color
     get() = appTheme.dialogOverlay

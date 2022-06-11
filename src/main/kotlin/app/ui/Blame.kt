@@ -34,6 +34,7 @@ import app.extensions.lineAt
 import app.extensions.toStringWithSpaces
 import app.theme.headerBackground
 import app.theme.primaryTextColor
+import app.theme.secondarySurface
 import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
 import org.eclipse.jgit.blame.BlameResult
@@ -96,7 +97,7 @@ fun Blame(
                                 modifier = Modifier
                                     .width(200.dp)
                                     .fillMaxHeight()
-                                    .background(MaterialTheme.colors.surface)
+                                    .background(MaterialTheme.colors.secondarySurface)
                                     .handMouseClickable { if (commit != null) onSelectCommit(commit) },
                                 verticalArrangement = Arrangement.Center,
                             ) {
@@ -136,7 +137,7 @@ private fun LineNumber(line: Int, highestLineLength: Int) {
     Box(
         modifier = Modifier
             .fillMaxHeight()
-            .background(MaterialTheme.colors.surface)
+            .background(MaterialTheme.colors.secondarySurface)
             .padding(start = 4.dp, end = 4.dp),
         contentAlignment = Alignment.Center
     ) {

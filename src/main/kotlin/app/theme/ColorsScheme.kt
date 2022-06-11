@@ -15,6 +15,7 @@ data class ColorsScheme(
     val background: Color,
     val backgroundSelected: Color,
     val surface: Color,
+    val secondarySurface: Color,
     val headerBackground: Color,
     val onHeader: Color = primaryText,
     val borderColor: Color,
