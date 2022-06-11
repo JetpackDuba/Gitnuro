@@ -108,11 +108,11 @@ fun CommitChangesView(
             Text(
                 modifier = Modifier
                     .background(MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
                     .fillMaxWidth(),
                 text = "Files changed",
                 fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
+                textAlign = TextAlign.Left,
                 color = MaterialTheme.colors.headerText,
                 maxLines = 1,
                 fontSize = 13.sp,
