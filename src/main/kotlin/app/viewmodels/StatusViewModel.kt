@@ -1,5 +1,7 @@
 package app.viewmodels
 
+import androidx.compose.foundation.lazy.LazyListState
+import app.extensions.delayedStateChange
 import app.extensions.isMerging
 import app.git.*
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +15,8 @@ import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
 import javax.inject.Inject
 
+private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
+
 class StatusViewModel @Inject constructor(
     private val tabState: TabState,
     private val statusManager: StatusManager,
@@ -20,7 +24,7 @@ class StatusViewModel @Inject constructor(
     private val mergeManager: MergeManager,
     private val logManager: LogManager,
 ) {
-    private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf()))
+    private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf(), false))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
 
     var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
@@ -28,6 +32,9 @@ class StatusViewModel @Inject constructor(
     var hasPreviousCommits = true // When false, disable "amend previous commit"
 
     private var lastUncommitedChangesState = false
+
+    val stagedLazyListState = MutableStateFlow(LazyListState(0, 0))
+    val unstagedLazyListState = MutableStateFlow(LazyListState(0, 0))
 
     /**
      * Notify the UI that the commit message has been changed by the view model
@@ -103,12 +110,22 @@ class StatusViewModel @Inject constructor(
         }
 
         try {
-            _stageStatus.value = StageStatus.Loading
-            val status = statusManager.getStatus(git)
-            val staged = statusManager.getStaged(status)
-            val unstaged = statusManager.getUnstaged(status)
+            delayedStateChange(
+                delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
+                onDelayTriggered = {
+                    if (previousStatus is StageStatus.Loaded) {
+                        _stageStatus.value = previousStatus.copy(isPartiallyReloading = true)
+                    } else {
+                        _stageStatus.value = StageStatus.Loading
+                    }
+                }
+            ) {
+                val status = statusManager.getStatus(git)
+                val staged = statusManager.getStaged(status)
+                val unstaged = statusManager.getUnstaged(status)
 
-            _stageStatus.value = StageStatus.Loaded(staged, unstaged)
+                _stageStatus.value = StageStatus.Loaded(staged, unstaged, isPartiallyReloading = false)
+            }
         } catch (ex: Exception) {
             _stageStatus.value = previousStatus
             throw ex
@@ -205,7 +222,11 @@ class StatusViewModel @Inject constructor(
 
 sealed class StageStatus {
     object Loading : StageStatus()
-    data class Loaded(val staged: List<StatusEntry>, val unstaged: List<StatusEntry>) : StageStatus()
+    data class Loaded(
+        val staged: List<StatusEntry>,
+        val unstaged: List<StatusEntry>,
+        val isPartiallyReloading: Boolean
+    ) : StageStatus()
 }
 
 data class CommitMessage(val message: String, val messageType: MessageType)

@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
@@ -55,17 +56,22 @@ fun UncommitedChanges(
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
     var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage.message) }
+    val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
+    val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
 
     val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
+    val isLoading: Boolean
 
     if (stageStatus is StageStatus.Loaded) {
         staged = stageStatus.staged
         unstaged = stageStatus.unstaged
+        isLoading = stageStatus.isPartiallyReloading
     } else {
         staged = listOf()
         unstaged = listOf() // return empty lists if still loading
+        isLoading = true
     }
 
     val doCommit = { amend: Boolean ->
@@ -85,7 +91,7 @@ fun UncommitedChanges(
 
     Column {
         AnimatedVisibility(
-            visible = stageStatus is StageStatus.Loading,
+            visible = isLoading,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -103,6 +109,7 @@ fun UncommitedChanges(
             selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.unstageButton,
             statusEntries = staged,
+            lazyListState = stagedListState,
             onDiffEntrySelected = onStagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 statusViewModel.unstage(it)
@@ -131,6 +138,7 @@ fun UncommitedChanges(
             selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
             actionColor = MaterialTheme.colors.stageButton,
             statusEntries = unstaged,
+            lazyListState = unstagedListState,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
             onDiffEntryOptionSelected = {
                 statusViewModel.stage(it)
@@ -399,6 +407,7 @@ private fun EntriesList(
     actionTitle: String,
     actionColor: Color,
     statusEntries: List<StatusEntry>,
+    lazyListState: LazyListState,
     onDiffEntrySelected: (StatusEntry) -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
@@ -435,6 +444,7 @@ private fun EntriesList(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colors.background),
+            state = lazyListState,
         ) {
             itemsIndexed(statusEntries) { index, statusEntry ->
                 val isEntrySelected = selectedEntryType != null &&
