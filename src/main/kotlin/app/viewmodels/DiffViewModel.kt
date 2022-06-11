@@ -2,12 +2,15 @@ package app.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
 import app.exceptions.MissingDiffEntryException
+import app.extensions.delayedStateChange
 import app.git.*
 import app.git.diff.Hunk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.diff.DiffEntry
 import javax.inject.Inject
+
+private const val DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD = 200L
 
 class DiffViewModel @Inject constructor(
     private val tabState: TabState,
@@ -31,11 +34,10 @@ class DiffViewModel @Inject constructor(
         var oldDiffEntryType: DiffEntryType? = null
         val oldDiffResult = _diffResult.value
 
-        if(oldDiffResult is ViewDiffResult.Loaded) {
+        if (oldDiffResult is ViewDiffResult.Loaded) {
             oldDiffEntryType = oldDiffResult.diffEntryType
         }
 
-        _diffResult.value = ViewDiffResult.Loading
 
         // If it's a different file or different state (index or workdir), reset the scroll state
         if (oldDiffEntryType != null &&
@@ -49,10 +51,15 @@ class DiffViewModel @Inject constructor(
         }
 
         try {
-            val diffFormat = diffManager.diffFormat(git, diffEntryType)
-            _diffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
+            delayedStateChange(
+                delayMs = DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD,
+                onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading }
+            ) {
+                val diffFormat = diffManager.diffFormat(git, diffEntryType)
+                _diffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
+            }
         } catch (ex: Exception) {
-            if(ex is MissingDiffEntryException) {
+            if (ex is MissingDiffEntryException) {
                 tabState.refreshData(refreshType = RefreshType.UNCOMMITED_CHANGES)
                 _diffResult.value = ViewDiffResult.DiffNotFound
             } else
