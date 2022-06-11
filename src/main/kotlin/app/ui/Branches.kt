@@ -44,6 +44,7 @@ fun Branches(
                 currentBranch = currentBranch,
                 isCurrentBranch = currentBranch?.name == branch.name,
                 onBranchClicked = { branchesViewModel.selectBranch(branch) },
+                onBranchDoubleClicked = { branchesViewModel.checkoutRef(branch) },
                 onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                 onMergeBranch = { setMergeBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
@@ -80,6 +81,7 @@ private fun BranchLineEntry(
     currentBranch: Ref?,
     isCurrentBranch: Boolean,
     onBranchClicked: () -> Unit,
+    onBranchDoubleClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onRebaseBranch: () -> Unit,
@@ -107,7 +109,8 @@ private fun BranchLineEntry(
             text = branch.simpleName,
             iconResourcePath = "branch.svg",
             bold = isCurrentBranch,
-            onClick = onBranchClicked
+            onClick = onBranchClicked,
+            onDoubleClick = onBranchDoubleClicked
         ) {
             if (isCurrentBranch) {
                 Icon(

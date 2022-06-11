@@ -2,7 +2,9 @@
 
 package app.ui.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -19,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import app.ENTRY_HEIGHT
 import app.theme.primaryTextColor
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SideMenuSubentry(
     text: String,
@@ -26,6 +29,7 @@ fun SideMenuSubentry(
     bold: Boolean = false,
     extraPadding: Dp = 0.dp,
     onClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
     additionalInfo: @Composable () -> Unit = {}
 ) {
     Row(
@@ -33,8 +37,8 @@ fun SideMenuSubentry(
             .height(ENTRY_HEIGHT.dp)
             .fillMaxWidth()
             .run {
-                if (onClick != null)
-                    clickable(onClick = onClick)
+                if (onClick != null && onDoubleClick != null)
+                    combinedClickable(onClick = onClick, onDoubleClick = onDoubleClick)
                 else
                     this
             }
