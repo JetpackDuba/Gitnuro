@@ -355,6 +355,12 @@ class LogViewModel @Inject constructor(
     ) {
         tabState.emitNewTaskEvent(TaskEvent.RebaseInteractive(revCommit))
     }
+
+    fun deleteRemoteBranch(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        remoteOperationsManager.deleteBranch(git, branch)
+    }
 }
 
 sealed class LogStatus {

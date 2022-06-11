@@ -16,6 +16,7 @@ fun branchContextMenuItems(
     onMergeBranch: () -> Unit,
     onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
+    onDeleteRemoteBranch: () -> Unit = {},
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
 ): List<ContextMenuItem> {
@@ -27,7 +28,7 @@ fun branchContextMenuItems(
                     onClick = onCheckoutBranch
                 )
             )
-            if(currentBranch != null && !currentBranch.isHead) {
+            if (currentBranch != null && !currentBranch.isHead) {
                 add(
                     ContextMenuItem(
                         label = "Merge branch",
@@ -62,6 +63,14 @@ fun branchContextMenuItems(
                     label = "Pull ${branch.simpleLogName} to ${currentBranch.simpleLogName}",
                     onClick = onPullFromRemoteBranch
                 )
+            )
+        }
+        if (!isLocal) {
+            add(
+                ContextMenuItem(
+                    label = "Delete remote branch",
+                    onClick = onDeleteRemoteBranch
+                ),
             )
         }
     }
