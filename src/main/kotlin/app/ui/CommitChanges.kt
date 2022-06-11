@@ -23,6 +23,8 @@ import app.ui.context_menu.commitedChangesEntriesContextMenuItems
 import app.viewmodels.CommitChangesStatus
 import app.viewmodels.CommitChangesViewModel
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
@@ -93,7 +95,7 @@ fun CommitChangesView(
 
             Divider(modifier = Modifier.fillMaxWidth())
 
-            Author(commit)
+            Author(commit.id, commit.authorIdent)
         }
 
         Column(
@@ -129,9 +131,10 @@ fun CommitChangesView(
 }
 
 @Composable
-fun Author(commit: RevCommit) {
-    val authorIdent = commit.authorIdent
-
+fun Author(
+    id: ObjectId,
+    author: PersonIdent,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,7 +146,7 @@ fun Author(commit: RevCommit) {
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(40.dp),
-            personIdent = commit.authorIdent,
+            personIdent = author,
         )
 
         Column(
@@ -152,16 +155,16 @@ fun Author(commit: RevCommit) {
             verticalArrangement = Arrangement.Center
         ) {
             TooltipText(
-                text = authorIdent.name,
+                text = author.name,
                 color = MaterialTheme.colors.primaryTextColor,
                 maxLines = 1,
                 fontSize = 14.sp,
-                tooltipTitle = authorIdent.emailAddress,
+                tooltipTitle = author.emailAddress,
             )
 
             Row {
                 Text(
-                    text = commit.id.abbreviate(7).name(),
+                    text = id.abbreviate(7).name(),
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     fontSize = 12.sp,
@@ -170,17 +173,21 @@ fun Author(commit: RevCommit) {
 
                 Spacer(modifier = Modifier.weight(1f, fill = true))
 
-                val date = remember(authorIdent) {
-                    authorIdent.`when`.toSmartSystemString()
+                val smartDate = remember(author) {
+                    author.`when`.toSmartSystemString()
+                }
+
+                val systemDate = remember(author) {
+                    author.`when`.toSystemDateTimeString()
                 }
 
                 TooltipText(
-                    text = date,
+                    text = smartDate,
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     fontSize = 13.sp,
-                    tooltipTitle = authorIdent.`when`.toSystemDateTimeString()
+                    tooltipTitle = systemDate
                 )
             }
         }
