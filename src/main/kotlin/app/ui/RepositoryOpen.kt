@@ -192,9 +192,16 @@ fun MainContentView(
                                                 )
                                             }
                                             else -> {
-                                                Diff(
-                                                    diffViewModel = tabViewModel.diffViewModel,
-                                                    onCloseDiffView = { tabViewModel.newDiffSelected = null })
+                                                val diffViewModel = tabViewModel.diffViewModel
+
+                                                if(diffViewModel != null) {
+                                                    Diff(
+                                                        diffViewModel = diffViewModel,
+                                                        onCloseDiffView = {
+                                                            tabViewModel.newDiffSelected = null
+                                                        }
+                                                    )
+                                                }
                                             }
                                         }
                                     }

@@ -38,11 +38,11 @@ class TabViewModel @Inject constructor(
     val tagsViewModel: TagsViewModel,
     val remotesViewModel: RemotesViewModel,
     val statusViewModel: StatusViewModel,
-    val diffViewModel: DiffViewModel,
     val menuViewModel: MenuViewModel,
     val stashesViewModel: StashesViewModel,
     val commitChangesViewModel: CommitChangesViewModel,
     val cloneViewModel: CloneViewModel,
+    private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val repositoryManager: RepositoryManager,
@@ -53,6 +53,7 @@ class TabViewModel @Inject constructor(
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
+    var diffViewModel: DiffViewModel? = null
 
     var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
         private set
@@ -69,11 +70,11 @@ class TabViewModel @Inject constructor(
 
     private val _diffSelected = MutableStateFlow<DiffEntryType?>(null)
     val diffSelected: StateFlow<DiffEntryType?> = _diffSelected
+
     var newDiffSelected: DiffEntryType?
         get() = diffSelected.value
         set(value) {
             _diffSelected.value = value
-
             updateDiffEntry()
         }
 
@@ -306,10 +307,15 @@ class TabViewModel @Inject constructor(
 
     private fun updateDiffEntry() {
         val diffSelected = diffSelected.value
-        printLog(TAG, "Update diff entry $diffSelected")
 
         if (diffSelected != null) {
-            diffViewModel.updateDiff(diffSelected)
+            if(diffViewModel == null) { // Initialize the view model if required
+                diffViewModel = diffViewModelProvider.get()
+            }
+
+            diffViewModel?.updateDiff(diffSelected)
+        } else {
+            diffViewModel = null // Free the view model from the memory if not being used.
         }
     }
 
