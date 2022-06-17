@@ -167,8 +167,6 @@ fun UncommitedChanges(
                 .height(192.dp)
                 .fillMaxWidth()
         ) {
-            // Don't show the message TextField when rebasing as it can't be edited
-
             TextField(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -297,7 +295,7 @@ fun MergeButtons(
         AbortButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 8.dp, end = 4.dp),
+                .padding(end = 4.dp),
             onClick = onAbort
         )
 
@@ -305,7 +303,7 @@ fun MergeButtons(
             text = "Merge",
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 8.dp, end = 4.dp),
+                .padding(start = 4.dp),
             enabled = haveConflictsBeenSolved,
             onClick = onMerge,
         )
@@ -326,7 +324,7 @@ fun RebasingButtons(
         AbortButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 8.dp, end = 4.dp),
+                .padding(end = 4.dp),
             onClick = onAbort
         )
 
@@ -335,7 +333,7 @@ fun RebasingButtons(
                 text = "Continue",
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 8.dp, end = 4.dp),
+                    .padding(start = 4.dp),
                 enabled = haveConflictsBeenSolved,
                 onClick = onContinue,
             )
@@ -344,7 +342,7 @@ fun RebasingButtons(
                 text = "Skip",
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 8.dp, end = 4.dp),
+                    .padding(end = 4.dp),
                 onClick = onSkip,
             )
         }
