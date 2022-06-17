@@ -978,7 +978,7 @@ fun UncommitedChangesGraphNode(
 
                 drawCircle(
                     color = colors[0],
-                    radius = 15f,
+                    radius = 15f * density,
                     center = Offset(laneWidthWithDensity, this.center.y),
                 )
             }
