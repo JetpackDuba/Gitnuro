@@ -20,6 +20,9 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import app.di.DaggerAppComponent
+import app.extensions.preferenceValue
+import app.extensions.toWindowPlacement
+import app.preferences.AppPreferences
 import app.theme.AppTheme
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
@@ -47,12 +50,21 @@ class App {
     private val tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
 
     fun start() {
+        val windowPlacement = appPreferences.windowPlacement.toWindowPlacement
+
         appStateManager.loadRepositoriesTabs()
         loadTabs()
 
         application {
             var isOpen by remember { mutableStateOf(true) }
             val theme by appPreferences.themeState.collectAsState()
+            val windowState = rememberWindowState(
+                placement = windowPlacement,
+                size = DpSize(1280.dp, 720.dp)
+            )
+
+            // Save window state for next time the Window is started
+            appPreferences.windowPlacement = windowState.placement.preferenceValue
 
             if (isOpen) {
                 Window(
@@ -60,10 +72,7 @@ class App {
                     onCloseRequest = {
                         isOpen = false
                     },
-                    state = rememberWindowState(
-                        placement = WindowPlacement.Maximized,
-                        size = DpSize(1280.dp, 720.dp)
-                    ),
+                    state = windowState,
                     icon = painterResource("logo.svg"),
                 ) {
                     var showSettingsDialog by remember { mutableStateOf(false) }

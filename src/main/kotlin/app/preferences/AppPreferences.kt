@@ -1,5 +1,6 @@
-package app
+package app.preferences
 
+import app.extensions.defaultWindowPlacement
 import app.theme.Themes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +15,7 @@ private const val PREF_LAST_OPENED_REPOSITORIES_PATH = "lastOpenedRepositoriesLi
 private const val PREF_THEME = "theme"
 private const val PREF_COMMITS_LIMIT = "commitsLimit"
 private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
+private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
@@ -74,5 +76,15 @@ class AppPreferences @Inject constructor() {
         set(value) {
             preferences.putInt(PREF_COMMITS_LIMIT, value)
             _commitsLimitFlow.value = value
+        }
+
+    var windowPlacement: WindowsPlacementPreference
+        get() {
+            val placement = preferences.getInt(PREF_WINDOW_PLACEMENT, defaultWindowPlacement.value)
+
+            return WindowsPlacementPreference(placement)
+        }
+        set(placement) {
+            preferences.putInt(PREF_WINDOW_PLACEMENT, placement.value)
         }
 }

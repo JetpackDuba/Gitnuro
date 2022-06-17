@@ -1,7 +1,6 @@
 package app.updates
 
 import app.AppConstants
-import app.AppPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString

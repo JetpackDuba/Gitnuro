@@ -1,7 +1,7 @@
 package app.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
-import app.AppPreferences
+import app.preferences.AppPreferences
 import app.extensions.delayedStateChange
 import app.git.*
 import app.git.graph.GraphCommitList

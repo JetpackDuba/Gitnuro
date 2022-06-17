@@ -79,6 +79,8 @@ private const val MARGIN_GRAPH_LANES = 2
 private const val LANE_WIDTH = 30f
 private const val DIVIDER_WIDTH = 8
 
+private const val LINE_HEIGHT = 40
+
 // TODO Min size for message column
 @OptIn(
     ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class
@@ -363,7 +365,7 @@ fun MessagesList(
                 Box(
                     modifier = Modifier
                         .padding(start = graphWidth + 24.dp)
-                        .height(40.dp),
+                        .height(LINE_HEIGHT.dp),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Text(
@@ -425,7 +427,7 @@ fun GraphList(
                 if (hasUncommitedChanges) {
                     item {
                         Row(
-                            modifier = Modifier.height(40.dp).fillMaxWidth(),
+                            modifier = Modifier.height(LINE_HEIGHT.dp).fillMaxWidth(),
                         ) {
                             UncommitedChangesGraphNode(
                                 modifier = Modifier.fillMaxSize(),
@@ -441,7 +443,7 @@ fun GraphList(
 
                     Row(
                         modifier = Modifier
-                            .height(40.dp)
+                            .height(LINE_HEIGHT.dp)
                             .fillMaxWidth(),
                     ) {
                         CommitsGraphLine(
@@ -458,7 +460,7 @@ fun GraphList(
                     item {
                         Box(
                             modifier = Modifier
-                                .height(40.dp),
+                                .height(LINE_HEIGHT.dp),
                         )
                     }
                 }
@@ -712,7 +714,7 @@ fun CommitLine(
             modifier = Modifier
                 .clickable { onRevCommitSelected() }
                 .padding(start = graphWidth)
-                .height(40.dp)
+                .height(LINE_HEIGHT.dp)
                 .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
 
         ) {

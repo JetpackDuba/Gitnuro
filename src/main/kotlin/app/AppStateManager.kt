@@ -1,5 +1,6 @@
 package app
 
+import app.preferences.AppPreferences
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.decodeFromString
