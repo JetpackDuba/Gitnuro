@@ -133,7 +133,10 @@ class StatusViewModel @Inject constructor(
     }
 
     private fun messageByRepoState(git: Git): String {
-        val message: String? = if (git.repository.repositoryState == RepositoryState.MERGING) {
+        val message: String? = if (
+            git.repository.repositoryState == RepositoryState.MERGING ||
+            git.repository.repositoryState == RepositoryState.REBASING_MERGE
+        ) {
             git.repository.readMergeCommitMsg()
         } else {
             git.repository.readCommitEditMsg()

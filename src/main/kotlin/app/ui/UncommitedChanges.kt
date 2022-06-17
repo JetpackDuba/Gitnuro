@@ -164,38 +164,33 @@ fun UncommitedChanges(
         Column(
             modifier = Modifier
                 .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
-                .run {
-                    // When rebasing, we don't need a fixed size as we don't show the message TextField
-                    if (!repositoryState.isRebasing) {
-                        height(192.dp)
-                    } else
-                        this
-                }
+                .height(192.dp)
                 .fillMaxWidth()
         ) {
             // Don't show the message TextField when rebasing as it can't be edited
-            if (!repositoryState.isRebasing)
-                TextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(weight = 1f, fill = true)
-                        .onPreviewKeyEvent {
-                            if (it.isCtrlPressed && it.key == Key.Enter && canCommit) {
-                                doCommit(false)
-                                true
-                            } else
-                                false
-                        },
-                    value = commitMessage,
-                    onValueChange = {
-                        commitMessage = it
 
-                        statusViewModel.updateCommitMessage(it)
+            TextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(weight = 1f, fill = true)
+                    .onPreviewKeyEvent {
+                        if (it.isCtrlPressed && it.key == Key.Enter && canCommit) {
+                            doCommit(false)
+                            true
+                        } else
+                            false
                     },
-                    label = { Text("Write your commit message here", fontSize = 14.sp) },
-                    colors = textFieldColors(),
-                    textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
-                )
+                value = commitMessage,
+                onValueChange = {
+                    commitMessage = it
+
+                    statusViewModel.updateCommitMessage(it)
+                },
+                enabled = !repositoryState.isRebasing,
+                label = { Text("Write your commit message here", fontSize = 14.sp) },
+                colors = textFieldColors(),
+                textStyle = TextStyle.Default.copy(fontSize = 14.sp),
+            )
 
             when {
                 repositoryState.isMerging -> MergeButtons(
