@@ -25,8 +25,6 @@ import app.viewmodels.RepositorySelectionStatus
 import app.viewmodels.TabViewModel
 import kotlinx.coroutines.delay
 
-// TODO onDispose sometimes is called when changing tabs, therefore losing the tab state
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AppTab(
     tabViewModel: TabViewModel,

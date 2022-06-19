@@ -42,7 +42,7 @@ data class ColorsScheme(
             onBackground = this.primaryText,
             onSurface = this.primaryText,
             onError = this.onError,
-            isLight = true, // todo what is this used for? Hardcoded value for now
+            isLight = true, // property specific for some colors, we don't care about this as all our components are customized
         )
     }
 }

@@ -67,7 +67,6 @@ class GRemoteSession @Inject constructor(
 
                 var credentials = credentialsStateManager.currentCredentialsState
                 while (credentials is CredentialsState.CredentialsRequested) {
-                    // TODO check if support for ED25519 with pwd can be added
                     credentials = credentialsStateManager.currentCredentialsState
                 }
 
