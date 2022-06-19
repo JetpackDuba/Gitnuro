@@ -9,15 +9,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.git.DiffEntryType
-import app.theme.borderColor
-import app.theme.primaryTextColor
+import app.theme.*
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.RebaseInteractive
 import app.ui.dialogs.StashWithMessageDialog
@@ -42,6 +43,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val selectedItem by tabViewModel.selectedItem.collectAsState()
     val blameState by tabViewModel.blameState.collectAsState()
     val showHistory by tabViewModel.showHistory.collectAsState()
+    val userInfo by tabViewModel.userInfo.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
     var showStashWithMessageDialog by remember { mutableStateOf(false) }
@@ -79,19 +81,42 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 Text("Rebase started externally", color = MaterialTheme.colors.primaryTextColor)
             }
         } else {
-            Menu(
-                modifier = Modifier
-                    .padding(top = 4.dp, bottom = 8.dp) // Linear progress bar already take 4 additional dp for top
-                    .fillMaxWidth(),
-                menuViewModel = tabViewModel.menuViewModel,
-                onRepositoryOpen = {
-                    openRepositoryDialog(tabViewModel = tabViewModel)
-                },
-                onCreateBranch = { showNewBranchDialog = true },
-                onStashWithMessage = { showStashWithMessageDialog = true },
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Menu(
+                    modifier = Modifier
+                        .padding(top = 4.dp, bottom = 8.dp) // Linear progress bar already take 4 additional dp for top
+                        .fillMaxWidth(),
+                    menuViewModel = tabViewModel.menuViewModel,
+                    onRepositoryOpen = {
+                        openRepositoryDialog(tabViewModel = tabViewModel)
+                    },
+                    onCreateBranch = { showNewBranchDialog = true },
+                    onStashWithMessage = { showStashWithMessageDialog = true },
+                )
 
-            RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
+                RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
+            }
+        }
+
+        Spacer(
+            modifier = Modifier
+                .height(1.dp)
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.primaryVariant.copy(alpha = 0.2f))
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(32.dp)
+                .background(MaterialTheme.colors.surface)
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "${userInfo.name ?: "Name not set"} <${userInfo.email?: "Email not set"}>",
+                color = MaterialTheme.colors.primaryTextColor,
+                fontSize = 12.sp,
+            )
         }
 
     }
@@ -194,7 +219,7 @@ fun MainContentView(
                                             else -> {
                                                 val diffViewModel = tabViewModel.diffViewModel
 
-                                                if(diffViewModel != null) {
+                                                if (diffViewModel != null) {
                                                     Diff(
                                                         diffViewModel = diffViewModel,
                                                         onCloseDiffView = {

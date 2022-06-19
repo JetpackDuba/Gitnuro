@@ -19,6 +19,7 @@ import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.storage.file.FileBasedConfig
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
@@ -86,6 +87,9 @@ class TabViewModel @Inject constructor(
 
     private val _showHistory = MutableStateFlow(false)
     val showHistory: StateFlow<Boolean> = _showHistory
+
+    private val _userInfo = MutableStateFlow(UserInfo(null, null))
+    val userInfo: StateFlow<UserInfo> = _userInfo
 
     var historyViewModel: HistoryViewModel? = null
         private set
@@ -181,7 +185,27 @@ class TabViewModel @Inject constructor(
         printLog(TAG, "Refreshing repository state $newRepoState")
         _repositoryState.value = newRepoState
 
+        loadConfigInfo(git)
+
         onRepositoryStateChanged(newRepoState)
+    }
+
+    private fun loadConfigInfo(git: Git) {
+        val config = git.repository.config
+        config.load()
+        val userName = config.getString("user", null, "name")
+        val email = config.getString("user", null, "email")
+
+        // TODO Load file-specific config
+//        val fcfg = FileBasedConfig((config as FileBasedConfig).file, git.repository.fs)
+//        fcfg.load()
+//        val fname = fcfg.getString("user", null, "name")
+//        val fmail = fcfg.getString("user", null, "email")
+//        println("Fname $fname\nFmail $fmail")
+
+        println(userName)
+        println(email)
+        _userInfo.value = UserInfo(userName, email)
     }
 
     private fun onRepositoryStateChanged(newRepoState: RepositoryState) {
@@ -309,7 +333,7 @@ class TabViewModel @Inject constructor(
         val diffSelected = diffSelected.value
 
         if (diffSelected != null) {
-            if(diffViewModel == null) { // Initialize the view model if required
+            if (diffViewModel == null) { // Initialize the view model if required
                 diffViewModel = diffViewModelProvider.get()
             }
 
