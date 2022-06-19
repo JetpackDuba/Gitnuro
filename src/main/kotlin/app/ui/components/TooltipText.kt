@@ -42,18 +42,8 @@ fun TooltipText(
     style: TextStyle = LocalTextStyle.current,
     tooltipTitle: String,
 ) {
-    TooltipArea(
-        tooltip = {
-            Card(
-                backgroundColor = MaterialTheme.colors.background,
-                elevation = 10.dp,
-            ) {
-                Text(
-                    text = tooltipTitle,
-                    modifier = Modifier.padding(10.dp)
-                )
-            }
-        },
+    Tooltip(
+        text = tooltipTitle,
     ) {
         Text(
             text = text,
