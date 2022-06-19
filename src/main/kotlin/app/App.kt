@@ -53,11 +53,14 @@ class App {
         val windowPlacement = appPreferences.windowPlacement.toWindowPlacement
 
         appStateManager.loadRepositoriesTabs()
+        appPreferences.loadCustomTheme()
         loadTabs()
 
         application {
             var isOpen by remember { mutableStateOf(true) }
             val theme by appPreferences.themeState.collectAsState()
+            val customTheme by appPreferences.customThemeFlow.collectAsState()
+
             val windowState = rememberWindowState(
                 placement = windowPlacement,
                 size = DpSize(1280.dp, 720.dp)
@@ -77,7 +80,10 @@ class App {
                 ) {
                     var showSettingsDialog by remember { mutableStateOf(false) }
 
-                    AppTheme(selectedTheme = theme) {
+                    AppTheme(
+                        selectedTheme = theme,
+                        customTheme = customTheme,
+                    ) {
                         Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
                             AppTabs(
                                 onOpenSettings = {

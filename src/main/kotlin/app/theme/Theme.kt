@@ -8,14 +8,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import app.DropDownOption
 
-private var appTheme: ColorsScheme = darkBlueTheme
+private val defaultAppTheme: ColorsScheme = darkBlueTheme
+private var appTheme: ColorsScheme = defaultAppTheme
 
 @Composable
-fun AppTheme(selectedTheme: Themes = Themes.DARK, content: @Composable() () -> Unit) {
+fun AppTheme(
+    selectedTheme: Themes = Themes.DARK,
+    customTheme: ColorsScheme?,
+    content: @Composable() () -> Unit
+) {
     val theme = when (selectedTheme) {
         Themes.LIGHT -> lightTheme
         Themes.DARK -> darkBlueTheme
         Themes.DARK_GRAY -> darkGrayTheme
+        Themes.CUSTOM -> customTheme ?: defaultAppTheme
     }
 
     appTheme = theme
@@ -96,7 +102,8 @@ val Colors.dialogOverlay: Color
 enum class Themes(val displayName: String) : DropDownOption {
     LIGHT("Light"),
     DARK("Dark"),
-    DARK_GRAY("Dark gray");
+    DARK_GRAY("Dark gray"),
+    CUSTOM("Custom");
 
     override val optionName: String
         get() = displayName
@@ -106,4 +113,5 @@ val themesList = listOf(
     Themes.LIGHT,
     Themes.DARK,
     Themes.DARK_GRAY,
+    Themes.CUSTOM,
 )

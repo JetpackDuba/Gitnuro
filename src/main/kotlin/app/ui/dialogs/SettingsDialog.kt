@@ -12,10 +12,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.preferences.AppPreferences
 import app.DropDownOption
-import app.theme.outlinedTextFieldColors
-import app.theme.primaryTextColor
-import app.theme.textButtonColors
-import app.theme.themesList
+import app.theme.*
+import app.ui.openFileDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -55,6 +53,21 @@ fun SettingsDialog(
                     appPreferences.theme = theme
                 }
             )
+
+            if (currentTheme == Themes.CUSTOM) {
+                SettingButton(
+                    title = "Custom theme",
+                    subtitle = "Select a JSON file to load the custom theme",
+                    buttonText = "Open file",
+                    onClick = {
+                        val filePath = openFileDialog()
+
+                        if (filePath != null) {
+                            appPreferences.saveCustomTheme(filePath)
+                        }
+                    }
+                )
+            }
 
             SettingToogle(
                 title = "Limit log commits",
@@ -158,6 +171,44 @@ fun <T : DropDownOption> SettingDropDown(
                 }
             }
 
+        }
+    }
+}
+
+@Composable
+fun SettingButton(
+    title: String,
+    subtitle: String,
+    buttonText: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(verticalArrangement = Arrangement.Center) {
+            Text(
+                text = title,
+                color = MaterialTheme.colors.primaryTextColor,
+                fontSize = 16.sp,
+            )
+
+            Text(
+                text = subtitle,
+                color = MaterialTheme.colors.primaryTextColor,
+                modifier = Modifier.padding(top = 4.dp),
+                fontSize = 12.sp,
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        OutlinedButton(onClick = onClick) {
+            Text(
+                text = buttonText,
+                color = MaterialTheme.colors.primaryTextColor,
+                fontSize = 14.sp,
+            )
         }
     }
 }

@@ -23,7 +23,7 @@ import app.theme.primaryTextColor
 import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 import app.viewmodels.CloneViewModel
-import openDirectoryDialog
+import app.ui.openDirectoryDialog
 import java.io.File
 
 @Composable

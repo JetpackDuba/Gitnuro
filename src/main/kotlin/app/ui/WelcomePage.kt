@@ -31,8 +31,6 @@ import app.ui.dialogs.AppInfoDialog
 import app.ui.dialogs.CloneDialog
 import app.updates.Update
 import app.viewmodels.TabViewModel
-import openDirectoryDialog
-import openRepositoryDialog
 
 
 @OptIn(ExperimentalMaterialApi::class)

@@ -1,12 +1,18 @@
 package app.preferences
 
 import app.extensions.defaultWindowPlacement
+import app.theme.ColorsScheme
 import app.theme.Themes
+import app.theme.darkBlueTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.json.Json
+import java.io.File
 import java.util.prefs.Preferences
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 
 private const val PREFERENCES_NAME = "GitnuroConfig"
 
@@ -16,6 +22,7 @@ private const val PREF_THEME = "theme"
 private const val PREF_COMMITS_LIMIT = "commitsLimit"
 private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
 private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
+private const val PREF_CUSTOM_THEME = "customTheme"
 
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
@@ -32,6 +39,9 @@ class AppPreferences @Inject constructor() {
 
     private val _commitsLimitFlow = MutableStateFlow(commitsLimit)
     val commitsLimitFlow: StateFlow<Int> = _commitsLimitFlow
+
+    private val _customThemeFlow = MutableStateFlow<ColorsScheme?>(null)
+    val customThemeFlow: StateFlow<ColorsScheme?> = _customThemeFlow
 
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
@@ -87,4 +97,25 @@ class AppPreferences @Inject constructor() {
         set(placement) {
             preferences.putInt(PREF_WINDOW_PLACEMENT, placement.value)
         }
+
+    fun saveCustomTheme(filePath: String) {
+        try {
+            val file = File(filePath)
+            val content = file.readText()
+
+            Json.decodeFromString<ColorsScheme>(content) // Load to see if it's valid (it will crash if not)
+
+            preferences.put(PREF_CUSTOM_THEME, content)
+            loadCustomTheme()
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+    }
+
+    fun loadCustomTheme() {
+        val themeJson = preferences.get(PREF_CUSTOM_THEME, null)
+        if (themeJson != null) {
+            _customThemeFlow.value = Json.decodeFromString<ColorsScheme>(themeJson)
+        }
+    }
 }
