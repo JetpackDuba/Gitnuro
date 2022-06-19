@@ -173,7 +173,8 @@ fun HistoryContentLoaded(
                         scrollState = scrollState,
                         diffResult = diffResult,
                         onUnstageHunk = { _, _ -> },
-                        onStageHunk = { _, _ -> }
+                        onStageHunk = { _, _ -> },
+                        onResetHunk = { _, _ -> },
                     )
                 } else {
                     Box(

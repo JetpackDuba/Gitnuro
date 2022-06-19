@@ -29,3 +29,14 @@ val String.dirPath: String
         } else
             this
     }
+
+
+val String.lineDelimiter: String?
+    get() {
+        return if (this.contains("\r\n"))
+            "\r\n"
+        else if (this.contains("\n"))
+            "\n"
+        else
+            null
+    }

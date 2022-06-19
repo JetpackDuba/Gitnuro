@@ -105,9 +105,13 @@ fun Diff(
                         onUnstageHunk = { entry, hunk ->
                             diffViewModel.unstageHunk(entry, hunk)
                         },
-                    ) { entry, hunk ->
-                        diffViewModel.stageHunk(entry, hunk)
-                    }
+                        onStageHunk = { entry, hunk ->
+                            diffViewModel.stageHunk(entry, hunk)
+                        },
+                        onResetHunk = { entry, hunk ->
+                            diffViewModel.resetHunk(entry, hunk)
+                        }
+                    )
                 } else if (diffResult is DiffResult.NonText) {
                     NonTextDiff(diffResult)
                 }
@@ -220,6 +224,7 @@ fun TextDiff(
     diffResult: DiffResult.Text,
     onUnstageHunk: (DiffEntry, Hunk) -> Unit,
     onStageHunk: (DiffEntry, Hunk) -> Unit,
+    onResetHunk: (DiffEntry, Hunk) -> Unit,
 ) {
     val hunks = diffResult.hunks
 
@@ -237,6 +242,7 @@ fun TextDiff(
                             diffEntryType = diffEntryType,
                             onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, hunk) },
                             onStageHunk = { onStageHunk(diffResult.diffEntry, hunk) },
+                            onResetHunk = { onResetHunk(diffResult.diffEntry, hunk) },
                         )
                     }
                 }
@@ -261,6 +267,7 @@ fun HunkHeader(
     diffEntryType: DiffEntryType,
     onUnstageHunk: () -> Unit,
     onStageHunk: () -> Unit,
+    onResetHunk: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -291,6 +298,14 @@ fun HunkHeader(
             } else {
                 buttonText = "Stage hunk"
                 color = MaterialTheme.colors.stageButton
+            }
+
+            if(diffEntryType is DiffEntryType.UnstagedDiff) {
+                SecondaryButton(
+                    text = "Discard hunk",
+                    backgroundButton = MaterialTheme.colors.error,
+                    onClick = onResetHunk
+                )
             }
 
             SecondaryButton(

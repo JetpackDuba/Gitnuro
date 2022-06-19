@@ -20,6 +20,8 @@ import org.eclipse.jgit.lib.FileMode
 import org.eclipse.jgit.lib.ObjectInserter
 import org.eclipse.jgit.lib.Repository
 import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.FileWriter
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.time.Instant
@@ -145,6 +147,10 @@ class StatusManager @Inject constructor(
         val content = rawFile.rawContent.toString(Charsets.UTF_8)//.removeSuffix(rawFile.lineDelimiter)
         val lineDelimiter: String? = rawFile.lineDelimiter
 
+        return getTextLines(content, lineDelimiter)
+    }
+
+    private fun getTextLines(content: String, lineDelimiter: String?): List<String> {
         var splitted: List<String> = if (lineDelimiter != null) {
             content.split(lineDelimiter).toMutableList().apply {
                 if (this.last() == "")
@@ -342,6 +348,52 @@ class StatusManager @Inject constructor(
             }
 
             addCommand.call()
+        }
+    }
+
+    suspend fun resetHunk(git: Git, diffEntry: DiffEntry, hunk: Hunk) = withContext(Dispatchers.IO) {
+        val repository = git.repository
+
+        try {
+            val file = File(repository.directory.parent, diffEntry.oldPath)
+
+            val content = file.readText()
+            val textLines = getTextLines(content, content.lineDelimiter).toMutableList()
+            val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
+
+            val addedLines = hunkLines
+                .filter { it.lineType == LineType.ADDED }
+                .sortedBy { it.newLineNumber }
+            val removedLines = hunkLines
+                .filter { it.lineType == LineType.REMOVED }
+                .sortedBy { it.newLineNumber }
+
+            var linesRemoved = 0
+
+            // Start by removing the added lines to the index
+            for (line in addedLines) {
+                textLines.removeAt(line.newLineNumber + linesRemoved)
+                linesRemoved--
+            }
+
+            var linesAdded = 0
+
+            // Restore previously removed lines to the index
+            for (line in removedLines) {
+                // Check how many lines before this one have been deleted
+                val previouslyRemovedLines = addedLines.count { it.newLineNumber < line.newLineNumber }
+                textLines.add(line.newLineNumber + linesAdded - previouslyRemovedLines, line.text)
+                linesAdded++
+            }
+
+            val stagedFileText = textLines.joinToString("")
+
+
+            FileWriter(file).use { fw ->
+                fw.write(stagedFileText)
+            }
+        } catch (ex: Exception) {
+            throw Exception("Discard hunk failed. Check if the file still exists and has the write permissions set", ex)
         }
     }
 }
