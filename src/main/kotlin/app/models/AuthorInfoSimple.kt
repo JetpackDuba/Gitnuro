@@ -1,6 +1,6 @@
-package app.git
+package app.models
 
-data class UserInfo(
+data class AuthorInfoSimple(
     val name: String?,
     val email: String?,
 )

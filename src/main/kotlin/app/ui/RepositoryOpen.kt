@@ -12,10 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.handMouseClickable
 import app.git.DiffEntryType
 import app.theme.*
+import app.ui.dialogs.AuthorDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.RebaseInteractive
 import app.ui.dialogs.StashWithMessageDialog
@@ -39,7 +42,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val selectedItem by tabViewModel.selectedItem.collectAsState()
     val blameState by tabViewModel.blameState.collectAsState()
     val showHistory by tabViewModel.showHistory.collectAsState()
-    val userInfo by tabViewModel.userInfo.collectAsState()
+    val userInfo by tabViewModel.authorInfoSimple.collectAsState()
+    val showAuthorInfo by tabViewModel.showAuthorInfo.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
     var showStashWithMessageDialog by remember { mutableStateOf(false) }
@@ -64,6 +68,16 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 showStashWithMessageDialog = false
             }
         )
+    } else if (showAuthorInfo) {
+        val authorViewModel = tabViewModel.authorViewModel
+        if (authorViewModel != null) {
+            AuthorDialog(
+                authorViewModel = authorViewModel,
+                onClose = {
+                    tabViewModel.closeAuthorInfoDialog()
+                }
+            )
+        }
     }
 
     Column {
@@ -108,11 +122,18 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "${userInfo.name ?: "Name not set"} <${userInfo.email?: "Email not set"}>",
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 12.sp,
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .handMouseClickable { tabViewModel.showAuthorInfoDialog() },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = "${userInfo.name ?: "Name not set"} <${userInfo.email ?: "Email not set"}>",
+                    color = MaterialTheme.colors.primaryTextColor,
+                    fontSize = 12.sp,
+                )
+            }
         }
 
     }

@@ -40,3 +40,6 @@ val String.lineDelimiter: String?
         else
             null
     }
+
+val String.nullIfEmpty: String?
+    get() = this.ifBlank { null }

@@ -6,6 +6,7 @@ import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import app.git.*
 import app.logging.printLog
+import app.models.AuthorInfoSimple
 import app.newErrorNow
 import app.ui.SelectedItem
 import app.updates.Update
@@ -19,7 +20,6 @@ import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.storage.file.FileBasedConfig
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
@@ -46,6 +46,7 @@ class TabViewModel @Inject constructor(
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
+    private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val repositoryManager: RepositoryManager,
     private val tabState: TabState,
     val appStateManager: AppStateManager,
@@ -88,10 +89,16 @@ class TabViewModel @Inject constructor(
     private val _showHistory = MutableStateFlow(false)
     val showHistory: StateFlow<Boolean> = _showHistory
 
-    private val _userInfo = MutableStateFlow(UserInfo(null, null))
-    val userInfo: StateFlow<UserInfo> = _userInfo
+    private val _showAuthorInfo = MutableStateFlow(false)
+    val showAuthorInfo: StateFlow<Boolean> = _showAuthorInfo
+
+    private val _authorInfoSimple = MutableStateFlow(AuthorInfoSimple(null, null))
+    val authorInfoSimple: StateFlow<AuthorInfoSimple> = _authorInfoSimple
 
     var historyViewModel: HistoryViewModel? = null
+        private set
+
+    var authorViewModel: AuthorViewModel? = null
         private set
 
     val showError = MutableStateFlow(false)
@@ -185,27 +192,29 @@ class TabViewModel @Inject constructor(
         printLog(TAG, "Refreshing repository state $newRepoState")
         _repositoryState.value = newRepoState
 
-        loadConfigInfo(git)
+        loadAuthorInfo(git)
 
         onRepositoryStateChanged(newRepoState)
     }
 
-    private fun loadConfigInfo(git: Git) {
+    private fun loadAuthorInfo(git: Git) {
         val config = git.repository.config
         config.load()
         val userName = config.getString("user", null, "name")
         val email = config.getString("user", null, "email")
 
-        // TODO Load file-specific config
-//        val fcfg = FileBasedConfig((config as FileBasedConfig).file, git.repository.fs)
-//        fcfg.load()
-//        val fname = fcfg.getString("user", null, "name")
-//        val fmail = fcfg.getString("user", null, "email")
-//        println("Fname $fname\nFmail $fmail")
+        _authorInfoSimple.value = AuthorInfoSimple(userName, email)
+    }
 
-        println(userName)
-        println(email)
-        _userInfo.value = UserInfo(userName, email)
+    fun showAuthorInfoDialog() {
+        authorViewModel = authorViewModelProvider.get()
+        authorViewModel?.loadAuthorInfo()
+        _showAuthorInfo.value = true
+    }
+
+    fun closeAuthorInfoDialog() {
+        _showAuthorInfo.value = false
+        authorViewModel = null
     }
 
     private fun onRepositoryStateChanged(newRepoState: RepositoryState) {
