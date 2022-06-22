@@ -158,7 +158,7 @@ class LogViewModel @Inject constructor(
     }
 
     fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
-        refreshType = RefreshType.ONLY_LOG,
+        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         mergeManager.cherryPickCommit(git, revCommit)
     }
