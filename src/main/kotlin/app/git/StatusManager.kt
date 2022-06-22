@@ -216,7 +216,7 @@ class StatusManager @Inject constructor(
     }
 
     suspend fun reset(git: Git, statusEntry: StatusEntry, staged: Boolean) = withContext(Dispatchers.IO) {
-        if (staged) {
+        if (staged || statusEntry.statusType == StatusType.CONFLICTING) {
             git
                 .reset()
                 .addPath(statusEntry.filePath)
