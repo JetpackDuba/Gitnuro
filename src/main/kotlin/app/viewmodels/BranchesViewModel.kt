@@ -40,6 +40,7 @@ class BranchesViewModel @Inject constructor(
 
     fun createBranch(branchName: String) = tabState.safeProcessing(
         refreshType = RefreshType.ONLY_LOG,
+        refreshEvenIfCrashes = true,
     ) { git ->
         branchesManager.createBranch(git, branchName)
         this.loadBranches(git)
