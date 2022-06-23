@@ -55,7 +55,7 @@ fun UncommitedChanges(
     onHistoryFile: (String) -> Unit,
 ) {
     val stageStatusState = statusViewModel.stageStatus.collectAsState()
-    var commitMessage by remember { mutableStateOf(statusViewModel.savedCommitMessage.message) }
+    var commitMessage by remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
 
