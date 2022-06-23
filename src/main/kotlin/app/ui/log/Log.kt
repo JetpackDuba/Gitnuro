@@ -106,7 +106,8 @@ fun Log(
     if (logStatus is LogStatus.Loaded) {
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
-        val verticalScrollState by logViewModel.lazyListState.collectAsState()
+        val verticalScrollState by logViewModel.verticalListState.collectAsState()
+        val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
         val searchFilter = logViewModel.logSearchFilterResults.collectAsState()
         val searchFilterValue = searchFilter.value
         // With this method, whenever the scroll changes, the log is recomposed and the graph list is updated with
@@ -152,15 +153,14 @@ fun Log(
                 onShowSearch = { scope.launch { logViewModel.onSearchValueChanged("") } }
             )
 
-            val horizontalScrollState = rememberScrollState(0)
             Box {
                 GraphList(
                     commitList = commitList,
                     selectedCommit = selectedCommit,
                     selectedItem = selectedItem,
-                    stateHorizontal = horizontalScrollState,
+                    horizontalScrollState = horizontalScrollState,
                     graphWidth = graphWidth,
-                    scrollState = verticalScrollState,
+                    verticalScrollState = verticalScrollState,
                     hasUncommitedChanges = hasUncommitedChanges,
                     commitsLimit = logStatus.commitsLimit,
                 )
@@ -196,11 +196,14 @@ fun Log(
                 // Scrollbar used to scroll horizontally the graph nodes
                 // Added after every component to have the highest priority when clicking
                 HorizontalScrollbar(
-                    modifier = Modifier.align(Alignment.BottomStart).width(graphWidth)
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .width(graphWidth)
                         .padding(start = 4.dp, bottom = 4.dp), style = LocalScrollbarStyle.current.copy(
                         unhoverColor = MaterialTheme.colors.scrollbarNormal,
                         hoverColor = MaterialTheme.colors.scrollbarHover,
-                    ), adapter = rememberScrollbarAdapter(horizontalScrollState)
+                    ),
+                    adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
 
                 if (verticalScrollState.firstVisibleItemIndex > 0) {
@@ -430,9 +433,9 @@ fun MessagesList(
 @Composable
 fun GraphList(
     commitList: GraphCommitList,
-    stateHorizontal: ScrollState = rememberScrollState(0),
+    horizontalScrollState: ScrollState,
+    verticalScrollState: LazyListState,
     graphWidth: Dp,
-    scrollState: LazyListState,
     hasUncommitedChanges: Boolean,
     selectedCommit: RevCommit?,
     selectedItem: SelectedItem,
@@ -450,7 +453,6 @@ fun GraphList(
         graphRealWidth = graphWidth
     }
 
-
     Box(
         Modifier
             .width(graphWidth)
@@ -460,11 +462,11 @@ fun GraphList(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .horizontalScroll(stateHorizontal)
+                .horizontalScroll(horizontalScrollState)
                 .padding(bottom = 8.dp)
         ) {
             LazyColumn(
-                state = scrollState, modifier = Modifier.width(graphRealWidth)
+                state = verticalScrollState, modifier = Modifier.width(graphRealWidth)
             ) {
                 if (hasUncommitedChanges) {
                     item {

@@ -1,5 +1,6 @@
 package app.viewmodels
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import app.preferences.AppPreferences
 import app.extensions.delayedStateChange
@@ -54,12 +55,8 @@ class LogViewModel @Inject constructor(
     private val _logDialog = MutableStateFlow<LogDialog>(LogDialog.None)
     val logDialog: StateFlow<LogDialog> = _logDialog
 
-    val lazyListState = MutableStateFlow(
-        LazyListState(
-            0,
-            0
-        )
-    )
+    val verticalListState = MutableStateFlow(LazyListState(0, 0))
+    val horizontalListState = MutableStateFlow(ScrollState(0))
 
     private val scope = CoroutineScope(Dispatchers.IO)
 
