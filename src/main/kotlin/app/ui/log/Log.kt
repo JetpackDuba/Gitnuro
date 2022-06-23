@@ -225,6 +225,7 @@ fun Log(
                                 painterResource("align_top.svg"),
                                 contentDescription = null,
                                 tint = MaterialTheme.colors.onPrimary,
+                                modifier = Modifier.size(18.dp),
                             )
 
                             Text(
