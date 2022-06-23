@@ -3,6 +3,7 @@
 package app.ui.dialogs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import app.theme.dialogOverlay
+import app.theme.primaryTextColor
 
 @Composable
 fun MaterialDialog(
@@ -69,7 +71,8 @@ fun MaterialDialog(
         ) {
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(15.dp))
+                    .border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colors.background)
                     .padding(
                         horizontal = paddingHorizontal,
