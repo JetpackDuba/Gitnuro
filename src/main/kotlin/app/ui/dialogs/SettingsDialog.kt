@@ -131,22 +131,10 @@ fun <T : DropDownOption> SettingDropDown(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(verticalArrangement = Arrangement.Center) {
-            Text(
-                text = title,
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 16.sp,
-            )
-
-            Text(
-                text = subtitle,
-                color = MaterialTheme.colors.primaryTextColor,
-                modifier = Modifier.padding(top = 4.dp),
-                fontSize = 12.sp,
-            )
-        }
+        FieldTitles(title, subtitle)
 
         Spacer(modifier = Modifier.weight(1f))
+
         Box {
             OutlinedButton(onClick = { showThemeDropdown = true }) {
                 Text(
@@ -187,20 +175,7 @@ fun SettingButton(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(verticalArrangement = Arrangement.Center) {
-            Text(
-                text = title,
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 14.sp,
-            )
-
-            Text(
-                text = subtitle,
-                color = MaterialTheme.colors.primaryTextColor,
-                modifier = Modifier.padding(top = 4.dp),
-                fontSize = 12.sp,
-            )
-        }
+        FieldTitles(title, subtitle)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -225,22 +200,7 @@ fun SettingToogle(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = title,
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 14.sp,
-            )
-
-            Text(
-                text = subtitle,
-                color = MaterialTheme.colors.primaryTextColor,
-                modifier = Modifier.padding(top = 4.dp),
-                fontSize = 12.sp,
-            )
-        }
+        FieldTitles(title, subtitle)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -316,7 +276,7 @@ private fun FieldTitles(
 
         Text(
             text = subtitle,
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.secondaryTextColor,
             modifier = Modifier.padding(top = 4.dp),
             fontSize = 12.sp,
         )
