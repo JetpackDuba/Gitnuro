@@ -4,17 +4,14 @@ package app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
@@ -22,7 +19,6 @@ import app.git.DiffEntryType
 import app.theme.*
 import app.ui.dialogs.AuthorDialog
 import app.ui.dialogs.NewBranchDialog
-import app.ui.dialogs.RebaseInteractive
 import app.ui.dialogs.StashWithMessageDialog
 import app.ui.log.Log
 import app.viewmodels.BlameState
@@ -83,12 +79,10 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     }
 
     Column {
-        if (repositoryState == RepositoryState.REBASING_INTERACTIVE) {
-            val rebaseInteractiveViewModel = tabViewModel.rebaseInteractiveViewModel
+        val rebaseInteractiveViewModel = tabViewModel.rebaseInteractiveViewModel
 
-            if (rebaseInteractiveViewModel != null) {
-                RebaseInteractive(rebaseInteractiveViewModel)
-            }
+        if (repositoryState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
+            RebaseInteractive(rebaseInteractiveViewModel)
         } else {
             Column(modifier = Modifier.weight(1f)) {
                 Menu(

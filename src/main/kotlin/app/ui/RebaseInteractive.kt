@@ -1,6 +1,5 @@
-package app.ui.dialogs
+package app.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
@@ -8,12 +7,11 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
+import app.ui.components.AdjustableOutlinedTextField
 import app.ui.components.PrimaryButton
 import app.ui.components.ScrollableLazyColumn
 import app.viewmodels.RebaseInteractiveState
@@ -21,7 +19,6 @@ import app.viewmodels.RebaseInteractiveViewModel
 import org.eclipse.jgit.lib.RebaseTodoLine
 import org.eclipse.jgit.lib.RebaseTodoLine.Action
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RebaseInteractive(
     rebaseInteractiveViewModel: RebaseInteractiveViewModel,
@@ -58,17 +55,19 @@ fun RebaseStateLoaded(
     rebaseState: RebaseInteractiveState.Loaded,
     onCancel: () -> Unit,
 ) {
+    val stepsList = rebaseState.stepsList
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
             text = "Rebase interactive",
             color = MaterialTheme.colors.primaryTextColor,
-            modifier = Modifier.padding(all = 20.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            fontSize = 20.sp,
         )
 
         ScrollableLazyColumn(modifier = Modifier.weight(1f)) {
-            val stepsList = rebaseState.stepsList
             items(stepsList) { rebaseTodoLine ->
                 RebaseCommit(
                     rebaseLine = rebaseTodoLine,
@@ -84,7 +83,7 @@ fun RebaseStateLoaded(
             }
         }
 
-        Row {
+        Row (modifier = Modifier.padding(bottom = 16.dp)) {
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 modifier = Modifier.padding(end = 8.dp),
@@ -97,6 +96,7 @@ fun RebaseStateLoaded(
             }
             PrimaryButton(
                 modifier = Modifier.padding(end = 16.dp),
+                enabled = stepsList.any { it.action != Action.PICK },
                 onClick = {
                     rebaseInteractiveViewModel.continueRebaseInteractive()
                 },
@@ -120,11 +120,12 @@ fun RebaseCommit(
             mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/
         } else
             mutableStateOf(rebaseLine.shortMessage) // If it's not reword, use the original shortMessage
-
     }
 
     Row(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(IntrinsicSize.Min)
     ) {
         ActionDropdown(
             rebaseLine.action,
@@ -132,18 +133,17 @@ fun RebaseCommit(
             onActionChanged = onActionChanged,
         )
 
-        OutlinedTextField(
+        AdjustableOutlinedTextField(
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 48.dp),
+                .height(40.dp),
             enabled = rebaseLine.action == Action.REWORD,
             value = newMessage,
             onValueChange = {
                 newMessage = it
                 onMessageChanged(it)
             },
-            colors = outlinedTextFieldColors(),
-            textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+            textStyle = LocalTextStyle.current.copy(fontSize = 12.sp),
         )
 
     }
@@ -162,10 +162,11 @@ fun ActionDropdown(
             onClick = { showDropDownMenu = true },
             modifier = Modifier
                 .width(120.dp)
-                .height(48.dp)
+                .height(40.dp)
                 .padding(end = 8.dp),
-            text = action.toToken()
+            text = action.toToken().replaceFirstChar { it.uppercase() }
         )
+
         DropdownMenu(
             expanded = showDropDownMenu,
             onDismissRequest = { showDropDownMenu = false },
@@ -183,7 +184,10 @@ fun ActionDropdown(
                         onActionChanged(dropDownOption)
                     }
                 ) {
-                    Text(dropDownOption.toToken())
+                    Text(
+                        text = dropDownOption.toToken().replaceFirstChar { it.uppercase() },
+                        fontSize = 14.sp,
+                    )
                 }
             }
         }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
@@ -49,14 +50,15 @@ fun AdjustableOutlinedTextField(
         keyboardOptions = keyboardOptions,
         cursorBrush = SolidColor(cursorColor),
         decorationBox = { innerTextField ->
-            Box (
+            Box(
                 modifier = Modifier
-                .border(
-                width = 1.dp,
-                color = indicatorColor,
-                shape = RoundedCornerShape(4.dp)
-            )
-                .padding(12.dp),
+                    .border(
+                        width = 1.dp,
+                        color = indicatorColor,
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(12.dp),
+                contentAlignment = Alignment.CenterStart,
             ) {
                 innerTextField()
             }
