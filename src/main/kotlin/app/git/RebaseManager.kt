@@ -61,6 +61,17 @@ class RebaseManager @Inject constructor(
             }
         }
 
+    suspend fun resumeRebase(git: Git, interactiveHandler: InteractiveHandler) = withContext(Dispatchers.IO) {
+        val rebaseResult = git.rebase()
+            .runInteractively(interactiveHandler)
+            .setOperation(RebaseCommand.Operation.PROCESS_STEPS)
+            .call()
+
+        if (rebaseResult.status == RebaseResult.Status.FAILED) {
+            throw UncommitedChangesDetectedException("Rebase interactive failed.")
+        }
+    }
+
     suspend fun rebaseLinesFullMessage(
         git: Git,
         rebaseTodoLines: List<RebaseTodoLine>,

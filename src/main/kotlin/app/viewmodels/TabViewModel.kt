@@ -195,6 +195,11 @@ class TabViewModel @Inject constructor(
         loadAuthorInfo(git)
 
         onRepositoryStateChanged(newRepoState)
+
+        if (newRepoState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel == null) {
+            rebaseInteractiveViewModel = rebaseInteractiveViewModelProvider.get()
+            rebaseInteractiveViewModel?.resumeRebase()
+        }
     }
 
     private fun loadAuthorInfo(git: Git) {

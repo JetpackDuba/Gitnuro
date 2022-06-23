@@ -4,8 +4,10 @@ package app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -84,11 +86,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
         if (repositoryState == RepositoryState.REBASING_INTERACTIVE) {
             val rebaseInteractiveViewModel = tabViewModel.rebaseInteractiveViewModel
 
-            // TODO Implement continue rebase interactive when gitnuro has been closed
             if (rebaseInteractiveViewModel != null) {
                 RebaseInteractive(rebaseInteractiveViewModel)
-            } else {
-                Text("Rebase started externally", color = MaterialTheme.colors.primaryTextColor)
             }
         } else {
             Column(modifier = Modifier.weight(1f)) {
