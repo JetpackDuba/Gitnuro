@@ -15,7 +15,6 @@ import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.dialogs.MergeDialog
-import app.ui.dialogs.RebaseDialog
 import app.viewmodels.BranchesViewModel
 import org.eclipse.jgit.lib.Ref
 
@@ -30,7 +29,6 @@ fun Branches(
     val currentBranch = currentBranchState.value
 
     val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
-    val (rebaseBranch, setRebaseBranch) = remember { mutableStateOf<Ref?>(null) }
 
     SideMenuPanel(
         title = "Local branches",
@@ -48,7 +46,7 @@ fun Branches(
                 onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                 onMergeBranch = { setMergeBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
-                onRebaseBranch = { setRebaseBranch(branch) },
+                onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onPushToRemoteBranch = { branchesViewModel.pushToRemoteBranch(branch) },
                 onPullFromRemoteBranch = { branchesViewModel.pullFromRemoteBranch(branch) },
             )
@@ -61,15 +59,6 @@ fun Branches(
             mergeBranchName = mergeBranch.name,
             onReject = { setMergeBranch(null) },
             onAccept = { ff -> branchesViewModel.mergeBranch(mergeBranch, ff) }
-        )
-    }
-
-    if (rebaseBranch != null && currentBranch != null) {
-        RebaseDialog(
-            currentBranchName = currentBranch.simpleName,
-            rebaseBranchName = rebaseBranch.name,
-            onReject = { setRebaseBranch(null) },
-            onAccept = { branchesViewModel.rebaseBranch(rebaseBranch) }
         )
     }
 }

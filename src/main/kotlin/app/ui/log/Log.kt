@@ -179,6 +179,9 @@ fun Log(
                     logViewModel = logViewModel,
                     graphWidth = graphWidth,
                     commitsLimit = logStatus.commitsLimit,
+                    onRebase = { ref ->
+                        logViewModel.rebaseBranch(ref)
+                    },
                     onShowLogDialog = { dialog ->
                         logViewModel.showDialog(dialog)
                     }
@@ -364,6 +367,7 @@ fun MessagesList(
     commitList: GraphCommitList,
     logViewModel: LogViewModel,
     commitsLimit: Int,
+    onRebase: (Ref) -> Unit,
     onShowLogDialog: (LogDialog) -> Unit,
     graphWidth: Dp,
 ) {
@@ -401,7 +405,7 @@ fun MessagesList(
                 showCreateNewTag = { onShowLogDialog(LogDialog.NewTag(graphNode)) },
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
                 onMergeBranch = { ref -> onShowLogDialog(LogDialog.MergeBranch(ref)) },
-                onRebaseBranch = { ref -> onShowLogDialog(LogDialog.RebaseBranch(ref)) },
+                onRebaseBranch = { ref -> onRebase(ref  ) },
                 onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
             )
@@ -552,17 +556,6 @@ fun LogDialogs(
             logViewModel.resetToCommit(showLogDialog.graphNode, resetType)
             onResetShowLogDialog()
         })
-        is LogDialog.RebaseBranch -> {
-            if (currentBranch != null) {
-                RebaseDialog(currentBranchName = currentBranch.simpleName,
-                    rebaseBranchName = showLogDialog.ref.simpleName,
-                    onReject = onResetShowLogDialog,
-                    onAccept = {
-                        logViewModel.rebaseBranch(showLogDialog.ref)
-                        onResetShowLogDialog()
-                    })
-            }
-        }
         LogDialog.None -> {
         }
     }
