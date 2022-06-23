@@ -80,6 +80,7 @@ private const val LANE_WIDTH = 30f
 private const val DIVIDER_WIDTH = 8
 
 private const val LINE_HEIGHT = 40
+private const val LOG_BOTTOM_PADDING = 80
 
 // TODO Min size for message column
 @OptIn(
@@ -133,7 +134,9 @@ fun Log(
         )
 
         Column(
-            modifier = Modifier.background(MaterialTheme.colors.background).fillMaxSize()
+            modifier = Modifier
+                .background(MaterialTheme.colors.background)
+                .fillMaxSize()
         ) {
             val weightMod = remember { mutableStateOf(0f) }
             var graphWidth = (CANVAS_MIN_WIDTH + weightMod.value).dp
@@ -199,6 +202,36 @@ fun Log(
                         hoverColor = MaterialTheme.colors.scrollbarHover,
                     ), adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
+
+                if (verticalScrollState.firstVisibleItemIndex > 0) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 16.dp, end = 16.dp)
+                            .clip(RoundedCornerShape(50))
+                            .handMouseClickable {
+                                scope.launch {
+                                    verticalScrollState.scrollToItem(0)
+                                }
+                            }
+                            .background(MaterialTheme.colors.primary)
+                            .padding(vertical = 8.dp, horizontal = 16.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painterResource("align_top.svg"),
+                                contentDescription = null,
+                                tint = MaterialTheme.colors.onPrimary,
+                            )
+
+                            Text(
+                                text = "Scroll to top",
+                                modifier = Modifier.padding(start = 8.dp),
+                                color = MaterialTheme.colors.onPrimary,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -389,7 +422,7 @@ fun MessagesList(
         }
 
         item {
-            Box(modifier = Modifier.height(20.dp))
+            Box(modifier = Modifier.height(LOG_BOTTOM_PADDING.dp))
         }
     }
 }
@@ -475,7 +508,7 @@ fun GraphList(
                 }
 
                 item {
-                    Box(modifier = Modifier.height(20.dp))
+                    Box(modifier = Modifier.height(LOG_BOTTOM_PADDING.dp))
                 }
             }
         }
@@ -896,8 +929,8 @@ fun CommitsGraphLine(
                 if (plotCommit.childCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
-                        start = Offset( laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        end = Offset( laneWidthWithDensity * (itemPosition + 1), 0f),
+                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        end = Offset(laneWidthWithDensity * (itemPosition + 1), 0f),
                     )
                 }
 
@@ -950,7 +983,10 @@ fun CommitNode(
     color: Color,
 ) {
     Box(
-        modifier = modifier.size(30.dp).border(2.dp, color, shape = CircleShape).clip(CircleShape)
+        modifier = modifier
+            .size(30.dp)
+            .border(2.dp, color, shape = CircleShape)
+            .clip(CircleShape)
     ) {
         AvatarImage(
             modifier = Modifier.fillMaxSize(),
