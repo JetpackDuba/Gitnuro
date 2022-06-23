@@ -231,6 +231,7 @@ fun Log(
                                 text = "Scroll to top",
                                 modifier = Modifier.padding(start = 8.dp),
                                 color = MaterialTheme.colors.onPrimary,
+                                fontSize = 14.sp,
                             )
                         }
                     }

@@ -1,26 +1,22 @@
 package app.ui.dialogs
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.mouseClickable
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.isPrimaryPressed
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
+import app.ui.components.AdjustableOutlinedTextField
 import app.viewmodels.AuthorViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun AuthorDialog(
@@ -44,7 +40,7 @@ fun AuthorDialog(
             Text(
                 text = "Global settings",
                 color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
 
@@ -62,8 +58,8 @@ fun AuthorDialog(
             Text(
                 text = "Repository settings",
                 color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 18.sp,
-                modifier = Modifier.padding(top = 16.dp),
+                fontSize = 16.sp,
+                modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
             )
 
             TextInput(
@@ -77,12 +73,28 @@ fun AuthorDialog(
                 onValueChange = { email = it },
             )
 
-            Text(
-                text = "Repository-level values will override global values",
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 14.sp,
-                modifier = Modifier.padding(vertical = 8.dp),
-            )
+            val visible = name.isNotBlank() || email.isNotBlank()
+
+            val visibilityAlpha by animateFloatAsState(targetValue = if (visible) 1f else 0f)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.alpha(visibilityAlpha)
+            ) {
+                Icon(
+                    painterResource("warning.svg"),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.primaryTextColor,
+                    modifier = Modifier.size(16.dp)
+                )
+                Text(
+                    text = "Repository-level values will override global values",
+                    color = MaterialTheme.colors.primaryTextColor,
+                    fontSize = 12.sp,
+                    modifier = Modifier
+                        .padding(top = 8.dp, bottom = 8.dp, start = 4.dp),
+                )
+            }
             Row(
                 modifier = Modifier
                     .padding(top = 16.dp)
@@ -131,14 +143,13 @@ private fun TextInput(
         Text(
             text = title,
             color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 16.sp,
+            fontSize = 14.sp,
             modifier = Modifier
-                .width(100.dp)
+                .width(80.dp)
                 .padding(end = 16.dp),
         )
 
-
-        OutlinedTextField(
+        AdjustableOutlinedTextField(
             value = value,
             modifier = Modifier
                 .weight(1f),

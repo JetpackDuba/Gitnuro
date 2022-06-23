@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 import app.preferences.AppPreferences
 import app.DropDownOption
 import app.theme.*
+import app.ui.components.AdjustableOutlinedTextField
 import app.ui.openFileDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -190,7 +191,7 @@ fun SettingButton(
             Text(
                 text = title,
                 color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
             )
 
             Text(
@@ -230,7 +231,7 @@ fun SettingToogle(
             Text(
                 text = title,
                 color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
             )
 
             Text(
@@ -259,22 +260,7 @@ fun SettingIntInput(
         modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = title,
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 16.sp,
-            )
-
-            Text(
-                text = subtitle,
-                color = MaterialTheme.colors.primaryTextColor,
-                modifier = Modifier.padding(top = 4.dp),
-                fontSize = 12.sp,
-            )
-        }
+        FieldTitles(title, subtitle)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -285,7 +271,7 @@ fun SettingIntInput(
         var isError by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
 
-        OutlinedTextField(
+        AdjustableOutlinedTextField(
             value = text,
             modifier = Modifier.width(136.dp),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
@@ -310,6 +296,29 @@ fun SettingIntInput(
             colors = outlinedTextFieldColors(),
             maxLines = 1,
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+        )
+    }
+}
+
+@Composable
+private fun FieldTitles(
+    title: String,
+    subtitle: String,
+) {
+    Column(
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = title,
+            color = MaterialTheme.colors.primaryTextColor,
+            fontSize = 14.sp,
+        )
+
+        Text(
+            text = subtitle,
+            color = MaterialTheme.colors.primaryTextColor,
+            modifier = Modifier.padding(top = 4.dp),
+            fontSize = 12.sp,
         )
     }
 }

@@ -14,11 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import app.extensions.handMouseClickable
 import app.theme.*
 import app.ui.components.PrimaryButton
+import app.ui.components.AdjustableOutlinedTextField
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
@@ -207,7 +207,7 @@ fun EditRemotesDialog(
                                     modifier = Modifier.padding(vertical = 8.dp),
                                 )
 
-                                OutlinedTextField(
+                                AdjustableOutlinedTextField(
                                     value = selectedRemote.remoteName,
                                     onValueChange = { newValue ->
                                         val newSelectedRemoteConfig = selectedRemote.copy(remoteName = newValue)
@@ -220,9 +220,7 @@ fun EditRemotesDialog(
                                             selectedRemote = newSelectedRemoteConfig
                                         )
                                     },
-                                    textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                     maxLines = 1,
-                                    colors = outlinedTextFieldColors(),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
@@ -235,14 +233,13 @@ fun EditRemotesDialog(
                                 modifier = Modifier.padding(vertical = 8.dp),
                             )
 
-                            OutlinedTextField(
+                            AdjustableOutlinedTextField(
                                 value = selectedRemote.fetchUri,
                                 onValueChange = { newValue ->
                                     val newSelectedRemoteConfig = selectedRemote.copy(fetchUri = newValue)
                                     remotesEditorData = remotesEditorData.copy(selectedRemote = newSelectedRemoteConfig)
                                     remoteChanged = newSelectedRemoteConfig.haveUrisChanged
                                 },
-                                textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                 maxLines = 1,
                                 colors = outlinedTextFieldColors(),
                                 modifier = Modifier
@@ -256,16 +253,14 @@ fun EditRemotesDialog(
                                 modifier = Modifier.padding(vertical = 8.dp),
                             )
 
-                            OutlinedTextField(
+                            AdjustableOutlinedTextField(
                                 value = selectedRemote.pushUri,
                                 onValueChange = { newValue ->
                                     val newSelectedRemoteConfig = selectedRemote.copy(pushUri = newValue)
                                     remotesEditorData = remotesEditorData.copy(selectedRemote = newSelectedRemoteConfig)
                                     remoteChanged = newSelectedRemoteConfig.haveUrisChanged
                                 },
-                                textStyle = TextStyle.Default.copy(color = MaterialTheme.colors.primaryTextColor),
                                 maxLines = 1,
-                                colors = outlinedTextFieldColors(),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)
