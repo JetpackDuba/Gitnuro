@@ -201,10 +201,10 @@ class StatusViewModel @Inject constructor(
         rebaseManager.skipRebase(git)
     }
 
-    fun abortMerge() = tabState.safeProcessing(
+    fun resetRepoState() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.abortMerge(git)
+        mergeManager.resetRepoState(git)
     }
 
     fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(

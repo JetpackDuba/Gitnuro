@@ -305,6 +305,7 @@ class TabViewModel @Inject constructor(
         // Stashes list should only be updated if we are doing a stash operation, however it's a small operation
         // that we can afford to do when doing other operations
         stashesViewModel.refresh(git)
+        loadRepositoryState(git)
     }
 
     private suspend fun refreshRepositoryInfo() = tabState.safeProcessing(

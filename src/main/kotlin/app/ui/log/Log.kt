@@ -333,14 +333,23 @@ fun MessagesList(
         state = scrollState,
         modifier = Modifier.fillMaxSize(),
     ) {
-        if (hasUncommitedChanges) item {
-            UncommitedChangesLine(graphWidth = graphWidth,
-                isSelected = selectedItem == SelectedItem.UncommitedChanges,
-                statusSummary = logStatus.statusSummary,
-                repositoryState = repositoryState,
-                onUncommitedChangesSelected = {
-                    logViewModel.selectUncommitedChanges()
-                })
+        if (
+            hasUncommitedChanges ||
+            repositoryState.isMerging ||
+            repositoryState.isRebasing ||
+            repositoryState.isCherryPicking
+        ) {
+            item {
+                UncommitedChangesLine(
+                    graphWidth = graphWidth,
+                    isSelected = selectedItem == SelectedItem.UncommitedChanges,
+                    statusSummary = logStatus.statusSummary,
+                    repositoryState = repositoryState,
+                    onUncommitedChangesSelected = {
+                        logViewModel.selectUncommitedChanges()
+                    }
+                )
+            }
         }
         items(items = commitList) { graphNode ->
             CommitLine(
@@ -600,6 +609,7 @@ fun UncommitedChangesLine(
         val text = when {
             repositoryState.isRebasing -> "Pending changes to rebase"
             repositoryState.isMerging -> "Pending changes to merge"
+            repositoryState.isCherryPicking -> "Pending changes to cherry-pick"
             else -> "Uncommited changes"
         }
 

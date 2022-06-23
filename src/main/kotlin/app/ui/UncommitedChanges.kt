@@ -194,7 +194,7 @@ fun UncommitedChanges(
                 repositoryState.isMerging -> MergeButtons(
                     haveConflictsBeenSolved = unstaged.isEmpty(),
                     onAbort = {
-                        statusViewModel.abortMerge()
+                        statusViewModel.resetRepoState()
                         statusViewModel.updateCommitMessage("")
                     },
                     onMerge = { doCommit(false) }
@@ -208,6 +208,16 @@ fun UncommitedChanges(
                     },
                     onContinue = { statusViewModel.continueRebase() },
                     onSkip = { statusViewModel.skipRebase() },
+                )
+                repositoryState.isCherryPicking -> CherryPickingButtons(
+                    haveConflictsBeenSolved = unstaged.isEmpty(),
+                    onAbort = {
+                        statusViewModel.resetRepoState()
+                        statusViewModel.updateCommitMessage("")
+                    },
+                    onCommit = {
+                        doCommit(false)
+                    }
                 )
                 else -> UncommitedChangesButtons(
                     canCommit = canCommit,
@@ -306,6 +316,33 @@ fun MergeButtons(
                 .padding(start = 4.dp),
             enabled = haveConflictsBeenSolved,
             onClick = onMerge,
+        )
+    }
+}
+
+@Composable
+fun CherryPickingButtons(
+    haveConflictsBeenSolved: Boolean,
+    onAbort: () -> Unit,
+    onCommit: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        AbortButton(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 4.dp),
+            onClick = onAbort
+        )
+
+        ConfirmationButton(
+            text = "Commit",
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 4.dp),
+            enabled = haveConflictsBeenSolved,
+            onClick = onCommit,
         )
     }
 }

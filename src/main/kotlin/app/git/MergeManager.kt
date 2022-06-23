@@ -29,7 +29,7 @@ class MergeManager @Inject constructor() {
         }
     }
 
-    suspend fun abortMerge(git: Git) = withContext(Dispatchers.IO) {
+    suspend fun resetRepoState(git: Git) = withContext(Dispatchers.IO) {
         git.repository.writeMergeCommitMsg(null)
         git.repository.writeMergeHeads(null)
 
