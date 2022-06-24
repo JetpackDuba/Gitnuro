@@ -67,6 +67,13 @@ compose.desktop {
             windows {
                 iconFile.set(project.file("icons/icon.ico"))
             }
+
+            macOS {
+                jvmArgs(
+                    "-Dapple.awt.application.appearance=system"
+                )
+                iconFile.set(project.file("icons/icon.icns"))
+            }
         }
     }
 }
