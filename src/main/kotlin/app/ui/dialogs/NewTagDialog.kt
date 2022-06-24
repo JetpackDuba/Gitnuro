@@ -79,7 +79,7 @@ fun NewTagDialog(
                         this.previous = tagFieldFocusRequester
                         this.next = tagFieldFocusRequester
                     },
-                    enabled = tagField.isBlank(),
+                    enabled = tagField.isNotBlank(),
                     onClick = {
                         onAccept(tagField)
                     },
