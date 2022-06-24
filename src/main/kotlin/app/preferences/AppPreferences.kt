@@ -24,6 +24,9 @@ private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
 private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 private const val PREF_CUSTOM_THEME = "customTheme"
 
+
+private const val PREF_GIT_FF_MERGE = "gitFFMerge"
+
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
 
@@ -34,8 +37,11 @@ class AppPreferences @Inject constructor() {
     private val _themeState = MutableStateFlow(theme)
     val themeState: StateFlow<Themes> = _themeState
 
-    private val _commitsLimitEnabledFlow = MutableStateFlow(true)
+    private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
     val commitsLimitEnabledFlow: StateFlow<Boolean> = _commitsLimitEnabledFlow
+
+    private val _ffMergeFlow = MutableStateFlow(ffMerge)
+    val ffMergeFlow: StateFlow<Boolean> = _ffMergeFlow
 
     private val _commitsLimitFlow = MutableStateFlow(commitsLimit)
     val commitsLimitFlow: StateFlow<Int> = _commitsLimitFlow
@@ -77,6 +83,18 @@ class AppPreferences @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_COMMITS_LIMIT_ENABLED, value)
             _commitsLimitEnabledFlow.value = value
+        }
+
+    /**
+     * Property that decides if the merge should fast-forward when possible
+     */
+    var ffMerge: Boolean
+        get() {
+            return preferences.getBoolean(PREF_GIT_FF_MERGE, true)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_GIT_FF_MERGE, value)
+            _ffMergeFlow.value = value
         }
 
     var commitsLimit: Int

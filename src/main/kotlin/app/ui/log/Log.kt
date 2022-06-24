@@ -129,7 +129,6 @@ fun Log(
 
         LogDialogs(
             logViewModel,
-            currentBranch = logStatus.currentBranch,
             onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
             showLogDialog = showLogDialog,
         )
@@ -179,6 +178,9 @@ fun Log(
                     logViewModel = logViewModel,
                     graphWidth = graphWidth,
                     commitsLimit = logStatus.commitsLimit,
+                    onMerge = { ref ->
+                        logViewModel.mergeBranch(ref)
+                    },
                     onRebase = { ref ->
                         logViewModel.rebaseBranch(ref)
                     },
@@ -367,6 +369,7 @@ fun MessagesList(
     commitList: GraphCommitList,
     logViewModel: LogViewModel,
     commitsLimit: Int,
+    onMerge: (Ref) -> Unit,
     onRebase: (Ref) -> Unit,
     onShowLogDialog: (LogDialog) -> Unit,
     graphWidth: Dp,
@@ -404,8 +407,8 @@ fun MessagesList(
                 showCreateNewBranch = { onShowLogDialog(LogDialog.NewBranch(graphNode)) },
                 showCreateNewTag = { onShowLogDialog(LogDialog.NewTag(graphNode)) },
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
-                onMergeBranch = { ref -> onShowLogDialog(LogDialog.MergeBranch(ref)) },
-                onRebaseBranch = { ref -> onRebase(ref  ) },
+                onMergeBranch = onMerge,
+                onRebaseBranch = onRebase,
                 onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
             )
@@ -528,7 +531,6 @@ fun LogDialogs(
     logViewModel: LogViewModel,
     onResetShowLogDialog: () -> Unit,
     showLogDialog: LogDialog,
-    currentBranch: Ref?,
 ) {
     when (showLogDialog) {
         is LogDialog.NewBranch -> {
@@ -542,15 +544,6 @@ fun LogDialogs(
                 logViewModel.createTagOnCommit(tagName, showLogDialog.graphNode)
                 onResetShowLogDialog()
             })
-        }
-        is LogDialog.MergeBranch -> {
-            if (currentBranch != null) MergeDialog(currentBranchName = currentBranch.simpleName,
-                mergeBranchName = showLogDialog.ref.simpleName,
-                onReject = onResetShowLogDialog,
-                onAccept = { ff ->
-                    logViewModel.mergeBranch(showLogDialog.ref, ff)
-                    onResetShowLogDialog()
-                })
         }
         is LogDialog.ResetBranch -> ResetBranchDialog(onReject = onResetShowLogDialog, onAccept = { resetType ->
             logViewModel.resetToCommit(showLogDialog.graphNode, resetType)

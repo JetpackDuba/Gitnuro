@@ -172,10 +172,10 @@ class LogViewModel @Inject constructor(
         tagsManager.createTagOnCommit(git, tag, revCommit)
     }
 
-    fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing(
+    fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.mergeBranch(git, ref, fastForward)
+        mergeManager.mergeBranch(git, ref, appPreferences.ffMerge)
     }
 
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(

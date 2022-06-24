@@ -25,6 +25,7 @@ fun SettingsDialog(
 ) {
     val currentTheme by appPreferences.themeState.collectAsState()
     val commitsLimitEnabled by appPreferences.commitsLimitEnabledFlow.collectAsState()
+    val ffMerge by appPreferences.ffMergeFlow.collectAsState()
     var commitsLimit by remember { mutableStateOf(appPreferences.commitsLimit) }
 
     MaterialDialog(
@@ -86,6 +87,15 @@ fun SettingsDialog(
                 enabled = commitsLimitEnabled,
                 onValueChanged = { value ->
                     commitsLimit = value
+                }
+            )
+
+            SettingToogle(
+                title = "Fast-forward merge",
+                subtitle = "Try to fast-forward merges when possible",
+                value = ffMerge,
+                onValueChanged = { value ->
+                    appPreferences.ffMerge = value
                 }
             )
 

@@ -14,7 +14,6 @@ import app.extensions.simpleName
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.context_menu.branchContextMenuItems
-import app.ui.dialogs.MergeDialog
 import app.viewmodels.BranchesViewModel
 import org.eclipse.jgit.lib.Ref
 
@@ -27,8 +26,6 @@ fun Branches(
     val currentBranchState = branchesViewModel.currentBranch.collectAsState()
     val isExpanded by branchesViewModel.isExpanded.collectAsState()
     val currentBranch = currentBranchState.value
-
-    val (mergeBranch, setMergeBranch) = remember { mutableStateOf<Ref?>(null) }
 
     SideMenuPanel(
         title = "Local branches",
@@ -44,7 +41,7 @@ fun Branches(
                 onBranchClicked = { branchesViewModel.selectBranch(branch) },
                 onBranchDoubleClicked = { branchesViewModel.checkoutRef(branch) },
                 onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
-                onMergeBranch = { setMergeBranch(branch) },
+                onMergeBranch = { branchesViewModel.mergeBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onPushToRemoteBranch = { branchesViewModel.pushToRemoteBranch(branch) },
@@ -52,15 +49,6 @@ fun Branches(
             )
         }
     )
-
-    if (mergeBranch != null && currentBranch != null) {
-        MergeDialog(
-            currentBranchName = currentBranch.simpleName,
-            mergeBranchName = mergeBranch.name,
-            onReject = { setMergeBranch(null) },
-            onAccept = { ff -> branchesViewModel.mergeBranch(mergeBranch, ff) }
-        )
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

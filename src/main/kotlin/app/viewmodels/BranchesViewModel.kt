@@ -1,6 +1,7 @@
 package app.viewmodels
 
 import app.git.*
+import app.preferences.AppPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
@@ -13,6 +14,7 @@ class BranchesViewModel @Inject constructor(
     private val mergeManager: MergeManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
+    private val appPreferences: AppPreferences,
 ) : ExpandableViewModel() {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     val branches: StateFlow<List<Ref>>
@@ -46,10 +48,10 @@ class BranchesViewModel @Inject constructor(
         this.loadBranches(git)
     }
 
-    fun mergeBranch(ref: Ref, fastForward: Boolean) = tabState.safeProcessing(
+    fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.mergeBranch(git, ref, fastForward)
+        mergeManager.mergeBranch(git, ref, appPreferences.ffMerge)
     }
 
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(
