@@ -15,7 +15,7 @@ class BranchesViewModel @Inject constructor(
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
     private val appPreferences: AppPreferences,
-) : ExpandableViewModel() {
+) : ExpandableViewModel(true) {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     val branches: StateFlow<List<Ref>>
         get() = _branches

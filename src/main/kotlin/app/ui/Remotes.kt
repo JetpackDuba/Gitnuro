@@ -38,16 +38,6 @@ fun Remotes(
     var showEditRemotesDialog by remember { mutableStateOf(false) }
     val isExpanded by remotesViewModel.isExpanded.collectAsState()
 
-    val itemsCount = remember(remotes) {
-        val allBranches = remotes.filter { remoteView ->
-            remoteView.isExpanded // Only include in the branches count the nodes expanded
-        }.map { remoteView ->
-            remoteView.remoteInfo.branchesList
-        }.flatten()
-
-        allBranches.count() + remotes.count()
-    }
-
     if (showEditRemotesDialog) {
         EditRemotesDialog(
             remotesViewModel = remotesViewModel,
@@ -61,7 +51,6 @@ fun Remotes(
         title = "Remotes",
         icon = painterResource("cloud.svg"),
         items = remotes,
-        itemsCountForMaxHeight = itemsCount,
         isExpanded = isExpanded,
         onExpand = { remotesViewModel.onExpand() },
         contextItems = {

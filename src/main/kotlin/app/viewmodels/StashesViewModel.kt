@@ -13,7 +13,7 @@ import javax.inject.Inject
 class StashesViewModel @Inject constructor(
     private val stashManager: StashManager,
     private val tabState: TabState,
-) : ExpandableViewModel() {
+) : ExpandableViewModel(true) {
     private val _stashStatus = MutableStateFlow<StashStatus>(StashStatus.Loaded(listOf()))
     val stashStatus: StateFlow<StashStatus>
         get() = _stashStatus

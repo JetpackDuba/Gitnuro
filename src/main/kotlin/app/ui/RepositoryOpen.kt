@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.git.DiffEntryType
 import app.theme.*
+import app.ui.components.ScrollableColumn
 import app.ui.dialogs.AuthorDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.StashWithMessageDialog
@@ -176,10 +177,7 @@ fun MainContentView(
     Row {
         HorizontalSplitPane {
             first(minSize = 250.dp) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                ) {
+                ScrollableColumn(modifier = Modifier.fillMaxHeight( )) {
                     Branches(
                         branchesViewModel = tabViewModel.branchesViewModel,
                     )

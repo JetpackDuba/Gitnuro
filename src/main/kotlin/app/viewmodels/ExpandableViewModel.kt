@@ -3,8 +3,8 @@ package app.viewmodels
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-abstract class ExpandableViewModel {
-    private val _isExpanded = MutableStateFlow(true)
+abstract class ExpandableViewModel(expandedDefault: Boolean = false) {
+    private val _isExpanded = MutableStateFlow(expandedDefault)
     val isExpanded: StateFlow<Boolean> = _isExpanded
 
     fun onExpand() {
