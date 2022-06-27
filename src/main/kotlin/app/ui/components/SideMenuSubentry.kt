@@ -3,6 +3,7 @@
 package app.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -26,8 +28,8 @@ import app.theme.primaryTextColor
 fun SideMenuSubentry(
     text: String,
     iconResourcePath: String,
-    bold: Boolean = false,
     extraPadding: Dp = 0.dp,
+    background: Color = MaterialTheme.colors.background,
     onClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     additionalInfo: @Composable () -> Unit = {}
@@ -42,7 +44,8 @@ fun SideMenuSubentry(
                 else
                     this
             }
-            .padding(start = extraPadding),
+            .padding(start = extraPadding)
+            .background(background),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -58,8 +61,7 @@ fun SideMenuSubentry(
             text = text,
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
-            fontSize = 13.sp,
-            fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Normal,
+            fontSize = 12.sp,
             color = MaterialTheme.colors.primaryTextColor,
             softWrap = false,
         )
