@@ -60,7 +60,7 @@ fun Remotes(
             IconButton(
                 onClick = { showEditRemotesDialog = true },
                 modifier = Modifier
-                    .padding(end = 8.dp)
+                    .padding(end = 16.dp)
                     .size(16.dp)
                     .pointerHoverIcon(PointerIconDefaults.Hand),
             ) {

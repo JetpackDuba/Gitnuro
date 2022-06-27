@@ -68,7 +68,7 @@ fun SideMenuEntry(
                 text = itemsCount.toString(),
                 fontSize = 14.sp,
                 color = MaterialTheme.colors.secondaryTextColor,
-                modifier = Modifier.padding(end = 8.dp),
+                modifier = Modifier.padding(end = 16.dp),
             )
     }
 }
