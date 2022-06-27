@@ -313,7 +313,7 @@ class TabViewModel @Inject constructor(
         loadRepositoryState(git)
     }
 
-    private suspend fun refreshRepositoryInfo() = tabState.safeProcessing(
+    private fun refreshRepositoryInfo() = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
     ) { git ->
         loadRepositoryState(git)
@@ -426,6 +426,13 @@ class TabViewModel @Inject constructor(
     fun closeHistory() {
         _showHistory.value = false
         historyViewModel = null
+    }
+
+    fun refreshAll() {
+        printLog(TAG, "Manual refresh triggered")
+        if (!tabState.operationRunning) {
+            refreshRepositoryInfo()
+        }
     }
 }
 

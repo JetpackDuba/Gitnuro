@@ -115,34 +115,36 @@ class TabState @Inject constructor(
         refreshEvenIfCrashes: Boolean = false,
         block: suspend (git: Git) -> Unit
     ) = managerScope.launch(Dispatchers.IO) {
-        var hasProcessFailed = false
+        mutex.withLock {
+            var hasProcessFailed = false
 
-        operationRunning = true
-        try {
-            block(safeGit)
+            operationRunning = true
+            try {
+                block(safeGit)
 
-            if (refreshType != RefreshType.NONE)
-                _refreshData.emit(refreshType)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
+                if (refreshType != RefreshType.NONE)
+                    _refreshData.emit(refreshType)
+            } catch (ex: Exception) {
+                ex.printStackTrace()
 
-            hasProcessFailed = true
+                hasProcessFailed = true
 
-            if (showError)
-                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
-        } finally {
-            launch {
-                // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
-                // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
-                // refresh because there have been changes in the git dir). This can be easily triggered by interactive
-                // rebase.
-                delay(500)
-                operationRunning = false
+                if (showError)
+                    errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+            } finally {
+                launch {
+                    // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
+                    // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
+                    // refresh because there have been changes in the git dir). This can be easily triggered by interactive
+                    // rebase.
+                    delay(500)
+                    operationRunning = false
+                }
+
+
+                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
+                    _refreshData.emit(refreshType)
             }
-
-
-            if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
-                _refreshData.emit(refreshType)
         }
     }
 
@@ -152,34 +154,36 @@ class TabState @Inject constructor(
         refreshEvenIfCrashes: Boolean = false,
         block: suspend (git: Git) -> Unit
     ) = withContext(Dispatchers.IO) {
-        var hasProcessFailed = false
+        mutex.withLock {
+            var hasProcessFailed = false
 
-        operationRunning = true
-        try {
-            block(safeGit)
+            operationRunning = true
+            try {
+                block(safeGit)
 
-            if (refreshType != RefreshType.NONE)
-                _refreshData.emit(refreshType)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
+                if (refreshType != RefreshType.NONE)
+                    _refreshData.emit(refreshType)
+            } catch (ex: Exception) {
+                ex.printStackTrace()
 
-            hasProcessFailed = true
+                hasProcessFailed = true
 
-            if (showError)
-                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
-        } finally {
-            launch {
-                // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
-                // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
-                // refresh because there have been changes in the git dir). This can be easily triggered by interactive
-                // rebase.
-                delay(500)
-                operationRunning = false
+                if (showError)
+                    errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+            } finally {
+                launch {
+                    // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
+                    // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
+                    // refresh because there have been changes in the git dir). This can be easily triggered by interactive
+                    // rebase.
+                    delay(500)
+                    operationRunning = false
+                }
+
+
+                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
+                    _refreshData.emit(refreshType)
             }
-
-
-            if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
-                _refreshData.emit(refreshType)
         }
     }
 
