@@ -29,7 +29,7 @@ fun AppTheme(
     MaterialTheme(
         colors = theme.toComposeColors(),
         content = content,
-        typography = typography,
+        typography = typography(),
     )
 }
 

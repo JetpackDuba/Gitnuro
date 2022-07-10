@@ -185,9 +185,14 @@ fun UncommitedChanges(
                     statusViewModel.updateCommitMessage(it)
                 },
                 enabled = !repositoryState.isRebasing,
-                label = { Text("Write your commit message here", fontSize = 14.sp) },
+                label = {
+                    Text(
+                        text = "Write your commit message here",
+                        style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant),
+                    )
+                },
                 colors = textFieldColors(),
-                textStyle = TextStyle.Default.copy(fontSize = 14.sp),
+                textStyle = MaterialTheme.typography.body1,
             )
 
             when {
@@ -394,12 +399,11 @@ fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
         modifier = modifier,
         colors = ButtonDefaults.buttonColors(
             backgroundColor = MaterialTheme.colors.abortButton,
-            contentColor = Color.White
         )
     ) {
         Text(
             text = "Abort",
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.onError),
         )
     }
 }
@@ -419,12 +423,11 @@ fun ConfirmationButton(
         shape = shape,
         colors = ButtonDefaults.buttonColors(
             backgroundColor = MaterialTheme.colors.primary,
-            contentColor = Color.White
         )
     ) {
         Text(
             text = text,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.onPrimary),
         )
     }
 }
@@ -458,7 +461,7 @@ private fun EntriesList(
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Left,
                 color = MaterialTheme.colors.headerText,
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.body1,
                 maxLines = 1,
             )
 
@@ -561,7 +564,7 @@ private fun FileEntry(
                         modifier = Modifier.weight(1f, fill = false),
                         maxLines = 1,
                         softWrap = false,
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.body2,
                         overflow = TextOverflow.Ellipsis,
                         color = MaterialTheme.colors.secondaryTextColor,
                     )
@@ -571,7 +574,7 @@ private fun FileEntry(
                     modifier = Modifier.weight(1f, fill = false),
                     maxLines = 1,
                     softWrap = false,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.primaryTextColor,
                 )
             }

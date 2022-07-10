@@ -94,8 +94,7 @@ private fun Header(
     ) {
         Text(
             text = filePath,
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 
@@ -212,15 +211,14 @@ fun HistoryCommit(commit: RevCommit, onCommitSelected: () -> Unit) {
             Text(
                 text = commit.shortMessage,
                 maxLines = 1,
-                fontSize = 14.sp,
-                color = MaterialTheme.colors.primaryTextColor,
+                style = MaterialTheme.typography.body1,
             )
 
             Row {
                 Text(
                     text = commit.name.take(7),
                     maxLines = 1,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.secondaryTextColor,
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -234,7 +232,7 @@ fun HistoryCommit(commit: RevCommit, onCommitSelected: () -> Unit) {
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.body2,
                     tooltipTitle = date
                 )
             }

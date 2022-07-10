@@ -150,8 +150,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
             ) {
                 Text(
                     text = "${userInfo.name ?: "Name not set"} <${userInfo.email ?: "Email not set"}>",
-                    color = MaterialTheme.colors.primaryTextColor,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.body2,
                 )
             }
         }

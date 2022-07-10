@@ -156,7 +156,7 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                     .weight(1f),
                 color = MaterialTheme.colors.primaryTextColor,
                 overflow = TextOverflow.Visible,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body1,
                 maxLines = 1,
             )
             IconButton(

@@ -73,8 +73,7 @@ fun WelcomePage(
 
         Text(
             "Version ${AppConstants.APP_VERSION}",
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.body2,
             maxLines = 1,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -120,9 +119,8 @@ fun HomeButtons(
     ) {
         Text(
             text = AppConstants.APP_NAME,
-            fontSize = 32.sp,
+            style = MaterialTheme.typography.h1,
             maxLines = 1,
-            color = MaterialTheme.colors.primaryTextColor,
             modifier = Modifier.padding(bottom = 16.dp),
         )
 
@@ -150,9 +148,8 @@ fun HomeButtons(
         )
 
         Text(
-            text = "About Gitnuro",
-            fontSize = 18.sp,
-            color = MaterialTheme.colors.primaryTextColor,
+            text = "About",
+            style = MaterialTheme.typography.h3,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
         )
 
@@ -200,16 +197,15 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
         val latestOpenedRepositoriesPaths = appStateManager.latestOpenedRepositoriesPaths
         Text(
             text = "Recent",
-            fontSize = 18.sp,
+            style = MaterialTheme.typography.h3,
             modifier = Modifier.padding(top = 48.dp, bottom = 8.dp),
-            color = MaterialTheme.colors.primaryTextColor,
         )
 
         if (latestOpenedRepositoriesPaths.isEmpty()) {
             Text(
                 "Nothing to see here, open a repository first!",
                 color = MaterialTheme.colors.secondaryTextColor,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(top = 16.dp)
             )
         } else {
@@ -229,14 +225,15 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
                         ) {
                             Text(
                                 text = repoDirName,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.body1,
                                 maxLines = 1,
+                                color = MaterialTheme.colors.primaryVariant
                             )
                         }
 
                         Text(
                             text = repoDirPath,
-                            fontSize = 14.sp,
+                            style = MaterialTheme.typography.body1,
                             modifier = Modifier.padding(start = 4.dp),
                             maxLines = 1,
                             color = MaterialTheme.colors.secondaryTextColor
@@ -275,6 +272,7 @@ fun ButtonTile(
             Text(
                 text = title,
                 maxLines = 1,
+                style = MaterialTheme.typography.body1,
                 color = MaterialTheme.colors.primaryVariant,
             )
         }

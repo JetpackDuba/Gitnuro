@@ -36,21 +36,18 @@ fun AppInfoDialog(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             AppConstants.APP_NAME,
-                            fontSize = 24.sp,
-                            color = MaterialTheme.colors.primaryTextColor,
+                            style = MaterialTheme.typography.h2,
                         )
 
                         Text(
                             AppConstants.APP_DESCRIPTION,
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colors.primaryTextColor,
+                            style = MaterialTheme.typography.body1,
                             modifier = Modifier.padding(top = 16.dp)
                         )
 
                         Text(
                             "Gitnuro has been possible thanks to the following open source projects:",
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colors.primaryTextColor,
+                            style = MaterialTheme.typography.body1,
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
                     }

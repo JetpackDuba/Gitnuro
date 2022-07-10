@@ -89,8 +89,7 @@ fun AuthorDialog(
                 )
                 Text(
                     text = "Repository-level values will override global values",
-                    color = MaterialTheme.colors.primaryTextColor,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp, start = 4.dp),
                 )
@@ -142,8 +141,7 @@ private fun TextInput(
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier
                 .width(80.dp)
                 .padding(end = 16.dp),

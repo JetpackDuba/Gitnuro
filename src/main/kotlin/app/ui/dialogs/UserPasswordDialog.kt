@@ -69,8 +69,13 @@ fun UserPasswordDialog(
                 value = userField,
                 singleLine = true,
                 colors = outlinedTextFieldColors(),
-                label = { Text("User", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                label = {
+                    Text(
+                        "User",
+                        style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant),
+                    )
+                },
+                textStyle = MaterialTheme.typography.body1,
                 onValueChange = {
                     userField = it
                 },
@@ -92,8 +97,14 @@ fun UserPasswordDialog(
                     },
                 value = passwordField,
                 singleLine = true,
-                label = { Text("Password", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                label = {
+                    Text(
+                        "Password",
+                        style = MaterialTheme.typography.body1,
+                        color = MaterialTheme.colors.primaryVariant,
+                    )
+                },
+                textStyle = MaterialTheme.typography.body1,
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     passwordField = it

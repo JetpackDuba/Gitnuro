@@ -143,7 +143,7 @@ fun RebaseCommit(
                 newMessage = it
                 onMessageChanged(it)
             },
-            textStyle = LocalTextStyle.current.copy(fontSize = 12.sp),
+            textStyle = MaterialTheme.typography.body2,
         )
 
     }
@@ -186,7 +186,7 @@ fun ActionDropdown(
                 ) {
                     Text(
                         text = dropDownOption.toToken().replaceFirstChar { it.uppercase() },
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.body1,
                     )
                 }
             }

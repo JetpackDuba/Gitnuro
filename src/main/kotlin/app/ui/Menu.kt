@@ -178,8 +178,7 @@ fun MenuButton(
             )
             Text(
                 text = title,
-                fontSize = 12.sp,
-                color = MaterialTheme.colors.primaryTextColor
+                style = MaterialTheme.typography.body2,
             )
         }
     }
@@ -221,8 +220,7 @@ fun ExtendedMenuButton(
             )
             Text(
                 text = title,
-                fontSize = 12.sp,
-                color = MaterialTheme.colors.primaryTextColor
+                style = MaterialTheme.typography.body2,
             )
         }
 

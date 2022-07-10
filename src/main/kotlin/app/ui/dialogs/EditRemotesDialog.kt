@@ -196,7 +196,7 @@ fun EditRemotesDialog(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.surface)
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
                     if (selectedRemote != null) {
                         Column {
@@ -204,7 +204,7 @@ fun EditRemotesDialog(
                                 Text(
                                     text = "New remote name",
                                     color = MaterialTheme.colors.primaryTextColor,
-                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    modifier = Modifier.padding(top = 8.dp),
                                 )
 
                                 AdjustableOutlinedTextField(
@@ -230,7 +230,7 @@ fun EditRemotesDialog(
                             Text(
                                 text = "Fetch URL",
                                 color = MaterialTheme.colors.primaryTextColor,
-                                modifier = Modifier.padding(vertical = 8.dp),
+                                modifier = Modifier.padding(top = 8.dp),
                             )
 
                             AdjustableOutlinedTextField(
@@ -250,7 +250,7 @@ fun EditRemotesDialog(
                             Text(
                                 text = "Push URL",
                                 color = MaterialTheme.colors.primaryTextColor,
-                                modifier = Modifier.padding(vertical = 8.dp),
+                                modifier = Modifier.padding(top = 8.dp),
                             )
 
                             AdjustableOutlinedTextField(

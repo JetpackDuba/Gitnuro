@@ -60,8 +60,13 @@ fun PasswordDialog(
                     },
                 value = passwordField,
                 singleLine = true,
-                label = { Text("Password", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                label = {
+                    Text(
+                        "Password",
+                        style = MaterialTheme.typography.body1.copy(MaterialTheme.colors.primaryVariant),
+                    )
+                },
+                textStyle = MaterialTheme.typography.body1,
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     passwordField = it

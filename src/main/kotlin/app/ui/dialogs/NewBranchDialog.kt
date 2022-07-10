@@ -53,8 +53,13 @@ fun NewBranchDialog(
                     },
                 value = branchField,
                 singleLine = true,
-                label = { Text("New branch name", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                label = {
+                    Text(
+                        "New branch name",
+                        style = MaterialTheme.typography.body1.copy(MaterialTheme.colors.primaryVariant),
+                    )
+                },
+                textStyle = MaterialTheme.typography.body1,
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     branchField = it

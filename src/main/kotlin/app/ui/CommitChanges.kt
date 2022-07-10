@@ -82,8 +82,7 @@ fun CommitChangesView(
             SelectionContainer {
                 Text(
                     text = commit.fullMessage,
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colors.primaryTextColor,
+                    style = MaterialTheme.typography.body1,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.background)
@@ -115,7 +114,7 @@ fun CommitChangesView(
                 textAlign = TextAlign.Left,
                 color = MaterialTheme.colors.headerText,
                 maxLines = 1,
-                fontSize = 13.sp,
+                style = MaterialTheme.typography.body1,
             )
 
 
@@ -156,9 +155,8 @@ fun Author(
         ) {
             TooltipText(
                 text = author.name,
-                color = MaterialTheme.colors.primaryTextColor,
                 maxLines = 1,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body2,
                 tooltipTitle = author.emailAddress,
             )
 
@@ -167,7 +165,7 @@ fun Author(
                     text = id.abbreviate(7).name(),
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
-                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.body2,
                 )
 
 
@@ -186,7 +184,7 @@ fun Author(
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.body2,
                     tooltipTitle = systemDate
                 )
             }
@@ -248,8 +246,8 @@ fun CommitLogChanges(
                                 modifier = Modifier.weight(1f, fill = false),
                                 maxLines = 1,
                                 softWrap = false,
-                                fontSize = 13.sp,
                                 overflow = TextOverflow.Ellipsis,
+                                style = MaterialTheme.typography.body2,
                                 color = MaterialTheme.colors.secondaryTextColor,
                             )
                         }
@@ -258,7 +256,7 @@ fun CommitLogChanges(
                             modifier = Modifier.weight(1f, fill = false),
                             maxLines = 1,
                             softWrap = false,
-                            fontSize = 13.sp,
+                            style = MaterialTheme.typography.body2,
                             color = MaterialTheme.colors.primaryTextColor,
                         )
                     }

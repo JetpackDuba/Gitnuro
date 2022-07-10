@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -237,7 +238,7 @@ fun Log(
                                 text = "Scroll to top",
                                 modifier = Modifier.padding(start = 8.dp),
                                 color = MaterialTheme.colors.onPrimary,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.body1,
                             )
                         }
                     }
@@ -309,7 +310,7 @@ fun SearchFilter(
                 Text("Search by message, author name or commit ID")
             },
             colors = textFieldColors(),
-            textStyle = TextStyle.Default.copy(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+            textStyle = MaterialTheme.typography.body1,
             trailingIcon = {
                 Row(
                     modifier = Modifier
@@ -396,7 +397,7 @@ fun MessagesList(
                 )
             }
         }
-        items(items = commitList) { graphNode ->
+        items(items = commitList) {graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
                 logViewModel = logViewModel,
@@ -425,8 +426,8 @@ fun MessagesList(
                     Text(
                         text = "The commits list has been limited to $commitsLimit. Access the settings to change it.",
                         color = MaterialTheme.colors.primaryTextColor,
-                        fontSize = 14.sp,
                         fontStyle = FontStyle.Italic,
+                        style = MaterialTheme.typography.body2,
                         maxLines = 1,
                     )
                 }
@@ -574,7 +575,7 @@ fun GraphHeader(
                 modifier = Modifier.width(graphWidth).padding(start = 16.dp),
                 text = "Graph",
                 color = MaterialTheme.colors.headerText,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body1,
                 maxLines = 1,
             )
 
@@ -592,7 +593,7 @@ fun GraphHeader(
                     .weight(1f),
                 text = "Message",
                 color = MaterialTheme.colors.headerText,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body1,
                 maxLines = 1,
             )
 
@@ -640,7 +641,7 @@ fun UncommitedChangesLine(
             text = text,
             fontStyle = FontStyle.Italic,
             modifier = Modifier.padding(start = 16.dp),
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body2,
             maxLines = 1,
             color = MaterialTheme.colors.primaryTextColor,
         )
@@ -703,8 +704,7 @@ fun SummaryEntry(
     ) {
         Text(
             text = count.toString(),
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body2,
         )
 
         Icon(
@@ -847,7 +847,7 @@ fun CommitMessage(
             modifier = Modifier
                 .padding(start = 8.dp)
                 .weight(1f),
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body2,
             color = if (matchesSearchFilter == false) MaterialTheme.colors.secondaryTextColor else MaterialTheme.colors.primaryTextColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -856,7 +856,7 @@ fun CommitMessage(
         Text(
             text = commit.authorIdent.`when`.toSmartSystemString(),
             modifier = Modifier.padding(horizontal = 16.dp),
-            fontSize = 12.sp,
+            fontSize = 10.sp,
             color = MaterialTheme.colors.secondaryTextColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -1139,8 +1139,7 @@ fun RefChip(
                 }
                 Text(
                     text = ref.simpleLogName,
-                    color = MaterialTheme.colors.primaryTextColor,
-                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.body2,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )

@@ -105,7 +105,7 @@ private fun CloneInput(
                     next = directoryFocusRequester
                 },
             label = { Text("URL") },
-            textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+            textStyle = MaterialTheme.typography.body1,
             maxLines = 1,
             value = url,
             colors = outlinedTextFieldColors(),
@@ -130,7 +130,7 @@ private fun CloneInput(
                         previous = urlFocusRequester
                         next = directoryButtonFocusRequester
                     },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                textStyle = MaterialTheme.typography.body1,
                 maxLines = 1,
                 label = { Text("Directory") },
                 value = directory,

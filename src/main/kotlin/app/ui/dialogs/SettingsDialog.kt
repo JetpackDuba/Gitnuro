@@ -113,7 +113,10 @@ fun SettingsDialog(
                     onDismiss()
                 }
             ) {
-                Text("Close")
+                Text(
+                    "Close",
+                    style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant)
+                )
             }
         }
     }
@@ -149,8 +152,8 @@ fun <T : DropDownOption> SettingDropDown(
             OutlinedButton(onClick = { showThemeDropdown = true }) {
                 Text(
                     text = currentOption.optionName,
+                    style = MaterialTheme.typography.body1,
                     color = MaterialTheme.colors.primaryTextColor,
-                    fontSize = 14.sp,
                 )
             }
 
@@ -192,8 +195,7 @@ fun SettingButton(
         OutlinedButton(onClick = onClick) {
             Text(
                 text = buttonText,
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body1,
             )
         }
     }
@@ -280,15 +282,14 @@ private fun FieldTitles(
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body1,
         )
 
         Text(
             text = subtitle,
             color = MaterialTheme.colors.secondaryTextColor,
             modifier = Modifier.padding(top = 4.dp),
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.body2,
         )
     }
 }

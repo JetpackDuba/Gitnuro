@@ -29,7 +29,7 @@ fun AdjustableOutlinedTextField(
     colors: TextFieldColors = outlinedTextFieldColors(),
     maxLines: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
+    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = MaterialTheme.typography.body1.fontSize),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val textColor = textStyle.color.takeOrElse {

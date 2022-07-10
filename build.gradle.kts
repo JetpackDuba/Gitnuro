@@ -27,7 +27,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.1.0.202203080745-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r")
     implementation("org.apache.sshd:sshd-core:2.8.0")
     implementation("com.google.dagger:dagger:2.42")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")

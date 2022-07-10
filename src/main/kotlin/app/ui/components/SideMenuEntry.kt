@@ -56,7 +56,7 @@ fun SideMenuEntry(
                 .padding(horizontal = 8.dp)
                 .weight(1f),
             maxLines = 1,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.primaryTextColor,
             overflow = TextOverflow.Ellipsis,
         )
@@ -66,7 +66,7 @@ fun SideMenuEntry(
         } else
             Text(
                 text = itemsCount.toString(),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.secondaryTextColor,
                 modifier = Modifier.padding(end = 16.dp),
             )

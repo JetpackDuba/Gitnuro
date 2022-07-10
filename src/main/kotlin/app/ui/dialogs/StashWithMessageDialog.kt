@@ -52,8 +52,13 @@ fun StashWithMessageDialog(
                         }
                     },
                 value = textField,
-                label = { Text("New stash message", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                label = {
+                    Text(
+                        "New stash message",
+                        style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant),
+                    )
+                },
+                textStyle = MaterialTheme.typography.body1,
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     textField = it

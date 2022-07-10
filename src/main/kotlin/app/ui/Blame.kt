@@ -103,10 +103,9 @@ fun Blame(
                             ) {
                                 Text(
                                     text = author?.name.orEmpty(),
-                                    color = MaterialTheme.colors.primaryTextColor,
                                     maxLines = 1,
                                     modifier = Modifier.padding(start = 16.dp),
-                                    fontSize = 12.sp,
+                                    style = MaterialTheme.typography.body2,
                                 )
                                 Text(
                                     text = commit?.shortMessage ?: "Uncommited change",
@@ -174,9 +173,8 @@ fun MinimizedBlame(
             )
             Text(
                 text = filePath,
-                color = MaterialTheme.colors.primaryTextColor,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
-                fontSize = 12.sp,
             )
         }
 
@@ -216,8 +214,7 @@ private fun Header(
     ) {
         Text(
             text = filePath,
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 

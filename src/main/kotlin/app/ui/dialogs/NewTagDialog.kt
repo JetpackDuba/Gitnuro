@@ -53,8 +53,13 @@ fun NewTagDialog(
                     },
                 value = tagField,
                 singleLine = true,
-                label = { Text("New tag name", fontSize = 14.sp) },
-                textStyle = TextStyle(fontSize = 14.sp, color = MaterialTheme.colors.primaryTextColor),
+                label = {
+                    Text(
+                        "New tag name",
+                        style = MaterialTheme.typography.body1.copy(MaterialTheme.colors.primaryVariant),
+                    )
+                },
+                textStyle = MaterialTheme.typography.body1,
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     tagField = it

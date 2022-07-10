@@ -279,7 +279,7 @@ fun HunkHeader(
         Text(
             text = hunk.header,
             color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.body1,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -346,8 +346,7 @@ fun DiffHeader(
 
         Text(
             text = filePath,
-            color = MaterialTheme.colors.primaryTextColor,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.body1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 
@@ -441,10 +440,9 @@ fun DiffLine(
             modifier = Modifier
                 .padding(start = 8.dp)
                 .fillMaxSize(),
-            color = MaterialTheme.colors.primaryTextColor,
             maxLines = 1,
             fontFamily = FontFamily.Monospace,
-            fontSize = 13.sp,
+            style = MaterialTheme.typography.body2,
             overflow = TextOverflow.Visible,
         )
     }
@@ -454,13 +452,12 @@ fun DiffLine(
 fun LineNumber(text: String) {
     Text(
         text = text,
-        color = MaterialTheme.colors.primaryTextColor,
         modifier = Modifier
             .background(MaterialTheme.colors.secondarySurface)
             .fillMaxHeight()
             .padding(horizontal = 4.dp),
         fontFamily = FontFamily.Monospace,
-        fontSize = 13.sp,
+        style = MaterialTheme.typography.body2,
     )
 }
 

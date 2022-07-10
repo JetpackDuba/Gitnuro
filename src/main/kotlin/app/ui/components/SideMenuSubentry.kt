@@ -61,7 +61,7 @@ fun SideMenuSubentry(
             text = text,
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.primaryTextColor,
             softWrap = false,
         )
