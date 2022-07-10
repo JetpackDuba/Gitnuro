@@ -188,7 +188,7 @@ fun UncommitedChanges(
                 label = {
                     Text(
                         text = "Write your commit message here",
-                        style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant),
+                        style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.primaryVariant),
                     )
                 },
                 colors = textFieldColors(),
