@@ -109,10 +109,9 @@ fun Blame(
                                 )
                                 Text(
                                     text = commit?.shortMessage ?: "Uncommited change",
-                                    color = MaterialTheme.colors.primaryTextColor,
+                                    style = MaterialTheme.typography.caption,
                                     maxLines = 1,
                                     modifier = Modifier.padding(start = 16.dp),
-                                    fontSize = 10.sp,
                                 )
                             }
                         }
@@ -167,9 +166,8 @@ fun MinimizedBlame(
         ) {
             Text(
                 text = "Minimized file blame",
-                color = MaterialTheme.colors.primaryTextColor,
+                style = MaterialTheme.typography.caption,
                 maxLines = 1,
-                fontSize = 10.sp,
             )
             Text(
                 text = filePath,

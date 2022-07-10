@@ -43,17 +43,22 @@ fun typography() = Typography(
         letterSpacing = LETTER_SPACING.sp,
     ),
     h4 = TextStyle(
-        fontSize = 16.sp,
+        fontSize = 17.sp,
         color = MaterialTheme.colors.primaryTextColor,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body1 = TextStyle(
-        fontSize = 14.sp,
+        fontSize = 15.sp,
         color = MaterialTheme.colors.primaryTextColor,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body2 = TextStyle(
-        fontSize = 12.sp,
+        fontSize = 13.sp,
+        color = MaterialTheme.colors.primaryTextColor,
+        letterSpacing = LETTER_SPACING.sp,
+    ),
+    caption = TextStyle(
+        fontSize = 11.sp,
         color = MaterialTheme.colors.primaryTextColor,
         letterSpacing = LETTER_SPACING.sp,
     )

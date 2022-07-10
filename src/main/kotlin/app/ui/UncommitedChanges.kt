@@ -461,7 +461,7 @@ private fun EntriesList(
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Left,
                 color = MaterialTheme.colors.headerText,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
 

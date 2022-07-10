@@ -114,7 +114,7 @@ fun CommitChangesView(
                 textAlign = TextAlign.Left,
                 color = MaterialTheme.colors.headerText,
                 maxLines = 1,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
             )
 
 

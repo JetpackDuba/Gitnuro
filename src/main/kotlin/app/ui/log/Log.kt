@@ -858,7 +858,7 @@ fun CommitMessage(
         Text(
             text = commit.authorIdent.`when`.toSmartSystemString(),
             modifier = Modifier.padding(horizontal = 16.dp),
-            fontSize = 10.sp,
+            style = MaterialTheme.typography.caption,
             color = MaterialTheme.colors.secondaryTextColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
