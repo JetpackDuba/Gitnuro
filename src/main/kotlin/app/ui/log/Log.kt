@@ -579,10 +579,12 @@ fun GraphHeader(
                 maxLines = 1,
             )
 
+            val density = LocalDensity.current.density
+
             SimpleDividerLog(
                 modifier = Modifier.draggable(
                     rememberDraggableState {
-                        weightMod.value += it
+                        weightMod.value += it * density // Multiply by density for screens with scaling > 1
                     }, Orientation.Horizontal
                 ),
             )
