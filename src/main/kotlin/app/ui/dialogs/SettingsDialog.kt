@@ -195,6 +195,7 @@ fun SettingButton(
         OutlinedButton(onClick = onClick) {
             Text(
                 text = buttonText,
+                color = MaterialTheme.colors.primaryTextColor,
                 style = MaterialTheme.typography.body1,
             )
         }
@@ -282,6 +283,7 @@ private fun FieldTitles(
     ) {
         Text(
             text = title,
+            color = MaterialTheme.colors.primaryTextColor,
             style = MaterialTheme.typography.body1,
         )
 

@@ -82,7 +82,7 @@ fun CommitChangesView(
             SelectionContainer {
                 Text(
                     text = commit.fullMessage,
-                    style = MaterialTheme.typography.body1,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colors.background)
