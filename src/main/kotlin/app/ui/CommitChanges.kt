@@ -22,6 +22,9 @@ import app.ui.components.TooltipText
 import app.ui.context_menu.commitedChangesEntriesContextMenuItems
 import app.viewmodels.CommitChangesStatus
 import app.viewmodels.CommitChangesViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.PersonIdent
@@ -134,6 +137,9 @@ fun Author(
     id: ObjectId,
     author: PersonIdent,
 ) {
+    var copied by remember(id) { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,13 +166,31 @@ fun Author(
                 tooltipTitle = author.emailAddress,
             )
 
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = id.abbreviate(7).name(),
                     color = MaterialTheme.colors.secondaryTextColor,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
+                    modifier = Modifier.handMouseClickable {
+                        scope.launch {
+                            copyInBrowser(id.name)
+                            copied = true
+                            delay(2000) // 2s
+                            copied = false
+                        }
+                    }
                 )
+
+                if (copied) {
+                    Text(
+                        text = "Copied!",
+                        color = MaterialTheme.colors.primaryVariant,
+                        maxLines = 1,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                }
 
 
                 Spacer(modifier = Modifier.weight(1f, fill = true))
