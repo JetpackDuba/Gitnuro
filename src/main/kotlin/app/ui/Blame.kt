@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.extensions.lineAt
 import app.extensions.toStringWithSpaces
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.theme.secondarySurface
@@ -58,8 +60,8 @@ fun Blame(
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusable()
-            .onPreviewKeyEvent {
-                if (it.key == Key.Escape) {
+            .onPreviewKeyEvent { keyEvent ->
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT)) {
                     onClose()
                     true
                 } else

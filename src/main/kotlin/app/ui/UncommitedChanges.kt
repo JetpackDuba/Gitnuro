@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import app.extensions.*
 import app.git.DiffEntryType
 import app.git.StatusEntry
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
@@ -171,8 +173,8 @@ fun UncommitedChanges(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(weight = 1f, fill = true)
-                    .onPreviewKeyEvent {
-                        if (it.isCtrlPressed && it.key == Key.Enter && canCommit) {
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.matchesBinding(KeybindingOption.ACCEPT) && canCommit) {
                             doCommit(false)
                             true
                         } else

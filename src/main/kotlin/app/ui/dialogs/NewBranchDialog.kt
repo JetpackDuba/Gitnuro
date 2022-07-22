@@ -15,6 +15,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
@@ -43,8 +45,8 @@ fun NewBranchDialog(
                         this.next = buttonFieldFocusRequester
                     }
                     .width(300.dp)
-                    .onPreviewKeyEvent {
-                        if (it.key == Key.Enter && branchField.isNotBlank()) {
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && branchField.isNotBlank()) {
                             onAccept(branchField)
                             true
                         } else {

@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.git.DiffEntryType
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.*
 import app.ui.components.ScrollableColumn
 import app.ui.dialogs.AuthorDialog
@@ -97,8 +99,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusable()
-            .onKeyEvent { event ->
-                if (event.key == Key.F5) {
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.matchesBinding(KeybindingOption.REFRESH)) {
                     tabViewModel.refreshAll()
                     true
                 } else {

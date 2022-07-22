@@ -31,6 +31,8 @@ import app.extensions.handMouseClickable
 import app.extensions.toSmartSystemString
 import app.extensions.toSystemDateTimeString
 import app.git.diff.DiffResult
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.headerBackground
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
@@ -61,8 +63,8 @@ fun FileHistory(
             .fillMaxSize()
             .focusRequester(focusRequester)
             .focusable()
-            .onKeyEvent {
-                if (it.key == Key.Escape) {
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT)) {
                     onClose()
                     true
                 } else

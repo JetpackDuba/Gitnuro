@@ -35,7 +35,7 @@ private fun openPickerDialog(
 ): String? {
 
     val os = System.getProperty("os.name")
-    val isLinux = os.lowercase() == "linux"
+    val isLinux = os.lowercase().contains("linux")
 
     if (!isLinux) {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())

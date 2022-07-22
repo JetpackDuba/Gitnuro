@@ -16,11 +16,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.ui.components.PrimaryButton
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PasswordDialog(
     onReject: () -> Unit,
@@ -50,8 +51,8 @@ fun PasswordDialog(
                         this.next = buttonFieldFocusRequester
                     }
                     .width(300.dp)
-                    .onPreviewKeyEvent {
-                        if (it.key == Key.Enter) {
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT)) {
                             onAccept(passwordField)
                             true
                         } else {

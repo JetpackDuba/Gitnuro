@@ -43,6 +43,8 @@ import app.extensions.*
 import app.git.StatusSummary
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.*
 import app.ui.SelectedItem
 import app.ui.components.AvatarImage
@@ -291,15 +293,15 @@ fun SearchFilter(
             modifier = Modifier
                 .fillMaxSize()
                 .focusRequester(textFieldFocusRequester)
-                .onPreviewKeyEvent {
+                .onPreviewKeyEvent { keyEvent ->
                     when {
-                        it.key == Key.Enter && it.type == KeyEventType.KeyUp -> {
+                        keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && keyEvent.type == KeyEventType.KeyUp -> {
                             scope.launch {
                                 logViewModel.selectNextFilterCommit()
                             }
                             true
                         }
-                        it.key == Key.Escape && it.type == KeyEventType.KeyUp -> {
+                        keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyUp -> {
                             logViewModel.closeSearch()
                             true
                         }

@@ -25,6 +25,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import app.keybindings.KeybindingOption
+import app.keybindings.matchesBinding
 import app.theme.dialogOverlay
 import app.theme.primaryTextColor
 
@@ -60,8 +62,8 @@ fun MaterialDialog(
                 .background(MaterialTheme.colors.dialogOverlay)
                 .focusRequester(focusRequester)
                 .focusable()
-                .onPreviewKeyEvent {
-                    if (it.key == Key.Escape) {
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.matchesBinding(KeybindingOption.EXIT)) {
                         onCloseRequested()
                         true
                     } else
