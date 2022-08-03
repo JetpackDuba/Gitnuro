@@ -3,6 +3,7 @@ package app.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import app.extensions.delayedStateChange
 import app.extensions.isMerging
+import app.extensions.isReverting
 import app.git.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,7 +48,10 @@ class StatusViewModel @Inject constructor(
     ) { git ->
         val messageToPersist = savedCommitMessage.message.ifBlank { null }
 
-        if (git.repository.repositoryState.isMerging) {
+        if (git.repository.repositoryState.isMerging ||
+            git.repository.repositoryState.isRebasing ||
+            git.repository.repositoryState.isReverting
+        ) {
             git.repository.writeMergeCommitMsg(messageToPersist)
         } else if (git.repository.repositoryState == RepositoryState.SAFE) {
             git.repository.writeCommitEditMsg(messageToPersist)
@@ -134,8 +138,9 @@ class StatusViewModel @Inject constructor(
 
     private fun messageByRepoState(git: Git): String {
         val message: String? = if (
-            git.repository.repositoryState == RepositoryState.MERGING ||
-            git.repository.repositoryState == RepositoryState.REBASING_MERGE
+            git.repository.repositoryState.isMerging ||
+            git.repository.repositoryState.isRebasing ||
+            git.repository.repositoryState.isReverting
         ) {
             git.repository.readMergeCommitMsg()
         } else {

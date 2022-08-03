@@ -639,6 +639,7 @@ fun UncommitedChangesLine(
             repositoryState.isRebasing -> "Pending changes to rebase"
             repositoryState.isMerging -> "Pending changes to merge"
             repositoryState.isCherryPicking -> "Pending changes to cherry-pick"
+            repositoryState.isReverting -> "Pending changes to revert"
             else -> "Uncommited changes"
         }
 

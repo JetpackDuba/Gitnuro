@@ -20,7 +20,6 @@ import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.theme.primaryTextColor
 import app.ui.context_menu.*

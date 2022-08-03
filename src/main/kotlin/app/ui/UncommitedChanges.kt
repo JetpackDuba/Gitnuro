@@ -21,20 +21,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.isCtrlPressed
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.pointerMoveFilter
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.extensions.*
 import app.git.DiffEntryType
 import app.git.StatusEntry
+import app.git.StatusType
 import app.keybindings.KeybindingOption
 import app.keybindings.matchesBinding
 import app.theme.*
@@ -226,6 +222,17 @@ fun UncommitedChanges(
                         doCommit(false)
                     }
                 )
+                repositoryState.isReverting -> RevertingButtons(
+                    haveConflictsBeenSolved = unstaged.none { it.statusType == StatusType.CONFLICTING },
+                    canCommit = commitMessage.isNotBlank(),
+                    onAbort = {
+                        statusViewModel.resetRepoState()
+                        statusViewModel.updateCommitMessage("")
+                    },
+                    onCommit = {
+                        doCommit(false)
+                    }
+                )
                 else -> UncommitedChangesButtons(
                     canCommit = canCommit,
                     canAmend = canAmend,
@@ -391,6 +398,34 @@ fun RebasingButtons(
             )
         }
 
+    }
+}
+
+@Composable
+fun RevertingButtons(
+    canCommit: Boolean,
+    haveConflictsBeenSolved: Boolean,
+    onAbort: () -> Unit,
+    onCommit: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        AbortButton(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 4.dp),
+            onClick = onAbort
+        )
+
+        ConfirmationButton(
+            text = "Continue",
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 4.dp),
+            enabled = canCommit && haveConflictsBeenSolved,
+            onClick = onCommit,
+        )
     }
 }
 

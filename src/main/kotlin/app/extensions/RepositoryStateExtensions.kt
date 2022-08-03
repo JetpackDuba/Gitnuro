@@ -7,3 +7,6 @@ val RepositoryState.isMerging
 
 val RepositoryState.isCherryPicking
     get() = this == RepositoryState.CHERRY_PICKING || this == RepositoryState.CHERRY_PICKING_RESOLVED
+
+val RepositoryState.isReverting
+    get() = this == RepositoryState.REVERTING || this == RepositoryState.REVERTING_RESOLVED

@@ -25,7 +25,7 @@ class TabState @Inject constructor(
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent
 
     var git: Git? = null
-    val safeGit: Git
+    private val safeGit: Git
         get() {
             val git = this.git
             if (git == null) {
