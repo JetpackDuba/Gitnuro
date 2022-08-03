@@ -11,12 +11,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import app.di.DaggerAppComponent
@@ -29,10 +30,12 @@ import app.theme.secondaryTextColor
 import app.ui.AppTab
 import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
-import app.ui.dialogs.SettingsDialog
+import app.ui.dialogs.settings.SettingsDialog
+import app.viewmodels.SettingsViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
+
 
 class App {
     private val appComponent = DaggerAppComponent.create()
@@ -42,6 +45,9 @@ class App {
 
     @Inject
     lateinit var appPreferences: AppPreferences
+
+    @Inject
+    lateinit var settingsViewModel: SettingsViewModel
 
     init {
         appComponent.inject(this)
@@ -60,6 +66,7 @@ class App {
             var isOpen by remember { mutableStateOf(true) }
             val theme by appPreferences.themeState.collectAsState()
             val customTheme by appPreferences.customThemeFlow.collectAsState()
+            val scale by appPreferences.scaleUiFlow.collectAsState()
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -78,25 +85,32 @@ class App {
                     state = windowState,
                     icon = painterResource("logo.svg"),
                 ) {
-                    var showSettingsDialog by remember { mutableStateOf(false) }
+                    val density = if(scale != -1f) {
+                        arrayOf(LocalDensity provides Density(scale, 1f))
+                    }  else
+                        emptyArray()
 
-                    AppTheme(
-                        selectedTheme = theme,
-                        customTheme = customTheme,
-                    ) {
-                        Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-                            AppTabs(
-                                onOpenSettings = {
-                                    showSettingsDialog = true
-                                }
-                            )
-                        }
+                    CompositionLocalProvider(values = density) {
+                        var showSettingsDialog by remember { mutableStateOf(false) }
 
-                        if (showSettingsDialog) {
-                            SettingsDialog(
-                                appPreferences = appPreferences,
-                                onDismiss = { showSettingsDialog = false }
-                            )
+                        AppTheme(
+                            selectedTheme = theme,
+                            customTheme = customTheme,
+                        ) {
+                            Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+                                AppTabs(
+                                    onOpenSettings = {
+                                        showSettingsDialog = true
+                                    }
+                                )
+                            }
+
+                            if (showSettingsDialog) {
+                                SettingsDialog(
+                                    settingsViewModel = settingsViewModel,
+                                    onDismiss = { showSettingsDialog = false }
+                                )
+                            }
                         }
                     }
                 }
@@ -104,6 +118,7 @@ class App {
                 appStateManager.cancelCoroutines()
                 this.exitApplication()
             }
+
         }
     }
 

@@ -192,10 +192,11 @@ fun Log(
                     }
                 )
 
+                val density = LocalDensity.current.density
                 DividerLog(
                     modifier = Modifier.draggable(
                         rememberDraggableState {
-                            weightMod.value += it
+                            weightMod.value += it * density
                         }, Orientation.Horizontal
                     ),
                     graphWidth = graphWidth,

@@ -13,15 +13,15 @@ private var appTheme: ColorsScheme = defaultAppTheme
 
 @Composable
 fun AppTheme(
-    selectedTheme: Themes = Themes.DARK,
+    selectedTheme: Theme = Theme.DARK,
     customTheme: ColorsScheme?,
     content: @Composable() () -> Unit
 ) {
     val theme = when (selectedTheme) {
-        Themes.LIGHT -> lightTheme
-        Themes.DARK -> darkBlueTheme
-        Themes.DARK_GRAY -> darkGrayTheme
-        Themes.CUSTOM -> customTheme ?: defaultAppTheme
+        Theme.LIGHT -> lightTheme
+        Theme.DARK -> darkBlueTheme
+        Theme.DARK_GRAY -> darkGrayTheme
+        Theme.CUSTOM -> customTheme ?: defaultAppTheme
     }
 
     appTheme = theme
@@ -99,7 +99,7 @@ val Colors.dialogOverlay: Color
     get() = appTheme.dialogOverlay
 
 
-enum class Themes(val displayName: String) : DropDownOption {
+enum class Theme(val displayName: String) : DropDownOption {
     LIGHT("Light"),
     DARK("Dark"),
     DARK_GRAY("Dark gray"),
@@ -109,9 +109,9 @@ enum class Themes(val displayName: String) : DropDownOption {
         get() = displayName
 }
 
-val themesList = listOf(
-    Themes.LIGHT,
-    Themes.DARK,
-    Themes.DARK_GRAY,
-    Themes.CUSTOM,
+val themeLists = listOf(
+    Theme.LIGHT,
+    Theme.DARK,
+    Theme.DARK_GRAY,
+    Theme.CUSTOM,
 )

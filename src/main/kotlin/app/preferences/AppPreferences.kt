@@ -2,8 +2,7 @@ package app.preferences
 
 import app.extensions.defaultWindowPlacement
 import app.theme.ColorsScheme
-import app.theme.Themes
-import app.theme.darkBlueTheme
+import app.theme.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
@@ -12,7 +11,6 @@ import java.util.prefs.Preferences
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 
 private const val PREFERENCES_NAME = "GitnuroConfig"
 
@@ -23,19 +21,21 @@ private const val PREF_COMMITS_LIMIT = "commitsLimit"
 private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
 private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 private const val PREF_CUSTOM_THEME = "customTheme"
+private const val PREF_UI_SCALE = "ui_scale"
 
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
 
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
+const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
 class AppPreferences @Inject constructor() {
     private val preferences: Preferences = Preferences.userRoot().node(PREFERENCES_NAME)
 
     private val _themeState = MutableStateFlow(theme)
-    val themeState: StateFlow<Themes> = _themeState
+    val themeState: StateFlow<Theme> = _themeState
 
     private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
     val commitsLimitEnabledFlow: StateFlow<Boolean> = _commitsLimitEnabledFlow
@@ -49,6 +49,9 @@ class AppPreferences @Inject constructor() {
     private val _customThemeFlow = MutableStateFlow<ColorsScheme?>(null)
     val customThemeFlow: StateFlow<ColorsScheme?> = _customThemeFlow
 
+    private val _scaleUiFlow = MutableStateFlow(scaleUi)
+    val scaleUiFlow: StateFlow<Float> = _scaleUiFlow
+
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
         set(value) {
@@ -61,14 +64,14 @@ class AppPreferences @Inject constructor() {
             preferences.put(PREF_LAST_OPENED_REPOSITORIES_PATH, value)
         }
 
-    var theme: Themes
+    var theme: Theme
         get() {
-            val lastTheme = preferences.get(PREF_THEME, Themes.DARK.toString())
+            val lastTheme = preferences.get(PREF_THEME, Theme.DARK.toString())
             return try {
-                Themes.valueOf(lastTheme)
+                Theme.valueOf(lastTheme)
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                Themes.DARK
+                Theme.DARK
             }
         }
         set(value) {
@@ -83,6 +86,15 @@ class AppPreferences @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_COMMITS_LIMIT_ENABLED, value)
             _commitsLimitEnabledFlow.value = value
+        }
+
+    var scaleUi: Float
+        get() {
+            return preferences.getFloat(PREF_UI_SCALE, DEFAULT_UI_SCALE)
+        }
+        set(value) {
+            preferences.putFloat(PREF_UI_SCALE, value)
+            _scaleUiFlow.value = value
         }
 
     /**

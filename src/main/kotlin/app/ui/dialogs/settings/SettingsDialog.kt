@@ -1,5 +1,6 @@
-package app.ui.dialogs
+package app.ui.dialogs.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -10,35 +11,54 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.preferences.AppPreferences
 import app.DropDownOption
 import app.theme.*
 import app.ui.components.AdjustableOutlinedTextField
+import app.ui.components.ScrollableColumn
+import app.ui.dialogs.MaterialDialog
 import app.ui.openFileDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
+import app.extensions.handMouseClickable
+import app.preferences.DEFAULT_UI_SCALE
+import app.viewmodels.SettingsViewModel
+
+enum class SettingsCategory(val displayName: String) {
+    UI("UI"),
+    GIT("Git"),
+}
+
 
 @Composable
 fun SettingsDialog(
-    appPreferences: AppPreferences,
+    settingsViewModel: SettingsViewModel,
     onDismiss: () -> Unit,
 ) {
-    val currentTheme by appPreferences.themeState.collectAsState()
-    val commitsLimitEnabled by appPreferences.commitsLimitEnabledFlow.collectAsState()
-    val ffMerge by appPreferences.ffMergeFlow.collectAsState()
-    var commitsLimit by remember { mutableStateOf(appPreferences.commitsLimit) }
+
+    LaunchedEffect(Unit) {
+        settingsViewModel.resetInfo()
+    }
+
+    val categories = remember {
+        listOf(
+            SettingsCategory.UI,
+            SettingsCategory.GIT,
+        )
+    }
+
+    var selectedCategory by remember { mutableStateOf(SettingsCategory.UI) }
 
     MaterialDialog(
         onCloseRequested = {
-            savePendingSettings(
-                appPreferences = appPreferences,
-                commitsLimit = commitsLimit,
-            )
+            settingsViewModel.savePendingChanges()
 
             onDismiss()
         }
     ) {
-        Column(modifier = Modifier.width(720.dp)) {
+        Column(modifier = Modifier.height(720.dp)) {
             Text(
                 text = "Settings",
                 color = MaterialTheme.colors.primaryTextColor,
@@ -46,58 +66,29 @@ fun SettingsDialog(
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp, start = 8.dp)
             )
 
-            SettingDropDown(
-                title = "Theme",
-                subtitle = "Select the UI theme between light and dark mode",
-                dropDownOptions = themesList,
-                currentOption = currentTheme,
-                onOptionSelected = { theme ->
-                    appPreferences.theme = theme
-                }
-            )
-
-            if (currentTheme == Themes.CUSTOM) {
-                SettingButton(
-                    title = "Custom theme",
-                    subtitle = "Select a JSON file to load the custom theme",
-                    buttonText = "Open file",
-                    onClick = {
-                        val filePath = openFileDialog()
-
-                        if (filePath != null) {
-                            appPreferences.saveCustomTheme(filePath)
-                        }
+            Row(modifier = Modifier.weight(1f)) {
+                ScrollableColumn(
+                    modifier = Modifier
+                        .width(200.dp)
+                        .fillMaxHeight()
+                ) {
+                    categories.forEach { category ->
+                        Category(
+                            category = category,
+                            isSelected = category == selectedCategory,
+                            onClick = { selectedCategory = category }
+                        )
                     }
-                )
+                }
+
+
+                Column(modifier = Modifier.width(720.dp)) {
+                    when (selectedCategory) {
+                        SettingsCategory.UI -> UiSettings(settingsViewModel)
+                        SettingsCategory.GIT -> GitSettings(settingsViewModel)
+                    }
+                }
             }
-
-            SettingToogle(
-                title = "Limit log commits",
-                subtitle = "Turning off this may affect the performance",
-                value = commitsLimitEnabled,
-                onValueChanged = { value ->
-                    appPreferences.commitsLimitEnabled = value
-                }
-            )
-
-            SettingIntInput(
-                title = "Max commits",
-                subtitle = "Increasing this value may affect the performance",
-                value = commitsLimit,
-                enabled = commitsLimitEnabled,
-                onValueChanged = { value ->
-                    commitsLimit = value
-                }
-            )
-
-            SettingToogle(
-                title = "Fast-forward merge",
-                subtitle = "Try to fast-forward merges when possible",
-                value = ffMerge,
-                onValueChanged = { value ->
-                    appPreferences.ffMerge = value
-                }
-            )
 
             TextButton(
                 modifier = Modifier
@@ -105,10 +96,7 @@ fun SettingsDialog(
                     .align(Alignment.End),
                 colors = textButtonColors(),
                 onClick = {
-                    savePendingSettings(
-                        appPreferences = appPreferences,
-                        commitsLimit = commitsLimit,
-                    )
+                    settingsViewModel.savePendingChanges()
 
                     onDismiss()
                 }
@@ -119,17 +107,125 @@ fun SettingsDialog(
                 )
             }
         }
+
     }
 }
 
-fun savePendingSettings(
-    appPreferences: AppPreferences,
-    commitsLimit: Int,
-) {
-    if (appPreferences.commitsLimit != commitsLimit) {
-        appPreferences.commitsLimit = commitsLimit
-    }
+@Composable
+fun GitSettings(settingsViewModel: SettingsViewModel) {
+    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
+    val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
+    var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
+
+    SettingToggle(
+        title = "Limit log commits",
+        subtitle = "Turning off this may affect the performance",
+        value = commitsLimitEnabled,
+        onValueChanged = { value ->
+            settingsViewModel.commitsLimitEnabled = value
+        }
+    )
+
+    SettingIntInput(
+        title = "Max commits",
+        subtitle = "Increasing this value may affect the performance",
+        value = commitsLimit,
+        enabled = commitsLimitEnabled,
+        onValueChanged = { value ->
+            commitsLimit = value
+            settingsViewModel.commitsLimit = value
+        }
+    )
+
+    SettingToggle(
+        title = "Fast-forward merge",
+        subtitle = "Try to fast-forward merges when possible",
+        value = ffMerge,
+        onValueChanged = { value ->
+            settingsViewModel.ffMerge = value
+        }
+    )
 }
+
+@Composable
+fun UiSettings(settingsViewModel: SettingsViewModel) {
+    val currentTheme by settingsViewModel.themeState.collectAsState()
+
+    SettingDropDown(
+        title = "Theme",
+        subtitle = "Select the UI theme between light and dark mode",
+        dropDownOptions = themeLists,
+        currentOption = currentTheme,
+        onOptionSelected = { theme ->
+            settingsViewModel.theme = theme
+        }
+    )
+
+    if (currentTheme == Theme.CUSTOM) {
+        SettingButton(
+            title = "Custom theme",
+            subtitle = "Select a JSON file to load the custom theme",
+            buttonText = "Open file",
+            onClick = {
+                val filePath = openFileDialog()
+
+                if (filePath != null) {
+                    settingsViewModel.saveCustomTheme(filePath)
+                }
+            }
+        )
+    }
+
+    val density = LocalDensity.current.density
+    var scaleValue by remember {
+        val savedScaleUi = settingsViewModel.scaleUi
+        val scaleUi = if (savedScaleUi == DEFAULT_UI_SCALE) {
+            density
+        } else {
+            savedScaleUi
+        } * 100
+
+        mutableStateOf(scaleUi)
+    }
+
+    SettingSlider(
+        title = "Scale",
+        subtitle = "Adapt the size the UI to your preferred scale",
+        value = scaleValue,
+        onValueChanged = { newValue ->
+            scaleValue = newValue
+        },
+        onValueChangeFinished = {
+            settingsViewModel.scaleUi = scaleValue / 100
+        },
+        steps = 5,
+        minValue = 100f,
+        maxValue = 300f,
+    )
+}
+
+@Composable
+fun Category(
+    category: SettingsCategory,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val backgroundColor = if (isSelected)
+        MaterialTheme.colors.backgroundSelected
+    else
+        MaterialTheme.colors.background
+
+    Text(
+        text = category.displayName,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = backgroundColor)
+            .handMouseClickable(onClick)
+            .padding(8.dp),
+        style = MaterialTheme.typography.body1,
+    )
+}
+
 
 @Composable
 fun <T : DropDownOption> SettingDropDown(
@@ -203,7 +299,7 @@ fun SettingButton(
 }
 
 @Composable
-fun SettingToogle(
+fun SettingToggle(
     title: String,
     subtitle: String,
     value: Boolean,
@@ -218,6 +314,46 @@ fun SettingToogle(
         Spacer(modifier = Modifier.weight(1f))
 
         Switch(value, onCheckedChange = onValueChanged)
+    }
+}
+
+@Composable
+fun SettingSlider(
+    title: String,
+    subtitle: String,
+    value: Float,
+    minValue: Float,
+    maxValue: Float,
+    steps: Int,
+    onValueChanged: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FieldTitles(title, subtitle)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Text(
+            text = "$minValue%",
+            style = MaterialTheme.typography.caption,
+        )
+
+        Slider(
+            value = value,
+            onValueChange = onValueChanged,
+            onValueChangeFinished = onValueChangeFinished,
+            steps = steps,
+            valueRange = minValue..maxValue,
+            modifier = Modifier.width(200.dp)
+        )
+
+        Text(
+            text = "$maxValue%",
+            style = MaterialTheme.typography.caption,
+        )
     }
 }
 
@@ -299,6 +435,15 @@ private fun FieldTitles(
 private fun isValidInt(value: String): Boolean {
     return try {
         value.toInt()
+        true
+    } catch (ex: Exception) {
+        false
+    }
+}
+
+private fun isValidFloat(value: String): Boolean {
+    return try {
+        value.toFloat()
         true
     } catch (ex: Exception) {
         false
