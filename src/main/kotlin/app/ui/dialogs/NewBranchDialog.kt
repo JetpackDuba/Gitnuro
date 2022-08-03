@@ -34,8 +34,6 @@ fun NewBranchDialog(
 
     MaterialDialog(onCloseRequested = onReject) {
         Column(
-            modifier = Modifier
-                .background(MaterialTheme.colors.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {

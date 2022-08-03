@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -35,6 +36,7 @@ fun MaterialDialog(
     alignment: Alignment = Alignment.Center,
     paddingHorizontal: Dp = 16.dp,
     paddingVertical: Dp = 16.dp,
+    background: Color = MaterialTheme.colors.background,
     onCloseRequested: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
@@ -75,7 +77,7 @@ fun MaterialDialog(
                 modifier = Modifier
                     .border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colors.background)
+                    .background(background)
                     .padding(
                         horizontal = paddingHorizontal,
                         vertical = paddingVertical,

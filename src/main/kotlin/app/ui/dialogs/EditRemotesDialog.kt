@@ -66,6 +66,7 @@ fun EditRemotesDialog(
     MaterialDialog(
         paddingVertical = 8.dp,
         paddingHorizontal = 16.dp,
+        background = MaterialTheme.colors.surface,
         onCloseRequested = onDismiss
     ) {
         Column(
@@ -101,21 +102,21 @@ fun EditRemotesDialog(
             Row(
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .background(MaterialTheme.colors.surface)
             ) {
                 Column(
                     modifier = Modifier
                         .width(200.dp)
-                        .fillMaxHeight(),
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colors.background),
                 ) {
                     LazyColumn(
                         modifier = Modifier.weight(1f)
                     ) {
                         items(remotesEditorData.listRemotes) { remote ->
                             val background = if (remote == selectedRemote) {
-                                MaterialTheme.colors.background
+                                MaterialTheme.colors.backgroundSelected
                             } else
-                                MaterialTheme.colors.surface
+                                MaterialTheme.colors.background
 
                             Text(
                                 text = remote.remoteName,
@@ -134,7 +135,7 @@ fun EditRemotesDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colors.background)
+//                            .background(MaterialTheme.colors.background)
                     ) {
                         IconButton(
                             modifier = Modifier.size(36.dp)
@@ -185,17 +186,10 @@ fun EditRemotesDialog(
                     }
                 }
 
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(1.dp)
-                        .background(MaterialTheme.colors.borderColor)
-                )
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(MaterialTheme.colors.surface)
+//                        .background(MaterialTheme.colors.background)
                         .padding(horizontal = 16.dp)
                 ) {
                     if (selectedRemote != null) {

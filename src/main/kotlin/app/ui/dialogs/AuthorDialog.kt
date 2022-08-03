@@ -1,7 +1,6 @@
 package app.ui.dialogs
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -33,7 +32,6 @@ fun AuthorDialog(
     MaterialDialog(onCloseRequested = onClose) {
         Column(
             modifier = Modifier
-                .background(MaterialTheme.colors.background)
                 .padding(horizontal = 8.dp),
         ) {
 

@@ -52,6 +52,7 @@ fun SettingsDialog(
     var selectedCategory by remember { mutableStateOf(SettingsCategory.UI) }
 
     MaterialDialog(
+        background = MaterialTheme.colors.surface,
         onCloseRequested = {
             settingsViewModel.savePendingChanges()
 
@@ -71,6 +72,7 @@ fun SettingsDialog(
                     modifier = Modifier
                         .width(200.dp)
                         .fillMaxHeight()
+                        .background(MaterialTheme.colors.background)
                 ) {
                     categories.forEach { category ->
                         Category(
@@ -82,7 +84,11 @@ fun SettingsDialog(
                 }
 
 
-                Column(modifier = Modifier.width(720.dp)) {
+                Column(
+                    modifier = Modifier
+                        .width(720.dp)
+                        .padding(horizontal = 16.dp)
+                ) {
                     when (selectedCategory) {
                         SettingsCategory.UI -> UiSettings(settingsViewModel)
                         SettingsCategory.GIT -> GitSettings(settingsViewModel)
@@ -237,7 +243,7 @@ fun <T : DropDownOption> SettingDropDown(
 ) {
     var showThemeDropdown by remember { mutableStateOf(false) }
     Row(
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FieldTitles(title, subtitle)
@@ -306,7 +312,7 @@ fun SettingToggle(
     onValueChanged: (Boolean) -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FieldTitles(title, subtitle)
@@ -329,7 +335,7 @@ fun SettingSlider(
     onValueChangeFinished: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FieldTitles(title, subtitle)
@@ -366,7 +372,7 @@ fun SettingIntInput(
     onValueChanged: (Int) -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FieldTitles(title, subtitle)
