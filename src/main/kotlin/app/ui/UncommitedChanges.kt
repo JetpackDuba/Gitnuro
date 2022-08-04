@@ -184,8 +184,14 @@ fun UncommitedChanges(
                 },
                 enabled = !repositoryState.isRebasing,
                 label = {
+                    val text = if(repositoryState.isRebasing) {
+                        "Commit message (read-only)"
+                    } else {
+                        "Write your commit message here"
+                    }
+
                     Text(
-                        text = "Write your commit message here",
+                        text = text,
                         style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.primaryVariant),
                     )
                 },
