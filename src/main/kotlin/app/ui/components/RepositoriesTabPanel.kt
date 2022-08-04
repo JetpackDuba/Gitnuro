@@ -154,9 +154,8 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                 modifier = Modifier
                     .padding(start = 16.dp, end = 8.dp)
                     .weight(1f),
-                color = MaterialTheme.colors.primaryTextColor,
                 overflow = TextOverflow.Visible,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
             IconButton(
