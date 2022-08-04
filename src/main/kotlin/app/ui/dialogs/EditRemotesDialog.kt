@@ -135,10 +135,10 @@ fun EditRemotesDialog(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-//                            .background(MaterialTheme.colors.background)
                     ) {
                         IconButton(
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(36.dp)
                                 .pointerHoverIcon(PointerIconDefaults.Hand),
                             onClick = {
                                 val remotesWithNew = remotesEditorData.listRemotes.toMutableList()
@@ -166,7 +166,8 @@ fun EditRemotesDialog(
                             )
                         }
                         IconButton(
-                            modifier = Modifier.size(36.dp)
+                            modifier = Modifier
+                                .size(36.dp)
                                 .pointerHoverIcon(PointerIconDefaults.Hand),
                             enabled = selectedRemote != null,
                             onClick = {
@@ -189,7 +190,6 @@ fun EditRemotesDialog(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-//                        .background(MaterialTheme.colors.background)
                         .padding(horizontal = 16.dp)
                 ) {
                     if (selectedRemote != null) {
@@ -285,7 +285,14 @@ fun EditRemotesDialog(
                                             remoteChanged = false
                                         }
                                     ) {
-                                        Text("Discard changes")
+                                        Text(
+                                            "Discard changes",
+                                            style = MaterialTheme.typography.body1,
+                                            color = if (remoteChanged)
+                                                MaterialTheme.colors.primaryVariant
+                                            else
+                                                MaterialTheme.colors.primaryTextColor,
+                                        )
                                     }
                                 }
 
