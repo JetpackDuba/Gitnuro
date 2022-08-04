@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import app.extensions.handMouseClickable
 import app.preferences.DEFAULT_UI_SCALE
@@ -319,7 +320,11 @@ fun SettingToggle(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Switch(value, onCheckedChange = onValueChanged)
+        Switch(
+            checked = value,
+            onCheckedChange = onValueChanged,
+            colors = SwitchDefaults.colors(uncheckedThumbColor = MaterialTheme.colors.secondary)
+        )
     }
 }
 
@@ -343,7 +348,7 @@ fun SettingSlider(
         Spacer(modifier = Modifier.weight(1f))
 
         Text(
-            text = "$minValue%",
+            text = "${minValue.toInt()}%",
             style = MaterialTheme.typography.caption,
         )
 
@@ -353,11 +358,13 @@ fun SettingSlider(
             onValueChangeFinished = onValueChangeFinished,
             steps = steps,
             valueRange = minValue..maxValue,
-            modifier = Modifier.width(200.dp)
+            modifier = Modifier
+                .width(200.dp)
+                .padding(horizontal = 4.dp)
         )
 
         Text(
-            text = "$maxValue%",
+            text = "${maxValue.toInt()}%",
             style = MaterialTheme.typography.caption,
         )
     }
