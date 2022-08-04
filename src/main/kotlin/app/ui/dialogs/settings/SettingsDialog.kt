@@ -63,9 +63,8 @@ fun SettingsDialog(
         Column(modifier = Modifier.height(720.dp)) {
             Text(
                 text = "Settings",
-                color = MaterialTheme.colors.primaryTextColor,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp, start = 8.dp)
+                style = MaterialTheme.typography.h3,
+                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
 
             Row(modifier = Modifier.weight(1f)) {
