@@ -184,13 +184,17 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
     }
 
     val density = LocalDensity.current.density
-    val options = listOf(
-        ScaleDropDown(1f, "100%"),
-        ScaleDropDown(1.5f, "150%"),
-        ScaleDropDown(2f, "200%"),
-        ScaleDropDown(2.5f, "250%"),
-        ScaleDropDown(3f, "300%"),
-    )
+    var options by remember {
+        mutableStateOf(
+            listOf(
+                ScaleDropDown(1f, "100%"),
+                ScaleDropDown(1.5f, "150%"),
+                ScaleDropDown(2f, "200%"),
+                ScaleDropDown(2.5f, "250%"),
+                ScaleDropDown(3f, "300%"),
+            )
+        )
+    }
 
     var scaleValue by remember {
         val savedScaleUi = settingsViewModel.scaleUi
@@ -200,7 +204,17 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
             savedScaleUi
         }
 
-        val matchingOption = options.firstOrNull { it.value == scaleUi } ?: options.first()
+        var matchingOption = options.firstOrNull { it.value == scaleUi }
+
+        if (matchingOption == null) { // Scale that we haven't taken in considerations
+            // Create a new scale and add it to the options list
+            matchingOption = ScaleDropDown(scaleUi, "${scaleUi * 100}%")
+            val newOptions = options.toMutableList()
+            newOptions.add(matchingOption)
+            newOptions.sortBy { it.value }
+            options = newOptions
+        }
+
         mutableStateOf(matchingOption)
     }
 
