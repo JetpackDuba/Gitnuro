@@ -81,7 +81,7 @@ fun EditRemotesDialog(
             ) {
                 Text(
                     text = "Remotes",
-                    color = MaterialTheme.colors.primaryTextColor,
+                    style = MaterialTheme.typography.h3,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
 
@@ -109,25 +109,39 @@ fun EditRemotesDialog(
                         .fillMaxHeight()
                         .background(MaterialTheme.colors.background),
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        items(remotesEditorData.listRemotes) { remote ->
-                            val background = if (remote == selectedRemote) {
-                                MaterialTheme.colors.backgroundSelected
-                            } else
-                                MaterialTheme.colors.background
+                    if (remotesEditorData.listRemotes.isNotEmpty()) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            items(remotesEditorData.listRemotes) { remote ->
+                                val background = if (remote == selectedRemote) {
+                                    MaterialTheme.colors.backgroundSelected
+                                } else
+                                    MaterialTheme.colors.background
 
+                                Text(
+                                    text = remote.remoteName,
+                                    color = MaterialTheme.colors.primaryTextColor,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .handMouseClickable {
+                                            remotesEditorData = remotesEditorData.copy(selectedRemote = remote)
+                                        }
+                                        .background(background)
+                                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                                )
+                            }
+                        }
+                    } else {
+                        Box (
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
                             Text(
-                                text = remote.remoteName,
-                                color = MaterialTheme.colors.primaryTextColor,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .handMouseClickable {
-                                        remotesEditorData = remotesEditorData.copy(selectedRemote = remote)
-                                    }
-                                    .background(background)
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                text = "No available remotes",
+                                style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.secondaryTextColor)
                             )
                         }
                     }
