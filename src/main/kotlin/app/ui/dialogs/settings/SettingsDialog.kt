@@ -11,7 +11,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.DropDownOption
+import app.ui.dropdowns.DropDownOption
 import app.theme.*
 import app.ui.components.AdjustableOutlinedTextField
 import app.ui.components.ScrollableColumn
@@ -21,10 +21,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import app.extensions.handMouseClickable
 import app.preferences.DEFAULT_UI_SCALE
+import app.ui.dropdowns.ScaleDropDown
 import app.viewmodels.SettingsViewModel
 
 enum class SettingsCategory(val displayName: String) {
@@ -184,30 +184,35 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
     }
 
     val density = LocalDensity.current.density
+    val options = listOf(
+        ScaleDropDown(1f, "100%"),
+        ScaleDropDown(1.5f, "150%"),
+        ScaleDropDown(2f, "200%"),
+        ScaleDropDown(2.5f, "250%"),
+        ScaleDropDown(3f, "300%"),
+    )
+
     var scaleValue by remember {
         val savedScaleUi = settingsViewModel.scaleUi
         val scaleUi = if (savedScaleUi == DEFAULT_UI_SCALE) {
             density
         } else {
             savedScaleUi
-        } * 100
+        }
 
-        mutableStateOf(scaleUi)
+        val matchingOption = options.firstOrNull { it.value == scaleUi } ?: options.first()
+        mutableStateOf(matchingOption)
     }
 
-    SettingSlider(
+    SettingDropDown(
         title = "Scale",
         subtitle = "Adapt the size the UI to your preferred scale",
-        value = scaleValue,
-        onValueChanged = { newValue ->
+        dropDownOptions = options,
+        currentOption = scaleValue,
+        onOptionSelected = { newValue ->
             scaleValue = newValue
-        },
-        onValueChangeFinished = {
-            settingsViewModel.scaleUi = scaleValue / 100
-        },
-        steps = 5,
-        minValue = 100f,
-        maxValue = 300f,
+            settingsViewModel.scaleUi = newValue.value
+        }
     )
 }
 

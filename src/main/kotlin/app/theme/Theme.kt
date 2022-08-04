@@ -6,7 +6,7 @@ import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import app.DropDownOption
+import app.ui.dropdowns.DropDownOption
 
 private val defaultAppTheme: ColorsScheme = darkBlueTheme
 private var appTheme: ColorsScheme = defaultAppTheme
