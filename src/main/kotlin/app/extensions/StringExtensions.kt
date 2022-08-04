@@ -30,6 +30,10 @@ val String.dirPath: String
             this
     }
 
+fun String.removeLineEndings(): String {
+    return this.removeSuffix("\n")
+        .removeSuffix("\r\n")
+}
 
 val String.lineDelimiter: String?
     get() {

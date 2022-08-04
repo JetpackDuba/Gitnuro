@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.extensions.removeLineEndings
 import app.extensions.toStringWithSpaces
 import app.git.DiffEntryType
 import app.git.EntryContent
@@ -435,14 +436,13 @@ fun DiffLine(
         }
 
         Text(
-            text = line.text.replace(
+            text = line.text.replace( // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
                 "\t",
                 "    "
-            ), // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
+            ).removeLineEndings(),
             modifier = Modifier
                 .padding(start = 8.dp)
                 .fillMaxSize(),
-            maxLines = 1,
             fontFamily = FontFamily.Monospace,
             style = MaterialTheme.typography.body2,
             overflow = TextOverflow.Visible,
