@@ -303,7 +303,7 @@ fun SettingButton(
     onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         FieldTitles(title, subtitle)
