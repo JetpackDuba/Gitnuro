@@ -22,8 +22,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -33,7 +31,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.extensions.removeLineEndings
+import app.extensions.lineDelimiter
+import app.extensions.removeLineDelimiters
 import app.extensions.toStringWithSpaces
 import app.git.DiffEntryType
 import app.git.EntryContent
@@ -84,7 +83,9 @@ fun Diff(
             }
     ) {
         when (viewDiffResult) {
-            ViewDiffResult.DiffNotFound -> { onCloseDiffView() }
+            ViewDiffResult.DiffNotFound -> {
+                onCloseDiffView()
+            }
             is ViewDiffResult.Loaded -> {
                 val diffEntryType = viewDiffResult.diffEntryType
                 val diffEntry = viewDiffResult.diffResult.diffEntry
@@ -143,7 +144,8 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
 
         if (showOldAndNew) {
             Column(
-                modifier = Modifier.weight(0.5f)
+                modifier = Modifier
+                    .weight(0.5f)
                     .padding(start = 24.dp, end = 8.dp, top = 24.dp, bottom = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -151,7 +153,8 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 SideDiff(oldBinaryContent)
             }
             Column(
-                modifier = Modifier.weight(0.5f)
+                modifier = Modifier
+                    .weight(0.5f)
                     .padding(start = 8.dp, end = 24.dp, top = 24.dp, bottom = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -160,14 +163,16 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
             }
         } else if (oldBinaryContent != EntryContent.Missing) {
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(all = 24.dp),
             ) {
                 SideDiff(oldBinaryContent)
             }
         } else if (newBinaryContent != EntryContent.Missing) {
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .padding(all = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -303,7 +308,7 @@ fun HunkHeader(
                 color = MaterialTheme.colors.stageButton
             }
 
-            if(diffEntryType is DiffEntryType.UnstagedDiff) {
+            if (diffEntryType is DiffEntryType.UnstagedDiff) {
                 SecondaryButton(
                     text = "Discard hunk",
                     backgroundButton = MaterialTheme.colors.error,
@@ -436,18 +441,33 @@ fun DiffLine(
             )
         }
 
-        Text(
-            text = line.text.replace( // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
-                "\t",
-                "    "
-            ).removeLineEndings(),
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .fillMaxSize(),
-            fontFamily = FontFamily.Monospace,
-            style = MaterialTheme.typography.body2,
-            overflow = TextOverflow.Visible,
-        )
+        Row {
+            Text(
+                text = line.text.replace( // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
+                    "\t",
+                    "    "
+                ).removeLineDelimiters(),
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .fillMaxSize(),
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.body2,
+                overflow = TextOverflow.Visible,
+            )
+
+            val lineDelimiter = line.text.lineDelimiter
+
+            // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
+            // where copying a line didn't contain the line ending & also fix the issue where the text line would
+            // display multiple lines even if there is only a single line with a line delimiter at the end
+            if(lineDelimiter != null) {
+                Text(
+                    text = lineDelimiter,
+                    maxLines = 1,
+                )
+            }
+
+        }
     }
 }
 
