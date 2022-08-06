@@ -19,7 +19,6 @@ import app.theme.outlinedTextFieldColors
 import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun NewBranchDialog(
     onReject: () -> Unit,

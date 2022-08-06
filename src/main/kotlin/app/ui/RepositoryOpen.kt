@@ -37,8 +37,6 @@ import org.jetbrains.compose.splitpane.SplitterScope
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import java.awt.Cursor
 
-
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val repositoryState by tabViewModel.repositoryState.collectAsState()
@@ -188,7 +186,6 @@ fun RepoContent(
 
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainContentView(
     tabViewModel: TabViewModel,

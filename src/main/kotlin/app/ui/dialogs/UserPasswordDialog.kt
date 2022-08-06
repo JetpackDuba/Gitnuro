@@ -22,7 +22,6 @@ import app.theme.primaryTextColor
 import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun UserPasswordDialog(
     onReject: () -> Unit,
