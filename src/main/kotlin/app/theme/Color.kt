@@ -49,8 +49,8 @@ val darkBlueTheme = ColorsScheme(
     modifiedFile = Color(0xFF0070D8),
     conflictingFile = Color(0xFFFFB638),
     dialogOverlay = Color(0xAA000000),
-    normalScrollbar = Color(0xFFCCCCCC),
-    hoverScrollbar = Color(0xFF888888)
+    normalScrollbar = Color(0xFF888888),
+    hoverScrollbar = Color(0xFFCCCCCC)
 )
 
 val darkGrayTheme = ColorsScheme(
@@ -74,6 +74,6 @@ val darkGrayTheme = ColorsScheme(
     modifiedFile = Color(0xFF0070D8),
     conflictingFile = Color(0xFFFFB638),
     dialogOverlay = Color(0xAA000000),
-    normalScrollbar = Color(0xFFCCCCCC),
-    hoverScrollbar = Color(0xFF888888)
+    normalScrollbar = Color(0xFF888888),
+    hoverScrollbar = Color(0xFFCCCCCC)
 )
