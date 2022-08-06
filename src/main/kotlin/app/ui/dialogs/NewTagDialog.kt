@@ -44,7 +44,7 @@ fun NewTagDialog(
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent { keyEvent ->
-                        if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && tagField.isBlank()) {
+                        if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && tagField.isNotBlank()) {
                             onAccept(tagField)
                             true
                         } else {
