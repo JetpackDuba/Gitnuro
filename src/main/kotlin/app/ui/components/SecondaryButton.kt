@@ -20,6 +20,7 @@ fun SecondaryButton(
     text: String,
     textColor: Color = Color.White,
     backgroundButton: Color,
+    maxLines: Int = 1,
     onClick: () -> Unit,
 ) {
     Box(
@@ -33,6 +34,7 @@ fun SecondaryButton(
             text = text,
             style = MaterialTheme.typography.body2,
             color = textColor,
+            maxLines = maxLines,
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
         )
     }

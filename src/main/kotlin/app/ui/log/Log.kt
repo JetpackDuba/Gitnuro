@@ -578,7 +578,7 @@ fun GraphHeader(
                 modifier = Modifier.width(graphWidth).padding(start = 16.dp),
                 text = "Graph",
                 color = MaterialTheme.colors.headerText,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
 
@@ -598,7 +598,7 @@ fun GraphHeader(
                     .weight(1f),
                 text = "Message",
                 color = MaterialTheme.colors.headerText,
-                style = MaterialTheme.typography.body1,
+                style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
 
@@ -609,7 +609,7 @@ fun GraphHeader(
             ) {
                 Icon(
                     Icons.Default.Search,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(18.dp),
                     contentDescription = null,
                     tint = MaterialTheme.colors.primaryTextColor,
                 )

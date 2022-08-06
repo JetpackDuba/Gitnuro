@@ -349,7 +349,8 @@ fun DiffHeader(
 
         Text(
             text = filePath,
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.body2,
+            maxLines = 1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 
