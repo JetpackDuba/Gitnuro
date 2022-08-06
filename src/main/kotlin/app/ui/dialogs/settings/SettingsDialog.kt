@@ -205,9 +205,9 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
 
         var matchingOption = options.firstOrNull { it.value == scaleUi }
 
-        if (matchingOption == null) { // Scale that we haven't taken in considerations
+        if (matchingOption == null) { // Scale that we haven't taken in consideration
             // Create a new scale and add it to the options list
-            matchingOption = ScaleDropDown(scaleUi, "${scaleUi * 100}%")
+            matchingOption = ScaleDropDown(scaleUi, "${(scaleUi * 100).toInt()}%")
             val newOptions = options.toMutableList()
             newOptions.add(matchingOption)
             newOptions.sortBy { it.value }
