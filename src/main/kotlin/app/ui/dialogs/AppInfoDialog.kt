@@ -9,11 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.AppConstants
 import app.AppConstants.openSourceProjects
 import app.Project
-import app.theme.primaryTextColor
 import app.theme.textButtonColors
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TextLink

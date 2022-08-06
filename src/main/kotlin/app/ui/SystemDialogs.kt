@@ -1,7 +1,6 @@
 package app.ui
 
 import app.viewmodels.TabViewModel
-import java.io.File
 import javax.swing.JFileChooser
 import javax.swing.UIManager
 

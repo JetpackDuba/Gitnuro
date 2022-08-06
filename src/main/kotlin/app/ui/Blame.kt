@@ -20,15 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.extensions.lineAt
 import app.extensions.toStringWithSpaces
@@ -83,7 +80,8 @@ fun Blame(
                     val commit = blameResult.getSourceCommit(index)
 
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .background(MaterialTheme.colors.background)
                             .height(IntrinsicSize.Min),
                         verticalAlignment = Alignment.CenterVertically,
@@ -187,7 +185,8 @@ fun MinimizedBlame(
 
         IconButton(
             onClick = onClose,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
                 .pointerHoverIcon(PointerIconDefaults.Hand)
         ) {
             Image(

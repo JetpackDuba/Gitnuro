@@ -4,7 +4,6 @@ import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import app.git.StatusEntry
 import app.git.StatusType
-import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalFoundationApi::class)
 fun stagedEntriesContextMenuItems(

@@ -45,7 +45,6 @@ Missing:
 - View stashes in the log tree.
 - Submodules support.
 
-
 ## Steps to build
 
 Note: Requires minimum JDK 16.

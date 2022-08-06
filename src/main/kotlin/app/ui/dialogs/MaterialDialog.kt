@@ -20,8 +20,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
@@ -29,7 +27,6 @@ import androidx.compose.ui.window.PopupPositionProvider
 import app.keybindings.KeybindingOption
 import app.keybindings.matchesBinding
 import app.theme.dialogOverlay
-import app.theme.primaryTextColor
 
 @Composable
 fun MaterialDialog(

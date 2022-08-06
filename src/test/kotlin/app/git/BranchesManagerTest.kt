@@ -6,7 +6,8 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Repository
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import java.io.File
@@ -76,14 +77,14 @@ class BranchesManagerTest {
         assertEquals(currentBranch?.name, DEFAULT_PRIMARY_BRANCH_FULL_NAME)
 
         // Checkout a remote branch
-        var branchToCheckout = branchesManager.remoteBranches(git).first { it.name ==  remoteBranchToCheckout}
+        var branchToCheckout = branchesManager.remoteBranches(git).first { it.name == remoteBranchToCheckout }
         branchesManager.checkoutRef(git, branchToCheckout)
 
         currentBranch = branchesManager.currentBranchRef(git)
         assertEquals(DEFAULT_SECONDARY_BRANCH_FULL_NAME, currentBranch?.name)
 
         // Checkout a local branch
-        branchToCheckout = branchesManager.getBranches(git).first { it.name ==  DEFAULT_PRIMARY_BRANCH_FULL_NAME}
+        branchToCheckout = branchesManager.getBranches(git).first { it.name == DEFAULT_PRIMARY_BRANCH_FULL_NAME }
         branchesManager.checkoutRef(git, branchToCheckout)
         currentBranch = branchesManager.currentBranchRef(git)
 

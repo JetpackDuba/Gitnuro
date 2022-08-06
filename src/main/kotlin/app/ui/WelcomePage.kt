@@ -18,13 +18,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.AppConstants
 import app.AppStateManager
 import app.extensions.dirName
 import app.extensions.dirPath
 import app.extensions.openUrlInBrowser
-import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.theme.textButtonColors
 import app.ui.dialogs.AppInfoDialog
@@ -297,7 +295,9 @@ fun IconTextButton(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Image(
-                modifier = Modifier.padding(end = 8.dp).size(24.dp),
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(24.dp),
                 painter = painter,
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(iconColor),

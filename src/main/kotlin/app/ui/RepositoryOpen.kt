@@ -14,19 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.extensions.handMouseClickable
 import app.git.DiffEntryType
 import app.keybindings.KeybindingOption
 import app.keybindings.matchesBinding
-import app.theme.*
 import app.ui.components.ScrollableColumn
 import app.ui.dialogs.AuthorDialog
 import app.ui.dialogs.NewBranchDialog
@@ -43,7 +38,7 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import java.awt.Cursor
 
 
-@OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val repositoryState by tabViewModel.repositoryState.collectAsState()

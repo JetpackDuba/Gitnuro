@@ -2,20 +2,18 @@ package app.ui.dialogs
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusOrder
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.keybindings.KeybindingOption
 import app.keybindings.matchesBinding
 import app.theme.outlinedTextFieldColors
@@ -46,7 +44,8 @@ fun PasswordDialog(
                 color = MaterialTheme.colors.primaryTextColor,
             )
             OutlinedTextField(
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
                     .focusOrder(passwordFieldFocusRequester) {
                         this.next = buttonFieldFocusRequester
                     }

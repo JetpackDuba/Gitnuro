@@ -52,11 +52,11 @@ class HistoryViewModel @Inject constructor(
         try {
 
             val diffEntries = diffManager.commitDiffEntries(git, commit)
-            val diffEntry = diffEntries.firstOrNull {entry ->
+            val diffEntry = diffEntries.firstOrNull { entry ->
                 entry.filePath == this.filePath
             }
 
-            if(diffEntry == null) {
+            if (diffEntry == null) {
                 _viewDiffResult.value = ViewDiffResult.DiffNotFound
                 return@runOperation
             }
@@ -66,7 +66,7 @@ class HistoryViewModel @Inject constructor(
 
             _viewDiffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
         } catch (ex: Exception) {
-            if(ex is MissingDiffEntryException) {
+            if (ex is MissingDiffEntryException) {
                 tabState.refreshData(refreshType = RefreshType.UNCOMMITED_CHANGES)
                 _viewDiffResult.value = ViewDiffResult.DiffNotFound
             } else

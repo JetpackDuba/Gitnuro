@@ -4,10 +4,10 @@ import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 
-val NO_CHILDREN = arrayOf<GraphNode>()
-val NO_LANES = arrayOf<GraphLane>()
+private val NO_CHILDREN = arrayOf<GraphNode>()
+private val NO_LANES = arrayOf<GraphLane>()
+private val NO_LANE = GraphLane(INVALID_LANE_POSITION)
 val NO_REFS = listOf<Ref>()
-val NO_LANE = GraphLane(INVALID_LANE_POSITION)
 
 open class GraphNode(id: AnyObjectId?) : RevCommit(id), IGraphNode {
     var forkingOffLanes: Array<GraphLane> = NO_LANES
@@ -66,8 +66,6 @@ open class GraphNode(id: AnyObjectId?) : RevCommit(id), IGraphNode {
             return children.size
         }
 
-
-    /** {@inheritDoc}  */
     override fun reset() {
         forkingOffLanes = NO_LANES
         passingLanes = NO_LANES

@@ -17,8 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import app.extensions.handMouseClickable
 import app.theme.*
-import app.ui.components.PrimaryButton
 import app.ui.components.AdjustableOutlinedTextField
+import app.ui.components.PrimaryButton
 import app.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
@@ -133,7 +133,7 @@ fun EditRemotesDialog(
                             }
                         }
                     } else {
-                        Box (
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth(),

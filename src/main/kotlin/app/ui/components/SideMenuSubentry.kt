@@ -4,7 +4,6 @@ package app.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -16,10 +15,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.ENTRY_HEIGHT
 import app.theme.primaryTextColor
 
@@ -39,7 +36,7 @@ fun SideMenuSubentry(
             .height(ENTRY_HEIGHT.dp)
             .fillMaxWidth()
             .run {
-                if(onClick != null)
+                if (onClick != null)
                     combinedClickable(onClick = onClick, onDoubleClick = onDoubleClick)
                 else
                     this

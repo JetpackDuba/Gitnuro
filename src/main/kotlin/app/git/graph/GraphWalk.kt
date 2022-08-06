@@ -10,22 +10,16 @@ import org.eclipse.jgit.revwalk.*
 import java.io.IOException
 
 /**
- * Specialized RevWalk for visualization of a commit graph.
+ * Specialized RevWalk to be used for load data in a structured way to be displayed in a graph of commits.
  */
 class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
-    private var additionalRefMap: MutableMap<AnyObjectId, Set<Ref>>?
+    private var additionalRefMap: MutableMap<AnyObjectId, Set<Ref>>? = HashMap()
     private var reverseRefMap: MutableMap<AnyObjectId, Set<Ref>>? = null
 
-
-    /**
-     * Create a new revision walker for a given repository.
-     */
     init {
         super.sort(RevSort.TOPO, true)
-        additionalRefMap = HashMap()
     }
 
-    /** {@inheritDoc}  */
     override fun dispose() {
         super.dispose()
         if (reverseRefMap != null) {
@@ -117,7 +111,7 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
                 is RevCommit -> markStart(refTarget)
                 // RevTag case handles commits without branches but only tags.
                 is RevTag -> {
-                    if(refTarget.`object` is RevCommit) {
+                    if (refTarget.`object` is RevCommit) {
                         val commit = lookupCommit(refTarget.`object`)
                         markStart(commit)
                     } else {

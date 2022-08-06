@@ -2,7 +2,10 @@ package app.ui.dialogs
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -13,8 +16,8 @@ import androidx.compose.ui.unit.sp
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
-import app.ui.components.PrimaryButton
 import app.ui.components.AdjustableOutlinedTextField
+import app.ui.components.PrimaryButton
 import app.viewmodels.AuthorViewModel
 
 @Composable

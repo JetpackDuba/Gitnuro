@@ -26,7 +26,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -49,15 +51,17 @@ import app.ui.components.ScrollableLazyColumn
 import app.ui.context_menu.branchContextMenuItems
 import app.ui.context_menu.logContextMenu
 import app.ui.context_menu.tagContextMenuItems
-import app.ui.dialogs.*
+import app.ui.dialogs.NewBranchDialog
+import app.ui.dialogs.NewTagDialog
+import app.ui.dialogs.ResetBranchDialog
 import app.viewmodels.LogSearch
 import app.viewmodels.LogStatus
 import app.viewmodels.LogViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import kotlinx.coroutines.flow.collect
 import java.awt.Cursor
 
 private val colors = listOf(
@@ -878,7 +882,6 @@ fun CommitMessage(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun DividerLog(modifier: Modifier, graphWidth: Dp) {
     Box(
@@ -898,7 +901,6 @@ fun DividerLog(modifier: Modifier, graphWidth: Dp) {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SimpleDividerLog(modifier: Modifier) {
     DividerLog(modifier, graphWidth = 0.dp)
@@ -1021,7 +1023,6 @@ fun UncommitedChangesGraphNode(
             modifier = Modifier.fillMaxSize()
         ) {
             clipRect {
-
                 if (hasPreviousCommits) drawLine(
                     color = colors[0],
                     start = Offset(laneWidthWithDensity, this.center.y),

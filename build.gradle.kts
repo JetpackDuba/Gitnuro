@@ -1,6 +1,6 @@
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.gradle.jvm.tasks.Jar
 
 plugins {
     // Kotlin version must match compose version
@@ -47,7 +47,7 @@ tasks.test {
     }
 }
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
     kotlinOptions.allWarningsAsErrors = true
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
@@ -63,7 +63,7 @@ compose.desktop {
             packageName = projectName
             version = projectVersion
             description = "Multiplatform Git client"
-            
+
             windows {
                 iconFile.set(project.file("icons/icon.ico"))
             }

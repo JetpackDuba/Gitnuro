@@ -119,7 +119,7 @@ class HunkDiffGenerator @AssistedInject constructor(
                 if (oldCurrentLine < curEdit.beginA || endIdx + 1 < curIdx) {
                     var lineText = oldRawText.lineAt(oldCurrentLine)
 
-                    if(
+                    if (
                         oldCurrentLine < oldRawText.size() - 1 || // If it's not the last
                         (oldCurrentLine == oldRawText.size() - 1 && !oldRawText.isMissingNewlineAtEnd) // Or is the last and contains new line at the end
                     ) {

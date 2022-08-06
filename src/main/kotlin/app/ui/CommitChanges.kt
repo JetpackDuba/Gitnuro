@@ -12,7 +12,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.extensions.*
 import app.git.DiffEntryType
 import app.theme.*
@@ -22,7 +21,6 @@ import app.ui.components.TooltipText
 import app.ui.context_menu.commitedChangesEntriesContextMenuItems
 import app.viewmodels.CommitChangesStatus
 import app.viewmodels.CommitChangesViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry

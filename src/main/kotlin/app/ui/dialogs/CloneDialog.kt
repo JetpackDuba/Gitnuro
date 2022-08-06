@@ -14,16 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusOrder
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.git.CloneStatus
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
-import app.viewmodels.CloneViewModel
 import app.ui.openDirectoryDialog
+import app.viewmodels.CloneViewModel
 import java.io.File
 
 @Composable
@@ -218,7 +216,7 @@ private fun CloneInput(
 
 @Composable
 private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatus.Cloning) {
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -228,13 +226,13 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
         val progress = remember(cloneStatusValue) {
             val total = cloneStatusValue.total
 
-            if(total == 0) // Prevent division by 0
+            if (total == 0) // Prevent division by 0
                 -1f
             else
                 cloneStatusValue.progress / total.toFloat()
         }
 
-        if(progress >= 0f)
+        if (progress >= 0f)
             CircularProgressIndicator(
                 modifier = Modifier.padding(vertical = 16.dp),
                 progress = progress
@@ -254,7 +252,7 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
                 )
                 .align(Alignment.End),
             colors = textButtonColors(),
-            onClick =  {
+            onClick = {
                 cloneViewModel.cancelClone()
             }
         ) {
@@ -265,7 +263,7 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
 
 @Composable
 private fun Cancelling() {
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,

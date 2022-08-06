@@ -7,25 +7,22 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import app.ui.dropdowns.DropDownOption
+import app.extensions.handMouseClickable
+import app.preferences.DEFAULT_UI_SCALE
 import app.theme.*
 import app.ui.components.AdjustableOutlinedTextField
 import app.ui.components.ScrollableColumn
 import app.ui.dialogs.MaterialDialog
+import app.ui.dropdowns.DropDownOption
+import app.ui.dropdowns.ScaleDropDown
 import app.ui.openFileDialog
+import app.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalDensity
-import app.extensions.handMouseClickable
-import app.preferences.DEFAULT_UI_SCALE
-import app.ui.dropdowns.ScaleDropDown
-import app.viewmodels.SettingsViewModel
 
 enum class SettingsCategory(val displayName: String) {
     UI("UI"),

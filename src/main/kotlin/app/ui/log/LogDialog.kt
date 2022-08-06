@@ -1,8 +1,6 @@
 package app.ui.log
 
 import app.git.graph.GraphNode
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revwalk.RevCommit
 
 sealed class LogDialog {
     object None : LogDialog()

@@ -2,10 +2,8 @@ package app.di.modules
 
 import app.updates.UpdatesService
 import dagger.Provides
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
-import javax.inject.Singleton
 
 @dagger.Module
 class NetworkModule {

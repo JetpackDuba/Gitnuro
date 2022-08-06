@@ -13,7 +13,7 @@ suspend fun delayedStateChange(delayMs: Long, onDelayTriggered: suspend () -> Un
 
     scope.launch {
         delay(delayMs)
-        if(!completed) {
+        if (!completed) {
             onDelayTriggered()
         }
     }

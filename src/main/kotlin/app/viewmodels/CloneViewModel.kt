@@ -42,14 +42,14 @@ class CloneViewModel @Inject constructor(
             val urlSplit = url.split("/", "\\").toMutableList()
 
             // Removes the last element for URLs that end with "/" or "\" instead of the repo name like https://github.com/JetpackDuba/Gitnuro/
-            if(urlSplit.isNotEmpty() && urlSplit.last().isBlank()) {
-               urlSplit.removeLast()
+            if (urlSplit.isNotEmpty() && urlSplit.last().isBlank()) {
+                urlSplit.removeLast()
             }
 
             // Take the last element of the path/URL to generate obtain the repo name
             var repoName = urlSplit.lastOrNull()
 
-            if(repoName?.endsWith(".git") == true) {
+            if (repoName?.endsWith(".git") == true) {
                 repoName = repoName.removeSuffix(".git")
             }
 

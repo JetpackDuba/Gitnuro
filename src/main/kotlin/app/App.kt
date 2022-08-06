@@ -4,7 +4,10 @@ package app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -32,8 +35,9 @@ import app.ui.components.RepositoriesTabPanel
 import app.ui.components.TabInformation
 import app.ui.dialogs.settings.SettingsDialog
 import app.viewmodels.SettingsViewModel
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -85,9 +89,9 @@ class App {
                     state = windowState,
                     icon = painterResource("logo.svg"),
                 ) {
-                    val density = if(scale != -1f) {
+                    val density = if (scale != -1f) {
                         arrayOf(LocalDensity provides Density(scale, 1f))
-                    }  else
+                    } else
                         emptyArray()
 
                     CompositionLocalProvider(values = density) {

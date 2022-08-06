@@ -1,4 +1,5 @@
 @file:UseSerializers(ColorAsStringSerializer::class)
+
 package app.theme
 
 import androidx.compose.material.Colors

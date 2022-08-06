@@ -16,41 +16,42 @@ import javax.inject.Inject
 private const val TAG = "LogManager"
 
 class LogManager @Inject constructor() {
-    suspend fun loadLog(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean, commitsLimit: Int) = withContext(Dispatchers.IO) {
-        val commitList = GraphCommitList()
-        val repositoryState = git.repository.repositoryState
+    suspend fun loadLog(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean, commitsLimit: Int) =
+        withContext(Dispatchers.IO) {
+            val commitList = GraphCommitList()
+            val repositoryState = git.repository.repositoryState
 
-        printLog(TAG, "Repository state ${repositoryState.description}")
+            printLog(TAG, "Repository state ${repositoryState.description}")
 
-        if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
-            val logList = git.log().setMaxCount(1).call().toList()
+            if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
+                val logList = git.log().setMaxCount(1).call().toList()
 
-            val walk = GraphWalk(git.repository)
+                val walk = GraphWalk(git.repository)
 
-            walk.use {
-                // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
-                // by the rebase)
-                walk.markStart(walk.lookupCommit(logList.first()))
+                walk.use {
+                    // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
+                    // by the rebase)
+                    walk.markStart(walk.lookupCommit(logList.first()))
 
-                walk.markStartAllRefs(Constants.R_HEADS)
-                walk.markStartAllRefs(Constants.R_REMOTES)
-                walk.markStartAllRefs(Constants.R_TAGS)
+                    walk.markStartAllRefs(Constants.R_HEADS)
+                    walk.markStartAllRefs(Constants.R_REMOTES)
+                    walk.markStartAllRefs(Constants.R_TAGS)
 
-                if (hasUncommitedChanges)
-                    commitList.addUncommitedChangesGraphCommit(logList.first())
+                    if (hasUncommitedChanges)
+                        commitList.addUncommitedChangesGraphCommit(logList.first())
 
-                commitList.source(walk)
-                commitList.fillTo(commitsLimit)
+                    commitList.source(walk)
+                    commitList.fillTo(commitsLimit)
+                }
+
+                ensureActive()
+
             }
 
-            ensureActive()
+            commitList.calcMaxLine()
 
+            return@withContext commitList
         }
-
-        commitList.calcMaxLine()
-
-        return@withContext commitList
-    }
 
     suspend fun checkoutCommit(git: Git, revCommit: RevCommit) = withContext(Dispatchers.IO) {
         git

@@ -24,7 +24,7 @@ class MergeManager @Inject constructor() {
             .setFastForward(fastForwardMode)
             .call()
 
-        if(mergeResult.mergeStatus == MergeResult.MergeStatus.FAILED) {
+        if (mergeResult.mergeStatus == MergeResult.MergeStatus.FAILED) {
             throw UncommitedChangesDetectedException("Merge failed, makes sure you repository doesn't contain uncommited changes.")
         }
     }

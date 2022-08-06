@@ -5,12 +5,12 @@ import app.theme.ColorsScheme
 import app.theme.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.prefs.Preferences
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.serialization.decodeFromString
 
 private const val PREFERENCES_NAME = "GitnuroConfig"
 

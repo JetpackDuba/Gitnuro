@@ -18,6 +18,7 @@ fun Modifier.backgroundIf(condition: Boolean, color: Color): Modifier {
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
-    return this.clickable { onClick() }
+    return this
+        .clickable { onClick() }
         .pointerHoverIcon(PointerIconDefaults.Hand)
 }

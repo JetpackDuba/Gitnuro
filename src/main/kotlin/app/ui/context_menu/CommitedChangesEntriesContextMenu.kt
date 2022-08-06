@@ -2,7 +2,6 @@ package app.ui.context_menu
 
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
-import app.git.StatusType
 import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -13,7 +12,8 @@ fun commitedChangesEntriesContextMenuItems(
 ): List<ContextMenuItem> {
     return mutableListOf<ContextMenuItem>().apply {
         if (diffEntry.changeType != DiffEntry.ChangeType.ADD ||
-            diffEntry.changeType != DiffEntry.ChangeType.DELETE) {
+            diffEntry.changeType != DiffEntry.ChangeType.DELETE
+        ) {
             add(
                 ContextMenuItem(
                     label = "Blame file",

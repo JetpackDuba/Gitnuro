@@ -52,7 +52,7 @@ class AuthorManager @Inject constructor() {
         name: String,
         value: String?,
     ) {
-        if(value == null) {
+        if (value == null) {
             unset(section, subsection, name)
         } else {
             setString(section, subsection, name, value)

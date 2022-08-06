@@ -59,12 +59,12 @@ class FileChangesWatcher @Inject constructor() {
 
             val hasGitDirectoryChanged = dir.startsWith("$pathStr$systemSeparator.git$systemSeparator")
 
-            if(events.count() == 1) {
+            if (events.count() == 1) {
                 val fileChanged = events.first().context().toString()
                 val fullPathOfFileChanged = "$pathStr$systemSeparator.git$systemSeparator$fileChanged"
 
                 // Ignore COMMIT_EDITMSG changes
-                if(isGitMessageFile(pathStr, fullPathOfFileChanged)) {
+                if (isGitMessageFile(pathStr, fullPathOfFileChanged)) {
                     printLog(TAG, "Ignored changes in $fullPathOfFileChanged")
                     return@withContext
                 }

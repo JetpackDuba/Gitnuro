@@ -6,7 +6,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ContextMenuArea
+import androidx.compose.foundation.ContextMenuItem
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -36,7 +39,10 @@ import app.keybindings.matchesBinding
 import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
-import app.ui.context_menu.*
+import app.ui.context_menu.DropDownContent
+import app.ui.context_menu.DropDownContentData
+import app.ui.context_menu.EntryType
+import app.ui.context_menu.statusEntriesContextMenuItems
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
 import kotlinx.coroutines.flow.collect
@@ -184,7 +190,7 @@ fun UncommitedChanges(
                 },
                 enabled = !repositoryState.isRebasing,
                 label = {
-                    val text = if(repositoryState.isRebasing) {
+                    val text = if (repositoryState.isRebasing) {
                         "Commit message (read-only)"
                     } else {
                         "Write your commit message here"

@@ -8,7 +8,11 @@ object AppConstants {
         Project("JGit", "https://www.eclipse.org/jgit/", edl),
         Project("JUnit 5", "https://junit.org/junit5/", edl),
         Project("Kotlin", "https://kotlinlang.org/", apache__2_0),
-        Project("Kotlinx.serialization", "https://kotlinlang.org/docs/serialization.html#example-json-serialization", apache__2_0),
+        Project(
+            "Kotlinx.serialization",
+            "https://kotlinlang.org/docs/serialization.html#example-json-serialization",
+            apache__2_0
+        ),
         Project("Mockk", "https://mockk.io/", apache__2_0),
         Project("Retrofit2", "https://square.github.io/retrofit/", apache__2_0),
     )
@@ -16,7 +20,8 @@ object AppConstants {
 
     // Remember to update build.gradle when changing this
     const val APP_NAME = "Gitnuro"
-    const val APP_DESCRIPTION = "Gitnuro is a Git client that allows you to manage multiple repositories with a modern experience and live visual representation of your repositories' state."
+    const val APP_DESCRIPTION =
+        "Gitnuro is a Git client that allows you to manage multiple repositories with a modern experience and live visual representation of your repositories' state."
     const val APP_VERSION = "1.0.0"
     const val APP_VERSION_CODE = 3
     const val VERSION_CHECK_URL = "https://raw.githubusercontent.com/JetpackDuba/Gitnuro/main/latest.json"

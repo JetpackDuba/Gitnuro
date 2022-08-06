@@ -460,7 +460,7 @@ fun DiffLine(
             // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
             // where copying a line didn't contain the line ending & also fix the issue where the text line would
             // display multiple lines even if there is only a single line with a line delimiter at the end
-            if(lineDelimiter != null) {
+            if (lineDelimiter != null) {
                 Text(
                     text = lineDelimiter,
                     maxLines = 1,

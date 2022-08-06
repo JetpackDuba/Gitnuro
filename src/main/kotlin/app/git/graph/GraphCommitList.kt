@@ -87,8 +87,6 @@ class GraphCommitList : RevCommitList<GraphNode>() {
             if (currCommit.lane.position != INVALID_LANE_POSITION)
                 laneLength[currCommit.lane] = len
         } else {
-            // More than one child, or our child is a merge.
-
             // We look for the child lane the current commit should continue.
             // Candidate lanes for this are those with children, that have the
             // current commit as their first parent.
@@ -161,8 +159,11 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     }
 
     private fun continueActiveLanes(currCommit: GraphNode) {
-        for (lane in activeLanes) if (lane !== currCommit.lane)
-            currCommit.addPassingLane(lane)
+        for (lane in activeLanes) {
+            if (lane !== currCommit.lane) {
+                currCommit.addPassingLane(lane)
+            }
+        }
     }
 
     /**
@@ -217,12 +218,12 @@ class GraphCommitList : RevCommitList<GraphNode>() {
         // always be set in the loop below
         val blockedPositions = BitSet()
         for (r in index - 1 downTo 0) {
-            val rObj: GraphNode? = get(r)
-            if (rObj === child) {
+            val graphNode: GraphNode? = get(r)
+            if (graphNode === child) {
                 childIndex = r
                 break
             }
-            addBlockedPosition(blockedPositions, rObj)
+            addBlockedPosition(blockedPositions, graphNode)
         }
 
         // handle blockades
@@ -235,8 +236,8 @@ class GraphCommitList : RevCommitList<GraphNode>() {
             var needDetour = false
             if (childOnLane != null) {
                 for (r in index - 1 downTo childIndex + 1) {
-                    val rObj: GraphNode? = get(r)
-                    if (rObj === childOnLane) {
+                    val graphNode: GraphNode? = get(r)
+                    if (graphNode === childOnLane) {
                         needDetour = true
                         break
                     }
@@ -260,12 +261,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
                 // kept other lanes from blocking us. Since we are the
                 // first commit, we can freely reposition.
                 val newPos = getFreePosition(blockedPositions)
-                freePositions.add(
-                    Integer.valueOf(
-                        newLaneToUse
-                            .position
-                    )
-                )
+                freePositions.add(newLaneToUse.position)
 
                 newLaneToUse.position = newPos
             }
@@ -288,10 +284,10 @@ class GraphCommitList : RevCommitList<GraphNode>() {
         commitIndex: Int, child: GraphNode,
         laneToContinue: GraphLane
     ) {
-        for (r in commitIndex - 1 downTo 0) {
-            val rObj: GraphNode? = get(r)
-            if (rObj === child) break
-            rObj?.addPassingLane(laneToContinue)
+        for (index in commitIndex - 1 downTo 0) {
+            val graphNode: GraphNode? = get(index)
+            if (graphNode === child) break
+            graphNode?.addPassingLane(laneToContinue)
         }
     }
 
@@ -340,18 +336,27 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     ) {
         if (graphNode != null) {
             val lane = graphNode.lane
+
             // Positions may be blocked by a commit on a lane.
-            if (lane.position != INVALID_LANE_POSITION) blockedPositions.set(lane.position)
+            if (lane.position != INVALID_LANE_POSITION) {
+                blockedPositions.set(lane.position)
+            }
+
             // Positions may also be blocked by forking off and merging lanes.
             // We don't consider passing lanes, because every passing lane forks
             // off and merges at it ends.
-            for (l in graphNode.forkingOffLanes) blockedPositions.set(l.position)
-            for (l in graphNode.mergingLanes) blockedPositions.set(l.position)
+            for (graphLane in graphNode.forkingOffLanes) {
+                blockedPositions.set(graphLane.position)
+            }
+
+            for (graphLane in graphNode.mergingLanes) {
+                blockedPositions.set(graphLane.position)
+            }
         }
     }
 
     fun calcMaxLine() {
-        if(this.isNotEmpty()) {
+        if (this.isNotEmpty()) {
             maxLine = this.maxOf { it.lane.position }
         }
     }

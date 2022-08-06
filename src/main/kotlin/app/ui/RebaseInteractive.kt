@@ -83,7 +83,7 @@ fun RebaseStateLoaded(
             }
         }
 
-        Row (modifier = Modifier.padding(bottom = 16.dp)) {
+        Row(modifier = Modifier.padding(bottom = 16.dp)) {
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 modifier = Modifier.padding(end = 8.dp),

@@ -1,8 +1,8 @@
 package app.di
 
 import app.App
-import app.preferences.AppPreferences
 import app.AppStateManager
+import app.preferences.AppPreferences
 import dagger.Component
 import javax.inject.Singleton
 

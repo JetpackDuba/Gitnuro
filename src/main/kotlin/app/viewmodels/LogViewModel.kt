@@ -2,11 +2,11 @@ package app.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
-import app.preferences.AppPreferences
 import app.extensions.delayedStateChange
 import app.git.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
+import app.preferences.AppPreferences
 import app.ui.SelectedItem
 import app.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope

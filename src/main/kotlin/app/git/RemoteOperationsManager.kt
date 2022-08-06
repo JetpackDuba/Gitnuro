@@ -275,7 +275,7 @@ class RemoteOperationsManager @Inject constructor(
             trySend(CloneStatus.Completed(directory))
             channel.close()
         } catch (ex: Exception) {
-            if(ex.cause?.cause is CancellationException) {
+            if (ex.cause?.cause is CancellationException) {
                 println("Clone cancelled")
             } else {
                 trySend(CloneStatus.Fail(ex.localizedMessage))

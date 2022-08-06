@@ -80,7 +80,7 @@ fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null)
     }
 
     LaunchedEffect(url) {
-        if(!cacheImageUsed.value) {
+        if (!cacheImageUsed.value) {
             val networkImage = networkImageLoader.loadImageNetwork(url)
 
             if (networkImage != null && !cacheImageUsed.value) {
