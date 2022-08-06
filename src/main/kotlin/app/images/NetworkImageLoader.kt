@@ -20,12 +20,18 @@ object NetworkImageLoader {
     private val loadingImagesSemaphore = Semaphore(MAX_LOADING_IMAGES)
     private val cache: ImagesCache = InMemoryImagesCache
 
+    fun loadCachedImage(url: String): ImageBitmap? {
+        val cachedImage = cache.getCachedImage(url)
+
+        return cachedImage?.toComposeImage()
+    }
+
     suspend fun loadImageNetwork(url: String): ImageBitmap? = withContext(Dispatchers.IO) {
         try {
-            val cachedImage = cache.getCachedImage(url)
+            val cachedImage = loadCachedImage(url)
 
             if (cachedImage != null)
-                return@withContext cachedImage.toComposeImage()
+                return@withContext cachedImage
 
             loadingImagesSemaphore.acquireAndUse {
                 val imageByteArray = loadImage(url)
@@ -34,7 +40,7 @@ object NetworkImageLoader {
             }
 
         } catch (ex: Exception) {
-            if(ex !is FileNotFoundException)
+            if (ex !is FileNotFoundException)
                 ex.printStackTrace()
         }
 
@@ -54,24 +60,40 @@ object NetworkImageLoader {
 @Composable
 fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null): ImageBitmap? {
     val networkImageLoader = NetworkImageLoader
+    val cacheImageUsed = remember { ValueHolder(false) }
+
     var image by remember(url) {
-        val placeHolderImage = if (placeHolderImageRes != null)
-            useResource(placeHolderImageRes) {
+        val cachedImage = networkImageLoader.loadCachedImage(url)
+
+        val image: ImageBitmap? = when {
+            cachedImage != null -> {
+                cacheImageUsed.value = true
+                cachedImage
+            }
+            placeHolderImageRes != null -> useResource(placeHolderImageRes) {
                 Image.makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
             }
-        else
-            null
+            else -> null
+        }
 
-        mutableStateOf(placeHolderImage)
+        return@remember mutableStateOf(image)
     }
 
     LaunchedEffect(url) {
-        val networkImage = networkImageLoader.loadImageNetwork(url)
-        if (networkImage != null)
-            image = networkImage
+        if(!cacheImageUsed.value) {
+            val networkImage = networkImageLoader.loadImageNetwork(url)
+
+            if (networkImage != null && !cacheImageUsed.value) {
+                image = networkImage
+            }
+        }
+
     }
 
     return image
 }
 
 fun ByteArray.toComposeImage() = Image.makeFromEncoded(this).toComposeImageBitmap()
+
+
+internal class ValueHolder<T>(var value: T)
