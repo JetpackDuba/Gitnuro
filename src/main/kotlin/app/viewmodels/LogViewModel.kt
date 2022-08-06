@@ -48,6 +48,7 @@ class LogViewModel @Inject constructor(
         get() = _logStatus
 
     var savedSearchFilter: String = ""
+    var graphPadding = 0f
 
     private val _focusCommit = MutableSharedFlow<GraphNode>()
     val focusCommit: SharedFlow<GraphNode> = _focusCommit

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -33,12 +32,10 @@ import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import app.extensions.*
 import app.git.StatusSummary
 import app.git.graph.GraphCommitList
@@ -73,6 +70,7 @@ private val colors = listOf(
 )
 
 private const val CANVAS_MIN_WIDTH = 100
+private const val CANVAS_DEFAULT_WIDTH = 120
 private const val MIN_GRAPH_LANES = 2
 
 /**
@@ -141,8 +139,8 @@ fun Log(
                 .background(MaterialTheme.colors.background)
                 .fillMaxSize()
         ) {
-            val weightMod = remember { mutableStateOf(0f) }
-            var graphWidth = (CANVAS_MIN_WIDTH + weightMod.value).dp
+            var graphPadding by remember(logViewModel) { mutableStateOf(logViewModel.graphPadding) }
+            var graphWidth = (CANVAS_DEFAULT_WIDTH + graphPadding).dp
 
             if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
 
@@ -151,7 +149,10 @@ fun Log(
             }
             GraphHeader(
                 graphWidth = graphWidth,
-                weightMod = weightMod,
+                onPaddingChange = {
+                    graphPadding += it
+                    logViewModel.graphPadding = graphPadding
+                },
                 onShowSearch = { scope.launch { logViewModel.onSearchValueChanged("") } }
             )
 
@@ -196,7 +197,8 @@ fun Log(
                 DividerLog(
                     modifier = Modifier.draggable(
                         rememberDraggableState {
-                            weightMod.value += it * density
+                            graphPadding += it * density
+                            logViewModel.graphPadding = graphPadding
                         }, Orientation.Horizontal
                     ),
                     graphWidth = graphWidth,
@@ -400,7 +402,7 @@ fun MessagesList(
                 )
             }
         }
-        items(items = commitList) {graphNode ->
+        items(items = commitList) { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
                 logViewModel = logViewModel,
@@ -484,7 +486,9 @@ fun GraphList(
                 if (hasUncommitedChanges) {
                     item {
                         Row(
-                            modifier = Modifier.height(LINE_HEIGHT.dp).fillMaxWidth(),
+                            modifier = Modifier
+                                .height(LINE_HEIGHT.dp)
+                                .fillMaxWidth(),
                         ) {
                             UncommitedChangesGraphNode(
                                 modifier = Modifier.fillMaxSize(),
@@ -561,7 +565,7 @@ fun LogDialogs(
 @Composable
 fun GraphHeader(
     graphWidth: Dp,
-    weightMod: MutableState<Float>,
+    onPaddingChange: (Float) -> Unit,
     onShowSearch: () -> Unit
 ) {
     Box(
@@ -575,7 +579,9 @@ fun GraphHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                modifier = Modifier.width(graphWidth).padding(start = 16.dp),
+                modifier = Modifier
+                    .width(graphWidth)
+                    .padding(start = 16.dp),
                 text = "Graph",
                 color = MaterialTheme.colors.headerText,
                 style = MaterialTheme.typography.body2,
@@ -587,7 +593,7 @@ fun GraphHeader(
             SimpleDividerLog(
                 modifier = Modifier.draggable(
                     rememberDraggableState {
-                        weightMod.value += it * density // Multiply by density for screens with scaling > 1
+                        onPaddingChange(it * density) // Multiply by density for screens with scaling > 1
                     }, Orientation.Horizontal
                 ),
             )
@@ -603,7 +609,8 @@ fun GraphHeader(
             )
 
             IconButton(
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier
+                    .padding(end = 8.dp)
                     .pointerHoverIcon(PointerIconDefaults.Hand),
                 onClick = onShowSearch
             ) {
@@ -627,7 +634,8 @@ fun UncommitedChangesLine(
     onUncommitedChangesSelected: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.height(40.dp)
+        modifier = Modifier
+            .height(40.dp)
             .fillMaxWidth()
             .clickable { onUncommitedChangesSelected() }
             .padding(start = graphWidth)
@@ -965,7 +973,9 @@ fun CommitsGraphLine(
         }
 
         CommitNode(
-            modifier = Modifier.align(Alignment.CenterStart).padding(start = ((itemPosition + 1) * 30 - 15).dp),
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = ((itemPosition + 1) * 30 - 15).dp),
             plotCommit = plotCommit,
             color = nodeColor,
         )
@@ -1137,7 +1147,9 @@ fun RefChip(
             ) {
                 Box(modifier = Modifier.background(color = color)) {
                     Icon(
-                        modifier = Modifier.padding(6.dp).size(14.dp),
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .size(14.dp),
                         painter = painterResource(icon),
                         contentDescription = null,
                         tint = MaterialTheme.colors.background,
