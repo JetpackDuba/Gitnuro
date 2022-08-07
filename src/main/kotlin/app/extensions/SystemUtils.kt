@@ -15,6 +15,33 @@ val systemSeparator: String by lazy {
 }
 
 fun openUrlInBrowser(url: String) {
+    if (!openSystemSpecific(url)) {
+        openUrlInBrowserJdk(url)
+    }
+}
+
+private fun openSystemSpecific(url: String): Boolean {
+    val os = System.getProperty("os.name")
+    if (os.contains("linux")) {
+        if (runCommandWithoutResult("xdg-open", "%s", url))
+            return true
+        if (runCommandWithoutResult("kde-open", "%s", url))
+            return true
+        if (runCommandWithoutResult("gnome-open", "%s", url))
+            return true
+    } else if (os.contains("windows")) {
+        if (runCommandWithoutResult("explorer", "%s", url))
+            return true
+    } else if (os.contains("mac")) {
+        if (runCommandWithoutResult("open", "%s", url))
+            return true
+    }
+
+    return false
+}
+
+fun openUrlInBrowserJdk(url: String) {
+
     try {
         Desktop.getDesktop().browse(URI(url))
     } catch (ex: Exception) {
