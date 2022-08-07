@@ -1,5 +1,6 @@
 package app.ui
 
+import app.extensions.getCurrentOs
 import app.extensions.runCommand
 import app.logging.printLog
 import app.viewmodels.TabViewModel
@@ -35,9 +36,8 @@ private fun openPickerDialog(
     pickerType: PickerType,
     basePath: String?,
 ): String? {
-
-    val os = System.getProperty("os.name")
-    val isLinux = os.lowercase().contains("linux")
+    val os = getCurrentOs()
+    val isLinux = os.isLinux()
 
     return if (isLinux) {
         openDirectoryDialogLinux(pickerType)
@@ -53,31 +53,26 @@ enum class PickerType(val value: Int) {
 
 
 fun openDirectoryDialogLinux(pickerType: PickerType): String? {
-    val os = System.getProperty("os.name")
     var dirToOpen: String? = null
 
-    if (os.lowercase() == "linux") {
-        val checkZenityInstalled = runCommand("which zenity 2>/dev/null")
-        val isZenityInstalled = !checkZenityInstalled.isNullOrEmpty()
+    val checkZenityInstalled = runCommand("which zenity 2>/dev/null")
+    val isZenityInstalled = !checkZenityInstalled.isNullOrEmpty()
 
-        printLog(TAG, "IsZenityInstalled $isZenityInstalled")
+    printLog(TAG, "IsZenityInstalled $isZenityInstalled")
 
-        if (isZenityInstalled) {
+    if (isZenityInstalled) {
 
-            val command = when (pickerType) {
-                PickerType.FILES, PickerType.FILES_AND_DIRECTORIES -> "zenity --file-selection --title=Open"
-                PickerType.DIRECTORIES -> "zenity --file-selection --title=Open --directory"
-            }
+        val command = when (pickerType) {
+            PickerType.FILES, PickerType.FILES_AND_DIRECTORIES -> "zenity --file-selection --title=Open"
+            PickerType.DIRECTORIES -> "zenity --file-selection --title=Open --directory"
+        }
 
-            val openDirectory = runCommand(command)?.replace("\n", "")
+        val openDirectory = runCommand(command)?.replace("\n", "")
 
-            if (!openDirectory.isNullOrEmpty())
-                dirToOpen = openDirectory
-        } else
-            dirToOpen = openJvmDialog(pickerType, "", true)
-    } else {
-        dirToOpen = openJvmDialog(pickerType, "", false)
-    }
+        if (!openDirectory.isNullOrEmpty())
+            dirToOpen = openDirectory
+    } else
+        dirToOpen = openJvmDialog(pickerType, "", true)
 
     return dirToOpen
 }

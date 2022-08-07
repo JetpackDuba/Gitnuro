@@ -4,6 +4,8 @@ package app.keybindings
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.*
+import app.extensions.OS
+import app.extensions.getCurrentOs
 
 data class Keybinding(
     val alt: Boolean = false,
@@ -66,16 +68,12 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
 }
 
 val keybindings by lazy {
-    val os = System.getProperty("os.name").lowercase()
-
-    return@lazy if (os.contains("linux"))
-        linuxKeybindings()
-    else if (os.contains("windows"))
-        windowsKeybindings()
-    else if (os.contains("mac"))
-        macKeybindings()
-    else // In case FreeBSD gets supported in the future?
-        baseKeybindings()
+    return@lazy when(getCurrentOs()) {
+        OS.LINUX -> linuxKeybindings()
+        OS.WINDOWS -> windowsKeybindings()
+        OS.MAC -> macKeybindings()
+        OS.UNKNOWN -> baseKeybindings()
+    }
 }
 
 fun KeyEvent.matchesBinding(keybindingOption: KeybindingOption): Boolean {

@@ -184,6 +184,7 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
         mutableStateOf(
             listOf(
                 ScaleDropDown(1f, "100%"),
+                ScaleDropDown(1.25f, "125%"),
                 ScaleDropDown(1.5f, "150%"),
                 ScaleDropDown(2f, "200%"),
                 ScaleDropDown(2.5f, "250%"),
