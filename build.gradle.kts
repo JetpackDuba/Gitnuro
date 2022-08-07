@@ -79,8 +79,8 @@ compose.desktop {
 }
 
 
-task("fatJar", type = Jar::class) {
-    archiveBaseName.set(projectName)
+task("fatJarLinux", type = Jar::class) {
+    archiveBaseName.set("$projectName-linux")
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
