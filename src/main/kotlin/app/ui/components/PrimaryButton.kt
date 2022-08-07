@@ -7,6 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import app.theme.primaryTextColor
 
 @Composable
 fun PrimaryButton(
@@ -14,6 +15,7 @@ fun PrimaryButton(
     text: String,
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colors.onPrimary,
+    disabledTextColor: Color = MaterialTheme.colors.primaryTextColor,
     onClick: () -> Unit,
 ) {
     Button(
@@ -25,6 +27,9 @@ fun PrimaryButton(
             contentColor = textColor
         ),
     ) {
-        Text(text)
+        Text(
+            text,
+            color = if(enabled) textColor else disabledTextColor
+        )
     }
 }

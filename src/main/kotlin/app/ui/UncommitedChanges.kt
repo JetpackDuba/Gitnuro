@@ -111,7 +111,8 @@ fun UncommitedChanges(
             allActionTitle = "Unstage all",
             actionTitle = "Unstage",
             selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
-            actionColor = MaterialTheme.colors.unstageButton,
+            actionColor = MaterialTheme.colors.error,
+            actionTextColor = MaterialTheme.colors.onError,
             statusEntries = staged,
             lazyListState = stagedListState,
             onDiffEntrySelected = onStagedDiffEntrySelected,
@@ -140,7 +141,8 @@ fun UncommitedChanges(
             title = "Unstaged",
             actionTitle = "Stage",
             selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
-            actionColor = MaterialTheme.colors.stageButton,
+            actionColor = MaterialTheme.colors.primary,
+            actionTextColor = MaterialTheme.colors.onPrimary,
             statusEntries = unstaged,
             lazyListState = unstagedListState,
             onDiffEntrySelected = onUnstagedDiffEntrySelected,
@@ -481,13 +483,14 @@ fun ConfirmationButton(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EntriesList(
     modifier: Modifier,
     title: String,
     actionTitle: String,
     actionColor: Color,
+    actionTextColor: Color,
     statusEntries: List<StatusEntry>,
     lazyListState: LazyListState,
     onDiffEntrySelected: (StatusEntry) -> Unit,
@@ -518,6 +521,7 @@ private fun EntriesList(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 text = allActionTitle,
                 backgroundButton = actionColor,
+                textColor = actionTextColor,
                 onClick = onAllAction
             )
         }

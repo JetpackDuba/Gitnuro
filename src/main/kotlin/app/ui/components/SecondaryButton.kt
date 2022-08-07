@@ -17,7 +17,7 @@ import app.extensions.handMouseClickable
 fun SecondaryButton(
     modifier: Modifier = Modifier,
     text: String,
-    textColor: Color = Color.White,
+    textColor: Color = MaterialTheme.colors.onPrimary,
     backgroundButton: Color,
     maxLines: Int = 1,
     onClick: () -> Unit,

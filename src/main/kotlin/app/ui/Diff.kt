@@ -302,16 +302,17 @@ fun HunkHeader(
             val color: Color
             if (diffEntryType is DiffEntryType.StagedDiff) {
                 buttonText = "Unstage hunk"
-                color = MaterialTheme.colors.unstageButton
+                color = MaterialTheme.colors.error
             } else {
                 buttonText = "Stage hunk"
-                color = MaterialTheme.colors.stageButton
+                color = MaterialTheme.colors.primary
             }
 
             if (diffEntryType is DiffEntryType.UnstagedDiff) {
                 SecondaryButton(
                     text = "Discard hunk",
                     backgroundButton = MaterialTheme.colors.error,
+                    textColor = MaterialTheme.colors.onError,
                     onClick = onResetHunk
                 )
             }
@@ -367,10 +368,10 @@ fun DiffHeader(
 
             if (diffEntryType is DiffEntryType.StagedDiff) {
                 buttonText = "Unstage file"
-                color = MaterialTheme.colors.unstageButton
+                color = MaterialTheme.colors.error
             } else {
                 buttonText = "Stage file"
-                color = MaterialTheme.colors.stageButton
+                color = MaterialTheme.colors.primary
             }
 
             SecondaryButton(

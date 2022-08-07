@@ -77,12 +77,6 @@ val Colors.conflictFile: Color
 val Colors.headerText: Color
     get() = appTheme.onHeader
 
-val Colors.stageButton: Color
-    get() = appTheme.primary
-
-val Colors.unstageButton: Color
-    get() = appTheme.error
-
 val Colors.abortButton: Color
     get() = appTheme.error
 
