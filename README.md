@@ -56,7 +56,7 @@ Note: Requires minimum JDK 16.
 
 Feel free to open issues for bugs or sugestions.
 
-## Screenshots (latest update: 04 apr 2022)
+## Screenshots
 
 ![Example 1](/res/img/example_1.png)
 ![Example 2](/res/img/example_2.png)
