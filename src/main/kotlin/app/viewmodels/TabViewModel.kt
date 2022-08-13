@@ -352,8 +352,10 @@ class TabViewModel @Inject constructor(
                 diffViewModel = diffViewModelProvider.get()
             }
 
+            diffViewModel?.cancelRunningJobs()
             diffViewModel?.updateDiff(diffSelected)
         } else {
+            diffViewModel?.cancelRunningJobs()
             diffViewModel = null // Free the view model from the memory if not being used.
         }
     }

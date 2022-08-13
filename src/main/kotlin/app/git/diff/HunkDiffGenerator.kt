@@ -221,6 +221,10 @@ sealed class DiffResult(
         diffEntry: DiffEntry,
         val hunks: List<Hunk>
     ) : DiffResult(diffEntry)
+    class TextSplit(
+        diffEntry: DiffEntry,
+        val hunks: List<SplitHunk>
+    ) : DiffResult(diffEntry)
 
     class NonText(
         diffEntry: DiffEntry,

@@ -7,6 +7,7 @@ import app.git.DiffEntryType
 import app.git.DiffManager
 import app.git.RefreshType
 import app.git.TabState
+import app.preferences.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.revwalk.RevCommit
@@ -15,6 +16,7 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     private val tabState: TabState,
     private val diffManager: DiffManager,
+    private val settings: AppSettings,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState

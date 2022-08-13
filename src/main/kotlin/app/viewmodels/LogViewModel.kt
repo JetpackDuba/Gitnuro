@@ -6,7 +6,7 @@ import app.extensions.delayedStateChange
 import app.git.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
-import app.preferences.AppPreferences
+import app.preferences.AppSettings
 import app.ui.SelectedItem
 import app.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
@@ -40,7 +40,7 @@ class LogViewModel @Inject constructor(
     private val mergeManager: MergeManager,
     private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
-    private val appPreferences: AppPreferences,
+    private val appSettings: AppSettings,
 ) {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
@@ -66,12 +66,12 @@ class LogViewModel @Inject constructor(
 
     init {
         scope.launch {
-            appPreferences.commitsLimitEnabledFlow.collect {
+            appSettings.commitsLimitEnabledFlow.collect {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
         scope.launch {
-            appPreferences.commitsLimitFlow.collect {
+            appSettings.commitsLimitFlow.collect {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
@@ -90,13 +90,13 @@ class LogViewModel @Inject constructor(
         )
 
         val hasUncommitedChanges = statusSummary.total > 0
-        val commitsLimit = if (appPreferences.commitsLimitEnabled) {
-            appPreferences.commitsLimit
+        val commitsLimit = if (appSettings.commitsLimitEnabled) {
+            appSettings.commitsLimit
         } else
             Int.MAX_VALUE
 
-        val commitsLimitDisplayed = if (appPreferences.commitsLimitEnabled) {
-            appPreferences.commitsLimit
+        val commitsLimitDisplayed = if (appSettings.commitsLimitEnabled) {
+            appSettings.commitsLimit
         } else
             -1
 
@@ -176,7 +176,7 @@ class LogViewModel @Inject constructor(
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.mergeBranch(git, ref, appPreferences.ffMerge)
+        mergeManager.mergeBranch(git, ref, appSettings.ffMerge)
     }
 
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(

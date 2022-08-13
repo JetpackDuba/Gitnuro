@@ -162,22 +162,36 @@ fun HistoryContentLoaded(
                 viewDiffResult != null &&
                 viewDiffResult is ViewDiffResult.Loaded
             ) {
-                val diffResult = viewDiffResult.diffResult
-                if (diffResult is DiffResult.Text) {
-                    TextDiff(
-                        diffEntryType = viewDiffResult.diffEntryType,
-                        scrollState = scrollState,
-                        diffResult = diffResult,
-                        onUnstageHunk = { _, _ -> },
-                        onStageHunk = { _, _ -> },
-                        onResetHunk = { _, _ -> },
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colors.background)
-                    )
+                when (val diffResult = viewDiffResult.diffResult) {
+                    is DiffResult.Text -> {
+                        HunkUnifiedTextDiff(
+                            diffEntryType = viewDiffResult.diffEntryType,
+                            scrollState = scrollState,
+                            diffResult = diffResult,
+                            onUnstageHunk = { _, _ -> },
+                            onStageHunk = { _, _ -> },
+                            onResetHunk = { _, _ -> },
+                        )
+                    }
+
+                    is DiffResult.TextSplit -> {
+                        HunkSplitTextDiff(
+                            diffEntryType = viewDiffResult.diffEntryType,
+                            scrollState = scrollState,
+                            diffResult = diffResult,
+                            onUnstageHunk = { _, _ -> },
+                            onStageHunk = { _, _ -> },
+                            onResetHunk = { _, _ -> },
+                        )
+                    }
+
+                    else -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(MaterialTheme.colors.background)
+                        )
+                    }
                 }
             } else {
                 Box(

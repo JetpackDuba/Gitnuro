@@ -26,8 +26,10 @@ import androidx.compose.ui.window.rememberWindowState
 import app.di.DaggerAppComponent
 import app.extensions.preferenceValue
 import app.extensions.toWindowPlacement
-import app.preferences.AppPreferences
+import app.logging.printLog
+import app.preferences.AppSettings
 import app.theme.AppTheme
+import app.theme.Theme
 import app.theme.primaryTextColor
 import app.theme.secondaryTextColor
 import app.ui.AppTab
@@ -40,6 +42,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TAG = "App"
 
 class App {
     private val appComponent = DaggerAppComponent.create()
@@ -48,7 +51,7 @@ class App {
     lateinit var appStateManager: AppStateManager
 
     @Inject
-    lateinit var appPreferences: AppPreferences
+    lateinit var appSettings: AppSettings
 
     @Inject
     lateinit var settingsViewModel: SettingsViewModel
@@ -60,17 +63,26 @@ class App {
     private val tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
 
     fun start() {
-        val windowPlacement = appPreferences.windowPlacement.toWindowPlacement
+        val windowPlacement = appSettings.windowPlacement.toWindowPlacement
 
         appStateManager.loadRepositoriesTabs()
-        appPreferences.loadCustomTheme()
+
+        try {
+            if (appSettings.theme == Theme.CUSTOM) {
+                appSettings.loadCustomTheme()
+            }
+        } catch (ex: Exception) {
+            printLog(TAG, "Failed to load custom theme")
+            ex.printStackTrace()
+        }
+
         loadTabs()
 
         application {
             var isOpen by remember { mutableStateOf(true) }
-            val theme by appPreferences.themeState.collectAsState()
-            val customTheme by appPreferences.customThemeFlow.collectAsState()
-            val scale by appPreferences.scaleUiFlow.collectAsState()
+            val theme by appSettings.themeState.collectAsState()
+            val customTheme by appSettings.customThemeFlow.collectAsState()
+            val scale by appSettings.scaleUiFlow.collectAsState()
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -78,7 +90,7 @@ class App {
             )
 
             // Save window state for next time the Window is started
-            appPreferences.windowPlacement = windowState.placement.preferenceValue
+            appSettings.windowPlacement = windowState.placement.preferenceValue
 
             if (isOpen) {
                 Window(
@@ -191,6 +203,7 @@ class App {
         tabsFlow.value = tabsFlow.value.toMutableList().apply { add(tabInformation) }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun Tabs(
         selectedTabKey: MutableState<Int>,

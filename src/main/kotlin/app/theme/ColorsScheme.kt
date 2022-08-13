@@ -14,6 +14,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 
+// TODO Add line added + removed colors, graph colors and icons color for added/modified/removed files.
 @Serializable
 data class ColorsScheme(
     val primary: Color,
@@ -39,6 +40,8 @@ data class ColorsScheme(
     val dialogOverlay: Color,
     val normalScrollbar: Color,
     val hoverScrollbar: Color,
+    val diffLineAdded: Color,
+    val diffLineRemoved: Color,
 ) {
     fun toComposeColors(): Colors {
         return Colors(

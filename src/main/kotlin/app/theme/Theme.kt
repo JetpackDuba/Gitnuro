@@ -92,6 +92,12 @@ val Colors.secondarySurface: Color
 val Colors.dialogOverlay: Color
     get() = appTheme.dialogOverlay
 
+val Colors.diffLineAdded: Color
+    get() = appTheme.diffLineAdded
+
+val Colors.diffLineRemoved: Color
+    get() = appTheme.diffLineRemoved
+
 
 enum class Theme(val displayName: String) : DropDownOption {
     LIGHT("Light"),

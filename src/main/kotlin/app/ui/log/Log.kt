@@ -26,6 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.PathBuilder
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
@@ -101,6 +102,7 @@ fun Log(
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
     val showLogDialog by logViewModel.logDialog.collectAsState()
+
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit

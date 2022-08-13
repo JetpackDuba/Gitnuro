@@ -1,6 +1,8 @@
 package app.preferences
 
 import app.extensions.defaultWindowPlacement
+import app.git.TextDiffType
+import app.git.textDiffTypeFromValue
 import app.theme.ColorsScheme
 import app.theme.Theme
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +24,7 @@ private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
 private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 private const val PREF_CUSTOM_THEME = "customTheme"
 private const val PREF_UI_SCALE = "ui_scale"
+private const val PREF_DIFF_TYPE = "diffType"
 
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
@@ -31,7 +34,7 @@ private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
 const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
-class AppPreferences @Inject constructor() {
+class AppSettings @Inject constructor() {
     private val preferences: Preferences = Preferences.userRoot().node(PREFERENCES_NAME)
 
     private val _themeState = MutableStateFlow(theme)
@@ -51,6 +54,9 @@ class AppPreferences @Inject constructor() {
 
     private val _scaleUiFlow = MutableStateFlow(scaleUi)
     val scaleUiFlow: StateFlow<Float> = _scaleUiFlow
+
+    private val _textDiffTypeFlow = MutableStateFlow(textDiffType)
+    val textDiffTypeFlow: StateFlow<TextDiffType> = _textDiffTypeFlow
 
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
@@ -126,6 +132,18 @@ class AppPreferences @Inject constructor() {
         }
         set(placement) {
             preferences.putInt(PREF_WINDOW_PLACEMENT, placement.value)
+        }
+
+    var textDiffType: TextDiffType
+        get() {
+            val diffTypeValue = preferences.getInt(PREF_DIFF_TYPE, TextDiffType.UNIFIED.value)
+
+            return textDiffTypeFromValue(diffTypeValue)
+        }
+        set(placement) {
+            preferences.putInt(PREF_DIFF_TYPE, placement.value)
+
+            _textDiffTypeFlow.value = textDiffType
         }
 
     fun saveCustomTheme(filePath: String) {

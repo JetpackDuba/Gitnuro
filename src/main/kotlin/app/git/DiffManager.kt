@@ -131,3 +131,17 @@ fun prepareTreeParser(repository: Repository, commit: RevCommit): AbstractTreeIt
         return treeParser
     }
 }
+
+enum class TextDiffType(val value: Int) {
+    SPLIT(0),
+    UNIFIED(1);
+}
+
+
+fun textDiffTypeFromValue(diffTypeValue: Int): TextDiffType {
+    return when (diffTypeValue) {
+        TextDiffType.SPLIT.value -> TextDiffType.SPLIT
+        TextDiffType.UNIFIED.value -> TextDiffType.UNIFIED
+        else -> throw NotImplementedError("Diff type not implemented")
+    }
+}

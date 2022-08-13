@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material.IconButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -34,10 +31,7 @@ import androidx.compose.ui.unit.sp
 import app.extensions.lineDelimiter
 import app.extensions.removeLineDelimiters
 import app.extensions.toStringWithSpaces
-import app.git.DiffEntryType
-import app.git.EntryContent
-import app.git.StatusEntry
-import app.git.StatusType
+import app.git.*
 import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
@@ -61,6 +55,7 @@ fun Diff(
     onCloseDiffView: () -> Unit,
 ) {
     val diffResultState = diffViewModel.diffResult.collectAsState()
+    val diffType by diffViewModel.diffTypeFlow.collectAsState()
     val viewDiffResult = diffResultState.value ?: return
     val focusRequester = remember { FocusRequester() }
 
@@ -86,6 +81,7 @@ fun Diff(
             ViewDiffResult.DiffNotFound -> {
                 onCloseDiffView()
             }
+
             is ViewDiffResult.Loaded -> {
                 val diffEntryType = viewDiffResult.diffEntryType
                 val diffEntry = viewDiffResult.diffResult.diffEntry
@@ -95,14 +91,16 @@ fun Diff(
                     diffEntryType = diffEntryType,
                     diffEntry = diffEntry,
                     onCloseDiffView = onCloseDiffView,
-                    stageFile = { diffViewModel.stageFile(it) },
-                    unstageFile = { diffViewModel.unstageFile(it) },
+                    diffType = diffType,
+                    onStageFile = { diffViewModel.stageFile(it) },
+                    onUnstageFile = { diffViewModel.unstageFile(it) },
+                    onChangeDiffType = { diffViewModel.changeTextDiffType(it) }
                 )
 
-                if (diffResult is DiffResult.Text) {
-                    val scrollState by diffViewModel.lazyListState.collectAsState()
+                val scrollState by diffViewModel.lazyListState.collectAsState()
 
-                    TextDiff(
+                when (diffResult) {
+                    is DiffResult.TextSplit -> HunkSplitTextDiff(
                         diffEntryType = diffEntryType,
                         scrollState = scrollState,
                         diffResult = diffResult,
@@ -116,13 +114,40 @@ fun Diff(
                             diffViewModel.resetHunk(entry, hunk)
                         }
                     )
-                } else if (diffResult is DiffResult.NonText) {
-                    NonTextDiff(diffResult)
+
+                    is DiffResult.Text -> HunkUnifiedTextDiff(
+                        diffEntryType = diffEntryType,
+                        scrollState = scrollState,
+                        diffResult = diffResult,
+                        onUnstageHunk = { entry, hunk ->
+                            diffViewModel.unstageHunk(entry, hunk)
+                        },
+                        onStageHunk = { entry, hunk ->
+                            diffViewModel.stageHunk(entry, hunk)
+                        },
+                        onResetHunk = { entry, hunk ->
+                            diffViewModel.resetHunk(entry, hunk)
+                        }
+                    )
+
+                    is DiffResult.NonText -> {
+                        NonTextDiff(diffResult)
+                    }
                 }
             }
-            ViewDiffResult.Loading, ViewDiffResult.None -> {
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
+
+            is ViewDiffResult.Loading -> {
+                Column {
+                    PathOnlyDiffHeader(filePath = viewDiffResult.filePath, onCloseDiffView = onCloseDiffView)
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colors.primaryVariant
+                    )
+                }
+
             }
+
+            ViewDiffResult.None -> throw NotImplementedError("None should be a possible state in the diff")
         }
 
 
@@ -225,8 +250,9 @@ fun BinaryDiff() {
     )
 }
 
+
 @Composable
-fun TextDiff(
+fun HunkUnifiedTextDiff(
     diffEntryType: DiffEntryType,
     scrollState: LazyListState,
     diffResult: DiffResult.Text,
@@ -246,7 +272,7 @@ fun TextDiff(
                 item {
                     DisableSelection {
                         HunkHeader(
-                            hunk = hunk,
+                            header = hunk.header,
                             diffEntryType = diffEntryType,
                             onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, hunk) },
                             onStageHunk = { onStageHunk(diffResult.diffEntry, hunk) },
@@ -270,8 +296,73 @@ fun TextDiff(
 }
 
 @Composable
+fun HunkSplitTextDiff(
+    diffEntryType: DiffEntryType,
+    scrollState: LazyListState,
+    diffResult: DiffResult.TextSplit,
+    onUnstageHunk: (DiffEntry, Hunk) -> Unit,
+    onStageHunk: (DiffEntry, Hunk) -> Unit,
+    onResetHunk: (DiffEntry, Hunk) -> Unit,
+) {
+    val hunks = diffResult.hunks
+
+    SelectionContainer {
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            state = scrollState
+        ) {
+            for (splitHunk in hunks) {
+                item {
+                    DisableSelection {
+                        HunkHeader(
+                            header = splitHunk.hunk.header,
+                            diffEntryType = diffEntryType,
+                            onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, splitHunk.hunk) },
+                            onStageHunk = { onStageHunk(diffResult.diffEntry, splitHunk.hunk) },
+                            onResetHunk = { onResetHunk(diffResult.diffEntry, splitHunk.hunk) },
+                        )
+                    }
+                }
+
+                val oldHighestLineNumber = splitHunk.hunk.lines.maxOf { it.displayOldLineNumber }
+                val newHighestLineNumber = splitHunk.hunk.lines.maxOf { it.displayNewLineNumber }
+                val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
+                val highestLineNumberLength = highestLineNumber.toString().count()
+
+                items(splitHunk.lines) { linesPair ->
+                    SplitDiffLine(highestLineNumberLength, linesPair.first, linesPair.second)
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+fun SplitDiffLine(highestLineNumberLength: Int, first: Line?, second: Line?) {
+    Row(
+        modifier = Modifier
+            .background(MaterialTheme.colors.secondarySurface)
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+        ) {
+            if (first != null)
+                SplitDiffLine(highestLineNumberLength, first, first.oldLineNumber + 1)
+        }
+
+        Box(modifier = Modifier.weight(1f)) {
+            if (second != null)
+                SplitDiffLine(highestLineNumberLength, second, second.newLineNumber + 1)
+        }
+    }
+}
+
+@Composable
 fun HunkHeader(
-    hunk: Hunk,
+    header: String,
     diffEntryType: DiffEntryType,
     onUnstageHunk: () -> Unit,
     onStageHunk: () -> Unit,
@@ -285,7 +376,7 @@ fun HunkHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = hunk.header,
+            text = header,
             color = MaterialTheme.colors.primaryTextColor,
             style = MaterialTheme.typography.body1,
         )
@@ -332,13 +423,16 @@ fun HunkHeader(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun DiffHeader(
+private fun DiffHeader(
     diffEntryType: DiffEntryType,
     diffEntry: DiffEntry,
+    diffType: TextDiffType,
     onCloseDiffView: () -> Unit,
-    stageFile: (StatusEntry) -> Unit,
-    unstageFile: (StatusEntry) -> Unit,
+    onStageFile: (StatusEntry) -> Unit,
+    onUnstageFile: (StatusEntry) -> Unit,
+    onChangeDiffType: (TextDiffType) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -362,30 +456,122 @@ fun DiffHeader(
 
         Spacer(modifier = Modifier.weight(1f))
 
+        if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
+            DiffTypeButtons(diffType = diffType, onChangeDiffType = onChangeDiffType)
+        }
+
         if (diffEntryType is DiffEntryType.UncommitedDiff) {
-            val buttonText: String
-            val color: Color
-
-            if (diffEntryType is DiffEntryType.StagedDiff) {
-                buttonText = "Unstage file"
-                color = MaterialTheme.colors.error
-            } else {
-                buttonText = "Stage file"
-                color = MaterialTheme.colors.primary
-            }
-
-            SecondaryButton(
-                text = buttonText,
-                backgroundButton = color,
-                onClick = {
-                    if (diffEntryType is DiffEntryType.StagedDiff) {
-                        unstageFile(diffEntryType.statusEntry)
-                    } else {
-                        stageFile(diffEntryType.statusEntry)
-                    }
-                }
+            UncommitedDiffFileHeaderButtons(
+                diffEntryType,
+                onUnstageFile = onUnstageFile,
+                onStageFile = onStageFile
             )
         }
+
+        IconButton(
+            onClick = onCloseDiffView,
+            modifier = Modifier
+                .pointerHoverIcon(PointerIconDefaults.Hand)
+        ) {
+            Image(
+                painter = painterResource("close.svg"),
+                contentDescription = "Close diff",
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+            )
+        }
+    }
+}
+
+@Composable
+fun DiffTypeButtons(diffType: TextDiffType, onChangeDiffType: (TextDiffType) -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 16.dp)
+    ) {
+        Text(
+            "Unified",
+            color = MaterialTheme.colors.primaryTextColor,
+            style = MaterialTheme.typography.caption,
+        )
+
+        Switch(
+            checked = diffType == TextDiffType.SPLIT,
+            onCheckedChange = { checked ->
+                val newType = if (checked)
+                    TextDiffType.SPLIT
+                else
+                    TextDiffType.UNIFIED
+
+                onChangeDiffType(newType)
+            },
+            colors = SwitchDefaults.colors(
+                uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
+                uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
+                uncheckedTrackAlpha = 0.54f
+            )
+        )
+
+        Text(
+            "Split",
+            color = MaterialTheme.colors.primaryTextColor,
+//            modifier = Modifier.padding(horizontal = 4.dp),
+            style = MaterialTheme.typography.caption,
+        )
+    }
+}
+
+@Composable
+fun UncommitedDiffFileHeaderButtons(
+    diffEntryType: DiffEntryType.UncommitedDiff,
+    onUnstageFile: (StatusEntry) -> Unit,
+    onStageFile: (StatusEntry) -> Unit
+) {
+    val buttonText: String
+    val color: Color
+
+    if (diffEntryType is DiffEntryType.StagedDiff) {
+        buttonText = "Unstage file"
+        color = MaterialTheme.colors.error
+    } else {
+        buttonText = "Stage file"
+        color = MaterialTheme.colors.primary
+    }
+
+    SecondaryButton(
+        text = buttonText,
+        backgroundButton = color,
+        onClick = {
+            if (diffEntryType is DiffEntryType.StagedDiff) {
+                onUnstageFile(diffEntryType.statusEntry)
+            } else {
+                onStageFile(diffEntryType.statusEntry)
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun PathOnlyDiffHeader(
+    filePath: String,
+    onCloseDiffView: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(40.dp)
+            .background(MaterialTheme.colors.headerBackground)
+            .padding(start = 8.dp, end = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = filePath,
+            style = MaterialTheme.typography.body2,
+            maxLines = 1,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
 
         IconButton(
             onClick = onCloseDiffView,
@@ -407,15 +593,9 @@ fun DiffLine(
     line: Line,
 ) {
     val backgroundColor = when (line.lineType) {
-        LineType.ADDED -> {
-            Color(0x77a9d49b)
-        }
-        LineType.REMOVED -> {
-            Color(0x77dea2a2)
-        }
-        LineType.CONTEXT -> {
-            MaterialTheme.colors.background
-        }
+        LineType.ADDED -> MaterialTheme.colors.diffLineAdded
+        LineType.REMOVED -> MaterialTheme.colors.diffLineRemoved
+        LineType.CONTEXT -> MaterialTheme.colors.background
     }
     Row(
         modifier = Modifier
@@ -442,33 +622,65 @@ fun DiffLine(
             )
         }
 
-        Row {
-            Text(
-                text = line.text.replace( // TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
-                    "\t",
-                    "    "
-                ).removeLineDelimiters(),
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .fillMaxSize(),
-                fontFamily = FontFamily.Monospace,
-                style = MaterialTheme.typography.body2,
-                overflow = TextOverflow.Visible,
+        DiffLineText(line.text)
+    }
+}
+
+@Composable
+fun SplitDiffLine(
+    highestLineNumberLength: Int,
+    line: Line,
+    lineNumber: Int,
+) {
+    val backgroundColor = when (line.lineType) {
+        LineType.ADDED -> MaterialTheme.colors.diffLineAdded
+        LineType.REMOVED -> MaterialTheme.colors.diffLineRemoved
+        LineType.CONTEXT -> MaterialTheme.colors.background
+    }
+    Row(
+        modifier = Modifier
+            .background(backgroundColor)
+            .height(IntrinsicSize.Min)
+    ) {
+        DisableSelection {
+            LineNumber(
+                text = lineNumber.toStringWithSpaces(highestLineNumberLength),
             )
-
-            val lineDelimiter = line.text.lineDelimiter
-
-            // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
-            // where copying a line didn't contain the line ending & also fix the issue where the text line would
-            // display multiple lines even if there is only a single line with a line delimiter at the end
-            if (lineDelimiter != null) {
-                Text(
-                    text = lineDelimiter,
-                    maxLines = 1,
-                )
-            }
-
         }
+
+        DiffLineText(line.text)
+    }
+}
+
+
+@Composable
+fun DiffLineText(text: String) {
+    Row {
+        Text(
+            text = text.replace(
+                "\t",
+                "    "
+            ).removeLineDelimiters(),
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .fillMaxSize(),
+            fontFamily = FontFamily.Monospace,
+            style = MaterialTheme.typography.body2,
+            overflow = TextOverflow.Visible,
+        )
+
+        val lineDelimiter = text.lineDelimiter
+
+        // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
+        // where copying a line didn't contain the line ending & also fix the issue where the text line would
+        // display multiple lines even if there is only a single line with a line delimiter at the end
+        if (lineDelimiter != null) {
+            Text(
+                text = lineDelimiter,
+                maxLines = 1,
+            )
+        }
+
     }
 }
 

@@ -1,11 +1,25 @@
 package app.git
 
+import app.extensions.filePath
+import app.extensions.toStatusType
 import org.eclipse.jgit.diff.DiffEntry
 
 sealed class DiffEntryType {
-    class CommitDiff(val diffEntry: DiffEntry) : DiffEntryType()
+    class CommitDiff(val diffEntry: DiffEntry) : DiffEntryType() {
+        override val filePath: String
+            get() = diffEntry.filePath
 
-    sealed class UncommitedDiff(val statusEntry: StatusEntry) : DiffEntryType()
+        override val statusType: StatusType
+            get() = diffEntry.toStatusType()
+    }
+
+    sealed class UncommitedDiff(val statusEntry: StatusEntry) : DiffEntryType() {
+        override val filePath: String
+            get() = statusEntry.filePath
+
+        override val statusType: StatusType
+            get() = statusEntry.statusType
+    }
 
     sealed class UnstagedDiff(statusEntry: StatusEntry) : UncommitedDiff(statusEntry)
     sealed class StagedDiff(statusEntry: StatusEntry) : UncommitedDiff(statusEntry)
@@ -22,5 +36,8 @@ sealed class DiffEntryType {
 
     class SafeStagedDiff(statusEntry: StatusEntry) : StagedDiff(statusEntry)
     class SafeUnstagedDiff(statusEntry: StatusEntry) : UnstagedDiff(statusEntry)
+
+    abstract val filePath: String
+    abstract val statusType: StatusType
 
 }

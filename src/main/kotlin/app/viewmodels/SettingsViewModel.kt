@@ -1,60 +1,60 @@
 package app.viewmodels
 
-import app.preferences.AppPreferences
+import app.preferences.AppSettings
 import app.theme.Theme
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SettingsViewModel @Inject constructor(
-    val appPreferences: AppPreferences,
+    val appSettings: AppSettings,
 ) {
     // Temporary values to detect changed variables
     var commitsLimit: Int = -1
 
-    val themeState = appPreferences.themeState
-    val customThemeFlow = appPreferences.customThemeFlow
-    val ffMergeFlow = appPreferences.ffMergeFlow
-    val commitsLimitEnabledFlow = appPreferences.commitsLimitEnabledFlow
+    val themeState = appSettings.themeState
+    val customThemeFlow = appSettings.customThemeFlow
+    val ffMergeFlow = appSettings.ffMergeFlow
+    val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
 
     var scaleUi: Float
-        get() = appPreferences.scaleUi
+        get() = appSettings.scaleUi
         set(value) {
-            appPreferences.scaleUi = value
+            appSettings.scaleUi = value
         }
 
     var commitsLimitEnabled: Boolean
-        get() = appPreferences.commitsLimitEnabled
+        get() = appSettings.commitsLimitEnabled
         set(value) {
-            appPreferences.commitsLimitEnabled = value
+            appSettings.commitsLimitEnabled = value
         }
 
     var ffMerge: Boolean
-        get() = appPreferences.ffMerge
+        get() = appSettings.ffMerge
         set(value) {
-            appPreferences.ffMerge = value
+            appSettings.ffMerge = value
         }
 
     var theme: Theme
-        get() = appPreferences.theme
+        get() = appSettings.theme
         set(value) {
-            appPreferences.theme = value
+            appSettings.theme = value
         }
 
     fun saveCustomTheme(filePath: String) {
-        appPreferences.saveCustomTheme(filePath)
+        appSettings.saveCustomTheme(filePath)
     }
 
 
     fun resetInfo() {
-        commitsLimit = appPreferences.commitsLimit
+        commitsLimit = appSettings.commitsLimit
     }
 
     fun savePendingChanges() {
         val commitsLimit = this.commitsLimit
 
-        if (appPreferences.commitsLimit != commitsLimit) {
-            appPreferences.commitsLimit = commitsLimit
+        if (appSettings.commitsLimit != commitsLimit) {
+            appSettings.commitsLimit = commitsLimit
         }
     }
 }

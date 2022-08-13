@@ -118,3 +118,12 @@ val DiffEntry.iconColor: Color
             else -> throw NotImplementedError("Unexpected ChangeType")
         }
     }
+
+fun DiffEntry.toStatusType(): StatusType = when (this.changeType) {
+    DiffEntry.ChangeType.ADD -> StatusType.ADDED
+    DiffEntry.ChangeType.MODIFY -> StatusType.MODIFIED
+    DiffEntry.ChangeType.DELETE -> StatusType.REMOVED
+    DiffEntry.ChangeType.COPY -> StatusType.ADDED
+    DiffEntry.ChangeType.RENAME -> StatusType.MODIFIED
+    else -> throw NotImplementedError("Unexpected ChangeType")
+}

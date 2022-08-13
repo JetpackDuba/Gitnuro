@@ -31,5 +31,8 @@ object AppConstants {
 private val apache__2_0 = License("Apache 2.0", "https://www.apache.org/licenses/LICENSE-2.0")
 private val edl = License("EDL", "https://www.eclipse.org/org/documents/edl-v10.php")
 
-data class License(val name: String, val url: String)
+data class License(
+    val name: String,
+    val url: String
+)
 data class Project(val name: String, val url: String, val license: License)

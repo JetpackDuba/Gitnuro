@@ -1,6 +1,6 @@
 package app
 
-import app.preferences.AppPreferences
+import app.preferences.AppSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.decodeFromString
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppStateManager @Inject constructor(
-    private val appPreferences: AppPreferences,
+    private val appSettings: AppSettings,
 ) {
     private val mutex = Mutex()
 
@@ -59,15 +59,15 @@ class AppStateManager @Inject constructor(
 
     private suspend fun updateSavedRepositoryTabs() = withContext(Dispatchers.IO) {
         val tabsList = _openRepositoriesPaths.map { it.value }
-        appPreferences.latestTabsOpened = Json.encodeToString(tabsList)
+        appSettings.latestTabsOpened = Json.encodeToString(tabsList)
     }
 
     private suspend fun updateLatestRepositoryTabs() = withContext(Dispatchers.IO) {
-        appPreferences.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
+        appSettings.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
     }
 
     fun loadRepositoriesTabs() {
-        val repositoriesSaved = appPreferences.latestTabsOpened
+        val repositoriesSaved = appSettings.latestTabsOpened
 
         if (repositoriesSaved.isNotEmpty()) {
             val repositoriesList = Json.decodeFromString<List<String>>(repositoriesSaved)
@@ -77,7 +77,7 @@ class AppStateManager @Inject constructor(
             }
         }
 
-        val repositoriesPathsSaved = appPreferences.latestOpenedRepositoriesPath
+        val repositoriesPathsSaved = appSettings.latestOpenedRepositoriesPath
         if (repositoriesPathsSaved.isNotEmpty()) {
             val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)
             _latestOpenedRepositoriesPaths.addAll(repositories)

@@ -1,11 +1,15 @@
 package app.viewmodels
 
 import app.git.DiffEntryType
+import app.git.TextDiffType
 import app.git.diff.DiffResult
 
 sealed interface ViewDiffResult {
     object None : ViewDiffResult
-    object Loading : ViewDiffResult
+
+    data class Loading(val filePath: String) : ViewDiffResult
+
     object DiffNotFound : ViewDiffResult
-    data class Loaded(val diffEntryType: DiffEntryType, val diffResult: DiffResult) : ViewDiffResult
+
+    data class Loaded(val diffEntryType: DiffEntryType, val diffResult: DiffResult/*, val diffType: TextDiffType*/) : ViewDiffResult
 }
