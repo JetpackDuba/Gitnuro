@@ -28,9 +28,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.extensions.lineDelimiter
-import app.extensions.removeLineDelimiters
-import app.extensions.toStringWithSpaces
+import app.extensions.*
 import app.git.*
 import app.git.diff.DiffResult
 import app.git.diff.Hunk
@@ -237,6 +235,9 @@ fun ImageDiff(tempImagePath: Path) {
         bitmap = loadImageBitmap(inputStream = FileInputStream(tempImagePath.absolutePathString())),
         contentDescription = null,
         modifier = Modifier.fillMaxSize()
+            .handMouseClickable {
+                openFileWithExternalApp(tempImagePath.absolutePathString())
+            }
     )
 }
 

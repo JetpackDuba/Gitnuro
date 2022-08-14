@@ -5,6 +5,7 @@ import java.awt.Desktop
 import java.awt.Toolkit
 import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.StringSelection
+import java.io.File
 import java.net.URI
 import java.nio.file.FileSystems
 
@@ -17,6 +18,12 @@ val systemSeparator: String by lazy {
 fun openUrlInBrowser(url: String) {
     if (!openSystemSpecific(url)) {
         openUrlInBrowserJdk(url)
+    }
+}
+
+fun openFileWithExternalApp(filePath: String) {
+    if (!openSystemSpecific(filePath)) {
+        openFileJdk(filePath)
     }
 }
 
@@ -39,10 +46,19 @@ private fun openSystemSpecific(url: String): Boolean {
     return false
 }
 
-fun openUrlInBrowserJdk(url: String) {
+private fun openUrlInBrowserJdk(url: String) {
 
     try {
         Desktop.getDesktop().browse(URI(url))
+    } catch (ex: Exception) {
+        println("Failed to open URL in browser")
+        ex.printStackTrace()
+    }
+}
+
+private fun openFileJdk(filePath: String) {
+    try {
+        Desktop.getDesktop().open(File(filePath))
     } catch (ex: Exception) {
         println("Failed to open URL in browser")
         ex.printStackTrace()
