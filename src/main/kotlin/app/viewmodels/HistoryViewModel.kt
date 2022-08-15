@@ -3,13 +3,14 @@ package app.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import app.exceptions.MissingDiffEntryException
 import app.extensions.filePath
-import app.git.DiffEntryType
-import app.git.DiffManager
-import app.git.RefreshType
-import app.git.TabState
+import app.git.*
+import app.git.diff.DiffResult
 import app.preferences.AppSettings
+import app.usecase.GenerateSplitHunkFromDiffResultUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
@@ -17,6 +18,7 @@ class HistoryViewModel @Inject constructor(
     private val tabState: TabState,
     private val diffManager: DiffManager,
     private val settings: AppSettings,
+    private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState
@@ -31,6 +33,40 @@ class HistoryViewModel @Inject constructor(
             0
         )
     )
+
+
+    init {
+        tabState.managerScope.launch {
+            settings.textDiffTypeFlow.collect { diffType ->
+                if (filePath.isNotBlank()) {
+                    updateDiffType(diffType)
+                }
+            }
+        }
+    }
+
+    private fun updateDiffType(newDiffType: TextDiffType) {
+        val viewDiffResult = this.viewDiffResult.value
+
+        if (viewDiffResult is ViewDiffResult.Loaded) {
+            val diffResult = viewDiffResult.diffResult
+
+            if (diffResult is DiffResult.Text && newDiffType == TextDiffType.SPLIT) { // Current is unified and new is split
+                val hunksList = generateSplitHunkFromDiffResultUseCase(diffResult)
+                _viewDiffResult.value = ViewDiffResult.Loaded(
+                    diffEntryType = viewDiffResult.diffEntryType,
+                    diffResult = DiffResult.TextSplit(diffResult.diffEntry, hunksList)
+                )
+            } else if (diffResult is DiffResult.TextSplit && newDiffType == TextDiffType.UNIFIED) { // Current is split and new is unified
+                val hunksList = diffResult.hunks.map { it.sourceHunk }
+
+                _viewDiffResult.value = ViewDiffResult.Loaded(
+                    diffEntryType = viewDiffResult.diffEntryType,
+                    diffResult = DiffResult.Text(diffResult.diffEntry, hunksList)
+                )
+            }
+        }
+    }
 
     fun fileHistory(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
@@ -52,7 +88,6 @@ class HistoryViewModel @Inject constructor(
     ) { git ->
 
         try {
-
             val diffEntries = diffManager.commitDiffEntries(git, commit)
             val diffEntry = diffEntries.firstOrNull { entry ->
                 entry.filePath == this.filePath
@@ -62,11 +97,18 @@ class HistoryViewModel @Inject constructor(
                 _viewDiffResult.value = ViewDiffResult.DiffNotFound
                 return@runOperation
             }
+
             val diffEntryType = DiffEntryType.CommitDiff(diffEntry)
 
-            val diffFormat = diffManager.diffFormat(git, diffEntryType)
+            val diffResult = diffManager.diffFormat(git, diffEntryType)
+            val textDiffType = settings.textDiffType
 
-            _viewDiffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
+            val formattedDiffResult = if (textDiffType == TextDiffType.SPLIT && diffResult is DiffResult.Text) {
+                DiffResult.TextSplit(diffEntry, generateSplitHunkFromDiffResultUseCase(diffResult))
+            } else
+                diffResult
+
+            _viewDiffResult.value = ViewDiffResult.Loaded(diffEntryType, formattedDiffResult)
         } catch (ex: Exception) {
             if (ex is MissingDiffEntryException) {
                 tabState.refreshData(refreshType = RefreshType.UNCOMMITED_CHANGES)

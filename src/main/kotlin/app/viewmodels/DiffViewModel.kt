@@ -5,15 +5,16 @@ import androidx.compose.foundation.lazy.LazyListState
 import app.exceptions.MissingDiffEntryException
 import app.extensions.delayedStateChange
 import app.git.*
-import app.git.diff.*
+import app.git.diff.DiffResult
+import app.git.diff.Hunk
 import app.preferences.AppSettings
+import app.usecase.GenerateSplitHunkFromDiffResultUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
-import java.lang.Integer.max
 import javax.inject.Inject
 
 private const val DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD = 200L
@@ -23,6 +24,7 @@ class DiffViewModel @Inject constructor(
     private val diffManager: DiffManager,
     private val statusManager: StatusManager,
     private val settings: AppSettings,
+    private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
 ) {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading(""))
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
@@ -91,7 +93,7 @@ class DiffViewModel @Inject constructor(
                         diffEntry.changeType != DiffEntry.ChangeType.ADD &&
                         diffEntry.changeType != DiffEntry.ChangeType.DELETE
                     ) {
-                        val splitHunkList = generateSplitDiffFormat(diffFormat)
+                        val splitHunkList = generateSplitHunkFromDiffResultUseCase(diffFormat)
                         _diffResult.value = ViewDiffResult.Loaded(
                             diffEntryType,
                             DiffResult.TextSplit(diffEntry, splitHunkList)
@@ -108,98 +110,6 @@ class DiffViewModel @Inject constructor(
                     ex.printStackTrace()
             }
         }
-    }
-
-    private fun generateSplitDiffFormat(diffFormat: DiffResult.Text): List<SplitHunk> {
-        val unifiedHunksList = diffFormat.hunks
-        val hunksList = mutableListOf<SplitHunk>()
-
-        for (hunk in unifiedHunksList) {
-            val linesNewSideCount =
-                hunk.lines.count { it.lineType == LineType.ADDED || it.lineType == LineType.CONTEXT }
-            val linesOldSideCount =
-                hunk.lines.count { it.lineType == LineType.REMOVED || it.lineType == LineType.CONTEXT }
-
-            val addedLines = hunk.lines.filter { it.lineType == LineType.ADDED }
-            val removedLines = hunk.lines.filter { it.lineType == LineType.REMOVED }
-
-            val maxLinesCountOfBothParts = max(linesNewSideCount, linesOldSideCount)
-
-            val oldLinesArray = arrayOfNulls<Line?>(maxLinesCountOfBothParts)
-            val newLinesArray = arrayOfNulls<Line?>(maxLinesCountOfBothParts)
-
-            val lines = hunk.lines
-            val firstLineOldNumber = hunk.lines.first().oldLineNumber
-            val firstLineNewNumber = hunk.lines.first().newLineNumber
-
-            val firstLine = if (maxLinesCountOfBothParts == linesOldSideCount) {
-                firstLineOldNumber
-            } else
-                firstLineNewNumber
-
-            val contextLines = lines.filter { it.lineType == LineType.CONTEXT }
-
-            for (contextLine in contextLines) {
-
-                val lineNumber = if (maxLinesCountOfBothParts == linesOldSideCount) {
-                    contextLine.oldLineNumber
-                } else
-                    contextLine.newLineNumber
-
-                oldLinesArray[lineNumber - firstLine] = contextLine
-                newLinesArray[lineNumber - firstLine] = contextLine
-            }
-
-            for (removedLine in removedLines) {
-                val previousLinesToCurrent = lines.takeWhile { it != removedLine }
-                val previousContextLine = previousLinesToCurrent.lastOrNull { it.lineType == LineType.CONTEXT }
-
-                val contextArrayPosition = if (previousContextLine != null)
-                    oldLinesArray.indexOf(previousContextLine)
-                else
-                    -1
-
-                // Get the position the list of null position of the array
-                val availableIndexes =
-                    newLinesArray.mapIndexed { index, line ->
-                        if (line != null)
-                            null
-                        else
-                            index
-                    }.filterNotNull()
-                val nextAvailableLinePosition = availableIndexes.first { index -> index > contextArrayPosition }
-                oldLinesArray[nextAvailableLinePosition] = removedLine
-            }
-
-            for (addedLine in addedLines) {
-                val previousLinesToCurrent = lines.takeWhile { it != addedLine }
-                val previousContextLine = previousLinesToCurrent.lastOrNull { it.lineType == LineType.CONTEXT }
-
-                val contextArrayPosition = if (previousContextLine != null)
-                    newLinesArray.indexOf(previousContextLine)
-                else
-                    -1
-
-                val availableIndexes =
-                    newLinesArray.mapIndexed { index, line -> if (line != null) null else index }.filterNotNull()
-                val newLinePosition = availableIndexes.first { index -> index > contextArrayPosition }
-
-                newLinesArray[newLinePosition] = addedLine
-            }
-
-            val newHunkLines = mutableListOf<Pair<Line?, Line?>>()
-
-            for (i in 0 until maxLinesCountOfBothParts) {
-                val old = oldLinesArray[i]
-                val new = newLinesArray[i]
-
-                newHunkLines.add(old to new)
-            }
-
-            hunksList.add(SplitHunk(hunk, newHunkLines))
-        }
-
-        return hunksList
     }
 
     fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(

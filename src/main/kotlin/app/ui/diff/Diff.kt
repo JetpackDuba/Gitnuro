@@ -317,17 +317,17 @@ fun HunkSplitTextDiff(
                 item {
                     DisableSelection {
                         HunkHeader(
-                            header = splitHunk.hunk.header,
+                            header = splitHunk.sourceHunk.header,
                             diffEntryType = diffEntryType,
-                            onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, splitHunk.hunk) },
-                            onStageHunk = { onStageHunk(diffResult.diffEntry, splitHunk.hunk) },
-                            onResetHunk = { onResetHunk(diffResult.diffEntry, splitHunk.hunk) },
+                            onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, splitHunk.sourceHunk) },
+                            onStageHunk = { onStageHunk(diffResult.diffEntry, splitHunk.sourceHunk) },
+                            onResetHunk = { onResetHunk(diffResult.diffEntry, splitHunk.sourceHunk) },
                         )
                     }
                 }
 
-                val oldHighestLineNumber = splitHunk.hunk.lines.maxOf { it.displayOldLineNumber }
-                val newHighestLineNumber = splitHunk.hunk.lines.maxOf { it.displayNewLineNumber }
+                val oldHighestLineNumber = splitHunk.sourceHunk.lines.maxOf { it.displayOldLineNumber }
+                val newHighestLineNumber = splitHunk.sourceHunk.lines.maxOf { it.displayNewLineNumber }
                 val highestLineNumber = max(oldHighestLineNumber, newHighestLineNumber)
                 val highestLineNumberLength = highestLineNumber.toString().count()
 
