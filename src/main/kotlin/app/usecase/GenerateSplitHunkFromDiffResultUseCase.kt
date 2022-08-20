@@ -1,11 +1,11 @@
 package app.usecase
 
-import app.extensions.matchingIndexes
 import app.git.diff.DiffResult
 import app.git.diff.Line
 import app.git.diff.LineType
 import app.git.diff.SplitHunk
 import javax.inject.Inject
+import kotlin.math.abs
 
 class GenerateSplitHunkFromDiffResultUseCase @Inject constructor() {
     operator fun invoke(diffFormat: DiffResult.Text): List<SplitHunk> {
@@ -14,46 +14,44 @@ class GenerateSplitHunkFromDiffResultUseCase @Inject constructor() {
 
         for (hunk in unifiedHunksList) {
             val lines = hunk.lines
+            val newSideLines = mutableListOf<Line?>()
+            val oldSideLines = mutableListOf<Line?>()
 
-            val linesNewSideCount =
-                lines.count { it.lineType == LineType.ADDED || it.lineType == LineType.CONTEXT }
-            val linesOldSideCount =
-                lines.count { it.lineType == LineType.REMOVED || it.lineType == LineType.CONTEXT }
+            var consecutiveChangedLines = 0
 
-            val addedLines = lines.filter { it.lineType == LineType.ADDED }
-            val removedLines = lines.filter { it.lineType == LineType.REMOVED }
+            for (line in lines) {
+                when (line.lineType) {
+                    LineType.CONTEXT -> {
+                        if (consecutiveChangedLines != 0) {
+                            fillWithNulls(oldSideLines, newSideLines, consecutiveChangedLines)
+                            consecutiveChangedLines = 0
+                        }
 
-            val oldLinesArray: Array<Line?> = if (linesNewSideCount > linesOldSideCount)
-                generateArrayWithContextLines(
-                    hunkLines = lines,
-                    linesCount = linesNewSideCount,
-                    lineNumberCallback = { it.newLineNumber },
-                )
-            else
-                generateArrayWithContextLines(
-                    hunkLines = lines,
-                    linesCount = linesOldSideCount,
-                    lineNumberCallback = { it.oldLineNumber },
-                )
+                        oldSideLines.add(line)
+                        newSideLines.add(line)
+                    }
 
-            // Old lines array only contains context lines for now, so copy it to new lines array
-            val newLinesArray = oldLinesArray.copyOf()
+                    LineType.ADDED -> {
+                        consecutiveChangedLines++
+                        newSideLines.add(line)
+                    }
 
-            val arraysSize = newLinesArray.count()
-
-            for (removedLine in removedLines) {
-                placeLine(oldLinesArray, lines, removedLine)
+                    LineType.REMOVED -> {
+                        consecutiveChangedLines--
+                        oldSideLines.add(line)
+                    }
+                }
             }
 
-            for (addedLine in addedLines) {
-                placeLine(newLinesArray, lines, addedLine)
+            if (consecutiveChangedLines != 0) {
+                fillWithNulls(oldSideLines, newSideLines, consecutiveChangedLines)
             }
 
             val newHunkLines = mutableListOf<Pair<Line?, Line?>>()
 
-            for (i in 0 until arraysSize) {
-                val old = oldLinesArray[i]
-                val new = newLinesArray[i]
+            for (i in 0 until newSideLines.count()) {
+                val old = oldSideLines[i]
+                val new = newSideLines[i]
 
                 newHunkLines.add(old to new)
             }
@@ -64,44 +62,23 @@ class GenerateSplitHunkFromDiffResultUseCase @Inject constructor() {
         return hunksList
     }
 
-    private inline fun generateArrayWithContextLines(
-        hunkLines: List<Line>,
-        lineNumberCallback: (Line) -> Int,
-        linesCount: Int
-    ): Array<Line?> {
-        val linesArray = arrayOfNulls<Line?>(linesCount)
+    private fun fillWithNulls(
+        oldSideLines: MutableList<Line?>,
+        newSideLines: MutableList<Line?>,
+        consecutiveChangedLines: Int,
+    ) {
+        check(consecutiveChangedLines != 0)
 
-        val contextLines = hunkLines.filter { it.lineType == LineType.CONTEXT }
-
-        val firstLine = hunkLines.firstOrNull()
-        val firstLineNumber = if (firstLine == null) {
-            0
-        } else
-            lineNumberCallback(firstLine)
-
-        for (contextLine in contextLines) {
-            val lineNumber = lineNumberCallback(contextLine)
-
-            linesArray[lineNumber - firstLineNumber] = contextLine
+        val listToUpdate = if (consecutiveChangedLines > 0) {
+            oldSideLines
+        } else if (consecutiveChangedLines < 0) {
+            newSideLines
+        } else {
+            null
         }
 
-        return linesArray
-    }
-
-    private fun placeLine(linesArray: Array<Line?>, hunkLines: List<Line>, lineToPlace: Line) {
-        val previousLinesToCurrent = hunkLines.takeWhile { it != lineToPlace }
-        val previousContextLine = previousLinesToCurrent.lastOrNull { it.lineType == LineType.CONTEXT }
-
-        val contextArrayPosition = if (previousContextLine != null)
-            linesArray.indexOf(previousContextLine)
-        else
-            -1
-
-        val availableIndexes = linesArray.matchingIndexes { it == null }
-
-        // Get the position of the next available line after the previous context line
-        val nextAvailableLinePosition = availableIndexes.first { index -> index > contextArrayPosition }
-
-        linesArray[nextAvailableLinePosition] = lineToPlace
+        repeat(abs(consecutiveChangedLines)) {
+            listToUpdate?.add(null)
+        }
     }
 }

@@ -6,7 +6,6 @@ import app.git.diff.Line
 import app.git.diff.LineType
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 internal class GenerateSplitHunkFromDiffResultUseCaseTest {
@@ -116,6 +115,39 @@ internal class GenerateSplitHunkFromDiffResultUseCaseTest {
         verifyContainsRemoved(listOf(3), firstHunk.lines)
         verifyContainsAdded(listOf(3, 4), firstHunk.lines)
         verifyContainsNullOldSide(listOf(4, 5), firstHunk.lines)
+    }
+
+    @Test
+    fun invoke_hunk_with_mix_lines_and_old_side_with_context_in_between() {
+        val hunksList = mutableListOf<Hunk>()
+        val lines = listOf(
+            Line("", 0, 0, LineType.CONTEXT),
+            Line("", 1, 1, LineType.CONTEXT),
+            Line("", 2, 2, LineType.REMOVED),
+            Line("", 3, 2, LineType.CONTEXT),
+            Line("", 3, 3, LineType.ADDED),
+            Line("", 4, 4, LineType.CONTEXT),
+            Line("", 5, 5, LineType.CONTEXT),
+        )
+        val hunk = Hunk(
+            header = "",
+            lines = lines,
+        )
+
+        hunksList.add(hunk)
+
+        val diffResultText = DiffResult.Text(mockk(), hunksList)
+        val splitHunkList = generateSplitHunkFromDiffResultUseCase(diffResultText)
+
+        assertEquals(splitHunkList.count(), 1)
+
+        val firstHunk = splitHunkList.first()
+        assertEquals(firstHunk.lines.count(), 7)
+        verifyContextLines(lines, firstHunk.lines)
+        verifyContainsRemoved(listOf(2), firstHunk.lines)
+        verifyContainsAdded(listOf(4), firstHunk.lines)
+        verifyContainsNullOldSide(listOf(4), firstHunk.lines)
+        verifyContainsNullNewSide(listOf(2), firstHunk.lines)
     }
 
     private fun verifyContextLines(sourceLines: List<Line>, linesToTest: List<Pair<Line?, Line?>>) {
