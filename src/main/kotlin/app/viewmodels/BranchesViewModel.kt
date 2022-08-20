@@ -1,6 +1,9 @@
 package app.viewmodels
 
 import app.git.*
+import app.git.branches.*
+import app.git.remote_operations.PullFromSpecificBranchUseCase
+import app.git.remote_operations.PushToSpecificBranchUseCase
 import app.preferences.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,12 +12,17 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class BranchesViewModel @Inject constructor(
-    private val branchesManager: BranchesManager,
     private val rebaseManager: RebaseManager,
     private val mergeManager: MergeManager,
-    private val remoteOperationsManager: RemoteOperationsManager,
+    private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
+    private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
+    private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
+    private val getBranchesUseCase: GetBranchesUseCase,
+    private val createBranchUseCase: CreateBranchUseCase,
+    private val deleteBranchUseCase: DeleteBranchUseCase,
+    private val checkoutRefUseCase: CheckoutRefUseCase,
 ) : ExpandableViewModel(true) {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     val branches: StateFlow<List<Ref>>
@@ -25,9 +33,9 @@ class BranchesViewModel @Inject constructor(
         get() = _currentBranch
 
     suspend fun loadBranches(git: Git) {
-        _currentBranch.value = branchesManager.currentBranchRef(git)
+        _currentBranch.value = getCurrentBranchUseCase(git)
 
-        val branchesList = branchesManager.getBranches(git)
+        val branchesList = getBranchesUseCase(git).toMutableList()
 
         // set selected branch as the first one always
         val selectedBranch = branchesList.find { it.name == _currentBranch.value?.name }
@@ -44,7 +52,7 @@ class BranchesViewModel @Inject constructor(
         refreshType = RefreshType.ONLY_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
-        branchesManager.createBranch(git, branchName)
+        createBranchUseCase(git, branchName)
         this.loadBranches(git)
     }
 
@@ -57,13 +65,13 @@ class BranchesViewModel @Inject constructor(
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        branchesManager.deleteBranch(git, branch)
+        deleteBranchUseCase(git, branch)
     }
 
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        branchesManager.checkoutRef(git, ref)
+        checkoutRefUseCase(git, ref)
     }
 
     suspend fun refresh(git: Git) {
@@ -83,7 +91,7 @@ class BranchesViewModel @Inject constructor(
     fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        remoteOperationsManager.pushToBranch(
+        pushToSpecificBranchUseCase(
             git = git,
             force = false,
             pushTags = false,
@@ -94,7 +102,7 @@ class BranchesViewModel @Inject constructor(
     fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        remoteOperationsManager.pullFromBranch(
+        pullFromSpecificBranchUseCase(
             git = git,
             rebase = false,
             remoteBranch = branch,

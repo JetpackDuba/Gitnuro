@@ -1,9 +1,9 @@
 package app.viewmodels
 
-import app.git.BranchesManager
 import app.git.RefreshType
 import app.git.TabState
 import app.git.TagsManager
+import app.git.branches.CheckoutRefUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +14,8 @@ import javax.inject.Inject
 
 class TagsViewModel @Inject constructor(
     private val tabState: TabState,
-    private val branchesManager: BranchesManager,
     private val tagsManager: TagsManager,
+    private val checkoutRefUseCase: CheckoutRefUseCase,
 ) : ExpandableViewModel() {
     private val _tags = MutableStateFlow<List<Ref>>(listOf())
     val tags: StateFlow<List<Ref>>
@@ -30,7 +30,7 @@ class TagsViewModel @Inject constructor(
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        branchesManager.checkoutRef(git, ref)
+        checkoutRefUseCase(git, ref)
     }
 
     fun deleteTag(tag: Ref) = tabState.safeProcessing(

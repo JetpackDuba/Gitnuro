@@ -1,6 +1,7 @@
 package app.git
 
 import app.exceptions.UncommitedChangesDetectedException
+import app.git.branches.GetCurrentBranchUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -16,7 +17,7 @@ import org.eclipse.jgit.revwalk.RevWalk
 import javax.inject.Inject
 
 class RebaseManager @Inject constructor(
-    private val branchesManager: BranchesManager,
+    private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
 ) {
 
     suspend fun rebaseBranch(git: Git, ref: Ref) = withContext(Dispatchers.IO) {
@@ -127,7 +128,7 @@ class RebaseManager @Inject constructor(
     }
 
     private suspend fun markCurrentBranchAsStart(revWalk: RevWalk, git: Git) {
-        val currentBranch = branchesManager.currentBranchRef(git) ?: throw Exception("Null current branch")
+        val currentBranch = getCurrentBranchUseCase(git) ?: throw Exception("Null current branch")
         val refTarget = revWalk.parseAny(currentBranch.leaf.objectId)
 
         if (refTarget is RevCommit)

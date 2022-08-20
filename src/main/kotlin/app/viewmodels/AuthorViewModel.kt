@@ -1,9 +1,10 @@
 package app.viewmodels
 
 import app.extensions.nullIfEmpty
-import app.git.AuthorManager
 import app.git.RefreshType
 import app.git.TabState
+import app.git.author.LoadAuthorUseCase
+import app.git.author.SaveAuthorUseCase
 import app.models.AuthorInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,8 @@ import javax.inject.Inject
 
 class AuthorViewModel @Inject constructor(
     private val tabState: TabState,
-    private val authorManager: AuthorManager,
+    private val saveAuthorUseCase: SaveAuthorUseCase,
+    private val loadAuthorUseCase: LoadAuthorUseCase,
 ) {
 
     private val _authorInfo = MutableStateFlow(AuthorInfo(null, null, null, null))
@@ -21,7 +23,7 @@ class AuthorViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
         showError = true,
     ) { git ->
-        _authorInfo.value = authorManager.loadAuthor(git)
+        _authorInfo.value = loadAuthorUseCase(git)
     }
 
     fun saveAuthorInfo(globalName: String, globalEmail: String, name: String, email: String) = tabState.runOperation(
@@ -35,6 +37,6 @@ class AuthorViewModel @Inject constructor(
             email.nullIfEmpty,
         )
 
-        authorManager.saveAuthorInfo(git, newAuthorInfo)
+        saveAuthorUseCase(git, newAuthorInfo)
     }
 }

@@ -1,8 +1,8 @@
 package app.viewmodels
 
 import app.git.CloneStatus
-import app.git.RemoteOperationsManager
 import app.git.TabState
+import app.git.remote_operations.CloneRepositoryUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class CloneViewModel @Inject constructor(
     private val tabState: TabState,
-    private val remoteOperationsManager: RemoteOperationsManager,
+    private val cloneRepositoryUseCase: CloneRepositoryUseCase,
 ) {
 
     private val _cloneStatus = MutableStateFlow<CloneStatus>(CloneStatus.None)
@@ -69,7 +69,7 @@ class CloneViewModel @Inject constructor(
                 repoDir.mkdir()
             }
 
-            remoteOperationsManager.clone(repoDir, url)
+            cloneRepositoryUseCase(repoDir, url)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->
                     _cloneStatus.value = newCloneStatus

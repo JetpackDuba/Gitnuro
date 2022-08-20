@@ -4,8 +4,12 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import app.extensions.delayedStateChange
 import app.git.*
+import app.git.branches.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
+import app.git.remote_operations.DeleteRemoteBranchUseCase
+import app.git.remote_operations.PullFromSpecificBranchUseCase
+import app.git.remote_operations.PushToSpecificBranchUseCase
 import app.preferences.AppSettings
 import app.ui.SelectedItem
 import app.ui.log.LogDialog
@@ -34,11 +38,16 @@ private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 class LogViewModel @Inject constructor(
     private val logManager: LogManager,
     private val statusManager: StatusManager,
-    private val branchesManager: BranchesManager,
+    private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
+    private val checkoutRefUseCase: CheckoutRefUseCase,
+    private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
+    private val deleteBranchUseCase: DeleteBranchUseCase,
+    private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
+    private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
+    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val rebaseManager: RebaseManager,
     private val tagsManager: TagsManager,
     private val mergeManager: MergeManager,
-    private val remoteOperationsManager: RemoteOperationsManager,
     private val tabState: TabState,
     private val appSettings: AppSettings,
 ) {
@@ -83,7 +92,7 @@ class LogViewModel @Inject constructor(
             _logStatus.value = LogStatus.Loading
         }
     ) {
-        val currentBranch = branchesManager.currentBranchRef(git)
+        val currentBranch = getCurrentBranchUseCase(git)
 
         val statusSummary = statusManager.getStatusSummary(
             git = git,
@@ -113,7 +122,7 @@ class LogViewModel @Inject constructor(
     fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        remoteOperationsManager.pushToBranch(
+        pushToSpecificBranchUseCase(
             git = git,
             force = false,
             pushTags = false,
@@ -124,7 +133,7 @@ class LogViewModel @Inject constructor(
     fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        remoteOperationsManager.pullFromBranch(
+        pullFromSpecificBranchUseCase(
             git = git,
             rebase = false,
             remoteBranch = branch,
@@ -152,7 +161,7 @@ class LogViewModel @Inject constructor(
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        branchesManager.checkoutRef(git, ref)
+        checkoutRefUseCase(git, ref)
     }
 
     fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
@@ -164,7 +173,7 @@ class LogViewModel @Inject constructor(
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        branchesManager.createBranchOnCommit(git, branch, revCommit)
+        createBranchOnCommitUseCase(git, branch, revCommit)
     }
 
     fun createTagOnCommit(tag: String, revCommit: RevCommit) = tabState.safeProcessing(
@@ -182,7 +191,7 @@ class LogViewModel @Inject constructor(
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        branchesManager.deleteBranch(git, branch)
+        deleteBranchUseCase(git, branch)
     }
 
     fun deleteTag(tag: Ref) = tabState.safeProcessing(
@@ -196,7 +205,7 @@ class LogViewModel @Inject constructor(
     }
 
     private suspend fun uncommitedChangesLoadLog(git: Git) {
-        val currentBranch = branchesManager.currentBranchRef(git)
+        val currentBranch = getCurrentBranchUseCase(git)
         val hasUncommitedChanges = statusManager.hasUncommitedChanges(git)
 
         val statsSummary = if (hasUncommitedChanges) {
@@ -357,7 +366,7 @@ class LogViewModel @Inject constructor(
     fun deleteRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        remoteOperationsManager.deleteBranch(git, branch)
+        deleteRemoteBranchUseCase(git, branch)
     }
 }
 

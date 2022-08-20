@@ -5,6 +5,7 @@ import app.di.RawFileManagerFactory
 import app.exceptions.MissingDiffEntryException
 import app.extensions.fullData
 import app.extensions.isMerging
+import app.git.branches.GetCurrentBranchUseCase
 import app.git.diff.DiffResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,7 +29,7 @@ import javax.inject.Inject
 class DiffManager @Inject constructor(
     private val rawFileManagerFactory: RawFileManagerFactory,
     private val hunkDiffGeneratorFactory: HunkDiffGeneratorFactory,
-    private val branchesManager: BranchesManager,
+    private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val repositoryManager: RepositoryManager,
 ) {
     suspend fun diffFormat(git: Git, diffEntryType: DiffEntryType): DiffResult = withContext(Dispatchers.IO) {
@@ -57,7 +58,7 @@ class DiffManager @Inject constructor(
                         .setCached(cached).apply {
                             val repositoryState = repositoryManager.getRepositoryState(git)
                             if (
-                                branchesManager.currentBranchRef(git) == null &&
+                                getCurrentBranchUseCase(git) == null &&
                                 !repositoryState.isMerging &&
                                 !repositoryState.isRebasing &&
                                 cached

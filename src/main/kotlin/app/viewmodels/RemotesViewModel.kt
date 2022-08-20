@@ -2,6 +2,9 @@ package app.viewmodels
 
 import app.exceptions.InvalidRemoteUrlException
 import app.git.*
+import app.git.branches.DeleteLocallyRemoteBranches
+import app.git.branches.GetRemoteBranchesUseCase
+import app.git.remote_operations.DeleteRemoteBranchUseCase
 import app.ui.dialogs.RemoteWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,18 +17,19 @@ import javax.inject.Inject
 
 class RemotesViewModel @Inject constructor(
     private val remotesManager: RemotesManager,
-    private val remoteOperationsManager: RemoteOperationsManager,
-    private val branchesManager: BranchesManager,
+    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val tabState: TabState,
+    private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
+    private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranches,
 ) : ExpandableViewModel() {
     private val _remotes = MutableStateFlow<List<RemoteView>>(listOf())
     val remotes: StateFlow<List<RemoteView>>
         get() = _remotes
 
-    suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
+    private suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
         val remotes = git.remoteList()
             .call()
-        val allRemoteBranches = branchesManager.remoteBranches(git)
+        val allRemoteBranches = getRemoteBranchesUseCase(git)
 
         remotesManager.loadRemotes(git, allRemoteBranches)
         val remoteInfoList = remotes.map { remoteConfig ->
@@ -45,7 +49,7 @@ class RemotesViewModel @Inject constructor(
     fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        remoteOperationsManager.deleteBranch(git, ref)
+        deleteRemoteBranchUseCase(git, ref)
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -72,14 +76,14 @@ class RemotesViewModel @Inject constructor(
     ) { git ->
         remotesManager.deleteRemote(git, remoteName)
 
-        val remoteBranches = branchesManager.remoteBranches(git)
+        val remoteBranches = getRemoteBranchesUseCase(git)
         val remoteToDeleteBranchesNames = remoteBranches.filter {
             it.name.startsWith("refs/remotes/$remoteName/")
         }.map {
             it.name
         }
 
-        branchesManager.deleteLocallyRemoteBranches(git, remoteToDeleteBranchesNames)
+        deleteLocallyRemoteBranchesUseCase(git, remoteToDeleteBranchesNames)
     }
 
 

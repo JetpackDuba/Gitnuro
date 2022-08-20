@@ -3,6 +3,8 @@ package app.git
 import app.credentials.GProcess
 import app.credentials.GRemoteSession
 import app.credentials.GSessionManager
+import app.git.remote_operations.CloneRepositoryUseCase
+import app.git.remote_operations.HandleTransportUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
@@ -31,8 +33,8 @@ class BeforeRepoAllTestsExtension : BeforeAllCallback, AfterAllCallback {
             // The following line registers a callback hook when the root test context is shut down
             context.root.getStore(GLOBAL).put("gitnuro_tests", this)
 
-            val remoteOperationsManager = RemoteOperationsManager(GSessionManager { GRemoteSession { GProcess() } })
-            remoteOperationsManager.clone(repoDir, REPO_URL)
+            val cloneRepositoryUseCase = CloneRepositoryUseCase(HandleTransportUseCase(GSessionManager { GRemoteSession { GProcess() } }))
+            cloneRepositoryUseCase(repoDir, REPO_URL)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->
                     println("Clonning test repository: $newCloneStatus")
