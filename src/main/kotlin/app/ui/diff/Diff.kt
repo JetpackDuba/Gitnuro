@@ -345,6 +345,7 @@ fun SplitDiffLine(highestLineNumberLength: Int, first: Line?, second: Line?) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colors.secondarySurface)
+            .height(IntrinsicSize.Min)
     ) {
         Box(
             modifier = Modifier
@@ -353,6 +354,13 @@ fun SplitDiffLine(highestLineNumberLength: Int, first: Line?, second: Line?) {
             if (first != null)
                 SplitDiffLine(highestLineNumberLength, first, first.oldLineNumber + 1)
         }
+
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(4.dp)
+                .background(MaterialTheme.colors.secondarySurface)
+        )
 
         Box(modifier = Modifier.weight(1f)) {
             if (second != null)
@@ -601,7 +609,7 @@ fun DiffLine(
     Row(
         modifier = Modifier
             .background(backgroundColor)
-            .height(IntrinsicSize.Min)
+            .height(IntrinsicSize.Min),
     ) {
         val oldLineText = if (line.lineType == LineType.REMOVED || line.lineType == LineType.CONTEXT) {
             line.displayOldLineNumber.toStringWithSpaces(highestLineNumberLength)
@@ -616,10 +624,12 @@ fun DiffLine(
         DisableSelection {
             LineNumber(
                 text = oldLineText,
+                remarked = line.lineType != LineType.CONTEXT,
             )
 
             LineNumber(
-                text = newLineText
+                text = newLineText,
+                remarked = line.lineType != LineType.CONTEXT,
             )
         }
 
@@ -641,11 +651,12 @@ fun SplitDiffLine(
     Row(
         modifier = Modifier
             .background(backgroundColor)
-            .height(IntrinsicSize.Min)
+            .fillMaxHeight()
     ) {
         DisableSelection {
             LineNumber(
                 text = lineNumber.toStringWithSpaces(highestLineNumberLength),
+                remarked = line.lineType != LineType.CONTEXT,
             )
         }
 
@@ -686,15 +697,14 @@ fun DiffLineText(text: String) {
 }
 
 @Composable
-fun LineNumber(text: String) {
+fun LineNumber(text: String, remarked: Boolean) {
     Text(
         text = text,
         modifier = Modifier
-            .background(MaterialTheme.colors.secondarySurface)
-            .fillMaxHeight()
-            .padding(horizontal = 4.dp),
+            .padding(start = 8.dp, end = 4.dp),
         fontFamily = FontFamily.Monospace,
         style = MaterialTheme.typography.body2,
+        color = if (remarked) MaterialTheme.colors.primaryTextColor else MaterialTheme.colors.secondaryTextColor,
     )
 }
 
