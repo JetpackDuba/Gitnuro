@@ -7,10 +7,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import app.keybindings.KeybindingOption
@@ -35,7 +35,8 @@ fun NewBranchDialog(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .focusOrder(branchFieldFocusRequester) {
+                    .focusRequester(branchFieldFocusRequester)
+                    .focusProperties {
                         this.next = buttonFieldFocusRequester
                     }
                     .width(300.dp)
@@ -76,10 +77,12 @@ fun NewBranchDialog(
                     Text("Cancel")
                 }
                 PrimaryButton(
-                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                        this.previous = branchFieldFocusRequester
-                        this.next = branchFieldFocusRequester
-                    },
+                    modifier = Modifier
+                        .focusRequester(buttonFieldFocusRequester)
+                        .focusProperties {
+                            this.previous = branchFieldFocusRequester
+                            this.next = branchFieldFocusRequester
+                        },
                     enabled = branchField.isNotBlank(),
                     onClick = {
                         onAccept(branchField)

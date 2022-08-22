@@ -8,10 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -54,7 +54,8 @@ fun UserPasswordDialog(
 
             OutlinedTextField(
                 modifier = Modifier
-                    .focusOrder(userFieldFocusRequester) {
+                    .focusRequester(userFieldFocusRequester)
+                    .focusProperties {
                         this.next = passwordFieldFocusRequester
                     }
                     .width(300.dp)
@@ -83,7 +84,8 @@ fun UserPasswordDialog(
             OutlinedTextField(
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .focusOrder(passwordFieldFocusRequester) {
+                    .focusRequester(passwordFieldFocusRequester)
+                    .focusProperties {
                         this.previous = userFieldFocusRequester
                         this.next = buttonFieldFocusRequester
                     }
@@ -128,10 +130,12 @@ fun UserPasswordDialog(
                     Text("Cancel")
                 }
                 PrimaryButton(
-                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                        this.previous = passwordFieldFocusRequester
-                        this.next = userFieldFocusRequester
-                    },
+                    modifier = Modifier
+                        .focusRequester(buttonFieldFocusRequester)
+                        .focusProperties {
+                            this.previous = passwordFieldFocusRequester
+                            this.next = userFieldFocusRequester
+                        },
                     onClick = {
                         onAccept(userField, passwordField)
                     },

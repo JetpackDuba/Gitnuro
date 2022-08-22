@@ -13,7 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 import app.git.CloneStatus
 import app.theme.outlinedTextFieldColors
@@ -43,18 +44,22 @@ fun CloneDialog(
                 is CloneStatus.Cloning -> {
                     Cloning(cloneViewModel, cloneStatusValue)
                 }
+
                 is CloneStatus.Cancelling -> {
                     onClose()
                 }
+
                 is CloneStatus.Completed -> {
                     onOpenRepository(cloneStatusValue.repoDir)
                     onClose()
                 }
+
                 is CloneStatus.Fail -> CloneInput(
                     cloneViewModel = cloneViewModel,
                     onClose = onClose,
                     errorMessage = cloneStatusValue.reason
                 )
+
                 CloneStatus.None -> CloneInput(
                     cloneViewModel = cloneViewModel,
                     onClose = onClose,
@@ -98,7 +103,8 @@ private fun CloneInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp, horizontal = 8.dp)
-                .focusOrder(urlFocusRequester) {
+                .focusRequester(urlFocusRequester)
+                .focusProperties {
                     previous = cancelButtonFocusRequester
                     next = directoryFocusRequester
                 },
@@ -124,7 +130,8 @@ private fun CloneInput(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 4.dp)
-                    .focusOrder(directoryFocusRequester) {
+                    .focusRequester(directoryFocusRequester)
+                    .focusProperties {
                         previous = urlFocusRequester
                         next = directoryButtonFocusRequester
                     },
@@ -148,7 +155,8 @@ private fun CloneInput(
                         directory = newDirectory
                 },
                 modifier = Modifier
-                    .focusOrder(directoryButtonFocusRequester) {
+                    .focusRequester(directoryButtonFocusRequester)
+                    .focusProperties {
                         previous = directoryFocusRequester
                         next = cloneButtonFocusRequester
                     }
@@ -188,7 +196,8 @@ private fun CloneInput(
             TextButton(
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .focusOrder(cancelButtonFocusRequester) {
+                    .focusRequester(cancelButtonFocusRequester)
+                    .focusProperties {
                         previous = cloneButtonFocusRequester
                         next = urlFocusRequester
                     },
@@ -204,7 +213,8 @@ private fun CloneInput(
                     cloneViewModel.clone(directory, url)
                 },
                 modifier = Modifier
-                    .focusOrder(cloneButtonFocusRequester) {
+                    .focusRequester(cloneButtonFocusRequester)
+                    .focusProperties {
                         previous = directoryButtonFocusRequester
                         next = cancelButtonFocusRequester
                     },

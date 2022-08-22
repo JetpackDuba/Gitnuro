@@ -8,10 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import app.keybindings.KeybindingOption
@@ -38,7 +38,8 @@ fun StashWithMessageDialog(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .focusOrder(textFieldFocusRequester) {
+                    .focusRequester(textFieldFocusRequester)
+                    .focusProperties {
                         this.next = buttonFieldFocusRequester
                     }
                     .width(300.dp)
@@ -78,10 +79,12 @@ fun StashWithMessageDialog(
                     Text("Cancel")
                 }
                 PrimaryButton(
-                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                        this.previous = textFieldFocusRequester
-                        this.next = textFieldFocusRequester
-                    },
+                    modifier = Modifier
+                        .focusRequester(buttonFieldFocusRequester)
+                        .focusProperties {
+                            this.previous = textFieldFocusRequester
+                            this.next = textFieldFocusRequester
+                        },
                     enabled = textField.isNotBlank(),
                     onClick = {
                         onAccept(textField)

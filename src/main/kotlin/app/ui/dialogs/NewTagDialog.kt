@@ -8,10 +8,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusOrder
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import app.keybindings.KeybindingOption
@@ -38,7 +38,8 @@ fun NewTagDialog(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .focusOrder(tagFieldFocusRequester) {
+                    .focusRequester(tagFieldFocusRequester)
+                    .focusProperties {
                         this.next = buttonFieldFocusRequester
                     }
                     .width(300.dp)
@@ -79,10 +80,12 @@ fun NewTagDialog(
                     Text("Cancel")
                 }
                 PrimaryButton(
-                    modifier = Modifier.focusOrder(buttonFieldFocusRequester) {
-                        this.previous = tagFieldFocusRequester
-                        this.next = tagFieldFocusRequester
-                    },
+                    modifier = Modifier
+                        .focusRequester(buttonFieldFocusRequester)
+                        .focusProperties {
+                            this.previous = tagFieldFocusRequester
+                            this.next = tagFieldFocusRequester
+                        },
                     enabled = tagField.isNotBlank(),
                     onClick = {
                         onAccept(tagField)

@@ -6,10 +6,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ContextMenuArea
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -25,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,7 +43,6 @@ import app.ui.context_menu.EntryType
 import app.ui.context_menu.statusEntriesContextMenuItems
 import app.viewmodels.StageStatus
 import app.viewmodels.StatusViewModel
-import kotlinx.coroutines.flow.collect
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
@@ -216,6 +213,7 @@ fun UncommitedChanges(
                     },
                     onMerge = { doCommit(false) }
                 )
+
                 repositoryState.isRebasing -> RebasingButtons(
                     canContinue = staged.isNotEmpty() || unstaged.isNotEmpty(),
                     haveConflictsBeenSolved = unstaged.isEmpty(),
@@ -226,6 +224,7 @@ fun UncommitedChanges(
                     onContinue = { statusViewModel.continueRebase() },
                     onSkip = { statusViewModel.skipRebase() },
                 )
+
                 repositoryState.isCherryPicking -> CherryPickingButtons(
                     haveConflictsBeenSolved = unstaged.isEmpty(),
                     onAbort = {
@@ -236,6 +235,7 @@ fun UncommitedChanges(
                         doCommit(false)
                     }
                 )
+
                 repositoryState.isReverting -> RevertingButtons(
                     haveConflictsBeenSolved = unstaged.none { it.statusType == StatusType.CONFLICTING },
                     canCommit = commitMessage.isNotBlank(),
@@ -247,6 +247,7 @@ fun UncommitedChanges(
                         doCommit(false)
                     }
                 )
+
                 else -> UncommitedChangesButtons(
                     canCommit = canCommit,
                     canAmend = canAmend,
@@ -572,22 +573,14 @@ private fun FileEntry(
     onButtonClick: () -> Unit,
     onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
 ) {
-    var active by remember { mutableStateOf(false) }
+    val hoverInteraction = remember { MutableInteractionSource() }
+    val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     Box(
         modifier = Modifier
             .handMouseClickable { onClick() }
             .fillMaxWidth()
-            .pointerMoveFilter(
-                onEnter = {
-                    active = true
-                    false
-                },
-                onExit = {
-                    active = false
-                    false
-                }
-            )
+            .hoverable(hoverInteraction)
     ) {
         ContextMenuArea(
             items = {
@@ -635,7 +628,7 @@ private fun FileEntry(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.CenterEnd),
-            visible = active,
+            visible = isHovered,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {

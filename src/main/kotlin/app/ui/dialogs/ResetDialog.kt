@@ -7,12 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.mouseClickable
+import androidx.compose.foundation.onClick
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.unit.dp
 import app.git.ResetType
 import app.theme.primaryTextColor
@@ -92,11 +91,9 @@ fun RadioButtonText(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .mouseClickable {
-                if (this.buttons.isPrimaryPressed) {
-                    if (onClick != null) {
-                        onClick()
-                    }
+            .onClick {
+                if (onClick != null) {
+                    onClick()
                 }
             }
     ) {
