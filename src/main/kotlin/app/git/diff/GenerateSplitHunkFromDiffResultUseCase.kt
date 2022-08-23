@@ -1,9 +1,5 @@
-package app.usecase
+package app.git.diff
 
-import app.git.diff.DiffResult
-import app.git.diff.Line
-import app.git.diff.LineType
-import app.git.diff.SplitHunk
 import javax.inject.Inject
 import kotlin.math.abs
 

@@ -1,9 +1,6 @@
 package app.usecase
 
-import app.git.diff.DiffResult
-import app.git.diff.Hunk
-import app.git.diff.Line
-import app.git.diff.LineType
+import app.git.diff.*
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test

@@ -6,10 +6,9 @@ import app.extensions.filePath
 import app.git.*
 import app.git.diff.DiffResult
 import app.preferences.AppSettings
-import app.usecase.GenerateSplitHunkFromDiffResultUseCase
+import app.git.diff.GenerateSplitHunkFromDiffResultUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
