@@ -34,6 +34,8 @@ import app.theme.secondaryTextColor
 import app.ui.components.AvatarImage
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.TooltipText
+import app.ui.diff.HunkSplitTextDiff
+import app.ui.diff.HunkUnifiedTextDiff
 import app.viewmodels.HistoryState
 import app.viewmodels.HistoryViewModel
 import app.viewmodels.ViewDiffResult

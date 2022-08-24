@@ -9,7 +9,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -26,6 +25,7 @@ import app.ui.components.ScrollableColumn
 import app.ui.dialogs.AuthorDialog
 import app.ui.dialogs.NewBranchDialog
 import app.ui.dialogs.StashWithMessageDialog
+import app.ui.diff.Diff
 import app.ui.log.Log
 import app.viewmodels.BlameState
 import app.viewmodels.TabViewModel

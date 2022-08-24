@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalComposeUiApi::class)
 
-package app.ui
+package app.ui.diff
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,7 +20,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIconDefaults
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
@@ -306,6 +308,7 @@ fun HunkSplitTextDiff(
     onResetHunk: (DiffEntry, Hunk) -> Unit,
 ) {
     val hunks = diffResult.hunks
+    var selectableSide by remember { mutableStateOf(SelectableSide.BOTH) }
 
     SelectionContainer {
         ScrollableLazyColumn(
@@ -332,28 +335,55 @@ fun HunkSplitTextDiff(
                 val highestLineNumberLength = highestLineNumber.toString().count()
 
                 items(splitHunk.lines) { linesPair ->
-                    SplitDiffLine(highestLineNumberLength, linesPair.first, linesPair.second)
+                    SplitDiffLine(
+                        highestLineNumberLength = highestLineNumberLength,
+                        oldLine = linesPair.first,
+                        newLine = linesPair.second,
+                        selectableSide = selectableSide,
+                        onChangeSelectableSide = { newSelectableSide ->
+                            if (newSelectableSide != selectableSide) {
+                                println("newSelectableSide $newSelectableSide")
+                                selectableSide = newSelectableSide
+                            }
+                        }
+                    )
                 }
             }
         }
     }
-
 }
 
 @Composable
-fun SplitDiffLine(highestLineNumberLength: Int, first: Line?, second: Line?) {
+fun DynamicSelectionDisable(isDisabled: Boolean, content: @Composable () -> Unit) {
+    if (isDisabled) {
+        DisableSelection(content)
+    } else
+        content()
+}
+
+@Composable
+fun SplitDiffLine(
+    highestLineNumberLength: Int,
+    oldLine: Line?,
+    newLine: Line?,
+    selectableSide: SelectableSide,
+    onChangeSelectableSide: (SelectableSide) -> Unit,
+) {
     Row(
         modifier = Modifier
             .background(MaterialTheme.colors.secondarySurface)
             .height(IntrinsicSize.Min)
     ) {
-        Box(
+        SplitDiffLineSide(
             modifier = Modifier
-                .weight(1f)
-        ) {
-            if (first != null)
-                SplitDiffLine(highestLineNumberLength, first, first.oldLineNumber + 1)
-        }
+                .weight(1f),
+            highestLineNumberLength = highestLineNumberLength,
+            line = oldLine,
+            displayLineNumber = oldLine?.displayOldLineNumber ?: 0,
+            currentSelectableSide = selectableSide,
+            lineSelectableSide = SelectableSide.OLD,
+            onChangeSelectableSide = onChangeSelectableSide,
+        )
 
         Box(
             modifier = Modifier
@@ -362,11 +392,55 @@ fun SplitDiffLine(highestLineNumberLength: Int, first: Line?, second: Line?) {
                 .background(MaterialTheme.colors.secondarySurface)
         )
 
-        Box(modifier = Modifier.weight(1f)) {
-            if (second != null)
-                SplitDiffLine(highestLineNumberLength, second, second.newLineNumber + 1)
+        SplitDiffLineSide(
+            modifier = Modifier
+                .weight(1f),
+            highestLineNumberLength = highestLineNumberLength,
+            line = newLine,
+            displayLineNumber = newLine?.displayNewLineNumber ?: 0,
+            currentSelectableSide = selectableSide,
+            lineSelectableSide = SelectableSide.NEW,
+            onChangeSelectableSide = onChangeSelectableSide,
+        )
+
+    }
+}
+
+@Composable
+fun SplitDiffLineSide(
+    modifier: Modifier,
+    highestLineNumberLength: Int,
+    line: Line?,
+    displayLineNumber: Int,
+    currentSelectableSide: SelectableSide,
+    lineSelectableSide: SelectableSide,
+    onChangeSelectableSide: (SelectableSide) -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .onPointerEvent(PointerEventType.Press) {
+                onChangeSelectableSide(lineSelectableSide)
+            }
+            .onPointerEvent(PointerEventType.Release) {
+                onChangeSelectableSide(SelectableSide.BOTH)
+            }
+    ) {
+        if (line != null) {
+            // To avoid both sides being selected, disable one side when the use is interacting with the other
+            DynamicSelectionDisable(
+                currentSelectableSide != lineSelectableSide &&
+                        currentSelectableSide != SelectableSide.BOTH
+            ) {
+                SplitDiffLine(highestLineNumberLength, line, displayLineNumber)
+            }
         }
     }
+}
+
+enum class SelectableSide {
+    BOTH,
+    OLD,
+    NEW;
 }
 
 @Composable
