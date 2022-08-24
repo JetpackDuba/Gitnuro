@@ -6,6 +6,7 @@ import app.exceptions.MissingDiffEntryException
 import app.extensions.delayedStateChange
 import app.git.*
 import app.git.diff.DiffResult
+import app.git.diff.FormatDiffUseCase
 import app.git.diff.Hunk
 import app.preferences.AppSettings
 import app.git.diff.GenerateSplitHunkFromDiffResultUseCase
@@ -20,7 +21,7 @@ private const val DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD = 200L
 
 class DiffViewModel @Inject constructor(
     private val tabState: TabState,
-    private val diffManager: DiffManager,
+    private val formatDiffUseCase: FormatDiffUseCase,
     private val statusManager: StatusManager,
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
@@ -84,7 +85,7 @@ class DiffViewModel @Inject constructor(
                     delayMs = if (isFirstLoad) 0 else DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD,
                     onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading(diffEntryType.filePath) }
                 ) {
-                    val diffFormat = diffManager.diffFormat(git, diffEntryType)
+                    val diffFormat = formatDiffUseCase(git, diffEntryType)
                     val diffEntry = diffFormat.diffEntry
                     if (
                         diffTypeFlow.value == TextDiffType.SPLIT &&
@@ -148,5 +149,19 @@ class DiffViewModel @Inject constructor(
 
     fun changeTextDiffType(newDiffType: TextDiffType) {
         settings.textDiffType = newDiffType
+    }
+}
+
+enum class TextDiffType(val value: Int) {
+    SPLIT(0),
+    UNIFIED(1);
+}
+
+
+fun textDiffTypeFromValue(diffTypeValue: Int): TextDiffType {
+    return when (diffTypeValue) {
+        TextDiffType.SPLIT.value -> TextDiffType.SPLIT
+        TextDiffType.UNIFIED.value -> TextDiffType.UNIFIED
+        else -> throw NotImplementedError("Diff type not implemented")
     }
 }

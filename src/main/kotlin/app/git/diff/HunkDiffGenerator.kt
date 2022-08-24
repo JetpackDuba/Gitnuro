@@ -3,7 +3,6 @@ package app.git.diff
 import app.extensions.lineAt
 import app.git.EntryContent
 import app.git.RawFileManager
-import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.eclipse.jgit.diff.*
 import org.eclipse.jgit.lib.Repository
@@ -13,6 +12,7 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InvalidObjectException
+import javax.inject.Inject
 import kotlin.contracts.ExperimentalContracts
 import kotlin.math.max
 import kotlin.math.min
@@ -22,46 +22,46 @@ private const val CONTEXT_LINES = 3
 /**
  * Generator of [Hunk] lists from [DiffEntry]
  */
-class HunkDiffGenerator @AssistedInject constructor(
-    @Assisted private val repository: Repository,
-    @Assisted private val rawFileManager: RawFileManager,
-) : AutoCloseable {
+class HunkDiffGenerator @Inject constructor(
+    private val rawFileManager: RawFileManager,
+) {
+    fun format(
+        repository: Repository,
+        diffEntry: DiffEntry,
+        oldTreeIterator: AbstractTreeIterator?,
+        newTreeIterator: AbstractTreeIterator?,
+    ): DiffResult {
+        val outputStream = ByteArrayOutputStream() // Dummy output stream used for the diff formatter
+        return outputStream.use {
+            val diffFormatter = DiffFormatter(outputStream).apply {
+                setRepository(repository)
+            }
 
-    private val outputStream = ByteArrayOutputStream() // Dummy output stream used for the diff formatter
-    private val diffFormatter = DiffFormatter(outputStream).apply {
-        setRepository(repository)
-    }
+            if (oldTreeIterator != null && newTreeIterator != null) {
+                diffFormatter.scan(oldTreeIterator, newTreeIterator)
+            }
 
-    override fun close() {
-        outputStream.close()
-    }
+            val fileHeader = diffFormatter.toFileHeader(diffEntry)
 
-    fun scan(oldTreeIterator: AbstractTreeIterator, newTreeIterator: AbstractTreeIterator) {
-        rawFileManager.scan(oldTreeIterator, newTreeIterator)
-        diffFormatter.scan(oldTreeIterator, newTreeIterator)
-    }
+            val rawOld = rawFileManager.getRawContent(repository, DiffEntry.Side.OLD, diffEntry, oldTreeIterator, newTreeIterator)
+            val rawNew = rawFileManager.getRawContent(repository, DiffEntry.Side.NEW, diffEntry, oldTreeIterator, newTreeIterator)
 
-    fun format(ent: DiffEntry): DiffResult {
-        val fileHeader = diffFormatter.toFileHeader(ent)
+            if (rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
+                throw InvalidObjectException("Invalid object in diff format")
 
-        val rawOld = rawFileManager.getRawContent(DiffEntry.Side.OLD, ent)
-        val rawNew = rawFileManager.getRawContent(DiffEntry.Side.NEW, ent)
+            var diffResult: DiffResult = DiffResult.Text(diffEntry, emptyList())
 
-        if (rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
-            throw InvalidObjectException("Invalid object in diff format")
+            // If we can, generate text diff (if one of the files has never been a binary file)
+            val hasGeneratedTextDiff = canGenerateTextDiff(rawOld, rawNew) { oldRawText, newRawText ->
+                diffResult = DiffResult.Text(diffEntry, format(fileHeader, oldRawText, newRawText))
+            }
 
-        var diffResult: DiffResult = DiffResult.Text(ent, emptyList())
+            if (!hasGeneratedTextDiff) {
+                diffResult = DiffResult.NonText(diffEntry, rawOld, rawNew)
+            }
 
-        // If we can, generate text diff (if one of the files has never been a binary file)
-        val hasGeneratedTextDiff = canGenerateTextDiff(rawOld, rawNew) { oldRawText, newRawText ->
-            diffResult = DiffResult.Text(ent, format(fileHeader, oldRawText, newRawText))
+            return@use diffResult
         }
-
-        if (!hasGeneratedTextDiff) {
-            diffResult = DiffResult.NonText(ent, rawOld, rawNew)
-        }
-
-        return diffResult
     }
 
     @OptIn(ExperimentalContracts::class)
@@ -221,6 +221,7 @@ sealed class DiffResult(
         diffEntry: DiffEntry,
         val hunks: List<Hunk>
     ) : DiffResult(diffEntry)
+
     class TextSplit(
         diffEntry: DiffEntry,
         val hunks: List<SplitHunk>

@@ -2,8 +2,6 @@ package app.git
 
 import app.TempFilesManager
 import app.extensions.systemSeparator
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import org.eclipse.jgit.diff.ContentSource
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawText
@@ -15,18 +13,15 @@ import org.eclipse.jgit.treewalk.WorkingTreeIterator
 import org.eclipse.jgit.util.LfsFactory
 import java.io.FileOutputStream
 import java.nio.file.Path
+import javax.inject.Inject
 import kotlin.io.path.createTempFile
 
 
 private const val DEFAULT_BINARY_FILE_THRESHOLD = PackConfig.DEFAULT_BIG_FILE_THRESHOLD
 
-class RawFileManager @AssistedInject constructor(
-    @Assisted private val repository: Repository,
+class RawFileManager @Inject constructor(
     private val tempFilesManager: TempFilesManager,
-) : AutoCloseable {
-    private var reader: ObjectReader = repository.newObjectReader()
-    private var source: ContentSource.Pair
-
+) {
     private val imageFormatsSupported = listOf(
         "png",
         "jpg",
@@ -34,38 +29,45 @@ class RawFileManager @AssistedInject constructor(
         "webp",
     )
 
-    init {
-        val cs = ContentSource.create(reader)
-        source = ContentSource.Pair(cs, cs)
-    }
-
-    fun scan(oldTreeIterator: AbstractTreeIterator, newTreeIterator: AbstractTreeIterator) {
-        source = ContentSource.Pair(source(oldTreeIterator), source(newTreeIterator))
-    }
-
-    private fun source(iterator: AbstractTreeIterator): ContentSource {
+    private fun source(iterator: AbstractTreeIterator, reader: ObjectReader): ContentSource {
         return if (iterator is WorkingTreeIterator)
             ContentSource.create(iterator)
         else
             ContentSource.create(reader)
     }
 
-    fun getRawContent(side: DiffEntry.Side, entry: DiffEntry): EntryContent {
+    fun getRawContent(
+        repository: Repository,
+        side: DiffEntry.Side,
+        entry: DiffEntry,
+        oldTreeIterator: AbstractTreeIterator?,
+        newTreeIterator: AbstractTreeIterator?,
+    ): EntryContent {
         if (entry.getMode(side) === FileMode.MISSING) return EntryContent.Missing
         if (entry.getMode(side).objectType != Constants.OBJ_BLOB) return EntryContent.InvalidObjectBlob
 
-        val ldr = LfsFactory.getInstance().applySmudgeFilter(
-            repository,
-            source.open(side, entry), entry.diffAttribute
-        )
+        val reader: ObjectReader = repository.newObjectReader()
+        reader.use {
+            val source: ContentSource.Pair = if (oldTreeIterator != null && newTreeIterator != null) {
+                ContentSource.Pair(source(oldTreeIterator, reader), source(newTreeIterator, reader))
+            } else {
+                val cs = ContentSource.create(reader)
+                ContentSource.Pair(cs, cs)
+            }
 
-        return try {
-            EntryContent.Text(RawText.load(ldr, DEFAULT_BINARY_FILE_THRESHOLD))
-        } catch (ex: BinaryBlobException) {
-            if (isImage(entry)) {
-                generateImageBinary(ldr, entry, side)
-            } else
-                EntryContent.Binary
+            val ldr = LfsFactory.getInstance().applySmudgeFilter(
+                repository,
+                source.open(side, entry), entry.diffAttribute
+            )
+
+            return try {
+                EntryContent.Text(RawText.load(ldr, DEFAULT_BINARY_FILE_THRESHOLD))
+            } catch (ex: BinaryBlobException) {
+                if (isImage(entry)) {
+                    generateImageBinary(ldr, entry, side)
+                } else
+                    EntryContent.Binary
+            }
         }
     }
 
@@ -93,10 +95,6 @@ class RawFileManager @AssistedInject constructor(
         val fileExtension = path.split(".").lastOrNull() ?: return false
 
         return imageFormatsSupported.contains(fileExtension.lowercase())
-    }
-
-    override fun close() {
-        reader.close()
     }
 }
 

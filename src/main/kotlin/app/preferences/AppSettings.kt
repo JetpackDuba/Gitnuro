@@ -1,8 +1,8 @@
 package app.preferences
 
 import app.extensions.defaultWindowPlacement
-import app.git.TextDiffType
-import app.git.textDiffTypeFromValue
+import app.viewmodels.TextDiffType
+import app.viewmodels.textDiffTypeFromValue
 import app.theme.ColorsScheme
 import app.theme.Theme
 import kotlinx.coroutines.flow.MutableStateFlow

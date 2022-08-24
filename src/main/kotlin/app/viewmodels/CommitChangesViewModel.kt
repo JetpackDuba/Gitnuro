@@ -1,9 +1,9 @@
 package app.viewmodels
 
 import app.extensions.delayedStateChange
-import app.git.DiffManager
 import app.git.RefreshType
 import app.git.TabState
+import app.git.diff.GetCommitDiffEntriesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.diff.DiffEntry
@@ -14,7 +14,7 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 300L
 
 class CommitChangesViewModel @Inject constructor(
     private val tabState: TabState,
-    private val diffManager: DiffManager,
+    private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
 ) {
     private val _commitChangesStatus = MutableStateFlow<CommitChangesStatus>(CommitChangesStatus.Loading)
     val commitChangesStatus: StateFlow<CommitChangesStatus> = _commitChangesStatus
@@ -26,7 +26,7 @@ class CommitChangesViewModel @Inject constructor(
             delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
             onDelayTriggered = { _commitChangesStatus.value = CommitChangesStatus.Loading }
         ) {
-            val changes = diffManager.commitDiffEntries(git, commit)
+            val changes = getCommitDiffEntriesUseCase(git, commit)
 
             _commitChangesStatus.value = CommitChangesStatus.Loaded(commit, changes)
         }

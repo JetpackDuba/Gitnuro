@@ -42,6 +42,7 @@ import app.theme.*
 import app.ui.components.ScrollableLazyColumn
 import app.ui.components.SecondaryButton
 import app.viewmodels.DiffViewModel
+import app.viewmodels.TextDiffType
 import app.viewmodels.ViewDiffResult
 import org.eclipse.jgit.diff.DiffEntry
 import java.io.FileInputStream

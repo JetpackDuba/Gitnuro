@@ -3,7 +3,6 @@ package app.git
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import app.di.RawFileManagerFactory
 import app.extensions.*
 import app.git.diff.Hunk
 import app.git.diff.LineType
@@ -29,8 +28,7 @@ import javax.inject.Inject
 
 
 class StatusManager @Inject constructor(
-    private val rawFileManagerFactory: RawFileManagerFactory,
-    private val submodulesManager: SubmodulesManager,
+    private val rawFileManager: RawFileManager,
 ) {
     suspend fun hasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
         val status = git
@@ -54,8 +52,13 @@ class StatusManager @Inject constructor(
         var completedWithErrors = true
 
         try {
-            val rawFileManager = rawFileManagerFactory.create(git.repository)
-            val entryContent = rawFileManager.getRawContent(DiffEntry.Side.OLD, diffEntry)
+            val entryContent = rawFileManager.getRawContent(
+                repository = git.repository,
+                side = DiffEntry.Side.OLD,
+                entry = diffEntry,
+                oldTreeIterator = null,
+                newTreeIterator = null
+            )
 
             if (entryContent !is EntryContent.Text)
                 return@withContext
@@ -71,10 +74,12 @@ class StatusManager @Inject constructor(
                         textLines.add(line.oldLineNumber + linesAdded, line.text)
                         linesAdded++
                     }
+
                     LineType.REMOVED -> {
                         textLines.removeAt(line.oldLineNumber + linesAdded)
                         linesAdded--
                     }
+
                     else -> throw NotImplementedError("Line type not implemented for stage hunk")
                 }
             }
@@ -97,8 +102,13 @@ class StatusManager @Inject constructor(
         var completedWithErrors = true
 
         try {
-            val rawFileManager = rawFileManagerFactory.create(repository)
-            val entryContent = rawFileManager.getRawContent(DiffEntry.Side.NEW, diffEntry)
+            val entryContent = rawFileManager.getRawContent(
+                repository = repository,
+                side = DiffEntry.Side.NEW,
+                entry = diffEntry,
+                oldTreeIterator = null,
+                newTreeIterator = null
+            )
 
             if (entryContent !is EntryContent.Text)
                 return@withContext

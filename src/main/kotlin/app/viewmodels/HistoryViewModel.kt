@@ -5,8 +5,10 @@ import app.exceptions.MissingDiffEntryException
 import app.extensions.filePath
 import app.git.*
 import app.git.diff.DiffResult
+import app.git.diff.FormatDiffUseCase
 import app.preferences.AppSettings
 import app.git.diff.GenerateSplitHunkFromDiffResultUseCase
+import app.git.diff.GetCommitDiffEntriesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(
     private val tabState: TabState,
-    private val diffManager: DiffManager,
+    private val formatDiffUseCase: FormatDiffUseCase,
+    private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
 ) {
@@ -87,7 +90,7 @@ class HistoryViewModel @Inject constructor(
     ) { git ->
 
         try {
-            val diffEntries = diffManager.commitDiffEntries(git, commit)
+            val diffEntries = getCommitDiffEntriesUseCase(git, commit)
             val diffEntry = diffEntries.firstOrNull { entry ->
                 entry.filePath == this.filePath
             }
@@ -99,7 +102,7 @@ class HistoryViewModel @Inject constructor(
 
             val diffEntryType = DiffEntryType.CommitDiff(diffEntry)
 
-            val diffResult = diffManager.diffFormat(git, diffEntryType)
+            val diffResult = formatDiffUseCase(git, diffEntryType)
             val textDiffType = settings.textDiffType
 
             val formattedDiffResult = if (textDiffType == TextDiffType.SPLIT && diffResult is DiffResult.Text) {
