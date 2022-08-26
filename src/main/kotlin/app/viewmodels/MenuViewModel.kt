@@ -5,6 +5,7 @@ import app.git.remote_operations.DeleteRemoteBranchUseCase
 import app.git.remote_operations.FetchAllBranchesUseCase
 import app.git.remote_operations.PullBranchUseCase
 import app.git.remote_operations.PushBranchUseCase
+import app.git.workspace.StageUntrackedFileUseCase
 import java.awt.Desktop
 import javax.inject.Inject
 
@@ -14,7 +15,7 @@ class MenuViewModel @Inject constructor(
     private val pushBranchUseCase: PushBranchUseCase,
     private val fetchAllBranchesUseCase: FetchAllBranchesUseCase,
     private val stashManager: StashManager,
-    private val statusManager: StatusManager,
+    private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
 ) {
     fun pull(rebase: Boolean = false) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
@@ -40,14 +41,14 @@ class MenuViewModel @Inject constructor(
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
-        statusManager.stageUntrackedFiles(git)
+        stageUntrackedFileUseCase(git)
         stashManager.stash(git, null)
     }
 
     fun stashWithMessage(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
-        statusManager.stageUntrackedFiles(git)
+        stageUntrackedFileUseCase(git)
         stashManager.stash(git, message)
     }
 

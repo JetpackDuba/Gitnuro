@@ -30,8 +30,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.extensions.*
 import app.git.DiffEntryType
-import app.git.StatusEntry
-import app.git.StatusType
+import app.git.workspace.StatusEntry
+import app.git.workspace.StatusType
 import app.keybindings.KeybindingOption
 import app.keybindings.matchesBinding
 import app.theme.*

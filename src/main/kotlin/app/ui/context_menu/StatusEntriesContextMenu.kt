@@ -2,8 +2,8 @@ package app.ui.context_menu
 
 import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
-import app.git.StatusEntry
-import app.git.StatusType
+import app.git.workspace.StatusEntry
+import app.git.workspace.StatusType
 
 @OptIn(ExperimentalFoundationApi::class)
 fun statusEntriesContextMenuItems(

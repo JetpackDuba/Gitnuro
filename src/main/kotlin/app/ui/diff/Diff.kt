@@ -36,6 +36,8 @@ import app.git.diff.DiffResult
 import app.git.diff.Hunk
 import app.git.diff.Line
 import app.git.diff.LineType
+import app.git.workspace.StatusEntry
+import app.git.workspace.StatusType
 import app.keybindings.KeybindingOption
 import app.keybindings.matchesBinding
 import app.theme.*

@@ -6,8 +6,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import app.git.StatusEntry
-import app.git.StatusType
+import app.git.workspace.StatusEntry
+import app.git.workspace.StatusType
 import app.theme.addFile
 import app.theme.conflictFile
 import app.theme.modifyFile

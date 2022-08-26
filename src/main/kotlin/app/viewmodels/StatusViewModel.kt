@@ -5,6 +5,7 @@ import app.extensions.delayedStateChange
 import app.extensions.isMerging
 import app.extensions.isReverting
 import app.git.*
+import app.git.workspace.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,19 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 
 class StatusViewModel @Inject constructor(
     private val tabState: TabState,
-    private val statusManager: StatusManager,
+    private val stageEntryUseCase: StageEntryUseCase,
+    private val unstageEntryUseCase: UnstageEntryUseCase,
+    private val resetEntryUseCase: ResetEntryUseCase,
+    private val stageAllUseCase: StageAllUseCase,
+    private val unstageAllUseCase: UnstageAllUseCase,
     private val rebaseManager: RebaseManager,
     private val mergeManager: MergeManager,
     private val logManager: LogManager,
+    private val getStatusUseCase: GetStatusUseCase,
+    private val getStagedUseCase: GetStagedUseCase,
+    private val getUnstagedUseCase: GetUnstagedUseCase,
+    private val checkHasUncommitedChangedUseCase: CheckHasUncommitedChangedUseCase,
+    private val doCommitUseCase: DoCommitUseCase,
 ) {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf(), false))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
@@ -61,38 +71,38 @@ class StatusViewModel @Inject constructor(
     fun stage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.stage(git, statusEntry)
+        stageEntryUseCase(git, statusEntry)
     }
 
     fun unstage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.unstage(git, statusEntry)
+        unstageEntryUseCase(git, statusEntry)
     }
 
 
     fun unstageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.unstageAll(git)
+        unstageAllUseCase(git)
     }
 
     fun stageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.stageAll(git)
+        stageAllUseCase(git)
     }
 
     fun resetStaged(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.reset(git, statusEntry, staged = true)
+        resetEntryUseCase(git, statusEntry, staged = true)
     }
 
     fun resetUnstaged(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.reset(git, statusEntry, staged = false)
+        resetEntryUseCase(git, statusEntry, staged = false)
     }
 
     private suspend fun loadStatus(git: Git) {
@@ -124,9 +134,9 @@ class StatusViewModel @Inject constructor(
                     }
                 }
             ) {
-                val status = statusManager.getStatus(git)
-                val staged = statusManager.getStaged(status).sortedBy { it.filePath }
-                val unstaged = statusManager.getUnstaged(status).sortedBy { it.filePath }
+                val status = getStatusUseCase(git)
+                val staged = getStagedUseCase(status).sortedBy { it.filePath }
+                val unstaged = getUnstagedUseCase(status).sortedBy { it.filePath }
 
                 _stageStatus.value = StageStatus.Loaded(staged, unstaged, isPartiallyReloading = false)
             }
@@ -152,7 +162,7 @@ class StatusViewModel @Inject constructor(
     }
 
     private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
-        lastUncommitedChangesState = statusManager.hasUncommitedChanges(git)
+        lastUncommitedChangesState = checkHasUncommitedChangedUseCase(git)
     }
 
     fun commit(message: String, amend: Boolean) = tabState.safeProcessing(
@@ -163,7 +173,7 @@ class StatusViewModel @Inject constructor(
         } else
             message
 
-        statusManager.commit(git, commitMessage, amend)
+        doCommitUseCase(git, commitMessage, amend)
         updateCommitMessage("")
     }
 

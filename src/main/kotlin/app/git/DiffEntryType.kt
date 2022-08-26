@@ -2,6 +2,8 @@ package app.git
 
 import app.extensions.filePath
 import app.extensions.toStatusType
+import app.git.workspace.StatusEntry
+import app.git.workspace.StatusType
 import org.eclipse.jgit.diff.DiffEntry
 
 sealed class DiffEntryType {

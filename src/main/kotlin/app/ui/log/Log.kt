@@ -26,7 +26,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.PathBuilder
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
@@ -40,7 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import app.extensions.*
-import app.git.StatusSummary
+import app.git.workspace.StatusSummary
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
 import app.keybindings.KeybindingOption
@@ -58,7 +57,6 @@ import app.ui.dialogs.ResetBranchDialog
 import app.viewmodels.LogSearch
 import app.viewmodels.LogStatus
 import app.viewmodels.LogViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState

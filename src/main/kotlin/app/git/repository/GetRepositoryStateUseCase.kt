@@ -10,5 +10,4 @@ class GetRepositoryStateUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git): RepositoryState = withContext(Dispatchers.IO) {
         return@withContext git.repository.repositoryState
     }
-
 }

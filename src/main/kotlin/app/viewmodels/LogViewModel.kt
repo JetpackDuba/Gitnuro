@@ -10,6 +10,9 @@ import app.git.graph.GraphNode
 import app.git.remote_operations.DeleteRemoteBranchUseCase
 import app.git.remote_operations.PullFromSpecificBranchUseCase
 import app.git.remote_operations.PushToSpecificBranchUseCase
+import app.git.workspace.CheckHasUncommitedChangedUseCase
+import app.git.workspace.GetStatusSummaryUseCase
+import app.git.workspace.StatusSummary
 import app.preferences.AppSettings
 import app.ui.SelectedItem
 import app.ui.log.LogDialog
@@ -37,7 +40,8 @@ private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 
 class LogViewModel @Inject constructor(
     private val logManager: LogManager,
-    private val statusManager: StatusManager,
+    private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
+    private val checkHasUncommitedChangedUseCase: CheckHasUncommitedChangedUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
@@ -94,7 +98,7 @@ class LogViewModel @Inject constructor(
     ) {
         val currentBranch = getCurrentBranchUseCase(git)
 
-        val statusSummary = statusManager.getStatusSummary(
+        val statusSummary = getStatusSummaryUseCase(
             git = git,
         )
 
@@ -206,10 +210,10 @@ class LogViewModel @Inject constructor(
 
     private suspend fun uncommitedChangesLoadLog(git: Git) {
         val currentBranch = getCurrentBranchUseCase(git)
-        val hasUncommitedChanges = statusManager.hasUncommitedChanges(git)
+        val hasUncommitedChanges = checkHasUncommitedChangedUseCase(git)
 
         val statsSummary = if (hasUncommitedChanges) {
-            statusManager.getStatusSummary(
+            getStatusSummaryUseCase(
                 git = git,
             )
         } else

@@ -10,6 +10,7 @@ import app.git.diff.FormatDiffUseCase
 import app.git.diff.Hunk
 import app.preferences.AppSettings
 import app.git.diff.GenerateSplitHunkFromDiffResultUseCase
+import app.git.workspace.*
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,11 @@ private const val DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD = 200L
 class DiffViewModel @Inject constructor(
     private val tabState: TabState,
     private val formatDiffUseCase: FormatDiffUseCase,
-    private val statusManager: StatusManager,
+    private val stageHunkUseCase: StageHunkUseCase,
+    private val unstageHunkUseCase: UnstageHunkUseCase,
+    private val resetHunkUseCase: ResetHunkUseCase,
+    private val stageEntryUseCase: StageEntryUseCase,
+    private val unstageEntryUseCase: UnstageEntryUseCase,
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
 ) {
@@ -115,32 +120,32 @@ class DiffViewModel @Inject constructor(
     fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.stageHunk(git, diffEntry, hunk)
+        stageHunkUseCase(git, diffEntry, hunk)
     }
 
     fun resetHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
         showError = true,
     ) { git ->
-        statusManager.resetHunk(git, diffEntry, hunk)
+        resetHunkUseCase(git, diffEntry, hunk)
     }
 
     fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.unstageHunk(git, diffEntry, hunk)
+        unstageHunkUseCase(git, diffEntry, hunk)
     }
 
     fun stageFile(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.stage(git, statusEntry)
+        stageEntryUseCase(git, statusEntry)
     }
 
     fun unstageFile(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
     ) { git ->
-        statusManager.unstage(git, statusEntry)
+        unstageEntryUseCase(git, statusEntry)
     }
 
     fun cancelRunningJobs() {
