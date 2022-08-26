@@ -5,6 +5,8 @@ import app.git.remote_operations.DeleteRemoteBranchUseCase
 import app.git.remote_operations.FetchAllBranchesUseCase
 import app.git.remote_operations.PullBranchUseCase
 import app.git.remote_operations.PushBranchUseCase
+import app.git.stash.PopLastStashUseCase
+import app.git.stash.StashChangesUseCase
 import app.git.workspace.StageUntrackedFileUseCase
 import java.awt.Desktop
 import javax.inject.Inject
@@ -14,7 +16,8 @@ class MenuViewModel @Inject constructor(
     private val pullBranchUseCase: PullBranchUseCase,
     private val pushBranchUseCase: PushBranchUseCase,
     private val fetchAllBranchesUseCase: FetchAllBranchesUseCase,
-    private val stashManager: StashManager,
+    private val stashChangesUseCase: StashChangesUseCase,
+    private val popLastStashUseCase: PopLastStashUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
 ) {
     fun pull(rebase: Boolean = false) = tabState.safeProcessing(
@@ -42,21 +45,21 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         stageUntrackedFileUseCase(git)
-        stashManager.stash(git, null)
+        stashChangesUseCase(git, null)
     }
 
     fun stashWithMessage(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         stageUntrackedFileUseCase(git)
-        stashManager.stash(git, message)
+        stashChangesUseCase(git, message)
     }
 
     fun popStash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
-        stashManager.popStash(git)
+        popLastStashUseCase(git)
     }
 
     fun openFolderInFileExplorer() = tabState.runOperation(

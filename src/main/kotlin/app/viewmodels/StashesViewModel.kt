@@ -1,8 +1,11 @@
 package app.viewmodels
 
 import app.git.RefreshType
-import app.git.StashManager
 import app.git.TabState
+import app.git.stash.ApplyStashUseCase
+import app.git.stash.DeleteStashUseCase
+import app.git.stash.GetStashListUseCase
+import app.git.stash.PopStashUseCase
 import app.ui.SelectedItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,16 +14,20 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class StashesViewModel @Inject constructor(
-    private val stashManager: StashManager,
+    private val getStashListUseCase: GetStashListUseCase,
+    private val applyStashUseCase: ApplyStashUseCase,
+    private val popStashUseCase: PopStashUseCase,
+    private val deleteStashUseCase: DeleteStashUseCase,
     private val tabState: TabState,
 ) : ExpandableViewModel(true) {
     private val _stashStatus = MutableStateFlow<StashStatus>(StashStatus.Loaded(listOf()))
+
     val stashStatus: StateFlow<StashStatus>
         get() = _stashStatus
 
     suspend fun loadStashes(git: Git) {
         _stashStatus.value = StashStatus.Loading
-        val stashList = stashManager.getStashList(git)
+        val stashList = getStashListUseCase(git)
         _stashStatus.value = StashStatus.Loaded(stashList.toList())
     }
 
@@ -32,14 +39,14 @@ class StashesViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
-        stashManager.applyStash(git, stashInfo)
+        applyStashUseCase(git, stashInfo)
     }
 
     fun popStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
-        stashManager.popStash(git, stash)
+        popStashUseCase(git, stash)
 
         stashDropped(stash)
     }
@@ -47,7 +54,7 @@ class StashesViewModel @Inject constructor(
     fun deleteStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.STASHES,
     ) { git ->
-        stashManager.deleteStash(git, stash)
+        deleteStashUseCase(git, stash)
         stashDropped(stash)
     }
 
