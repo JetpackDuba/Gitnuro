@@ -7,6 +7,7 @@ import app.git.*
 import app.git.branches.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
+import app.git.log.*
 import app.git.remote_operations.DeleteRemoteBranchUseCase
 import app.git.remote_operations.PullFromSpecificBranchUseCase
 import app.git.remote_operations.PushToSpecificBranchUseCase
@@ -39,7 +40,7 @@ private const val FIRST_INDEX = 1
 private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 
 class LogViewModel @Inject constructor(
-    private val logManager: LogManager,
+    private val getLogUseCase: GetLogUseCase,
     private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
     private val checkHasUncommitedChangedUseCase: CheckHasUncommitedChangedUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
@@ -49,9 +50,13 @@ class LogViewModel @Inject constructor(
     private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
     private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
     private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
+    private val checkoutCommitUseCase: CheckoutCommitUseCase,
+    private val revertCommitUseCase: RevertCommitUseCase,
+    private val resetToCommitUseCase: ResetToCommitUseCase,
+    private val cherryPickCommitUseCase: CherryPickCommitUseCase,
+    private val mergeBranchUseCase: MergeBranchUseCase,
     private val rebaseManager: RebaseManager,
     private val tagsManager: TagsManager,
-    private val mergeManager: MergeManager,
     private val tabState: TabState,
     private val appSettings: AppSettings,
 ) {
@@ -113,7 +118,7 @@ class LogViewModel @Inject constructor(
         } else
             -1
 
-        val log = logManager.loadLog(git, currentBranch, hasUncommitedChanges, commitsLimit)
+        val log = getLogUseCase(git, currentBranch, hasUncommitedChanges, commitsLimit)
 
         _logStatus.value =
             LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary, commitsLimitDisplayed)
@@ -147,19 +152,19 @@ class LogViewModel @Inject constructor(
     fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        logManager.checkoutCommit(git, revCommit)
+        checkoutCommitUseCase(git, revCommit)
     }
 
     fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        logManager.revertCommit(git, revCommit)
+        revertCommitUseCase(git, revCommit)
     }
 
     fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        logManager.resetToCommit(git, revCommit, resetType = resetType)
+        resetToCommitUseCase(git, revCommit, resetType = resetType)
     }
 
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
@@ -171,7 +176,7 @@ class LogViewModel @Inject constructor(
     fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
-        mergeManager.cherryPickCommit(git, revCommit)
+        cherryPickCommitUseCase(git, revCommit)
     }
 
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
@@ -189,7 +194,7 @@ class LogViewModel @Inject constructor(
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.mergeBranch(git, ref, appSettings.ffMerge)
+        mergeBranchUseCase(git, ref, appSettings.ffMerge)
     }
 
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(

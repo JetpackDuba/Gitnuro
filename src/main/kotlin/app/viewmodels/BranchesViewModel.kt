@@ -13,12 +13,12 @@ import javax.inject.Inject
 
 class BranchesViewModel @Inject constructor(
     private val rebaseManager: RebaseManager,
-    private val mergeManager: MergeManager,
-    private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
-    private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
+    private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
+    private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
+    private val mergeBranchUseCase: MergeBranchUseCase,
     private val getBranchesUseCase: GetBranchesUseCase,
     private val createBranchUseCase: CreateBranchUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
@@ -32,7 +32,7 @@ class BranchesViewModel @Inject constructor(
     val currentBranch: StateFlow<Ref?>
         get() = _currentBranch
 
-    suspend fun loadBranches(git: Git) {
+    private suspend fun loadBranches(git: Git) {
         _currentBranch.value = getCurrentBranchUseCase(git)
 
         val branchesList = getBranchesUseCase(git).toMutableList()
@@ -59,7 +59,7 @@ class BranchesViewModel @Inject constructor(
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.mergeBranch(git, ref, appSettings.ffMerge)
+        mergeBranchUseCase(git, ref, appSettings.ffMerge)
     }
 
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(

@@ -5,6 +5,9 @@ import app.extensions.delayedStateChange
 import app.extensions.isMerging
 import app.extensions.isReverting
 import app.git.*
+import app.git.log.CheckHasPreviousCommitsUseCase
+import app.git.log.GetLastCommitMessageUseCase
+import app.git.repository.ResetRepositoryStateUseCase
 import app.git.workspace.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,9 +29,10 @@ class StatusViewModel @Inject constructor(
     private val resetEntryUseCase: ResetEntryUseCase,
     private val stageAllUseCase: StageAllUseCase,
     private val unstageAllUseCase: UnstageAllUseCase,
+    private val checkHasPreviousCommitsUseCase: CheckHasPreviousCommitsUseCase,
+    private val getLastCommitMessageUseCase: GetLastCommitMessageUseCase,
+    private val resetRepositoryStateUseCase: ResetRepositoryStateUseCase,
     private val rebaseManager: RebaseManager,
-    private val mergeManager: MergeManager,
-    private val logManager: LogManager,
     private val getStatusUseCase: GetStatusUseCase,
     private val getStagedUseCase: GetStagedUseCase,
     private val getUnstagedUseCase: GetUnstagedUseCase,
@@ -169,7 +173,7 @@ class StatusViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         val commitMessage = if (amend && message.isBlank()) {
-            logManager.latestMessage(git)
+            getLastCommitMessageUseCase(git)
         } else
             message
 
@@ -192,7 +196,7 @@ class StatusViewModel @Inject constructor(
         loadHasUncommitedChanges(git)
 
         val hasNowUncommitedChanges = this.lastUncommitedChangesState
-        hasPreviousCommits = logManager.hasPreviousCommits(git)
+        hasPreviousCommits = checkHasPreviousCommitsUseCase(git)
 
         // Return true to update the log only if the uncommitedChanges status has changed
         return (hasNowUncommitedChanges != hadUncommitedChanges)
@@ -219,7 +223,7 @@ class StatusViewModel @Inject constructor(
     fun resetRepoState() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        mergeManager.resetRepoState(git)
+        resetRepositoryStateUseCase(git)
     }
 
     fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(

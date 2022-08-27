@@ -728,7 +728,7 @@ fun SplitDiffLine(
     Row(
         modifier = Modifier
             .background(backgroundColor)
-            .fillMaxHeight()
+            .fillMaxHeight(),
     ) {
         DisableSelection {
             LineNumber(

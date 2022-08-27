@@ -13,7 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import app.git.ResetType
+import app.git.log.ResetType
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
 import app.ui.components.PrimaryButton
