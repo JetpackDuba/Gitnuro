@@ -8,9 +8,12 @@ import app.git.branches.*
 import app.git.graph.GraphCommitList
 import app.git.graph.GraphNode
 import app.git.log.*
+import app.git.rebase.RebaseBranchUseCase
 import app.git.remote_operations.DeleteRemoteBranchUseCase
 import app.git.remote_operations.PullFromSpecificBranchUseCase
 import app.git.remote_operations.PushToSpecificBranchUseCase
+import app.git.tags.CreateTagOnCommitUseCase
+import app.git.tags.DeleteTagUseCase
 import app.git.workspace.CheckHasUncommitedChangedUseCase
 import app.git.workspace.GetStatusSummaryUseCase
 import app.git.workspace.StatusSummary
@@ -55,8 +58,9 @@ class LogViewModel @Inject constructor(
     private val resetToCommitUseCase: ResetToCommitUseCase,
     private val cherryPickCommitUseCase: CherryPickCommitUseCase,
     private val mergeBranchUseCase: MergeBranchUseCase,
-    private val rebaseManager: RebaseManager,
-    private val tagsManager: TagsManager,
+    private val createTagOnCommitUseCase: CreateTagOnCommitUseCase,
+    private val deleteTagUseCase: DeleteTagUseCase,
+    private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
 ) {
@@ -188,7 +192,7 @@ class LogViewModel @Inject constructor(
     fun createTagOnCommit(tag: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        tagsManager.createTagOnCommit(git, tag, revCommit)
+        createTagOnCommitUseCase(git, tag, revCommit)
     }
 
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
@@ -206,7 +210,7 @@ class LogViewModel @Inject constructor(
     fun deleteTag(tag: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        tagsManager.deleteTag(git, tag)
+        deleteTagUseCase(git, tag)
     }
 
     suspend fun refreshUncommitedChanges(git: Git) {
@@ -246,7 +250,7 @@ class LogViewModel @Inject constructor(
     fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        rebaseManager.rebaseBranch(git, ref)
+        rebaseBranchUseCase(git, ref)
     }
 
     fun selectUncommitedChanges() {

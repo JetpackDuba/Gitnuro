@@ -2,9 +2,12 @@ package app.viewmodels
 
 import app.exceptions.InvalidMessageException
 import app.exceptions.RebaseCancelledException
-import app.git.RebaseManager
 import app.git.RefreshType
 import app.git.TabState
+import app.git.rebase.AbortRebaseUseCase
+import app.git.rebase.GetRebaseLinesFullMessageUseCase
+import app.git.rebase.ResumeRebaseInteractiveUseCase
+import app.git.rebase.StartRebaseInteractiveUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking
@@ -18,7 +21,10 @@ import javax.inject.Inject
 
 class RebaseInteractiveViewModel @Inject constructor(
     private val tabState: TabState,
-    private val rebaseManager: RebaseManager,
+    private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
+    private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
+    private val abortRebaseUseCase: AbortRebaseUseCase,
+    private val resumeRebaseInteractiveUseCase: ResumeRebaseInteractiveUseCase,
 ) {
     private val rebaseInteractiveMutex = Mutex(true)
     private val _rebaseState = MutableStateFlow<RebaseInteractiveState>(RebaseInteractiveState.Loading)
@@ -34,7 +40,7 @@ class RebaseInteractiveViewModel @Inject constructor(
             tabState.refreshData(RefreshType.REPO_STATE)
 
             tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                val messages = rebaseManager.rebaseLinesFullMessage(git, steps)
+                val messages = getRebaseLinesFullMessageUseCase(git, steps)
 
                 _rebaseState.value = RebaseInteractiveState.Loaded(steps, messages)
             }
@@ -78,7 +84,7 @@ class RebaseInteractiveViewModel @Inject constructor(
         showError = true
     ) { git ->
         try {
-            rebaseManager.rebaseInteractive(git, interactiveHandler, revCommit)
+            startRebaseInteractiveUseCase(git, interactiveHandler, revCommit)
             completed = true
         } catch (ex: Exception) {
             if (ex is RebaseCancelledException) {
@@ -134,7 +140,7 @@ class RebaseInteractiveViewModel @Inject constructor(
         refreshType = RefreshType.REPO_STATE
     ) { git ->
         if (!cancelled && !completed) {
-            rebaseManager.abortRebase(git)
+            abortRebaseUseCase(git)
 
             cancelled = true
 
@@ -147,7 +153,7 @@ class RebaseInteractiveViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         try {
-            rebaseManager.resumeRebase(git, interactiveHandler)
+            resumeRebaseInteractiveUseCase(git, interactiveHandler)
             completed = true
         } catch (ex: Exception) {
             if (ex is RebaseCancelledException) {

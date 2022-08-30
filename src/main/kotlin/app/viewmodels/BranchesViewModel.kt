@@ -2,6 +2,7 @@ package app.viewmodels
 
 import app.git.*
 import app.git.branches.*
+import app.git.rebase.RebaseBranchUseCase
 import app.git.remote_operations.PullFromSpecificBranchUseCase
 import app.git.remote_operations.PushToSpecificBranchUseCase
 import app.preferences.AppSettings
@@ -12,7 +13,7 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class BranchesViewModel @Inject constructor(
-    private val rebaseManager: RebaseManager,
+    private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
     private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
@@ -81,7 +82,7 @@ class BranchesViewModel @Inject constructor(
     fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        rebaseManager.rebaseBranch(git, ref)
+        rebaseBranchUseCase(git, ref)
     }
 
     fun selectBranch(ref: Ref) {

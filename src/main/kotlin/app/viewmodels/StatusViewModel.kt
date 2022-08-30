@@ -7,6 +7,9 @@ import app.extensions.isReverting
 import app.git.*
 import app.git.log.CheckHasPreviousCommitsUseCase
 import app.git.log.GetLastCommitMessageUseCase
+import app.git.rebase.AbortRebaseUseCase
+import app.git.rebase.ContinueRebaseUseCase
+import app.git.rebase.SkipRebaseUseCase
 import app.git.repository.ResetRepositoryStateUseCase
 import app.git.workspace.*
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +35,9 @@ class StatusViewModel @Inject constructor(
     private val checkHasPreviousCommitsUseCase: CheckHasPreviousCommitsUseCase,
     private val getLastCommitMessageUseCase: GetLastCommitMessageUseCase,
     private val resetRepositoryStateUseCase: ResetRepositoryStateUseCase,
-    private val rebaseManager: RebaseManager,
+    private val continueRebaseUseCase: ContinueRebaseUseCase,
+    private val abortRebaseUseCase: AbortRebaseUseCase,
+    private val skipRebaseUseCase: SkipRebaseUseCase,
     private val getStatusUseCase: GetStatusUseCase,
     private val getStagedUseCase: GetStagedUseCase,
     private val getUnstagedUseCase: GetUnstagedUseCase,
@@ -205,19 +210,19 @@ class StatusViewModel @Inject constructor(
     fun continueRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        rebaseManager.continueRebase(git)
+        continueRebaseUseCase(git)
     }
 
     fun abortRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        rebaseManager.abortRebase(git)
+        abortRebaseUseCase(git)
     }
 
     fun skipRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        rebaseManager.skipRebase(git)
+        skipRebaseUseCase(git)
     }
 
     fun resetRepoState() = tabState.safeProcessing(
