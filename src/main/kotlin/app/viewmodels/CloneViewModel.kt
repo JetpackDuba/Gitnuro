@@ -5,9 +5,9 @@ import app.git.TabState
 import app.git.remote_operations.CloneRepositoryUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import java.io.File
 import javax.inject.Inject
@@ -83,9 +83,10 @@ class CloneViewModel @Inject constructor(
         directory = ""
     }
 
-    fun cancelClone() {
-        cloneJob?.cancel()
+    fun cancelClone() = tabState.safeProcessingWihoutGit {
         _cloneStatus.value = CloneStatus.Cancelling
+        cloneJob?.cancelAndJoin()
+        _cloneStatus.value = CloneStatus.None
     }
 
     fun resetStateIfError() {

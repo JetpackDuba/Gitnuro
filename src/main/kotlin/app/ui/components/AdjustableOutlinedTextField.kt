@@ -15,6 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusProperties
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
@@ -28,11 +31,13 @@ fun AdjustableOutlinedTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     isError: Boolean = false,
+    singleLine: Boolean = false,
     colors: TextFieldColors = outlinedTextFieldColors(),
     maxLines: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = MaterialTheme.typography.body1.fontSize),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = RoundedCornerShape(4.dp),
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -51,13 +56,14 @@ fun AdjustableOutlinedTextField(
         interactionSource = interactionSource,
         keyboardOptions = keyboardOptions,
         cursorBrush = SolidColor(cursorColor),
+        singleLine = singleLine,
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier
                     .border(
                         width = 1.dp,
                         color = indicatorColor,
-                        shape = RoundedCornerShape(4.dp)
+                        shape = shape
                     )
                     .padding(12.dp),
                 contentAlignment = Alignment.CenterStart,

@@ -155,7 +155,7 @@ private fun TextInput(
             enabled = enabled,
             onValueChange = onValueChange,
             colors = outlinedTextFieldColors(),
-            maxLines = 1,
+            singleLine = true,
         )
     }
 }

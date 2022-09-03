@@ -228,7 +228,7 @@ fun EditRemotesDialog(
                                             selectedRemote = newSelectedRemoteConfig
                                         )
                                     },
-                                    maxLines = 1,
+                                    singleLine = true,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
@@ -248,7 +248,7 @@ fun EditRemotesDialog(
                                     remotesEditorData = remotesEditorData.copy(selectedRemote = newSelectedRemoteConfig)
                                     remoteChanged = newSelectedRemoteConfig.haveUrisChanged
                                 },
-                                maxLines = 1,
+                                singleLine = true,
                                 colors = outlinedTextFieldColors(),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -268,7 +268,7 @@ fun EditRemotesDialog(
                                     remotesEditorData = remotesEditorData.copy(selectedRemote = newSelectedRemoteConfig)
                                     remoteChanged = newSelectedRemoteConfig.haveUrisChanged
                                 },
-                                maxLines = 1,
+                                singleLine = true,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp)

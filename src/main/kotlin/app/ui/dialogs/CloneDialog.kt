@@ -12,14 +12,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import app.git.CloneStatus
 import app.theme.outlinedTextFieldColors
 import app.theme.primaryTextColor
 import app.theme.textButtonColors
+import app.ui.components.AdjustableOutlinedTextField
 import app.ui.components.PrimaryButton
 import app.ui.openDirectoryDialog
 import app.viewmodels.CloneViewModel
@@ -37,7 +40,8 @@ fun CloneDialog(
     MaterialDialog(onCloseRequested = onClose) {
         Box(
             modifier = Modifier
-                .width(400.dp)
+                .width(720.dp)
+                .heightIn(min = 200.dp)
                 .animateContentSize()
         ) {
             when (cloneStatusValue) {
@@ -46,7 +50,7 @@ fun CloneDialog(
                 }
 
                 is CloneStatus.Cancelling -> {
-                    onClose()
+//                    onClose()
                 }
 
                 is CloneStatus.Completed -> {
@@ -90,29 +94,24 @@ private fun CloneInput(
 
     Column(
         modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 8.dp)
     ) {
         Text(
             "Clone a new repository",
-            color = MaterialTheme.colors.primaryTextColor,
+            style = MaterialTheme.typography.h3,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp)
+                .padding(vertical = 4.dp)
         )
 
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp)
-                .focusRequester(urlFocusRequester)
-                .focusProperties {
-                    previous = cancelButtonFocusRequester
-                    next = directoryFocusRequester
-                },
-            label = { Text("URL") },
-            textStyle = MaterialTheme.typography.body1,
-            maxLines = 1,
+        TextInput(
+            title = "URL",
             value = url,
-            colors = outlinedTextFieldColors(),
+            focusRequester = urlFocusRequester,
+            focusProperties = {
+                previous = cancelButtonFocusRequester
+                next = directoryFocusRequester
+            },
             onValueChange = {
                 cloneViewModel.resetStateIfError()
                 url = it
@@ -122,37 +121,35 @@ private fun CloneInput(
 
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp, horizontal = 8.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
-                    .focusRequester(directoryFocusRequester)
-                    .focusProperties {
-                        previous = urlFocusRequester
-                        next = directoryButtonFocusRequester
-                    },
-                textStyle = MaterialTheme.typography.body1,
-                maxLines = 1,
-                label = { Text("Directory") },
+
+            TextInput(
+                modifier = Modifier.weight(1f),
+                title = "Directory",
                 value = directory,
-                colors = outlinedTextFieldColors(),
+                focusRequester = directoryButtonFocusRequester,
+                focusProperties = {
+                    previous = urlFocusRequester
+                    next = directoryButtonFocusRequester
+                },
                 onValueChange = {
                     cloneViewModel.resetStateIfError()
                     directory = it
                     cloneViewModel.directory = directory
-                }
+                },
+                textFieldShape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
             )
 
             IconButton(
                 onClick = {
                     cloneViewModel.resetStateIfError()
                     val newDirectory = openDirectoryDialog()
-                    if (newDirectory != null)
+                    if (newDirectory != null) {
                         directory = newDirectory
+                        cloneViewModel.directory = directory
+                    }
                 },
                 modifier = Modifier
                     .focusRequester(directoryButtonFocusRequester)
@@ -160,6 +157,9 @@ private fun CloneInput(
                         previous = directoryFocusRequester
                         next = cloneButtonFocusRequester
                     }
+                    .clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
+                    .background(MaterialTheme.colors.primary)
+                    .height(44.5.dp) // Height of the AdjustableOutlinedTextField with a single line by default
             ) {
                 Icon(
                     Icons.Default.Search,
@@ -286,6 +286,45 @@ private fun Cancelling() {
             text = "Cancelling clone operation...",
             color = MaterialTheme.colors.primaryTextColor,
             modifier = Modifier.padding(vertical = 16.dp),
+        )
+    }
+}
+
+@Composable
+private fun TextInput(
+    modifier: Modifier = Modifier,
+    title: String,
+    value: String,
+    enabled: Boolean = true,
+    focusRequester: FocusRequester,
+    focusProperties: FocusProperties.() -> Unit,
+    onValueChange: (String) -> Unit,
+    textFieldShape: Shape = RoundedCornerShape(4.dp),
+) {
+    Row(
+        modifier = modifier
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier
+                .width(100.dp)
+                .padding(end = 16.dp),
+        )
+
+        AdjustableOutlinedTextField(
+            value = value,
+            modifier = Modifier
+                .weight(1f)
+                .focusRequester(focusRequester)
+                .focusProperties(focusProperties),
+            enabled = enabled,
+            onValueChange = onValueChange,
+            colors = outlinedTextFieldColors(),
+            singleLine = true,
+            shape = textFieldShape,
         )
     }
 }

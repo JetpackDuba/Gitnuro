@@ -432,7 +432,7 @@ fun SettingIntInput(
                 }
             },
             colors = outlinedTextFieldColors(),
-            maxLines = 1,
+            singleLine = true,
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
         )
     }
