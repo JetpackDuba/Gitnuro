@@ -2,9 +2,10 @@ package app.viewmodels
 
 import app.exceptions.InvalidRemoteUrlException
 import app.git.*
-import app.git.branches.DeleteLocallyRemoteBranches
+import app.git.branches.DeleteLocallyRemoteBranchesUseCase
 import app.git.branches.GetRemoteBranchesUseCase
 import app.git.remote_operations.DeleteRemoteBranchUseCase
+import app.git.remotes.*
 import app.ui.dialogs.RemoteWrapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,11 +17,14 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class RemotesViewModel @Inject constructor(
-    private val remotesManager: RemotesManager,
-    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val tabState: TabState,
+    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
-    private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranches,
+    private val getRemotesUseCase: GetRemotesUseCase,
+    private val deleteRemoteUseCase: DeleteRemoteUseCase,
+    private val addRemoteUseCase: AddRemoteUseCase,
+    private val updateRemoteUseCase: UpdateRemoteUseCase,
+    private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase
 ) : ExpandableViewModel() {
     private val _remotes = MutableStateFlow<List<RemoteView>>(listOf())
     val remotes: StateFlow<List<RemoteView>>
@@ -31,7 +35,8 @@ class RemotesViewModel @Inject constructor(
             .call()
         val allRemoteBranches = getRemoteBranchesUseCase(git)
 
-        remotesManager.loadRemotes(git, allRemoteBranches)
+        getRemotesUseCase(git, allRemoteBranches)
+
         val remoteInfoList = remotes.map { remoteConfig ->
             val remoteBranches = allRemoteBranches.filter { branch ->
                 branch.name.startsWith("refs/remotes/${remoteConfig.name}")
@@ -74,7 +79,7 @@ class RemotesViewModel @Inject constructor(
         refreshType = if (isNew) RefreshType.REMOTES else RefreshType.ALL_DATA,
         showError = true,
     ) { git ->
-        remotesManager.deleteRemote(git, remoteName)
+        deleteRemoteUseCase(git, remoteName)
 
         val remoteBranches = getRemoteBranchesUseCase(git)
         val remoteToDeleteBranchesNames = remoteBranches.filter {
@@ -99,7 +104,7 @@ class RemotesViewModel @Inject constructor(
             throw InvalidRemoteUrlException("Invalid empty push URI")
         }
 
-        remotesManager.addRemote(git, selectedRemoteConfig.remoteName, selectedRemoteConfig.fetchUri)
+        addRemoteUseCase(git, selectedRemoteConfig.remoteName, selectedRemoteConfig.fetchUri)
 
         updateRemote(selectedRemoteConfig) // Sets both, fetch and push uri
     }
@@ -117,14 +122,14 @@ class RemotesViewModel @Inject constructor(
             throw InvalidRemoteUrlException("Invalid empty push URI")
         }
 
-        remotesManager.updateRemote(
+        updateRemoteUseCase(
             git = git,
             remoteName = selectedRemoteConfig.remoteName,
             uri = selectedRemoteConfig.fetchUri,
             uriType = RemoteSetUrlCommand.UriType.FETCH
         )
 
-        remotesManager.updateRemote(
+        updateRemoteUseCase(
             git = git,
             remoteName = selectedRemoteConfig.remoteName,
             uri = selectedRemoteConfig.pushUri,

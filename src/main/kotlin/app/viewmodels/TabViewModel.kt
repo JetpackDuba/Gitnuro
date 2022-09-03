@@ -5,6 +5,9 @@ import app.ErrorsManager
 import app.credentials.CredentialsState
 import app.credentials.CredentialsStateManager
 import app.git.*
+import app.git.repository.GetRepositoryStateUseCase
+import app.git.repository.InitLocalRepositoryUseCase
+import app.git.repository.OpenRepositoryUseCase
 import app.logging.printLog
 import app.models.AuthorInfoSimple
 import app.newErrorNow
@@ -43,11 +46,13 @@ class TabViewModel @Inject constructor(
     val stashesViewModel: StashesViewModel,
     val commitChangesViewModel: CommitChangesViewModel,
     val cloneViewModel: CloneViewModel,
+    private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
+    private val initLocalRepositoryUseCase: InitLocalRepositoryUseCase,
+    private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
-    private val repositoryManager: RepositoryManager,
     private val tabState: TabState,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
@@ -167,7 +172,7 @@ class TabViewModel @Inject constructor(
 
         _repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
 
-        val repository: Repository = repositoryManager.openRepository(directory)
+        val repository: Repository = openRepositoryUseCase(directory)
 
         try {
             repository.workTree // test if repository is valid
@@ -188,7 +193,7 @@ class TabViewModel @Inject constructor(
     }
 
     private suspend fun loadRepositoryState(git: Git) = withContext(Dispatchers.IO) {
-        val newRepoState = repositoryManager.getRepositoryState(git)
+        val newRepoState = getRepositoryStateUseCase(git)
         printLog(TAG, "Refreshing repository state $newRepoState")
         _repositoryState.value = newRepoState
 
@@ -364,7 +369,7 @@ class TabViewModel @Inject constructor(
         showError = true,
     ) {
         val repoDir = File(dir)
-        repositoryManager.initLocalRepo(repoDir)
+        initLocalRepositoryUseCase(repoDir)
         openRepository(repoDir)
     }
 

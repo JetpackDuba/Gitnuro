@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
-class DeleteLocallyRemoteBranches @Inject constructor() {
+class DeleteLocallyRemoteBranchesUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, branches: List<String>): List<String> = withContext(Dispatchers.IO) {
         git
             .branchDelete()

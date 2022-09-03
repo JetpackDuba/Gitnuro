@@ -1,21 +1,14 @@
-package app.git
+package app.git.repository
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import java.io.File
 import javax.inject.Inject
 
-private const val INITIAL_BRANCH_NAME = "main"
-
-class RepositoryManager @Inject constructor() {
-    suspend fun getRepositoryState(git: Git) = withContext(Dispatchers.IO) {
-        return@withContext git.repository.repositoryState
-    }
-
-    fun openRepository(directory: File): Repository {
+class OpenRepositoryUseCase @Inject constructor() {
+    suspend operator fun invoke(directory: File): Repository = withContext(Dispatchers.IO) {
         val gitDirectory = if (directory.name == ".git") {
             directory
         } else {
@@ -27,16 +20,9 @@ class RepositoryManager @Inject constructor() {
         }
 
         val builder = FileRepositoryBuilder()
-        return builder.setGitDir(gitDirectory)
+        return@withContext builder.setGitDir(gitDirectory)
             .readEnvironment() // scan environment GIT_* variables
             .findGitDir() // scan up the file system tree
             .build()
-    }
-
-    suspend fun initLocalRepo(repoDir: File): Unit = withContext(Dispatchers.IO) {
-        Git.init()
-            .setInitialBranch(INITIAL_BRANCH_NAME)
-            .setDirectory(repoDir)
-            .call()
     }
 }
