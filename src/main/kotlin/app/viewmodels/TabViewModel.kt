@@ -44,6 +44,7 @@ class TabViewModel @Inject constructor(
     val statusViewModel: StatusViewModel,
     val menuViewModel: MenuViewModel,
     val stashesViewModel: StashesViewModel,
+    val submodulesViewModel: SubmodulesViewModel,
     val commitChangesViewModel: CommitChangesViewModel,
     val cloneViewModel: CloneViewModel,
     private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
@@ -118,6 +119,7 @@ class TabViewModel @Inject constructor(
                         RefreshType.REPO_STATE -> refreshRepositoryState()
                         RefreshType.ONLY_LOG -> refreshLog()
                         RefreshType.STASHES -> refreshStashes()
+                        RefreshType.SUBMODULES -> refreshSubmodules()
                         RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
                         RefreshType.UNCOMMITED_CHANGES_AND_LOG -> checkUncommitedChanges(true)
                         RefreshType.REMOTES -> refreshRemotes()
@@ -155,6 +157,12 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.NONE
     ) { git ->
         stashesViewModel.refresh(git)
+    }
+
+    private fun refreshSubmodules() = tabState.runOperation(
+        refreshType = RefreshType.NONE
+    ) { git ->
+        submodulesViewModel.refresh(git)
     }
 
     private fun refreshLog() = tabState.runOperation(
@@ -328,6 +336,7 @@ class TabViewModel @Inject constructor(
         tagsViewModel.refresh(git)
         statusViewModel.refresh(git)
         stashesViewModel.refresh(git)
+        submodulesViewModel.refresh(git)
     }
 
     fun credentialsDenied() {

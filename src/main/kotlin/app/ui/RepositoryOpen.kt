@@ -209,6 +209,9 @@ fun MainContentView(
                 Stashes(
                     stashesViewModel = tabViewModel.stashesViewModel,
                 )
+                Submodules(
+                    submodulesViewModel = tabViewModel.submodulesViewModel,
+                )
             }
         }
 

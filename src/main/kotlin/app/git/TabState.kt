@@ -217,6 +217,7 @@ enum class RefreshType {
     REPO_STATE,
     ONLY_LOG,
     STASHES,
+    SUBMODULES,
     UNCOMMITED_CHANGES,
     UNCOMMITED_CHANGES_AND_LOG,
     REMOTES,
