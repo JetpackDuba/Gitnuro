@@ -1,13 +1,15 @@
-# Gitnuro
+# Gitnuro - Multiplatform Git Client
+[![Latest release](https://img.shields.io/github/v/release/JetpackDuba/Gitnuro?color=blue&label=latest%20release)](https://github.com/JetpackDuba/Gitnuro/releases/latest)
+
+![Icon](res/img/cover.png)
 
 A FOSS Git client based on (Jetbrains) Compose and JGit.
 
-The main goal of Gitnuro is to provide a multiplatform open source Git client without any kind of constraint to how you
-can use it nor relying on web technologies.
+The main goal of Gitnuro is to provide a multiplatform open source Git client without any kind of constraint to how you can use it nor relying on web technologies.
 
-The project it is still in early stages and many features are lacking or missing, but it's stable for daily usage.
+## Features
 
-Gitnuro features:
+Gitnuro has support for the following features:
 
 - View diffs for text based files.
 - View your history log and all its branches.
@@ -36,29 +38,67 @@ Gitnuro features:
 - Rebase interactive.
 - Blame file.
 - View file history.
+- Theming.
+- Side by side diff in text files (will be available at 1.1.0).
+- Submodules support (will be available at 1.1.0).
 
-Missing:
+As it's still a young project, there are some interesting features that are not yet implemented but will be in the future:
 
 - Create/Apply patches
 - Remove tags from remote.
-- Side by side diff in text files.
 - View stashes in the log tree.
-- Submodules support.
 
-## Steps to build
+## Contributing
 
-Note: Requires minimum JDK 16.
+If you find a bug or you would like to suggest a new feature, feel free to open an issue.
 
-- Clone the project
-- Open terminal/shell in the project folder
-- `./gradlew run` to run the project
-- `./gradlew tasks` to view other build options (native building requires java >=15)
+Pull requests are also welcome but please create an issue first if it's a new feature.
 
-Feel free to open issues for bugs or sugestions.
+## FAQ
 
-## Screenshots
+> Is Gitnuro completly free?
 
-![Example 1](/res/img/example_1.png)
-![Example 2](/res/img/example_2.png)
-![Example 3](/res/img/example_3.png)
-![Example 4](/res/img/example_4.png)
+Yes, free in both meanings of the word (in money and freedom).
+
+> Does Gitnuro keep track of my data?
+
+Gitnuro does not track data in any way, don't worry.
+
+> I don't like the built-in themes, can I create a custom one?
+
+Gitnuro includes the option to set custom themes in a JSON format. Keep in mind that themes may break with new releases, making the default theme the fallback option.
+
+For the latest stable version (1.0.1), you can use this JSON as an example:
+
+```
+{
+    "primary": "FF456b00",
+    "primaryVariant": "FF456b00",
+    "onPrimary": "FFFFFFFFF",
+    "secondary": "FF9c27b0",
+    "primaryText": "FF141f00",
+    "secondaryText": "FF595858",
+    "error": "FFc93838",
+    "onError": "FFFFFFFF",
+    "background": "FFe7f2d3",
+    "backgroundSelected": "C0cee1f2",
+    "surface": "FFc5f078",
+    "secondarySurface": "FFedeef2",
+    "headerBackground": "FFF4F6FA",
+    "borderColor": "FF989898",
+    "graphHeaderBackground": "FFF4F6FA",
+    "addFile": "FF32A852",
+    "deletedFile": "FFc93838",
+    "modifiedFile": "FF0070D8",
+    "conflictingFile": "FFFFB638",
+    "dialogOverlay": "AA000000",
+    "normalScrollbar": "FFCCCCCC",
+    "hoverScrollbar": "FF0070D8"
+}
+```
+
+Colors are in ARGB Hex format.
+
+> Why isn't the Mac version signed? 
+
+The cost of the Apple Developer Program is quite high with a platform that currently has very few users. I may pay for it if it's a very requested feature but not for now.
