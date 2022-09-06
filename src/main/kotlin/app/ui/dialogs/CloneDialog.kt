@@ -1,6 +1,5 @@
 package app.ui.dialogs
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -41,7 +40,7 @@ fun CloneDialog(
         Box(
             modifier = Modifier
                 .width(720.dp)
-                .heightIn(min = 200.dp)
+                .height(240.dp)
                 .animateContentSize()
         ) {
             when (cloneStatusValue) {
@@ -50,7 +49,7 @@ fun CloneDialog(
                 }
 
                 is CloneStatus.Cancelling -> {
-//                    onClose()
+                    Cancelling()
                 }
 
                 is CloneStatus.Completed -> {
@@ -105,6 +104,7 @@ private fun CloneInput(
         )
 
         TextInput(
+            modifier = Modifier.padding(top = 8.dp),
             title = "URL",
             value = url,
             focusRequester = urlFocusRequester,
@@ -129,7 +129,7 @@ private fun CloneInput(
                 modifier = Modifier.weight(1f),
                 title = "Directory",
                 value = directory,
-                focusRequester = directoryButtonFocusRequester,
+                focusRequester = directoryFocusRequester,
                 focusProperties = {
                     previous = urlFocusRequester
                     next = directoryButtonFocusRequester
@@ -142,7 +142,7 @@ private fun CloneInput(
                 textFieldShape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
             )
 
-            IconButton(
+            Button(
                 onClick = {
                     cloneViewModel.resetStateIfError()
                     val newDirectory = openDirectoryDialog()
@@ -157,9 +157,8 @@ private fun CloneInput(
                         previous = directoryFocusRequester
                         next = cloneButtonFocusRequester
                     }
-                    .clip(RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
-                    .background(MaterialTheme.colors.primary)
-                    .height(44.5.dp) // Height of the AdjustableOutlinedTextField with a single line by default
+                    .height(48.dp),
+                shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
             ) {
                 Icon(
                     Icons.Default.Search,
@@ -169,11 +168,11 @@ private fun CloneInput(
             }
         }
 
-        AnimatedVisibility(errorMessage != null) {
+        if (errorMessage != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 4.dp, horizontal = 8.dp)
+                    .padding(vertical = 4.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .background(MaterialTheme.colors.error)
             ) {
@@ -226,13 +225,10 @@ private fun CloneInput(
 
 @Composable
 private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatus.Cloning) {
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .fillMaxSize(),
     ) {
-
-
         val progress = remember(cloneStatusValue) {
             val total = cloneStatusValue.total
 
@@ -242,25 +238,34 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
                 cloneStatusValue.progress / total.toFloat()
         }
 
-        if (progress >= 0f)
-            CircularProgressIndicator(
-                modifier = Modifier.padding(vertical = 16.dp),
-                progress = progress
-            )
-        else // Show indeterminate if we do not know the total (aka total == 0 or progress == -1)
-            CircularProgressIndicator(
-                modifier = Modifier.padding(vertical = 16.dp),
-            )
+        Column(
+            modifier = Modifier
+                .align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
 
-        Text(cloneStatusValue.taskName, color = MaterialTheme.colors.primaryTextColor)
+            Text(cloneStatusValue.taskName, color = MaterialTheme.colors.primaryTextColor)
+
+            if (progress >= 0f)
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp),
+                    progress = progress,
+                    color = MaterialTheme.colors.primaryVariant,
+                )
+            else // Show indeterminate if we do not know the total (aka total == 0 or progress == -1)
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp),
+                    color = MaterialTheme.colors.primaryVariant,
+                )
+
+        }
 
         TextButton(
             modifier = Modifier
-                .padding(
-                    top = 36.dp,
-                    end = 8.dp
-                )
-                .align(Alignment.End),
+                .padding(end = 8.dp)
+                .align(Alignment.BottomEnd),
             colors = textButtonColors(),
             onClick = {
                 cloneViewModel.cancelClone()
@@ -275,11 +280,13 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
 private fun Cancelling() {
     Column(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
+            color = MaterialTheme.colors.primaryVariant,
         )
 
         Text(

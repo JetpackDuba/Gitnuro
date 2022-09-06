@@ -3,6 +3,8 @@ package app.ui.components
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -47,7 +49,8 @@ fun AdjustableOutlinedTextField(
     val indicatorColor by colors.indicatorColor(enabled, isError, interactionSource)
 
     BasicTextField(
-        modifier = modifier,
+        modifier = modifier
+            .heightIn(min = 48.dp),
         value = value,
         onValueChange = onValueChange,
         enabled = enabled,
