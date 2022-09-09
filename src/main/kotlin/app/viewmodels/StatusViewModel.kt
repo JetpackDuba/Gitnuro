@@ -79,12 +79,14 @@ class StatusViewModel @Inject constructor(
 
     fun stage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
     ) { git ->
         stageEntryUseCase(git, statusEntry)
     }
 
     fun unstage(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
     ) { git ->
         unstageEntryUseCase(git, statusEntry)
     }
