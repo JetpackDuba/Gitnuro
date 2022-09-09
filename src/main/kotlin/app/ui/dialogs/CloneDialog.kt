@@ -40,7 +40,7 @@ fun CloneDialog(
         Box(
             modifier = Modifier
                 .width(720.dp)
-                .height(240.dp)
+                .height(280.dp)
                 .animateContentSize()
         ) {
             when (cloneStatusValue) {
@@ -177,7 +177,7 @@ private fun CloneInput(
                     .background(MaterialTheme.colors.error)
             ) {
                 Text(
-                    errorMessage.orEmpty(),
+                    errorMessage,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp, horizontal = 8.dp),
@@ -187,6 +187,7 @@ private fun CloneInput(
 
         }
 
+        Spacer(Modifier.weight(1f))
         Row(
             modifier = Modifier
                 .padding(top = 16.dp)
