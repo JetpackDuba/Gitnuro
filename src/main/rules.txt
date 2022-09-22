@@ -1,0 +1,48 @@
+-dontobfuscate
+-allowaccessmodification
+-keepattributes SourceFile, LineNumberTable
+
+-keep class kotlin.** { *; }
+-keep class kotlinx.coroutines.** { *; }
+-keep class org.jetbrains.skia.** { *; }
+-keep class org.jetbrains.skiko.** { *; }
+-keep class androidx.compose.foundation.** { *; }
+
+-keep class MainKt {
+	public static void main();
+}
+
+-dontwarn org.apache.sshd.**
+-dontnote org.apache.sshd.**
+
+-dontwarn okio.**
+-dontnote okio.**
+
+-dontwarn okhttp3.**
+-dontnote okhttp3.**
+
+-dontwarn retrofit2.**
+-dontnote retrofit2.**
+
+-dontwarn kotlin.**
+-dontnote kotlin.**
+
+-dontwarn kotlinx.**
+-dontnote kotlinx.**
+
+-dontwarn org.slf4j.**
+-dontnote org.slf4j.**
+
+-dontwarn androidx.compose.**
+-dontnote androidx.compose.**
+-keep class !my.package.name.** { *; }
+
+
+-assumenosideeffects public class androidx.compose.runtime.ComposerKt {
+    void sourceInformation(androidx.compose.runtime.Composer,java.lang.String);
+    void sourceInformationMarkerStart(androidx.compose.runtime.Composer,int,java.lang.String);
+    void sourceInformationMarkerEnd(androidx.compose.runtime.Composer);
+}
+
+-ignorewarnings
+

@@ -1,5 +1,6 @@
 package app.ui
 
+import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
@@ -14,6 +15,7 @@ import app.theme.secondaryTextColor
 import app.ui.components.SideMenuPanel
 import app.ui.components.SideMenuSubentry
 import app.ui.components.Tooltip
+import app.ui.context_menu.submoduleContextMenuItems
 import app.viewmodels.SubmodulesViewModel
 import org.eclipse.jgit.submodule.SubmoduleStatus
 
@@ -34,6 +36,7 @@ fun Submodules(
         itemContent = { submodule ->
             SubmoduleLineEntry(
                 submodulePair = submodule,
+                onInitializeModule = { submodulesViewModel.initializeSubmodule(submodule.first) }
             )
         }
     )
@@ -43,20 +46,29 @@ fun Submodules(
 @Composable
 private fun SubmoduleLineEntry(
     submodulePair: Pair<String, SubmoduleStatus>,
+    onInitializeModule: () -> Unit,
 ) {
-    submodulePair.second.type
-    SideMenuSubentry(
-        text = submodulePair.first,
-        iconResourcePath = "topic.svg",
-    ) {
-        val stateName = submodulePair.second.type.toString()
-        Tooltip(stateName) {
-            Text(
-                text = stateName.first().toString(),
-                color = MaterialTheme.colors.secondaryTextColor,
-                style = MaterialTheme.typography.body2,
-                modifier = Modifier.padding(horizontal = 16.dp),
+    ContextMenuArea(
+        items = {
+            submoduleContextMenuItems(
+                submodulePair.second,
+                onInitializeModule = onInitializeModule
             )
+        }
+    ) {
+        SideMenuSubentry(
+            text = submodulePair.first,
+            iconResourcePath = "topic.svg",
+        ) {
+            val stateName = submodulePair.second.type.toString()
+            Tooltip(stateName) {
+                Text(
+                    text = stateName.first().toString(),
+                    color = MaterialTheme.colors.secondaryTextColor,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+            }
         }
     }
 }

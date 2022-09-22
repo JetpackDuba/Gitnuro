@@ -3,7 +3,6 @@ package app.git.diff
 import app.extensions.lineAt
 import app.git.EntryContent
 import app.git.RawFileManager
-import dagger.assisted.AssistedInject
 import org.eclipse.jgit.diff.*
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.patch.FileHeader
