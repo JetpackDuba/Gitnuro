@@ -87,7 +87,7 @@ task("fatJarLinux", type = Jar::class) {
     manifest {
         attributes["Implementation-Title"] = name
         attributes["Implementation-Version"] = projectVersion
-        attributes["Main-Class"] = "MainKt"
+        attributes["Main-Class"] = "com.jetpackduba.gitnuro.MainKt"
     }
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
         exclude(
