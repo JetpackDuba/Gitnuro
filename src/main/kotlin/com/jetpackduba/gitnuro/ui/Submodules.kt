@@ -1,7 +1,5 @@
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.foundation.ContextMenuArea
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -15,11 +13,11 @@ import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.Tooltip
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.submoduleContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.SubmodulesViewModel
 import org.eclipse.jgit.submodule.SubmoduleStatus
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Submodules(
     submodulesViewModel: SubmodulesViewModel,
@@ -42,13 +40,12 @@ fun Submodules(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun SubmoduleLineEntry(
     submodulePair: Pair<String, SubmoduleStatus>,
     onInitializeModule: () -> Unit,
 ) {
-    ContextMenuArea(
+    ContextMenu(
         items = {
             submoduleContextMenuItems(
                 submodulePair.second,

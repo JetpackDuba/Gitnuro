@@ -63,7 +63,7 @@ fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null)
     val cacheImageUsed = remember { ValueHolder(false) }
 
     var image by remember(url) {
-        val cachedImage = NetworkImageLoader.loadCachedImage(url)
+        val cachedImage = networkImageLoader.loadCachedImage(url)
 
         val image: ImageBitmap? = when {
             cachedImage != null -> {

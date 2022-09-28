@@ -1,4 +1,4 @@
-import com.jetpackduba.gitnuro.App
+package com.jetpackduba.gitnuro
 
 fun main() {
     val main = App()

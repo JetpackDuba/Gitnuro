@@ -1,9 +1,5 @@
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.foundation.ContextMenuArea
-import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,6 +7,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.stashesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.StashStatus
 import com.jetpackduba.gitnuro.viewmodels.StashesViewModel
@@ -58,9 +56,9 @@ fun Stashes(
 private fun StashRow(
     stash: RevCommit,
     onClick: () -> Unit,
-    contextItems: List<ContextMenuItem>,
+    contextItems: List<ContextMenuElement>,
 ) {
-    ContextMenuArea(
+    ContextMenu(
         items = { contextItems }
     ) {
         SideMenuSubentry(

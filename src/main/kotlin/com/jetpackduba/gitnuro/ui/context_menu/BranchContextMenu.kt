@@ -1,12 +1,10 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
 import org.eclipse.jgit.lib.Ref
 
-@OptIn(ExperimentalFoundationApi::class)
 fun branchContextMenuItems(
     branch: Ref,
     isCurrentBranch: Boolean,
@@ -19,47 +17,51 @@ fun branchContextMenuItems(
     onDeleteRemoteBranch: () -> Unit = {},
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
-): List<ContextMenuItem> {
-    return mutableListOf<ContextMenuItem>().apply {
+): List<ContextMenuElement> {
+    return mutableListOf<ContextMenuElement>().apply {
         if (!isCurrentBranch) {
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Checkout branch",
+                    icon = { painterResource("start.svg") },
                     onClick = onCheckoutBranch
                 )
             )
             if (currentBranch != null && !currentBranch.isHead) {
                 add(
-                    ContextMenuItem(
+                    ContextMenuElement.ContextTextEntry(
                         label = "Merge branch",
                         onClick = onMergeBranch
                     )
                 )
                 add(
-                    ContextMenuItem(
+                    ContextMenuElement.ContextTextEntry(
                         label = "Rebase branch",
                         onClick = onRebaseBranch
                     )
                 )
+
+                add(ContextMenuElement.ContextSeparator)
             }
         }
         if (isLocal && !isCurrentBranch) {
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Delete branch",
+                    icon = { painterResource("delete.svg") },
                     onClick = onDeleteBranch
                 )
             )
         }
         if (!isLocal && currentBranch != null && !currentBranch.isHead) {
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Push ${currentBranch.simpleLogName} to ${branch.simpleLogName}",
                     onClick = onPushToRemoteBranch
                 )
             )
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Pull ${branch.simpleLogName} to ${currentBranch.simpleLogName}",
                     onClick = onPullFromRemoteBranch
                 )
@@ -67,11 +69,16 @@ fun branchContextMenuItems(
         }
         if (!isLocal) {
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Delete remote branch",
+                    icon = { painterResource("delete.svg") },
                     onClick = onDeleteRemoteBranch
                 ),
             )
+        }
+
+        if(lastOrNull() == ContextMenuElement.ContextSeparator) {
+            removeLast()
         }
     }
 }

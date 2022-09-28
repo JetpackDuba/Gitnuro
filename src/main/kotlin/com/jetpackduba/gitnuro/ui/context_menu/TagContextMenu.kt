@@ -1,20 +1,21 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.res.painterResource
 
-@OptIn(ExperimentalFoundationApi::class)
 fun tagContextMenuItems(
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
-): List<ContextMenuItem> {
+): List<ContextMenuElement> {
     return mutableListOf(
-        ContextMenuItem(
+        ContextMenuElement.ContextTextEntry(
             label = "Checkout tag",
+            icon = { painterResource("start.svg") },
             onClick = onCheckoutTag
         ),
-        ContextMenuItem(
+        ContextMenuElement.ContextTextEntry(
             label = "Delete tag",
+            icon = { painterResource("delete.svg") },
             onClick = onDeleteTag
         )
     )

@@ -55,6 +55,7 @@ fun typography() = Typography(
     body2 = TextStyle(
         fontSize = 13.sp,
         color = MaterialTheme.colors.primaryTextColor,
+        fontWeight = FontWeight.Normal,
         letterSpacing = LETTER_SPACING.sp,
     ),
     caption = TextStyle(

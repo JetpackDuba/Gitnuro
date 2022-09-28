@@ -1,25 +1,26 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.res.painterResource
 
-@OptIn(ExperimentalFoundationApi::class)
 fun stashesContextMenuItems(
     onApply: () -> Unit,
     onPop: () -> Unit,
     onDelete: () -> Unit,
-): List<ContextMenuItem> {
-    return mutableListOf(
-        ContextMenuItem(
+): List<ContextMenuElement> {
+    return listOf(
+        ContextMenuElement.ContextTextEntry(
             label = "Apply stash",
+            icon = { painterResource("apply_stash.svg") },
             onClick = onApply
         ),
-        ContextMenuItem(
+        ContextMenuElement.ContextTextEntry(
             label = "Pop stash",
+            icon = { painterResource("apply_stash.svg") },
             onClick = onPop
         ),
-        ContextMenuItem(
+        ContextMenuElement.ContextTextEntry(
             label = "Drop stash",
+            icon = { painterResource("delete.svg") },
             onClick = onDelete
         ),
     )

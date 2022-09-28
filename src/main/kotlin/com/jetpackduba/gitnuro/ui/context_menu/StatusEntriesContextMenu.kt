@@ -1,11 +1,9 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 
-@OptIn(ExperimentalFoundationApi::class)
 fun statusEntriesContextMenuItems(
     statusEntry: StatusEntry,
     entryType: EntryType,
@@ -13,26 +11,28 @@ fun statusEntriesContextMenuItems(
     onDelete: () -> Unit = {},
     onBlame: () -> Unit,
     onHistory: () -> Unit,
-): List<ContextMenuItem> {
-    return mutableListOf<ContextMenuItem>().apply {
+): List<ContextMenuElement> {
+    return mutableListOf<ContextMenuElement>().apply {
         if (statusEntry.statusType != StatusType.ADDED) {
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Reset",
+                    icon = { painterResource("undo.svg") },
                     onClick = onReset,
                 )
             )
 
             if (statusEntry.statusType != StatusType.REMOVED) {
                 add(
-                    ContextMenuItem(
+                    ContextMenuElement.ContextTextEntry(
                         label = "Blame file",
+                        icon = { painterResource("blame.svg") },
                         onClick = onBlame,
                     )
                 )
 
                 add(
-                    ContextMenuItem(
+                    ContextMenuElement.ContextTextEntry(
                         label = "File history",
                         onClick = onHistory,
                     )
@@ -45,8 +45,9 @@ fun statusEntriesContextMenuItems(
             statusEntry.statusType != StatusType.REMOVED
         ) {
             add(
-                ContextMenuItem(
+                ContextMenuElement.ContextTextEntry(
                     label = "Delete file",
+                    icon = { painterResource("delete.svg") },
                     onClick = onDelete,
                 )
             )

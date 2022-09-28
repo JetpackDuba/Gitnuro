@@ -27,6 +27,7 @@ val lightTheme = ColorsScheme(
     hoverScrollbar = Color(0xFF0070D8),
     diffLineAdded = Color(0xFFd7ebd0),
     diffLineRemoved = Color(0xFFf0d4d4),
+    isLight = true,
 )
 
 
@@ -55,7 +56,7 @@ val darkBlueTheme = ColorsScheme(
     hoverScrollbar = Color(0xFFCCCCCC),
     diffLineAdded = Color(0xFF566f5a),
     diffLineRemoved = Color(0xFF6f585e),
-
+    isLight = false,
 )
 
 val darkGrayTheme = ColorsScheme(
@@ -83,4 +84,5 @@ val darkGrayTheme = ColorsScheme(
     hoverScrollbar = Color(0xFFCCCCCC),
     diffLineAdded = Color(0xFF5b7059),
     diffLineRemoved = Color(0xFF74595c),
+    isLight = false,
 )

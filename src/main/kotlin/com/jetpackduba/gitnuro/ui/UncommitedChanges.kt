@@ -35,14 +35,11 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
-import com.jetpackduba.gitnuro.ui.context_menu.DropDownContent
-import com.jetpackduba.gitnuro.ui.context_menu.DropDownContentData
-import com.jetpackduba.gitnuro.ui.context_menu.EntryType
-import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.StageStatus
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.ui.context_menu.*
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
@@ -496,7 +493,7 @@ private fun EntriesList(
     lazyListState: LazyListState,
     onDiffEntrySelected: (StatusEntry) -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
-    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
     onAllAction: () -> Unit,
     allActionTitle: String,
     selectedEntryType: DiffEntryType?,
@@ -571,7 +568,7 @@ private fun FileEntry(
     actionColor: Color,
     onClick: () -> Unit,
     onButtonClick: () -> Unit,
-    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuItem>,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
 ) {
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
@@ -582,7 +579,7 @@ private fun FileEntry(
             .fillMaxWidth()
             .hoverable(hoverInteraction)
     ) {
-        ContextMenuArea(
+        ContextMenu(
             items = {
                 onGenerateContextMenu(statusEntry)
             },

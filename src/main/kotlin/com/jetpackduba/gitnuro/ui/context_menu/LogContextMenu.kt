@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ContextMenuItem
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.res.painterResource
 
 fun logContextMenu(
     onCheckoutCommit: () -> Unit,
@@ -12,32 +11,38 @@ fun logContextMenu(
     onResetBranch: () -> Unit,
     onRebaseInteractive: () -> Unit,
 ) = listOf(
-    ContextMenuItem(
+    ContextMenuElement.ContextTextEntry(
         label = "Checkout commit",
+        icon = { painterResource("start.svg") },
         onClick = onCheckoutCommit
     ),
-    ContextMenuItem(
+    ContextMenuElement.ContextTextEntry(
         label = "Create branch",
+        icon = { painterResource("branch.svg") },
         onClick = onCreateNewBranch
     ),
-    ContextMenuItem(
+    ContextMenuElement.ContextTextEntry(
         label = "Create tag",
+        icon = { painterResource("tag.svg") },
         onClick = onCreateNewTag
     ),
-    ContextMenuItem(
+    ContextMenuElement.ContextSeparator,
+    ContextMenuElement.ContextTextEntry(
         label = "Rebase interactive",
         onClick = onRebaseInteractive
     ),
-    ContextMenuItem(
+    ContextMenuElement.ContextTextEntry(
         label = "Revert commit",
+        icon = { painterResource("revert.svg") },
         onClick = onRevertCommit
     ),
-    ContextMenuItem(
+    ContextMenuElement.ContextTextEntry(
         label = "Cherry-pick commit",
         onClick = onCherryPickCommit
     ),
-    ContextMenuItem(
+    ContextMenuElement.ContextTextEntry(
         label = "Reset current branch to this commit",
+        icon = { painterResource("undo.svg") },
         onClick = onResetBranch
     ),
 )

@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -9,6 +8,7 @@ import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.tagContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.TagsViewModel
 import org.eclipse.jgit.lib.Ref
@@ -47,7 +47,7 @@ private fun TagRow(
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
 ) {
-    ContextMenuArea(
+    ContextMenu(
         items = {
             tagContextMenuItems(
                 onCheckoutTag = onCheckoutTag,

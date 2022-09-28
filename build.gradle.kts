@@ -27,6 +27,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
+    implementation(compose("org.jetbrains.compose.ui:ui-util"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.2.0.202206071550-r")
     implementation("org.apache.sshd:sshd-core:2.9.0")
     implementation("com.google.dagger:dagger:2.43.2")
@@ -56,7 +57,7 @@ tasks.withType<KotlinCompile> {
 
 compose.desktop {
     application {
-        mainClass = "MainKt"
+        mainClass = "com.jetpackduba.gitnuro.MainKt"
 
         nativeDistributions {
             includeAllModules = true

@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.foundation.ContextMenuArea
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
@@ -16,11 +15,11 @@ import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.branchContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.BranchesViewModel
 import org.eclipse.jgit.lib.Ref
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Branches(
     branchesViewModel: BranchesViewModel,
@@ -69,7 +68,7 @@ private fun BranchLineEntry(
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
 ) {
-    ContextMenuArea(
+    ContextMenu(
         items = {
             branchContextMenuItems(
                 branch = branch,

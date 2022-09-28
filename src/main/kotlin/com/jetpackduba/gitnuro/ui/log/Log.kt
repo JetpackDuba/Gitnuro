@@ -38,19 +38,14 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.app.extensions.*
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.app.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.context_menu.branchContextMenuItems
-import com.jetpackduba.gitnuro.ui.context_menu.logContextMenu
-import com.jetpackduba.gitnuro.ui.context_menu.tagContextMenuItems
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
@@ -59,6 +54,7 @@ import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.ui.context_menu.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
@@ -750,7 +746,7 @@ fun CommitLine(
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
 ) {
-    ContextMenuArea(
+    ContextMenu(
         items = {
             logContextMenu(
                 onCheckoutCommit = { logViewModel.checkoutCommit(graphNode) },
@@ -1122,7 +1118,7 @@ fun TagChip(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RefChip(
     modifier: Modifier = Modifier,
@@ -1130,7 +1126,7 @@ fun RefChip(
     icon: String,
     color: Color,
     onCheckoutRef: () -> Unit,
-    contextMenuItemsList: () -> List<ContextMenuItem>,
+    contextMenuItemsList: () -> List<ContextMenuElement>,
     endingContent: @Composable () -> Unit = {},
 ) {
     Box(
@@ -1141,7 +1137,7 @@ fun RefChip(
             .combinedClickable(onDoubleClick = onCheckoutRef, onClick = {})
             .pointerHoverIcon(PointerIconDefaults.Hand)
     ) {
-        ContextMenuArea(
+        ContextMenu(
             items = contextMenuItemsList
         ) {
             Row(

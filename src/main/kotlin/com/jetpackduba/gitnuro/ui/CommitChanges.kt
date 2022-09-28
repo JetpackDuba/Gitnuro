@@ -21,6 +21,7 @@ import com.jetpackduba.gitnuro.viewmodels.CommitChangesStatus
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
@@ -228,7 +229,7 @@ fun CommitLogChanges(
             .fillMaxSize()
     ) {
         items(items = diffEntries) { diffEntry ->
-            ContextMenuArea(
+            ContextMenu(
                 items = {
                     commitedChangesEntriesContextMenuItems(
                         diffEntry,

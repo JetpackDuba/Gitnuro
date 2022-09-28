@@ -1,7 +1,5 @@
 package com.jetpackduba.gitnuro.ui.components
 
-import androidx.compose.foundation.ContextMenuArea
-import androidx.compose.foundation.ContextMenuItem
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -10,6 +8,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -21,13 +21,13 @@ fun <T> SideMenuPanel(
     onExpand: () -> Unit,
     itemContent: @Composable (T) -> Unit,
     headerHoverIcon: @Composable (() -> Unit)? = null,
-    contextItems: () -> List<ContextMenuItem> = { emptyList() },
+    contextItems: () -> List<ContextMenuElement> = { emptyList() },
 ) {
     VerticalExpandable(
         isExpanded = isExpanded,
         onExpand = onExpand,
         header = {
-            ContextMenuArea(
+            ContextMenu(
                 items = contextItems
             ) {
                 SideMenuEntry(
