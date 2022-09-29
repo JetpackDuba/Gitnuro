@@ -34,6 +34,7 @@ fun statusEntriesContextMenuItems(
                 add(
                     ContextMenuElement.ContextTextEntry(
                         label = "File history",
+                        icon = { painterResource("history.svg") },
                         onClick = onHistory,
                     )
                 )
