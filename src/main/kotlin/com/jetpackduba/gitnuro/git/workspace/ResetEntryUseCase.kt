@@ -7,7 +7,7 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class ResetEntryUseCase @Inject constructor() {
-    suspend operator fun invoke(git: Git, statusEntry: StatusEntry, staged: Boolean): Ref =
+    suspend operator fun invoke(git: Git, statusEntry: StatusEntry, staged: Boolean): Unit =
         withContext(Dispatchers.IO) {
             if (staged || statusEntry.statusType == StatusType.CONFLICTING) {
                 git
