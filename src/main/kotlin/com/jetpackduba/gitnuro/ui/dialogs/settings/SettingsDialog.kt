@@ -268,7 +268,11 @@ fun <T : DropDownOption> SettingDropDown(
         Spacer(modifier = Modifier.weight(1f))
 
         Box {
-            OutlinedButton(onClick = { showThemeDropdown = true }) {
+            OutlinedButton(
+                onClick = { showThemeDropdown = true },
+                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.background),
+                modifier = Modifier.widthIn(min = 120.dp)
+            ) {
                 Text(
                     text = currentOption.optionName,
                     style = MaterialTheme.typography.body1,

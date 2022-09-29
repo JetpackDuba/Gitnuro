@@ -36,7 +36,10 @@ fun CloneDialog(
     val cloneStatus = cloneViewModel.cloneStatus.collectAsState()
     val cloneStatusValue = cloneStatus.value
 
-    MaterialDialog(onCloseRequested = onClose) {
+    MaterialDialog(
+        onCloseRequested = onClose,
+        background = MaterialTheme.colors.surface,
+    ) {
         Box(
             modifier = Modifier
                 .width(720.dp)
