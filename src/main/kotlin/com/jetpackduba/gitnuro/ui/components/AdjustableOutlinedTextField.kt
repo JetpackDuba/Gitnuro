@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
@@ -37,6 +39,7 @@ fun AdjustableOutlinedTextField(
     textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = MaterialTheme.typography.body1.fontSize),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = RoundedCornerShape(4.dp),
+    backgroundColor: Color = MaterialTheme.colors.background
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -47,7 +50,8 @@ fun AdjustableOutlinedTextField(
 
     BasicTextField(
         modifier = modifier
-            .heightIn(min = 48.dp),
+            .heightIn(min = 48.dp)
+            .background(backgroundColor),
         value = value,
         onValueChange = onValueChange,
         enabled = enabled,

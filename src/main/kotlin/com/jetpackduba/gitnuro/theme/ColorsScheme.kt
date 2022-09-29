@@ -31,7 +31,6 @@ data class ColorsScheme(
     val headerBackground: Color,
     val onHeader: Color = primaryText,
     val borderColor: Color,
-    val graphHeaderBackground: Color,
     val addFile: Color,
     val deletedFile: Color,
     val modifiedFile: Color,

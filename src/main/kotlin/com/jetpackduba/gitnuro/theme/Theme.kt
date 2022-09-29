@@ -54,10 +54,6 @@ val Colors.headerBackground: Color
     get() = appTheme.headerBackground
 
 @get:Composable
-val Colors.graphHeaderBackground: Color
-    get() = appTheme.graphHeaderBackground
-
-@get:Composable
 val Colors.addFile: Color
     get() = appTheme.addFile
 

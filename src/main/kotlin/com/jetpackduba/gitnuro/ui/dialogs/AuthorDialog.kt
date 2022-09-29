@@ -32,7 +32,10 @@ fun AuthorDialog(
     var name by remember(authorInfo) { mutableStateOf(authorInfo.name.orEmpty()) }
     var email by remember(authorInfo) { mutableStateOf(authorInfo.email.orEmpty()) }
 
-    MaterialDialog(onCloseRequested = onClose) {
+    MaterialDialog(
+        onCloseRequested = onClose,
+        background = MaterialTheme.colors.surface,
+    ) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 8.dp),
