@@ -21,6 +21,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
@@ -161,6 +162,7 @@ fun MenuButton(
         modifier = modifier
             .handMouseClickable { if (enabled) onClick() }
             .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(4.dp))
+            .ignoreKeyEvents()
             .padding(vertical = 8.dp, horizontal = 16.dp),
     ) {
         Row(
@@ -203,6 +205,7 @@ fun ExtendedMenuButton(
     Row(modifier = modifier.height(IntrinsicSize.Min)) {
         Row(
             modifier = Modifier
+                .ignoreKeyEvents()
                 .handMouseClickable { if (enabled) onClick() }
                 .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp))
                 .padding(vertical = 8.dp, horizontal = 16.dp),
@@ -227,6 +230,7 @@ fun ExtendedMenuButton(
             modifier = Modifier
                 .width(20.dp)
                 .fillMaxHeight()
+                .ignoreKeyEvents()
                 .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
                 .handMouseClickable {
                     showDropDownMenu = true

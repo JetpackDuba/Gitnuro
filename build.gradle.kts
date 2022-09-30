@@ -2,12 +2,18 @@ import org.gradle.jvm.tasks.Jar
 import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+buildscript {
+    dependencies {
+        classpath("com.guardsquare:proguard-gradle:7.2.1")
+    }
+}
+
 plugins {
     // Kotlin version must match compose version
-    kotlin("jvm") version "1.7.0"
-    kotlin("kapt") version "1.7.0"
-    kotlin("plugin.serialization") version "1.7.0"
-    id("org.jetbrains.compose") version "1.2.0-alpha01-dev755"
+    kotlin("jvm") version "1.7.10"
+    kotlin("kapt") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.10"
+    id("org.jetbrains.compose") version "1.2.0-alpha01-dev774"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
@@ -39,6 +45,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
+
 }
 
 tasks.test {
@@ -81,6 +88,7 @@ compose.desktop {
 
 
 task("fatJarLinux", type = Jar::class) {
+
     archiveBaseName.set("$projectName-linux")
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -99,4 +107,59 @@ task("fatJarLinux", type = Jar::class) {
         )
     }
     with(tasks.jar.get() as CopySpec)
+}
+
+val obfuscate by tasks.registering(proguard.gradle.ProGuardTask::class)
+
+val fatJarProvider = tasks.register("fatJar", Jar::class) {
+    this.dependsOn(configurations.named("runtimeClasspath"))
+    this.dependsOn(tasks.named("jar"))
+
+    this.classifier = "fat"
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    this.manifest {
+        attributes["Implementation-Title"] = name
+        attributes["Implementation-Version"] = projectVersion
+        attributes["Main-Class"] = "com.jetpackduba.gitnuro.MainKt"
+    }
+
+    val sourceClasses = sourceSets.main.get().output.classesDirs
+    this.inputs.files(sourceClasses)
+
+    this.doFirst {
+        from(files(sourceClasses))
+        from(configurations.runtimeClasspath.asFileTree.files.map { zipTree(it) })
+        exclude("**/*.kotlin_metadata")
+        exclude("**/*.kotlin_module")
+        exclude("**/*.kotlin_builtins")
+        exclude("**/module-info.class")
+        exclude("META-INF/maven/**")
+    }
+}
+fun mapObfuscatedJarFile(file: File) =
+    File("${project.buildDir}/tmp/obfuscated/${file.nameWithoutExtension}.min.jar")
+
+obfuscate.configure {
+    dependsOn(tasks.jar.get())
+
+    val allJars = tasks.jar.get().outputs.files + sourceSets.main.get().runtimeClasspath.filter { it.path.endsWith(".jar") }
+        .filterNot { it.name.startsWith("skiko-awt-") && !it.name.startsWith("skiko-awt-runtime-") } // walkaround https://github.com/JetBrains/compose-jb/issues/1971
+
+    for (file in allJars) {
+        injars(file)
+        outjars(mapObfuscatedJarFile(file))
+    }
+
+    libraryjars("${compose.desktop.application.javaHome ?: System.getProperty("java.home")}/jmods")
+
+    configuration("proguard-rules.pro")
+}
+
+task("r8Jar", type = JavaExec::class) {
+    val r8File = File("$buildDir/libs/gitnuro-linux-proguard.jar")
+    val rules = file("proguard-rules.pro")
+    this.dependsOn(configurations.named("runtimeClasspath"))
+    this.inputs.files(fatJarProvider.get().outputs.files, rules)
+    this.outputs.file(r8File)
 }

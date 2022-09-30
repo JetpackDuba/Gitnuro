@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 
@@ -21,4 +22,12 @@ fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
     return this
         .clickable { onClick() }
         .pointerHoverIcon(PointerIconDefaults.Hand)
+}
+
+/**
+ * Ignore keyboard events of that components.
+ * Specially useful for clickable components that may get focused and become clickable when pressing ENTER.
+ */
+fun Modifier.ignoreKeyEvents(): Modifier {
+    return this.onPreviewKeyEvent { true }
 }

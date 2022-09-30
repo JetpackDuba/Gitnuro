@@ -35,7 +35,7 @@ class FileChangesWatcher @Inject constructor() {
             ENTRY_MODIFY
         )
 
-        // register directory and sub-directories but ignore dirs by gitignore
+        // register directory and subdirectories but ignore dirs by gitignore
         Files.walkFileTree(path, object : SimpleFileVisitor<Path>() {
             @Throws(IOException::class)
             override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
