@@ -70,7 +70,6 @@ fun AppTab(
 
             Box(modifier = Modifier.fillMaxSize()) {
                 Crossfade(targetState = repositorySelectionStatus) {
-                    @Suppress("UnnecessaryVariable") // Don't inline it because smart cast won't work
                     when (repositorySelectionStatusValue) {
                         RepositorySelectionStatus.None -> {
                             WelcomePage(tabViewModel = tabViewModel)

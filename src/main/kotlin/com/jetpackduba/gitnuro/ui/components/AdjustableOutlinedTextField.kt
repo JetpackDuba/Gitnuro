@@ -50,7 +50,7 @@ fun AdjustableOutlinedTextField(
 
     BasicTextField(
         modifier = modifier
-            .heightIn(min = 48.dp)
+            .heightIn(min = 40.dp)
             .background(backgroundColor),
         value = value,
         onValueChange = onValueChange,
@@ -69,7 +69,7 @@ fun AdjustableOutlinedTextField(
                         color = indicatorColor,
                         shape = shape
                     )
-                    .padding(12.dp),
+                    .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 innerTextField()

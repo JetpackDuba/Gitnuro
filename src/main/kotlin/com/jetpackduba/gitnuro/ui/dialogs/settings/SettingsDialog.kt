@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,6 +62,7 @@ fun SettingsDialog(
             Text(
                 text = "Settings",
                 style = MaterialTheme.typography.h3,
+                color = MaterialTheme.colors.primaryTextColor,
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
 
@@ -110,7 +112,6 @@ fun SettingsDialog(
                 )
             }
         }
-
     }
 }
 
@@ -246,6 +247,7 @@ fun Category(
             .handMouseClickable(onClick)
             .padding(8.dp),
         style = MaterialTheme.typography.body1,
+        color = MaterialTheme.colors.primaryTextColor,
     )
 }
 
@@ -271,12 +273,20 @@ fun <T : DropDownOption> SettingDropDown(
             OutlinedButton(
                 onClick = { showThemeDropdown = true },
                 colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.background),
-                modifier = Modifier.widthIn(min = 120.dp)
+                modifier = Modifier.width(180.dp)
             ) {
                 Text(
                     text = currentOption.optionName,
                     style = MaterialTheme.typography.body1,
                     color = MaterialTheme.colors.primaryTextColor,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1
+                )
+
+                Icon(
+                    painter = painterResource("dropdown.svg"),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.primaryTextColor,
                 )
             }
 
