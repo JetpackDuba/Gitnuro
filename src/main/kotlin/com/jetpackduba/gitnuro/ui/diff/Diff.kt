@@ -19,6 +19,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIconDefaults
@@ -30,6 +31,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.EntryContent
+import com.jetpackduba.gitnuro.git.animatedImages
 import com.jetpackduba.gitnuro.git.diff.DiffResult
 import com.jetpackduba.gitnuro.git.diff.Hunk
 import com.jetpackduba.gitnuro.git.diff.Line
@@ -38,16 +43,19 @@ import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
-import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.git.DiffEntryType
-import com.jetpackduba.gitnuro.git.EntryContent
-import com.jetpackduba.gitnuro.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.eclipse.jgit.diff.DiffEntry
+import org.jetbrains.compose.animatedimage.Blank
+import org.jetbrains.compose.animatedimage.animate
+import org.jetbrains.compose.animatedimage.loadAnimatedImage
+import org.jetbrains.compose.resources.loadOrNull
 import java.io.FileInputStream
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -206,7 +214,7 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                SideTitle("Binary file")
+//                SideTitle("Binary file")
                 Spacer(modifier = Modifier.height(24.dp))
                 SideDiff(newBinaryContent)
             }
@@ -227,7 +235,7 @@ fun SideTitle(text: String) {
 fun SideDiff(entryContent: EntryContent) {
     when (entryContent) {
         EntryContent.Binary -> BinaryDiff()
-        is EntryContent.ImageBinary -> ImageDiff(entryContent.tempFilePath)
+        is EntryContent.ImageBinary -> ImageDiff(entryContent.tempFilePath, entryContent.contentType)
         else -> {
         }
 //        is EntryContent.Text -> //TODO maybe have a text view if the file was a binary before?
@@ -236,13 +244,46 @@ fun SideDiff(entryContent: EntryContent) {
 }
 
 @Composable
-fun ImageDiff(tempImagePath: Path) {
+private fun ImageDiff(tempImagePath: Path, contentType: String) {
+    val imagePath = tempImagePath.absolutePathString()
+
+    if(animatedImages.contains(contentType)) {
+        AnimatedImage(imagePath)
+    } else {
+        StaticImage(imagePath)
+    }
+}
+
+@Composable
+private fun StaticImage(tempImagePath: String) {
+    var image by remember(tempImagePath) { mutableStateOf<ImageBitmap?>(null) }
+
+    LaunchedEffect(tempImagePath) {
+        withContext(Dispatchers.IO) {
+            FileInputStream(tempImagePath).use { inputStream ->
+                image = loadImageBitmap(inputStream = inputStream)
+            }
+        }
+    }
+
     Image(
-        bitmap = loadImageBitmap(inputStream = FileInputStream(tempImagePath.absolutePathString())),
+        bitmap = image ?: ImageBitmap.Blank,
         contentDescription = null,
         modifier = Modifier.fillMaxSize()
             .handMouseClickable {
-                openFileWithExternalApp(tempImagePath.absolutePathString())
+                openFileWithExternalApp(tempImagePath)
+            }
+    )
+}
+
+@Composable
+private fun AnimatedImage(tempImagePath: String) {
+    Image(
+        bitmap = loadOrNull(tempImagePath) { loadAnimatedImage(tempImagePath) }?.animate() ?: ImageBitmap.Blank,
+        contentDescription = null,
+        modifier = Modifier.fillMaxSize()
+            .handMouseClickable {
+                openFileWithExternalApp(tempImagePath)
             }
     )
 }

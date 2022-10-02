@@ -12,23 +12,23 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.WorkingTreeIterator
 import org.eclipse.jgit.util.LfsFactory
 import java.io.FileOutputStream
+import java.nio.file.Files
 import java.nio.file.Path
 import javax.inject.Inject
 import kotlin.io.path.createTempFile
 
 
 private const val DEFAULT_BINARY_FILE_THRESHOLD = PackConfig.DEFAULT_BIG_FILE_THRESHOLD
+private const val IMAGE_CONTENT_TYPE = "image/"
+
+val animatedImages = arrayOf(
+    "image/gif",
+    "image/webp"
+)
 
 class RawFileManager @Inject constructor(
     private val tempFilesManager: TempFilesManager,
 ) {
-    private val imageFormatsSupported = listOf(
-        "png",
-        "jpg",
-        "jpeg",
-        "webp",
-    )
-
     private fun source(iterator: AbstractTreeIterator, reader: ObjectReader): ContentSource {
         return if (iterator is WorkingTreeIterator)
             ContentSource.create(iterator)
@@ -86,15 +86,14 @@ class RawFileManager @Inject constructor(
             ldr.copyTo(out)
         }
 
-        return EntryContent.ImageBinary(tempFile)
+        return EntryContent.ImageBinary(tempFile, Files.probeContentType(Path.of(entry.newPath)).orEmpty())
     }
 
-    // todo check if it's an image checking the binary format, checking the extension is a temporary workaround
     private fun isImage(entry: DiffEntry): Boolean {
         val path = entry.newPath
-        val fileExtension = path.split(".").lastOrNull() ?: return false
+        val contentType = Files.probeContentType(Path.of(path))
 
-        return imageFormatsSupported.contains(fileExtension.lowercase())
+        return contentType?.startsWith(IMAGE_CONTENT_TYPE) ?: false
     }
 }
 
@@ -103,7 +102,7 @@ sealed class EntryContent {
     object InvalidObjectBlob : EntryContent()
     data class Text(val rawText: RawText) : EntryContent()
     sealed class BinaryContent : EntryContent()
-    data class ImageBinary(val tempFilePath: Path) : BinaryContent()
+    data class ImageBinary(val tempFilePath: Path, val contentType: String) : BinaryContent()
     object Binary : BinaryContent()
     object TooLargeEntry : EntryContent()
 }

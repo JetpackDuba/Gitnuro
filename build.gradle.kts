@@ -28,6 +28,7 @@ dependencies {
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
     implementation(compose("org.jetbrains.compose.ui:ui-util"))
+    implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
     implementation("org.apache.sshd:sshd-core:2.9.0")
     implementation("com.google.dagger:dagger:2.43.2")
