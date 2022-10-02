@@ -94,7 +94,7 @@ private fun BranchLineEntry(
                 Text(
                     text = "HEAD",
                     color = MaterialTheme.colors.secondaryTextColor,
-                    style = MaterialTheme.typography.body2,
+                    style = MaterialTheme.typography.caption,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }

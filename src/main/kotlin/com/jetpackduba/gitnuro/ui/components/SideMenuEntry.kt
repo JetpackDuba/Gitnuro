@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -14,9 +13,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.theme.headerBackground
 import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 
@@ -25,26 +25,35 @@ fun SideMenuEntry(
     text: String,
     icon: Painter? = null,
     itemsCount: Int,
-    hoverIcon: @Composable (() -> Unit)? = null,
+    isExpanded: Boolean,
+    hoverIcon: @Composable() (() -> Unit)? = null,
 ) {
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     Row(
         modifier = Modifier
-            .height(32.dp)
+            .height(36.dp)
             .fillMaxWidth()
-            .hoverable(hoverInteraction)
-            .background(color = MaterialTheme.colors.headerBackground),
+//            .background(color = MaterialTheme.colors.headerBackground)
+            .hoverable(hoverInteraction),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            painter = painterResource(if (isExpanded) "expand_more.svg" else "chevron_right.svg"),
+            contentDescription = null,
+            tint = MaterialTheme.colors.primaryTextColor,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .size(16.dp),
+        )
+
         if (icon != null) {
             Icon(
                 painter = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colors.primaryTextColor,
                 modifier = Modifier
-                    .padding(start = 8.dp)
                     .size(16.dp),
             )
         }
@@ -56,6 +65,7 @@ fun SideMenuEntry(
                 .weight(1f),
             maxLines = 1,
             style = MaterialTheme.typography.body2,
+            fontWeight = FontWeight.Medium,
             color = MaterialTheme.colors.primaryTextColor,
             overflow = TextOverflow.Ellipsis,
         )
@@ -66,6 +76,7 @@ fun SideMenuEntry(
             Text(
                 text = itemsCount.toString(),
                 style = MaterialTheme.typography.body2,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colors.secondaryTextColor,
                 modifier = Modifier.padding(end = 16.dp),
             )

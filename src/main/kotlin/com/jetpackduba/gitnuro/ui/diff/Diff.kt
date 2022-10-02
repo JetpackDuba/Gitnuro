@@ -214,7 +214,6 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-//                SideTitle("Binary file")
                 Spacer(modifier = Modifier.height(24.dp))
                 SideDiff(newBinaryContent)
             }

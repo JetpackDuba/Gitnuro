@@ -1,10 +1,8 @@
 package com.jetpackduba.gitnuro.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
@@ -34,7 +32,8 @@ fun <T> SideMenuPanel(
                     text = title,
                     icon = icon,
                     itemsCount = items.count(),
-                    hoverIcon = headerHoverIcon
+                    hoverIcon = headerHoverIcon,
+                    isExpanded = isExpanded,
                 )
             }
         },
@@ -42,7 +41,6 @@ fun <T> SideMenuPanel(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.background)
         ) {
             for (item in items) {
                 itemContent(item)

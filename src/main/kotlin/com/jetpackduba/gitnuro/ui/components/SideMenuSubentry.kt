@@ -17,8 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.ui.ENTRY_HEIGHT
 import com.jetpackduba.gitnuro.theme.primaryTextColor
+
+const val ENTRY_HEIGHT = 36
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -26,7 +27,6 @@ fun SideMenuSubentry(
     text: String,
     iconResourcePath: String,
     extraPadding: Dp = 0.dp,
-    background: Color = MaterialTheme.colors.background,
     onClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
     additionalInfo: @Composable () -> Unit = {}
@@ -41,15 +41,15 @@ fun SideMenuSubentry(
                 else
                     this
             }
-            .padding(start = extraPadding)
-            .background(background),
+            .padding(start = extraPadding),
+//            .background(background),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(iconResourcePath),
             contentDescription = null,
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(start = 32.dp, end = 8.dp)
                 .size(16.dp),
             tint = MaterialTheme.colors.primaryVariant,
         )

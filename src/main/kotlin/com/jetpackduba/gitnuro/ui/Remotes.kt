@@ -114,7 +114,7 @@ private fun RemoteRow(
                 ) {
                     SideMenuSubentry(
                         text = branch.simpleName,
-                        extraPadding = 8.dp,
+                        extraPadding = 24.dp,
                         iconResourcePath = "branch.svg",
                         onClick = { onBranchClicked(branch) }
                     )
