@@ -48,9 +48,6 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
             val mouseEvent = lastMouseEvent.awtEventOrNull
 
             if (mouseEvent != null) {
-                if (!lastMouseEvent.toString().contains("MOUSE_MOVED"))
-                    println(lastMouseEvent.toString())
-
                 if (lastMouseEvent.button.isSecondary) {
                     val currentCheck = System.currentTimeMillis()
                     if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS) {
