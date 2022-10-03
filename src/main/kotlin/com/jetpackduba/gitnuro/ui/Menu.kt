@@ -4,9 +4,8 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -14,11 +13,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
@@ -158,30 +159,29 @@ fun MenuButton(
         MaterialTheme.colors.secondaryVariant //todo this color isn't specified anywhere
     }
 
-    Box(
+    Column(
         modifier = modifier
-            .handMouseClickable { if (enabled) onClick() }
-            .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(4.dp))
             .ignoreKeyEvents()
-            .padding(vertical = 8.dp, horizontal = 16.dp),
+            .handMouseClickable { if (enabled) onClick() }
+            .padding(vertical = 4.dp, horizontal = 16.dp)
+            .width(48.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Image(
-                painter = icon,
-                contentDescription = title,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .size(24.dp),
-                colorFilter = ColorFilter.tint(iconColor),
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.body2,
-            )
-        }
+        Image(
+            painter = icon,
+            contentDescription = title,
+            modifier = Modifier
+                .padding(vertical = 2.dp)
+                .size(24.dp),
+            colorFilter = ColorFilter.tint(iconColor),
+        )
+        Text(
+            text = title,
+            style = MaterialTheme.typography.body2,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -202,21 +202,24 @@ fun ExtendedMenuButton(
 
     var showDropDownMenu by remember { mutableStateOf(false) }
 
-    Row(modifier = modifier.height(IntrinsicSize.Min)) {
-        Row(
+    Row(
+        modifier = modifier
+            .height(IntrinsicSize.Min)
+            .ignoreKeyEvents()
+            .handMouseClickable { if (enabled) onClick() }
+    ) {
+        Column(
             modifier = Modifier
-                .ignoreKeyEvents()
-                .handMouseClickable { if (enabled) onClick() }
-                .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp))
-                .padding(vertical = 8.dp, horizontal = 16.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 4.dp)
+                .width(40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
             Image(
                 painter = icon,
                 contentDescription = title,
                 modifier = Modifier
-                    .padding(horizontal = 4.dp)
+                    .padding(vertical = 2.dp)
                     .size(24.dp),
                 colorFilter = ColorFilter.tint(iconColor),
             )
@@ -231,7 +234,6 @@ fun ExtendedMenuButton(
                 .width(20.dp)
                 .fillMaxHeight()
                 .ignoreKeyEvents()
-                .border(ButtonDefaults.outlinedBorder, RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp))
                 .handMouseClickable {
                     showDropDownMenu = true
                 },
