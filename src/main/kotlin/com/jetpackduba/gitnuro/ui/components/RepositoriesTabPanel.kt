@@ -3,6 +3,9 @@
 package com.jetpackduba.gitnuro.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
@@ -55,7 +58,7 @@ fun RepositoriesTabPanel(
         items(items = tabs) { tab ->
             Tab(
                 title = tab.tabName,
-                selected = tab.key == selectedTabKey,
+                isSelected = tab.key == selectedTabKey,
                 onClick = {
                     onTabSelected(tab.key)
                 },
@@ -109,7 +112,7 @@ fun TabPanel(
         this.tabs()
 
         item {
-            Box (modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize()) {
                 IconButton(
                     onClick = onNewTabClicked,
                     modifier = Modifier
@@ -129,17 +132,21 @@ fun TabPanel(
 }
 
 @Composable
-fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
+fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
     Box {
-        val backgroundColor = if (selected)
+        val backgroundColor = if (isSelected)
             MaterialTheme.colors.surface
         else
             MaterialTheme.colors.background
+
+        val hoverInteraction = remember { MutableInteractionSource() }
+        val isHovered by hoverInteraction.collectIsHoveredAsState()
 
         Box(
             modifier = Modifier
                 .width(180.dp)
                 .fillMaxHeight()
+                .hoverable(hoverInteraction)
                 .handMouseClickable { onClick() }
                 .background(backgroundColor),
         ) {
@@ -158,17 +165,24 @@ fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onC
                     style = MaterialTheme.typography.body2,
                     maxLines = 1,
                 )
-                IconButton(
-                    onClick = onCloseTab,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .size(14.dp)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colors.primaryTextColor)
+
+                if (isHovered || isSelected) {
+                    IconButton(
+                        onClick = onCloseTab,
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .size(14.dp)
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.primaryTextColor
+                        )
+                    }
                 }
             }
 
-            if (selected) {
+            if (isSelected) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
