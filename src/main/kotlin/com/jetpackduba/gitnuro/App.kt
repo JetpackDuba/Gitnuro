@@ -214,8 +214,8 @@ class App {
     ) {
         Row(
             modifier = Modifier
-                .padding(top = 4.dp, bottom = 0.dp, start = 4.dp, end = 4.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .height(40.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             RepositoriesTabPanel(

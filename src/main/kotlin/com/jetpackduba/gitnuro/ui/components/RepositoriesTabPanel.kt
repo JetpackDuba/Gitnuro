@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -19,8 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
@@ -107,22 +104,25 @@ fun TabPanel(
 ) {
     LazyRow(
         modifier = modifier
-            .height(36.dp),
+            .fillMaxHeight(),
     ) {
         this.tabs()
 
         item {
-            IconButton(
-                onClick = onNewTabClicked,
-                modifier = Modifier
-                    .size(36.dp)
-                    .pointerHoverIcon(PointerIconDefaults.Hand),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    tint = MaterialTheme.colors.primaryVariant,
-                )
+            Box (modifier = Modifier.fillMaxSize()) {
+                IconButton(
+                    onClick = onNewTabClicked,
+                    modifier = Modifier
+                        .size(36.dp)
+                        .pointerHoverIcon(PointerIconDefaults.Hand)
+                        .align(Alignment.CenterStart),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.primaryVariant,
+                    )
+                }
             }
         }
     }
@@ -130,45 +130,53 @@ fun TabPanel(
 
 @Composable
 fun Tab(title: MutableState<String>, selected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
-    val elevation = if (selected) {
-        3.dp
-    } else
-        0.dp
     Box {
         val backgroundColor = if (selected)
             MaterialTheme.colors.surface
         else
             MaterialTheme.colors.background
 
-        Row(
+        Box(
             modifier = Modifier
                 .width(180.dp)
                 .fillMaxHeight()
-                .shadow(elevation = elevation)
-                .padding(start = 2.dp, end = 2.dp, top = 2.dp)
-                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
                 .handMouseClickable { onClick() }
                 .background(backgroundColor),
-            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = title.value,
+            Row(
                 modifier = Modifier
-                    .padding(start = 16.dp, end = 8.dp)
-                    .weight(1f),
-                overflow = TextOverflow.Visible,
-                style = MaterialTheme.typography.body2,
-                maxLines = 1,
-            )
-            IconButton(
-                onClick = onCloseTab,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .size(14.dp)
+                    .fillMaxWidth()
+                    .align(Alignment.CenterStart),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colors.primaryTextColor)
+                Text(
+                    text = title.value,
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 8.dp)
+                        .weight(1f),
+                    overflow = TextOverflow.Visible,
+                    style = MaterialTheme.typography.body2,
+                    maxLines = 1,
+                )
+                IconButton(
+                    onClick = onCloseTab,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .size(14.dp)
+                ) {
+                    Icon(Icons.Default.Close, contentDescription = null, tint = MaterialTheme.colors.primaryTextColor)
+                }
             }
 
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(3.dp)
+                        .background(MaterialTheme.colors.primaryVariant)
+                )
+            }
         }
     }
 }
