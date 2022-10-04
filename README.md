@@ -102,3 +102,13 @@ Colors are in ARGB Hex format.
 > Why isn't the Mac version signed? 
 
 The cost of the Apple Developer Program is quite high with a platform that currently has very few users. I may pay for it if it's a very requested feature but not for now.
+
+> Authentication has failed. What's wrong?
+
+Currently there are some limitations regarding this topic. Here are some known problematic setups:
+- SSH keys managed by external agents (https://github.com/JetpackDuba/Gitnuro/issues/17).
+- Configurations added to .ssh/config
+- Non-default ssh dir path.
+- Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19).
+
+If the authentication fails and you think its due to a different reason, please open a new issue.
