@@ -24,6 +24,7 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.git.diff.DiffResult
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -102,7 +103,7 @@ private fun Header(
         IconButton(
             onClick = onClose,
             modifier = Modifier
-                .pointerHoverIcon(PointerIconDefaults.Hand)
+                .handOnHover()
         ) {
             Image(
                 painter = painterResource("close.svg"),

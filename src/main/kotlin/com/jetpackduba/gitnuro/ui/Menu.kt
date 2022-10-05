@@ -6,6 +6,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -13,6 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
@@ -22,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.ui.context_menu.*
@@ -32,7 +36,6 @@ import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
 fun Menu(
     modifier: Modifier,
     menuViewModel: MenuViewModel,
-    onRepositoryOpen: () -> Unit,
     onCreateBranch: () -> Unit,
     onStashWithMessage: () -> Unit,
 ) {
@@ -43,15 +46,6 @@ fun Menu(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MenuButton(
-            modifier = Modifier.padding(start = 8.dp),
-            title = "Open",
-            icon = painterResource("open.svg"),
-            onClick = {
-                onRepositoryOpen()
-            }
-        )
-
         Spacer(modifier = Modifier.weight(1f))
 
         ExtendedMenuButton(
@@ -129,7 +123,6 @@ fun Menu(
                     val menuOptions = remember {
                         repositoryAdditionalOptionsMenu(
                             onOpenRepositoryOnFileExplorer = { menuViewModel.openFolderInFileExplorer() },
-                            onForceRepositoryRefresh = { menuViewModel.refresh() },
                         )
                     }
                     for (item in menuOptions) {
@@ -153,34 +146,31 @@ fun MenuButton(
     icon: Painter,
     onClick: () -> Unit
 ) {
-    val iconColor = if (enabled) {
-        MaterialTheme.colors.primaryVariant
-    } else {
-        MaterialTheme.colors.secondaryVariant //todo this color isn't specified anywhere
-    }
-
-    Column(
+    Row(
         modifier = modifier
             .ignoreKeyEvents()
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.primary)
             .handMouseClickable { if (enabled) onClick() }
-            .padding(vertical = 4.dp, horizontal = 16.dp)
-            .width(48.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+            .width(100.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
+        Icon(
             painter = icon,
             contentDescription = title,
             modifier = Modifier
                 .padding(vertical = 2.dp)
                 .size(24.dp),
-            colorFilter = ColorFilter.tint(iconColor),
+            tint = MaterialTheme.colors.onPrimary,
         )
         Text(
             text = title,
             style = MaterialTheme.typography.body2,
+            modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom  = 8.dp),
             maxLines = 1,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colors.onPrimary,
         )
     }
 }
@@ -194,44 +184,40 @@ fun ExtendedMenuButton(
     onClick: () -> Unit,
     extendedListItems: List<DropDownContentData>,
 ) {
-    val iconColor = if (enabled) {
-        MaterialTheme.colors.primaryVariant
-    } else {
-        MaterialTheme.colors.secondaryVariant
-    }
-
     var showDropDownMenu by remember { mutableStateOf(false) }
 
     Row(
         modifier = modifier
             .height(IntrinsicSize.Min)
             .ignoreKeyEvents()
-            .handMouseClickable { if (enabled) onClick() }
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.primary)
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .padding(top = 4.dp, bottom = 4.dp, start = 16.dp, end = 4.dp)
-                .width(40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+                .width(92.dp)
+                .handMouseClickable { if (enabled) onClick() },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Image(
+            Icon(
                 painter = icon,
                 contentDescription = title,
                 modifier = Modifier
-                    .padding(vertical = 2.dp)
                     .size(24.dp),
-                colorFilter = ColorFilter.tint(iconColor),
+                tint = MaterialTheme.colors.onPrimary,
             )
             Text(
                 text = title,
+                modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom  = 8.dp),
                 style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onPrimary,
             )
         }
 
         Box(
             modifier = Modifier
-                .width(20.dp)
+                .width(24.dp)
                 .fillMaxHeight()
                 .ignoreKeyEvents()
                 .handMouseClickable {
@@ -239,10 +225,18 @@ fun ExtendedMenuButton(
                 },
             contentAlignment = Alignment.Center,
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colors.onPrimary.copy(alpha = 0.5f))
+                    .width(1.dp)
+                    .align(Alignment.CenterStart)
+            )
+
             Icon(
                 Icons.Default.ArrowDropDown,
                 contentDescription = null,
-                tint = MaterialTheme.colors.primaryTextColor,
+                tint = MaterialTheme.colors.onPrimary,
             )
 
             DropdownMenu(
@@ -275,7 +269,7 @@ fun IconMenuButton(
 
     IconButton(
         modifier = modifier
-            .pointerHoverIcon(PointerIconDefaults.Hand),
+            .handOnHover(),
         enabled = enabled,
         onClick = onClick,
     ) {

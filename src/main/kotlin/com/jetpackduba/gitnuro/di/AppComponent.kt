@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.di
 import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import dagger.Component
 import javax.inject.Singleton
 
@@ -11,6 +12,7 @@ import javax.inject.Singleton
 interface AppComponent {
     fun inject(main: App)
     fun appStateManager(): AppStateManager
+    fun settingsViewModel(): SettingsViewModel
 
     fun appPreferences(): AppSettings
 }

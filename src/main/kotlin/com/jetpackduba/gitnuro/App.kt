@@ -4,16 +4,12 @@ package com.jetpackduba.gitnuro
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerIconDefaults
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -35,8 +31,6 @@ import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
-import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
-import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -52,9 +46,6 @@ class App {
 
     @Inject
     lateinit var appSettings: AppSettings
-
-    @Inject
-    lateinit var settingsViewModel: SettingsViewModel
 
     init {
         appComponent.inject(this)
@@ -107,25 +98,12 @@ class App {
                         emptyArray()
 
                     CompositionLocalProvider(values = density) {
-                        var showSettingsDialog by remember { mutableStateOf(false) }
-
                         AppTheme(
                             selectedTheme = theme,
                             customTheme = customTheme,
                         ) {
                             Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-                                AppTabs(
-                                    onOpenSettings = {
-                                        showSettingsDialog = true
-                                    }
-                                )
-                            }
-
-                            if (showSettingsDialog) {
-                                SettingsDialog(
-                                    settingsViewModel = settingsViewModel,
-                                    onDismiss = { showSettingsDialog = false }
-                                )
+                                AppTabs()
                             }
                         }
                     }
@@ -160,9 +138,7 @@ class App {
 
 
     @Composable
-    fun AppTabs(
-        onOpenSettings: () -> Unit,
-    ) {
+    fun AppTabs() {
         val tabs by tabsFlow.collectAsState()
         val tabsInformationList = tabs.sortedBy { it.key }
         val selectedTabKey = remember { mutableStateOf(0) }
@@ -173,7 +149,6 @@ class App {
             Tabs(
                 tabsInformationList = tabsInformationList,
                 selectedTabKey = selectedTabKey,
-                onOpenSettings = onOpenSettings,
                 onAddedTab = { tabInfo ->
                     addTab(tabInfo)
                 },
@@ -203,11 +178,9 @@ class App {
         tabsFlow.value = tabsFlow.value.toMutableList().apply { add(tabInformation) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun Tabs(
         selectedTabKey: MutableState<Int>,
-        onOpenSettings: () -> Unit,
         tabsInformationList: List<TabInformation>,
         onAddedTab: (TabInformation) -> Unit,
         onRemoveTab: (Int) -> Unit,
@@ -237,20 +210,6 @@ class App {
                 },
                 onTabClosed = onRemoveTab
             )
-            IconButton(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .size(24.dp)
-                    .pointerHoverIcon(PointerIconDefaults.Hand),
-                onClick = onOpenSettings
-            ) {
-                Icon(
-                    painter = painterResource("settings.svg"),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    tint = MaterialTheme.colors.primaryVariant,
-                )
-            }
         }
     }
 

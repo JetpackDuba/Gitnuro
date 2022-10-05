@@ -29,6 +29,7 @@ import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import javax.inject.Inject
@@ -117,7 +118,7 @@ fun TabPanel(
                     onClick = onNewTabClicked,
                     modifier = Modifier
                         .size(36.dp)
-                        .pointerHoverIcon(PointerIconDefaults.Hand)
+                        .handOnHover()
                         .align(Alignment.CenterStart),
                 ) {
                     Icon(

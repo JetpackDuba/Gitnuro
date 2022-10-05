@@ -4,27 +4,44 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.primaryTextColor
+import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.AuthorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.StashWithMessageDialog
+import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.viewmodels.BlameState
@@ -44,7 +61,6 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     val selectedItem by tabViewModel.selectedItem.collectAsState()
     val blameState by tabViewModel.blameState.collectAsState()
     val showHistory by tabViewModel.showHistory.collectAsState()
-    val userInfo by tabViewModel.authorInfoSimple.collectAsState()
     val showAuthorInfo by tabViewModel.showAuthorInfo.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
@@ -87,39 +103,44 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     LaunchedEffect(selectedItem) {
         focusRequester.requestFocus()
     }
+    Column {
+        Row(modifier = Modifier.weight(1f)) {
+            SideBar(tabViewModel)
 
-    Column(
-        modifier = Modifier
-            .focusRequester(focusRequester)
-            .focusable()
-            .onKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.REFRESH)) {
-                    tabViewModel.refreshAll()
-                    true
+            Column(
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusable()
+                    .onKeyEvent { keyEvent ->
+                        if (keyEvent.matchesBinding(KeybindingOption.REFRESH)) {
+                            tabViewModel.refreshAll()
+                            true
+                        } else {
+                            false
+                        }
+                    }
+            ) {
+                val rebaseInteractiveViewModel = tabViewModel.rebaseInteractiveViewModel
+
+                if (repositoryState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
+                    RebaseInteractive(rebaseInteractiveViewModel)
                 } else {
-                    false
+                    Column(modifier = Modifier.weight(1f)) {
+                        Menu(
+                            modifier = Modifier
+                                .padding(
+                                    top = 12.dp,
+                                    bottom = 16.dp
+                                ) // Linear progress bar already take 4 additional dp for top
+                                .fillMaxWidth(),
+                            menuViewModel = tabViewModel.menuViewModel,
+                            onCreateBranch = { showNewBranchDialog = true },
+                            onStashWithMessage = { showStashWithMessageDialog = true },
+                        )
+
+                        RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
+                    }
                 }
-            }
-    ) {
-        val rebaseInteractiveViewModel = tabViewModel.rebaseInteractiveViewModel
-
-        if (repositoryState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
-            RebaseInteractive(rebaseInteractiveViewModel)
-        } else {
-            Column(modifier = Modifier.weight(1f)) {
-                Menu(
-                    modifier = Modifier
-                        .padding(top = 4.dp, bottom = 8.dp) // Linear progress bar already take 4 additional dp for top
-                        .fillMaxWidth(),
-                    menuViewModel = tabViewModel.menuViewModel,
-                    onRepositoryOpen = {
-                        openRepositoryDialog(tabViewModel = tabViewModel)
-                    },
-                    onCreateBranch = { showNewBranchDialog = true },
-                    onStashWithMessage = { showStashWithMessageDialog = true },
-                )
-
-                RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
             }
         }
 
@@ -129,27 +150,142 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primaryVariant.copy(alpha = 0.2f))
         )
-        Row(
+
+        BottomInfoBar(tabViewModel)
+    }
+}
+
+@Composable
+fun SideBar(tabViewModel: TabViewModel) {
+    var showSettingsDialog by remember { mutableStateOf(false) }
+    if (showSettingsDialog) {
+        SettingsDialog(
+            settingsViewModel = tabViewModel.settingsViewModel,
+            onDismiss = { showSettingsDialog = false }
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .width(48.dp)
+            .background(MaterialTheme.colors.secondarySurface)
+            .padding(vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        SideBarButton(
+            painterName = "open.svg",
+            label = "Open a new repository",
+            onClick = {
+                openRepositoryDialog(tabViewModel = tabViewModel)
+            }
+        )
+        SideBarButton(
+            modifier = Modifier.padding(top = 16.dp),
+            painterName = "refresh.svg",
+            label = "Refresh repository information",
+            onClick = {
+                tabViewModel.refreshAll()
+            }
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        SideBarButton(
+            painterName = "settings.svg",
+            label = "Settings",
+            onClick = { showSettingsDialog = true }
+        )
+    }
+}
+
+@Composable
+private fun BottomInfoBar(tabViewModel: TabViewModel) {
+    val userInfo by tabViewModel.authorInfoSimple.collectAsState()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(32.dp)
+            .background(MaterialTheme.colors.surface)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(32.dp)
-                .background(MaterialTheme.colors.surface)
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .fillMaxHeight()
+                .handMouseClickable { tabViewModel.showAuthorInfoDialog() },
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "${userInfo.name ?: "Name not set"} <${userInfo.email ?: "Email not set"}>",
+                style = MaterialTheme.typography.body2,
+            )
+        }
+    }
+}
+
+@Composable
+fun SideBarButton(
+    modifier: Modifier = Modifier,
+    painterName: String,
+    label: String,
+    onClick: () -> Unit
+) {
+    val hoverInteraction = remember { MutableInteractionSource() }
+    val isHovered by hoverInteraction.collectIsHoveredAsState()
+
+    val (buttonCoordinates, setButtonCoordinates) = remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
+
+    if (isHovered && buttonCoordinates != null) {
+        Popup(
+            popupPositionProvider = object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset {
+                    val position = buttonCoordinates.first
+                    val size = buttonCoordinates.second
+                    val x = position.x + size.width + 8
+                    val y = position.y + (size.height / 2) - (popupContentSize.height / 2)
+
+                    return IntOffset(x.toInt(), y.toInt())
+                }
+
+            }
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .handMouseClickable { tabViewModel.showAuthorInfoDialog() },
-                contentAlignment = Alignment.Center,
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colors.background)
             ) {
                 Text(
-                    text = "${userInfo.name ?: "Name not set"} <${userInfo.email ?: "Email not set"}>",
-                    style = MaterialTheme.typography.body2,
+                    text = label,
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
         }
+    }
 
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+            .handOnHover()
+            .hoverable(hoverInteraction)
+            .size(24.dp)
+            .onGloballyPositioned { layoutCoordinates ->
+                setButtonCoordinates(layoutCoordinates.positionInRoot() to layoutCoordinates.size)
+            }
+    ) {
+        Icon(
+            painter = painterResource(painterName),
+            contentDescription = null,
+            modifier = Modifier,
+            tint = MaterialTheme.colors.primaryTextColor,
+        )
     }
 }
 
@@ -246,6 +382,7 @@ fun MainContentView(
                                                 repositoryState = repositoryState,
                                             )
                                         }
+
                                         else -> {
                                             val diffViewModel = tabViewModel.diffViewModel
 

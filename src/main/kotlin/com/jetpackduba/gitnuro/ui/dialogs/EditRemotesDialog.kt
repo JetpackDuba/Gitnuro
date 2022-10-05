@@ -16,13 +16,13 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.viewmodels.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EditRemotesDialog(
     remotesViewModel: RemotesViewModel,
@@ -90,7 +90,7 @@ fun EditRemotesDialog(
                 IconButton(
                     onClick = onDismiss,
                     modifier = Modifier
-                        .pointerHoverIcon(PointerIconDefaults.Hand)
+                        .handOnHover()
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
@@ -153,7 +153,7 @@ fun EditRemotesDialog(
                         IconButton(
                             modifier = Modifier
                                 .size(36.dp)
-                                .pointerHoverIcon(PointerIconDefaults.Hand),
+                                .handOnHover(),
                             onClick = {
                                 val remotesWithNew = remotesEditorData.listRemotes.toMutableList()
                                 val newRemote = RemoteWrapper(
@@ -182,7 +182,7 @@ fun EditRemotesDialog(
                         IconButton(
                             modifier = Modifier
                                 .size(36.dp)
-                                .pointerHoverIcon(PointerIconDefaults.Hand),
+                                .handOnHover(),
                             enabled = selectedRemote != null,
                             onClick = {
                                 if (selectedRemote != null)

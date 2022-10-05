@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.lineAt
 import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -187,7 +188,7 @@ fun MinimizedBlame(
             onClick = onClose,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .pointerHoverIcon(PointerIconDefaults.Hand)
+                .handOnHover()
         ) {
             Image(
                 painter = painterResource("close.svg"),
@@ -222,7 +223,7 @@ private fun Header(
         IconButton(
             onClick = onClose,
             modifier = Modifier
-                .pointerHoverIcon(PointerIconDefaults.Hand)
+                .handOnHover()
         ) {
             Image(
                 painter = painterResource("close.svg"),

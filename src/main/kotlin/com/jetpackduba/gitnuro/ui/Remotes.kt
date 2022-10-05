@@ -16,6 +16,7 @@ import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
@@ -29,7 +30,6 @@ import com.jetpackduba.gitnuro.viewmodels.RemoteView
 import com.jetpackduba.gitnuro.viewmodels.RemotesViewModel
 import org.eclipse.jgit.lib.Ref
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Remotes(
     remotesViewModel: RemotesViewModel,
@@ -62,7 +62,7 @@ fun Remotes(
                 modifier = Modifier
                     .padding(end = 16.dp)
                     .size(16.dp)
-                    .pointerHoverIcon(PointerIconDefaults.Hand),
+                    .handOnHover(),
             ) {
                 Icon(
                     painter = painterResource("settings.svg"),

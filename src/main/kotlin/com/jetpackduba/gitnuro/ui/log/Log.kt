@@ -333,7 +333,7 @@ fun SearchFilter(
 
                     IconButton(
                         modifier = Modifier
-                            .pointerHoverIcon(PointerIconDefaults.Hand),
+                            .handOnHover(),
                         onClick = {
                             scope.launch { logViewModel.selectPreviousFilterCommit() }
                         }
@@ -343,7 +343,7 @@ fun SearchFilter(
 
                     IconButton(
                         modifier = Modifier
-                            .pointerHoverIcon(PointerIconDefaults.Hand),
+                            .handOnHover(),
                         onClick = {
                             scope.launch { logViewModel.selectNextFilterCommit() }
                         }
@@ -353,7 +353,7 @@ fun SearchFilter(
 
                     IconButton(
                         modifier = Modifier
-                            .pointerHoverIcon(PointerIconDefaults.Hand)
+                            .handOnHover()
                             .padding(end = 4.dp),
                         onClick = { logViewModel.closeSearch() }
                     ) {
@@ -613,7 +613,7 @@ fun GraphHeader(
             IconButton(
                 modifier = Modifier
                     .padding(end = 8.dp)
-                    .pointerHoverIcon(PointerIconDefaults.Hand),
+                    .handOnHover(),
                 onClick = onShowSearch
             ) {
                 Icon(
@@ -1135,7 +1135,7 @@ fun RefChip(
             .clip(RoundedCornerShape(16.dp))
             .border(width = 2.dp, color = color, shape = RoundedCornerShape(16.dp))
             .combinedClickable(onDoubleClick = onCheckoutRef, onClick = {})
-            .pointerHoverIcon(PointerIconDefaults.Hand)
+            .handOnHover()
     ) {
         ContextMenu(
             items = contextMenuItemsList

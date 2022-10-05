@@ -17,11 +17,10 @@ fun Modifier.backgroundIf(condition: Boolean, color: Color): Modifier {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
     return this
         .clickable { onClick() }
-        .pointerHoverIcon(PointerIconDefaults.Hand)
+        .handOnHover()
 }
 
 /**
@@ -30,4 +29,9 @@ fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
  */
 fun Modifier.ignoreKeyEvents(): Modifier {
     return this.onPreviewKeyEvent { true }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.handOnHover(): Modifier {
+    return this.pointerHoverIcon(PointerIconDefaults.Hand)
 }

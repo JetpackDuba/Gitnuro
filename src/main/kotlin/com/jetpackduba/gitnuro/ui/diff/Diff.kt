@@ -550,7 +550,6 @@ fun HunkHeader(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun DiffHeader(
     diffEntryType: DiffEntryType,
@@ -598,7 +597,7 @@ private fun DiffHeader(
         IconButton(
             onClick = onCloseDiffView,
             modifier = Modifier
-                .pointerHoverIcon(PointerIconDefaults.Hand)
+                .handOnHover()
         ) {
             Image(
                 painter = painterResource("close.svg"),
@@ -677,7 +676,6 @@ fun UncommitedDiffFileHeaderButtons(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun PathOnlyDiffHeader(
     filePath: String,
@@ -703,7 +701,7 @@ private fun PathOnlyDiffHeader(
         IconButton(
             onClick = onCloseDiffView,
             modifier = Modifier
-                .pointerHoverIcon(PointerIconDefaults.Hand)
+                .handOnHover()
         ) {
             Image(
                 painter = painterResource("close.svg"),

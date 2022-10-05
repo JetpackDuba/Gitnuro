@@ -55,6 +55,7 @@ class TabViewModel @Inject constructor(
     private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val tabState: TabState,
     val appStateManager: AppStateManager,
+    val settingsViewModel: SettingsViewModel,
     private val fileChangesWatcher: FileChangesWatcher,
     private val updatesRepository: UpdatesRepository,
 ) {
