@@ -30,7 +30,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -38,23 +37,23 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.git.workspace.StatusSummary
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
+import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.viewmodels.LogSearch
 import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
-import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.theme.*
-import com.jetpackduba.gitnuro.ui.context_menu.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
@@ -99,7 +98,6 @@ fun Log(
     val logStatus = logStatusState.value
     val showLogDialog by logViewModel.logDialog.collectAsState()
 
-
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit
     } else {
@@ -107,6 +105,7 @@ fun Log(
     }
 
     if (logStatus is LogStatus.Loaded) {
+        val coroutineScope = rememberCoroutineScope()
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
         val verticalScrollState by logViewModel.verticalListState.collectAsState()
@@ -117,16 +116,16 @@ fun Log(
         // the proper scroll position
         verticalScrollState.observeScrollChanges()
 
-        LaunchedEffect(selectedCommit) {
-            // Scroll to commit if a Ref is selected
-            if (selectedItem is SelectedItem.Ref) {
-                scrollToCommit(verticalScrollState, commitList, selectedCommit)
-            }
-        }
-
         LaunchedEffect(Unit) {
-            logViewModel.focusCommit.collect { commit ->
-                scrollToCommit(verticalScrollState, commitList, commit)
+            coroutineScope.launch {
+                logViewModel.focusCommit.collect { commit ->
+                    scrollToCommit(verticalScrollState, commitList, commit)
+                }
+            }
+            coroutineScope.launch {
+                logViewModel.scrollToUncommitedChanges.collect {
+                    scrollToUncommitedChanges(verticalScrollState, commitList)
+                }
             }
         }
 
@@ -218,38 +217,6 @@ fun Log(
                     ),
                     adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
-
-                if (verticalScrollState.firstVisibleItemIndex > 0) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(bottom = 16.dp, end = 16.dp)
-                            .clip(RoundedCornerShape(50))
-                            .handMouseClickable {
-                                scope.launch {
-                                    verticalScrollState.scrollToItem(0)
-                                }
-                            }
-                            .background(MaterialTheme.colors.primary)
-                            .padding(vertical = 8.dp, horizontal = 16.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painterResource("align_top.svg"),
-                                contentDescription = null,
-                                tint = MaterialTheme.colors.onPrimary,
-                                modifier = Modifier.size(18.dp),
-                            )
-
-                            Text(
-                                text = "Scroll to top",
-                                modifier = Modifier.padding(start = 8.dp),
-                                color = MaterialTheme.colors.onPrimary,
-                                style = MaterialTheme.typography.body1,
-                            )
-                        }
-                    }
-                }
             }
         }
     }
@@ -265,6 +232,14 @@ suspend fun scrollToCommit(
     // Index can be -1 if the ref points to a commit that is not shown in the graph due to the limited
     // number of displayed commits.
     if (index >= 0) verticalScrollState.scrollToItem(index)
+}
+
+suspend fun scrollToUncommitedChanges(
+    verticalScrollState: LazyListState,
+    commitList: GraphCommitList,
+) {
+    if (commitList.isNotEmpty())
+        verticalScrollState.scrollToItem(0)
 }
 
 @Composable
@@ -306,10 +281,12 @@ fun SearchFilter(
                             }
                             true
                         }
+
                         keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyUp -> {
                             logViewModel.closeSearch()
                             true
                         }
+
                         else -> false
                     }
                 },
@@ -549,16 +526,19 @@ fun LogDialogs(
                 onResetShowLogDialog()
             })
         }
+
         is LogDialog.NewTag -> {
             NewTagDialog(onReject = onResetShowLogDialog, onAccept = { tagName ->
                 logViewModel.createTagOnCommit(tagName, showLogDialog.graphNode)
                 onResetShowLogDialog()
             })
         }
+
         is LogDialog.ResetBranch -> ResetBranchDialog(onReject = onResetShowLogDialog, onAccept = { resetType ->
             logViewModel.resetToCommit(showLogDialog.graphNode, resetType)
             onResetShowLogDialog()
         })
+
         LogDialog.None -> {
         }
     }

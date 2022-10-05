@@ -14,20 +14,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.pointer.PointerIconDefaults
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
-import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
 
@@ -37,6 +33,7 @@ fun Menu(
     modifier: Modifier,
     menuViewModel: MenuViewModel,
     onCreateBranch: () -> Unit,
+    onGoToWorkspace: () -> Unit,
     onStashWithMessage: () -> Unit,
 ) {
     var showAdditionalOptionsDropDownMenu by remember { mutableStateOf(false) }
@@ -46,6 +43,15 @@ fun Menu(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        MenuButton(
+            modifier = Modifier
+                .padding(start = 16.dp),
+            title = "Workspace",
+            icon = painterResource("computer.svg"),
+            onClick = onGoToWorkspace,
+            fixedWidth = false,
+        )
+
         Spacer(modifier = Modifier.weight(1f))
 
         ExtendedMenuButton(
@@ -144,6 +150,7 @@ fun MenuButton(
     enabled: Boolean = true,
     title: String,
     icon: Painter,
+    fixedWidth: Boolean = true,
     onClick: () -> Unit
 ) {
     Row(
@@ -152,7 +159,12 @@ fun MenuButton(
             .clip(RoundedCornerShape(4.dp))
             .background(MaterialTheme.colors.primary)
             .handMouseClickable { if (enabled) onClick() }
-            .width(100.dp),
+            .run {
+                return@run if (fixedWidth) {
+                    this.width(100.dp)
+                } else
+                    this.padding(horizontal = 16.dp)
+            },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -167,7 +179,7 @@ fun MenuButton(
         Text(
             text = title,
             style = MaterialTheme.typography.body2,
-            modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom  = 8.dp),
+            modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom = 8.dp),
             maxLines = 1,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colors.onPrimary,
@@ -209,7 +221,7 @@ fun ExtendedMenuButton(
             )
             Text(
                 text = title,
-                modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom  = 8.dp),
+                modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom = 8.dp),
                 style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.onPrimary,
             )

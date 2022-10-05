@@ -4,10 +4,10 @@ import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.ErrorsManager
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
-import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.newErrorNow
@@ -130,6 +130,8 @@ class TabViewModel @Inject constructor(
                 tabState.taskEvent.collect { taskEvent ->
                     when (taskEvent) {
                         is TaskEvent.RebaseInteractive -> onRebaseInteractive(taskEvent)
+                        else -> { /*Nothing to do here*/
+                        }
                     }
                 }
             }
@@ -429,8 +431,16 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    fun selectCommit(commit: RevCommit) {
+    fun selectCommit(commit: RevCommit) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
         tabState.newSelectedItem(SelectedItem.Commit(commit))
+    }
+
+    fun selectUncommitedChanges() = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
+        tabState.newSelectedItem(SelectedItem.UncommitedChanges, true)
     }
 
     fun fileHistory(filePath: String) {

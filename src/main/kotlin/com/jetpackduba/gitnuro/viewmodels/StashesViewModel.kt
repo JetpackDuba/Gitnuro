@@ -58,11 +58,15 @@ class StashesViewModel @Inject constructor(
         stashDropped(stash)
     }
 
-    fun selectTab(stash: RevCommit) {
+    fun selectTab(stash: RevCommit) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
         tabState.newSelectedStash(stash)
     }
 
-    private fun stashDropped(stash: RevCommit) {
+    private fun stashDropped(stash: RevCommit) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
         val selectedValue = tabState.selectedItem.value
         if (
             selectedValue is SelectedItem.Stash &&

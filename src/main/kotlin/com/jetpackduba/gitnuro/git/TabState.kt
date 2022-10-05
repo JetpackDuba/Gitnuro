@@ -179,11 +179,11 @@ class TabState @Inject constructor(
         _refreshData.emit(refreshType)
     }
 
-    fun newSelectedStash(stash: RevCommit) {
+    suspend fun newSelectedStash(stash: RevCommit) {
         newSelectedItem(SelectedItem.Stash(stash))
     }
 
-    fun noneSelected() {
+    suspend fun noneSelected() {
         newSelectedItem(SelectedItem.None)
     }
 
@@ -194,7 +194,9 @@ class TabState @Inject constructor(
             newSelectedItem(SelectedItem.None)
         } else {
             val commit = findCommit(git, objectId)
-            newSelectedItem(SelectedItem.Ref(commit))
+            val newSelectedItem = SelectedItem.Ref(commit)
+            newSelectedItem(newSelectedItem)
+            _taskEvent.emit(TaskEvent.ScrollToGraphItem(newSelectedItem))
         }
     }
 
@@ -202,8 +204,12 @@ class TabState @Inject constructor(
         return git.repository.parseCommit(objectId)
     }
 
-    fun newSelectedItem(selectedItem: SelectedItem) {
+    suspend fun newSelectedItem(selectedItem: SelectedItem, scrollToItem: Boolean = false) {
         _selectedItem.value = selectedItem
+
+        if (scrollToItem) {
+            _taskEvent.emit(TaskEvent.ScrollToGraphItem(selectedItem))
+        }
     }
 
     suspend fun emitNewTaskEvent(taskEvent: TaskEvent) {

@@ -136,6 +136,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                             menuViewModel = tabViewModel.menuViewModel,
                             onCreateBranch = { showNewBranchDialog = true },
                             onStashWithMessage = { showStashWithMessageDialog = true },
+                            onGoToWorkspace = { tabViewModel.selectUncommitedChanges() }
                         )
 
                         RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
@@ -322,6 +323,7 @@ fun RepoContent(
 
 }
 
+@OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 fun MainContentView(
     tabViewModel: TabViewModel,

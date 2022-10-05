@@ -3,8 +3,13 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.git.RefreshType
+import com.jetpackduba.gitnuro.git.TabState
+import com.jetpackduba.gitnuro.git.TaskEvent
+import com.jetpackduba.gitnuro.git.branches.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
+import com.jetpackduba.gitnuro.git.log.*
 import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
@@ -12,16 +17,11 @@ import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangedUseCase
-import com.jetpackduba.gitnuro.git.RefreshType
-import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.workspace.GetStatusSummaryUseCase
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.log.LogDialog
-import com.jetpackduba.gitnuro.git.TaskEvent
-import com.jetpackduba.gitnuro.git.branches.*
-import com.jetpackduba.gitnuro.git.log.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -74,8 +74,19 @@ class LogViewModel @Inject constructor(
     var savedSearchFilter: String = ""
     var graphPadding = 0f
 
-    private val _focusCommit = MutableSharedFlow<GraphNode>()
-    val focusCommit: SharedFlow<GraphNode> = _focusCommit
+    private val scrollToItem: Flow<RevCommit> = tabState.taskEvent
+        .filterIsInstance<TaskEvent.ScrollToGraphItem>()
+        .map { it.selectedItem }
+        .filterIsInstance<SelectedItem.CommitBasedItem>()
+        .map { it.revCommit }
+
+    val scrollToUncommitedChanges: Flow<SelectedItem.UncommitedChanges> = tabState.taskEvent
+        .filterIsInstance<TaskEvent.ScrollToGraphItem>()
+        .map { it.selectedItem }
+        .filterIsInstance<SelectedItem.UncommitedChanges>()
+
+    private val _focusCommit = MutableSharedFlow<RevCommit>()
+    val focusCommit: Flow<RevCommit> = merge(_focusCommit, scrollToItem)
 
     private val _logDialog = MutableStateFlow<LogDialog>(LogDialog.None)
     val logDialog: StateFlow<LogDialog> = _logDialog
@@ -255,7 +266,9 @@ class LogViewModel @Inject constructor(
         rebaseBranchUseCase(git, ref)
     }
 
-    fun selectUncommitedChanges() {
+    fun selectUncommitedChanges() = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
         tabState.newSelectedItem(SelectedItem.UncommitedChanges)
 
         val searchValue = _logSearchFilterResults.value
@@ -275,7 +288,9 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectLogLine(commit: GraphNode) {
+    fun selectLogLine(commit: GraphNode) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
         tabState.newSelectedItem(SelectedItem.Commit(commit))
 
         val searchValue = _logSearchFilterResults.value
