@@ -576,6 +576,7 @@ private fun DiffHeader(
         Text(
             text = filePath,
             style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackground,
             maxLines = 1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
@@ -692,6 +693,7 @@ private fun PathOnlyDiffHeader(
         Text(
             text = filePath,
             style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackground,
             maxLines = 1,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
@@ -794,6 +796,7 @@ fun DiffLineText(text: String) {
                 .fillMaxSize(),
             fontFamily = FontFamily.Monospace,
             style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackground,
             overflow = TextOverflow.Visible,
         )
 
@@ -806,6 +809,7 @@ fun DiffLineText(text: String) {
             Text(
                 text = lineDelimiter,
                 maxLines = 1,
+                color = MaterialTheme.colors.onBackground,
             )
         }
 

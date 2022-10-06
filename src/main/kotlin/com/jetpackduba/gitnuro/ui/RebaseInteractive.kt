@@ -91,7 +91,11 @@ fun RebaseStateLoaded(
                 },
                 colors = textButtonColors(),
             ) {
-                Text("Cancel")
+                Text(
+                        text = "Cancel",
+                        color = MaterialTheme.colors.onBackground,
+                        style = MaterialTheme.typography.body1,
+                    )
             }
             PrimaryButton(
                 modifier = Modifier.padding(end = 16.dp),

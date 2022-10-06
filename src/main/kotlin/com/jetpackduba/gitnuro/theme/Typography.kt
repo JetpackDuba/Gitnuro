@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.theme
 
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.runtime.Composable
@@ -25,42 +26,42 @@ val openSansFontFamily = FontFamily(
 const val LETTER_SPACING = 0.5
 
 @Composable
-fun typography() = Typography(
+fun typography(composeColors: Colors) = Typography(
     defaultFontFamily = openSansFontFamily,
     h1 = TextStyle(
         fontSize = 32.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     h2 = TextStyle(
         fontSize = 24.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     h3 = TextStyle(
         fontSize = 20.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     h4 = TextStyle(
         fontSize = 17.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body1 = TextStyle(
         fontSize = 15.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body2 = TextStyle(
         fontSize = 13.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         fontWeight = FontWeight.Normal,
         letterSpacing = LETTER_SPACING.sp,
     ),
     caption = TextStyle(
         fontSize = 11.sp,
-        color = MaterialTheme.colors.onBackground,
+        color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     )
 )

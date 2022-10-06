@@ -98,7 +98,11 @@ fun PasswordDialog(
                         onReject()
                     }
                 ) {
-                    Text("Cancel")
+                    Text(
+                        text = "Cancel",
+                        color = MaterialTheme.colors.onBackground,
+                        style = MaterialTheme.typography.body1,
+                    )
                 }
                 PrimaryButton(
                     modifier = Modifier

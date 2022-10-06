@@ -25,11 +25,11 @@ fun AppTheme(
     }
 
     appTheme = theme
-
+    val composeColors = theme.toComposeColors()
     MaterialTheme(
-        colors = theme.toComposeColors(),
+        colors = composeColors,
         content = content,
-        typography = typography(),
+        typography = typography(composeColors),
     )
 }
 

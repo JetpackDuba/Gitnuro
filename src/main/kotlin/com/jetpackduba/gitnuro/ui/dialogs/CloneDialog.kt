@@ -209,7 +209,11 @@ private fun CloneInput(
                     onClose()
                 }
             ) {
-                Text("Cancel")
+                Text(
+                        text = "Cancel",
+                        color = MaterialTheme.colors.onBackground,
+                        style = MaterialTheme.typography.body1,
+                    )
             }
             PrimaryButton(
                 onClick = {
@@ -275,7 +279,11 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
                 cloneViewModel.cancelClone()
             }
         ) {
-            Text("Cancel")
+            Text(
+                        text = "Cancel",
+                        color = MaterialTheme.colors.onBackground,
+                        style = MaterialTheme.typography.body1,
+                    )
         }
     }
 }

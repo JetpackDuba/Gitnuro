@@ -701,6 +701,7 @@ fun SummaryEntry(
         Text(
             text = count.toString(),
             style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackground,
         )
 
         Icon(
