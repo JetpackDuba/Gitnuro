@@ -22,7 +22,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import java.awt.event.MouseEvent
 import kotlin.math.abs
@@ -126,7 +126,7 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
                 .background(MaterialTheme.colors.background)
                 .run {
                     return@run if (!MaterialTheme.colors.isLight) {
-                        this.border(1.dp, MaterialTheme.colors.primaryTextColor.copy(alpha = 0.2f))
+                        this.border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.2f))
                     } else
                         this
                 }
@@ -160,7 +160,7 @@ fun Separator() {
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .height(1.dp)
-            .background(MaterialTheme.colors.primaryTextColor.copy(alpha = 0.4f))
+            .background(MaterialTheme.colors.onBackground.copy(alpha = 0.4f))
     )
 }
 

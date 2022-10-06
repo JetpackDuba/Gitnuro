@@ -33,7 +33,7 @@ fun MaterialDialog(
     alignment: Alignment = Alignment.Center,
     paddingHorizontal: Dp = 16.dp,
     paddingVertical: Dp = 16.dp,
-    background: Color = MaterialTheme.colors.background,
+    background: Color = MaterialTheme.colors.surface,
     onCloseRequested: () -> Unit = {},
     content: @Composable () -> Unit
 ) {

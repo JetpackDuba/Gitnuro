@@ -14,7 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -43,7 +43,7 @@ fun AuthorDialog(
 
             Text(
                 text = "Global settings",
-                color = MaterialTheme.colors.primaryTextColor,
+                color = MaterialTheme.colors.onBackground,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
@@ -61,7 +61,7 @@ fun AuthorDialog(
 
             Text(
                 text = "Repository settings",
-                color = MaterialTheme.colors.primaryTextColor,
+                color = MaterialTheme.colors.onBackground,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
             )
@@ -88,7 +88,7 @@ fun AuthorDialog(
                 Icon(
                     painterResource("warning.svg"),
                     contentDescription = null,
-                    tint = MaterialTheme.colors.primaryTextColor,
+                    tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier.size(16.dp)
                 )
                 Text(

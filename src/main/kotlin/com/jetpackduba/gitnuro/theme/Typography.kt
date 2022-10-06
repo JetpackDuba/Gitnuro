@@ -29,38 +29,38 @@ fun typography() = Typography(
     defaultFontFamily = openSansFontFamily,
     h1 = TextStyle(
         fontSize = 32.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     h2 = TextStyle(
         fontSize = 24.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     h3 = TextStyle(
         fontSize = 20.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     h4 = TextStyle(
         fontSize = 17.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body1 = TextStyle(
         fontSize = 15.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body2 = TextStyle(
         fontSize = 13.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         fontWeight = FontWeight.Normal,
         letterSpacing = LETTER_SPACING.sp,
     ),
     caption = TextStyle(
         fontSize = 11.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     )
 )

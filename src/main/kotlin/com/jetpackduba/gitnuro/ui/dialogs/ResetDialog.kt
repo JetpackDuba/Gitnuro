@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.git.log.ResetType
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
@@ -109,7 +109,7 @@ fun RadioButtonText(
         Text(
             text = text,
             modifier = Modifier.padding(horizontal = 8.dp),
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
         )
     }
 }

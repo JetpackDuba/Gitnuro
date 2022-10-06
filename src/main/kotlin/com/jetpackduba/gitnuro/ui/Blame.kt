@@ -33,7 +33,6 @@ import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.headerBackground
-import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
@@ -119,7 +118,7 @@ fun Blame(
 
                         Text(
                             text = line + blameResult.resultContents.lineDelimiter,
-                            color = MaterialTheme.colors.primaryTextColor,
+                            color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                             fontFamily = FontFamily.Monospace,
                             maxLines = 1,
@@ -142,7 +141,7 @@ private fun LineNumber(line: Int, highestLineLength: Int) {
     ) {
         Text(
             text = line.toStringWithSpaces(highestLineLength),
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             fontFamily = FontFamily.Monospace,
         )
     }
@@ -193,7 +192,7 @@ fun MinimizedBlame(
             Image(
                 painter = painterResource("close.svg"),
                 contentDescription = "Close blame",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
         }
     }
@@ -228,7 +227,7 @@ private fun Header(
             Image(
                 painter = painterResource("close.svg"),
                 contentDescription = "Close blame",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
         }
     }

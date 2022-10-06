@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
@@ -49,7 +49,7 @@ fun UserPasswordDialog(
                 text = "Introduce your remote server credentials",
                 modifier = Modifier
                     .padding(vertical = 8.dp),
-                color = MaterialTheme.colors.primaryTextColor,
+                color = MaterialTheme.colors.onBackground,
             )
 
             OutlinedTextField(

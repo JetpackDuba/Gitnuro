@@ -19,8 +19,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.PointerIconDefaults
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -30,7 +28,6 @@ import com.jetpackduba.gitnuro.git.diff.DiffResult
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.headerBackground
-import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
@@ -108,7 +105,7 @@ private fun Header(
             Image(
                 painter = painterResource("close.svg"),
                 contentDescription = "Close history",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
         }
     }

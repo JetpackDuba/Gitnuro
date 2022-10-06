@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.simpleName
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.VerticalExpandable
@@ -69,7 +69,7 @@ fun Remotes(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize(),
-                    tint = MaterialTheme.colors.primaryTextColor,
+                    tint = MaterialTheme.colors.onBackground,
                 )
             }
         },

@@ -38,10 +38,6 @@ val Colors.backgroundSelected: Color
     get() = appTheme.backgroundSelected
 
 @get:Composable
-val Colors.primaryTextColor: Color
-    get() = appTheme.primaryText
-
-@get:Composable
 val Colors.secondaryTextColor: Color
     get() = appTheme.secondaryText
 

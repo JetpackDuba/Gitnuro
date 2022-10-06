@@ -35,7 +35,6 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.AuthorDialog
@@ -221,6 +220,7 @@ private fun BottomInfoBar(tabViewModel: TabViewModel) {
             Text(
                 text = "${userInfo.name ?: "Name not set"} <${userInfo.email ?: "Email not set"}>",
                 style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackground,
             )
         }
     }
@@ -285,7 +285,7 @@ fun SideBarButton(
             painter = painterResource(painterName),
             contentDescription = null,
             modifier = Modifier,
-            tint = MaterialTheme.colors.primaryTextColor,
+            tint = MaterialTheme.colors.onBackground,
         )
     }
 }

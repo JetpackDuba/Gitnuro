@@ -26,7 +26,6 @@ import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
-import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
@@ -251,7 +250,7 @@ fun LoadingRepository(repoPath: String) {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Opening repository", fontSize = 36.sp, color = MaterialTheme.colors.primaryTextColor)
+            Text("Opening repository", fontSize = 36.sp, color = MaterialTheme.colors.onBackground)
             Text(repoPath, fontSize = 24.sp, color = MaterialTheme.colors.secondaryTextColor)
         }
     }

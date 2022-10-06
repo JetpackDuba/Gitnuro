@@ -19,7 +19,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.git.CloneStatus
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -166,7 +166,7 @@ private fun CloneInput(
                 Icon(
                     Icons.Default.Search,
                     contentDescription = null,
-                    tint = MaterialTheme.colors.primaryTextColor,
+                    tint = MaterialTheme.colors.onBackground,
                 )
             }
         }
@@ -248,7 +248,7 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
-            Text(cloneStatusValue.taskName, color = MaterialTheme.colors.primaryTextColor)
+            Text(cloneStatusValue.taskName, color = MaterialTheme.colors.onBackground)
 
             if (progress >= 0f)
                 CircularProgressIndicator(
@@ -295,7 +295,7 @@ private fun Cancelling() {
 
         Text(
             text = "Cancelling clone operation...",
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             modifier = Modifier.padding(vertical = 16.dp),
         )
     }

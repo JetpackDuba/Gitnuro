@@ -9,7 +9,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.theme.primaryTextColor
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -62,7 +61,7 @@ fun RebaseStateLoaded(
     ) {
         Text(
             text = "Rebase interactive",
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             modifier = Modifier.padding(start = 16.dp, top = 16.dp),
             fontSize = 20.sp,
         )

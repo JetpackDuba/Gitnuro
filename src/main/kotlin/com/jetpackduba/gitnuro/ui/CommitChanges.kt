@@ -280,7 +280,7 @@ fun CommitLogChanges(
                             maxLines = 1,
                             softWrap = false,
                             style = MaterialTheme.typography.body2,
-                            color = MaterialTheme.colors.primaryTextColor,
+                            color = MaterialTheme.colors.onBackground,
                         )
                     }
 

@@ -7,7 +7,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 
 @Composable
 fun PrimaryButton(
@@ -15,7 +15,7 @@ fun PrimaryButton(
     text: String,
     enabled: Boolean = true,
     textColor: Color = MaterialTheme.colors.onPrimary,
-    disabledTextColor: Color = MaterialTheme.colors.primaryTextColor,
+    disabledTextColor: Color = MaterialTheme.colors.onBackground,
     onClick: () -> Unit,
 ) {
     Button(

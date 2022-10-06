@@ -409,7 +409,7 @@ fun MessagesList(
                 ) {
                     Text(
                         text = "The commits list has been limited to $commitsLimit. Access the settings to change it.",
-                        color = MaterialTheme.colors.primaryTextColor,
+                        color = MaterialTheme.colors.onBackground,
                         fontStyle = FontStyle.Italic,
                         style = MaterialTheme.typography.body2,
                         maxLines = 1,
@@ -600,7 +600,7 @@ fun GraphHeader(
                     Icons.Default.Search,
                     modifier = Modifier.size(18.dp),
                     contentDescription = null,
-                    tint = MaterialTheme.colors.primaryTextColor,
+                    tint = MaterialTheme.colors.onBackground,
                 )
             }
         }
@@ -639,7 +639,7 @@ fun UncommitedChangesLine(
             modifier = Modifier.padding(start = 16.dp),
             style = MaterialTheme.typography.body2,
             maxLines = 1,
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -844,7 +844,7 @@ fun CommitMessage(
                 .padding(start = 8.dp)
                 .weight(1f),
             style = MaterialTheme.typography.body2,
-            color = if (matchesSearchFilter == false) MaterialTheme.colors.secondaryTextColor else MaterialTheme.colors.primaryTextColor,
+            color = if (matchesSearchFilter == false) MaterialTheme.colors.secondaryTextColor else MaterialTheme.colors.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -1137,6 +1137,7 @@ fun RefChip(
                 Text(
                     text = ref.simpleLogName,
                     style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onBackground,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )

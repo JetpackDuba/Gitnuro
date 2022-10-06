@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 
 @Composable
@@ -42,7 +42,7 @@ fun SideMenuEntry(
         Icon(
             painter = painterResource(if (isExpanded) "expand_more.svg" else "chevron_right.svg"),
             contentDescription = null,
-            tint = MaterialTheme.colors.primaryTextColor,
+            tint = MaterialTheme.colors.onBackground,
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .size(16.dp),
@@ -52,7 +52,7 @@ fun SideMenuEntry(
             Icon(
                 painter = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colors.primaryTextColor,
+                tint = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .size(16.dp),
             )
@@ -66,7 +66,7 @@ fun SideMenuEntry(
             maxLines = 1,
             style = MaterialTheme.typography.body2,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             overflow = TextOverflow.Ellipsis,
         )
 

@@ -226,7 +226,7 @@ fun SideTitle(text: String) {
     Text(
         text = text,
         fontSize = 20.sp,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
     )
 }
 
@@ -504,7 +504,7 @@ fun HunkHeader(
     ) {
         Text(
             text = header,
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             style = MaterialTheme.typography.body1,
         )
 
@@ -602,7 +602,7 @@ private fun DiffHeader(
             Image(
                 painter = painterResource("close.svg"),
                 contentDescription = "Close diff",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
         }
     }
@@ -616,7 +616,7 @@ fun DiffTypeButtons(diffType: TextDiffType, onChangeDiffType: (TextDiffType) -> 
     ) {
         Text(
             "Unified",
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             style = MaterialTheme.typography.caption,
         )
 
@@ -639,7 +639,7 @@ fun DiffTypeButtons(diffType: TextDiffType, onChangeDiffType: (TextDiffType) -> 
 
         Text(
             "Split",
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
 //            modifier = Modifier.padding(horizontal = 4.dp),
             style = MaterialTheme.typography.caption,
         )
@@ -706,7 +706,7 @@ private fun PathOnlyDiffHeader(
             Image(
                 painter = painterResource("close.svg"),
                 contentDescription = "Close diff",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.primaryTextColor),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
         }
     }
@@ -820,7 +820,7 @@ fun LineNumber(text: String, remarked: Boolean) {
             .padding(start = 8.dp, end = 4.dp),
         fontFamily = FontFamily.Monospace,
         style = MaterialTheme.typography.body2,
-        color = if (remarked) MaterialTheme.colors.primaryTextColor else MaterialTheme.colors.secondaryTextColor,
+        color = if (remarked) MaterialTheme.colors.onBackground else MaterialTheme.colors.secondaryTextColor,
     )
 }
 

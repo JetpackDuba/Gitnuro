@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 
 const val ENTRY_HEIGHT = 36
 
@@ -59,7 +59,7 @@ fun SideMenuSubentry(
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
             style = MaterialTheme.typography.body2,
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             softWrap = false,
         )
 

@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 
@@ -36,10 +37,14 @@ fun AdjustableOutlinedTextField(
     colors: TextFieldColors = outlinedTextFieldColors(),
     maxLines: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    textStyle: TextStyle = LocalTextStyle.current.copy(fontSize = MaterialTheme.typography.body1.fontSize),
+    textStyle: TextStyle = LocalTextStyle.current.copy(
+        fontSize = MaterialTheme.typography.body1.fontSize,
+        color = MaterialTheme.colors.onBackground,
+    ),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = RoundedCornerShape(4.dp),
-    backgroundColor: Color = MaterialTheme.colors.background
+    backgroundColor: Color = MaterialTheme.colors.background,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -61,6 +66,7 @@ fun AdjustableOutlinedTextField(
         keyboardOptions = keyboardOptions,
         cursorBrush = SolidColor(cursorColor),
         singleLine = singleLine,
+        visualTransformation = visualTransformation,
         decorationBox = { innerTextField ->
             Box(
                 modifier = Modifier

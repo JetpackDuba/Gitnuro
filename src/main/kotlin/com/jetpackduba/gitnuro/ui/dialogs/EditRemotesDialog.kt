@@ -81,6 +81,7 @@ fun EditRemotesDialog(
             ) {
                 Text(
                     text = "Remotes",
+                    color = MaterialTheme.colors.onBackground,
                     style = MaterialTheme.typography.h3,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
@@ -95,7 +96,7 @@ fun EditRemotesDialog(
                     Icon(
                         imageVector = Icons.Default.Clear,
                         contentDescription = null,
-                        tint = MaterialTheme.colors.primaryTextColor,
+                        tint = MaterialTheme.colors.onBackground,
                     )
                 }
             }
@@ -121,7 +122,7 @@ fun EditRemotesDialog(
 
                                 Text(
                                     text = remote.remoteName,
-                                    color = MaterialTheme.colors.primaryTextColor,
+                                    color = MaterialTheme.colors.onBackground,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .handMouseClickable {
@@ -176,7 +177,7 @@ fun EditRemotesDialog(
                             Icon(
                                 painter = painterResource("add.svg"),
                                 contentDescription = null,
-                                tint = MaterialTheme.colors.primaryTextColor,
+                                tint = MaterialTheme.colors.onBackground,
                             )
                         }
                         IconButton(
@@ -193,7 +194,7 @@ fun EditRemotesDialog(
                                 painter = painterResource("remove.svg"),
                                 contentDescription = null,
                                 tint = if (selectedRemote != null)
-                                    MaterialTheme.colors.primaryTextColor
+                                    MaterialTheme.colors.onBackground
                                 else
                                     MaterialTheme.colors.secondaryTextColor,
                             )
@@ -211,7 +212,7 @@ fun EditRemotesDialog(
                             if (selectedRemote.isNew) {
                                 Text(
                                     text = "New remote name",
-                                    color = MaterialTheme.colors.primaryTextColor,
+                                    color = MaterialTheme.colors.onBackground,
                                     modifier = Modifier.padding(top = 8.dp),
                                 )
 
@@ -237,7 +238,7 @@ fun EditRemotesDialog(
 
                             Text(
                                 text = "Fetch URL",
-                                color = MaterialTheme.colors.primaryTextColor,
+                                color = MaterialTheme.colors.onBackground,
                                 modifier = Modifier.padding(top = 8.dp),
                             )
 
@@ -257,7 +258,7 @@ fun EditRemotesDialog(
 
                             Text(
                                 text = "Push URL",
-                                color = MaterialTheme.colors.primaryTextColor,
+                                color = MaterialTheme.colors.onBackground,
                                 modifier = Modifier.padding(top = 8.dp),
                             )
 
@@ -305,7 +306,7 @@ fun EditRemotesDialog(
                                             color = if (remoteChanged)
                                                 MaterialTheme.colors.primaryVariant
                                             else
-                                                MaterialTheme.colors.primaryTextColor,
+                                                MaterialTheme.colors.onBackground,
                                         )
                                     }
                                 }

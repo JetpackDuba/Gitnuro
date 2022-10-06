@@ -12,7 +12,7 @@ fun textFieldColors(
     focusedIndicatorColor: Color = MaterialTheme.colors.primaryVariant,
     focusedLabelColor: Color = MaterialTheme.colors.primaryVariant,
     backgroundColor: Color = MaterialTheme.colors.background,
-    textColor: Color = MaterialTheme.colors.primaryTextColor,
+    textColor: Color = MaterialTheme.colors.onBackground,
     disabledTextColor: Color = MaterialTheme.colors.secondaryTextColor,
 ) = TextFieldDefaults.textFieldColors(
     cursorColor = cursorColor,
@@ -29,7 +29,7 @@ fun outlinedTextFieldColors() = TextFieldDefaults.outlinedTextFieldColors(
     focusedBorderColor = MaterialTheme.colors.primaryVariant,
     focusedLabelColor = MaterialTheme.colors.primaryVariant,
     backgroundColor = MaterialTheme.colors.background,
-    textColor = MaterialTheme.colors.primaryTextColor,
+    textColor = MaterialTheme.colors.onBackground,
 )
 
 @Composable

@@ -30,7 +30,7 @@ import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import javax.inject.Inject
 import kotlin.io.path.Path
@@ -164,6 +164,7 @@ fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, o
                         .weight(1f),
                     overflow = TextOverflow.Visible,
                     style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onBackground,
                     maxLines = 1,
                 )
 
@@ -177,7 +178,7 @@ fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, o
                         Icon(
                             Icons.Default.Close,
                             contentDescription = null,
-                            tint = MaterialTheme.colors.primaryTextColor
+                            tint = MaterialTheme.colors.onBackground
                         )
                     }
                 }

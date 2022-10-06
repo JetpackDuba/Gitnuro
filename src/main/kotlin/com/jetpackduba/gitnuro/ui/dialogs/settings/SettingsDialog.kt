@@ -62,7 +62,7 @@ fun SettingsDialog(
             Text(
                 text = "Settings",
                 style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.primaryTextColor,
+                color = MaterialTheme.colors.onBackground,
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
 
@@ -247,7 +247,7 @@ fun Category(
             .handMouseClickable(onClick)
             .padding(8.dp),
         style = MaterialTheme.typography.body1,
-        color = MaterialTheme.colors.primaryTextColor,
+        color = MaterialTheme.colors.onBackground,
     )
 }
 
@@ -278,7 +278,7 @@ fun <T : DropDownOption> SettingDropDown(
                 Text(
                     text = currentOption.optionName,
                     style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.primaryTextColor,
+                    color = MaterialTheme.colors.onBackground,
                     modifier = Modifier.weight(1f),
                     maxLines = 1
                 )
@@ -286,7 +286,7 @@ fun <T : DropDownOption> SettingDropDown(
                 Icon(
                     painter = painterResource("dropdown.svg"),
                     contentDescription = null,
-                    tint = MaterialTheme.colors.primaryTextColor,
+                    tint = MaterialTheme.colors.onBackground,
                 )
             }
 
@@ -328,7 +328,7 @@ fun SettingButton(
         OutlinedButton(onClick = onClick) {
             Text(
                 text = buttonText,
-                color = MaterialTheme.colors.primaryTextColor,
+                color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body1,
             )
         }
@@ -462,7 +462,7 @@ private fun FieldTitles(
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colors.primaryTextColor,
+            color = MaterialTheme.colors.onBackground,
             style = MaterialTheme.typography.body1,
         )
 

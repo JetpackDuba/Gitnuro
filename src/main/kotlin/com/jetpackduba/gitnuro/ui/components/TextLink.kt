@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.openUrlInBrowser
-import com.jetpackduba.gitnuro.theme.primaryTextColor
+
 
 @Composable
 fun TextLink(
@@ -24,7 +24,7 @@ fun TextLink(
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     val textColor = if (isHovered == colorsInverted) {
-        MaterialTheme.colors.primaryTextColor
+        MaterialTheme.colors.onBackground
     } else {
         MaterialTheme.colors.primaryVariant
     }
