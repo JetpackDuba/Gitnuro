@@ -180,16 +180,18 @@ fun SideBar(tabViewModel: TabViewModel) {
                 openRepositoryDialog(tabViewModel = tabViewModel)
             }
         )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+
         SideBarButton(
-            modifier = Modifier.padding(top = 16.dp),
+            modifier = Modifier.padding(bottom = 16.dp),
             painterName = "refresh.svg",
             label = "Refresh repository information",
             onClick = {
                 tabViewModel.refreshAll()
             }
         )
-
-        Spacer(modifier = Modifier.weight(1f))
 
         SideBarButton(
             painterName = "settings.svg",
