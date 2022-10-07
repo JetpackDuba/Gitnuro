@@ -40,7 +40,7 @@ fun ContextMenu(items: () -> List<ContextMenuElement>, function: @Composable () 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifier {
-    var lastMouseEventState by remember { mutableStateOf<MouseEvent?>(null) }
+    val (lastMouseEventState, setLastMouseEventState) = remember { mutableStateOf<MouseEvent?>(null) }
     val mod = this.pointerInput(Unit) {
 
         while (true) {
@@ -53,11 +53,9 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
                     if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS) {
                         println("IGNORE POPUP TRIGGERED!")
                     } else {
-                        println("POPUP TRIGGERED!")
-                        println("X: ${mouseEvent.x}\nY: ${mouseEvent.y}")
                         lastCheck = currentCheck
 
-                        lastMouseEventState = mouseEvent
+                        setLastMouseEventState(mouseEvent)
                     }
                 }
             }
@@ -66,10 +64,10 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
 
     if (lastMouseEventState != null) {
         showPopup(
-            lastMouseEventState!!.x,
-            lastMouseEventState!!.y,
+            lastMouseEventState.x,
+            lastMouseEventState.y,
             items(),
-            onDismissRequest = { lastMouseEventState = null })
+            onDismissRequest = { setLastMouseEventState(null) })
     }
 
     return mod

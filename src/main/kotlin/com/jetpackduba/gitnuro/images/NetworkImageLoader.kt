@@ -40,8 +40,10 @@ object NetworkImageLoader {
             }
 
         } catch (ex: Exception) {
-            if (ex !is FileNotFoundException)
-                ex.printStackTrace()
+            if (ex !is FileNotFoundException) {
+                // Commented as it fills the logs without useless info when there is no internet connection
+                //ex.printStackTrace()
+            }
         }
 
         // If a previous return hasn't been called, something has gone wrong, return null
