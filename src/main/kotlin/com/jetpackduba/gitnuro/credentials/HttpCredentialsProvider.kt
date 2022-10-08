@@ -3,10 +3,11 @@ package com.jetpackduba.gitnuro.credentials
 import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
+import javax.inject.Inject
 
-class HttpCredentialsProvider : CredentialsProvider() {
-    private val credentialsStateManager = CredentialsStateManager
-
+class HttpCredentialsProvider @Inject constructor(
+    private val credentialsStateManager: CredentialsStateManager
+) : CredentialsProvider() {
     override fun isInteractive(): Boolean {
         return true
     }
@@ -23,11 +24,11 @@ class HttpCredentialsProvider : CredentialsProvider() {
     }
 
     override fun get(uri: URIish?, vararg items: CredentialItem?): Boolean {
-        CredentialsStateManager.updateState(CredentialsState.HttpCredentialsRequested)
+        credentialsStateManager.updateState(CredentialsState.HttpCredentialsRequested)
 
-        var credentials = CredentialsStateManager.currentCredentialsState
+        var credentials = credentialsStateManager.currentCredentialsState
         while (credentials is CredentialsState.CredentialsRequested) {
-            credentials = CredentialsStateManager.currentCredentialsState
+            credentials = credentialsStateManager.currentCredentialsState
         }
 
         if (credentials is CredentialsState.HttpCredentialsAccepted) {

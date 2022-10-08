@@ -58,6 +58,7 @@ class TabViewModel @Inject constructor(
     val settingsViewModel: SettingsViewModel,
     private val fileChangesWatcher: FileChangesWatcher,
     private val updatesRepository: UpdatesRepository,
+    private val credentialsStateManager: CredentialsStateManager,
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
@@ -66,7 +67,7 @@ class TabViewModel @Inject constructor(
     var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
         private set
 
-    private val credentialsStateManager = CredentialsStateManager
+
 
     private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>

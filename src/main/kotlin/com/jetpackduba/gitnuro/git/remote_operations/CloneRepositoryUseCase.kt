@@ -16,7 +16,6 @@ import javax.inject.Inject
 class CloneRepositoryUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
 ) {
-    @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke(directory: File, url: String): Flow<CloneStatus> = callbackFlow {
         var lastTitle: String = ""
         var lastTotalWork = 0

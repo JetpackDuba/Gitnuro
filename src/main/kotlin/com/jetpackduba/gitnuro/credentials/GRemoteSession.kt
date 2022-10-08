@@ -15,9 +15,8 @@ private const val DEFAULT_SSH_PORT = 22
 
 class GRemoteSession @Inject constructor(
     private val processProvider: Provider<GProcess>,
+    private val credentialsStateManager: CredentialsStateManager,
 ) : RemoteSession {
-    private val credentialsStateManager = CredentialsStateManager
-
     private val client = SshClient.setUpDefaultClient()
 
     private var connectFuture: ConnectFuture? = null
@@ -63,11 +62,11 @@ class GRemoteSession @Inject constructor(
 
         val filePasswordProvider =
             FilePasswordProvider { _, _, _ ->
-                CredentialsStateManager.updateState(CredentialsState.SshCredentialsRequested)
+                credentialsStateManager.updateState(CredentialsState.SshCredentialsRequested)
 
-                var credentials = CredentialsStateManager.currentCredentialsState
+                var credentials = credentialsStateManager.currentCredentialsState
                 while (credentials is CredentialsState.CredentialsRequested) {
-                    credentials = CredentialsStateManager.currentCredentialsState
+                    credentials = credentialsStateManager.currentCredentialsState
                 }
 
                 if (credentials !is CredentialsState.SshCredentialsAccepted)
