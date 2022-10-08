@@ -201,10 +201,15 @@ class HttpCredentialsProvider @AssistedInject constructor(
 
         val genericCredentialHelper = config.getString("credential", null, "helper")
         val uriSpecificCredentialHelper = config.getString("credential", hostWithProtocol, "helper")
-        val credentialHelperPath = uriSpecificCredentialHelper ?: genericCredentialHelper ?: return null
+        var credentialHelperPath = uriSpecificCredentialHelper ?: genericCredentialHelper ?: return null
 
         if(credentialHelperPath == "cache" || credentialHelperPath == "store") {
-            throw NotSupportedHelper("Invalid credentials: \"$credentialHelperPath\" is not yet supported")
+            throw NotSupportedHelper("Invalid credentials helper: \"$credentialHelperPath\" is not yet supported")
+        }
+
+        // TODO Try to use "git-credential-manager-core" when "manager-core" is detected. Works for linux but requires testing for mac/windows
+        if(credentialHelperPath == "manager-core") {
+            throw NotSupportedHelper("Invalid credentials helper \"$credentialHelperPath\". Please specify the full path of Git Credential Manager in your .gitconfig")
         }
 
         // Use getString instead of getBoolean as boolean has a default value by we want null if the config field is not set
