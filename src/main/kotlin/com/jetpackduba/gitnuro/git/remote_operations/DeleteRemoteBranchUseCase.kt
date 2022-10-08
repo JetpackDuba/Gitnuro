@@ -27,7 +27,7 @@ class DeleteRemoteBranchUseCase @Inject constructor(
 
         val pushResults = git.push()
             .setTransportConfigCallback {
-                handleTransportUseCase(it)
+                handleTransportUseCase(it, git)
             }
             .setRefSpecs(refSpec)
             .setRemote(remoteName)

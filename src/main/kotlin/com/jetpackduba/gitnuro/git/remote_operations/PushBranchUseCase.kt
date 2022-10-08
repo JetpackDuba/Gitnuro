@@ -22,7 +22,7 @@ class PushBranchUseCase @Inject constructor(
                 if (pushTags)
                     setPushTags()
             }
-            .setTransportConfigCallback { handleTransportUseCase(it) }
+            .setTransportConfigCallback { handleTransportUseCase(it, git) }
             .call()
 
         val results =

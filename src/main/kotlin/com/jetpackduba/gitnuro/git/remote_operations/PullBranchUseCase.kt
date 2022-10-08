@@ -13,7 +13,7 @@ class PullBranchUseCase @Inject constructor(
     suspend operator fun invoke(git: Git, rebase: Boolean) = withContext(Dispatchers.IO) {
         val pullResult = git
             .pull()
-            .setTransportConfigCallback { handleTransportUseCase(it) }
+            .setTransportConfigCallback { handleTransportUseCase(it, git) }
             .setRebase(rebase)
             .setCredentialsProvider(CredentialsProvider.getDefault())
             .call()

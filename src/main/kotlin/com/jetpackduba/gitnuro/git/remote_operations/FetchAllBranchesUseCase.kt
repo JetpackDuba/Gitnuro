@@ -16,7 +16,7 @@ class FetchAllBranchesUseCase @Inject constructor(
             git.fetch()
                 .setRemote(remote.name)
                 .setRefSpecs(remote.fetchRefSpecs)
-                .setTransportConfigCallback { handleTransportUseCase(it) }
+                .setTransportConfigCallback { handleTransportUseCase(it, git) }
                 .setCredentialsProvider(CredentialsProvider.getDefault())
                 .call()
         }

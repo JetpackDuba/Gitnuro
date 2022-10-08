@@ -16,7 +16,7 @@ class PullFromSpecificBranchUseCase @Inject constructor(
     suspend operator fun invoke(git: Git, rebase: Boolean, remoteBranch: Ref) = withContext(Dispatchers.IO) {
         val pullResult = git
             .pull()
-            .setTransportConfigCallback { handleTransportUseCase(it) }
+            .setTransportConfigCallback { handleTransportUseCase(it, git) }
             .setRemote(remoteBranch.remoteName)
             .setRemoteBranchName(remoteBranch.simpleName)
             .setRebase(rebase)

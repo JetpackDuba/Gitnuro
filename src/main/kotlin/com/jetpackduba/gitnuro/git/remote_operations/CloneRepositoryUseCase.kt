@@ -59,7 +59,7 @@ class CloneRepositoryUseCase @Inject constructor(
                         }
                     }
                 )
-                .setTransportConfigCallback { handleTransportUseCase(it) }
+                .setTransportConfigCallback { handleTransportUseCase(it, null) }
                 .call()
 
             ensureActive()
