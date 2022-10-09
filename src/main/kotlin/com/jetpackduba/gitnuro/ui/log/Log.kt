@@ -619,7 +619,7 @@ fun UncommitedChangesLine(
         modifier = Modifier
             .height(40.dp)
             .fillMaxWidth()
-            .clickable { onUncommitedChangesSelected() }
+            .fastClickable { onUncommitedChangesSelected() }
             .padding(start = graphWidth)
             .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
             .padding(DIVIDER_WIDTH.dp),
@@ -742,7 +742,7 @@ fun CommitLine(
     ) {
         Box(
             modifier = Modifier
-                .clickable { onRevCommitSelected() }
+                .fastClickable { onRevCommitSelected() }
                 .padding(start = graphWidth)
                 .height(LINE_HEIGHT.dp)
                 .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)

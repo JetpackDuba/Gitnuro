@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 
@@ -44,7 +45,7 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
     val mod = this.pointerInput(Unit) {
 
         while (true) {
-            val lastMouseEvent = awaitPointerEventScope { awaitEventFirstDown() }
+            val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
             val mouseEvent = lastMouseEvent.awtEventOrNull
 
             if (mouseEvent != null) {
@@ -208,14 +209,4 @@ sealed interface ContextMenuElement {
     ) : ContextMenuElement
 
     object ContextSeparator : ContextMenuElement
-}
-
-private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
-    var event: PointerEvent
-    do {
-        event = awaitPointerEvent()
-    } while (
-        !event.changes.fastAll { it.changedToDown() }
-    )
-    return event
 }

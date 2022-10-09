@@ -4,10 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.PointerIconDefaults
-import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.*
 
 fun Modifier.backgroundIf(condition: Boolean, color: Color): Modifier {
     return if (condition) {
@@ -35,3 +35,20 @@ fun Modifier.ignoreKeyEvents(): Modifier {
 fun Modifier.handOnHover(): Modifier {
     return this.pointerHoverIcon(PointerIconDefaults.Hand)
 }
+
+// TODO Try to restore hover that was shown with clickable modifier
+@OptIn(ExperimentalComposeUiApi::class)
+fun Modifier.fastClickable(onClick: () -> Unit) =
+    this.handOnHover()
+        .pointerInput(Unit) {
+            while (true) {
+                val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
+                val mouseEvent = lastMouseEvent.awtEventOrNull
+
+                if (mouseEvent != null) {
+                    if (lastMouseEvent.button.isPrimary) {
+                        onClick()
+                    }
+                }
+            }
+        }

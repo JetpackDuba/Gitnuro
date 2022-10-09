@@ -21,15 +21,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.PointerIconDefaults
-import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.extensions.lineAt
-import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.headerBackground
@@ -98,7 +94,7 @@ fun Blame(
                                     .width(200.dp)
                                     .fillMaxHeight()
                                     .background(MaterialTheme.colors.secondarySurface)
-                                    .handMouseClickable { if (commit != null) onSelectCommit(commit) },
+                                    .fastClickable { if (commit != null) onSelectCommit(commit) },
                                 verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(
