@@ -386,7 +386,6 @@ fun HunkSplitTextDiff(
                         selectableSide = selectableSide,
                         onChangeSelectableSide = { newSelectableSide ->
                             if (newSelectableSide != selectableSide) {
-                                println("newSelectableSide $newSelectableSide")
                                 selectableSide = newSelectableSide
                             }
                         }
