@@ -4,15 +4,12 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.git.diff.DiffResult
-import com.jetpackduba.gitnuro.git.diff.FormatDiffUseCase
-import com.jetpackduba.gitnuro.git.diff.Hunk
-import com.jetpackduba.gitnuro.preferences.AppSettings
-import com.jetpackduba.gitnuro.git.diff.GenerateSplitHunkFromDiffResultUseCase
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
+import com.jetpackduba.gitnuro.git.diff.*
 import com.jetpackduba.gitnuro.git.workspace.*
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +24,7 @@ class DiffViewModel @Inject constructor(
     private val formatDiffUseCase: FormatDiffUseCase,
     private val stageHunkUseCase: StageHunkUseCase,
     private val unstageHunkUseCase: UnstageHunkUseCase,
+    private val stageHunkLineUseCase: StageHunkLineUseCase,
     private val resetHunkUseCase: ResetHunkUseCase,
     private val stageEntryUseCase: StageEntryUseCase,
     private val unstageEntryUseCase: UnstageEntryUseCase,
@@ -140,12 +138,14 @@ class DiffViewModel @Inject constructor(
 
     fun stageFile(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
     ) { git ->
         stageEntryUseCase(git, statusEntry)
     }
 
     fun unstageFile(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
     ) { git ->
         unstageEntryUseCase(git, statusEntry)
     }
@@ -156,6 +156,20 @@ class DiffViewModel @Inject constructor(
 
     fun changeTextDiffType(newDiffType: TextDiffType) {
         settings.textDiffType = newDiffType
+    }
+
+    fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
+    ) { git ->
+        stageHunkLineUseCase(git, entry, hunk, line)
+    }
+
+    fun unstageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
+    ) { git ->
+        throw NotImplementedError()
     }
 }
 

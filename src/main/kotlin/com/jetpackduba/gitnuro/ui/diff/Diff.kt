@@ -2,12 +2,13 @@
 
 package com.jetpackduba.gitnuro.ui.diff
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
@@ -15,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -22,9 +24,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -124,6 +124,12 @@ fun Diff(
                         },
                         onResetHunk = { entry, hunk ->
                             diffViewModel.resetHunk(entry, hunk)
+                        },
+                        onActionTriggered = { entry, hunk, line ->
+                            if(diffEntryType is DiffEntryType.UnstagedDiff)
+                                diffViewModel.stageHunkLine(entry, hunk, line)
+                            else if(diffEntryType is DiffEntryType.StagedDiff)
+                                diffViewModel.unstageHunkLine(entry, hunk, line)
                         }
                     )
 
@@ -139,6 +145,12 @@ fun Diff(
                         },
                         onResetHunk = { entry, hunk ->
                             diffViewModel.resetHunk(entry, hunk)
+                        },
+                        onActionTriggered = { entry, hunk, line ->
+                            if(diffEntryType is DiffEntryType.UnstagedDiff)
+                                diffViewModel.stageHunkLine(entry, hunk, line)
+                            else if(diffEntryType is DiffEntryType.StagedDiff)
+                                diffViewModel.unstageHunkLine(entry, hunk, line)
                         }
                     )
 
@@ -246,7 +258,7 @@ fun SideDiff(entryContent: EntryContent) {
 private fun ImageDiff(tempImagePath: Path, contentType: String) {
     val imagePath = tempImagePath.absolutePathString()
 
-    if(animatedImages.contains(contentType)) {
+    if (animatedImages.contains(contentType)) {
         AnimatedImage(imagePath)
     } else {
         StaticImage(imagePath)
@@ -305,6 +317,7 @@ fun HunkUnifiedTextDiff(
     diffResult: DiffResult.Text,
     onUnstageHunk: (DiffEntry, Hunk) -> Unit,
     onStageHunk: (DiffEntry, Hunk) -> Unit,
+    onActionTriggered: (DiffEntry, Hunk, Line) -> Unit,
     onResetHunk: (DiffEntry, Hunk) -> Unit,
 ) {
     val hunks = diffResult.hunks
@@ -334,7 +347,18 @@ fun HunkUnifiedTextDiff(
                 val highestLineNumberLength = highestLineNumber.toString().count()
 
                 items(hunk.lines) { line ->
-                    DiffLine(highestLineNumberLength, line)
+                    DiffLine(
+                        highestLineNumberLength,
+                        line,
+                        diffEntryType = diffEntryType,
+                        onActionTriggered = {
+                            onActionTriggered(
+                                diffResult.diffEntry,
+                                hunk,
+                                line,
+                            )
+                        },
+                    )
                 }
             }
         }
@@ -350,8 +374,13 @@ fun HunkSplitTextDiff(
     onUnstageHunk: (DiffEntry, Hunk) -> Unit,
     onStageHunk: (DiffEntry, Hunk) -> Unit,
     onResetHunk: (DiffEntry, Hunk) -> Unit,
+    onActionTriggered: (DiffEntry, Hunk, Line) -> Unit,
 ) {
     val hunks = diffResult.hunks
+
+    /**
+     * Disables selection in one side when the other is being selected
+     */
     var selectableSide by remember { mutableStateOf(SelectableSide.BOTH) }
 
     SelectionContainer {
@@ -384,6 +413,10 @@ fun HunkSplitTextDiff(
                         oldLine = linesPair.first,
                         newLine = linesPair.second,
                         selectableSide = selectableSide,
+                        diffEntryType = diffEntryType,
+                        onActionTriggered = {line ->
+                            onActionTriggered(diffResult.diffEntry, splitHunk.sourceHunk, line)
+                        },
                         onChangeSelectableSide = { newSelectableSide ->
                             if (newSelectableSide != selectableSide) {
                                 selectableSide = newSelectableSide
@@ -410,7 +443,9 @@ fun SplitDiffLine(
     oldLine: Line?,
     newLine: Line?,
     selectableSide: SelectableSide,
+    diffEntryType: DiffEntryType,
     onChangeSelectableSide: (SelectableSide) -> Unit,
+    onActionTriggered: (Line) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -426,6 +461,8 @@ fun SplitDiffLine(
             currentSelectableSide = selectableSide,
             lineSelectableSide = SelectableSide.OLD,
             onChangeSelectableSide = onChangeSelectableSide,
+            diffEntryType = diffEntryType,
+            onActionTriggered = { if (oldLine != null) onActionTriggered(oldLine) }
         )
 
         Box(
@@ -444,6 +481,8 @@ fun SplitDiffLine(
             currentSelectableSide = selectableSide,
             lineSelectableSide = SelectableSide.NEW,
             onChangeSelectableSide = onChangeSelectableSide,
+            diffEntryType = diffEntryType,
+            onActionTriggered = { if (newLine != null) onActionTriggered(newLine) }
         )
 
     }
@@ -457,7 +496,9 @@ fun SplitDiffLineSide(
     displayLineNumber: Int,
     currentSelectableSide: SelectableSide,
     lineSelectableSide: SelectableSide,
+    diffEntryType: DiffEntryType,
     onChangeSelectableSide: (SelectableSide) -> Unit,
+    onActionTriggered: () -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -474,7 +515,13 @@ fun SplitDiffLineSide(
                 currentSelectableSide != lineSelectableSide &&
                         currentSelectableSide != SelectableSide.BOTH
             ) {
-                SplitDiffLine(highestLineNumberLength, line, displayLineNumber)
+                SplitDiffLine(
+                    highestLineNumberLength = highestLineNumberLength,
+                    line = line,
+                    lineNumber = displayLineNumber,
+                    diffEntryType = diffEntryType,
+                    onActionTriggered = onActionTriggered,
+                )
             }
         }
     }
@@ -717,12 +764,15 @@ private fun PathOnlyDiffHeader(
 fun DiffLine(
     highestLineNumberLength: Int,
     line: Line,
+    diffEntryType: DiffEntryType,
+    onActionTriggered: () -> Unit,
 ) {
     val backgroundColor = when (line.lineType) {
         LineType.ADDED -> MaterialTheme.colors.diffLineAdded
         LineType.REMOVED -> MaterialTheme.colors.diffLineRemoved
         LineType.CONTEXT -> MaterialTheme.colors.background
     }
+
     Row(
         modifier = Modifier
             .background(backgroundColor)
@@ -750,7 +800,7 @@ fun DiffLine(
             )
         }
 
-        DiffLineText(line.text)
+        DiffLineText(line, diffEntryType, onActionTriggered = onActionTriggered)
     }
 }
 
@@ -759,6 +809,8 @@ fun SplitDiffLine(
     highestLineNumberLength: Int,
     line: Line,
     lineNumber: Int,
+    diffEntryType: DiffEntryType,
+    onActionTriggered: () -> Unit,
 ) {
     val backgroundColor = when (line.lineType) {
         LineType.ADDED -> MaterialTheme.colors.diffLineAdded
@@ -777,41 +829,73 @@ fun SplitDiffLine(
             )
         }
 
-        DiffLineText(line.text)
+        DiffLineText(line, diffEntryType, onActionTriggered = onActionTriggered)
     }
 }
 
 
 @Composable
-fun DiffLineText(text: String) {
-    Row {
-        Text(
-            text = text.replace(
-                "\t",
-                "    "
-            ).removeLineDelimiters(),
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .fillMaxSize(),
-            fontFamily = FontFamily.Monospace,
-            style = MaterialTheme.typography.body2,
-            color = MaterialTheme.colors.onBackground,
-            overflow = TextOverflow.Visible,
-        )
+fun DiffLineText(line: Line, diffEntryType: DiffEntryType, onActionTriggered: () -> Unit) {
+    val text = line.text
+    val hoverInteraction = remember { MutableInteractionSource() }
+    val isHovered by hoverInteraction.collectIsHoveredAsState()
 
-        val lineDelimiter = text.lineDelimiter
+    Box(modifier = Modifier.hoverable(hoverInteraction)) {
+        if (isHovered && diffEntryType is DiffEntryType.UncommitedDiff && line.lineType != LineType.CONTEXT) {
+            val color: Color = if (diffEntryType is DiffEntryType.StagedDiff) {
+                MaterialTheme.colors.error
+            } else {
+                MaterialTheme.colors.primary
+            }
 
-        // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
-        // where copying a line didn't contain the line ending & also fix the issue where the text line would
-        // display multiple lines even if there is only a single line with a line delimiter at the end
-        if (lineDelimiter != null) {
-            Text(
-                text = lineDelimiter,
-                maxLines = 1,
-                color = MaterialTheme.colors.onBackground,
+            val iconName = remember(diffEntryType) {
+                if (diffEntryType is DiffEntryType.StagedDiff) {
+                    "remove.svg"
+                } else {
+                    "add.svg"
+                }
+            }
+
+            Icon(
+                painterResource(iconName),
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier
+                    .fastClickable { onActionTriggered() }
+                    .size(14.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(color),
             )
         }
 
+        Row {
+            Text(
+                text = text.replace(
+                    "\t",
+                    "    "
+                ).removeLineDelimiters(),
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .fillMaxSize(),
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackground,
+                overflow = TextOverflow.Visible,
+            )
+
+            val lineDelimiter = text.lineDelimiter
+
+            // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
+            // where copying a line didn't contain the line ending & also fix the issue where the text line would
+            // display multiple lines even if there is only a single line with a line delimiter at the end
+            if (lineDelimiter != null) {
+                Text(
+                    text = lineDelimiter,
+                    maxLines = 1,
+                    color = MaterialTheme.colors.onBackground,
+                )
+            }
+        }
     }
 }
 

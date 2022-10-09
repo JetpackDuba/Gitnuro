@@ -128,6 +128,7 @@ private fun HistoryContent(
             scrollState = textScrollState,
             onCommitSelected = onCommitSelected,
         )
+
         is HistoryState.Loading -> Box { }
     }
 }
@@ -171,6 +172,7 @@ fun HistoryContentLoaded(
                             onUnstageHunk = { _, _ -> },
                             onStageHunk = { _, _ -> },
                             onResetHunk = { _, _ -> },
+                            onActionTriggered = { _, _, _ -> }
                         )
                     }
 
@@ -182,6 +184,7 @@ fun HistoryContentLoaded(
                             onUnstageHunk = { _, _ -> },
                             onStageHunk = { _, _ -> },
                             onResetHunk = { _, _ -> },
+                            onActionTriggered = { _, _, _ -> },
                         )
                     }
 
