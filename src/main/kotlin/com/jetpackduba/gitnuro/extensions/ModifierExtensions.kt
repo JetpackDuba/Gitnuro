@@ -1,7 +1,11 @@
 package com.jetpackduba.gitnuro.extensions
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.awtEventOrNull
@@ -38,9 +42,11 @@ fun Modifier.handOnHover(): Modifier {
 
 // TODO Try to restore hover that was shown with clickable modifier
 @OptIn(ExperimentalComposeUiApi::class)
-fun Modifier.fastClickable(onClick: () -> Unit) =
+@Composable
+fun Modifier.fastClickable(key: Any = Unit, onClick: () -> Unit) =
     this.handOnHover()
-        .pointerInput(Unit) {
+        .hoverBackground()
+        .pointerInput(key) {
             while (true) {
                 val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
                 val mouseEvent = lastMouseEvent.awtEventOrNull
@@ -52,3 +58,11 @@ fun Modifier.fastClickable(onClick: () -> Unit) =
                 }
             }
         }
+
+@Composable
+private fun Modifier.hoverBackground(): Modifier {
+    val hoverInteraction = remember { MutableInteractionSource() }
+
+    return this.hoverable(hoverInteraction)
+        .indication(hoverInteraction, LocalIndication.current)
+}
