@@ -23,8 +23,8 @@ class UnstageHunkUseCase @Inject constructor(
 
         try {
             val entryContent = rawFileManager.getRawContent(
-                repository = git.repository,
-                side = DiffEntry.Side.OLD,
+                repository = repository,
+                side = DiffEntry.Side.NEW,
                 entry = diffEntry,
                 oldTreeIterator = null,
                 newTreeIterator = null
@@ -37,31 +37,33 @@ class UnstageHunkUseCase @Inject constructor(
 
             val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
 
+            val addedLines = hunkLines
+                .filter { it.lineType == LineType.ADDED }
+                .sortedBy { it.newLineNumber }
+            val removedLines = hunkLines
+                .filter { it.lineType == LineType.REMOVED }
+                .sortedBy { it.newLineNumber }
+
+            var linesRemoved = 0
+
+            // Start by removing the added lines to the index
+            for (line in addedLines) {
+                textLines.removeAt(line.newLineNumber + linesRemoved)
+                linesRemoved--
+            }
+
             var linesAdded = 0
-            for (line in hunkLines) {
-                when (line.lineType) {
-                    LineType.ADDED -> {
-                        textLines.add(line.oldLineNumber + linesAdded, line.text)
-                        linesAdded++
-                    }
 
-                    LineType.REMOVED -> {
-                        textLines.removeAt(line.oldLineNumber + linesAdded)
-                        linesAdded--
-                    }
-
-                    else -> throw NotImplementedError("Line type not implemented for stage hunk")
-                }
+            // Restore previously removed lines to the index
+            for (line in removedLines) {
+                // Check how many lines before this one have been deleted
+                val previouslyRemovedLines = addedLines.count { it.newLineNumber < line.newLineNumber }
+                textLines.add(line.newLineNumber + linesAdded - previouslyRemovedLines, line.text)
+                linesAdded++
             }
 
             val stagedFileText = textLines.joinToString("")
-            dirCacheEditor.add(
-                HunkEdit(
-                    diffEntry.newPath,
-                    repository,
-                    ByteBuffer.wrap(stagedFileText.toByteArray())
-                )
-            )
+            dirCacheEditor.add(HunkEdit(diffEntry.newPath, repository, ByteBuffer.wrap(stagedFileText.toByteArray())))
             dirCacheEditor.commit()
 
             completedWithErrors = false
