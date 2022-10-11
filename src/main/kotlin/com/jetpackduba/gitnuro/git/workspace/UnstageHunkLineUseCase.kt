@@ -12,7 +12,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import java.nio.ByteBuffer
 import javax.inject.Inject
 
-class StageHunkLineUseCase @Inject constructor(
+class UnstageHunkLineUseCase @Inject constructor(
     private val rawFileManager: RawFileManager,
     private val getLinesFromRawTextUseCase: GetLinesFromRawTextUseCase,
 ) {
@@ -25,8 +25,8 @@ class StageHunkLineUseCase @Inject constructor(
 
             try {
                 val entryContent = rawFileManager.getRawContent(
-                    repository = git.repository,
-                    side = DiffEntry.Side.OLD,
+                    repository = repository,
+                    side = DiffEntry.Side.NEW,
                     entry = diffEntry,
                     oldTreeIterator = null,
                     newTreeIterator = null
@@ -38,18 +38,18 @@ class StageHunkLineUseCase @Inject constructor(
                 val textLines = getLinesFromRawTextUseCase(entryContent.rawText).toMutableList()
 
                 when (line.lineType) {
-                    LineType.ADDED -> {
+                    LineType.REMOVED -> {
                         val previousContextLine = hunk.lines
                             .takeWhile { it != line }
-                            .lastOrNull { it.lineType == LineType.CONTEXT }
+                            .lastOrNull { it.lineType != LineType.REMOVED }
 
-                        val startingIndex = previousContextLine?.oldLineNumber ?: -1
+                        val startingIndex = previousContextLine?.newLineNumber ?: -1
 
                         textLines.add(startingIndex + 1, line.text)
                     }
 
-                    LineType.REMOVED -> {
-                        textLines.removeAt(line.oldLineNumber)
+                    LineType.ADDED -> {
+                        textLines.removeAt(line.newLineNumber)
                     }
 
                     else -> {}

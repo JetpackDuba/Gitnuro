@@ -25,6 +25,7 @@ class DiffViewModel @Inject constructor(
     private val stageHunkUseCase: StageHunkUseCase,
     private val unstageHunkUseCase: UnstageHunkUseCase,
     private val stageHunkLineUseCase: StageHunkLineUseCase,
+    private val unstageHunkLineUseCase: UnstageHunkLineUseCase,
     private val resetHunkUseCase: ResetHunkUseCase,
     private val stageEntryUseCase: StageEntryUseCase,
     private val unstageEntryUseCase: UnstageEntryUseCase,
@@ -169,7 +170,7 @@ class DiffViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITED_CHANGES,
         showError = true,
     ) { git ->
-        throw NotImplementedError()
+        unstageHunkLineUseCase(git, entry, hunk, line)
     }
 }
 
