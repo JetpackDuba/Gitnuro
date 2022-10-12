@@ -7,7 +7,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
     kotlin("kapt") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
-    id("org.jetbrains.compose") version "1.2.0-beta01"
+    id("org.jetbrains.compose") version "1.2.0"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
@@ -31,12 +31,12 @@ dependencies {
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
     implementation("org.apache.sshd:sshd-core:2.9.0")
-    implementation("com.google.dagger:dagger:2.43.2")
+    implementation("com.google.dagger:dagger:2.44")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
-    kapt("com.google.dagger:dagger-compiler:2.43.2")
+    kapt("com.google.dagger:dagger-compiler:2.44")
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testImplementation("io.mockk:mockk:1.12.5")
+    testImplementation("io.mockk:mockk:1.13.2")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
