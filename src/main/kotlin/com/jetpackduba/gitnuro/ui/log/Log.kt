@@ -556,7 +556,7 @@ fun GraphHeader(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(34.dp)
                 .background(MaterialTheme.colors.headerBackground),
             verticalAlignment = Alignment.CenterVertically,
         ) {
