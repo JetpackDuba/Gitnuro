@@ -286,7 +286,8 @@ fun CommitLogChanges(
 
                     Spacer(modifier = Modifier.weight(2f))
 
-                    Divider()
+                    if(diffEntries.lastOrNull() != diffEntry)
+                        Divider()
                 }
             }
         }
