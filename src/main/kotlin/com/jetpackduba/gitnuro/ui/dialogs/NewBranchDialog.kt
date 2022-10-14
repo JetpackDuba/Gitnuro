@@ -8,28 +8,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
-import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable
 fun NewBranchDialog(
-    onReject: () -> Unit,
+    onClose: () -> Unit,
     onAccept: (branchName: String) -> Unit
 ) {
     var branchField by remember { mutableStateOf("") }
     val branchFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    MaterialDialog(onCloseRequested = onReject) {
+    MaterialDialog(onCloseRequested = onClose) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -86,19 +85,12 @@ fun NewBranchDialog(
                     .padding(top = 16.dp)
                     .align(Alignment.End)
             ) {
-                TextButton(
+                PrimaryButton(
+                    text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
-                    colors = textButtonColors(),
-                    onClick = {
-                        onReject()
-                    }
-                ) {
-                    Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colors.onBackground,
-                        style = MaterialTheme.typography.body1,
-                    )
-                }
+                    onClick = onClose,
+                    backgroundColor = Color.Transparent
+                )
                 PrimaryButton(
                     modifier = Modifier
                         .focusRequester(buttonFieldFocusRequester)

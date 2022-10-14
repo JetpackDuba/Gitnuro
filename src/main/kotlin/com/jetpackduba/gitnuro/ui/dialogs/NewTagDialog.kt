@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -85,19 +86,12 @@ fun NewTagDialog(
                     .padding(top = 16.dp)
                     .align(Alignment.End)
             ) {
-                TextButton(
+                PrimaryButton(
+                    text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
-                    colors = textButtonColors(),
-                    onClick = {
-                        onReject()
-                    }
-                ) {
-                    Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colors.onBackground,
-                        style = MaterialTheme.typography.body1,
-                    )
-                }
+                    onClick = onReject,
+                    backgroundColor = Color.Transparent
+                )
                 PrimaryButton(
                     modifier = Modifier
                         .focusRequester(buttonFieldFocusRequester)

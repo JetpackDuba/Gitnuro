@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -16,6 +17,7 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
+import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
@@ -95,22 +97,16 @@ fun SettingsDialog(
                 }
             }
 
-            TextButton(
+            PrimaryButton(
+                text = "Accept",
                 modifier = Modifier
-                    .padding(end = 8.dp)
+                    .padding(end = 8.dp, bottom = 8.dp)
                     .align(Alignment.End),
-                colors = textButtonColors(),
                 onClick = {
                     settingsViewModel.savePendingChanges()
-
                     onDismiss()
-                }
-            ) {
-                Text(
-                    "Close",
-                    style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant)
-                )
-            }
+                },
+            )
         }
     }
 }

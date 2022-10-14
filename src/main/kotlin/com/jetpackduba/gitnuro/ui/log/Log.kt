@@ -521,7 +521,7 @@ fun LogDialogs(
 ) {
     when (showLogDialog) {
         is LogDialog.NewBranch -> {
-            NewBranchDialog(onReject = onResetShowLogDialog, onAccept = { branchName ->
+            NewBranchDialog(onClose = onResetShowLogDialog, onAccept = { branchName ->
                 logViewModel.createBranchOnCommit(branchName, showLogDialog.graphNode)
                 onResetShowLogDialog()
             })

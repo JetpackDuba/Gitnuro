@@ -67,7 +67,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
 
     if (showNewBranchDialog) {
         NewBranchDialog(
-            onReject = {
+            onClose = {
                 showNewBranchDialog = false
             },
             onAccept = { branchName ->

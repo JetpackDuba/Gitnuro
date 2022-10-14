@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -92,19 +93,12 @@ fun ResetBranchDialog(
                     .padding(top = 16.dp)
                     .align(Alignment.End)
             ) {
-                TextButton(
+                PrimaryButton(
+                    text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
-                    colors = textButtonColors(),
-                    onClick = {
-                        onReject()
-                    }
-                ) {
-                    Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colors.onBackground,
-                        style = MaterialTheme.typography.body1,
-                    )
-                }
+                    onClick = onReject,
+                    backgroundColor = Color.Transparent
+                )
                 PrimaryButton(
                     onClick = {
                         onAccept(resetType)

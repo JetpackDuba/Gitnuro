@@ -15,6 +15,7 @@ import androidx.compose.ui.focus.FocusProperties
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.git.CloneStatus
@@ -196,25 +197,17 @@ private fun CloneInput(
                 .padding(top = 16.dp)
                 .align(Alignment.End)
         ) {
-            TextButton(
-                modifier = Modifier
-                    .padding(end = 8.dp)
+            PrimaryButton(
+                text = "Cancel",
+                modifier = Modifier.padding(end = 8.dp)
                     .focusRequester(cancelButtonFocusRequester)
                     .focusProperties {
                         previous = cloneButtonFocusRequester
                         next = urlFocusRequester
                     },
-                colors = textButtonColors(),
-                onClick = {
-                    onClose()
-                }
-            ) {
-                Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colors.onBackground,
-                        style = MaterialTheme.typography.body1,
-                    )
-            }
+                onClick = onClose,
+                backgroundColor = Color.Transparent
+            )
             PrimaryButton(
                 onClick = {
                     cloneViewModel.clone(directory, url)
