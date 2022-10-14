@@ -17,7 +17,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class TabState @Inject constructor(
     val errorsManager: ErrorsManager,
 ) {
-    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.None)
+    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommitedChanges)
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
     private val _taskEvent = MutableSharedFlow<TaskEvent>()
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent
