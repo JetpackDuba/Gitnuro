@@ -35,9 +35,8 @@ fun Menu(
     onCreateBranch: () -> Unit,
     onGoToWorkspace: () -> Unit,
     onStashWithMessage: () -> Unit,
+    onQuickActions: () -> Unit,
 ) {
-    var showAdditionalOptionsDropDownMenu by remember { mutableStateOf(false) }
-
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
@@ -113,34 +112,13 @@ fun Menu(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box {
-            IconMenuButton(
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .size(36.dp),
-                icon = painterResource("more_vert.svg"),
-                onClick = {
-                    showAdditionalOptionsDropDownMenu = true
-                },
-            )
-            DropdownMenu(
-                expanded = showAdditionalOptionsDropDownMenu,
-                content = {
-                    val menuOptions = remember {
-                        repositoryAdditionalOptionsMenu(
-                            onOpenRepositoryOnFileExplorer = { menuViewModel.openFolderInFileExplorer() },
-                        )
-                    }
-                    for (item in menuOptions) {
-                        DropDownContent(
-                            dropDownContentData = item,
-                            onDismiss = { showAdditionalOptionsDropDownMenu = false }
-                        )
-                    }
-                },
-                onDismissRequest = { showAdditionalOptionsDropDownMenu = false }
-            )
-        }
+        MenuButton(
+            title = "Quick actions",
+            modifier = Modifier.padding(end = 16.dp),
+            icon = painterResource("bolt.svg"),
+            fixedWidth = false,
+            onClick = onQuickActions,
+        )
     }
 }
 

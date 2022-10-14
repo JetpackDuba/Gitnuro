@@ -39,6 +39,7 @@ import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.AuthorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
+import com.jetpackduba.gitnuro.ui.dialogs.QuickActionsDialog
 import com.jetpackduba.gitnuro.ui.dialogs.StashWithMessageDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.ui.diff.Diff
@@ -64,6 +65,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
     var showStashWithMessageDialog by remember { mutableStateOf(false) }
+    var showQuickActionsDialog by remember { mutableStateOf(false) }
 
     if (showNewBranchDialog) {
         NewBranchDialog(
@@ -95,6 +97,13 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 }
             )
         }
+    } else if (showQuickActionsDialog) {
+        QuickActionsDialog(
+            onClose = { showQuickActionsDialog = false },
+            onAction = {
+                showQuickActionsDialog = false
+            },
+        )
     }
 
     val focusRequester = remember { FocusRequester() }
@@ -135,7 +144,8 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                             menuViewModel = tabViewModel.menuViewModel,
                             onCreateBranch = { showNewBranchDialog = true },
                             onStashWithMessage = { showStashWithMessageDialog = true },
-                            onGoToWorkspace = { tabViewModel.selectUncommitedChanges() }
+                            onGoToWorkspace = { tabViewModel.selectUncommitedChanges() },
+                            onQuickActions = { showQuickActionsDialog = true }
                         )
 
                         RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)

@@ -26,15 +26,26 @@ enum class KeybindingOption {
     /**
      * Used to accept multi-line text field like the commit message
      */
-    ACCEPT,
+    TEXT_ACCEPT,
 
     /**
      * Used to close dialogs or components
      */
     EXIT,
+
+    /**
+     * Used to go up in lists
+     */
+    UP,
+
+    /**
+     * Used to go down in lists
+     */
+    DOWN,
 }
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 private fun baseKeybindings() = mapOf(
     KeybindingOption.REFRESH to listOf(
         Keybinding(key = Key.F5),
@@ -43,11 +54,17 @@ private fun baseKeybindings() = mapOf(
     KeybindingOption.SIMPLE_ACCEPT to listOf(
         Keybinding(key = Key.Enter),
     ),
-    KeybindingOption.ACCEPT to listOf(
+    KeybindingOption.TEXT_ACCEPT to listOf(
         Keybinding(control = true, key = Key.Enter),
     ),
     KeybindingOption.EXIT to listOf(
         Keybinding(key = Key.Escape),
+    ),
+    KeybindingOption.UP to listOf(
+        Keybinding(key = Key.DirectionUp),
+    ),
+    KeybindingOption.DOWN to listOf(
+        Keybinding(key = Key.DirectionDown),
     ),
 )
 

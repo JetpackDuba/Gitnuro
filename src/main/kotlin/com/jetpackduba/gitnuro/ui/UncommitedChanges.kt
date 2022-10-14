@@ -172,7 +172,7 @@ fun UncommitedChanges(
                     .fillMaxWidth()
                     .weight(weight = 1f, fill = true)
                     .onPreviewKeyEvent { keyEvent ->
-                        if (keyEvent.matchesBinding(KeybindingOption.ACCEPT) && canCommit) {
+                        if (keyEvent.matchesBinding(KeybindingOption.TEXT_ACCEPT) && canCommit) {
                             doCommit(false)
                             true
                         } else
