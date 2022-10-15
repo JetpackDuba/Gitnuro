@@ -41,7 +41,7 @@ class AppStateManager @Inject constructor(
             // Add the latest one to the beginning
             _latestOpenedRepositoriesPaths.add(0, path)
 
-            if (_latestOpenedRepositoriesPaths.count() > 5)
+            if (_latestOpenedRepositoriesPaths.count() > 10)
                 _latestOpenedRepositoriesPaths.removeLast()
 
             updateSavedRepositoryTabs()
