@@ -21,18 +21,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerIconDefaults
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppStateManager
+import com.jetpackduba.gitnuro.LocalTabScope
+import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
-
+import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
+import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
@@ -203,16 +208,20 @@ class TabInformation(
     val path: String?,
     appComponent: AppComponent,
 ) {
+    val tabComponent = DaggerTabComponent.builder()
+        .appComponent(appComponent)
+        .build()
+
     @Inject
     lateinit var tabViewModel: TabViewModel
 
     @Inject
     lateinit var appStateManager: AppStateManager
 
+    @Inject
+    lateinit var tabViewModelsHolder: TabViewModelsHolder
+
     init {
-        val tabComponent = DaggerTabComponent.builder()
-            .appComponent(appComponent)
-            .build()
         tabComponent.inject(this)
 
         //TODO: This shouldn't be here, should be in the parent method
@@ -226,5 +235,34 @@ class TabInformation(
         }
         if (path != null)
             tabViewModel.openRepository(path)
+    }
+}
+
+fun emptyTabInformation() = TabInformation(mutableStateOf(""), 0, "", object : AppComponent {
+    override fun inject(main: App) {}
+
+    override fun appStateManager(): AppStateManager {
+        TODO()
+    }
+
+    override fun settingsViewModel(): SettingsViewModel {
+        TODO()
+    }
+
+    override fun credentialsStateManager(): CredentialsStateManager {
+        TODO()
+    }
+
+    override fun appPreferences(): AppSettings {
+        TODO()
+    }
+})
+
+@Composable
+inline fun <reified T> gitnuroViewModel(): T {
+    val tab = LocalTabScope.current
+
+    return remember(tab) {
+        tab.tabViewModelsHolder.viewModels[T::class] as T
     }
 }

@@ -7,7 +7,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -19,6 +18,7 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.ui.dropdowns.ScaleDropDown
@@ -35,7 +35,7 @@ enum class SettingsCategory(val displayName: String) {
 
 @Composable
 fun SettingsDialog(
-    settingsViewModel: SettingsViewModel,
+    settingsViewModel: SettingsViewModel = gitnuroViewModel(),
     onDismiss: () -> Unit,
 ) {
 
@@ -113,7 +113,7 @@ fun SettingsDialog(
 
 @Composable
 fun GitSettings(settingsViewModel: SettingsViewModel) {
-    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
+    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState(settingsViewModel.commitsLimitEnabled)
     val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
     var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
 

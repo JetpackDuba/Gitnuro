@@ -30,12 +30,15 @@ import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
+import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "App"
+
+val LocalTabScope = compositionLocalOf { emptyTabInformation() }
 
 class App {
     private val appComponent = DaggerAppComponent.create()
@@ -237,7 +240,12 @@ private fun TabsContent(tabs: List<TabInformation>, selectedTabKey: Int) {
             .fillMaxSize(),
     ) {
         if (selectedTab != null) {
-            AppTab(selectedTab.tabViewModel)
+            val density = arrayOf(LocalTabScope provides selectedTab)
+
+
+            CompositionLocalProvider(values = density) {
+                AppTab(selectedTab.tabViewModel)
+            }
         }
     }
 }

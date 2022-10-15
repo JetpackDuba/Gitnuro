@@ -39,12 +39,13 @@ import com.jetpackduba.gitnuro.viewmodels.StageStatus
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
 fun UncommitedChanges(
-    statusViewModel: StatusViewModel,
+    statusViewModel: StatusViewModel = gitnuroViewModel(),
     selectedEntryType: DiffEntryType?,
     repositoryState: RepositoryState,
     onStagedDiffEntrySelected: (StatusEntry?) -> Unit,

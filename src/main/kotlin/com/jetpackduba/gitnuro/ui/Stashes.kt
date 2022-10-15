@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.stashesContextMenuItems
@@ -16,7 +17,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun Stashes(
-    stashesViewModel: StashesViewModel,
+    stashesViewModel: StashesViewModel = gitnuroViewModel(),
 ) {
     val stashStatusState = stashesViewModel.stashStatus.collectAsState()
     val stashStatus = stashStatusState.value

@@ -8,6 +8,7 @@ import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.tagContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.TagsViewModel
@@ -16,7 +17,7 @@ import org.eclipse.jgit.lib.Ref
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Tags(
-    tagsViewModel: TagsViewModel,
+    tagsViewModel: TagsViewModel = gitnuroViewModel(),
 ) {
     val tagsState = tagsViewModel.tags.collectAsState()
     val tags = tagsState.value

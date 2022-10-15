@@ -15,6 +15,7 @@ import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.branchContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.BranchesViewModel
@@ -22,7 +23,7 @@ import org.eclipse.jgit.lib.Ref
 
 @Composable
 fun Branches(
-    branchesViewModel: BranchesViewModel,
+    branchesViewModel: BranchesViewModel = gitnuroViewModel(),
 ) {
     val branches by branchesViewModel.branches.collectAsState()
     val currentBranchState = branchesViewModel.currentBranch.collectAsState()

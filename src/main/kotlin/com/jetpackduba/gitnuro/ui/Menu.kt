@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
 
@@ -31,7 +32,7 @@ import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
 @Composable
 fun Menu(
     modifier: Modifier,
-    menuViewModel: MenuViewModel,
+    menuViewModel: MenuViewModel = gitnuroViewModel(),
     onCreateBranch: () -> Unit,
     onGoToWorkspace: () -> Unit,
     onStashWithMessage: () -> Unit,

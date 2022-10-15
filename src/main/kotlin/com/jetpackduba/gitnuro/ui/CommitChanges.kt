@@ -23,6 +23,7 @@ import com.jetpackduba.gitnuro.viewmodels.CommitChangesStatus
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun CommitChanges(
-    commitChangesViewModel: CommitChangesViewModel,
+    commitChangesViewModel: CommitChangesViewModel = gitnuroViewModel(),
     selectedItem: SelectedItem.CommitBasedItem,
     onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,

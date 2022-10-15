@@ -5,7 +5,9 @@ import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.Theme
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -40,14 +42,14 @@ class AppSettings @Inject constructor() {
     private val _themeState = MutableStateFlow(theme)
     val themeState: StateFlow<Theme> = _themeState
 
-    private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
-    val commitsLimitEnabledFlow: StateFlow<Boolean> = _commitsLimitEnabledFlow
+    private val _commitsLimitEnabledFlow = MutableSharedFlow<Boolean>()
+    val commitsLimitEnabledFlow: SharedFlow<Boolean> = _commitsLimitEnabledFlow
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
     val ffMergeFlow: StateFlow<Boolean> = _ffMergeFlow
 
-    private val _commitsLimitFlow = MutableStateFlow(commitsLimit)
-    val commitsLimitFlow: StateFlow<Int> = _commitsLimitFlow
+    private val _commitsLimitFlow = MutableSharedFlow<Int>()
+    val commitsLimitFlow: SharedFlow<Int> = _commitsLimitFlow
 
     private val _customThemeFlow = MutableStateFlow<ColorsScheme?>(null)
     val customThemeFlow: StateFlow<ColorsScheme?> = _customThemeFlow
@@ -91,7 +93,7 @@ class AppSettings @Inject constructor() {
         }
         set(value) {
             preferences.putBoolean(PREF_COMMITS_LIMIT_ENABLED, value)
-            _commitsLimitEnabledFlow.value = value
+            _commitsLimitEnabledFlow.tryEmit(value)
         }
 
     var scaleUi: Float
@@ -121,7 +123,7 @@ class AppSettings @Inject constructor() {
         }
         set(value) {
             preferences.putInt(PREF_COMMITS_LIMIT, value)
-            _commitsLimitFlow.value = value
+            _commitsLimitFlow.tryEmit(value)
         }
 
     var windowPlacement: WindowsPlacementPreference

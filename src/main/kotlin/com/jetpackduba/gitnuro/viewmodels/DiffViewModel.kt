@@ -10,6 +10,7 @@ import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.*
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,6 +32,7 @@ class DiffViewModel @Inject constructor(
     private val unstageEntryUseCase: UnstageEntryUseCase,
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
+    tabScope: CoroutineScope,
 ) {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading(""))
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
@@ -42,7 +44,7 @@ class DiffViewModel @Inject constructor(
     private var diffJob: Job? = null
 
     init {
-        tabState.managerScope.launch {
+        tabScope.launch {
             diffTypeFlow.collect {
                 val diffEntryType = this@DiffViewModel.diffEntryType
                 if (diffTypeFlowChangesCount > 0 && diffEntryType != null) { // Ignore the first time the flow triggers, we only care about updates
@@ -50,6 +52,20 @@ class DiffViewModel @Inject constructor(
                 }
 
                 diffTypeFlowChangesCount++
+            }
+        }
+
+        tabScope.launch {
+            tabState.refreshFlowFiltered(
+                RefreshType.UNCOMMITED_CHANGES,
+                RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+            ).collect {
+                tabState.coRunOperation(refreshType = RefreshType.NONE) {
+                    val diffResultValue = diffResult.value
+                    if(diffResultValue is ViewDiffResult.Loaded) {
+                        updateDiff(diffResultValue.diffEntryType)
+                    }
+                }
             }
         }
     }

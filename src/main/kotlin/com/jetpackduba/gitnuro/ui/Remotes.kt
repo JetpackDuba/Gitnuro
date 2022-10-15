@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.VerticalExpandable
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.remoteBranchesContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.remoteContextMenu
@@ -32,7 +33,7 @@ import org.eclipse.jgit.lib.Ref
 
 @Composable
 fun Remotes(
-    remotesViewModel: RemotesViewModel,
+    remotesViewModel: RemotesViewModel = gitnuroViewModel(),
 ) {
     val remotes by remotesViewModel.remotes.collectAsState()
     var showEditRemotesDialog by remember { mutableStateOf(false) }

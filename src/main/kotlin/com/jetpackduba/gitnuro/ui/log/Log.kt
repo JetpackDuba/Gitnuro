@@ -47,6 +47,7 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
@@ -89,7 +90,7 @@ private const val LOG_BOTTOM_PADDING = 80
 )
 @Composable
 fun Log(
-    logViewModel: LogViewModel,
+    logViewModel: LogViewModel = gitnuroViewModel(),
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
 ) {

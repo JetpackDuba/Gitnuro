@@ -16,8 +16,8 @@ class MenuViewModel @Inject constructor(
     private val pullBranchUseCase: PullBranchUseCase,
     private val pushBranchUseCase: PushBranchUseCase,
     private val fetchAllBranchesUseCase: FetchAllBranchesUseCase,
-    private val stashChangesUseCase: StashChangesUseCase,
     private val popLastStashUseCase: PopLastStashUseCase,
+    private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
 ) {
     fun pull(rebase: Boolean = false) = tabState.safeProcessing(
@@ -47,25 +47,10 @@ class MenuViewModel @Inject constructor(
         stageUntrackedFileUseCase(git)
         stashChangesUseCase(git, null)
     }
-
-    fun stashWithMessage(message: String) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
-    ) { git ->
-        stageUntrackedFileUseCase(git)
-        stashChangesUseCase(git, message)
-    }
-
     fun popStash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
         popLastStashUseCase(git)
-    }
-
-    fun openFolderInFileExplorer() = tabState.runOperation(
-        showError = true,
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        Desktop.getDesktop().open(git.repository.directory.parentFile)
     }
 }

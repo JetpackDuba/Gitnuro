@@ -4,21 +4,20 @@ import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.isMerging
 import com.jetpackduba.gitnuro.extensions.isReverting
+import com.jetpackduba.gitnuro.git.RefreshType
+import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.log.CheckHasPreviousCommitsUseCase
 import com.jetpackduba.gitnuro.git.log.GetLastCommitMessageUseCase
 import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
 import com.jetpackduba.gitnuro.git.rebase.ContinueRebaseUseCase
 import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
-import com.jetpackduba.gitnuro.git.RefreshType
-import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.workspace.*
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
@@ -44,6 +43,7 @@ class StatusViewModel @Inject constructor(
     private val getUnstagedUseCase: GetUnstagedUseCase,
     private val checkHasUncommitedChangedUseCase: CheckHasUncommitedChangedUseCase,
     private val doCommitUseCase: DoCommitUseCase,
+    private val tabScope: CoroutineScope,
 ) {
     private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf(), false))
     val stageStatus: StateFlow<StageStatus> = _stageStatus
@@ -62,6 +62,20 @@ class StatusViewModel @Inject constructor(
      */
     private val _commitMessageChangesFlow = MutableSharedFlow<String>()
     val commitMessageChangesFlow: SharedFlow<String> = _commitMessageChangesFlow
+
+    init {
+        tabScope.launch {
+            tabState.refreshFlowFiltered(
+                RefreshType.ALL_DATA,
+                RefreshType.UNCOMMITED_CHANGES,
+                RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+            ).collect {
+                tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
+                    refresh(git)
+                }
+            }
+        }
+    }
 
     private fun persistMessage() = tabState.runOperation(
         refreshType = RefreshType.NONE,

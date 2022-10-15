@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.Tooltip
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.submoduleContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.SubmodulesViewModel
@@ -20,7 +21,7 @@ import org.eclipse.jgit.submodule.SubmoduleStatus
 
 @Composable
 fun Submodules(
-    submodulesViewModel: SubmodulesViewModel,
+    submodulesViewModel: SubmodulesViewModel = gitnuroViewModel(),
 ) {
     val submodules by submodulesViewModel.submodules.collectAsState()
     val isExpanded by submodulesViewModel.isExpanded.collectAsState()

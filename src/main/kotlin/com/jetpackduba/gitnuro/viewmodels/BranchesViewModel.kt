@@ -7,11 +7,15 @@ import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
+
+private const val TAG = "BranchesViewModel"
 
 class BranchesViewModel @Inject constructor(
     private val rebaseBranchUseCase: RebaseBranchUseCase,
@@ -25,6 +29,7 @@ class BranchesViewModel @Inject constructor(
     private val createBranchUseCase: CreateBranchUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
+    private val tabScope: CoroutineScope,
 ) : ExpandableViewModel(true) {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     val branches: StateFlow<List<Ref>>
@@ -33,6 +38,17 @@ class BranchesViewModel @Inject constructor(
     private val _currentBranch = MutableStateFlow<Ref?>(null)
     val currentBranch: StateFlow<Ref?>
         get() = _currentBranch
+
+    init {
+        tabScope.launch {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
+                .collect {
+                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
+                        refresh(git)
+                    }
+                }
+        }
+    }
 
     private suspend fun loadBranches(git: Git) {
         _currentBranch.value = getCurrentBranchUseCase(git)
@@ -50,13 +66,7 @@ class BranchesViewModel @Inject constructor(
         _branches.value = branchesList
     }
 
-    fun createBranch(branchName: String) = tabState.safeProcessing(
-        refreshType = RefreshType.ONLY_LOG,
-        refreshEvenIfCrashes = true,
-    ) { git ->
-        createBranchUseCase(git, branchName)
-        this.loadBranches(git)
-    }
+
 
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

@@ -7,8 +7,11 @@ import com.jetpackduba.gitnuro.git.stash.DeleteStashUseCase
 import com.jetpackduba.gitnuro.git.stash.GetStashListUseCase
 import com.jetpackduba.gitnuro.git.stash.PopStashUseCase
 import com.jetpackduba.gitnuro.ui.SelectedItem
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
@@ -19,11 +22,33 @@ class StashesViewModel @Inject constructor(
     private val popStashUseCase: PopStashUseCase,
     private val deleteStashUseCase: DeleteStashUseCase,
     private val tabState: TabState,
+    private val tabScope: CoroutineScope,
 ) : ExpandableViewModel(true) {
     private val _stashStatus = MutableStateFlow<StashStatus>(StashStatus.Loaded(listOf()))
 
     val stashStatus: StateFlow<StashStatus>
         get() = _stashStatus
+
+    init {
+        tabScope.launch {
+            tabState.refreshData
+                .filter { refreshType -> refreshType == RefreshType.ALL_DATA }
+                .collect {
+                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
+                        refresh(git)
+                    }
+                }
+        }
+
+        tabScope.launch {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.STASHES)
+                .collect {
+                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
+                        refresh(git)
+                    }
+                }
+        }
+    }
 
     suspend fun loadStashes(git: Git) {
         _stashStatus.value = StashStatus.Loading
@@ -55,6 +80,7 @@ class StashesViewModel @Inject constructor(
         refreshType = RefreshType.STASHES,
     ) { git ->
         deleteStashUseCase(git, stash)
+
         stashDropped(stash)
     }
 

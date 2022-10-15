@@ -23,7 +23,6 @@ import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
@@ -65,7 +64,8 @@ class LogViewModel @Inject constructor(
     private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
-) {
+    private val tabScope: CoroutineScope,
+) : ViewModel {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
     val logStatus: StateFlow<LogStatus>
@@ -94,23 +94,35 @@ class LogViewModel @Inject constructor(
     val verticalListState = MutableStateFlow(LazyListState(0, 0))
     val horizontalListState = MutableStateFlow(ScrollState(0))
 
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     private val _logSearchFilterResults = MutableStateFlow<LogSearch>(LogSearch.NotSearching)
     val logSearchFilterResults: StateFlow<LogSearch> = _logSearchFilterResults
 
     init {
-        scope.launch {
+        tabScope.launch {
             appSettings.commitsLimitEnabledFlow.collect {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
-        scope.launch {
+        tabScope.launch {
             appSettings.commitsLimitFlow.collect {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
+
+        tabScope.launch {
+            tabState.refreshFlowFiltered(
+                RefreshType.ALL_DATA,
+                RefreshType.ONLY_LOG,
+                RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+            ).collect {
+                tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
+                    refresh(git)
+                }
+            }
+        }
     }
+
 
     private suspend fun loadLog(git: Git) = delayedStateChange(
         delayMs = LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD,

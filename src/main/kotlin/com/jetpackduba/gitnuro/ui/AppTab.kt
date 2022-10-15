@@ -15,12 +15,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.LoadingRepository
+import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.ui.dialogs.PasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.UserPasswordDialog
@@ -48,6 +48,8 @@ fun AppTab(
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val isProcessing by tabViewModel.processing.collectAsState()
 
+    println("Tab name from scope = ${LocalTabScope.current.tabName.value}")
+    LocalTabScope.current.appStateManager
     Box {
         Column(
             modifier = Modifier

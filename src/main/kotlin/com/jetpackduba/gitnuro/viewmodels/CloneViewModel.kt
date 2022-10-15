@@ -27,15 +27,15 @@ class CloneViewModel @Inject constructor(
     private var cloneJob: Job? = null
 
     fun clone(directoryPath: String, url: String) {
-        cloneJob = tabState.safeProcessingWihoutGit {
+        cloneJob = tabState.safeProcessingWithoutGit {
             if (directoryPath.isBlank()) {
                 _cloneStatus.value = CloneStatus.Fail("Invalid empty directory")
-                return@safeProcessingWihoutGit
+                return@safeProcessingWithoutGit
             }
 
             if (url.isBlank()) {
                 _cloneStatus.value = CloneStatus.Fail("Invalid empty URL")
-                return@safeProcessingWihoutGit
+                return@safeProcessingWithoutGit
             }
 
 
@@ -55,7 +55,7 @@ class CloneViewModel @Inject constructor(
 
             if (repoName.isNullOrBlank()) {
                 _cloneStatus.value = CloneStatus.Fail("Check your URL and try again")
-                return@safeProcessingWihoutGit
+                return@safeProcessingWithoutGit
             }
 
             val directory = File(directoryPath)
@@ -83,7 +83,7 @@ class CloneViewModel @Inject constructor(
         directory = ""
     }
 
-    fun cancelClone() = tabState.safeProcessingWihoutGit {
+    fun cancelClone() = tabState.safeProcessingWithoutGit {
         _cloneStatus.value = CloneStatus.Cancelling
         cloneJob?.cancelAndJoin()
         _cloneStatus.value = CloneStatus.None

@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.git
 import com.jetpackduba.gitnuro.ErrorsManager
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.newErrorNow
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
@@ -13,9 +14,12 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
+private const val TAG = "TabState"
+
 @TabScope
 class TabState @Inject constructor(
     val errorsManager: ErrorsManager,
+    private val scope: CoroutineScope,
 ) {
     private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommitedChanges)
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
@@ -32,12 +36,8 @@ class TabState @Inject constructor(
                 return git
         }
 
-//    private val mutex = Mutex()
-
     private val _refreshData = MutableSharedFlow<RefreshType>()
-    val refreshData: Flow<RefreshType> = _refreshData
-
-    val managerScope = CoroutineScope(SupervisorJob())
+    val refreshData: SharedFlow<RefreshType> = _refreshData
 
     /**
      * Property that indicates if a git operation is running
@@ -54,7 +54,7 @@ class TabState @Inject constructor(
         refreshEvenIfCrashes: Boolean = false,
         callback: suspend (git: Git) -> Unit
     ) =
-        managerScope.launch(Dispatchers.IO) {
+        scope.launch(Dispatchers.IO) {
             var hasProcessFailed = false
             operationRunning = true
 
@@ -77,14 +77,15 @@ class TabState @Inject constructor(
                 _processing.value = false
                 operationRunning = false
 
-                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
+                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes)) {
                     _refreshData.emit(refreshType)
+                }
             }
 
         }
 
-    fun safeProcessingWihoutGit(showError: Boolean = true, callback: suspend CoroutineScope.() -> Unit) =
-        managerScope.launch(Dispatchers.IO) {
+    fun safeProcessingWithoutGit(showError: Boolean = true, callback: suspend CoroutineScope.() -> Unit) =
+        scope.launch(Dispatchers.IO) {
             _processing.value = true
             operationRunning = true
 
@@ -106,15 +107,12 @@ class TabState @Inject constructor(
         refreshType: RefreshType,
         refreshEvenIfCrashes: Boolean = false,
         block: suspend (git: Git) -> Unit
-    ) = managerScope.launch(Dispatchers.IO) {
+    ) = scope.launch(Dispatchers.IO) {
         var hasProcessFailed = false
 
         operationRunning = true
         try {
             block(safeGit)
-
-            if (refreshType != RefreshType.NONE)
-                _refreshData.emit(refreshType)
         } catch (ex: Exception) {
             ex.printStackTrace()
 
@@ -149,9 +147,6 @@ class TabState @Inject constructor(
         operationRunning = true
         try {
             block(safeGit)
-
-            if (refreshType != RefreshType.NONE)
-                _refreshData.emit(refreshType)
         } catch (ex: Exception) {
             ex.printStackTrace()
 
@@ -215,6 +210,12 @@ class TabState @Inject constructor(
     suspend fun emitNewTaskEvent(taskEvent: TaskEvent) {
         _taskEvent.emit(taskEvent)
     }
+
+    fun refreshFlowFiltered(vararg filters: RefreshType) = refreshData
+        .filter { refreshType ->
+            printLog(TAG, "Filters: ${filters.joinToString()}. Refresh type $refreshType")
+            filters.contains(refreshType)
+        }
 }
 
 enum class RefreshType {

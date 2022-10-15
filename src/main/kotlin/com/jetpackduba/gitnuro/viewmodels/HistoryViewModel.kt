@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.git.diff.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,6 +24,7 @@ class HistoryViewModel @Inject constructor(
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
+    private val tabScope: CoroutineScope,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState
@@ -40,7 +42,7 @@ class HistoryViewModel @Inject constructor(
 
 
     init {
-        tabState.managerScope.launch {
+        tabScope.launch {
             settings.textDiffTypeFlow.collect { diffType ->
                 if (filePath.isNotBlank()) {
                     updateDiffType(diffType)

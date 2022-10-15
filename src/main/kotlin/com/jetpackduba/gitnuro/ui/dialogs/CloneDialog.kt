@@ -24,13 +24,14 @@ import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.openDirectoryDialog
 import com.jetpackduba.gitnuro.viewmodels.CloneViewModel
 import java.io.File
 
 @Composable
 fun CloneDialog(
-    cloneViewModel: CloneViewModel,
+    cloneViewModel: CloneViewModel = gitnuroViewModel(), // TODO THIS CRASHES
     onClose: () -> Unit,
     onOpenRepository: (File) -> Unit,
 ) {

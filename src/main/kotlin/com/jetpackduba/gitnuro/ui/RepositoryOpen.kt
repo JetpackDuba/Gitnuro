@@ -37,10 +37,7 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
-import com.jetpackduba.gitnuro.ui.dialogs.AuthorDialog
-import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
-import com.jetpackduba.gitnuro.ui.dialogs.QuickActionsDialog
-import com.jetpackduba.gitnuro.ui.dialogs.StashWithMessageDialog
+import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
@@ -73,7 +70,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 showNewBranchDialog = false
             },
             onAccept = { branchName ->
-                tabViewModel.branchesViewModel.createBranch(branchName)
+                tabViewModel.createBranch(branchName)
                 showNewBranchDialog = false
             }
         )
@@ -83,7 +80,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 showStashWithMessageDialog = false
             },
             onAccept = { stashMessage ->
-                tabViewModel.menuViewModel.stashWithMessage(stashMessage)
+                tabViewModel.stashWithMessage(stashMessage)
                 showStashWithMessageDialog = false
             }
         )
@@ -102,6 +99,10 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
             onClose = { showQuickActionsDialog = false },
             onAction = {
                 showQuickActionsDialog = false
+                when(it) {
+                    QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> tabViewModel.openFolderInFileExplorer()
+                    QuickActionType.CLONE -> TODO()
+                }
             },
         )
     }
@@ -137,11 +138,10 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                         Menu(
                             modifier = Modifier
                                 .padding(
-                                    top = 12.dp,
+                                    top = 16.dp,
                                     bottom = 16.dp
-                                ) // Linear progress bar already take 4 additional dp for top
+                                )
                                 .fillMaxWidth(),
-                            menuViewModel = tabViewModel.menuViewModel,
                             onCreateBranch = { showNewBranchDialog = true },
                             onStashWithMessage = { showStashWithMessageDialog = true },
                             onGoToWorkspace = { tabViewModel.selectUncommitedChanges() },
@@ -170,7 +170,6 @@ fun SideBar(tabViewModel: TabViewModel) {
     var showSettingsDialog by remember { mutableStateOf(false) }
     if (showSettingsDialog) {
         SettingsDialog(
-            settingsViewModel = tabViewModel.settingsViewModel,
             onDismiss = { showSettingsDialog = false }
         )
     }
@@ -347,21 +346,11 @@ fun MainContentView(
     HorizontalSplitPane {
         first(minSize = 250.dp) {
             ScrollableColumn(modifier = Modifier.fillMaxHeight()) {
-                Branches(
-                    branchesViewModel = tabViewModel.branchesViewModel,
-                )
-                Remotes(
-                    remotesViewModel = tabViewModel.remotesViewModel,
-                )
-                Tags(
-                    tagsViewModel = tabViewModel.tagsViewModel,
-                )
-                Stashes(
-                    stashesViewModel = tabViewModel.stashesViewModel,
-                )
-                Submodules(
-                    submodulesViewModel = tabViewModel.submodulesViewModel,
-                )
+                Branches()
+                Remotes()
+                Tags()
+                Stashes()
+                Submodules()
             }
         }
 
@@ -391,7 +380,6 @@ fun MainContentView(
                                     when (diffSelected) {
                                         null -> {
                                             Log(
-                                                logViewModel = tabViewModel.logViewModel,
                                                 selectedItem = selectedItem,
                                                 repositoryState = repositoryState,
                                             )
@@ -436,7 +424,7 @@ fun MainContentView(
                         val safeSelectedItem = selectedItem
                         if (safeSelectedItem == SelectedItem.UncommitedChanges) {
                             UncommitedChanges(
-                                statusViewModel = tabViewModel.statusViewModel,
+//                                statusViewModel = tabViewModel.statusViewModel,
                                 selectedEntryType = diffSelected,
                                 repositoryState = repositoryState,
                                 onStagedDiffEntrySelected = { diffEntry ->
@@ -464,7 +452,7 @@ fun MainContentView(
                             )
                         } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                             CommitChanges(
-                                commitChangesViewModel = tabViewModel.commitChangesViewModel,
+//                                commitChangesViewModel = tabViewModel.commitChangesViewModel,
                                 selectedItem = safeSelectedItem,
                                 diffSelected = diffSelected,
                                 onDiffSelected = { diffEntry ->

@@ -8,9 +8,11 @@ import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.ui.dialogs.RemoteWrapper
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RemoteSetUrlCommand
@@ -25,11 +27,23 @@ class RemotesViewModel @Inject constructor(
     private val deleteRemoteUseCase: DeleteRemoteUseCase,
     private val addRemoteUseCase: AddRemoteUseCase,
     private val updateRemoteUseCase: UpdateRemoteUseCase,
-    private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase
+    private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
+    private val tabScope: CoroutineScope,
 ) : ExpandableViewModel() {
     private val _remotes = MutableStateFlow<List<RemoteView>>(listOf())
     val remotes: StateFlow<List<RemoteView>>
         get() = _remotes
+
+    init {
+        tabScope.launch {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES)
+                .collect {
+                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
+                        refresh(git)
+                    }
+                }
+        }
+    }
 
     private suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
         val remotes = git.remoteList()

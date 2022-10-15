@@ -82,16 +82,16 @@ fun WelcomePage(
 
     LaunchedEffect(showCloneView) {
         if (showCloneView) {
-            tabViewModel.cloneViewModel.reset() // Reset dialog before showing it
+//            tabViewModel.cloneViewModel.reset() // Reset dialog before showing it
         }
     }
 
     if (showCloneView) {
         CloneDialog(
-            tabViewModel.cloneViewModel,
+//            tabViewModel.cloneViewModel,
             onClose = {
                 showCloneView = false
-                tabViewModel.cloneViewModel.reset()
+//                tabViewModel.cloneViewModel.reset()
             },
             onOpenRepository = { dir ->
                 tabViewModel.openRepository(dir)
