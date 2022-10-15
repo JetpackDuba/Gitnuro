@@ -15,8 +15,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,17 +52,6 @@ fun AppTab(
                 .background(MaterialTheme.colors.surface)
                 .fillMaxSize()
         ) {
-            val linearProgressAlpha = if (isProcessing)
-                DefaultAlpha
-            else
-                0f
-
-            LinearProgressIndicator(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .alpha(linearProgressAlpha),
-                color = MaterialTheme.colors.primaryVariant
-            )
 
             CredentialsDialog(tabViewModel)
 
@@ -74,9 +61,11 @@ fun AppTab(
                         RepositorySelectionStatus.None -> {
                             WelcomePage(tabViewModel = tabViewModel)
                         }
+
                         is RepositorySelectionStatus.Opening -> {
                             LoadingRepository(repositorySelectionStatusValue.path)
                         }
+
                         is RepositorySelectionStatus.Open -> {
                             RepositoryOpenPage(tabViewModel = tabViewModel)
                         }
@@ -87,6 +76,25 @@ fun AppTab(
                     Box(modifier = Modifier.fillMaxSize()) //TODO this should block of the mouse/keyboard events while visible
             }
         }
+
+
+        if (isProcessing) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colors.surface),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column {
+
+                    LinearProgressIndicator(
+                        modifier = Modifier.width(340.dp),
+                        color = MaterialTheme.colors.secondary,
+                    )
+                }
+            }
+        }
+
 
         val safeLastError = lastError
         if (safeLastError != null) {
