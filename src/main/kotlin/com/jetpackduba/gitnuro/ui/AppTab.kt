@@ -15,6 +15,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,9 +73,6 @@ fun AppTab(
                         }
                     }
                 }
-
-                if (isProcessing)
-                    Box(modifier = Modifier.fillMaxSize()) //TODO this should block of the mouse/keyboard events while visible
             }
         }
 
@@ -82,7 +81,8 @@ fun AppTab(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colors.surface),
+                    .background(MaterialTheme.colors.surface)
+                    .onPreviewKeyEvent { true }, // Disable all keyboard events
                 contentAlignment = Alignment.Center,
             ) {
                 Column {
