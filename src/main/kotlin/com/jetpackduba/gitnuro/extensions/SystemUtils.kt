@@ -65,17 +65,6 @@ private fun openFileJdk(filePath: String) {
     }
 }
 
-fun copyInBrowser(textToCopy: String) {
-    try {
-        val selection = StringSelection(textToCopy)
-        val clipboard: Clipboard = Toolkit.getDefaultToolkit().systemClipboard
-        clipboard.setContents(selection, selection)
-    } catch (ex: Exception) {
-        printLog(TAG, "Failed to copy text")
-        ex.printStackTrace()
-    }
-}
-
 enum class OS {
     LINUX,
     WINDOWS,

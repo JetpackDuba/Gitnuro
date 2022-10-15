@@ -33,7 +33,7 @@ private const val TAG = "TabViewModel"
 /**
  * Contains all the information related to a tab and its subcomponents (smaller composables like the log, branches,
  * commit changes, etc.). It holds a reference to every view model because this class lives as long as the tab is open (survives
- * across full com.jetpackduba.gitnuro.app recompositions), therefore, tab's content can be recreated with these view models.
+ * across full app recompositions), therefore, tab's content can be recreated with these view models.
  */
 class TabViewModel @Inject constructor(
     val logViewModel: LogViewModel,

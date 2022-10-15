@@ -8,6 +8,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -138,6 +140,7 @@ fun Author(
 ) {
     var copied by remember(id) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboardManager.current
 
     Row(
         modifier = Modifier
@@ -173,7 +176,7 @@ fun Author(
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.handMouseClickable {
                         scope.launch {
-                            copyInBrowser(id.name)
+                            clipboard.setText(AnnotatedString(id.name))
                             copied = true
                             delay(2000) // 2s
                             copied = false
