@@ -10,7 +10,7 @@ class DoCommitUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, message: String, amend: Boolean): RevCommit = withContext(Dispatchers.IO) {
         git.commit()
             .setMessage(message)
-            .setAllowEmpty(false)
+            .setAllowEmpty(amend) // Only allow empty commits when amending
             .setAmend(amend)
             .call()
     }
