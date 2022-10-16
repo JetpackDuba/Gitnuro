@@ -112,8 +112,6 @@ class TabViewModel @Inject constructor(
                     when (refreshType) {
                         RefreshType.NONE -> printLog(TAG, "Not refreshing...")
                         RefreshType.REPO_STATE -> refreshRepositoryState()
-                        RefreshType.UNCOMMITED_CHANGES -> checkUncommitedChanges()
-                        RefreshType.UNCOMMITED_CHANGES_AND_LOG -> checkUncommitedChanges()
                         else -> {}
                     }
                 }
@@ -131,11 +129,8 @@ class TabViewModel @Inject constructor(
             launch {
                 tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REPO_STATE)
                     .collect {
-                        tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                            loadRepositoryState(git)
-                        }
+                        loadRepositoryState(tabState.git)
                     }
-
             }
         }
     }
@@ -166,7 +161,7 @@ class TabViewModel @Inject constructor(
             repository.workTree // test if repository is valid
             _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
             val git = Git(repository)
-            tabState.git = git
+            tabState.initGit(git)
 
             onRepositoryChanged(repository.directory.parent)
             refreshRepositoryInfo()
@@ -289,6 +284,7 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) {
         updateDiffEntry()
+        tabState.refreshData(RefreshType.UNCOMMITED_CHANGES_AND_LOG)
 //
 //        // Stashes list should only be updated if we are doing a stash operation, however it's a small operation
 //        // that we can afford to do when doing other operations
@@ -296,9 +292,9 @@ class TabViewModel @Inject constructor(
 //        loadRepositoryState(git)
     }
 
-    private fun refreshRepositoryInfo() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-    ) {}
+    private suspend fun refreshRepositoryInfo() {
+        tabState.refreshData(RefreshType.ALL_DATA)
+    }
 
     fun credentialsDenied() {
         credentialsStateManager.updateState(CredentialsState.CredentialsDenied)
@@ -413,8 +409,8 @@ class TabViewModel @Inject constructor(
         historyViewModel = null
     }
 
-    fun refreshAll() {
-        printLog(TAG, "Manual refresh triggered")
+    fun refreshAll() = tabScope.launch {
+        printLog(TAG, "Manual refresh triggered. IS OPERATION RUNNING ${tabState.operationRunning}")
         if (!tabState.operationRunning) {
             refreshRepositoryInfo()
         }

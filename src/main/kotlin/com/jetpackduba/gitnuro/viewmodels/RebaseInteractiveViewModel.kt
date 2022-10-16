@@ -39,11 +39,9 @@ class RebaseInteractiveViewModel @Inject constructor(
             println("prepareSteps started")
             tabState.refreshData(RefreshType.REPO_STATE)
 
-            tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                val messages = getRebaseLinesFullMessageUseCase(git, steps)
+            val messages = getRebaseLinesFullMessageUseCase(tabState.git, steps)
 
-                _rebaseState.value = RebaseInteractiveState.Loaded(steps, messages)
-            }
+            _rebaseState.value = RebaseInteractiveState.Loaded(steps, messages)
 
             println("prepareSteps mutex lock")
             rebaseInteractiveMutex.lock()

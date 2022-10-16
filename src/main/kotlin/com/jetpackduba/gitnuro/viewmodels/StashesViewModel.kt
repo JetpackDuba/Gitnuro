@@ -31,21 +31,9 @@ class StashesViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshData
-                .filter { refreshType -> refreshType == RefreshType.ALL_DATA }
-                .collect {
-                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                        refresh(git)
-                    }
-                }
-        }
-
-        tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.STASHES)
                 .collect {
-                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                        refresh(git)
-                    }
+                    refresh(tabState.git)
                 }
         }
     }

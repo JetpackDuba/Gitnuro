@@ -43,9 +43,7 @@ class BranchesViewModel @Inject constructor(
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
                 .collect {
-                    tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                        refresh(git)
-                    }
+                    refresh(tabState.git)
                 }
         }
     }
@@ -61,7 +59,6 @@ class BranchesViewModel @Inject constructor(
             branchesList.remove(selectedBranch)
             branchesList.add(0, selectedBranch)
         }
-
 
         _branches.value = branchesList
     }

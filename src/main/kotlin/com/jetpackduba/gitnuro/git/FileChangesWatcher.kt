@@ -23,7 +23,6 @@ class FileChangesWatcher @Inject constructor() {
     val keys = mutableMapOf<WatchKey, Path>()
 
     suspend fun watchDirectoryPath(pathStr: String, ignoredDirsPath: List<String>) = withContext(Dispatchers.IO) {
-        println(ignoredDirsPath)
         val watchService = FileSystems.getDefault().newWatchService()
 
         val path = Paths.get(pathStr)
@@ -41,7 +40,7 @@ class FileChangesWatcher @Inject constructor() {
             override fun preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult {
                 val isIgnoredDirectory = ignoredDirsPath.any { "$pathStr/$it" == dir.toString() }
 
-                return if (!isIgnoredDirectory) {
+                return if (!isIgnoredDirectory && !isGitDir(dir, pathStr)) {
                     val watchKey = dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY)
                     keys[watchKey] = dir
                     FileVisitResult.CONTINUE
@@ -57,8 +56,6 @@ class FileChangesWatcher @Inject constructor() {
 
             val dir = keys[key] ?: return@withContext
 
-            val hasGitDirectoryChanged = dir.startsWith("$pathStr$systemSeparator.git$systemSeparator")
-
             if (events.count() == 1) {
                 val fileChanged = events.first().context().toString()
                 val fullPathOfFileChanged = "$pathStr$systemSeparator.git$systemSeparator$fileChanged"
@@ -70,9 +67,7 @@ class FileChangesWatcher @Inject constructor() {
                 }
             }
 
-            printLog(TAG, "Has git dir changed: $hasGitDirectoryChanged")
-
-            _changesNotifier.emit(hasGitDirectoryChanged)
+            _changesNotifier.emit(false)
 
             // Check if new directories have been added to add them to the watchService
             launch(Dispatchers.IO) {
@@ -97,6 +92,10 @@ class FileChangesWatcher @Inject constructor() {
 
             key.reset()
         }
+    }
+
+    private fun isGitDir(dir: Path, pathStr: String): Boolean {
+        return dir.startsWith("$pathStr$systemSeparator.git$systemSeparator")
     }
 
     private fun isGitMessageFile(repoPath: String, fullPathOfFileChanged: String): Boolean {

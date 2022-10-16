@@ -48,7 +48,6 @@ fun AppTab(
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val isProcessing by tabViewModel.processing.collectAsState()
 
-    println("Tab name from scope = ${LocalTabScope.current.tabName.value}")
     LocalTabScope.current.appStateManager
     Box {
         Column(

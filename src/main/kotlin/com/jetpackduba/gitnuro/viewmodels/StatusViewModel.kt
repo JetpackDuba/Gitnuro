@@ -70,9 +70,7 @@ class StatusViewModel @Inject constructor(
                 RefreshType.UNCOMMITED_CHANGES,
                 RefreshType.UNCOMMITED_CHANGES_AND_LOG,
             ).collect {
-                tabState.coRunOperation(refreshType = RefreshType.NONE) { git ->
-                    refresh(git)
-                }
+                refresh(tabState.git)
             }
         }
     }
@@ -120,13 +118,13 @@ class StatusViewModel @Inject constructor(
     }
 
     fun resetStaged(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         resetEntryUseCase(git, statusEntry, staged = true)
     }
 
     fun resetUnstaged(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
         resetEntryUseCase(git, statusEntry, staged = false)
     }

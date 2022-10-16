@@ -26,14 +26,14 @@ class TabState @Inject constructor(
     private val _taskEvent = MutableSharedFlow<TaskEvent>()
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent
 
-    var git: Git? = null
-    private val safeGit: Git
+    private var unsafeGit: Git? = null
+    val git: Git
         get() {
-            val git = this.git
-            if (git == null) {
-                throw CancellationException("Null git object")
+            val unsafeGit = this.unsafeGit
+            if (unsafeGit == null) {
+                throw CancellationException("Repository not available")
             } else
-                return git
+                return unsafeGit
         }
 
     private val _refreshData = MutableSharedFlow<RefreshType>()
@@ -47,6 +47,10 @@ class TabState @Inject constructor(
 
     private val _processing = MutableStateFlow(false)
     val processing: StateFlow<Boolean> = _processing
+
+    fun initGit(git: Git) {
+        this.unsafeGit = git
+    }
 
     fun safeProcessing(
         showError: Boolean = true,
@@ -65,7 +69,7 @@ class TabState @Inject constructor(
                         _processing.value = true
                     }
                 ) {
-                    callback(safeGit)
+                    callback(git)
                 }
             } catch (ex: Exception) {
                 hasProcessFailed = true
@@ -112,7 +116,7 @@ class TabState @Inject constructor(
 
         operationRunning = true
         try {
-            block(safeGit)
+            block(git)
         } catch (ex: Exception) {
             ex.printStackTrace()
 
@@ -121,52 +125,10 @@ class TabState @Inject constructor(
             if (showError)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
         } finally {
-            launch {
-                // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
-                // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
-                // refresh because there have been changes in the git dir). This can be easily triggered by interactive
-                // rebase.
-                delay(500)
-                operationRunning = false
-            }
-
-
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
                 _refreshData.emit(refreshType)
-        }
-    }
 
-    suspend fun coRunOperation(
-        showError: Boolean = false,
-        refreshType: RefreshType,
-        refreshEvenIfCrashes: Boolean = false,
-        block: suspend (git: Git) -> Unit
-    ) = withContext(Dispatchers.IO) {
-        var hasProcessFailed = false
-
-        operationRunning = true
-        try {
-            block(safeGit)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-
-            hasProcessFailed = true
-
-            if (showError)
-                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
-        } finally {
-            launch {
-                // Add a slight delay because sometimes the file watcher takes a few moments to notify a change in the
-                // filesystem, therefore notifying late and being operationRunning already false (which leads to a full
-                // refresh because there have been changes in the git dir). This can be easily triggered by interactive
-                // rebase.
-                delay(500)
                 operationRunning = false
-            }
-
-
-            if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
-                _refreshData.emit(refreshType)
         }
     }
 
@@ -211,9 +173,9 @@ class TabState @Inject constructor(
         _taskEvent.emit(taskEvent)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun refreshFlowFiltered(vararg filters: RefreshType) = refreshData
         .filter { refreshType ->
-            printLog(TAG, "Filters: ${filters.joinToString()}. Refresh type $refreshType")
             filters.contains(refreshType)
         }
 }
