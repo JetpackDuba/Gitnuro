@@ -280,7 +280,17 @@ private fun StaticImage(tempImagePath: String) {
     Image(
         bitmap = image ?: ImageBitmap.Blank,
         contentDescription = null,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .run {
+                val safeImage = image
+                if(safeImage == null)
+                    fillMaxSize()
+                else {
+                    width(safeImage.width.dp)
+                        .height(safeImage.height.dp)
+
+                }
+            }
             .handMouseClickable {
                 openFileWithExternalApp(tempImagePath)
             }
