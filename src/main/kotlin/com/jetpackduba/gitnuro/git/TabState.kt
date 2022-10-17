@@ -174,10 +174,19 @@ class TabState @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun refreshFlowFiltered(vararg filters: RefreshType) = refreshData
-        .filter { refreshType ->
-            filters.contains(refreshType)
-        }
+    suspend fun refreshFlowFiltered(vararg filters: RefreshType, callback: suspend (RefreshType) -> Unit) {
+        refreshData
+            .filter { refreshType ->
+                filters.contains(refreshType)
+            }.collect {
+                try {
+                    callback(it)
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                    errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+                }
+            }
+    }
 }
 
 enum class RefreshType {

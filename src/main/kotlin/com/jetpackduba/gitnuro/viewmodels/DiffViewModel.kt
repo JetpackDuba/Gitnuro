@@ -59,7 +59,7 @@ class DiffViewModel @Inject constructor(
             tabState.refreshFlowFiltered(
                 RefreshType.UNCOMMITED_CHANGES,
                 RefreshType.UNCOMMITED_CHANGES_AND_LOG,
-            ).collect {
+            ) {
                 val diffResultValue = diffResult.value
                 if (diffResultValue is ViewDiffResult.Loaded) {
                     updateDiff(diffResultValue.diffEntryType)

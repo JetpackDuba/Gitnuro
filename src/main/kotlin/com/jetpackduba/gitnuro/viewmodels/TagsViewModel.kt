@@ -29,7 +29,7 @@ class TagsViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.STASHES)
-                .collect {
+                 {
                     refresh(tabState.git)
                 }
         }

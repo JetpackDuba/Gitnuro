@@ -37,7 +37,7 @@ class RemotesViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES)
-                .collect {
+                 {
                     refresh(tabState.git)
                 }
         }

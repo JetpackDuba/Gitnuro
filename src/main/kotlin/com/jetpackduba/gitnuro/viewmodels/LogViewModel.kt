@@ -115,7 +115,7 @@ class LogViewModel @Inject constructor(
                 RefreshType.ALL_DATA,
                 RefreshType.ONLY_LOG,
                 RefreshType.UNCOMMITED_CHANGES_AND_LOG,
-            ).collect {
+            ) {
                 refresh(tabState.git)
             }
         }

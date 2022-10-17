@@ -69,7 +69,7 @@ class StatusViewModel @Inject constructor(
                 RefreshType.ALL_DATA,
                 RefreshType.UNCOMMITED_CHANGES,
                 RefreshType.UNCOMMITED_CHANGES_AND_LOG,
-            ).collect {
+            ) {
                 refresh(tabState.git)
             }
         }

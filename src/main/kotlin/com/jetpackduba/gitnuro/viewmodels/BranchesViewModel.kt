@@ -42,7 +42,7 @@ class BranchesViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
-                .collect {
+                 {
                     refresh(tabState.git)
                 }
         }
