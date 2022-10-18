@@ -52,7 +52,7 @@ fun NewTagDialog(
             )
 
             Text(
-                text = "Create a new tag to the specified commit",
+                text = "Create a new tag on the specified commit",
                 modifier = Modifier
                     .padding(bottom = 16.dp),
                 color = MaterialTheme.colors.secondaryTextColor,
