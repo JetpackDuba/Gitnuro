@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -75,52 +76,36 @@ fun CommitChangesView(
 ) {
     Column(
         modifier = Modifier
+            .padding(end = 8.dp, bottom = 8.dp)
             .fillMaxSize(),
     ) {
         val scroll = rememberScrollState(0)
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 8.dp),
-        ) {
-            SelectionContainer {
-                Text(
-                    text = commit.fullMessage,
-                    style = MaterialTheme.typography.body2,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colors.background)
-                        .height(120.dp)
-                        .padding(8.dp)
-                        .verticalScroll(scroll),
-                )
-            }
 
-            Divider(modifier = Modifier.fillMaxWidth())
-
-            Author(commit.id, commit.authorIdent)
-        }
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = true)
-                .padding(end = 8.dp, top = 8.dp, bottom = 8.dp)
                 .background(MaterialTheme.colors.background)
         ) {
-            Text(
-                modifier = Modifier
-                    .background(MaterialTheme.colors.headerBackground)
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-                    .fillMaxWidth(),
-                text = "Files changed",
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Left,
-                color = MaterialTheme.colors.headerText,
-                maxLines = 1,
-                style = MaterialTheme.typography.body2,
-            )
+            Box(modifier = Modifier
+                .fillMaxWidth()
+                .height(34.dp)
+                .background(MaterialTheme.colors.headerBackground),
+                contentAlignment = Alignment.CenterStart,
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp, horizontal = 16.dp),
+                    text = "Files changed",
+                    fontWeight = FontWeight.Normal,
+                    textAlign = TextAlign.Left,
+                    color = MaterialTheme.colors.headerText,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.body2,
+                )
+            }
 
 
             CommitLogChanges(
@@ -130,6 +115,34 @@ fun CommitChangesView(
                 onBlame = onBlame,
                 onHistory = onHistory,
             )
+        }
+
+
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .height(2.dp)
+            .background(MaterialTheme.colors.secondaryTextColor.copy(alpha = 0.1f))
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.background),
+        ) {
+            SelectionContainer {
+                Text(
+                    text = commit.fullMessage,
+                    style = MaterialTheme.typography.body1,
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .padding(8.dp)
+                        .verticalScroll(scroll),
+                )
+            }
+
+            Author(commit.id, commit.authorIdent)
         }
     }
 }
@@ -147,7 +160,7 @@ fun Author(
         modifier = Modifier
             .fillMaxWidth()
             .height(72.dp)
-            .background(MaterialTheme.colors.background),
+            .background(MaterialTheme.colors.headerBackground),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AvatarImage(
