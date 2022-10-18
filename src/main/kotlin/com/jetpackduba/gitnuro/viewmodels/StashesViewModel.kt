@@ -10,7 +10,6 @@ import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
@@ -31,10 +30,13 @@ class StashesViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.STASHES)
-                 {
-                    refresh(tabState.git)
-                }
+            tabState.refreshFlowFiltered(
+                RefreshType.ALL_DATA,
+                RefreshType.STASHES,
+                RefreshType.UNCOMMITED_CHANGES_AND_LOG
+            ) {
+                refresh(tabState.git)
+            }
         }
     }
 
