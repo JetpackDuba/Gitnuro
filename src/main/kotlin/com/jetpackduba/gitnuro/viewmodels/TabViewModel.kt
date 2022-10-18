@@ -257,8 +257,6 @@ class TabViewModel @Inject constructor(
                     }
 
                     lastNotify = currentTimeMillis
-                } else {
-                    printLog(TAG, "Ignoring changed occurred during operation running...")
                 }
             }
         }
