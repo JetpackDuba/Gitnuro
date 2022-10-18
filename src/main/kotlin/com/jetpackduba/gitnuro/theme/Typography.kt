@@ -44,17 +44,17 @@ fun typography(composeColors: Colors) = Typography(
         letterSpacing = LETTER_SPACING.sp,
     ),
     h4 = TextStyle(
-        fontSize = 17.sp,
+        fontSize = 16.sp,
         color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body1 = TextStyle(
-        fontSize = 15.sp,
+        fontSize = 14.sp,
         color = composeColors.onBackground,
         letterSpacing = LETTER_SPACING.sp,
     ),
     body2 = TextStyle(
-        fontSize = 13.sp,
+        fontSize = 12.sp,
         color = composeColors.onBackground,
         fontWeight = FontWeight.Normal,
         letterSpacing = LETTER_SPACING.sp,
