@@ -11,7 +11,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -28,19 +28,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
-import com.jetpackduba.gitnuro.viewmodels.StageStatus
-import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
-import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
+import com.jetpackduba.gitnuro.viewmodels.StageStatus
+import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
@@ -88,7 +88,11 @@ fun UncommitedChanges(
         }
     }
 
-    Column {
+    Column(
+        modifier = Modifier
+            .padding(end = 8.dp, bottom = 8.dp)
+            .fillMaxWidth()
+    ) {
         AnimatedVisibility(
             visible = isLoading,
             enter = fadeIn(),
@@ -99,8 +103,8 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(end = 8.dp, bottom = 4.dp)
                 .weight(5f)
+                .padding(bottom = 4.dp)
                 .fillMaxWidth(),
             title = "Staged",
             allActionTitle = "Unstage all",
@@ -130,8 +134,8 @@ fun UncommitedChanges(
 
         EntriesList(
             modifier = Modifier
-                .padding(end = 8.dp, top = 8.dp)
                 .weight(5f)
+                .padding(bottom = 4.dp)
                 .fillMaxWidth(),
             title = "Unstaged",
             actionTitle = "Stage",
@@ -164,7 +168,6 @@ fun UncommitedChanges(
 
         Column(
             modifier = Modifier
-                .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
                 .height(192.dp)
                 .fillMaxWidth()
         ) {
@@ -482,7 +485,6 @@ fun ConfirmationButton(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun EntriesList(
     modifier: Modifier,
@@ -502,10 +504,14 @@ private fun EntriesList(
     Column(
         modifier = modifier
     ) {
-        Box {
+        Box(
+            modifier = Modifier
+                .height(34.dp)
+                .fillMaxWidth()
+                .background(color = MaterialTheme.colors.headerBackground)
+        ) {
             Text(
                 modifier = Modifier
-                    .background(color = MaterialTheme.colors.headerBackground)
                     .padding(vertical = 8.dp, horizontal = 16.dp)
                     .fillMaxWidth(),
                 text = title,
@@ -531,7 +537,7 @@ private fun EntriesList(
                 .background(MaterialTheme.colors.background),
             state = lazyListState,
         ) {
-            itemsIndexed(statusEntries) { index, statusEntry ->
+            items(statusEntries) { statusEntry ->
                 val isEntrySelected = selectedEntryType != null &&
                         selectedEntryType is DiffEntryType.UncommitedDiff && // Added for smartcast
                         selectedEntryType.statusEntry == statusEntry
@@ -548,10 +554,6 @@ private fun EntriesList(
                     },
                     onGenerateContextMenu = onGenerateContextMenu,
                 )
-
-                if (index < statusEntries.size - 1) {
-                    Divider(modifier = Modifier.fillMaxWidth())
-                }
             }
         }
     }

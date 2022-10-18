@@ -303,7 +303,6 @@ fun CommitLogChanges(
 
                     Spacer(modifier = Modifier.weight(2f))
 
-                    Divider()
                 }
             }
         }
