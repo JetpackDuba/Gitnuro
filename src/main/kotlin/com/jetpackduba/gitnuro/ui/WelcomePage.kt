@@ -271,14 +271,14 @@ fun ButtonTile(
                     .size(24.dp),
                 painter = painter,
                 contentDescription = null,
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                colorFilter = ColorFilter.tint(MaterialTheme.colors.onPrimary),
             )
 
             Text(
                 text = title,
                 maxLines = 1,
                 style = MaterialTheme.typography.body1,
-                color = MaterialTheme.colors.onBackground,
+                color = MaterialTheme.colors.onPrimary,
             )
         }
     }

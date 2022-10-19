@@ -40,7 +40,6 @@ import kotlin.io.path.name
 
 @Composable
 fun RepositoriesTabPanel(
-    modifier: Modifier = Modifier,
     tabs: List<TabInformation>,
     selectedTabKey: Int,
     onTabSelected: (Int) -> Unit,

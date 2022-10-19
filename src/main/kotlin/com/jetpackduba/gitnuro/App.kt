@@ -194,24 +194,20 @@ class App {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             RepositoriesTabPanel(
-                modifier = Modifier
-                    .weight(1f),
                 tabs = tabsInformationList,
                 selectedTabKey = selectedTabKey.value,
                 onTabSelected = { newSelectedTabKey ->
-                    println("New selected tab key $newSelectedTabKey")
                     selectedTabKey.value = newSelectedTabKey
                 },
-                newTabContent = { key ->
-                    val newAppTab = newAppTab(
-                        key = key
-                    )
-
-                    onAddedTab(newAppTab)
-                    newAppTab
-                },
                 onTabClosed = onRemoveTab
-            )
+            ) { key ->
+                val newAppTab = newAppTab(
+                    key = key
+                )
+
+                onAddedTab(newAppTab)
+                newAppTab
+            }
         }
     }
 
