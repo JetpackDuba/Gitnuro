@@ -1,15 +1,15 @@
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package com.jetpackduba.gitnuro.ui.components
 
+import androidx.compose.foundation.HorizontalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -32,12 +31,10 @@ import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.preferences.AppSettings
-import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
@@ -51,90 +48,107 @@ fun RepositoriesTabPanel(
     newTabContent: (key: Int) -> TabInformation,
 ) {
     var tabsIdentifier by remember { mutableStateOf(tabs.count()) }
+    val stateHorizontal = rememberLazyListState()
 
-    TabPanel(
-        modifier = modifier,
-        onNewTabClicked = {
-            tabsIdentifier++
+    LaunchedEffect(selectedTabKey) {
+        val index = tabs.indexOfFirst { it.key == selectedTabKey }
 
-            newTabContent(tabsIdentifier)
-            onTabSelected(tabsIdentifier)
+        if (index > -1) {
+            stateHorizontal.scrollToItem(index)
         }
-    ) {
-        items(items = tabs) { tab ->
-            Tab(
-                title = tab.tabName,
-                isSelected = tab.key == selectedTabKey,
-                onClick = {
-                    onTabSelected(tab.key)
-                },
-                onCloseTab = {
-                    val isTabSelected = selectedTabKey == tab.key
-                    val index = tabs.indexOf(tab)
-                    val nextIndex = if (index == 0 && tabs.count() >= 2) {
-                        1 // If the first tab is selected, select the next one
-                    } else if (index == tabs.count() - 1 && tabs.count() >= 2)
-                        index - 1 // If the last tab is selected, select the previous one
-                    else if (tabs.count() >= 2)
-                        index + 1 // If any in between tab is selected, select the next one
-                    else
-                        -1 // If there aren't any additional tabs once we remove this one
+    }
 
-                    val nextKey = if (nextIndex >= 0)
-                        tabs[nextIndex].key
-                    else
-                        -1
 
-                    if (isTabSelected) {
-                        if (nextKey >= 0) {
-                            onTabSelected(nextKey)
-                        } else {
-                            tabsIdentifier++
 
-                            // Create a new tab if the tabs list is empty after removing the current one
-                            newTabContent(tabsIdentifier)
-                            onTabSelected(tabsIdentifier)
+    Row {
+        Box(
+            modifier = Modifier
+                .weight(1f, false)
+        ) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                state = stateHorizontal,
+            ) {
+                items(items = tabs, key = { it.key }) { tab ->
+                    Tab(
+                        title = tab.tabName,
+                        isSelected = tab.key == selectedTabKey,
+                        onClick = {
+                            onTabSelected(tab.key)
+                        },
+                        onCloseTab = {
+                            val isTabSelected = selectedTabKey == tab.key
+
+                            if (isTabSelected) {
+                                val nextKey = getTabNextKey(tab, tabs)
+
+                                if (nextKey >= 0) {
+                                    onTabSelected(nextKey)
+                                } else {
+                                    tabsIdentifier++
+
+                                    // Create a new tab if the tabs list is empty after removing the current one
+                                    newTabContent(tabsIdentifier)
+                                    onTabSelected(tabsIdentifier)
+                                }
+                            }
+
+                            onTabClosed(tab.key)
                         }
-                    }
-
-                    onTabClosed(tab.key)
+                    )
                 }
+            }
+
+            Tooltip(
+                "\"Shift + Mouse wheel\" to scroll"
+            ) {
+                HorizontalScrollbar(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .width((tabs.count() * 180).dp),
+                    adapter = rememberScrollbarAdapter(stateHorizontal)
+                )
+            }
+        }
+
+        IconButton(
+            onClick = {
+                tabsIdentifier++
+
+                newTabContent(tabsIdentifier)
+                onTabSelected(tabsIdentifier)
+            },
+            modifier = Modifier
+                .size(36.dp)
+                .handOnHover()
+                .align(Alignment.CenterVertically),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colors.primaryVariant,
             )
         }
     }
 }
 
 
-@Composable
-fun TabPanel(
-    modifier: Modifier = Modifier,
-    onNewTabClicked: () -> Unit,
-    tabs: LazyListScope.() -> Unit
-) {
-    LazyRow(
-        modifier = modifier
-            .fillMaxHeight(),
-    ) {
-        this.tabs()
+private fun getTabNextKey(tab: TabInformation, tabs: List<TabInformation>): Int {
+    val index = tabs.indexOf(tab)
+    val nextIndex = if (index == 0 && tabs.count() >= 2) {
+        1 // If the first tab is selected, select the next one
+    } else if (index == tabs.count() - 1 && tabs.count() >= 2)
+        index - 1 // If the last tab is selected, select the previous one
+    else if (tabs.count() >= 2)
+        index + 1 // If any in between tab is selected, select the next one
+    else
+        -1 // If there aren't any additional tabs once we remove this one
 
-        item {
-            Box(modifier = Modifier.fillMaxSize()) {
-                IconButton(
-                    onClick = onNewTabClicked,
-                    modifier = Modifier
-                        .size(36.dp)
-                        .handOnHover()
-                        .align(Alignment.CenterStart),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.primaryVariant,
-                    )
-                }
-            }
-        }
-    }
+    return if (nextIndex >= 0)
+        tabs[nextIndex].key
+    else
+        -1
 }
 
 @Composable
