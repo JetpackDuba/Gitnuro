@@ -203,6 +203,7 @@ fun ExtendedMenuButton(
                 modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom = 8.dp),
                 style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.onPrimary,
+                maxLines = 1,
             )
         }
 
