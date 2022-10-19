@@ -1,11 +1,7 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,30 +10,56 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-import com.jetpackduba.gitnuro.theme.textButtonColors
+import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable
 fun StashWithMessageDialog(
-    onReject: () -> Unit,
+    onClose: () -> Unit,
     onAccept: (stashMessage: String) -> Unit
 ) {
-    var textField by remember { mutableStateOf("") }
+    var branchField by remember { mutableStateOf("") }
     val textFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
-    MaterialDialog(onCloseRequested = onReject) {
+    MaterialDialog(onCloseRequested = onClose) {
         Column(
-            modifier = Modifier
-                .background(MaterialTheme.colors.background),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            OutlinedTextField(
+            Icon(
+                painterResource("stash.svg"),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(64.dp)
+                    .padding(vertical = 16.dp),
+                tint = MaterialTheme.colors.onBackground,
+            )
+
+            Text(
+                text = "Stash message",
+                modifier = Modifier
+                    .padding(bottom = 8.dp),
+                color = MaterialTheme.colors.onBackground,
+                style = MaterialTheme.typography.body1,
+            )
+
+            Text(
+                text = "Create a new stash with a custom message",
+                modifier = Modifier
+                    .padding(bottom = 16.dp),
+                color = MaterialTheme.colors.secondaryTextColor,
+                style = MaterialTheme.typography.body2,
+                textAlign = TextAlign.Center,
+            )
+
+            AdjustableOutlinedTextField(
                 modifier = Modifier
                     .focusRequester(textFieldFocusRequester)
                     .focusProperties {
@@ -45,24 +67,17 @@ fun StashWithMessageDialog(
                     }
                     .width(300.dp)
                     .onPreviewKeyEvent { keyEvent ->
-                        if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && textField.isNotBlank()) {
-                            onAccept(textField)
+                        if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && branchField.isNotBlank()) {
+                            onAccept(branchField)
                             true
                         } else {
                             false
                         }
                     },
-                value = textField,
-                label = {
-                    Text(
-                        "New stash message",
-                        style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primaryVariant),
-                    )
-                },
-                textStyle = MaterialTheme.typography.body1,
-                colors = outlinedTextFieldColors(),
+                value = branchField,
+                maxLines = 1,
                 onValueChange = {
-                    textField = it
+                    branchField = it
                 },
             )
             Row(
@@ -73,7 +88,7 @@ fun StashWithMessageDialog(
                 PrimaryButton(
                     text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
-                    onClick = onReject,
+                    onClick = onClose,
                     backgroundColor = Color.Transparent
                 )
                 PrimaryButton(
@@ -83,9 +98,9 @@ fun StashWithMessageDialog(
                             this.previous = textFieldFocusRequester
                             this.next = textFieldFocusRequester
                         },
-                    enabled = textField.isNotBlank(),
+                    enabled = branchField.isNotBlank(),
                     onClick = {
-                        onAccept(textField)
+                        onAccept(branchField)
                     },
                     text = "Stash"
                 )

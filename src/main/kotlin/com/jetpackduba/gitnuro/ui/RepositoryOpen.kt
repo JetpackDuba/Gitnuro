@@ -76,7 +76,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
         )
     } else if (showStashWithMessageDialog) {
         StashWithMessageDialog(
-            onReject = {
+            onClose = {
                 showStashWithMessageDialog = false
             },
             onAccept = { stashMessage ->
