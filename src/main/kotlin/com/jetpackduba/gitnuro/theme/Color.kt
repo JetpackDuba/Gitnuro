@@ -31,7 +31,7 @@ val lightTheme = ColorsScheme(
 
 
 val darkBlueTheme = ColorsScheme(
-    primary = Color(0xFF1074BC),
+    primary = Color(0xFF0169cb),
     primaryVariant = Color(0xFF9FD1FF),
     onPrimary = Color(0xFFFFFFFFF),
     secondary = Color(0xFFe9c754),
