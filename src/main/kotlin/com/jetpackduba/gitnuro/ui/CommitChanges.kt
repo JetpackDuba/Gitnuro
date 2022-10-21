@@ -3,11 +3,13 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -85,6 +87,7 @@ fun CommitChangesView(
 
         Column(
             modifier = Modifier
+                .padding(bottom = 4.dp)
                 .fillMaxWidth()
                 .weight(1f, fill = true)
                 .background(MaterialTheme.colors.background)
@@ -117,16 +120,10 @@ fun CommitChangesView(
             )
         }
 
-
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(2.dp)
-            .background(MaterialTheme.colors.secondaryTextColor.copy(alpha = 0.1f))
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .clip(RoundedCornerShape(4.dp))
                 .background(MaterialTheme.colors.background),
         ) {
             SelectionContainer {
