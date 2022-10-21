@@ -83,7 +83,7 @@ class LogViewModel @Inject constructor(
     val scrollToUncommitedChanges: Flow<SelectedItem.UncommitedChanges> = tabState.taskEvent
         .filterIsInstance<TaskEvent.ScrollToGraphItem>()
         .map { it.selectedItem }
-        .filterIsInstance<SelectedItem.UncommitedChanges>()
+        .filterIsInstance()
 
     private val _focusCommit = MutableSharedFlow<RevCommit>()
     val focusCommit: Flow<RevCommit> = merge(_focusCommit, scrollToItem)

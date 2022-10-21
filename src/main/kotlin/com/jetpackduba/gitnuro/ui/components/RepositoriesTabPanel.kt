@@ -28,6 +28,7 @@ import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
+import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.preferences.AppSettings
@@ -51,12 +52,11 @@ fun RepositoriesTabPanel(
 
     LaunchedEffect(selectedTabKey) {
         val index = tabs.indexOfFirst { it.key == selectedTabKey }
-
+        // todo sometimes it scrolls to (index - 1) for some weird reason
         if (index > -1) {
             stateHorizontal.scrollToItem(index)
         }
     }
-
 
 
     Row {
@@ -221,7 +221,7 @@ class TabInformation(
     val path: String?,
     appComponent: AppComponent,
 ) {
-    val tabComponent = DaggerTabComponent.builder()
+    private val tabComponent: TabComponent = DaggerTabComponent.builder()
         .appComponent(appComponent)
         .build()
 
@@ -237,7 +237,6 @@ class TabInformation(
     init {
         tabComponent.inject(this)
 
-        //TODO: This shouldn't be here, should be in the parent method
         tabViewModel.onRepositoryChanged = { path ->
             if (path == null) {
                 appStateManager.repositoryTabRemoved(key)

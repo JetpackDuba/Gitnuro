@@ -26,7 +26,7 @@ fun SideMenuEntry(
     icon: Painter? = null,
     itemsCount: Int,
     isExpanded: Boolean,
-    hoverIcon: @Composable() (() -> Unit)? = null,
+    hoverIcon: @Composable (() -> Unit)? = null,
 ) {
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
@@ -35,7 +35,6 @@ fun SideMenuEntry(
         modifier = Modifier
             .height(36.dp)
             .fillMaxWidth()
-//            .background(color = MaterialTheme.colors.headerBackground)
             .hoverable(hoverInteraction),
         verticalAlignment = Alignment.CenterVertically,
     ) {

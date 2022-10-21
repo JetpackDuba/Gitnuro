@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
@@ -9,7 +8,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun <T> SideMenuPanel(
     title: String,

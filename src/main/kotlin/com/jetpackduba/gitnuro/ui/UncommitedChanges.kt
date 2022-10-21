@@ -198,7 +198,8 @@ fun UncommitedChanges(
 
                     Text(
                         text = text,
-                        style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.primaryVariant),
+                        style = MaterialTheme.typography.body2,
+                        color = MaterialTheme.colors.primaryVariant,
                     )
                 },
                 colors = textFieldColors(),
