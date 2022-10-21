@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEventType
@@ -916,6 +917,7 @@ fun CommitsGraphLine(
                         color = colors[itemPosition % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), 0f),
+                        strokeWidth = 2f,
                     )
                 }
 
@@ -924,6 +926,7 @@ fun CommitsGraphLine(
                         color = colors[plotLane.position % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
+                        strokeWidth = 2f,
                     )
                 }
 
@@ -932,6 +935,7 @@ fun CommitsGraphLine(
                         color = colors[plotLane.position % colors.size],
                         start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+                        strokeWidth = 2f,
                     )
                 }
 
@@ -940,6 +944,7 @@ fun CommitsGraphLine(
                         color = colors[itemPosition % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), this.size.height),
+                        strokeWidth = 2f,
                     )
                 }
 
@@ -948,6 +953,7 @@ fun CommitsGraphLine(
                         color = colors[plotLane.position % colors.size],
                         start = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
                         end = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        strokeWidth = 2f,
                     )
                 }
             }
@@ -1006,6 +1012,7 @@ fun UncommitedChangesGraphNode(
                     color = colors[0],
                     start = Offset(laneWidthWithDensity, this.center.y),
                     end = Offset(laneWidthWithDensity, this.size.height),
+                    strokeWidth = 2f,
                 )
 
                 drawCircle(
