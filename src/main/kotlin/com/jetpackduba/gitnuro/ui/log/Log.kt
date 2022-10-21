@@ -106,7 +106,6 @@ fun Log(
     }
 
     if (logStatus is LogStatus.Loaded) {
-        val coroutineScope = rememberCoroutineScope()
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
         val commitList = logStatus.plotCommitList
         val verticalScrollState by logViewModel.verticalListState.collectAsState()
@@ -117,13 +116,13 @@ fun Log(
         // the proper scroll position
         verticalScrollState.observeScrollChanges()
 
-        LaunchedEffect(Unit) {
-            coroutineScope.launch {
+        LaunchedEffect(verticalScrollState) {
+            launch {
                 logViewModel.focusCommit.collect { commit ->
                     scrollToCommit(verticalScrollState, commitList, commit)
                 }
             }
-            coroutineScope.launch {
+            launch {
                 logViewModel.scrollToUncommitedChanges.collect {
                     scrollToUncommitedChanges(verticalScrollState, commitList)
                 }
@@ -382,7 +381,7 @@ fun MessagesList(
                 )
             }
         }
-        items(items = commitList) { graphNode ->
+        items(items = commitList, key = { it.name }) { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
                 logViewModel = logViewModel,
@@ -479,7 +478,7 @@ fun GraphList(
                     }
                 }
 
-                items(items = commitList) { graphNode ->
+                items(items = commitList, key = { it.name }) { graphNode ->
                     val nodeColor = colors[graphNode.lane.position % colors.size]
 
                     Row(
