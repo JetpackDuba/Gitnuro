@@ -624,17 +624,28 @@ private fun DiffHeader(
             .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val filePath = if (diffEntry.newPath != "/dev/null")
-            diffEntry.newPath
-        else
-            diffEntry.oldPath
+        val fileName = diffEntry.fileName
+        val dirPath: String = diffEntry.parentDirectoryPath
 
+        if(dirPath.isNotEmpty()) {
+            Text(
+                text = dirPath,
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.secondaryTextColor,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .weight(1f, false)
+                    .padding(start = 16.dp),
+            )
+        }
         Text(
-            text = filePath,
+            text = fileName,
             style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.onBackground,
             maxLines = 1,
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(end = 16.dp),
         )
 
         Spacer(modifier = Modifier.weight(1f))
