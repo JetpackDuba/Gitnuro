@@ -343,8 +343,10 @@ fun MainContentView(
     repositoryState: RepositoryState,
     blameState: BlameState
 ) {
-    HorizontalSplitPane {
-        first(minSize = 250.dp) {
+    HorizontalSplitPane(
+        splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
+    ) {
+        first(minSize = 180.dp) {
             ScrollableColumn(modifier = Modifier.fillMaxHeight()) {
                 Branches()
                 Remotes()
@@ -416,7 +418,7 @@ fun MainContentView(
                     this.repositorySplitter()
                 }
 
-                second(minSize = 300.dp) {
+                second(minSize = 250.dp) {
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
@@ -424,7 +426,6 @@ fun MainContentView(
                         val safeSelectedItem = selectedItem
                         if (safeSelectedItem == SelectedItem.UncommitedChanges) {
                             UncommitedChanges(
-//                                statusViewModel = tabViewModel.statusViewModel,
                                 selectedEntryType = diffSelected,
                                 repositoryState = repositoryState,
                                 onStagedDiffEntrySelected = { diffEntry ->
@@ -452,7 +453,6 @@ fun MainContentView(
                             )
                         } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
                             CommitChanges(
-//                                commitChangesViewModel = tabViewModel.commitChangesViewModel,
                                 selectedItem = safeSelectedItem,
                                 diffSelected = diffSelected,
                                 onDiffSelected = { diffEntry ->
