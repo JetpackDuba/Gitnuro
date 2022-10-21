@@ -560,10 +560,6 @@ private fun EntriesList(
     }
 }
 
-@OptIn(
-    ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class,
-    ExperimentalAnimationApi::class
-)
 @Composable
 private fun FileEntry(
     statusEntry: StatusEntry,
@@ -618,7 +614,6 @@ private fun FileEntry(
                 }
                 Text(
                     text = statusEntry.fileName,
-                    modifier = Modifier.weight(1f, fill = false),
                     maxLines = 1,
                     softWrap = false,
                     style = MaterialTheme.typography.body2,

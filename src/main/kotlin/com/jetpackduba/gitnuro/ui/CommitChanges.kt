@@ -290,7 +290,6 @@ fun CommitLogChanges(
                         }
                         Text(
                             text = diffEntry.fileName,
-                            modifier = Modifier.weight(1f, fill = false),
                             maxLines = 1,
                             softWrap = false,
                             style = MaterialTheme.typography.body2,
