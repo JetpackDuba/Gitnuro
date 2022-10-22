@@ -31,13 +31,12 @@ import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun WelcomePage(
     tabViewModel: TabViewModel,
+    onShowCloneDialog: () -> Unit,
 ) {
     val appStateManager = tabViewModel.appStateManager
-    var showCloneView by remember { mutableStateOf(false) }
     var showAdditionalInfo by remember { mutableStateOf(false) }
     var newUpdate by remember { mutableStateOf<Update?>(null) }
 
@@ -62,7 +61,7 @@ fun WelcomePage(
             HomeButtons(
                 newUpdate = newUpdate,
                 tabViewModel = tabViewModel,
-                onShowCloneView = { showCloneView = true },
+                onShowCloneView = onShowCloneDialog,
                 onShowAdditionalInfo = { showAdditionalInfo = true },
             )
 
@@ -79,24 +78,7 @@ fun WelcomePage(
         )
     }
 
-    LaunchedEffect(showCloneView) {
-        if (showCloneView) {
-//            tabViewModel.cloneViewModel.reset() // Reset dialog before showing it
-        }
-    }
 
-    if (showCloneView) {
-        CloneDialog(
-//            tabViewModel.cloneViewModel,
-            onClose = {
-                showCloneView = false
-//                tabViewModel.cloneViewModel.reset()
-            },
-            onOpenRepository = { dir ->
-                tabViewModel.openRepository(dir)
-            },
-        )
-    }
 
     if (showAdditionalInfo) {
         AppInfoDialog(

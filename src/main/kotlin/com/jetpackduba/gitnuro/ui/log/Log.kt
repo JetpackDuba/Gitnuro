@@ -116,7 +116,7 @@ fun Log(
         // the proper scroll position
         verticalScrollState.observeScrollChanges()
 
-        LaunchedEffect(verticalScrollState) {
+        LaunchedEffect(verticalScrollState, commitList) {
             launch {
                 logViewModel.focusCommit.collect { commit ->
                     scrollToCommit(verticalScrollState, commitList, commit)

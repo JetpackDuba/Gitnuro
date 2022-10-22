@@ -13,10 +13,9 @@ import com.jetpackduba.gitnuro.theme.scrollbarNormal
 @Composable
 fun ScrollableColumn(
     modifier: Modifier,
-    state: ScrollState = rememberScrollState(0),
+    state: ScrollState = rememberScrollState(),
     content: @Composable ColumnScope.() -> Unit
 ) {
-
     Box(
         modifier = modifier,
     ) {

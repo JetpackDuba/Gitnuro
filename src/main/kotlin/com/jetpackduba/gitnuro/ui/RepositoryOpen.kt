@@ -2,43 +2,35 @@
 
 package com.jetpackduba.gitnuro.ui
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupPositionProvider
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.secondarySurface
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.*
-import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.viewmodels.BlameState
@@ -52,7 +44,11 @@ import org.jetbrains.compose.splitpane.rememberSplitPaneState
 import java.awt.Cursor
 
 @Composable
-fun RepositoryOpenPage(tabViewModel: TabViewModel) {
+fun RepositoryOpenPage(
+    tabViewModel: TabViewModel,
+    onShowSettingsDialog: () -> Unit,
+    onShowCloneDialog: () -> Unit,
+) {
     val repositoryState by tabViewModel.repositoryState.collectAsState()
     val diffSelected by tabViewModel.diffSelected.collectAsState()
     val selectedItem by tabViewModel.selectedItem.collectAsState()
@@ -101,7 +97,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                 showQuickActionsDialog = false
                 when (it) {
                     QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> tabViewModel.openFolderInFileExplorer()
-                    QuickActionType.CLONE -> TODO()
+                    QuickActionType.CLONE -> onShowCloneDialog()
                 }
             },
         )
@@ -114,8 +110,6 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
     }
     Column {
         Row(modifier = Modifier.weight(1f)) {
-            SideBar(tabViewModel)
-
             Column(
                 modifier = Modifier
                     .focusRequester(focusRequester)
@@ -148,7 +142,15 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
                             onQuickActions = { showQuickActionsDialog = true }
                         )
 
-                        RepoContent(tabViewModel, diffSelected, selectedItem, repositoryState, blameState, showHistory)
+                        RepoContent(
+                            tabViewModel = tabViewModel,
+                            diffSelected = diffSelected,
+                            selectedItem = selectedItem,
+                            repositoryState = repositoryState,
+                            blameState = blameState,
+                            showHistory = showHistory,
+                            onShowSettingsDialog = onShowSettingsDialog
+                        )
                     }
                 }
             }
@@ -162,51 +164,6 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
         )
 
         BottomInfoBar(tabViewModel)
-    }
-}
-
-@Composable
-fun SideBar(tabViewModel: TabViewModel) {
-    var showSettingsDialog by remember { mutableStateOf(false) }
-    if (showSettingsDialog) {
-        SettingsDialog(
-            onDismiss = { showSettingsDialog = false }
-        )
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .width(48.dp)
-            .background(MaterialTheme.colors.secondarySurface)
-            .padding(vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        SideBarButton(
-            painterName = "open.svg",
-            label = "Open a new repository",
-            onClick = {
-                openRepositoryDialog(tabViewModel = tabViewModel)
-            }
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-
-        SideBarButton(
-            modifier = Modifier.padding(bottom = 16.dp),
-            painterName = "refresh.svg",
-            label = "Refresh repository information",
-            onClick = {
-                tabViewModel.refreshAll()
-            }
-        )
-
-        SideBarButton(
-            painterName = "settings.svg",
-            label = "Settings",
-            onClick = { showSettingsDialog = true }
-        )
     }
 }
 
@@ -238,70 +195,6 @@ private fun BottomInfoBar(tabViewModel: TabViewModel) {
 }
 
 @Composable
-fun SideBarButton(
-    modifier: Modifier = Modifier,
-    painterName: String,
-    label: String,
-    onClick: () -> Unit
-) {
-    val hoverInteraction = remember { MutableInteractionSource() }
-    val isHovered by hoverInteraction.collectIsHoveredAsState()
-
-    val (buttonCoordinates, setButtonCoordinates) = remember { mutableStateOf<Pair<Offset, IntSize>?>(null) }
-
-    if (isHovered && buttonCoordinates != null) {
-        Popup(
-            popupPositionProvider = object : PopupPositionProvider {
-                override fun calculatePosition(
-                    anchorBounds: IntRect,
-                    windowSize: IntSize,
-                    layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
-                ): IntOffset {
-                    val position = buttonCoordinates.first
-                    val size = buttonCoordinates.second
-                    val x = position.x + size.width + 8
-                    val y = position.y + (size.height / 2) - (popupContentSize.height / 2)
-
-                    return IntOffset(x.toInt(), y.toInt())
-                }
-
-            }
-        ) {
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colors.background)
-            ) {
-                Text(
-                    text = label,
-                    color = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                )
-            }
-        }
-    }
-
-    IconButton(
-        onClick = onClick,
-        modifier = modifier
-            .handOnHover()
-            .hoverable(hoverInteraction)
-            .size(24.dp)
-            .onGloballyPositioned { layoutCoordinates ->
-                setButtonCoordinates(layoutCoordinates.positionInRoot() to layoutCoordinates.size)
-            }
-    ) {
-        Icon(
-            painter = painterResource(painterName),
-            contentDescription = null,
-            modifier = Modifier,
-            tint = MaterialTheme.colors.onBackground,
-        )
-    }
-}
-
-@Composable
 fun RepoContent(
     tabViewModel: TabViewModel,
     diffSelected: DiffEntryType?,
@@ -309,6 +202,7 @@ fun RepoContent(
     repositoryState: RepositoryState,
     blameState: BlameState,
     showHistory: Boolean,
+    onShowSettingsDialog: () -> Unit,
 ) {
     if (showHistory) {
         val historyViewModel = tabViewModel.historyViewModel
@@ -328,10 +222,42 @@ fun RepoContent(
             selectedItem,
             repositoryState,
             blameState,
+            onShowSettingsDialog,
         )
     }
+}
 
+@Composable
+fun SidePanelOption(title: String, icon: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .height(36.dp)
+            .fillMaxWidth()
+            .handMouseClickable(onClick)
+            .padding(start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
 
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = MaterialTheme.colors.onBackground,
+            modifier = Modifier
+                .size(16.dp),
+        )
+
+        Text(
+            text = title,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .weight(1f),
+            maxLines = 1,
+            style = MaterialTheme.typography.body2,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colors.onBackground,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
 }
 
 @OptIn(ExperimentalSplitPaneApi::class)
@@ -341,18 +267,48 @@ fun MainContentView(
     diffSelected: DiffEntryType?,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
-    blameState: BlameState
-) {
+    blameState: BlameState,
+    onShowSettingsDialog: () -> Unit,
+
+    ) {
     HorizontalSplitPane(
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
     ) {
         first(minSize = 180.dp) {
-            ScrollableColumn(modifier = Modifier.fillMaxHeight()) {
-                Branches()
-                Remotes()
-                Tags()
-                Stashes()
+            Column {
+                val state: ScrollState = rememberScrollState()
+
+                val canBeScrolled by remember {
+                    derivedStateOf {
+                        state.maxValue > 0
+                    }
+                }
+
+                ScrollableColumn(
+                    state = state,
+                    modifier = Modifier
+                        .weight(1f),
+                ) {
+                    Branches()
+                    Remotes()
+                    Tags()
+                    Stashes()
 //                TODO: Enable on 1.2.0 when fully implemented Submodules()
+                }
+
+                Column {
+                    if (canBeScrolled) {
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.2f))
+                        )
+                    }
+                    SidePanelOption("Open repository", "open.svg") { openRepositoryDialog(tabViewModel = tabViewModel) }
+                    SidePanelOption("Refresh", "refresh.svg") { tabViewModel.refreshAll() }
+                    SidePanelOption("Settings", "settings.svg", onShowSettingsDialog)
+                }
             }
         }
 

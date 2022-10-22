@@ -22,8 +22,10 @@ import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.LoadingRepository
 import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.credentials.CredentialsState
+import com.jetpackduba.gitnuro.ui.dialogs.CloneDialog
 import com.jetpackduba.gitnuro.ui.dialogs.PasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.UserPasswordDialog
+import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import kotlinx.coroutines.delay
@@ -58,11 +60,34 @@ fun AppTab(
 
             CredentialsDialog(tabViewModel)
 
+            var showSettingsDialog by remember { mutableStateOf(false) }
+            if (showSettingsDialog) {
+                SettingsDialog(
+                    onDismiss = { showSettingsDialog = false }
+                )
+            }
+
+            var showCloneDialog by remember { mutableStateOf(false) }
+
+            if (showCloneDialog) {
+                CloneDialog(
+                    onClose = {
+                        showCloneDialog = false
+                    },
+                    onOpenRepository = { dir ->
+                        tabViewModel.openRepository(dir)
+                    },
+                )
+            }
+
             Box(modifier = Modifier.fillMaxSize()) {
                 Crossfade(targetState = repositorySelectionStatus) {
                     when (repositorySelectionStatusValue) {
                         RepositorySelectionStatus.None -> {
-                            WelcomePage(tabViewModel = tabViewModel)
+                            WelcomePage(
+                                tabViewModel = tabViewModel,
+                                onShowCloneDialog = { showSettingsDialog = true }
+                            )
                         }
 
                         is RepositorySelectionStatus.Opening -> {
@@ -70,7 +95,11 @@ fun AppTab(
                         }
 
                         is RepositorySelectionStatus.Open -> {
-                            RepositoryOpenPage(tabViewModel = tabViewModel)
+                            RepositoryOpenPage(
+                                tabViewModel = tabViewModel,
+                                onShowSettingsDialog = { showSettingsDialog = true },
+                                onShowCloneDialog = { showCloneDialog = true },
+                            )
                         }
                     }
                 }
