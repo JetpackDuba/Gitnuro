@@ -16,7 +16,7 @@ fun statusEntriesContextMenuItems(
         if (statusEntry.statusType != StatusType.ADDED) {
             add(
                 ContextMenuElement.ContextTextEntry(
-                    label = "Reset",
+                    label = "Discard file changes",
                     icon = { painterResource("undo.svg") },
                     onClick = onReset,
                 )
