@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
 import com.jetpackduba.gitnuro.ui.dialogs.CloneDialog
@@ -202,7 +202,7 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
         if (latestOpenedRepositoriesPaths.isEmpty()) {
             Text(
                 "Nothing to see here, open a repository first!",
-                color = MaterialTheme.colors.secondaryTextColor,
+                color = MaterialTheme.colors.onBackgroundSecondary,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(top = 16.dp)
             )
@@ -237,7 +237,7 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
                             style = MaterialTheme.typography.body1,
                             modifier = Modifier.padding(start = 4.dp),
                             maxLines = 1,
-                            color = MaterialTheme.colors.secondaryTextColor
+                            color = MaterialTheme.colors.onBackgroundSecondary
                         )
                     }
                 }

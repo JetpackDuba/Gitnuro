@@ -37,37 +37,27 @@ fun AppTheme(
 val Colors.backgroundSelected: Color
     get() = appTheme.backgroundSelected
 
-@get:Composable
-val Colors.secondaryTextColor: Color
-    get() = appTheme.secondaryText
+val Colors.onBackgroundSecondary: Color
+    get() = appTheme.onBackgroundSecondary
 
-@get:Composable
-val Colors.borderColor: Color
-    get() = appTheme.borderColor
+val Colors.secondarySurface: Color
+    get() = appTheme.secondarySurface
 
-@get:Composable
-val Colors.headerBackground: Color
-    get() = appTheme.headerBackground
+val Colors.tertiarySurface: Color
+    get() = appTheme.tertiarySurface
 
-@get:Composable
+
 val Colors.addFile: Color
     get() = appTheme.addFile
 
-@get:Composable
 val Colors.deleteFile: Color
     get() = appTheme.deletedFile
 
-@get:Composable
 val Colors.modifyFile: Color
     get() = appTheme.modifiedFile
 
-@get:Composable
 val Colors.conflictFile: Color
     get() = appTheme.conflictingFile
-
-@get:Composable
-val Colors.headerText: Color
-    get() = appTheme.onHeader
 
 val Colors.abortButton: Color
     get() = appTheme.error
@@ -77,9 +67,6 @@ val Colors.scrollbarNormal: Color
 
 val Colors.scrollbarHover: Color
     get() = appTheme.hoverScrollbar
-
-val Colors.secondarySurface: Color
-    get() = appTheme.secondarySurface
 
 val Colors.dialogOverlay: Color
     get() = appTheme.dialogOverlay

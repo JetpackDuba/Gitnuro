@@ -96,7 +96,7 @@ fun CommitChangesView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(34.dp)
-                    .background(MaterialTheme.colors.headerBackground),
+                    .background(MaterialTheme.colors.tertiarySurface),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(
@@ -105,7 +105,7 @@ fun CommitChangesView(
                     text = "Files changed",
                     fontWeight = FontWeight.Normal,
                     textAlign = TextAlign.Left,
-                    color = MaterialTheme.colors.headerText,
+                    color = MaterialTheme.colors.onBackground,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                 )
@@ -158,7 +158,7 @@ fun Author(
         modifier = Modifier
             .fillMaxWidth()
             .height(72.dp)
-            .background(MaterialTheme.colors.headerBackground),
+            .background(MaterialTheme.colors.tertiarySurface),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AvatarImage(
@@ -183,7 +183,7 @@ fun Author(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = id.abbreviate(7).name(),
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.handMouseClickable {
@@ -219,7 +219,7 @@ fun Author(
 
                 TooltipText(
                     text = smartDate,
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.body2,
@@ -286,7 +286,7 @@ fun CommitLogChanges(
                                 softWrap = false,
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.body2,
-                                color = MaterialTheme.colors.secondaryTextColor,
+                                color = MaterialTheme.colors.onBackgroundSecondary,
                             )
                         }
                         Text(

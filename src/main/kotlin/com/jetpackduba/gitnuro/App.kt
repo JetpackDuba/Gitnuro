@@ -10,6 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -26,15 +32,17 @@ import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
+import com.jetpackduba.gitnuro.ui.context_menu.Separator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import androidx.compose.ui.window.MenuBar
 
 private const val TAG = "App"
 
@@ -255,7 +263,15 @@ fun LoadingRepository(repoPath: String) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("Opening repository", fontSize = 36.sp, color = MaterialTheme.colors.onBackground)
-            Text(repoPath, fontSize = 24.sp, color = MaterialTheme.colors.secondaryTextColor)
+            Text(repoPath, fontSize = 24.sp, color = MaterialTheme.colors.onBackgroundSecondary)
         }
+    }
+}
+
+object AboutIcon : Painter() {
+    override val intrinsicSize = Size(256f, 256f)
+
+    override fun DrawScope.onDraw() {
+        drawOval(Color(0xFFFFA500))
     }
 }

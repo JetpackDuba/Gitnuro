@@ -464,7 +464,7 @@ private fun FieldTitles(
 
         Text(
             text = subtitle,
-            color = MaterialTheme.colors.secondaryTextColor,
+            color = MaterialTheme.colors.onBackgroundSecondary,
             modifier = Modifier.padding(top = 4.dp),
             style = MaterialTheme.typography.body2,
         )

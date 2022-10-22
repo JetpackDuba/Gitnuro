@@ -27,8 +27,8 @@ import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.git.diff.DiffResult
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.headerBackground
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.tertiarySurface
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.TooltipText
@@ -85,7 +85,7 @@ private fun Header(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-            .background(MaterialTheme.colors.headerBackground)
+            .background(MaterialTheme.colors.tertiarySurface)
             .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -235,7 +235,7 @@ fun HistoryCommit(commit: RevCommit, onCommitSelected: () -> Unit) {
                     text = commit.name.take(7),
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                 )
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -245,7 +245,7 @@ fun HistoryCommit(commit: RevCommit, onCommitSelected: () -> Unit) {
 
                 TooltipText(
                     text = date,
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.body2,

@@ -12,7 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.isLocal
 import com.jetpackduba.gitnuro.extensions.simpleName
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
@@ -94,7 +94,7 @@ private fun BranchLineEntry(
             if (isCurrentBranch) {
                 Text(
                     text = "HEAD",
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                     style = MaterialTheme.typography.caption,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )

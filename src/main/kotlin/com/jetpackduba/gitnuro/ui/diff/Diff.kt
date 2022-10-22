@@ -621,7 +621,7 @@ private fun DiffHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-            .background(MaterialTheme.colors.headerBackground)
+            .background(MaterialTheme.colors.tertiarySurface)
             .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -759,7 +759,7 @@ private fun PathOnlyDiffHeader(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-            .background(MaterialTheme.colors.headerBackground)
+            .background(MaterialTheme.colors.tertiarySurface)
             .padding(start = 8.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

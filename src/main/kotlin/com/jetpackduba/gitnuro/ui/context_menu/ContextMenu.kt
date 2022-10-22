@@ -22,7 +22,7 @@ import androidx.compose.ui.window.PopupPositionProvider
 import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import java.awt.event.MouseEvent
 import kotlin.math.abs
 
@@ -186,7 +186,7 @@ fun TextEntry(contextTextEntry: ContextMenuElement.ContextTextEntry, onDismissRe
                     painter = icon(),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
-                    tint = (MaterialTheme.colors.secondaryTextColor.copy(alpha = 0.8f))
+                    tint = (MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.8f))
                 )
             }
         }

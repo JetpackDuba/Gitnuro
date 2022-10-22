@@ -17,7 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.git.log.ResetType
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable
@@ -52,7 +52,7 @@ fun ResetBranchDialog(
                 text = "Reset the changes of your current branch to a \nprevious or different commit",
                 modifier = Modifier
                     .padding(bottom = 16.dp),
-                color = MaterialTheme.colors.secondaryTextColor,
+                color = MaterialTheme.colors.onBackgroundSecondary,
                 style = MaterialTheme.typography.body2,
                 textAlign = TextAlign.Center,
             )
@@ -155,7 +155,7 @@ fun RadioButtonText(
 
             Text(
                 text = subtitle,
-                color = MaterialTheme.colors.secondaryTextColor,
+                color = MaterialTheme.colors.onBackgroundSecondary,
                 style = MaterialTheme.typography.body2,
             )
 

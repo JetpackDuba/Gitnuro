@@ -16,7 +16,7 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -142,7 +142,7 @@ fun EditRemotesDialog(
                         ) {
                             Text(
                                 text = "No available remotes",
-                                style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.secondaryTextColor)
+                                style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.onBackgroundSecondary)
                             )
                         }
                     }
@@ -196,7 +196,7 @@ fun EditRemotesDialog(
                                 tint = if (selectedRemote != null)
                                     MaterialTheme.colors.onBackground
                                 else
-                                    MaterialTheme.colors.secondaryTextColor,
+                                    MaterialTheme.colors.onBackgroundSecondary,
                             )
                         }
                     }

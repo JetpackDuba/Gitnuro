@@ -511,7 +511,7 @@ private fun EntriesList(
             modifier = Modifier
                 .height(34.dp)
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colors.headerBackground)
+                .background(color = MaterialTheme.colors.tertiarySurface)
         ) {
             Text(
                 modifier = Modifier
@@ -520,7 +520,7 @@ private fun EntriesList(
                 text = title,
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Left,
-                color = MaterialTheme.colors.headerText,
+                color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
@@ -611,7 +611,7 @@ private fun FileEntry(
                         softWrap = false,
                         style = MaterialTheme.typography.body2,
                         overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colors.secondaryTextColor,
+                        color = MaterialTheme.colors.onBackgroundSecondary,
                     )
                 }
                 Text(

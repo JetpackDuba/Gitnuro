@@ -199,3 +199,7 @@ enum class RefreshType {
     UNCOMMITED_CHANGES_AND_LOG,
     REMOTES,
 }
+
+enum class Processing {
+
+}

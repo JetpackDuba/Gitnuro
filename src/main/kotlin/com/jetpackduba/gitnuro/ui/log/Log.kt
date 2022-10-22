@@ -304,7 +304,7 @@ fun SearchFilter(
                     if (searchFilterText.isNotEmpty()) {
                         Text(
                             "${searchFilterResults.index}/${searchFilterResults.totalCount}",
-                            color = MaterialTheme.colors.secondaryTextColor,
+                            color = MaterialTheme.colors.onBackgroundSecondary,
                         )
                     }
 
@@ -557,7 +557,7 @@ fun GraphHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(34.dp)
-                .background(MaterialTheme.colors.headerBackground),
+                .background(MaterialTheme.colors.tertiarySurface),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -565,7 +565,7 @@ fun GraphHeader(
                     .width(graphWidth)
                     .padding(start = 16.dp),
                 text = "Graph",
-                color = MaterialTheme.colors.headerText,
+                color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
@@ -585,7 +585,7 @@ fun GraphHeader(
                     .padding(start = 16.dp)
                     .weight(1f),
                 text = "Message",
-                color = MaterialTheme.colors.headerText,
+                color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
@@ -845,7 +845,7 @@ fun CommitMessage(
                 .padding(start = 8.dp)
                 .weight(1f),
             style = MaterialTheme.typography.body2,
-            color = if (matchesSearchFilter == false) MaterialTheme.colors.secondaryTextColor else MaterialTheme.colors.onBackground,
+            color = if (matchesSearchFilter == false) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -854,7 +854,7 @@ fun CommitMessage(
             text = commit.authorIdent.`when`.toSmartSystemString(),
             modifier = Modifier.padding(horizontal = 16.dp),
             style = MaterialTheme.typography.caption,
-            color = MaterialTheme.colors.secondaryTextColor,
+            color = MaterialTheme.colors.onBackgroundSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )

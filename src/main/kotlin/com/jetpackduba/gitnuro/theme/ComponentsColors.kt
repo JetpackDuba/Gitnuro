@@ -13,7 +13,7 @@ fun textFieldColors(
     focusedLabelColor: Color = MaterialTheme.colors.primaryVariant,
     backgroundColor: Color = MaterialTheme.colors.background,
     textColor: Color = MaterialTheme.colors.onBackground,
-    disabledTextColor: Color = MaterialTheme.colors.secondaryTextColor,
+    disabledTextColor: Color = MaterialTheme.colors.onBackgroundSecondary,
 ) = TextFieldDefaults.textFieldColors(
     cursorColor = cursorColor,
     focusedIndicatorColor = focusedIndicatorColor,

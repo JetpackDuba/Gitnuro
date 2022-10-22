@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
@@ -56,7 +56,7 @@ fun NewTagDialog(
                 text = "Create a new tag on the specified commit",
                 modifier = Modifier
                     .padding(bottom = 16.dp),
-                color = MaterialTheme.colors.secondaryTextColor,
+                color = MaterialTheme.colors.onBackgroundSecondary,
                 style = MaterialTheme.typography.body2,
                 textAlign = TextAlign.Center,
             )

@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.SideMenuPanel
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.Tooltip
@@ -62,7 +62,7 @@ private fun SubmoduleLineEntry(
             Tooltip(stateName) {
                 Text(
                     text = stateName.first().toString(),
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.padding(horizontal = 16.dp),
                 )

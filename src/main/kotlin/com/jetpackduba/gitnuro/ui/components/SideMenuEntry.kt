@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
-import com.jetpackduba.gitnuro.theme.secondaryTextColor
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 
 @Composable
 fun SideMenuEntry(
@@ -76,7 +76,7 @@ fun SideMenuEntry(
                 text = itemsCount.toString(),
                 style = MaterialTheme.typography.body2,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colors.secondaryTextColor,
+                color = MaterialTheme.colors.onBackgroundSecondary,
                 modifier = Modifier.padding(end = 16.dp),
             )
     }
