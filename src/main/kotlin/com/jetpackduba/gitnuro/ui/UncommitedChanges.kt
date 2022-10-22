@@ -616,6 +616,7 @@ private fun FileEntry(
                     text = statusEntry.fileName,
                     maxLines = 1,
                     softWrap = false,
+                    modifier = Modifier.padding(end = 16.dp),
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackground,
                 )
