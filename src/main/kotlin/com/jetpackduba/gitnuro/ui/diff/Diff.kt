@@ -627,51 +627,54 @@ private fun DiffHeader(
         val fileName = diffEntry.fileName
         val dirPath: String = diffEntry.parentDirectoryPath
 
-        if (dirPath.isNotEmpty()) {
+        Row(Modifier.weight(1f, true)) {
+            if (dirPath.isNotEmpty()) {
+                Text(
+                    text = dirPath,
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.secondaryTextColor,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(1f, false)
+                        .padding(start = 16.dp),
+                )
+            }
             Text(
-                text = dirPath,
+                text = fileName,
                 style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.secondaryTextColor,
+                color = MaterialTheme.colors.onBackground,
                 maxLines = 1,
-                softWrap = false,
-                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(end = 16.dp),
+            )
+        }
+
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
+                DiffTypeButtons(diffType = diffType, onChangeDiffType = onChangeDiffType)
+            }
+
+            if (diffEntryType is DiffEntryType.UncommitedDiff) {
+                UncommitedDiffFileHeaderButtons(
+                    diffEntryType,
+                    onUnstageFile = onUnstageFile,
+                    onStageFile = onStageFile
+                )
+            }
+
+            IconButton(
+                onClick = onCloseDiffView,
                 modifier = Modifier
-                    .weight(1f, false)
-                    .padding(start = 16.dp),
-            )
-        }
-        Text(
-            text = fileName,
-            style = MaterialTheme.typography.body2,
-            color = MaterialTheme.colors.onBackground,
-            maxLines = 1,
-            modifier = Modifier.padding(end = 16.dp),
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
-            DiffTypeButtons(diffType = diffType, onChangeDiffType = onChangeDiffType)
-        }
-
-        if (diffEntryType is DiffEntryType.UncommitedDiff) {
-            UncommitedDiffFileHeaderButtons(
-                diffEntryType,
-                onUnstageFile = onUnstageFile,
-                onStageFile = onStageFile
-            )
-        }
-
-        IconButton(
-            onClick = onCloseDiffView,
-            modifier = Modifier
-                .handOnHover()
-        ) {
-            Image(
-                painter = painterResource("close.svg"),
-                contentDescription = "Close diff",
-                colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
-            )
+                    .handOnHover()
+            ) {
+                Image(
+                    painter = painterResource("close.svg"),
+                    contentDescription = "Close diff",
+                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                )
+            }
         }
     }
 }
