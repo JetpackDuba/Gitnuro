@@ -39,15 +39,23 @@ Gitnuro has support for the following features:
 - Blame file.
 - View file history.
 - Theming.
-- Side by side diff in text files (will be available at 1.2.0).
+- Side by side diff in text files (will be available at 1.1.0).
+- Stage/Unstage specific lines.
 
-As it's still a young project, there are some interesting features that are not yet implemented but will be in the future:
 
+
+<details>
+  <summary><b>Features planned</b></summary>
+ 
 - Create/Apply patches
 - Remove tags from remote.
 - View stashes in the log tree.
-- Submodules support (planned for 1.1.0).
+- Submodules support (planned for 1.2.0).
 - Change the tracking of a specific branch.
+- Syntax highlighting for diff.
+- Various log options like showing the author, filtering by current branch o hide remote branches.
+- Customizations settings.
+</details>
 
 ## Contributing
 
