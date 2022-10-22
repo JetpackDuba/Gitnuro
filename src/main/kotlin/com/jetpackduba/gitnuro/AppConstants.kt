@@ -35,4 +35,5 @@ data class License(
     val name: String,
     val url: String
 )
+
 data class Project(val name: String, val url: String, val license: License)

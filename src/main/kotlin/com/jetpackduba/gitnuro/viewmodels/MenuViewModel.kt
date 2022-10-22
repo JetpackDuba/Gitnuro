@@ -1,14 +1,13 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.git.RefreshType
+import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.FetchAllBranchesUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushBranchUseCase
-import com.jetpackduba.gitnuro.git.RefreshType
-import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.stash.PopLastStashUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
-import java.awt.Desktop
 import javax.inject.Inject
 
 class MenuViewModel @Inject constructor(
@@ -47,6 +46,7 @@ class MenuViewModel @Inject constructor(
         stageUntrackedFileUseCase(git)
         stashChangesUseCase(git, null)
     }
+
     fun popStash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,

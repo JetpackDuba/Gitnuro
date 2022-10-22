@@ -1,14 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.AppStateManager
-import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.TabScope
-import com.jetpackduba.gitnuro.git.FileChangesWatcher
-import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
-import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
-import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
-import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import javax.inject.Inject
 import javax.inject.Provider
 

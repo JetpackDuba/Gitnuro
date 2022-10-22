@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.git.CloneStatus
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow

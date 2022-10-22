@@ -6,5 +6,5 @@ import org.eclipse.jgit.api.Git
 
 @AssistedFactory
 interface HttpCredentialsFactory {
-    fun create(git: Git?) : HttpCredentialsProvider
+    fun create(git: Git?): HttpCredentialsProvider
 }

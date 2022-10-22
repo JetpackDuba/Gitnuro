@@ -17,13 +17,11 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.unit.*
-import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
 import java.awt.event.MouseEvent
 import kotlin.math.abs

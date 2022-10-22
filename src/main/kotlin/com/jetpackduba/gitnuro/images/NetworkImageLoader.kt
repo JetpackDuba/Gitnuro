@@ -72,9 +72,11 @@ fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null)
                 cacheImageUsed.value = true
                 cachedImage
             }
+
             placeHolderImageRes != null -> useResource(placeHolderImageRes) {
                 Image.makeFromEncoded(it.toByteArray()).toComposeImageBitmap()
             }
+
             else -> null
         }
 

@@ -128,9 +128,9 @@ class TabViewModel @Inject constructor(
 
             launch {
                 tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REPO_STATE)
-                     {
-                        loadRepositoryState(tabState.git)
-                    }
+                {
+                    loadRepositoryState(tabState.git)
+                }
             }
         }
     }

@@ -40,6 +40,7 @@ open class GraphNode(id: AnyObjectId?) : RevCommit(id), IGraphNode {
                         arrayOf(children[0], c)
                 }
             }
+
             else -> {
                 for (pc in children)
                     if (c.id.equals(pc.id))

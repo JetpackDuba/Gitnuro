@@ -99,7 +99,7 @@ fun RepositoryOpenPage(tabViewModel: TabViewModel) {
             onClose = { showQuickActionsDialog = false },
             onAction = {
                 showQuickActionsDialog = false
-                when(it) {
+                when (it) {
                     QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> tabViewModel.openFolderInFileExplorer()
                     QuickActionType.CLONE -> TODO()
                 }

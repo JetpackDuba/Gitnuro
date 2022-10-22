@@ -31,7 +31,7 @@ class UpdateSubmoduleUseCase @Inject constructor() {
 
                 }
             )
-            .setProgressMonitor(object: ProgressMonitor {
+            .setProgressMonitor(object : ProgressMonitor {
                 override fun start(totalTasks: Int) {
                     printLog(TAG, "start $totalTasks")
                 }

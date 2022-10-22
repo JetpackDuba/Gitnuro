@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.git
 import com.jetpackduba.gitnuro.ErrorsManager
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.newErrorNow
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
@@ -128,7 +127,7 @@ class TabState @Inject constructor(
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
                 _refreshData.emit(refreshType)
 
-                operationRunning = false
+            operationRunning = false
         }
     }
 

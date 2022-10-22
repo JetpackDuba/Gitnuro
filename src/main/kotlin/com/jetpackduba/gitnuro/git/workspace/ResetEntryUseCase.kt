@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.git.workspace
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class ResetEntryUseCase @Inject constructor() {

@@ -1,7 +1,9 @@
 <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-<line x1="17" y1="18" x2="17" y2="43" stroke="black" stroke-width="4"/>
-<circle cx="17" cy="11" r="6" stroke="black" stroke-width="4"/>
-<path d="M49 22C49 25.3137 46.3137 28 43 28C39.6863 28 37 25.3137 37 22C37 18.6863 39.6863 16 43 16C46.3137 16 49 18.6863 49 22Z" stroke="black" stroke-width="4"/>
-<circle cx="17" cy="49" r="6" stroke="black" stroke-width="4"/>
-<path d="M16.8484 41.636L18.9135 39.8638C21.4322 37.7022 24.6179 36.4731 27.9357 36.3828L34.5028 36.204C38.676 36.0904 42 32.6747 42 28.5V28.5" stroke="black" stroke-width="4"/>
+    <line x1="17" y1="18" x2="17" y2="43" stroke="black" stroke-width="4"/>
+    <circle cx="17" cy="11" r="6" stroke="black" stroke-width="4"/>
+    <path d="M49 22C49 25.3137 46.3137 28 43 28C39.6863 28 37 25.3137 37 22C37 18.6863 39.6863 16 43 16C46.3137 16 49 18.6863 49 22Z"
+          stroke="black" stroke-width="4"/>
+    <circle cx="17" cy="49" r="6" stroke="black" stroke-width="4"/>
+    <path d="M16.8484 41.636L18.9135 39.8638C21.4322 37.7022 24.6179 36.4731 27.9357 36.3828L34.5028 36.204C38.676 36.0904 42 32.6747 42 28.5V28.5"
+          stroke="black" stroke-width="4"/>
 </svg>

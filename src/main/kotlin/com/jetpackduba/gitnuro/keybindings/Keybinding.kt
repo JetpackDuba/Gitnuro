@@ -85,7 +85,7 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
 }
 
 val keybindings by lazy {
-    return@lazy when(getCurrentOs()) {
+    return@lazy when (getCurrentOs()) {
         OS.LINUX -> linuxKeybindings()
         OS.WINDOWS -> windowsKeybindings()
         OS.MAC -> macKeybindings()

@@ -274,10 +274,10 @@ private fun Cloning(cloneViewModel: CloneViewModel, cloneStatusValue: CloneStatu
             }
         ) {
             Text(
-                        text = "Cancel",
-                        color = MaterialTheme.colors.onBackground,
-                        style = MaterialTheme.typography.body1,
-                    )
+                text = "Cancel",
+                color = MaterialTheme.colors.onBackground,
+                style = MaterialTheme.typography.body1,
+            )
         }
     }
 }

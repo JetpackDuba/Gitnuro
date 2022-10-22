@@ -42,8 +42,20 @@ class HunkDiffGenerator @Inject constructor(
 
             val fileHeader = diffFormatter.toFileHeader(diffEntry)
 
-            val rawOld = rawFileManager.getRawContent(repository, DiffEntry.Side.OLD, diffEntry, oldTreeIterator, newTreeIterator)
-            val rawNew = rawFileManager.getRawContent(repository, DiffEntry.Side.NEW, diffEntry, oldTreeIterator, newTreeIterator)
+            val rawOld = rawFileManager.getRawContent(
+                repository,
+                DiffEntry.Side.OLD,
+                diffEntry,
+                oldTreeIterator,
+                newTreeIterator
+            )
+            val rawNew = rawFileManager.getRawContent(
+                repository,
+                DiffEntry.Side.NEW,
+                diffEntry,
+                oldTreeIterator,
+                newTreeIterator
+            )
 
             if (rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
                 throw InvalidObjectException("Invalid object in diff format")

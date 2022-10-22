@@ -12,22 +12,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.TooltipText
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.commitedChangesEntriesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesStatus
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
-import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.theme.*
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
-import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
@@ -54,6 +53,7 @@ fun CommitChanges(
         CommitChangesStatus.Loading -> {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
+
         is CommitChangesStatus.Loaded -> {
             CommitChangesView(
                 diffSelected = diffSelected,
@@ -92,10 +92,11 @@ fun CommitChangesView(
                 .weight(1f, fill = true)
                 .background(MaterialTheme.colors.background)
         ) {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .height(34.dp)
-                .background(MaterialTheme.colors.headerBackground),
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(34.dp)
+                    .background(MaterialTheme.colors.headerBackground),
                 contentAlignment = Alignment.CenterStart,
             ) {
                 Text(

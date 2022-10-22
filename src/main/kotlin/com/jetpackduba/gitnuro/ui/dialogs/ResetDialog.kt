@@ -18,7 +18,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.git.log.ResetType
 import com.jetpackduba.gitnuro.theme.secondaryTextColor
-import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable

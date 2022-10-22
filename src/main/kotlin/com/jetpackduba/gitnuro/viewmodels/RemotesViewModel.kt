@@ -1,11 +1,11 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.exceptions.InvalidRemoteUrlException
+import com.jetpackduba.gitnuro.git.RefreshType
+import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.DeleteLocallyRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
-import com.jetpackduba.gitnuro.git.RefreshType
-import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.ui.dialogs.RemoteWrapper
 import kotlinx.coroutines.CoroutineScope
@@ -37,9 +37,9 @@ class RemotesViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES)
-                 {
-                    refresh(tabState.git)
-                }
+            {
+                refresh(tabState.git)
+            }
         }
     }
 

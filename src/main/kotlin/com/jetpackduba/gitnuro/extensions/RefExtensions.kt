@@ -14,10 +14,12 @@ val Ref.simpleName: String
             this.name == Constants.HEAD -> {
                 this.name
             }
+
             this.isRemote -> {
                 val split = name.split("/")
                 split.takeLast(split.size - REMOTE_PREFIX_LENGTH).joinToString("/")
             }
+
             else -> {
                 val split = this.name.split("/")
                 split.takeLast(split.size - LOCAL_PREFIX_LENGTH).joinToString("/")
@@ -31,9 +33,11 @@ val Ref.simpleLogName: String
             this.name == Constants.HEAD -> {
                 this.name
             }
+
             this.isRemote -> {
                 name.replace("refs/remotes/", "")
             }
+
             else -> {
                 val split = this.name.split("/")
                 split.takeLast(split.size - LOCAL_PREFIX_LENGTH).joinToString("/")

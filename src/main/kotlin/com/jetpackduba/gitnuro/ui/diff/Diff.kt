@@ -126,9 +126,9 @@ fun Diff(
                             diffViewModel.resetHunk(entry, hunk)
                         },
                         onActionTriggered = { entry, hunk, line ->
-                            if(diffEntryType is DiffEntryType.UnstagedDiff)
+                            if (diffEntryType is DiffEntryType.UnstagedDiff)
                                 diffViewModel.stageHunkLine(entry, hunk, line)
-                            else if(diffEntryType is DiffEntryType.StagedDiff)
+                            else if (diffEntryType is DiffEntryType.StagedDiff)
                                 diffViewModel.unstageHunkLine(entry, hunk, line)
                         }
                     )
@@ -147,9 +147,9 @@ fun Diff(
                             diffViewModel.resetHunk(entry, hunk)
                         },
                         onActionTriggered = { entry, hunk, line ->
-                            if(diffEntryType is DiffEntryType.UnstagedDiff)
+                            if (diffEntryType is DiffEntryType.UnstagedDiff)
                                 diffViewModel.stageHunkLine(entry, hunk, line)
-                            else if(diffEntryType is DiffEntryType.StagedDiff)
+                            else if (diffEntryType is DiffEntryType.StagedDiff)
                                 diffViewModel.unstageHunkLine(entry, hunk, line)
                         }
                     )
@@ -283,7 +283,7 @@ private fun StaticImage(tempImagePath: String) {
         modifier = Modifier
             .run {
                 val safeImage = image
-                if(safeImage == null)
+                if (safeImage == null)
                     fillMaxSize()
                 else {
                     width(safeImage.width.dp)
@@ -424,7 +424,7 @@ fun HunkSplitTextDiff(
                         newLine = linesPair.second,
                         selectableSide = selectableSide,
                         diffEntryType = diffEntryType,
-                        onActionTriggered = {line ->
+                        onActionTriggered = { line ->
                             onActionTriggered(diffResult.diffEntry, splitHunk.sourceHunk, line)
                         },
                         onChangeSelectableSide = { newSelectableSide ->
@@ -627,7 +627,7 @@ private fun DiffHeader(
         val fileName = diffEntry.fileName
         val dirPath: String = diffEntry.parentDirectoryPath
 
-        if(dirPath.isNotEmpty()) {
+        if (dirPath.isNotEmpty()) {
             Text(
                 text = dirPath,
                 style = MaterialTheme.typography.body2,

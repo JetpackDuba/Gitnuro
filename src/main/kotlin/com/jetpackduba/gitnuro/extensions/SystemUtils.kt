@@ -2,9 +2,6 @@ package com.jetpackduba.gitnuro.extensions
 
 import com.jetpackduba.gitnuro.logging.printLog
 import java.awt.Desktop
-import java.awt.Toolkit
-import java.awt.datatransfer.Clipboard
-import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.net.URI
 import java.nio.file.FileSystems
@@ -28,7 +25,7 @@ fun openFileWithExternalApp(filePath: String) {
 }
 
 private fun openSystemSpecific(url: String): Boolean {
-    when(getCurrentOs()) {
+    when (getCurrentOs()) {
         OS.LINUX -> {
             if (runCommandWithoutResult("xdg-open", "%s", url))
                 return true

@@ -144,7 +144,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
         process.waitFor(TIMEOUT_MIN, TimeUnit.MINUTES)
 
         // If the process is alive after $TIMEOUT_MIN, it means that it hasn't given an answer and then finished
-        if(process.isAlive) {
+        if (process.isAlive) {
             process.destroy()
             return ExternalCredentialsRequestResult.FAIL
         }
@@ -203,12 +203,12 @@ class HttpCredentialsProvider @AssistedInject constructor(
         val uriSpecificCredentialHelper = config.getString("credential", hostWithProtocol, "helper")
         var credentialHelperPath = uriSpecificCredentialHelper ?: genericCredentialHelper ?: return null
 
-        if(credentialHelperPath == "cache" || credentialHelperPath == "store") {
+        if (credentialHelperPath == "cache" || credentialHelperPath == "store") {
             throw NotSupportedHelper("Invalid credentials helper: \"$credentialHelperPath\" is not yet supported")
         }
 
         // TODO Try to use "git-credential-manager-core" when "manager-core" is detected. Works for linux but requires testing for mac/windows
-        if(credentialHelperPath == "manager-core") {
+        if (credentialHelperPath == "manager-core") {
             throw NotSupportedHelper("Invalid credentials helper \"$credentialHelperPath\". Please specify the full path of Git Credential Manager in your .gitconfig")
         }
 

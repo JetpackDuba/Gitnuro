@@ -27,9 +27,9 @@ class SubmodulesViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.SUBMODULES)
-                 {
-                    refresh(tabState.git)
-                }
+            {
+                refresh(tabState.git)
+            }
         }
     }
 

@@ -2,9 +2,7 @@ package com.jetpackduba.gitnuro.extensions
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -16,7 +14,7 @@ import androidx.compose.ui.input.pointer.*
 fun Modifier.backgroundIf(condition: Boolean, color: Color, elseColor: Color? = null): Modifier {
     return if (condition) {
         this.background(color)
-    } else if(elseColor != null) {
+    } else if (elseColor != null) {
         this.background(elseColor)
     } else
         this

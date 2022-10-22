@@ -77,7 +77,7 @@ fun branchContextMenuItems(
             )
         }
 
-        if(lastOrNull() == ContextMenuElement.ContextSeparator) {
+        if (lastOrNull() == ContextMenuElement.ContextSeparator) {
             removeLast()
         }
     }

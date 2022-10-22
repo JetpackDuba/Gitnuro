@@ -1,10 +1,10 @@
 package com.jetpackduba.gitnuro.preferences
 
 import com.jetpackduba.gitnuro.extensions.defaultWindowPlacement
-import com.jetpackduba.gitnuro.viewmodels.TextDiffType
-import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.Theme
+import com.jetpackduba.gitnuro.viewmodels.TextDiffType
+import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

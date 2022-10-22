@@ -32,7 +32,8 @@ class BeforeRepoAllTestsExtension : BeforeAllCallback, AfterAllCallback {
             // The following line registers a callback hook when the root test context is shut down
             context.root.getStore(GLOBAL).put("gitnuro_tests", this)
 
-            val cloneRepositoryUseCase = CloneRepositoryUseCase(HandleTransportUseCase(GSessionManager { GRemoteSession { GProcess() } }))
+            val cloneRepositoryUseCase =
+                CloneRepositoryUseCase(HandleTransportUseCase(GSessionManager { GRemoteSession { GProcess() } }))
             cloneRepositoryUseCase(repoDir, REPO_URL)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->

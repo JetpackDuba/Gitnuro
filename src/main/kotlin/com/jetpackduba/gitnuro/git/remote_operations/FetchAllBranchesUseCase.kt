@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RefSpec
-import org.eclipse.jgit.transport.RemoteConfig
 import javax.inject.Inject
 
 class FetchAllBranchesUseCase @Inject constructor(

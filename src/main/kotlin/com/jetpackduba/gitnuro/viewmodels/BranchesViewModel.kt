@@ -42,9 +42,9 @@ class BranchesViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
-                 {
-                    refresh(tabState.git)
-                }
+            {
+                refresh(tabState.git)
+            }
         }
     }
 
@@ -62,7 +62,6 @@ class BranchesViewModel @Inject constructor(
 
         _branches.value = branchesList
     }
-
 
 
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
