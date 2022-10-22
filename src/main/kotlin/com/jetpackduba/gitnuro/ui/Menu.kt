@@ -208,6 +208,12 @@ fun ExtendedMenuButton(
 
         Box(
             modifier = Modifier
+                .fillMaxHeight()
+                .background(MaterialTheme.colors.onPrimary.copy(alpha = 0.3f))
+                .width(2.dp)
+        )
+        Box(
+            modifier = Modifier
                 .width(24.dp)
                 .fillMaxHeight()
                 .ignoreKeyEvents()
@@ -216,13 +222,6 @@ fun ExtendedMenuButton(
                 },
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .background(MaterialTheme.colors.onPrimary.copy(alpha = 0.5f))
-                    .width(1.dp)
-                    .align(Alignment.CenterStart)
-            )
 
             Icon(
                 Icons.Default.ArrowDropDown,
