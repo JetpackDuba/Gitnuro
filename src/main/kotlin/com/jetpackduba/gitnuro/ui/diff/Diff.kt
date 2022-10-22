@@ -28,6 +28,7 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -632,10 +633,11 @@ private fun DiffHeader(
                 Text(
                     text = dirPath,
                     style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.secondaryTextColor,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier
                         .weight(1f, false)
                         .padding(start = 16.dp),
@@ -645,6 +647,7 @@ private fun DiffHeader(
                 text = fileName,
                 style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.onBackground,
+                fontWeight = FontWeight.Medium,
                 maxLines = 1,
                 modifier = Modifier.padding(end = 16.dp),
             )
@@ -931,7 +934,7 @@ fun LineNumber(text: String, remarked: Boolean) {
             .padding(start = 8.dp, end = 4.dp),
         fontFamily = FontFamily.Monospace,
         style = MaterialTheme.typography.body2,
-        color = if (remarked) MaterialTheme.colors.onBackground else MaterialTheme.colors.secondaryTextColor,
+        color = if (remarked) MaterialTheme.colors.onBackground else MaterialTheme.colors.onBackgroundSecondary,
     )
 }
 
