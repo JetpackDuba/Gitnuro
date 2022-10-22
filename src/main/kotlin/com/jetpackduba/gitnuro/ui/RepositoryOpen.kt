@@ -352,7 +352,7 @@ fun MainContentView(
                 Remotes()
                 Tags()
                 Stashes()
-                Submodules()
+//                TODO: Enable on 1.2.0 when fully implemented Submodules()
             }
         }
 

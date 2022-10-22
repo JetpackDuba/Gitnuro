@@ -13,12 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.*
 
-fun Modifier.backgroundIf(condition: Boolean, color: Color): Modifier {
+fun Modifier.backgroundIf(condition: Boolean, color: Color, elseColor: Color? = null): Modifier {
     return if (condition) {
         this.background(color)
-    } else {
+    } else if(elseColor != null) {
+        this.background(elseColor)
+    } else
         this
-    }
 }
 
 fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
