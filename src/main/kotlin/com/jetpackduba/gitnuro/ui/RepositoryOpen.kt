@@ -132,8 +132,7 @@ fun RepositoryOpenPage(
                         Menu(
                             modifier = Modifier
                                 .padding(
-                                    top = 16.dp,
-                                    bottom = 16.dp
+                                    vertical = 12.dp
                                 )
                                 .fillMaxWidth(),
                             onCreateBranch = { showNewBranchDialog = true },

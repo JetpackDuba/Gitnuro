@@ -3,14 +3,13 @@ package com.jetpackduba.gitnuro.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,11 +23,13 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 
 @Composable
 fun AdjustableOutlinedTextField(
     value: String,
+    hint: String = "",
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -53,33 +54,48 @@ fun AdjustableOutlinedTextField(
     val cursorColor = colors.cursorColor(isError).value
     val indicatorColor by colors.indicatorColor(enabled, isError, interactionSource)
 
-    BasicTextField(
-        modifier = modifier
-            .heightIn(min = 40.dp)
-            .background(backgroundColor),
-        value = value,
-        onValueChange = onValueChange,
-        enabled = enabled,
-        maxLines = maxLines,
-        textStyle = textStyle.copy(color = textColor),
-        interactionSource = interactionSource,
-        keyboardOptions = keyboardOptions,
-        cursorBrush = SolidColor(cursorColor),
-        singleLine = singleLine,
-        visualTransformation = visualTransformation,
-        decorationBox = { innerTextField ->
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = indicatorColor,
-                        shape = shape
-                    )
-                    .padding(horizontal = 12.dp),
-                contentAlignment = Alignment.CenterStart,
-            ) {
-                innerTextField()
+    Box(
+        modifier = Modifier
+            .height(IntrinsicSize.Min)
+    ) {
+        BasicTextField(
+            modifier = modifier
+                .heightIn(min = 40.dp)
+                .background(backgroundColor),
+            value = value,
+            onValueChange = onValueChange,
+            enabled = enabled,
+            maxLines = maxLines,
+            textStyle = textStyle.copy(color = textColor),
+            interactionSource = interactionSource,
+            keyboardOptions = keyboardOptions,
+            cursorBrush = SolidColor(cursorColor),
+            singleLine = singleLine,
+            visualTransformation = visualTransformation,
+            decorationBox = { innerTextField ->
+                Box(
+                    modifier = Modifier
+                        .border(
+                            width = 1.dp,
+                            color = indicatorColor,
+                            shape = shape
+                        )
+                        .padding(horizontal = 12.dp),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    innerTextField()
+                }
             }
+        )
+
+        if (value.isEmpty() && hint.isNotEmpty()) {
+            Text(
+                hint,
+                color = MaterialTheme.colors.onBackgroundSecondary,
+                modifier = Modifier
+                    .padding(start = 12.dp, top = 12.dp),
+                style = MaterialTheme.typography.body2
+            )
         }
-    )
+    }
 }

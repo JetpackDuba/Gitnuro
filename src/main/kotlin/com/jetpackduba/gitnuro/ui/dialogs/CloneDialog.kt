@@ -168,7 +168,7 @@ private fun CloneInput(
                 Icon(
                     Icons.Default.Search,
                     contentDescription = null,
-                    tint = MaterialTheme.colors.onBackground,
+                    tint = MaterialTheme.colors.onPrimary,
                 )
             }
         }

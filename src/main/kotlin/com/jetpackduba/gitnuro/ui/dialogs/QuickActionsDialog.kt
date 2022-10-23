@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
+import com.jetpackduba.gitnuro.keybindings.keybindings
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -32,7 +33,7 @@ fun QuickActionsDialog(
     val textFieldFocusRequester = remember { FocusRequester() }
     val items = remember {
         listOf(
-            QuickAction("open.svg", "Open project in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
+            QuickAction("code.svg", "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
             QuickAction("download.svg", "Clone new repository", QuickActionType.CLONE),
         )
     }
@@ -78,6 +79,7 @@ fun QuickActionsDialog(
         ) {
             AdjustableOutlinedTextField(
                 value = searchFilter,
+                hint = "Search for an action or press ESC to close the dialog", // TODO don't hardcode ESC here, fix keybinding toString
                 onValueChange = { searchFilter = it },
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth()
