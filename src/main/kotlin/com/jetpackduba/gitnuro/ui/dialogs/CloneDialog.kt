@@ -162,7 +162,7 @@ private fun CloneInput(
                         previous = directoryFocusRequester
                         next = cloneButtonFocusRequester
                     }
-                    .height(48.dp),
+                    .height(40.dp),
                 shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
             ) {
                 Icon(
