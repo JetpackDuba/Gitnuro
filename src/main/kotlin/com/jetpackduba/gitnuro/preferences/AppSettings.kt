@@ -42,8 +42,8 @@ class AppSettings @Inject constructor() {
     private val _themeState = MutableStateFlow(theme)
     val themeState: StateFlow<Theme> = _themeState
 
-    private val _commitsLimitEnabledFlow = MutableSharedFlow<Boolean>()
-    val commitsLimitEnabledFlow: SharedFlow<Boolean> = _commitsLimitEnabledFlow
+    private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
+    val commitsLimitEnabledFlow: MutableStateFlow<Boolean> = _commitsLimitEnabledFlow
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
     val ffMergeFlow: StateFlow<Boolean> = _ffMergeFlow
@@ -93,7 +93,7 @@ class AppSettings @Inject constructor() {
         }
         set(value) {
             preferences.putBoolean(PREF_COMMITS_LIMIT_ENABLED, value)
-            _commitsLimitEnabledFlow.tryEmit(value)
+            _commitsLimitEnabledFlow.value = value
         }
 
     var scaleUi: Float

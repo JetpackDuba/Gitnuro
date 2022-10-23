@@ -113,7 +113,7 @@ fun SettingsDialog(
 
 @Composable
 fun GitSettings(settingsViewModel: SettingsViewModel) {
-    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState(settingsViewModel.commitsLimitEnabled)
+    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
     val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
     var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
 
