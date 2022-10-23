@@ -162,6 +162,7 @@ fun Log(
                     commitList = commitList,
                     selectedCommit = selectedCommit,
                     selectedItem = selectedItem,
+                    repositoryState = repositoryState,
                     horizontalScrollState = horizontalScrollState,
                     graphWidth = graphWidth,
                     verticalScrollState = verticalScrollState,
@@ -434,6 +435,7 @@ fun GraphList(
     selectedCommit: RevCommit?,
     selectedItem: SelectedItem,
     commitsLimit: Int,
+    repositoryState: RepositoryState,
 ) {
     val maxLinePosition = if (commitList.isNotEmpty())
         commitList.maxLine
@@ -462,7 +464,12 @@ fun GraphList(
             LazyColumn(
                 state = verticalScrollState, modifier = Modifier.width(graphRealWidth)
             ) {
-                if (hasUncommitedChanges) {
+                if (
+                    hasUncommitedChanges ||
+                    repositoryState.isMerging ||
+                    repositoryState.isRebasing ||
+                    repositoryState.isCherryPicking
+                ) {
                     item {
                         Row(
                             modifier = Modifier
