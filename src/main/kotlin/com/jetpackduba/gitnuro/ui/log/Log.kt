@@ -382,7 +382,9 @@ fun MessagesList(
                 )
             }
         }
-        items(items = commitList, key = { it.name }) { graphNode ->
+        // Setting a key makes the graph preserve the scroll position when a new line has been added on top (uncommited changes)
+        // Therefore, after popping a stash, the uncommited changes wouldn't be visible and requires the user scrolling.
+        items(items = commitList) { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
                 logViewModel = logViewModel,
@@ -485,7 +487,7 @@ fun GraphList(
                     }
                 }
 
-                items(items = commitList, key = { it.name }) { graphNode ->
+                items(items = commitList) { graphNode ->
                     val nodeColor = colors[graphNode.lane.position % colors.size]
 
                     Row(
