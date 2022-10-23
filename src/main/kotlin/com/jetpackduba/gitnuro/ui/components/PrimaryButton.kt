@@ -11,7 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 
 
 @Composable
@@ -20,16 +22,22 @@ fun PrimaryButton(
     text: String,
     enabled: Boolean = true,
     backgroundColor: Color = MaterialTheme.colors.primary,
+    backgroundDisabled: Color = MaterialTheme.colors.primary.copy(0.5f),
     textColor: Color = MaterialTheme.colors.onPrimary,
-    disabledTextColor: Color = MaterialTheme.colors.onBackground,
+    disabledTextColor: Color = MaterialTheme.colors.onPrimary.copy(alpha = 0.5f),
     onClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
-            .background(backgroundColor)
-            .handMouseClickable {
-                onClick()
+            .backgroundIf(enabled, backgroundColor, backgroundDisabled)
+            .run {
+                if(enabled) {
+                    handMouseClickable {
+                        onClick()
+                    }
+                } else
+                    handOnHover()
             },
     ) {
         Text(

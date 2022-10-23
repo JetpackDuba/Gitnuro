@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -280,15 +281,15 @@ fun EditRemotesDialog(
                             Row(
                                 modifier = Modifier
                                     .padding(top = 16.dp)
-                                    .align(Alignment.End)
+                                    .align(Alignment.End),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Spacer(modifier = Modifier.weight(1f))
 
                                 if (!selectedRemote.isNew) {
-                                    TextButton(
+                                    PrimaryButton(
+                                        text = "Discard changes",
                                         modifier = Modifier.padding(end = 8.dp),
-                                        enabled = remoteChanged,
-                                        colors = textButtonColors(),
                                         onClick = {
                                             remotesEditorData = remotesEditorData.copy(
                                                 selectedRemote = selectedRemote.copy(
@@ -298,17 +299,13 @@ fun EditRemotesDialog(
                                             )
 
                                             remoteChanged = false
-                                        }
-                                    ) {
-                                        Text(
-                                            "Discard changes",
-                                            style = MaterialTheme.typography.body1,
-                                            color = if (remoteChanged)
-                                                MaterialTheme.colors.primaryVariant
-                                            else
-                                                MaterialTheme.colors.onBackground,
-                                        )
-                                    }
+                                        },
+                                        backgroundColor = Color.Transparent,
+                                        backgroundDisabled = Color.Transparent,
+                                        enabled = remoteChanged,
+                                        textColor = MaterialTheme.colors.onBackground,
+                                        disabledTextColor = MaterialTheme.colors.onBackground.copy(alpha = 0.5f),
+                                    )
                                 }
 
                                 val text = if (selectedRemote.isNew)

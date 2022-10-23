@@ -105,7 +105,7 @@ fun AuthorDialog(
                     text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
                     onClick = onClose,
-                    backgroundColor = Color.Transparent
+                    backgroundColor = Color.Transparent,
                 )
                 PrimaryButton(
                     onClick = {
