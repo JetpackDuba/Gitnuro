@@ -122,7 +122,8 @@ fun UserPasswordDialog(
                     text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
                     onClick = onReject,
-                    backgroundColor = Color.Transparent
+                    backgroundColor = Color.Transparent,
+                    textColor = MaterialTheme.colors.onBackground,
                 )
                 PrimaryButton(
                     modifier = Modifier

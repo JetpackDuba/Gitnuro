@@ -55,13 +55,15 @@ fun AdjustableOutlinedTextField(
     val indicatorColor by colors.indicatorColor(enabled, isError, interactionSource)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .height(IntrinsicSize.Min)
+            .background(Color.Red)
     ) {
         BasicTextField(
-            modifier = modifier
+            modifier = Modifier
                 .heightIn(min = 40.dp)
-                .background(backgroundColor),
+                .background(backgroundColor)
+                .fillMaxWidth(),
             value = value,
             onValueChange = onValueChange,
             enabled = enabled,

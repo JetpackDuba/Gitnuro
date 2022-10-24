@@ -207,7 +207,8 @@ private fun CloneInput(
                         next = urlFocusRequester
                     },
                 onClick = onClose,
-                backgroundColor = Color.Transparent
+                backgroundColor = Color.Transparent,
+                textColor = MaterialTheme.colors.onBackground,
             )
             PrimaryButton(
                 onClick = {

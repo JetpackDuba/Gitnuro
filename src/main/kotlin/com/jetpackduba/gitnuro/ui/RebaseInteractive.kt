@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.theme.textButtonColors
@@ -83,21 +84,18 @@ fun RebaseStateLoaded(
             }
         }
 
-        Row(modifier = Modifier.padding(bottom = 16.dp)) {
+        Row(
+            modifier = Modifier.padding(bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(
+            PrimaryButton(
+                text = "Cancel",
                 modifier = Modifier.padding(end = 8.dp),
-                onClick = {
-                    onCancel()
-                },
-                colors = textButtonColors(),
-            ) {
-                Text(
-                    text = "Cancel",
-                    color = MaterialTheme.colors.onBackground,
-                    style = MaterialTheme.typography.body1,
-                )
-            }
+                onClick = onCancel,
+                backgroundColor = Color.Transparent,
+                textColor = MaterialTheme.colors.onBackground,
+            )
             PrimaryButton(
                 modifier = Modifier.padding(end = 16.dp),
                 enabled = stepsList.any { it.action != Action.PICK },
@@ -130,6 +128,7 @@ fun RebaseCommit(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(IntrinsicSize.Min)
+            .fillMaxWidth()
     ) {
         ActionDropdown(
             rebaseLine.action,

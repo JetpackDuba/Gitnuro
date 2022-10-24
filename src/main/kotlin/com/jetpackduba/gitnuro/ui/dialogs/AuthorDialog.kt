@@ -106,6 +106,7 @@ fun AuthorDialog(
                     modifier = Modifier.padding(end = 8.dp),
                     onClick = onClose,
                     backgroundColor = Color.Transparent,
+                    textColor = MaterialTheme.colors.onBackground,
                 )
                 PrimaryButton(
                     onClick = {

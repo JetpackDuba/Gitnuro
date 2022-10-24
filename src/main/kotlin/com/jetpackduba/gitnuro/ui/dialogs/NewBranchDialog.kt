@@ -91,7 +91,8 @@ fun NewBranchDialog(
                     text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
                     onClick = onClose,
-                    backgroundColor = Color.Transparent
+                    backgroundColor = Color.Transparent,
+                    textColor = MaterialTheme.colors.onBackground,
                 )
                 PrimaryButton(
                     modifier = Modifier
