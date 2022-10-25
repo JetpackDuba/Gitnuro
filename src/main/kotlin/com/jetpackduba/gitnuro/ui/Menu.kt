@@ -139,9 +139,9 @@ fun MenuButton(
             .handMouseClickable { if (enabled) onClick() }
             .run {
                 return@run if (fixedWidth) {
-                    this.width(100.dp)
+                    this.width(92.dp)
                 } else
-                    this.padding(horizontal = 16.dp)
+                    this.padding(horizontal = 8.dp)
             },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -151,7 +151,7 @@ fun MenuButton(
             contentDescription = title,
             modifier = Modifier
                 .padding(vertical = 2.dp)
-                .size(24.dp),
+                .size(20.dp),
             tint = MaterialTheme.colors.onPrimary,
         )
         Text(
@@ -185,7 +185,7 @@ fun ExtendedMenuButton(
     ) {
         Row(
             modifier = Modifier
-                .width(92.dp)
+                .width(84.dp)
                 .handMouseClickable { if (enabled) onClick() },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
@@ -194,7 +194,7 @@ fun ExtendedMenuButton(
                 painter = icon,
                 contentDescription = title,
                 modifier = Modifier
-                    .size(24.dp),
+                    .size(20.dp),
                 tint = MaterialTheme.colors.onPrimary,
             )
             Text(
