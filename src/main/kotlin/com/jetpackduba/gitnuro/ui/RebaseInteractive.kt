@@ -139,7 +139,7 @@ fun RebaseCommit(
         AdjustableOutlinedTextField(
             modifier = Modifier
                 .weight(1f)
-                .height(40.dp),
+                .heightIn(min = 40.dp),
             enabled = rebaseLine.action == Action.REWORD,
             value = newMessage,
             onValueChange = {
@@ -147,6 +147,10 @@ fun RebaseCommit(
                 onMessageChanged(it)
             },
             textStyle = MaterialTheme.typography.body2,
+            backgroundColor = if(rebaseLine.action == Action.REWORD) {
+                MaterialTheme.colors.background
+            } else
+                MaterialTheme.colors.surface
         )
 
     }

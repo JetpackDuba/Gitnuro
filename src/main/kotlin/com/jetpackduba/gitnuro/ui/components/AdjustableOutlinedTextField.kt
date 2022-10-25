@@ -57,7 +57,6 @@ fun AdjustableOutlinedTextField(
     Box(
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .background(Color.Red)
     ) {
         BasicTextField(
             modifier = Modifier
