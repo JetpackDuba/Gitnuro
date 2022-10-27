@@ -1,4 +1,3 @@
 package com.jetpackduba.gitnuro.exceptions
 
-class RevertCommitException {
-}
+class RevertCommitException(msg: String) : GitnuroException(msg)

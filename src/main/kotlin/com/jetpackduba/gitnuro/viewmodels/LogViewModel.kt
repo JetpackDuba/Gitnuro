@@ -188,6 +188,7 @@ class LogViewModel @Inject constructor(
 
     fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        refreshEvenIfCrashes = true,
     ) { git ->
         revertCommitUseCase(git, revCommit)
     }

@@ -18,8 +18,13 @@ class StartRebaseInteractiveUseCase @Inject constructor() {
                 .setUpstream(commit)
                 .call()
 
-            if (rebaseResult.status == RebaseResult.Status.FAILED) {
-                throw UncommitedChangesDetectedException("Rebase interactive failed.")
+            when (rebaseResult.status) {
+                RebaseResult.Status.FAILED -> throw UncommitedChangesDetectedException("Rebase interactive failed.")
+                RebaseResult.Status.UNCOMMITTED_CHANGES, RebaseResult.Status.CONFLICTS -> throw UncommitedChangesDetectedException(
+                    "You can't have uncommited changes before starting a rebase interactive"
+                )
+
+                else -> {}
             }
         }
 }
