@@ -92,12 +92,12 @@ fun Menu(
             onCreateBranch()
         }
 
-        MenuButton(
-            title = "Merge",
-            icon = painterResource("merge.svg"),
-        ) {
-            onCreateBranch()
-        }
+//        MenuButton(
+//            title = "Merge",
+//            icon = painterResource("merge.svg"),
+//        ) {
+//            onCreateBranch()
+//        }
 
         Spacer(modifier = Modifier.width(32.dp))
 
@@ -164,14 +164,14 @@ fun MenuButton(
             contentDescription = title,
             modifier = Modifier
                 .size(24.dp),
-            tint = MaterialTheme.colors.onPrimary,
+            tint = MaterialTheme.colors.onBackground,
         )
         Text(
             text = title,
             style = MaterialTheme.typography.caption,
             maxLines = 1,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onPrimary,
+            color = MaterialTheme.colors.onBackground,
         )
     }
 }
@@ -193,6 +193,9 @@ fun ExtendedMenuButton(
             .ignoreKeyEvents()
             .clip(RoundedCornerShape(4.dp))
             .background(MaterialTheme.colors.surface)
+            .handMouseClickable {
+                showDropDownMenu = true
+            }
     ) {
         Column(
             modifier = Modifier
@@ -207,12 +210,12 @@ fun ExtendedMenuButton(
                 contentDescription = title,
                 modifier = Modifier
                     .size(24.dp),
-                tint = MaterialTheme.colors.onPrimary,
+                tint = MaterialTheme.colors.onBackground,
             )
             Text(
                 text = title,
                 style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onPrimary,
+                color = MaterialTheme.colors.onBackground,
                 maxLines = 1,
             )
         }
@@ -220,17 +223,14 @@ fun ExtendedMenuButton(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .ignoreKeyEvents()
-                .handMouseClickable {
-                    showDropDownMenu = true
-                },
+                .ignoreKeyEvents(),
             contentAlignment = Alignment.Center,
         ) {
 
             Icon(
                 painterResource("expand_more.svg"),
                 contentDescription = null,
-                tint = MaterialTheme.colors.onPrimary,
+                tint = MaterialTheme.colors.onBackground,
                 modifier = Modifier.size(16.dp)
             )
 
