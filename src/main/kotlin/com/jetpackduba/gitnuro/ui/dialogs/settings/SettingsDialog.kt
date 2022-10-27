@@ -321,13 +321,10 @@ fun SettingButton(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        OutlinedButton(onClick = onClick) {
-            Text(
-                text = buttonText,
-                color = MaterialTheme.colors.onBackground,
-                style = MaterialTheme.typography.body1,
-            )
-        }
+        PrimaryButton(
+            text = buttonText,
+            onClick = onClick,
+        )
     }
 }
 
