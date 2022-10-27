@@ -631,7 +631,7 @@ private fun DiffHeader(
         Row(Modifier.weight(1f, true)) {
             if (dirPath.isNotEmpty()) {
                 Text(
-                    text = dirPath,
+                    text = dirPath.removeSuffix("/"),
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
@@ -641,6 +641,15 @@ private fun DiffHeader(
                     modifier = Modifier
                         .weight(1f, false)
                         .padding(start = 16.dp),
+                )
+
+                Text(
+                    text = "/",
+                    maxLines = 1,
+                    softWrap = false,
+                    style = MaterialTheme.typography.body2,
+                    overflow = TextOverflow.Visible,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
                 )
             }
             Text(

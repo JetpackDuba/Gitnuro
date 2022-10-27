@@ -280,12 +280,21 @@ fun CommitLogChanges(
 
                         if (diffEntry.parentDirectoryPath.isNotEmpty()) {
                             Text(
-                                text = diffEntry.parentDirectoryPath,
+                                text = diffEntry.parentDirectoryPath.removeSuffix("/"),
                                 modifier = Modifier.weight(1f, fill = false),
                                 maxLines = 1,
                                 softWrap = false,
                                 overflow = TextOverflow.Ellipsis,
                                 style = MaterialTheme.typography.body2,
+                                color = MaterialTheme.colors.onBackgroundSecondary,
+                            )
+
+                            Text(
+                                text = "/",
+                                maxLines = 1,
+                                softWrap = false,
+                                style = MaterialTheme.typography.body2,
+                                overflow = TextOverflow.Visible,
                                 color = MaterialTheme.colors.onBackgroundSecondary,
                             )
                         }
