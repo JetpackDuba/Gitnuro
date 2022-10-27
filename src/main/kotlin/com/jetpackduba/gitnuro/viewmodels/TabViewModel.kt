@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
+import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
@@ -55,6 +56,7 @@ class TabViewModel @Inject constructor(
     private val createBranchUseCase: CreateBranchUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
+    private val abortRebaseUseCase: AbortRebaseUseCase,
     private val tabScope: CoroutineScope,
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
@@ -183,11 +185,6 @@ class TabViewModel @Inject constructor(
         loadAuthorInfo(git)
 
         onRepositoryStateChanged(newRepoState)
-
-        if (newRepoState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel == null) {
-            rebaseInteractiveViewModel = rebaseInteractiveViewModelProvider.get()
-            rebaseInteractiveViewModel?.resumeRebase()
-        }
     }
 
     private fun loadAuthorInfo(git: Git) {
@@ -433,6 +430,13 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         Desktop.getDesktop().open(git.repository.directory.parentFile)
+    }
+
+    fun cancelRebaseInteractive() = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        abortRebaseUseCase(git)
+        rebaseInteractiveViewModel = null // shouldn't be necessary but just to make sure
     }
 }
 

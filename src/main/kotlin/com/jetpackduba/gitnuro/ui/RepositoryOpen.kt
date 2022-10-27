@@ -19,12 +19,14 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
@@ -124,6 +126,10 @@ fun RepositoryOpenPage(
 
                 if (repositoryState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
                     RebaseInteractive(rebaseInteractiveViewModel)
+                } else if (repositoryState == RepositoryState.REBASING_INTERACTIVE) {
+                    RebaseInteractiveStartedExternally(
+                        onCancelRebaseInteractive = { tabViewModel.cancelRebaseInteractive() }
+                    )
                 } else {
                     Column(modifier = Modifier.weight(1f)) {
                         Menu(
@@ -160,6 +166,31 @@ fun RepositoryOpenPage(
         )
 
         BottomInfoBar(tabViewModel)
+    }
+}
+
+@Composable
+fun RebaseInteractiveStartedExternally(
+    onCancelRebaseInteractive: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            "Rebase interactive started externally or Gitnuro (or this repository's tab)\nhas been restarted during the rebase.",
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.body1,
+        )
+        PrimaryButton(
+            modifier = Modifier.padding(top = 8.dp),
+            text = "Abort rebase interactive",
+            onClick = onCancelRebaseInteractive,
+            backgroundColor = MaterialTheme.colors.error,
+            textColor = MaterialTheme.colors.onError,
+        )
     }
 }
 
@@ -262,7 +293,7 @@ fun MainContentView(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
-    ) {
+) {
     HorizontalSplitPane(
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
     ) {

@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.theme.textButtonColors
@@ -165,14 +166,27 @@ fun ActionDropdown(
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
     Box {
-        PrimaryButton(
+        TextButton(
             onClick = { showDropDownMenu = true },
             modifier = Modifier
                 .width(120.dp)
                 .height(40.dp)
                 .padding(end = 8.dp),
-            text = action.toToken().replaceFirstChar { it.uppercase() }
-        )
+        ) {
+            Text(
+                action.toToken().replaceFirstChar { it.uppercase() },
+                color = MaterialTheme.colors.onBackground,
+                style = MaterialTheme.typography.body1,
+                modifier = Modifier.weight(1f)
+            )
+
+            Icon(
+                painterResource("expand_more.svg"),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = MaterialTheme.colors.onBackground,
+            )
+        }
 
         DropdownMenu(
             expanded = showDropDownMenu,
