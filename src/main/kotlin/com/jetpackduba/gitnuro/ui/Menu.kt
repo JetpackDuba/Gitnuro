@@ -51,21 +51,19 @@ fun Menu(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        MenuButton(
-            modifier = Modifier.padding(end = 4.dp),
-            title = "Fetch",
-            icon = painterResource("fetch.svg"),
-            onClick = { menuViewModel.fetchAll() },
-        )
-
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Pull",
             icon = painterResource("download.svg"),
             onClick = { menuViewModel.pull() },
-            extendedListItems = pullContextMenuItems {
-                menuViewModel.pull(true)
-            }
+            extendedListItems = pullContextMenuItems(
+                onPullRebase = {
+                    menuViewModel.pull(true)
+                },
+                onFetchAll = {
+                    menuViewModel.fetchAll()
+                }
+            )
         )
 
         ExtendedMenuButton(
