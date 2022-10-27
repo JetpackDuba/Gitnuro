@@ -35,6 +35,7 @@ import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 fun WelcomePage(
     tabViewModel: TabViewModel,
     onShowCloneDialog: () -> Unit,
+    onShowSettings: () -> Unit,
 ) {
     val appStateManager = tabViewModel.appStateManager
     var showAdditionalInfo by remember { mutableStateOf(false) }
@@ -63,6 +64,7 @@ fun WelcomePage(
                 tabViewModel = tabViewModel,
                 onShowCloneView = onShowCloneDialog,
                 onShowAdditionalInfo = { showAdditionalInfo = true },
+                onShowSettings = onShowSettings,
             )
 
             RecentRepositories(appStateManager, tabViewModel)
@@ -93,6 +95,7 @@ fun HomeButtons(
     tabViewModel: TabViewModel,
     onShowCloneView: () -> Unit,
     onShowAdditionalInfo: () -> Unit,
+    onShowSettings: () -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(end = 32.dp),
@@ -128,7 +131,7 @@ fun HomeButtons(
         )
 
         Text(
-            text = "About",
+            text = "Additional options",
             style = MaterialTheme.typography.h3,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
         )
@@ -153,6 +156,12 @@ fun HomeButtons(
             title = "Additional information",
             painter = painterResource("info.svg"),
             onClick = onShowAdditionalInfo
+        )
+
+        IconTextButton(
+            title = "Settings",
+            painter = painterResource("settings.svg"),
+            onClick = onShowSettings
         )
 
         if (newUpdate != null) {

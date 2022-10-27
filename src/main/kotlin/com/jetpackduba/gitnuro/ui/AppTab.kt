@@ -86,7 +86,8 @@ fun AppTab(
                         RepositorySelectionStatus.None -> {
                             WelcomePage(
                                 tabViewModel = tabViewModel,
-                                onShowCloneDialog = { showSettingsDialog = true }
+                                onShowCloneDialog = { showCloneDialog = true },
+                                onShowSettings = { showSettingsDialog = true }
                             )
                         }
 
