@@ -62,6 +62,8 @@ import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.math.max
 
+private const val MAX_MOVES_COUNT = 5
+
 @Composable
 fun Diff(
     diffViewModel: DiffViewModel,
@@ -511,13 +513,34 @@ fun SplitDiffLineSide(
     onChangeSelectableSide: (SelectableSide) -> Unit,
     onActionTriggered: () -> Unit,
 ) {
+    var pressedAndMoved by remember(line) { mutableStateOf(Pair(false, false)) }
+    var movesCount by remember(line) { mutableStateOf(0) }
     Box(
         modifier = modifier
             .onPointerEvent(PointerEventType.Press) {
-                onChangeSelectableSide(lineSelectableSide)
+                movesCount = 0
+                pressedAndMoved = pressedAndMoved.copy(first = true, second = false)
+                onChangeSelectableSide(SelectableSide.BOTH)
+
             }
             .onPointerEvent(PointerEventType.Release) {
-                onChangeSelectableSide(SelectableSide.BOTH)
+                pressedAndMoved = pressedAndMoved.copy(first = false)
+
+                // When using DynamicDisableSelection, there is a bug in compose where ctrl+C copies different stuff
+                // than using the contextual menu Copy.
+                // Ctrl+c copies everything that is not currently contained in the DisableSelection block,
+                // even if it was during text selection. The context menu only copies what is currently selected.
+                //
+                // With this workaround, both sides are enabled if the mouse hasn't been moved (or not enough
+                // to select something)
+                if (movesCount < MAX_MOVES_COUNT)
+                    onChangeSelectableSide(SelectableSide.BOTH)
+            }
+            .onPointerEvent(PointerEventType.Move) {
+                movesCount++
+
+                if (pressedAndMoved.first)
+                    onChangeSelectableSide(lineSelectableSide)
             }
     ) {
         if (line != null) {
