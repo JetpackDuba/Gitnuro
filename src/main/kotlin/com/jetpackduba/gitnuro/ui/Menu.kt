@@ -54,7 +54,7 @@ fun Menu(
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Fetch",
-            icon = painterResource("download.svg"),
+            icon = painterResource("fetch.svg"),
             onClick = { menuViewModel.fetchAll() },
         )
 
