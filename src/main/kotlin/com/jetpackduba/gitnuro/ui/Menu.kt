@@ -8,8 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -33,9 +31,10 @@ fun Menu(
     modifier: Modifier,
     menuViewModel: MenuViewModel = gitnuroViewModel(),
     onCreateBranch: () -> Unit,
-    onGoToWorkspace: () -> Unit,
+    onOpenAnotherRepository: () -> Unit,
     onStashWithMessage: () -> Unit,
     onQuickActions: () -> Unit,
+    onShowSettingsDialog: () -> Unit,
 ) {
     Row(
         modifier = modifier,
@@ -45,27 +44,28 @@ fun Menu(
         MenuButton(
             modifier = Modifier
                 .padding(start = 16.dp),
-            title = "Workspace",
-            icon = painterResource("computer.svg"),
-            onClick = onGoToWorkspace,
-            fixedWidth = false,
+            title = "Open",
+            icon = painterResource("open.svg"),
+            onClick = onOpenAnotherRepository,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
+        MenuButton(
+            modifier = Modifier.padding(end = 4.dp),
+            title = "Fetch",
+            icon = painterResource("download.svg"),
+            onClick = { menuViewModel.fetchAll() },
+        )
+
         ExtendedMenuButton(
-            modifier = Modifier.padding(end = 8.dp),
+            modifier = Modifier.padding(end = 4.dp),
             title = "Pull",
             icon = painterResource("download.svg"),
             onClick = { menuViewModel.pull() },
-            extendedListItems = pullContextMenuItems(
-                onPullRebase = {
-                    menuViewModel.pull(true)
-                },
-                onFetchAll = {
-                    menuViewModel.fetchAll()
-                }
-            )
+            extendedListItems = pullContextMenuItems {
+                menuViewModel.pull(true)
+            }
         )
 
         ExtendedMenuButton(
@@ -82,20 +82,27 @@ fun Menu(
             )
         )
 
-        Spacer(modifier = Modifier.width(24.dp))
+        Spacer(modifier = Modifier.width(32.dp))
 
         MenuButton(
+            modifier = Modifier.padding(end = 4.dp),
             title = "Branch",
             icon = painterResource("branch.svg"),
-            onClick = {
-                onCreateBranch()
-            },
-        )
+        ) {
+            onCreateBranch()
+        }
 
-        Spacer(modifier = Modifier.width(24.dp))
+        MenuButton(
+            title = "Merge",
+            icon = painterResource("merge.svg"),
+        ) {
+            onCreateBranch()
+        }
+
+        Spacer(modifier = Modifier.width(32.dp))
 
         ExtendedMenuButton(
-            modifier = Modifier.padding(end = 8.dp),
+            modifier = Modifier.padding(end = 4.dp),
             title = "Stash",
             icon = painterResource("stash.svg"),
             onClick = { menuViewModel.stash() },
@@ -107,17 +114,29 @@ fun Menu(
         MenuButton(
             title = "Pop",
             icon = painterResource("apply_stash.svg"),
-            onClick = { menuViewModel.popStash() },
-        )
+        ) { menuViewModel.popStash() }
 
         Spacer(modifier = Modifier.weight(1f))
 
+//        MenuButton(
+//            modifier = Modifier.padding(end = 4.dp),
+//            title = "Terminal",
+//            icon = painterResource("terminal.svg"),
+//            onClick = onQuickActions,
+//        )
+
         MenuButton(
-            title = "Quick actions",
-            modifier = Modifier.padding(end = 16.dp),
+            modifier = Modifier.padding(end = 4.dp),
+            title = "Actions",
             icon = painterResource("bolt.svg"),
-            fixedWidth = false,
             onClick = onQuickActions,
+        )
+
+        MenuButton(
+            modifier = Modifier.padding(end = 16.dp),
+            title = "Settings",
+            icon = painterResource("settings.svg"),
+            onClick = onShowSettingsDialog,
         )
     }
 }
@@ -128,36 +147,28 @@ fun MenuButton(
     enabled: Boolean = true,
     title: String,
     icon: Painter,
-    fixedWidth: Boolean = true,
     onClick: () -> Unit
 ) {
-    Row(
+    Column(
         modifier = modifier
             .ignoreKeyEvents()
             .clip(RoundedCornerShape(4.dp))
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.surface)
             .handMouseClickable { if (enabled) onClick() }
-            .run {
-                return@run if (fixedWidth) {
-                    this.width(92.dp)
-                } else
-                    this.padding(horizontal = 8.dp)
-            },
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+            .size(56.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             painter = icon,
             contentDescription = title,
             modifier = Modifier
-                .padding(vertical = 2.dp)
-                .size(20.dp),
+                .size(24.dp),
             tint = MaterialTheme.colors.onPrimary,
         )
         Text(
             text = title,
-            style = MaterialTheme.typography.body2,
-            modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom = 8.dp),
+            style = MaterialTheme.typography.caption,
             maxLines = 1,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colors.onPrimary,
@@ -178,29 +189,29 @@ fun ExtendedMenuButton(
 
     Row(
         modifier = modifier
-            .height(IntrinsicSize.Min)
+            .size(width = 64.dp, height = 56.dp)
             .ignoreKeyEvents()
             .clip(RoundedCornerShape(4.dp))
-            .background(MaterialTheme.colors.primary)
+            .background(MaterialTheme.colors.surface)
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .width(84.dp)
+                .fillMaxHeight()
+                .weight(1f)
                 .handMouseClickable { if (enabled) onClick() },
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
                 painter = icon,
                 contentDescription = title,
                 modifier = Modifier
-                    .size(20.dp),
+                    .size(24.dp),
                 tint = MaterialTheme.colors.onPrimary,
             )
             Text(
                 text = title,
-                modifier = Modifier.padding(start = 2.dp, top = 8.dp, bottom = 8.dp),
-                style = MaterialTheme.typography.body2,
+                style = MaterialTheme.typography.caption,
                 color = MaterialTheme.colors.onPrimary,
                 maxLines = 1,
             )
@@ -208,13 +219,6 @@ fun ExtendedMenuButton(
 
         Box(
             modifier = Modifier
-                .fillMaxHeight()
-                .background(MaterialTheme.colors.onPrimary.copy(alpha = 0.3f))
-                .width(2.dp)
-        )
-        Box(
-            modifier = Modifier
-                .width(24.dp)
                 .fillMaxHeight()
                 .ignoreKeyEvents()
                 .handMouseClickable {
@@ -224,9 +228,10 @@ fun ExtendedMenuButton(
         ) {
 
             Icon(
-                Icons.Default.ArrowDropDown,
+                painterResource("expand_more.svg"),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onPrimary,
+                modifier = Modifier.size(16.dp)
             )
 
             DropdownMenu(

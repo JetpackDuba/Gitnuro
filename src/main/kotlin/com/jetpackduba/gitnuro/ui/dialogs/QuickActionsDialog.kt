@@ -35,6 +35,7 @@ fun QuickActionsDialog(
         listOf(
             QuickAction("code.svg", "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
             QuickAction("download.svg", "Clone new repository", QuickActionType.CLONE),
+            QuickAction("refresh.svg", "Refresh repository data", QuickActionType.REFRESH),
         )
     }
 
@@ -124,5 +125,6 @@ data class QuickAction(val icon: String, val title: String, val type: QuickActio
 
 enum class QuickActionType {
     OPEN_DIR_IN_FILE_MANAGER,
-    CLONE;
+    CLONE,
+    REFRESH;
 }

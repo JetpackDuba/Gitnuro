@@ -2,11 +2,9 @@
 
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -19,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,7 +25,6 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
@@ -98,6 +94,7 @@ fun RepositoryOpenPage(
                 when (it) {
                     QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> tabViewModel.openFolderInFileExplorer()
                     QuickActionType.CLONE -> onShowCloneDialog()
+                    QuickActionType.REFRESH -> tabViewModel.refreshAll()
                 }
             },
         )
@@ -132,13 +129,14 @@ fun RepositoryOpenPage(
                         Menu(
                             modifier = Modifier
                                 .padding(
-                                    vertical = 12.dp
+                                    vertical = 4.dp
                                 )
                                 .fillMaxWidth(),
                             onCreateBranch = { showNewBranchDialog = true },
                             onStashWithMessage = { showStashWithMessageDialog = true },
-                            onGoToWorkspace = { tabViewModel.selectUncommitedChanges() },
-                            onQuickActions = { showQuickActionsDialog = true }
+                            onOpenAnotherRepository = { openRepositoryDialog(tabViewModel) },
+                            onQuickActions = { showQuickActionsDialog = true },
+                            onShowSettingsDialog = onShowSettingsDialog
                         )
 
                         RepoContent(
@@ -148,7 +146,6 @@ fun RepositoryOpenPage(
                             repositoryState = repositoryState,
                             blameState = blameState,
                             showHistory = showHistory,
-                            onShowSettingsDialog = onShowSettingsDialog
                         )
                     }
                 }
@@ -201,7 +198,6 @@ fun RepoContent(
     repositoryState: RepositoryState,
     blameState: BlameState,
     showHistory: Boolean,
-    onShowSettingsDialog: () -> Unit,
 ) {
     if (showHistory) {
         val historyViewModel = tabViewModel.historyViewModel
@@ -221,7 +217,6 @@ fun RepoContent(
             selectedItem,
             repositoryState,
             blameState,
-            onShowSettingsDialog,
         )
     }
 }
@@ -267,24 +262,13 @@ fun MainContentView(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
-    onShowSettingsDialog: () -> Unit,
-
     ) {
     HorizontalSplitPane(
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
     ) {
         first(minSize = 180.dp) {
             Column {
-                val state: ScrollState = rememberScrollState()
-
-                val canBeScrolled by remember {
-                    derivedStateOf {
-                        state.maxValue > 0
-                    }
-                }
-
                 ScrollableColumn(
-                    state = state,
                     modifier = Modifier
                         .weight(1f),
                 ) {
@@ -293,20 +277,6 @@ fun MainContentView(
                     Tags()
                     Stashes()
 //                TODO: Enable on 1.2.0 when fully implemented Submodules()
-                }
-
-                Column {
-                    if (canBeScrolled) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(2.dp)
-                                .background(MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.2f))
-                        )
-                    }
-                    SidePanelOption("Open another repository", "open.svg") { openRepositoryDialog(tabViewModel = tabViewModel) }
-                    SidePanelOption("Refresh", "refresh.svg") { tabViewModel.refreshAll() }
-                    SidePanelOption("Settings", "settings.svg", onShowSettingsDialog)
                 }
             }
         }
