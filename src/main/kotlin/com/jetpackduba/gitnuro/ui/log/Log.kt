@@ -751,7 +751,7 @@ fun CommitLine(
     ) {
         Box(
             modifier = Modifier
-                .fastClickable(graphNode) { onRevCommitSelected() }
+                .fastClickable(graphNode, logViewModel) { onRevCommitSelected() }
                 .padding(start = graphWidth)
                 .height(LINE_HEIGHT.dp)
                 .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)

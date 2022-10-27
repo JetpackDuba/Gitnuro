@@ -42,10 +42,10 @@ fun Modifier.handOnHover(): Modifier {
 // TODO Try to restore hover that was shown with clickable modifier
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Modifier.fastClickable(key: Any = Unit, onClick: () -> Unit) =
+fun Modifier.fastClickable(key: Any = Unit, key2: Any = Unit, onClick: () -> Unit) =
     this.handOnHover()
         .hoverBackground()
-        .pointerInput(key) {
+        .pointerInput(key, key2) {
             while (true) {
                 val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
                 val mouseEvent = lastMouseEvent.awtEventOrNull
