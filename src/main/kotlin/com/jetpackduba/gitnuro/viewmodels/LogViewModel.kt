@@ -114,9 +114,13 @@ class LogViewModel @Inject constructor(
             tabState.refreshFlowFiltered(
                 RefreshType.ALL_DATA,
                 RefreshType.ONLY_LOG,
+                RefreshType.UNCOMMITED_CHANGES,
                 RefreshType.UNCOMMITED_CHANGES_AND_LOG,
-            ) {
-                refresh(tabState.git)
+            ) { refreshType ->
+                if (refreshType == RefreshType.UNCOMMITED_CHANGES) {
+                    uncommitedChangesLoadLog(tabState.git)
+                } else
+                    refresh(tabState.git)
             }
         }
     }

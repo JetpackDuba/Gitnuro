@@ -304,7 +304,7 @@ fun MainContentView(
                                 .background(MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.2f))
                         )
                     }
-                    SidePanelOption("Open repository", "open.svg") { openRepositoryDialog(tabViewModel = tabViewModel) }
+                    SidePanelOption("Open another repository", "open.svg") { openRepositoryDialog(tabViewModel = tabViewModel) }
                     SidePanelOption("Refresh", "refresh.svg") { tabViewModel.refreshAll() }
                     SidePanelOption("Settings", "settings.svg", onShowSettingsDialog)
                 }
