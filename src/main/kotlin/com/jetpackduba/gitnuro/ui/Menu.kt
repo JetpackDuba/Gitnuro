@@ -83,7 +83,6 @@ fun Menu(
         Spacer(modifier = Modifier.width(32.dp))
 
         MenuButton(
-            modifier = Modifier.padding(end = 4.dp),
             title = "Branch",
             icon = painterResource("branch.svg"),
         ) {
