@@ -166,6 +166,8 @@ class TabViewModel @Inject constructor(
             tabState.initGit(git)
 
             onRepositoryChanged(repository.directory.parent)
+            tabState.newSelectedItem(selectedItem = SelectedItem.UncommitedChanges)
+            newDiffSelected = null
             refreshRepositoryInfo()
 
             watchRepositoryChanges(git)
@@ -233,7 +235,7 @@ class TabViewModel @Inject constructor(
 
                     // Sometimes external apps can run filesystem multiple operations in a fraction of a second.
                     // To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
-                    // the com.jetpackduba.gitnuro.app by constantly running "git status".
+                    // the app by constantly running "git status".
                     val currentTimeMillis = System.currentTimeMillis()
                     val diffTime = currentTimeMillis - lastNotify
 
