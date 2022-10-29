@@ -218,6 +218,42 @@ fun Log(
                     ),
                     adapter = rememberScrollbarAdapter(horizontalScrollState)
                 )
+
+                val isFirstItemVisible by remember {
+                    derivedStateOf { verticalScrollState.firstVisibleItemIndex > 0 }
+                }
+
+                if (isFirstItemVisible) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 16.dp)
+                            .clip(RoundedCornerShape(50))
+                            .handMouseClickable {
+                                scope.launch {
+                                    verticalScrollState.scrollToItem(0)
+                                }
+                            }
+                            .background(MaterialTheme.colors.primary)
+                            .padding(vertical = 4.dp, horizontal = 8.dp),
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painterResource("align_top.svg"),
+                                contentDescription = null,
+                                tint = MaterialTheme.colors.onPrimary,
+                                modifier = Modifier.size(20.dp),
+                            )
+
+                            Text(
+                                text = "Scroll to top",
+                                modifier = Modifier.padding(start = 8.dp),
+                                color = MaterialTheme.colors.onPrimary,
+                                style = MaterialTheme.typography.body2,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
