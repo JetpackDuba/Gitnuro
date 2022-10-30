@@ -7,6 +7,20 @@ A FOSS Git client based on (Jetbrains) Compose and JGit.
 
 The main goal of Gitnuro is to provide a multiplatform open source Git client without any kind of constraint to how you can use it nor relying on web technologies.
 
+## Download/Install
+
+Linux:
+- Available as Flatpak here or by running `flatpak install --user com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup.
+- JAR file can be executed as a portable version (Requires JRE 17).
+
+Windows:
+- [Installable & portable version](https://github.com/JetpackDuba/Gitnuro/releases/latest).
+
+MacOS:
+- [ZIP which contains the app bundle](https://github.com/JetpackDuba/Gitnuro/releases/latest).
+- Using hombrew: brew install jetpackduba/apps/gitnuro
+
+
 ## Features
 
 Gitnuro has support for the following features:
@@ -39,7 +53,7 @@ Gitnuro has support for the following features:
 - Blame file.
 - View file history.
 - Theming.
-- Side by side diff in text files (will be available at 1.1.0).
+- Side by side diff in text files.
 - Stage/Unstage specific lines.
 
 
@@ -77,7 +91,7 @@ Gitnuro does not track data in any way, don't worry.
 
 Gitnuro includes the option to set custom themes in a JSON format. Keep in mind that themes may break with new releases, making the default theme the fallback option.
 
-For the latest stable version (1.0.1), you can use this JSON as an example:
+For the latest stable version (1.1.0), you can use this JSON as an example:
 
 ```
 {
@@ -85,24 +99,25 @@ For the latest stable version (1.0.1), you can use this JSON as an example:
     "primaryVariant": "FF456b00",
     "onPrimary": "FFFFFFFFF",
     "secondary": "FF9c27b0",
-    "primaryText": "FF141f00",
-    "secondaryText": "FF595858",
+    "onBackground": "FF141f00",
+    "onBackgroundSecondary": "FF595858",
     "error": "FFc93838",
     "onError": "FFFFFFFF",
     "background": "FFe7f2d3",
     "backgroundSelected": "C0cee1f2",
     "surface": "FFc5f078",
     "secondarySurface": "FFedeef2",
-    "headerBackground": "FFF4F6FA",
-    "borderColor": "FF989898",
-    "graphHeaderBackground": "FFF4F6FA",
+    "tertiarySurface": "FFF4F6FA",
     "addFile": "FF32A852",
     "deletedFile": "FFc93838",
     "modifiedFile": "FF0070D8",
     "conflictingFile": "FFFFB638",
     "dialogOverlay": "AA000000",
     "normalScrollbar": "FFCCCCCC",
-    "hoverScrollbar": "FF0070D8"
+    "hoverScrollbar": "FF0070D8",
+    "diffLineAdded": "FF0070D8",
+    "diffLineRemoved": "FF0070D8",
+    "isLight": true
 }
 ```
 
