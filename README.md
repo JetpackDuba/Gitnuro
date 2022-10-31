@@ -10,7 +10,7 @@ The main goal of Gitnuro is to provide a multiplatform open source Git client wi
 ## Download/Install
 
 Linux:
-- Available as Flatpak here or by running `flatpak install --user com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup.
+- Available as Flatpak [here](https://beta.flathub.org/apps/details/com.jetpackduba.Gitnuro) or by running `flatpak install --user com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup.
 - JAR file can be executed as a portable version (Requires JRE 17).
 
 Windows:
