@@ -33,7 +33,6 @@ fun AppTheme(
     )
 }
 
-@get:Composable
 val Colors.backgroundSelected: Color
     get() = appTheme.backgroundSelected
 
