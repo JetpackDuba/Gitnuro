@@ -58,6 +58,26 @@ fun RepositoriesTabPanel(
         }
     }
 
+    val canBeScrolled by remember {
+        derivedStateOf {
+            val layoutInfo = stateHorizontal.layoutInfo
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            if (layoutInfo.totalItemsCount == 0) {
+                false
+            } else {
+                val firstVisibleItem = visibleItemsInfo.first()
+                val lastVisibleItem = visibleItemsInfo.last()
+
+                val viewportHeight = layoutInfo.viewportEndOffset + layoutInfo.viewportStartOffset
+
+                !(firstVisibleItem.index == 0 &&
+                        firstVisibleItem.offset == 0 &&
+                        lastVisibleItem.index + 1 == layoutInfo.totalItemsCount &&
+                        lastVisibleItem.offset + lastVisibleItem.size <= viewportHeight)
+            }
+        }
+    }
+
 
     Row {
         Box(
@@ -99,15 +119,17 @@ fun RepositoriesTabPanel(
                 }
             }
 
-            Tooltip(
-                "\"Shift + Mouse wheel\" to scroll"
-            ) {
-                HorizontalScrollbar(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .width((tabs.count() * 180).dp),
-                    adapter = rememberScrollbarAdapter(stateHorizontal)
-                )
+            if (canBeScrolled) {
+                Tooltip(
+                    "\"Shift + Mouse wheel\" to scroll"
+                ) {
+                    HorizontalScrollbar(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .width((tabs.count() * 180).dp),
+                        adapter = rememberScrollbarAdapter(stateHorizontal)
+                    )
+                }
             }
         }
 
