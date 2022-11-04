@@ -112,8 +112,9 @@ class GraphCommitList : RevCommitList<GraphNode>() {
                     lengthOfReservedLane = length
                 }
             } else {
+                val children = currCommit.children.sortedBy { it.lane.position }
                 for (i in 0 until nChildren) {
-                    val c: GraphNode = currCommit.children[i]
+                    val c: GraphNode = children[i]
                     if (c.getGraphParent(0) === currCommit) {
                         if (c.lane.position < 0)
                             println("c.lane.position is invalid (${c.lane.position})")
@@ -126,6 +127,8 @@ class GraphCommitList : RevCommitList<GraphNode>() {
                             reservedLane = c.lane
                             childOnReservedLane = c
                             lengthOfReservedLane = length
+
+                            break
                         }
                     }
                 }
