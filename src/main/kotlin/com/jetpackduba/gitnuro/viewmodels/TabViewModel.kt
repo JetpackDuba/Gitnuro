@@ -22,6 +22,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
@@ -415,7 +416,7 @@ class TabViewModel @Inject constructor(
 
     fun createBranch(branchName: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        refreshEvenIfCrashes = true,
+        refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
     ) { git ->
         createBranchUseCase(git, branchName)
     }

@@ -55,10 +55,12 @@ class TabState @Inject constructor(
         showError: Boolean = true,
         refreshType: RefreshType,
         refreshEvenIfCrashes: Boolean = false,
+        refreshEvenIfCrashesInteractive: ((Exception) -> Boolean)? = null,
         callback: suspend (git: Git) -> Unit
     ) =
         scope.launch(Dispatchers.IO) {
             var hasProcessFailed = false
+            var refreshEvenIfCrashesInteractiveResult = false
             operationRunning = true
 
             try {
@@ -74,13 +76,15 @@ class TabState @Inject constructor(
                 hasProcessFailed = true
                 ex.printStackTrace()
 
+                refreshEvenIfCrashesInteractiveResult = refreshEvenIfCrashesInteractive?.invoke(ex) ?: false
+
                 if (showError)
                     errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
             } finally {
                 _processing.value = false
                 operationRunning = false
 
-                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes)) {
+                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes || refreshEvenIfCrashesInteractiveResult)) {
                     _refreshData.emit(refreshType)
                 }
             }
