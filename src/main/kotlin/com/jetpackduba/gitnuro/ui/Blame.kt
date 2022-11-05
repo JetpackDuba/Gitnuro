@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.notoSansMonoFontFamily
 import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -115,7 +116,7 @@ fun Blame(
                             text = line + blameResult.resultContents.lineDelimiter,
                             color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                            fontFamily = FontFamily.Monospace,
+                            fontFamily = notoSansMonoFontFamily,
                             maxLines = 1,
                         )
                     }
@@ -137,7 +138,7 @@ private fun LineNumber(line: Int, highestLineLength: Int) {
         Text(
             text = line.toStringWithSpaces(highestLineLength),
             color = MaterialTheme.colors.onBackground,
-            fontFamily = FontFamily.Monospace,
+            fontFamily = notoSansMonoFontFamily,
         )
     }
 }

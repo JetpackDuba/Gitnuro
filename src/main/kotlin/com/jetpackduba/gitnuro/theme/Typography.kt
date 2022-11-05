@@ -22,6 +22,17 @@ val openSansFontFamily = FontFamily(
     Font("fonts/OpenSans/OpenSans-BoldItalic.ttf", FontWeight.Bold, FontStyle.Italic),
 )
 
+val notoSansMonoFontFamily = FontFamily(
+    Font("fonts/NotoSansMono/NotoSansMono-Regular.ttf", FontWeight.Normal, FontStyle.Normal),
+    Font("fonts/NotoSansMono/NotoSansMono-Italic.ttf", FontWeight.Normal, FontStyle.Italic),
+    Font("fonts/NotoSansMono/NotoSansMono-Medium.ttf", FontWeight.Medium, FontStyle.Normal),
+    Font("fonts/NotoSansMono/NotoSansMono-MediumItalic.ttf", FontWeight.Medium, FontStyle.Italic),
+    Font("fonts/NotoSansMono/NotoSansMono-SemiBold.ttf", FontWeight.SemiBold, FontStyle.Normal),
+    Font("fonts/NotoSansMono/NotoSansMono-SemiBoldItalic.ttf", FontWeight.SemiBold, FontStyle.Italic),
+    Font("fonts/NotoSansMono/NotoSansMono-Bold.ttf", FontWeight.Bold, FontStyle.Normal),
+    Font("fonts/NotoSansMono/NotoSansMono-BoldItalic.ttf", FontWeight.Bold, FontStyle.Italic),
+)
+
 const val LETTER_SPACING = 0.5
 
 @Composable
