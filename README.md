@@ -18,7 +18,7 @@ Windows:
 
 MacOS:
 - [ZIP which contains the app bundle](https://github.com/JetpackDuba/Gitnuro/releases/latest).
-- Using hombrew: brew install jetpackduba/apps/gitnuro
+- Using hombrew: `brew install jetpackduba/apps/gitnuro`
 
 
 ## Features
@@ -136,3 +136,19 @@ Currently there are some limitations regarding this topic. Here are some known p
 - Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19).
 
 If the authentication fails and you think its due to a different reason, please open a new issue.
+
+
+> Does it support Git credentials manager (aka manager-core)?
+Yes but it requires specifying the full path of the binary in your `.gitconfig`.
+
+Example for linux: 
+```
+[credential]
+   helper = /usr/share/git-credential-manager-core/git-credential-manager-core
+```
+
+Example for windows (you may want to edit `C:\Program Files\mingw64\etc\gitconfig`): 
+```
+[credential]
+   helper = C:/Program Files/Git/mingw64/bin/git-credential-manager-core.exe
+```
