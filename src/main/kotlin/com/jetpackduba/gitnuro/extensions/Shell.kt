@@ -28,7 +28,7 @@ fun runCommand(command: String): String? {
 fun runCommandWithoutResult(command: String, args: String, file: String): Boolean {
     val parts: Array<String> = prepareCommand(command, args, file)
 
-    printLog(TAG, "Running command $parts")
+    printLog(TAG, "Running command ${parts.joinToString( )}")
 
     return try {
         val p = Runtime.getRuntime().exec(parts) ?: return false

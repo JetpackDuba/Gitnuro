@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.git
 
 import com.jetpackduba.gitnuro.TempFilesManager
-import com.jetpackduba.gitnuro.extensions.systemSeparator
+import com.jetpackduba.gitnuro.extensions.fileName
 import org.eclipse.jgit.diff.ContentSource
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawText
@@ -11,15 +11,20 @@ import org.eclipse.jgit.storage.pack.PackConfig
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.WorkingTreeIterator
 import org.eclipse.jgit.util.LfsFactory
+import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import javax.inject.Inject
-import kotlin.io.path.createTempFile
 
 
 private const val DEFAULT_BINARY_FILE_THRESHOLD = PackConfig.DEFAULT_BIG_FILE_THRESHOLD
 private const val IMAGE_CONTENT_TYPE = "image/"
+
+/**
+ * Max of chars that a file name can have. Used to avoid issues with OS chars limit in file names.
+ */
+private const val FILE_NAME_MAX_LENGTH = 250
 
 val animatedImages = arrayOf(
     "image/gif",
@@ -76,17 +81,21 @@ class RawFileManager @Inject constructor(
         entry: DiffEntry,
         side: DiffEntry.Side
     ): EntryContent.ImageBinary {
-        val tempDir = tempFilesManager.tempDir
+        val tempDir = tempFilesManager.tempDir()
 
-        val tempFile = createTempFile(tempDir, prefix = "${entry.newPath.replace(systemSeparator, "_")}_${side.name}")
-        tempFile.toFile().deleteOnExit()
+        val prefix = "${entry.getId(side).name().take(20)}_${side.name}_"
+        val tempFileName = prefix + entry.fileName.take(FILE_NAME_MAX_LENGTH - prefix.length)
 
-        val out = FileOutputStream(tempFile.toFile())
+        val tempFile = File(tempDir, tempFileName)
+
+        tempFile.deleteOnExit()
+
+        val out = FileOutputStream(tempFile)
         out.use {
             ldr.copyTo(out)
         }
 
-        return EntryContent.ImageBinary(tempFile, Files.probeContentType(Path.of(entry.newPath)).orEmpty())
+        return EntryContent.ImageBinary(tempFile.absolutePath, Files.probeContentType(Path.of(entry.newPath)).orEmpty())
     }
 
     private fun isImage(entry: DiffEntry): Boolean {
@@ -102,7 +111,7 @@ sealed class EntryContent {
     object InvalidObjectBlob : EntryContent()
     data class Text(val rawText: RawText) : EntryContent()
     sealed class BinaryContent : EntryContent()
-    data class ImageBinary(val tempFilePath: Path, val contentType: String) : BinaryContent()
+    data class ImageBinary(val imagePath: String, val contentType: String) : BinaryContent()
     object Binary : BinaryContent()
     object TooLargeEntry : EntryContent()
 }

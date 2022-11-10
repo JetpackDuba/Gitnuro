@@ -1,20 +1,23 @@
 package com.jetpackduba.gitnuro
 
 import com.jetpackduba.gitnuro.di.TabScope
+import com.jetpackduba.gitnuro.extensions.openDirectory
+import java.io.File
+import java.nio.file.Files
 import javax.inject.Inject
-import kotlin.io.path.createTempDirectory
-import kotlin.io.path.deleteIfExists
 
 @TabScope
-class TempFilesManager @Inject constructor() {
-    val tempDir by lazy {
-        val tempDirPath = createTempDirectory("gitnuro_")
-        tempDirPath.toFile().deleteOnExit()
+class TempFilesManager @Inject constructor(
+    private val appFilesManager: AppFilesManager,
+) {
+    fun tempDir(): File {
+        val appDataDir = appFilesManager.getAppFolder()
+        val tempDir = appDataDir.openDirectory("tmp")
 
-        tempDirPath
-    }
+        if(!tempDir.exists() || !tempDir.isDirectory) {
+            tempDir.mkdir()
+        }
 
-    fun removeTempDir() {
-        tempDir.deleteIfExists()
+        return tempDir
     }
 }

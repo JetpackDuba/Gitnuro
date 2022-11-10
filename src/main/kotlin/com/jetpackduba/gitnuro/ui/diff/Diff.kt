@@ -27,7 +27,6 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -58,8 +57,6 @@ import org.jetbrains.compose.animatedimage.animate
 import org.jetbrains.compose.animatedimage.loadAnimatedImage
 import org.jetbrains.compose.resources.loadOrNull
 import java.io.FileInputStream
-import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 import kotlin.math.max
 
 private const val MAX_MOVES_COUNT = 5
@@ -253,7 +250,7 @@ fun SideTitle(text: String) {
 fun SideDiff(entryContent: EntryContent) {
     when (entryContent) {
         EntryContent.Binary -> BinaryDiff()
-        is EntryContent.ImageBinary -> ImageDiff(entryContent.tempFilePath, entryContent.contentType)
+        is EntryContent.ImageBinary -> ImageDiff(entryContent.imagePath, entryContent.contentType)
         else -> {
         }
 //        is EntryContent.Text -> //TODO maybe have a text view if the file was a binary before?
@@ -262,9 +259,7 @@ fun SideDiff(entryContent: EntryContent) {
 }
 
 @Composable
-private fun ImageDiff(tempImagePath: Path, contentType: String) {
-    val imagePath = tempImagePath.absolutePathString()
-
+private fun ImageDiff(imagePath: String, contentType: String) {
     if (animatedImages.contains(contentType)) {
         AnimatedImage(imagePath)
     } else {
@@ -305,13 +300,13 @@ private fun StaticImage(tempImagePath: String) {
 }
 
 @Composable
-private fun AnimatedImage(tempImagePath: String) {
+private fun AnimatedImage(iamgePath: String) {
     Image(
-        bitmap = loadOrNull(tempImagePath) { loadAnimatedImage(tempImagePath) }?.animate() ?: ImageBitmap.Blank,
+        bitmap = loadOrNull(iamgePath) { loadAnimatedImage(iamgePath) }?.animate() ?: ImageBitmap.Blank,
         contentDescription = null,
         modifier = Modifier.fillMaxSize()
             .handMouseClickable {
-                openFileWithExternalApp(tempImagePath)
+                openFileWithExternalApp(iamgePath)
             }
     )
 }
