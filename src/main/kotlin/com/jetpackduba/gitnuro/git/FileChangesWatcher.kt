@@ -56,17 +56,6 @@ class FileChangesWatcher @Inject constructor() {
 
             val dir = keys[key] ?: return@withContext
 
-            if (events.count() == 1) {
-                val fileChanged = events.first().context().toString()
-                val fullPathOfFileChanged = "$pathStr$systemSeparator.git$systemSeparator$fileChanged"
-
-                // Ignore COMMIT_EDITMSG changes
-                if (isGitMessageFile(pathStr, fullPathOfFileChanged)) {
-                    printLog(TAG, "Ignored changes in $fullPathOfFileChanged")
-                    return@withContext
-                }
-            }
-
             _changesNotifier.emit(false)
 
             // Check if new directories have been added to add them to the watchService
@@ -96,11 +85,5 @@ class FileChangesWatcher @Inject constructor() {
 
     private fun isGitDir(dir: Path, pathStr: String): Boolean {
         return dir.startsWith("$pathStr$systemSeparator.git$systemSeparator")
-    }
-
-    private fun isGitMessageFile(repoPath: String, fullPathOfFileChanged: String): Boolean {
-        val gitDir = "$repoPath$systemSeparator.git$systemSeparator"
-        return fullPathOfFileChanged == "${gitDir}COMMIT_EDITMSG" ||
-                fullPathOfFileChanged == "${gitDir}MERGE_MSG"
     }
 }
