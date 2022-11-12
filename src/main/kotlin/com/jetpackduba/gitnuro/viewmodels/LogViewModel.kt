@@ -101,12 +101,12 @@ class LogViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            appSettings.commitsLimitEnabledFlow.drop(1).collect {
+            appSettings.commitsLimitEnabledFlow.drop(1).collectLatest {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
         tabScope.launch {
-            appSettings.commitsLimitFlow.collect {
+            appSettings.commitsLimitFlow.collectLatest {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }

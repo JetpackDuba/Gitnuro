@@ -14,8 +14,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyShortcut
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -37,12 +35,10 @@ import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
-import com.jetpackduba.gitnuro.ui.context_menu.Separator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import androidx.compose.ui.window.MenuBar
 
 private const val TAG = "App"
 
@@ -171,7 +167,7 @@ class App {
         }
     }
 
-    private fun removeTab(key: Int) = appStateManager.appStateScope.launch(Dispatchers.IO) {
+    private fun removeTab(key: Int) = appStateManager.appScope.launch(Dispatchers.IO) {
         // Stop any running jobs
         val tabs = tabsFlow.value
         val tabToRemove = tabs.firstOrNull { it.key == key } ?: return@launch
@@ -184,7 +180,7 @@ class App {
         tabsFlow.value = tabsFlow.value.filter { tab -> tab.key != key }
     }
 
-    fun addTab(tabInformation: TabInformation) = appStateManager.appStateScope.launch(Dispatchers.IO) {
+    fun addTab(tabInformation: TabInformation) = appStateManager.appScope.launch(Dispatchers.IO) {
         tabsFlow.value = tabsFlow.value.toMutableList().apply { add(tabInformation) }
     }
 

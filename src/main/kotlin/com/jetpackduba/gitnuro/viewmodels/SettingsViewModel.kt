@@ -1,19 +1,22 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.Theme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class SettingsViewModel @Inject constructor(
-    val appSettings: AppSettings,
+    private val appSettings: AppSettings,
+    @AppCoroutineScope private val appScope: CoroutineScope,
 ) {
     // Temporary values to detect changed variables
     var commitsLimit: Int = -1
 
     val themeState = appSettings.themeState
-    val customThemeFlow = appSettings.customThemeFlow
     val ffMergeFlow = appSettings.ffMergeFlow
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
 
@@ -50,11 +53,11 @@ class SettingsViewModel @Inject constructor(
         commitsLimit = appSettings.commitsLimit
     }
 
-    fun savePendingChanges() {
-        val commitsLimit = this.commitsLimit
+    fun savePendingChanges() = appScope.launch {
+        val commitsLimit = this@SettingsViewModel.commitsLimit
 
         if (appSettings.commitsLimit != commitsLimit) {
-            appSettings.commitsLimit = commitsLimit
+            appSettings.setCommitsLimit(commitsLimit)
         }
     }
 }

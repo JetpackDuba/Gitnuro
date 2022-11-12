@@ -117,14 +117,15 @@ class AppSettings @Inject constructor() {
             _ffMergeFlow.value = value
         }
 
-    var commitsLimit: Int
+    val commitsLimit: Int
         get() {
             return preferences.getInt(PREF_COMMITS_LIMIT, DEFAULT_COMMITS_LIMIT)
         }
-        set(value) {
-            preferences.putInt(PREF_COMMITS_LIMIT, value)
-            _commitsLimitFlow.tryEmit(value)
-        }
+
+    suspend fun setCommitsLimit(value: Int) {
+        preferences.putInt(PREF_COMMITS_LIMIT, value)
+        _commitsLimitFlow.emit(value)
+    }
 
     var windowPlacement: WindowsPlacementPreference
         get() {

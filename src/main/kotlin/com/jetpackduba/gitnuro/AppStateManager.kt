@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro
 
+import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -12,6 +13,7 @@ import javax.inject.Singleton
 @Singleton
 class AppStateManager @Inject constructor(
     private val appSettings: AppSettings,
+    @AppCoroutineScope val appScope: CoroutineScope,
 ) {
     private val mutex = Mutex()
 
@@ -23,12 +25,10 @@ class AppStateManager @Inject constructor(
     val latestOpenedRepositoriesPaths: List<String>
         get() = _latestOpenedRepositoriesPaths
 
-    val appStateScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     val latestOpenedRepositoryPath: String
         get() = _latestOpenedRepositoriesPaths.firstOrNull() ?: ""
 
-    fun repositoryTabChanged(key: Int, path: String) = appStateScope.launch(Dispatchers.IO) {
+    fun repositoryTabChanged(key: Int, path: String) = appScope.launch(Dispatchers.IO) {
         mutex.lock()
         try {
             // Do not save already saved repos
@@ -51,7 +51,7 @@ class AppStateManager @Inject constructor(
         }
     }
 
-    fun repositoryTabRemoved(key: Int) = appStateScope.launch(Dispatchers.IO) {
+    fun repositoryTabRemoved(key: Int) = appScope.launch(Dispatchers.IO) {
         _openRepositoriesPaths.remove(key)
 
         updateSavedRepositoryTabs()
@@ -85,6 +85,6 @@ class AppStateManager @Inject constructor(
     }
 
     fun cancelCoroutines() {
-        appStateScope.cancel("Closing com.jetpackduba.gitnuro.app")
+        appScope.cancel("Closing com.jetpackduba.gitnuro.app")
     }
 }
