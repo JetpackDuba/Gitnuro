@@ -199,7 +199,7 @@ fun Log(
                 DividerLog(
                     modifier = Modifier.draggable(
                         rememberDraggableState {
-                            graphPadding += it * density
+                            graphPadding += it / density
                             logViewModel.graphPadding = graphPadding
                         }, Orientation.Horizontal
                     ),
