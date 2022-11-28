@@ -134,6 +134,7 @@ Currently there are some limitations regarding this topic. Here are some known p
 - Configurations added to .ssh/config
 - Non-default ssh dir path.
 - Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19).
+- Self signed server certificate (https://github.com/JetpackDuba/Gitnuro/issues/48)
 
 If the authentication fails and you think its due to a different reason, please open a new issue.
 
