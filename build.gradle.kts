@@ -7,7 +7,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
     kotlin("kapt") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
-    id("org.jetbrains.compose") version "1.2.1"
+    id("org.jetbrains.compose") version "1.3.0-rc01"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
@@ -29,11 +29,11 @@ dependencies {
     implementation(compose.desktop.components.splitPane)
     implementation(compose("org.jetbrains.compose.ui:ui-util"))
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.3.0.202209071007-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r")
     implementation("org.apache.sshd:sshd-core:2.9.0")
-    implementation("com.google.dagger:dagger:2.44")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
-    kapt("com.google.dagger:dagger-compiler:2.44")
+    implementation("com.google.dagger:dagger:2.44.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    kapt("com.google.dagger:dagger-compiler:2.44.2")
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
     testImplementation("io.mockk:mockk:1.13.2")
