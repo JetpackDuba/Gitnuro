@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.extensions.getCurrentOs
 import com.jetpackduba.gitnuro.extensions.runCommand
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import java.awt.FileDialog
 import javax.swing.JFileChooser
 import javax.swing.UIManager
 
@@ -38,11 +39,12 @@ private fun openPickerDialog(
 ): String? {
     val os = getCurrentOs()
     val isLinux = os.isLinux()
+    val isMac = os.isMac()
 
     return if (isLinux) {
         openDirectoryDialogLinux(pickerType)
     } else
-        openJvmDialog(pickerType, basePath, false)
+        openJvmDialog(pickerType, basePath, false, isMac)
 }
 
 enum class PickerType(val value: Int) {
@@ -72,7 +74,7 @@ fun openDirectoryDialogLinux(pickerType: PickerType): String? {
         if (!openDirectory.isNullOrEmpty())
             dirToOpen = openDirectory
     } else
-        dirToOpen = openJvmDialog(pickerType, "", true)
+        dirToOpen = openJvmDialog(pickerType, "", isLinux = true, isMac = false)
 
     return dirToOpen
 }
@@ -81,21 +83,39 @@ private fun openJvmDialog(
     pickerType: PickerType,
     basePath: String?,
     isLinux: Boolean,
+    isMac: Boolean
 ): String? {
     if (!isLinux) {
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
     }
 
-    val fileChooser = if (basePath.isNullOrEmpty())
-        JFileChooser()
-    else
+    if(isMac) {
+        System.setProperty("apple.awt.fileDialogForDirectories", "true")
+        val fileChooser = if (basePath.isNullOrEmpty())
+            FileDialog(null as java.awt.Frame?, "Open", FileDialog.LOAD)
+        else
+            FileDialog(null as java.awt.Frame?, "Open", FileDialog.LOAD).apply {
+                directory = basePath
+            }
+        fileChooser.isMultipleMode = false
+        fileChooser.isVisible = true
+        System.setProperty("apple.awt.fileDialogForDirectories", "false")
+
+        if (fileChooser.file != null && fileChooser.directory != null) {
+            return fileChooser.directory + fileChooser.file
+        }
+
+        return null
+    } else {
+        val fileChooser = if (basePath.isNullOrEmpty())
+            JFileChooser()
+        else
         JFileChooser(basePath)
-
-    fileChooser.fileSelectionMode = pickerType.value
-    fileChooser.showOpenDialog(null)
-
-    return if (fileChooser.selectedFile != null)
-        fileChooser.selectedFile.absolutePath
-    else
-        null
+        fileChooser.fileSelectionMode = pickerType.value
+        fileChooser.showOpenDialog(null)
+        return if (fileChooser.selectedFile != null)
+            fileChooser.selectedFile.absolutePath
+        else
+            null
+    }
 }
