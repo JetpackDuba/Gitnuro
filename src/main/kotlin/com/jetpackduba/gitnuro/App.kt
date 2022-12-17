@@ -25,6 +25,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
+import com.jetpackduba.gitnuro.extensions.systemSeparator
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.preferences.AppSettings
@@ -37,7 +38,10 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
+import java.nio.file.Paths
 import javax.inject.Inject
 
 private const val TAG = "App"
@@ -59,8 +63,10 @@ class App {
 
     private val tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
 
-    fun start() {
+    fun start(args: Array<String>) {
         val windowPlacement = appSettings.windowPlacement.toWindowPlacement
+        val dirToOpen = getDirToOpen(args)
+        var defaultSelectedTabKey = 0
 
         appStateManager.loadRepositoriesTabs()
 
@@ -74,6 +80,9 @@ class App {
         }
 
         loadTabs()
+
+        if (dirToOpen != null)
+            defaultSelectedTabKey = addDirTab(dirToOpen)
 
         application {
             var isOpen by remember { mutableStateOf(true) }
@@ -109,7 +118,7 @@ class App {
                             customTheme = customTheme,
                         ) {
                             Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-                                AppTabs()
+                                AppTabs(defaultSelectedTabKey)
                             }
                         }
                     }
@@ -120,6 +129,31 @@ class App {
             }
 
         }
+    }
+
+    private fun addDirTab(dirToOpen: File): Int {
+        var defaultSelectedTabKey = 0
+
+        tabsFlow.update {
+            val newList = it.toMutableList()
+            val absolutePath = dirToOpen.normalize().absolutePath
+                .removeSuffix(systemSeparator)
+                .removeSuffix("$systemSeparator.git")
+            val newKey = it.count()
+
+            val existingIndex = newList.indexOfFirst { repo -> repo.path?.removeSuffix(systemSeparator) == absolutePath }
+
+            defaultSelectedTabKey = if(existingIndex == -1) {
+                newList.add(newAppTab(key = newKey, path = absolutePath))
+                newKey
+            } else {
+                existingIndex
+            }
+
+            newList
+        }
+
+        return defaultSelectedTabKey
     }
 
     private fun loadTabs() {
@@ -144,10 +178,10 @@ class App {
 
 
     @Composable
-    fun AppTabs() {
+    fun AppTabs(defaultSelectedTabKey: Int) {
         val tabs by tabsFlow.collectAsState()
         val tabsInformationList = tabs.sortedBy { it.key }
-        val selectedTabKey = remember { mutableStateOf(0) }
+        val selectedTabKey = remember { mutableStateOf(defaultSelectedTabKey) }
 
         Column(
             modifier = Modifier.background(MaterialTheme.colors.background)
@@ -227,6 +261,25 @@ class App {
             path = path,
             appComponent = appComponent,
         )
+    }
+
+    fun getDirToOpen(args: Array<String>): File? {
+        if (args.isNotEmpty()) {
+            val repoToOpen = args.first()
+            val path = Paths.get(repoToOpen)
+
+            val repoDir = if (!path.isAbsolute)
+                File(System.getProperty("user.dir"), repoToOpen)
+            else
+                path.toFile()
+
+            return if (repoDir.isDirectory)
+                repoDir
+            else
+                null
+        }
+
+        return null
     }
 }
 

@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro
 
-fun main() {
-    val main = App()
-    main.start()
+fun main(args: Array<String>) {
+    val app = App()
+    app.start(args)
 }
