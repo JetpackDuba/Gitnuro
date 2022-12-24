@@ -1,25 +1,19 @@
-package com.jetpackduba.gitnuro.credentials.streams
+package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import com.jetpackduba.gitnuro.credentials.sshLib
-import com.jetpackduba.gitnuro.credentials.ssh_channel
+import com.jetpackduba.gitnuro.ssh.libssh.SSHLibrary
+import com.jetpackduba.gitnuro.ssh.libssh.ssh_channel
 import java.io.InputStream
 
 
-class LibSshInputStream(private val sshChannel: ssh_channel) : InputStream() {
-    private var calls = 0
+class LibSshChannelInputStream(private val sshChannel: ssh_channel) : InputStream() {
+    private val sshLib = SSHLibrary.INSTANCE
 
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        calls++
-
-        println("Read started, call $calls for len of $len with offset $off")
-
         val byteArray = ByteArray(len)
         val result = sshLib.ssh_channel_read(sshChannel, byteArray, len, 0)
         for(i in 0 until len) {
             b[off + i] = byteArray[i]
         }
-
-        println("Read ended ${byteArray.map { it.toInt() }}")
 
         return result
     }

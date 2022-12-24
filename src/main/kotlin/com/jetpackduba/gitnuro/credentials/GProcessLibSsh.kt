@@ -1,24 +1,21 @@
 package com.jetpackduba.gitnuro.credentials
 
-import com.jetpackduba.gitnuro.credentials.streams.LibSshInputErrStream
-import com.jetpackduba.gitnuro.credentials.streams.LibSshInputStream
-import com.jetpackduba.gitnuro.credentials.streams.LibSshOutputStream
-import com.jetpackduba.gitnuro.credentials.streams.checkValidResult
+import com.jetpackduba.gitnuro.ssh.libssh.*
 import java.io.InputStream
 import java.io.OutputStream
 
 class GProcessLibSsh : Process() {
-    private lateinit var channel: ssh_channel
-    private lateinit var session: ssh_session
+    private lateinit var channel: LibSshChannel
+    private lateinit var session: LibSshSession
 
     private val outputStream by lazy {
-        LibSshOutputStream(channel)
+        channel.outputStream
     }
     private val inputStream by lazy {
-        LibSshInputStream(channel)
+        channel.inputStream
     }
     private val errorOutputStream by lazy {
-        LibSshInputErrStream(channel)
+        channel.errorOutputStream
     }
 
     override fun getOutputStream(): OutputStream {
@@ -44,27 +41,27 @@ class GProcessLibSsh : Process() {
         check(!isRunning())
         println("exitValue called")
 
-        return sshLib.ssh_channel_close(channel)
+        return channel.close()
     }
 
     override fun destroy() {
-        if (sshLib.ssh_channel_is_open(channel) == 1) {
-            checkValidResult(sshLib.ssh_channel_close(channel))
+        if (channel.isOpen()) {
+            channel.close()
         }
 
-        sshLib.ssh_disconnect(session)
+        session.disconnect()
         println("Destroy called")
     }
 
     private fun isRunning(): Boolean {
-        return sshLib.ssh_channel_is_open(channel) == 1
+        return channel.isOpen()
     }
 
-    fun setup(session: ssh_session, commandName: String) {
-        val channel = sshLib.ssh_channel_new(session)
+    fun setup(session: LibSshSession, commandName: String) {
+        val channel = session.createChannel()
 
-        checkValidResult(sshLib.ssh_channel_open_session(channel))
-        checkValidResult(sshLib.ssh_channel_request_exec(channel, commandName))
+        channel.openSession()
+        channel.requestExec(commandName)
 
         this.session = session
         this.channel = channel

@@ -1,11 +1,12 @@
-package com.jetpackduba.gitnuro.credentials.streams
+package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import com.jetpackduba.gitnuro.credentials.sshLib
-import com.jetpackduba.gitnuro.credentials.ssh_channel
+import com.jetpackduba.gitnuro.ssh.libssh.SSHLibrary
+import com.jetpackduba.gitnuro.ssh.libssh.ssh_channel
 import java.io.OutputStream
-import java.nio.ByteBuffer
 
-class LibSshOutputStream(private val sshChannel: ssh_channel) : OutputStream() {
+class LibSshChannelOutputStream(private val sshChannel: ssh_channel) : OutputStream() {
+    private val sshLib = SSHLibrary.INSTANCE
+
     override fun write(b: Int) {
         println("write int")
 

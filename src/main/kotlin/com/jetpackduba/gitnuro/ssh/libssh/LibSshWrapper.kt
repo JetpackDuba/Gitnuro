@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.credentials
+package com.jetpackduba.gitnuro.ssh.libssh
 
 import com.sun.jna.Library
 import com.sun.jna.Native
@@ -7,6 +7,7 @@ import com.sun.jna.PointerType
 class ssh_session : PointerType()
 class ssh_channel : PointerType()
 
+@Suppress("FunctionName")
 interface SSHLibrary : Library {
     fun ssh_new(): ssh_session
     fun ssh_disconnect(session: ssh_session): ssh_session
@@ -43,5 +44,3 @@ interface SSHLibrary : Library {
         ) as SSHLibrary
     }
 }
-
-val sshLib = SSHLibrary.INSTANCE
