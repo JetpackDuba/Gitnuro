@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -577,7 +578,8 @@ private fun FileEntry(
 
     Box(
         modifier = Modifier
-            .handMouseClickable { onClick() }
+            .handOnHover()
+            .combinedClickable(onClick = onClick, onDoubleClick = onButtonClick)
             .fillMaxWidth()
             .hoverable(hoverInteraction)
     ) {
