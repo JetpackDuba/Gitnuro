@@ -12,10 +12,14 @@ interface SSHLibrary : Library {
     fun ssh_new(): ssh_session
     fun ssh_disconnect(session: ssh_session): ssh_session
     fun ssh_options_set(session: ssh_session, enumValue: Int, value: String)
+
+    fun ssh_options_parse_config(session: ssh_session, fileName: String?): Int
+
     fun ssh_connect(session: ssh_session) : Int
 
-    fun ssh_userauth_password(session: ssh_session, username: String, password: String): Int
+    fun ssh_userauth_agent(session: ssh_session, username: String?): Int
     fun ssh_userauth_publickey_auto(session: ssh_session, username: String?, password: String?): Int
+    fun ssh_get_error(session: ssh_session): String
 
     fun ssh_channel_new(sshSession: ssh_session): ssh_channel
 

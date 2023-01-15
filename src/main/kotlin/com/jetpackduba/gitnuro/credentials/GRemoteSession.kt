@@ -40,8 +40,30 @@ class GRemoteSession @Inject constructor(
     fun setup(uri: URIish) {
         val session = processSession.get()
         session.setOptions(LibSshOptions.SSH_OPTIONS_HOST, uri.host)
+        session.setOptions(LibSshOptions.SSH_OPTIONS_USER, uri.user)
+        session.loadOptionsFromConfig()
+
         session.connect()
-        session.userAuthPublicKeyAuto(uri.user, null)
+        var result = session.userAuthPublicKeyAuto(null, null)
+
+        if(result == 1) {
+            credentialsStateManager.updateState(CredentialsState.SshCredentialsRequested)
+
+            var credentials = credentialsStateManager.currentCredentialsState
+            while (credentials is CredentialsState.CredentialsRequested) {
+                credentials = credentialsStateManager.currentCredentialsState
+            }
+
+            val password = if (credentials !is CredentialsState.SshCredentialsAccepted)
+                null
+            else
+                credentials.password
+
+            result = session.userAuthPublicKeyAuto(null, password)
+        }
+
+        if(result != 0)
+            throw Exception("Something went wrong with authentication")
 
         this.session = session
     }

@@ -32,3 +32,10 @@ fun checkValidResult(result: Int) {
     if (result != 0)
         throw Exception("Result is $result")
 }
+
+fun checkValidResult(result: Int, callback: (Int) -> Unit) {
+    if (result != 0) {
+        callback(result)
+        throw Exception("Result is $result")
+    }
+}
