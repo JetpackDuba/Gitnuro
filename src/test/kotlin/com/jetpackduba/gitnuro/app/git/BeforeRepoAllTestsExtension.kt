@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.credentials.*
 import com.jetpackduba.gitnuro.di.factories.HttpCredentialsFactory
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.HandleTransportUseCase
+import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.runBlocking
@@ -36,7 +37,13 @@ class BeforeRepoAllTestsExtension : BeforeAllCallback, AfterAllCallback {
             val cloneRepositoryUseCase =
                 CloneRepositoryUseCase(
                     HandleTransportUseCase(
-                        sessionManager = GSessionManager { GRemoteSession({ GProcess() }, credentialsStateManager) },
+                        sessionManager = GSessionManager {
+                            GRemoteSession(
+                                processProvider = { GProcess() },
+                                credentialsStateManager = credentialsStateManager,
+                                processSession = { LibSshSession() }
+                            )
+                        },
                         httpCredentialsProvider = object : HttpCredentialsFactory {
                             override fun create(git: Git?): HttpCredentialsProvider =
                                 HttpCredentialsProvider(credentialsStateManager, git)
