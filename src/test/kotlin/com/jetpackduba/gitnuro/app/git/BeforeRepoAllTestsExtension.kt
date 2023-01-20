@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.credentials.*
 import com.jetpackduba.gitnuro.di.factories.HttpCredentialsFactory
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.HandleTransportUseCase
+import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.runBlocking
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace.GLOBAL
 import java.io.File
+import javax.inject.Provider
 import kotlin.io.path.createTempDirectory
 
 private const val REPO_URL = "https://github.com/JetpackDuba/Gitnuro_TestsRepo.git"
@@ -33,10 +35,13 @@ class BeforeRepoAllTestsExtension : BeforeAllCallback, AfterAllCallback {
             context.root.getStore(GLOBAL).put("gitnuro_tests", this)
 
             val credentialsStateManager = CredentialsStateManager()
+            val ssh = Provider {
+                LibSshSession()
+            }
             val cloneRepositoryUseCase =
                 CloneRepositoryUseCase(
                     HandleTransportUseCase(
-                        sessionManager = GSessionManager { GRemoteSession({ GProcess() }, credentialsStateManager) },
+                        sessionManager = GSessionManager { GRemoteSession(ssh, credentialsStateManager) },
                         httpCredentialsProvider = object : HttpCredentialsFactory {
                             override fun create(git: Git?): HttpCredentialsProvider =
                                 HttpCredentialsProvider(credentialsStateManager, git)

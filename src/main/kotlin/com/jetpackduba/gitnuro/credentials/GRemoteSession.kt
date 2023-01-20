@@ -13,13 +13,10 @@ import javax.inject.Provider
 private const val DEFAULT_SSH_PORT = 22
 
 class GRemoteSession @Inject constructor(
-    private val processProvider: Provider<GProcess>,
     private val processSession: Provider<LibSshSession>,
     private val credentialsStateManager: CredentialsStateManager,
 ) : RemoteSession {
     private val client = SshClient.setUpDefaultClient()
-
-    private var connectFuture: ConnectFuture? = null
     private var session: LibSshSession? = null
 
     override fun exec(commandName: String, timeout: Int): Process {
