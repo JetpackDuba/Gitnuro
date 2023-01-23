@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.ssh.libssh
 
+import com.jetpackduba.gitnuro.extensions.getCurrentOs
 import com.sun.jna.Library
 import com.sun.jna.Native
 import com.sun.jna.PointerType
@@ -43,7 +44,7 @@ interface SSHLibrary : Library {
 
     companion object {
         val INSTANCE = Native.loadLibrary(
-            "libssh",
+            if (getCurrentOs().isWindows()) "ssh" else "libssh",
             SSHLibrary::class.java
         ) as SSHLibrary
     }
