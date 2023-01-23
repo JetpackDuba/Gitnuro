@@ -5,13 +5,12 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
 
-name: Windows Build
+name: Release Build
 
 on:
   push:
-    branches: [ "main", "actions" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
   contents: read
@@ -24,21 +23,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Check out VCPKG
+    - name: Check out my other private repo
       uses: actions/checkout@master
       with:
         repository: Microsoft/vcpkg
-        path: vcpkg
+    - name: Get vcpkg
+      run: |
+        dir -Force
+        bootstrap-vcpkg.bat
     - name: Install libssh
       run: |
-        mkdir out
-        cd vcpkg
         ls -a
-        pwd
-        bash bootstrap-vcpkg.sh
-        ./vcpkg.exe install libssh:x64-windows
-        cp installed/x64-windows/bin/* ../out
-        cd ..
+        ./vcpkg.exe install libssh
       shell: bash
     - name: Set up JDK 17
       uses: actions/setup-java@v3
@@ -49,16 +45,4 @@ jobs:
     - name: Build with Gradle
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
-        arguments: createDistributable
-    - name: Copy gitnuro binaries
-      run: |
-        cp -r build/compose/binaries/main/app/Gitnuro/* out/
-      shell: bash
-    - name: Copy all binaries
-      run: |
-        Compress-Archive out/* Gitnuro-Windows-Portable.zip
-    - name: upload windows artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: Gitnuro-Windows-Portable
-        path: Gitnuro-Windows-Portable.zip
+        arguments: build
