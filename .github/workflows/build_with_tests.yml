@@ -1,5 +1,5 @@
 # Workflow to run with every commit added to the main branch.
-# NOTE: LibSSH is not built to avoid wasting CI minutes, as it takes quite some time.
+# Mac-os and LibSSH are not built to avoid wasting CI minutes, as it takes quite some time.
 
 name: Test Build
 
@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: [macos-latest, ubuntu-latest, windows-latest]
+    runs-on: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v3
