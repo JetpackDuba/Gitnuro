@@ -303,6 +303,7 @@ fun MainContentView(
                     modifier = Modifier
                         .weight(1f),
                 ) {
+                    BranchFilter()
                     Branches()
                     Remotes()
                     Tags()

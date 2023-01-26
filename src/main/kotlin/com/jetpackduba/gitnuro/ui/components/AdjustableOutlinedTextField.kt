@@ -7,10 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldColors
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -20,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -46,6 +44,7 @@ fun AdjustableOutlinedTextField(
     shape: Shape = RoundedCornerShape(4.dp),
     backgroundColor: Color = MaterialTheme.colors.background,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    leadingIconResourcePath: String = "",
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -84,19 +83,38 @@ fun AdjustableOutlinedTextField(
                         .padding(horizontal = 12.dp),
                     contentAlignment = Alignment.CenterStart,
                 ) {
-                    innerTextField()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.wrapContentHeight(),
+                    ) {
+                        if (leadingIconResourcePath.isNotEmpty()) {
+                            Icon(
+                                painter = painterResource(leadingIconResourcePath),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(end = 8.dp)
+                                    .size(16.dp),
+                                tint = textColor,
+                            )
+                        }
+
+                        Box(
+                            contentAlignment = Alignment.CenterStart,
+                            modifier = Modifier.wrapContentHeight(),
+                        ) {
+                            innerTextField()
+                            if (value.isEmpty() && hint.isNotEmpty()) {
+                                Text(
+                                    hint,
+                                    style = textStyle.copy(color = MaterialTheme.colors.onBackgroundSecondary)
+                                )
+                            }
+                        }
+                    }
                 }
             }
         )
 
-        if (value.isEmpty() && hint.isNotEmpty()) {
-            Text(
-                hint,
-                color = MaterialTheme.colors.onBackgroundSecondary,
-                modifier = Modifier
-                    .padding(start = 12.dp, top = 12.dp),
-                style = MaterialTheme.typography.body2
-            )
-        }
+
     }
 }

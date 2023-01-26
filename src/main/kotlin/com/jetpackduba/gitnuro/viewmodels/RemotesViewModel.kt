@@ -1,6 +1,9 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.exceptions.InvalidRemoteUrlException
+import com.jetpackduba.gitnuro.extensions.BranchNameContainsFilter
+import com.jetpackduba.gitnuro.extensions.OriginFilter
+import com.jetpackduba.gitnuro.extensions.matchesAll
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.DeleteLocallyRemoteBranchesUseCase
@@ -36,8 +39,7 @@ class RemotesViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES)
-            {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES, RefreshType.BRANCH_FILTER) {
                 refresh(tabState.git)
             }
         }
@@ -51,9 +53,14 @@ class RemotesViewModel @Inject constructor(
         getRemotesUseCase(git, allRemoteBranches)
 
         val remoteInfoList = remotes.map { remoteConfig ->
-            val remoteBranches = allRemoteBranches.filter { branch ->
-                branch.name.startsWith("refs/remotes/${remoteConfig.name}")
-            }
+            val filters = listOf(
+                OriginFilter(remoteName = remoteConfig.name),
+                BranchNameContainsFilter(keyword = tabState.branchFilterKeyword.value)
+            )
+
+            val remoteBranches = allRemoteBranches
+                .filter { it.matchesAll(filters) }
+
             RemoteInfo(remoteConfig, remoteBranches)
         }
 

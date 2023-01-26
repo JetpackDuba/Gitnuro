@@ -24,6 +24,8 @@ class TabState @Inject constructor(
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
     private val _taskEvent = MutableSharedFlow<TaskEvent>()
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent
+    private val _branchFilterKeyword = MutableStateFlow("")
+    val branchFilterKeyword: StateFlow<String> = _branchFilterKeyword
 
     private var unsafeGit: Git? = null
     val git: Git
@@ -160,6 +162,10 @@ class TabState @Inject constructor(
         }
     }
 
+    fun newBranchFilter(keyword: String) = runOperation(refreshType = RefreshType.BRANCH_FILTER) {
+        _branchFilterKeyword.value = keyword
+    }
+
     private fun findCommit(git: Git, objectId: ObjectId): RevCommit {
         return git.repository.parseCommit(objectId)
     }
@@ -202,6 +208,7 @@ enum class RefreshType {
     UNCOMMITED_CHANGES,
     UNCOMMITED_CHANGES_AND_LOG,
     REMOTES,
+    BRANCH_FILTER
 }
 
 enum class Processing {

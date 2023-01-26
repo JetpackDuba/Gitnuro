@@ -63,6 +63,7 @@ class TabViewModel @Inject constructor(
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
     var diffViewModel: DiffViewModel? = null
+    val branchFilterKeyword: StateFlow<String> = tabState.branchFilterKeyword
 
     var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
         private set

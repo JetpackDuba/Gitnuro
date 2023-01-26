@@ -17,6 +17,7 @@ class TabViewModelsHolder @Inject constructor(
     commitChangesViewModel: CommitChangesViewModel,
     cloneViewModel: CloneViewModel,
     settingsViewModel: SettingsViewModel,
+    branchFilterViewModel: BranchFilterViewModel,
     // Dynamic VM
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
@@ -35,6 +36,7 @@ class TabViewModelsHolder @Inject constructor(
         commitChangesViewModel::class to commitChangesViewModel,
         cloneViewModel::class to cloneViewModel,
         settingsViewModel::class to settingsViewModel,
+        branchFilterViewModel::class to branchFilterViewModel,
     )
 
 

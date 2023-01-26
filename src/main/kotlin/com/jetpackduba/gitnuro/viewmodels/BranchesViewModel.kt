@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.extensions.BranchNameContainsFilter
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.*
@@ -41,8 +42,7 @@ class BranchesViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
-            {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.BRANCH_FILTER) {
                 refresh(tabState.git)
             }
         }
@@ -51,7 +51,11 @@ class BranchesViewModel @Inject constructor(
     private suspend fun loadBranches(git: Git) {
         _currentBranch.value = getCurrentBranchUseCase(git)
 
-        val branchesList = getBranchesUseCase(git).toMutableList()
+        val branchNameFilter = BranchNameContainsFilter(keyword = tabState.branchFilterKeyword.value)
+
+        val branchesList = getBranchesUseCase(git)
+            .filter(branchNameFilter)
+            .toMutableList()
 
         // set selected branch as the first one always
         val selectedBranch = branchesList.find { it.name == _currentBranch.value?.name }
