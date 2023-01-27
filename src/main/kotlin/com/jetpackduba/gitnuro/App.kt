@@ -14,6 +14,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -47,6 +49,19 @@ import javax.inject.Inject
 private const val TAG = "App"
 
 val LocalTabScope = compositionLocalOf { emptyTabInformation() }
+val LocalWindowKeyEventKeysScope = compositionLocalOf { WindowEventKeys.Empty }
+
+data class WindowEventKeys(
+    val isCtrlPressed: Boolean,
+    val isShiftPressed: Boolean,
+) {
+    companion object {
+        val Empty = WindowEventKeys(
+            isCtrlPressed = false,
+            isShiftPressed = false,
+        )
+    }
+}
 
 class App {
     private val appComponent = DaggerAppComponent.create()
@@ -97,6 +112,9 @@ class App {
 
             // Save window state for next time the Window is started
             appSettings.windowPlacement = windowState.placement.preferenceValue
+            var eventKeys by remember {
+                mutableStateOf(WindowEventKeys.Empty)
+            }
 
             if (isOpen) {
                 Window(
@@ -106,13 +124,20 @@ class App {
                     },
                     state = windowState,
                     icon = painterResource("logo.svg"),
+                    onKeyEvent = { event ->
+                        eventKeys = WindowEventKeys(
+                            isShiftPressed = event.isShiftPressed,
+                            isCtrlPressed = event.isCtrlPressed,
+                        )
+                        false
+                    }
                 ) {
                     val density = if (scale != -1f) {
                         arrayOf(LocalDensity provides Density(scale, 1f))
                     } else
                         emptyArray()
 
-                    CompositionLocalProvider(values = density) {
+                    CompositionLocalProvider(LocalWindowKeyEventKeysScope provides eventKeys, *density) {
                         AppTheme(
                             selectedTheme = theme,
                             customTheme = customTheme,

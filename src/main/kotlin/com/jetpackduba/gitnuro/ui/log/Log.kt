@@ -26,9 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
@@ -37,6 +35,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.LocalWindowKeyEventKeysScope
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
@@ -48,6 +47,7 @@ import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.containCommit
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
@@ -98,12 +98,6 @@ fun Log(
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
     val showLogDialog by logViewModel.logDialog.collectAsState()
-
-    val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
-        selectedItem.revCommit
-    } else {
-        null
-    }
 
     if (logStatus is LogStatus.Loaded) {
         val hasUncommitedChanges = logStatus.hasUncommitedChanges
@@ -160,7 +154,6 @@ fun Log(
             Box {
                 GraphList(
                     commitList = commitList,
-                    selectedCommit = selectedCommit,
                     selectedItem = selectedItem,
                     repositoryState = repositoryState,
                     horizontalScrollState = horizontalScrollState,
@@ -176,7 +169,6 @@ fun Log(
                     scrollState = verticalScrollState,
                     hasUncommitedChanges = hasUncommitedChanges,
                     searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
-                    selectedCommit = selectedCommit,
                     logStatus = logStatus,
                     repositoryState = repositoryState,
                     selectedItem = selectedItem,
@@ -384,7 +376,6 @@ fun MessagesList(
     scrollState: LazyListState,
     hasUncommitedChanges: Boolean,
     searchFilter: List<GraphNode>?,
-    selectedCommit: RevCommit?,
     logStatus: LogStatus.Loaded,
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
@@ -396,6 +387,7 @@ fun MessagesList(
     onShowLogDialog: (LogDialog) -> Unit,
     graphWidth: Dp,
 ) {
+    val keyScope = LocalWindowKeyEventKeysScope.current
     ScrollableLazyColumn(
         state = scrollState,
         modifier = Modifier.fillMaxSize(),
@@ -425,7 +417,7 @@ fun MessagesList(
                 graphWidth = graphWidth,
                 logViewModel = logViewModel,
                 graphNode = graphNode,
-                isSelected = selectedCommit?.name == graphNode.name,
+                isSelected = selectedItem.containCommit(graphNode),
                 currentBranch = logStatus.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
                 showCreateNewBranch = { onShowLogDialog(LogDialog.NewBranch(graphNode)) },
@@ -434,7 +426,9 @@ fun MessagesList(
                 onMergeBranch = onMerge,
                 onRebaseBranch = onRebase,
                 onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
-                onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
+                onRevCommitSelected = {
+                    logViewModel.selectLogLine(graphNode, keyScope.isCtrlPressed, keyScope.isShiftPressed)
+                },
             )
         }
 
@@ -470,7 +464,6 @@ fun GraphList(
     verticalScrollState: LazyListState,
     graphWidth: Dp,
     hasUncommitedChanges: Boolean,
-    selectedCommit: RevCommit?,
     selectedItem: SelectedItem,
     commitsLimit: Int,
     repositoryState: RepositoryState,
@@ -535,7 +528,7 @@ fun GraphList(
                             modifier = Modifier.fillMaxSize(),
                             plotCommit = graphNode,
                             nodeColor = nodeColor,
-                            isSelected = selectedCommit?.name == graphNode.name,
+                            isSelected = selectedItem.containCommit(graphNode),
                         )
                     }
                 }
@@ -787,7 +780,7 @@ fun CommitLine(
     ) {
         Box(
             modifier = Modifier
-                .fastClickable(graphNode, logViewModel) { onRevCommitSelected() }
+                .clickable { onRevCommitSelected() }
                 .padding(start = graphWidth)
                 .height(LINE_HEIGHT.dp)
                 .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
