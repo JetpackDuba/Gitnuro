@@ -75,7 +75,7 @@ Gitnuro has support for the following features:
 
 If you find a bug or you would like to suggest a new feature, feel free to open an issue.
 
-Pull requests are also welcome but please create an issue first if it's a new feature.
+Pull requests are also welcome but please create an issue first if it's a new feature. If you want to work on an existing issue, please comment so I'm aware of it and discuss the changes if required.
 
 ## FAQ
 
