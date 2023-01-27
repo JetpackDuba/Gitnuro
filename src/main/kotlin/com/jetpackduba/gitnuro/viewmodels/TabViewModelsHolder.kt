@@ -15,6 +15,7 @@ class TabViewModelsHolder @Inject constructor(
     stashesViewModel: StashesViewModel,
     submodulesViewModel: SubmodulesViewModel,
     commitChangesViewModel: CommitChangesViewModel,
+    multiCommitChangesViewModel: MultiCommitChangesViewModel,
     cloneViewModel: CloneViewModel,
     settingsViewModel: SettingsViewModel,
     // Dynamic VM
@@ -33,6 +34,7 @@ class TabViewModelsHolder @Inject constructor(
         stashesViewModel::class to stashesViewModel,
         submodulesViewModel::class to submodulesViewModel,
         commitChangesViewModel::class to commitChangesViewModel,
+        multiCommitChangesViewModel::class to multiCommitChangesViewModel,
         cloneViewModel::class to cloneViewModel,
         settingsViewModel::class to settingsViewModel,
     )

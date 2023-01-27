@@ -24,8 +24,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.ui.changes.CommitChanges
+import com.jetpackduba.gitnuro.ui.changes.MultiCommitChanges
+import com.jetpackduba.gitnuro.ui.changes.UncommitedChanges
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.*
@@ -379,45 +383,60 @@ fun MainContentView(
                         modifier = Modifier
                             .fillMaxHeight()
                     ) {
-                        val safeSelectedItem = selectedItem
-                        if (safeSelectedItem == SelectedItem.UncommitedChanges) {
-                            UncommitedChanges(
-                                selectedEntryType = diffSelected,
-                                repositoryState = repositoryState,
-                                onStagedDiffEntrySelected = { diffEntry ->
-                                    tabViewModel.minimizeBlame()
+                        when (selectedItem) {
+                            SelectedItem.UncommitedChanges -> {
+                                UncommitedChanges(
+                                    selectedEntryType = diffSelected,
+                                    repositoryState = repositoryState,
+                                    onStagedDiffEntrySelected = { diffEntry ->
+                                        tabViewModel.minimizeBlame()
 
-                                    tabViewModel.newDiffSelected = if (diffEntry != null) {
+                                        tabViewModel.newDiffSelected = if (diffEntry != null) {
+                                            if (repositoryState == RepositoryState.SAFE)
+                                                DiffEntryType.SafeStagedDiff(diffEntry)
+                                            else
+                                                DiffEntryType.UnsafeStagedDiff(diffEntry)
+                                        } else {
+                                            null
+                                        }
+                                    },
+                                    onUnstagedDiffEntrySelected = { diffEntry ->
+                                        tabViewModel.minimizeBlame()
+
                                         if (repositoryState == RepositoryState.SAFE)
-                                            DiffEntryType.SafeStagedDiff(diffEntry)
+                                            tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
                                         else
-                                            DiffEntryType.UnsafeStagedDiff(diffEntry)
-                                    } else {
-                                        null
-                                    }
-                                },
-                                onUnstagedDiffEntrySelected = { diffEntry ->
-                                    tabViewModel.minimizeBlame()
-
-                                    if (repositoryState == RepositoryState.SAFE)
-                                        tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
-                                    else
-                                        tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
-                                },
-                                onBlameFile = { tabViewModel.blameFile(it) },
-                                onHistoryFile = { tabViewModel.fileHistory(it) }
-                            )
-                        } else if (safeSelectedItem is SelectedItem.CommitBasedItem) {
-                            CommitChanges(
-                                selectedItem = safeSelectedItem,
-                                diffSelected = diffSelected,
-                                onDiffSelected = { diffEntry ->
-                                    tabViewModel.minimizeBlame()
-                                    tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
-                                },
-                                onBlame = { tabViewModel.blameFile(it) },
-                                onHistory = { tabViewModel.fileHistory(it) },
-                            )
+                                            tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
+                                    },
+                                    onBlameFile = { tabViewModel.blameFile(it) },
+                                    onHistoryFile = { tabViewModel.fileHistory(it) }
+                                )
+                            }
+                            is SelectedItem.CommitBasedItem -> {
+                                CommitChanges(
+                                    selectedItem = selectedItem,
+                                    diffSelected = diffSelected,
+                                    onDiffSelected = { diffEntry ->
+                                        tabViewModel.minimizeBlame()
+                                        tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
+                                    },
+                                    onBlame = { tabViewModel.blameFile(it) },
+                                    onHistory = { tabViewModel.fileHistory(it) },
+                                )
+                            }
+                            is SelectedItem.MultiCommitBasedItem -> {
+                                MultiCommitChanges(
+                                    selectedItem = selectedItem,
+                                    diffSelected = diffSelected,
+                                    onDiffSelected = { diffEntry ->
+                                        tabViewModel.minimizeBlame()
+                                        tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
+                                    },
+                                    onBlame = { tabViewModel.blameFile(it) },
+                                    onHistory = { tabViewModel.fileHistory(it) },
+                                )
+                            }
+                            else -> Unit
                         }
                     }
                 }
@@ -450,8 +469,21 @@ fun SplitterScope.repositorySplitter() {
 sealed class SelectedItem {
     object None : SelectedItem()
     object UncommitedChanges : SelectedItem()
+    data class MultiCommitBasedItem(
+        val itemList: List<RevCommit>,
+        val targetCommit: RevCommit,
+    ) : SelectedItem()
     sealed class CommitBasedItem(val revCommit: RevCommit) : SelectedItem()
     class Ref(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Commit(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Stash(revCommit: RevCommit) : CommitBasedItem(revCommit)
+}
+
+fun SelectedItem.containCommit(commit: RevCommit): Boolean {
+    return when (this) {
+        is SelectedItem.UncommitedChanges,
+        is SelectedItem.None -> false
+        is SelectedItem.MultiCommitBasedItem -> this.itemList.contains(commit)
+        is SelectedItem.CommitBasedItem -> this.revCommit == commit
+    }
 }

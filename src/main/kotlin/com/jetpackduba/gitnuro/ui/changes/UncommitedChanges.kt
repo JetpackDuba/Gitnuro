@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 
-package com.jetpackduba.gitnuro.ui
+package com.jetpackduba.gitnuro.ui.changes
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
