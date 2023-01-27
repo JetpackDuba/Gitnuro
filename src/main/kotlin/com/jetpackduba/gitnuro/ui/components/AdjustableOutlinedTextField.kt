@@ -44,7 +44,7 @@ fun AdjustableOutlinedTextField(
     shape: Shape = RoundedCornerShape(4.dp),
     backgroundColor: Color = MaterialTheme.colors.background,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    leadingIconResourcePath: String = "",
+    leadingIcon: (@Composable () -> Unit)? = null,
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -87,16 +87,7 @@ fun AdjustableOutlinedTextField(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.wrapContentHeight(),
                     ) {
-                        if (leadingIconResourcePath.isNotEmpty()) {
-                            Icon(
-                                painter = painterResource(leadingIconResourcePath),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(end = 8.dp)
-                                    .size(16.dp),
-                                tint = textColor,
-                            )
-                        }
+                        leadingIcon?.invoke()
 
                         Box(
                             contentAlignment = Alignment.CenterStart,
