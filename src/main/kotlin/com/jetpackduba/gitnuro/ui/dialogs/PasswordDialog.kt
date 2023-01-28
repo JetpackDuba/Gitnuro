@@ -25,8 +25,11 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable
 fun PasswordDialog(
+    title: String,
+    subtitle: String,
+    icon: String,
     onReject: () -> Unit,
-    onAccept: (password: String) -> Unit
+    onAccept: (password: String) -> Unit,
 ) {
     var passwordField by remember { mutableStateOf("") }
     val passwordFieldFocusRequester = remember { FocusRequester() }
@@ -39,7 +42,7 @@ fun PasswordDialog(
         ) {
 
             Icon(
-                painterResource("lock.svg"),
+                painterResource(icon),
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)
@@ -48,7 +51,7 @@ fun PasswordDialog(
             )
 
             Text(
-                text = "Introduce your SSH key's password",
+                text = title,
                 modifier = Modifier
                     .padding(bottom = 8.dp),
                 color = MaterialTheme.colors.onBackground,
@@ -56,7 +59,7 @@ fun PasswordDialog(
             )
 
             Text(
-                text = "Your SSH key is protected with a password",
+                text = subtitle,
                 modifier = Modifier
                     .padding(bottom = 16.dp),
                 color = MaterialTheme.colors.onBackgroundSecondary,

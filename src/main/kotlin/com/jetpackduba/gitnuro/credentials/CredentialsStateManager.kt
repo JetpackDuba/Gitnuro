@@ -24,9 +24,11 @@ sealed class CredentialsState {
     object None : CredentialsState()
     sealed class CredentialsRequested : CredentialsState()
     object SshCredentialsRequested : CredentialsRequested()
+    object GpgCredentialsRequested : CredentialsRequested()
     object HttpCredentialsRequested : CredentialsRequested()
     object CredentialsDenied : CredentialsState()
     sealed class CredentialsAccepted : CredentialsState()
     data class SshCredentialsAccepted(val password: String) : CredentialsAccepted()
+    data class GpgCredentialsAccepted(val password: String) : CredentialsAccepted()
     data class HttpCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted()
 }

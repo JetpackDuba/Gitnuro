@@ -24,12 +24,15 @@ repositories {
 }
 
 dependencies {
+    val jgit = "6.4.0.202211300538-r"
+
     implementation(compose.desktop.currentOs)
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
     implementation(compose("org.jetbrains.compose.ui:ui-util"))
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:$jgit")
     implementation("org.apache.sshd:sshd-core:2.9.0")
     implementation("com.google.dagger:dagger:2.44.2")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")

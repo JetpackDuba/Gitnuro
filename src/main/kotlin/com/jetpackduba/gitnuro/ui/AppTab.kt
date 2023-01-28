@@ -22,9 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.LoadingRepository
 import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.credentials.CredentialsState
-import com.jetpackduba.gitnuro.ui.dialogs.CloneDialog
-import com.jetpackduba.gitnuro.ui.dialogs.PasswordDialog
-import com.jetpackduba.gitnuro.ui.dialogs.UserPasswordDialog
+import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
@@ -191,12 +189,21 @@ fun CredentialsDialog(gitManager: TabViewModel) {
             }
         )
     } else if (credentialsState == CredentialsState.SshCredentialsRequested) {
-        PasswordDialog(
+        SshPasswordDialog(
             onReject = {
                 gitManager.credentialsDenied()
             },
             onAccept = { password ->
                 gitManager.sshCredentialsAccepted(password)
+            }
+        )
+    } else if (credentialsState == CredentialsState.GpgCredentialsRequested) {
+        GpgPasswordDialog(
+            onReject = {
+                gitManager.credentialsDenied()
+            },
+            onAccept = { password ->
+                gitManager.gpgCredentialsAccepted(password)
             }
         )
     }

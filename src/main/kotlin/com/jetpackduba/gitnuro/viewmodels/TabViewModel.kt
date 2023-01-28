@@ -441,6 +441,10 @@ class TabViewModel @Inject constructor(
         abortRebaseUseCase(git)
         rebaseInteractiveViewModel = null // shouldn't be necessary but just to make sure
     }
+
+    fun gpgCredentialsAccepted(password: String) {
+        credentialsStateManager.updateState(CredentialsState.GpgCredentialsAccepted(password))
+    }
 }
 
 
