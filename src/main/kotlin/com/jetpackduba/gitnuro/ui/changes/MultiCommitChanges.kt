@@ -21,12 +21,15 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.filePath
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
+import com.jetpackduba.gitnuro.ui.context_menu.commitedChangesEntriesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.CommitChanges
 import com.jetpackduba.gitnuro.viewmodels.MultiCommitChangesStatus
 import com.jetpackduba.gitnuro.viewmodels.MultiCommitChangesViewModel
@@ -108,28 +111,49 @@ fun MultiCommitChangesView(
             ScrollableLazyColumn(
                 modifier = Modifier
             ) {
-                items(changes) {commitChanges ->
-                    CommitLogChanges(
-                        diffSelected = diffSelected,
-                        diffEntries = commitChanges.changes,
-                        onDiffSelected = onDiffSelected,
-                        onBlame = onBlame,
-                        onHistory = onHistory,
-                    )
+                changes.forEach { commitChanges ->
+                    items(commitChanges.changes) { diffEntry ->
+                        ContextMenu(
+                            items = {
+                                commitedChangesEntriesContextMenuItems(
+                                    diffEntry,
+                                    onBlame = { onBlame(diffEntry.filePath) },
+                                    onHistory = { onHistory(diffEntry.filePath) },
+                                )
+                            }
+                        ) {
+                            CommitLogChangesItem(
+                                diffEntry = diffEntry,
+                                diffSelected = diffSelected,
+                                onDiffSelected = { onDiffSelected(diffEntry) }
+                            )
+                        }
+                    }
 
-                    Text(
-                        text = commitChanges.commit.fullMessage,
-                        style = MaterialTheme.typography.body1,
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    )
+                    item {
+                        Column (
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                        ) {
+                            Text(
+                                text = commitChanges.commit.fullMessage,
+                                style = MaterialTheme.typography.body1,
+                                color = MaterialTheme.colors.onBackground,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(
+                                        horizontal = 8.dp,
+                                    ),
+                            )
 
-                    Divider(
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                            Author(id = commitChanges.commit.id, author = commitChanges.commit.authorIdent)
+
+                            Divider(
+                                color = MaterialTheme.colors.onBackground,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
                 }
             }
         }
