@@ -59,6 +59,7 @@ fun UncommitedChanges(
     var commitMessage by remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
+    val isAmend by statusViewModel.isAmend.collectAsState()
 
     val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
@@ -75,16 +76,16 @@ fun UncommitedChanges(
         isLoading = true
     }
 
-    val doCommit = { amend: Boolean ->
-        statusViewModel.commit(commitMessage, amend)
+    val doCommit = {
+        statusViewModel.commit(commitMessage)
         onStagedDiffEntrySelected(null)
         commitMessage = ""
     }
 
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
-    val canAmend = (commitMessage.isNotEmpty() || staged.isNotEmpty()) && statusViewModel.hasPreviousCommits
+    val canAmend = commitMessage.isNotEmpty()  && statusViewModel.hasPreviousCommits
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(statusViewModel) {
         statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
             commitMessage = newCommitMessage
         }
@@ -179,7 +180,7 @@ fun UncommitedChanges(
                     .weight(weight = 1f, fill = true)
                     .onPreviewKeyEvent { keyEvent ->
                         if (keyEvent.matchesBinding(KeybindingOption.TEXT_ACCEPT) && canCommit) {
-                            doCommit(false)
+                            doCommit()
                             true
                         } else
                             false
@@ -215,7 +216,7 @@ fun UncommitedChanges(
                         statusViewModel.resetRepoState()
                         statusViewModel.updateCommitMessage("")
                     },
-                    onMerge = { doCommit(false) }
+                    onMerge = { doCommit() }
                 )
 
                 repositoryState.isRebasing -> RebasingButtons(
@@ -236,7 +237,7 @@ fun UncommitedChanges(
                         statusViewModel.updateCommitMessage("")
                     },
                     onCommit = {
-                        doCommit(false)
+                        doCommit()
                     }
                 )
 
@@ -248,14 +249,18 @@ fun UncommitedChanges(
                         statusViewModel.updateCommitMessage("")
                     },
                     onCommit = {
-                        doCommit(false)
+                        doCommit()
                     }
                 )
 
                 else -> UncommitedChangesButtons(
                     canCommit = canCommit,
                     canAmend = canAmend,
-                    onCommit = { amend -> doCommit(amend) },
+                    isAmend = isAmend,
+                    onAmendChecked = { isAmend ->
+                        statusViewModel.amend(isAmend)
+                    },
+                    onCommit = { doCommit() },
                 )
             }
         }
@@ -267,61 +272,97 @@ fun UncommitedChanges(
 fun UncommitedChangesButtons(
     canCommit: Boolean,
     canAmend: Boolean,
-    onCommit: (Boolean) -> Unit
+    isAmend: Boolean,
+    onAmendChecked: (Boolean) -> Unit,
+    onCommit: () -> Unit
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
 
-    Row(
-        modifier = Modifier
-            .padding(top = 2.dp)
-    ) {
-        ConfirmationButton(
-            text = "Commit",
-            modifier = Modifier
-                .weight(1f)
-                .height(40.dp),
-            onClick = { onCommit(false) },
-            enabled = canCommit,
-            shape = MaterialTheme.shapes.small.copy(topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
-        )
-        Spacer(
-            modifier = Modifier
-                .width(1.dp)
-                .height(40.dp),
-        )
+    val buttonText = if (isAmend)
+        "Amend"
+    else
+        "Commit"
 
-        Box(
-            modifier = Modifier
-                .height(40.dp)
-                .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
-                .background(MaterialTheme.colors.primary)
-                .handMouseClickable { showDropDownMenu = true }
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.handMouseClickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                onAmendChecked(!isAmend)
+            }
         ) {
-            Icon(
-                Icons.Default.ArrowDropDown,
-                contentDescription = null,
-                tint = Color.White,
+            Checkbox(
+                checked = isAmend,
+                onCheckedChange = {
+                    onAmendChecked(!isAmend)
+                },
                 modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .align(Alignment.Center),
+                    .padding(all = 8.dp)
+                    .size(12.dp)
             )
-            DropdownMenu(
-                onDismissRequest = {
-                    showDropDownMenu = false
-                },
-                content = {
-                    DropDownContent(
-                        enabled = canAmend,
-                        dropDownContentData = DropDownContentData(
-                            label = "Amend previous commit",
-                            icon = null,
-                            onClick = { onCommit(true) }
-                        ),
-                        onDismiss = { showDropDownMenu = false }
-                    )
-                },
-                expanded = showDropDownMenu,
+
+            Text(
+                "Amend previous commit",
+                style = MaterialTheme.typography.caption,
+                color = MaterialTheme.colors.onBackground,
             )
+        }
+        Row(
+            modifier = Modifier
+                .padding(top = 2.dp)
+        ) {
+            ConfirmationButton(
+                text = buttonText,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(36.dp),
+                onClick = {
+                    onCommit()
+                },
+                enabled = canCommit || (canAmend && isAmend),
+                shape = MaterialTheme.shapes.small.copy(topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+            )
+            Spacer(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(36.dp),
+            )
+
+            Box(
+                modifier = Modifier
+                    .height(36.dp)
+                    .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
+                    .background(MaterialTheme.colors.primary)
+                    .handMouseClickable { showDropDownMenu = true }
+            ) {
+                Icon(
+                    Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .align(Alignment.Center),
+                )
+                DropdownMenu(
+                    onDismissRequest = {
+                        showDropDownMenu = false
+                    },
+                    content = {
+                        /*DropDownContent(
+                            enabled = canAmend,
+                            dropDownContentData = DropDownContentData(
+                                label = "Amend previous commit",
+                                icon = null,
+                                onClick = onCommit
+                            ),
+                            onDismiss = { showDropDownMenu = false }
+                        )*/
+                    },
+                    expanded = showDropDownMenu,
+                )
+            }
         }
     }
 }

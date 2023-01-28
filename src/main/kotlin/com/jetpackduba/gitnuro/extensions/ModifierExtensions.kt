@@ -26,6 +26,19 @@ fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
         .handOnHover()
 }
 
+fun Modifier.handMouseClickable(
+    interactionSource: MutableInteractionSource,
+    indication: Indication?,
+    onClick: () -> Unit
+): Modifier {
+    return this
+        .clickable(
+            interactionSource = interactionSource,
+            indication = indication,
+        ) { onClick() }
+        .handOnHover()
+}
+
 /**
  * Ignore keyboard events of that components.
  * Specially useful for clickable components that may get focused and become clickable when pressing ENTER.

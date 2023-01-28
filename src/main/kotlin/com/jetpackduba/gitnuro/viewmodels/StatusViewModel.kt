@@ -66,6 +66,9 @@ class StatusViewModel @Inject constructor(
     private val _commitMessageChangesFlow = MutableSharedFlow<String>()
     val commitMessageChangesFlow: SharedFlow<String> = _commitMessageChangesFlow
 
+    private val _isAmend = MutableStateFlow(false)
+    val isAmend: StateFlow<Boolean> = _isAmend
+
     init {
         tabScope.launch {
             tabState.refreshFlowFiltered(
@@ -191,10 +194,19 @@ class StatusViewModel @Inject constructor(
     private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
         lastUncommitedChangesState = checkHasUncommitedChangedUseCase(git)
     }
+    fun amend(isAmend: Boolean) {
+        _isAmend.value = isAmend
 
-    fun commit(message: String, amend: Boolean) = tabState.safeProcessing(
+        if (isAmend && savedCommitMessage.message.isEmpty()) {
+            takeMessageFromPreviousCommit()
+        }
+    }
+
+    fun commit(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
+        val amend = isAmend.value
+
         val commitMessage = if (amend && message.isBlank()) {
             getLastCommitMessageUseCase(git)
         } else
@@ -202,6 +214,7 @@ class StatusViewModel @Inject constructor(
 
         doCommitUseCase(git, commitMessage, amend)
         updateCommitMessage("")
+        _isAmend.value = false
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -262,6 +275,14 @@ class StatusViewModel @Inject constructor(
     fun updateCommitMessage(message: String) {
         savedCommitMessage = savedCommitMessage.copy(message = message)
         persistMessage()
+    }
+
+    private fun takeMessageFromPreviousCommit() = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        savedCommitMessage = savedCommitMessage.copy(message = getLastCommitMessageUseCase(git))
+        persistMessage()
+        _commitMessageChangesFlow.emit(savedCommitMessage.message)
     }
 }
 
