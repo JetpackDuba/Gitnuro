@@ -64,6 +64,12 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 
+tasks.withType<JavaExec> {
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    })
+}
+
 
 compose.desktop {
     application {
