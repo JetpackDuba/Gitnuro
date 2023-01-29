@@ -60,7 +60,7 @@ class GRemoteSession @Inject constructor(
         }
 
         if(result != 0)
-            throw Exception("Something went wrong with authentication")
+            throw Exception("Something went wrong with authentication. Code $result")
 
         this.session = session
     }
