@@ -43,7 +43,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
-    implementation("com.sun.jna:jna:3.0.9")
+    implementation("net.java.dev.jna:jna:5.13.0")
 }
 
 tasks.test {
