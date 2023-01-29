@@ -43,9 +43,6 @@ interface SSHLibrary : Library {
 
 
     companion object {
-        val INSTANCE = Native.loadLibrary(
-            if (getCurrentOs().isWindows()) "ssh" else "libssh",
-            SSHLibrary::class.java
-        ) as SSHLibrary
+        val INSTANCE = Native.loadLibrary("ssh", SSHLibrary::class.java) as SSHLibrary
     }
 }
