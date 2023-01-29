@@ -581,7 +581,7 @@ private fun EntriesList(
                 .background(MaterialTheme.colors.background),
             state = lazyListState,
         ) {
-            items(statusEntries) { statusEntry ->
+            items(statusEntries, key = { it.filePath }) { statusEntry ->
                 val isEntrySelected = selectedEntryType != null &&
                         selectedEntryType is DiffEntryType.UncommitedDiff && // Added for smartcast
                         selectedEntryType.statusEntry == statusEntry
