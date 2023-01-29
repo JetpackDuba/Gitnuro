@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
@@ -46,6 +47,7 @@ fun AdjustableOutlinedTextField(
     shape: Shape = RoundedCornerShape(4.dp),
     backgroundColor: Color = MaterialTheme.colors.background,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    leadingIcon: @Composable (() -> Unit)? = null,
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -60,7 +62,7 @@ fun AdjustableOutlinedTextField(
     ) {
         BasicTextField(
             modifier = Modifier
-                .heightIn(min = 40.dp)
+                .heightIn(min = 38.dp)
                 .background(backgroundColor)
                 .fillMaxWidth(),
             value = value,
@@ -74,29 +76,44 @@ fun AdjustableOutlinedTextField(
             singleLine = singleLine,
             visualTransformation = visualTransformation,
             decorationBox = { innerTextField ->
-                Box(
+                Row(
                     modifier = Modifier
                         .border(
-                            width = 1.dp,
+                            width = 2.dp,
                             color = indicatorColor,
                             shape = shape
                         )
                         .padding(horizontal = 12.dp),
-                    contentAlignment = Alignment.CenterStart,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    if (leadingIcon != null) {
+                        leadingIcon()
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                     innerTextField()
                 }
             }
         )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 12.dp),
+        ) {
+            if (leadingIcon != null) {
+                leadingIcon()
+                Spacer(modifier = Modifier.width(8.dp))
+            }
 
-        if (value.isEmpty() && hint.isNotEmpty()) {
-            Text(
-                hint,
-                color = MaterialTheme.colors.onBackgroundSecondary,
-                modifier = Modifier
-                    .padding(start = 12.dp, top = 12.dp),
-                style = MaterialTheme.typography.body2
-            )
+            if (value.isEmpty() && hint.isNotEmpty()) {
+                Text(
+                    hint,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    style = MaterialTheme.typography.body2
+                )
+            }
         }
     }
 }

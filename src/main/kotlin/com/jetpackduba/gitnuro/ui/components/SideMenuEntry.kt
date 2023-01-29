@@ -17,15 +17,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
 
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 
 @Composable
-fun SideMenuEntry(
+fun SideMenuHeader(
     text: String,
     icon: Painter? = null,
     itemsCount: Int,
     isExpanded: Boolean,
+    onExpand: () -> Unit = {},
     hoverIcon: @Composable (() -> Unit)? = null,
 ) {
     val hoverInteraction = remember { MutableInteractionSource() }
@@ -35,7 +37,8 @@ fun SideMenuEntry(
         modifier = Modifier
             .height(36.dp)
             .fillMaxWidth()
-            .hoverable(hoverInteraction),
+            .hoverable(hoverInteraction)
+            .handMouseClickable { onExpand() },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

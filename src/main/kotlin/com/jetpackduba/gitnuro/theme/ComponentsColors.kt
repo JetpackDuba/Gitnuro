@@ -27,6 +27,7 @@ fun textFieldColors(
 fun outlinedTextFieldColors() = TextFieldDefaults.outlinedTextFieldColors(
     cursorColor = MaterialTheme.colors.primaryVariant,
     focusedBorderColor = MaterialTheme.colors.primaryVariant,
+    unfocusedBorderColor = MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.2f),
     focusedLabelColor = MaterialTheme.colors.primaryVariant,
     backgroundColor = MaterialTheme.colors.background,
     textColor = MaterialTheme.colors.onBackground,

@@ -16,7 +16,7 @@ import com.jetpackduba.gitnuro.ui.components.Tooltip
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.submoduleContextMenuItems
-import com.jetpackduba.gitnuro.viewmodels.SubmodulesViewModel
+import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmodulesViewModel
 import org.eclipse.jgit.submodule.SubmoduleStatus
 
 @Composable

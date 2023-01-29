@@ -5,7 +5,6 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -17,17 +16,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
@@ -252,39 +248,6 @@ fun RepoContent(
     }
 }
 
-@Composable
-fun SidePanelOption(title: String, icon: String, onClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .height(36.dp)
-            .fillMaxWidth()
-            .handMouseClickable(onClick)
-            .padding(start = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        Icon(
-            painter = painterResource(icon),
-            contentDescription = null,
-            tint = MaterialTheme.colors.onBackground,
-            modifier = Modifier
-                .size(16.dp),
-        )
-
-        Text(
-            text = title,
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .weight(1f),
-            maxLines = 1,
-            style = MaterialTheme.typography.body2,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colors.onBackground,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
-
 @OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 fun MainContentView(
@@ -298,18 +261,7 @@ fun MainContentView(
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
     ) {
         first(minSize = 180.dp) {
-            Column {
-                ScrollableColumn(
-                    modifier = Modifier
-                        .weight(1f),
-                ) {
-                    Branches()
-                    Remotes()
-                    Tags()
-                    Stashes()
-//                TODO: Enable on 1.2.0 when fully implemented Submodules()
-                }
-            }
+            SidePanel()
         }
 
         splitter {

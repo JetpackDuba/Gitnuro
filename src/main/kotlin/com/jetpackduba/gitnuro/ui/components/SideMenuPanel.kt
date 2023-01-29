@@ -26,7 +26,7 @@ fun <T> SideMenuPanel(
             ContextMenu(
                 items = contextItems
             ) {
-                SideMenuEntry(
+                SideMenuHeader(
                     text = title,
                     icon = icon,
                     itemsCount = items.count(),

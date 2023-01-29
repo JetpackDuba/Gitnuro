@@ -4,7 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.runtime.*
@@ -16,12 +19,11 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.backgroundSelected
-import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
-import com.jetpackduba.gitnuro.theme.textButtonColors
+import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.viewmodels.RemotesViewModel
+import com.jetpackduba.gitnuro.viewmodels.sidepanel.RemotesViewModel
 import org.eclipse.jgit.transport.RemoteConfig
 
 @Composable
@@ -38,7 +40,8 @@ fun EditRemotesDialog(
         )
     }
 
-    val remotes by remotesViewModel.remotes.collectAsState()
+    val remotesState by remotesViewModel.remoteState.collectAsState()
+    val remotes = remotesState.remotes
     var remoteChanged by remember { mutableStateOf(false) }
     val selectedRemote = remotesEditorData.selectedRemote
 
@@ -343,7 +346,7 @@ data class RemoteWrapper(
 ) {
     val haveUrisChanged: Boolean = isNew ||
             fetchUri != originalFetchUri ||
-            pushUri.toString() != originalPushUri
+            pushUri != originalPushUri
 }
 
 

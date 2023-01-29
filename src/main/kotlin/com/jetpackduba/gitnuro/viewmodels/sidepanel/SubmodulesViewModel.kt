@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.viewmodels
+package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -19,7 +19,7 @@ class SubmodulesViewModel @Inject constructor(
     private val initializeSubmoduleUseCase: InitializeSubmoduleUseCase,
     private val updateSubmoduleUseCase: UpdateSubmoduleUseCase,
     private val tabScope: CoroutineScope,
-) : ExpandableViewModel() {
+) : SidePanelChildViewModel(true) {
     private val _submodules = MutableStateFlow<List<Pair<String, SubmoduleStatus>>>(listOf())
     val submodules: StateFlow<List<Pair<String, SubmoduleStatus>>>
         get() = _submodules

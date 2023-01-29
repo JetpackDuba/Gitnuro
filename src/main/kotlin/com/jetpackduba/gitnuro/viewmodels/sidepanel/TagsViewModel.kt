@@ -1,30 +1,43 @@
-package com.jetpackduba.gitnuro.viewmodels
+package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.tags.GetTagsUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
-import javax.inject.Inject
 
-class TagsViewModel @Inject constructor(
+class TagsViewModel @AssistedInject constructor(
     private val tabState: TabState,
     private val getTagsUseCase: GetTagsUseCase,
     private val deleteTagUseCase: DeleteTagUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val tabScope: CoroutineScope,
-) : ExpandableViewModel() {
-    private val _tags = MutableStateFlow<List<Ref>>(listOf())
-    val tags: StateFlow<List<Ref>>
-        get() = _tags
+    @Assisted
+    private val filter: StateFlow<String>
+) : SidePanelChildViewModel(false) {
+    private val tags = MutableStateFlow<List<Ref>>(listOf())
+
+    val tagsState: StateFlow<TagsState> = combine(tags, isExpanded, filter) { tags, isExpanded, filter ->
+        TagsState(
+            tags.filter { tag -> tag.simpleName.lowercaseContains(filter) },
+            isExpanded,
+        )
+    }.stateIn(
+        scope = tabScope,
+        started = SharingStarted.Eagerly,
+        initialValue = TagsState(emptyList(), isExpanded.value)
+    )
 
     init {
         tabScope.launch {
@@ -38,7 +51,7 @@ class TagsViewModel @Inject constructor(
     private suspend fun loadTags(git: Git) = withContext(Dispatchers.IO) {
         val tagsList = getTagsUseCase(git)
 
-        _tags.value = tagsList
+        tags.value = tagsList
     }
 
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
@@ -61,3 +74,5 @@ class TagsViewModel @Inject constructor(
         loadTags(git)
     }
 }
+
+data class TagsState(val tags: List<Ref>, val isExpanded: Boolean)

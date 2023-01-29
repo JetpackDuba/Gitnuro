@@ -1,6 +1,8 @@
-package com.jetpackduba.gitnuro.viewmodels
+package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.exceptions.InvalidRemoteUrlException
+import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.DeleteLocallyRemoteBranchesUseCase
@@ -8,18 +10,18 @@ import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.ui.dialogs.RemoteWrapper
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RemoteSetUrlCommand
 import org.eclipse.jgit.lib.Ref
-import javax.inject.Inject
 
-class RemotesViewModel @Inject constructor(
+class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabState,
     private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
@@ -29,15 +31,37 @@ class RemotesViewModel @Inject constructor(
     private val updateRemoteUseCase: UpdateRemoteUseCase,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
     private val tabScope: CoroutineScope,
-) : ExpandableViewModel() {
-    private val _remotes = MutableStateFlow<List<RemoteView>>(listOf())
-    val remotes: StateFlow<List<RemoteView>>
-        get() = _remotes
+    @Assisted
+    private val filter: StateFlow<String>
+) : SidePanelChildViewModel(false) {
+    private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
+
+    val remoteState: StateFlow<RemotesState> = combine(remotes, isExpanded, filter) { remotes, isExpanded, filter ->
+        val remotesFiltered = remotes.map { remote ->
+            val remoteInfo = remote.remoteInfo
+
+            val newRemoteInfo = remoteInfo.copy(
+                branchesList = remoteInfo.branchesList.filter { branch ->
+                    branch.simpleName.lowercaseContains(filter)
+                }
+            )
+
+            remote.copy(remoteInfo = newRemoteInfo)
+        }
+
+        RemotesState(
+            remotesFiltered,
+            isExpanded
+        )
+    }.stateIn(
+        scope = tabScope,
+        started = SharingStarted.Eagerly,
+        initialValue = RemotesState(emptyList(), isExpanded.value)
+    )
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES)
-            {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES) {
                 refresh(tabState.git)
             }
         }
@@ -61,7 +85,7 @@ class RemotesViewModel @Inject constructor(
             RemoteView(remoteInfo, true)
         }
 
-        _remotes.value = remoteViewList
+        this@RemotesViewModel.remotes.value = remoteViewList
     }
 
     fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
@@ -74,14 +98,19 @@ class RemotesViewModel @Inject constructor(
         loadRemotes(git)
     }
 
-    fun onRemoteClicked(remoteInfo: RemoteView) {
-        val remotes = _remotes.value
-        val newRemoteInfo = remoteInfo.copy(isExpanded = !remoteInfo.isExpanded)
-        val newRemotesList = remotes.toMutableList()
-        val indexToReplace = newRemotesList.indexOf(remoteInfo)
-        newRemotesList[indexToReplace] = newRemoteInfo
+    fun onRemoteClicked(remoteClicked: RemoteView) {
+        val remoteName = remoteClicked.remoteInfo.remoteConfig.name
+        val remotes = this.remotes.value
+        val remoteInfo = remotes.firstOrNull { it.remoteInfo.remoteConfig.name == remoteName }
 
-        _remotes.value = newRemotesList
+        if(remoteInfo != null) {
+            val newRemoteInfo = remoteInfo.copy(isExpanded = !remoteClicked.isExpanded)
+            val newRemotesList = remotes.toMutableList()
+            val indexToReplace = newRemotesList.indexOf(remoteInfo)
+            newRemotesList[indexToReplace] = newRemoteInfo
+
+            this.remotes.value = newRemotesList
+        }
     }
 
     fun selectBranch(ref: Ref) {
@@ -152,3 +181,5 @@ class RemotesViewModel @Inject constructor(
 }
 
 data class RemoteView(val remoteInfo: RemoteInfo, val isExpanded: Boolean)
+
+data class RemotesState(val remotes: List<RemoteView>, val isExpanded: Boolean)

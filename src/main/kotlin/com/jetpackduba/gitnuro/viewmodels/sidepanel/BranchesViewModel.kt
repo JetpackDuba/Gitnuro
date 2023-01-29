@@ -1,5 +1,7 @@
-package com.jetpackduba.gitnuro.viewmodels
+package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.*
@@ -7,9 +9,10 @@ import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
@@ -17,7 +20,8 @@ import javax.inject.Inject
 
 private const val TAG = "BranchesViewModel"
 
-class BranchesViewModel @Inject constructor(
+
+class BranchesViewModel @AssistedInject constructor(
     private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
@@ -30,16 +34,26 @@ class BranchesViewModel @Inject constructor(
     private val deleteBranchUseCase: DeleteBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val tabScope: CoroutineScope,
-) : ExpandableViewModel(true) {
+    @Assisted
+    private val filter: StateFlow<String>
+) : SidePanelChildViewModel(true) {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
-    val branches: StateFlow<List<Ref>>
-        get() = _branches
-
     private val _currentBranch = MutableStateFlow<Ref?>(null)
-    val currentBranch: StateFlow<Ref?>
-        get() = _currentBranch
+
+    val branchesState = combine(_branches, _currentBranch, isExpanded, filter) { branches, currentBranch, isExpanded, filter ->
+        BranchesState(
+            branches = branches.filter { it.simpleName.lowercaseContains(filter) },
+            isExpanded = isExpanded,
+            currentBranch = currentBranch
+        )
+    }.stateIn(
+        scope = tabScope,
+        started = SharingStarted.Eagerly,
+        initialValue = BranchesState(emptyList(), isExpanded.value, null)
+    )
 
     init {
+
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
             {
@@ -117,3 +131,9 @@ class BranchesViewModel @Inject constructor(
         )
     }
 }
+
+data class BranchesState(
+    val branches: List<Ref>,
+    val isExpanded: Boolean,
+    val currentBranch: Ref?,
+)

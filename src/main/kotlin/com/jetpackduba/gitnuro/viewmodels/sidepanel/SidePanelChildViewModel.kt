@@ -1,9 +1,9 @@
-package com.jetpackduba.gitnuro.viewmodels
+package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-abstract class ExpandableViewModel(expandedDefault: Boolean = false) {
+abstract class SidePanelChildViewModel(expandedDefault: Boolean) {
     private val _isExpanded = MutableStateFlow(expandedDefault)
     val isExpanded: StateFlow<Boolean> = _isExpanded
 
