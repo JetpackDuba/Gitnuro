@@ -100,7 +100,7 @@ class App {
 
             if (isOpen) {
                 Window(
-                    title = AppConstants.APP_NAME,
+                    title = System.getenv("title") ?: AppConstants.APP_NAME,
                     onCloseRequest = {
                         isOpen = false
                     },
