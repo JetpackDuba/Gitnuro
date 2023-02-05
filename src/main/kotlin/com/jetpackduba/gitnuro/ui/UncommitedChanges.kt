@@ -619,6 +619,7 @@ private fun FileEntry(
     Box(
         modifier = Modifier
             .handMouseClickable { onClick() }
+            .onDoubleClick(onButtonClick)
             .fillMaxWidth()
             .hoverable(hoverInteraction)
     ) {
