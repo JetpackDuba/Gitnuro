@@ -10,11 +10,19 @@ fun logContextMenu(
     onCherryPickCommit: () -> Unit,
     onResetBranch: () -> Unit,
     onRebaseInteractive: () -> Unit,
+    showSquashCommits: Boolean,
+    onSquashCommits: () -> Unit,
 ) = listOf(
     ContextMenuElement.ContextTextEntry(
         label = "Checkout commit",
         icon = { painterResource("start.svg") },
         onClick = onCheckoutCommit
+    ),
+    ContextMenuElement.ContextTextEntry(
+        label = "Squash commits",
+        icon = { painterResource("branch.svg") },
+        isVisible = showSquashCommits,
+        onClick = onSquashCommits
     ),
     ContextMenuElement.ContextTextEntry(
         label = "Create branch",

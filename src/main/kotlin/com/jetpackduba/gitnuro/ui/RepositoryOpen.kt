@@ -127,9 +127,12 @@ fun RepositoryOpenPage(
                     }
             ) {
                 val rebaseInteractiveViewModel = tabViewModel.rebaseInteractiveViewModel
+                val squashCommitsViewModel = tabViewModel.squashCommitsViewModel
 
                 if (repositoryState == RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
                     RebaseInteractive(rebaseInteractiveViewModel)
+                } else if (repositoryState == RepositoryState.REBASING_INTERACTIVE && squashCommitsViewModel != null) {
+                    SquashCommits(squashCommitsViewModel)
                 } else if (repositoryState == RepositoryState.REBASING_INTERACTIVE) {
                     RebaseInteractiveStartedExternally(
                         onCancelRebaseInteractive = { tabViewModel.cancelRebaseInteractive() }

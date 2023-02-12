@@ -21,6 +21,7 @@ class TabViewModelsHolder @Inject constructor(
     // Dynamic VM
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
+    private val squashCommitsViewModel: Provider<SquashCommitsViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
 ) {

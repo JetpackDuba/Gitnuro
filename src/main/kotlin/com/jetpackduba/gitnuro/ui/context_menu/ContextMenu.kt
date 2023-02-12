@@ -140,7 +140,11 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 for (item in contextMenuElements) {
                     when (item) {
-                        is ContextMenuElement.ContextTextEntry -> TextEntry(item, onDismissRequest = onDismissRequest)
+                        is ContextMenuElement.ContextTextEntry -> {
+                            if (item.isVisible) {
+                                TextEntry(item, onDismissRequest = onDismissRequest)
+                            }
+                        }
                         ContextMenuElement.ContextSeparator -> Separator()
                     }
 
@@ -203,7 +207,8 @@ sealed interface ContextMenuElement {
     data class ContextTextEntry(
         val label: String,
         val icon: @Composable (() -> Painter)? = null,
-        val onClick: () -> Unit = {}
+        val onClick: () -> Unit = {},
+        val isVisible: Boolean = true,
     ) : ContextMenuElement
 
     object ContextSeparator : ContextMenuElement

@@ -47,6 +47,7 @@ class TabViewModel @Inject constructor(
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
+    private val squashCommitsViewModelProvider: Provider<SquashCommitsViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val tabState: TabState,
@@ -65,6 +66,9 @@ class TabViewModel @Inject constructor(
     var diffViewModel: DiffViewModel? = null
 
     var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
+        private set
+
+    var squashCommitsViewModel: SquashCommitsViewModel? = null
         private set
 
     private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
@@ -115,7 +119,7 @@ class TabViewModel @Inject constructor(
                     when (refreshType) {
                         RefreshType.NONE -> printLog(TAG, "Not refreshing...")
                         RefreshType.REPO_STATE -> refreshRepositoryState()
-                        else -> {}
+                        else -> Unit
                     }
                 }
             }
@@ -123,8 +127,8 @@ class TabViewModel @Inject constructor(
                 tabState.taskEvent.collect { taskEvent ->
                     when (taskEvent) {
                         is TaskEvent.RebaseInteractive -> onRebaseInteractive(taskEvent)
-                        else -> { /*Nothing to do here*/
-                        }
+                        is TaskEvent.SquashCommits -> onSquashCommits(taskEvent)
+                        else -> Unit
                     }
                 }
             }
@@ -147,6 +151,11 @@ class TabViewModel @Inject constructor(
     private suspend fun onRebaseInteractive(taskEvent: TaskEvent.RebaseInteractive) {
         rebaseInteractiveViewModel = rebaseInteractiveViewModelProvider.get()
         rebaseInteractiveViewModel?.startRebaseInteractive(taskEvent.revCommit)
+    }
+
+    private suspend fun onSquashCommits(taskEvent: TaskEvent.SquashCommits) {
+        squashCommitsViewModel = squashCommitsViewModelProvider.get()
+        squashCommitsViewModel?.startSquash(taskEvent.commits, taskEvent.upstreamCommit)
     }
 
     fun openRepository(directory: String) {
@@ -211,9 +220,16 @@ class TabViewModel @Inject constructor(
     }
 
     private fun onRepositoryStateChanged(newRepoState: RepositoryState) {
-        if (newRepoState != RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
-            rebaseInteractiveViewModel?.cancel()
-            rebaseInteractiveViewModel = null
+        if (newRepoState != RepositoryState.REBASING_INTERACTIVE) {
+            if (rebaseInteractiveViewModel != null) {
+                rebaseInteractiveViewModel?.cancel()
+                rebaseInteractiveViewModel = null
+            }
+
+            if (newRepoState != RepositoryState.SAFE && squashCommitsViewModel != null) {
+                squashCommitsViewModel?.cancel()
+                squashCommitsViewModel = null
+            }
         }
     }
 
@@ -439,7 +455,10 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
         abortRebaseUseCase(git)
-        rebaseInteractiveViewModel = null // shouldn't be necessary but just to make sure
+
+        // shouldn't be necessary but just to make sure
+        rebaseInteractiveViewModel = null
+        squashCommitsViewModel = null
     }
 }
 

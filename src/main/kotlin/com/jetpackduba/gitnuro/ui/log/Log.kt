@@ -429,6 +429,8 @@ fun MessagesList(
                 onRevCommitSelected = {
                     logViewModel.selectLogLine(graphNode, keyScope.isCtrlPressed, keyScope.isShiftPressed)
                 },
+                onSquashCommits = { logViewModel.squashCommits() },
+                showSquashCommits = selectedItem is SelectedItem.MultiCommitBasedItem && selectedItem.itemList.size > 1
             )
         }
 
@@ -764,6 +766,8 @@ fun CommitLine(
     onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
+    onSquashCommits: () -> Unit,
+    showSquashCommits: Boolean,
 ) {
     ContextMenu(
         items = {
@@ -775,6 +779,8 @@ fun CommitLine(
                 onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
                 onRebaseInteractive = onRebaseInteractive,
                 onResetBranch = { resetBranch() },
+                onSquashCommits = { onSquashCommits() },
+                showSquashCommits = showSquashCommits,
             )
         },
     ) {
