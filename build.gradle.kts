@@ -2,6 +2,8 @@ import org.gradle.jvm.tasks.Jar
 import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val javaLanguageVersion = JavaLanguageVersion.of(17)
+
 plugins {
     // Kotlin version must match compose version
     kotlin("jvm") version "1.7.10"
@@ -53,10 +55,21 @@ tasks.test {
     }
 }
 
+kotlin {
+    jvmToolchain {
+        languageVersion.set(javaLanguageVersion)
+    }
+}
+
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
     kotlinOptions.allWarningsAsErrors = true
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+}
+
+tasks.withType<JavaExec> {
+    javaLauncher.set(javaToolchains.launcherFor {
+        languageVersion.set(javaLanguageVersion)
+    })
 }
 
 
