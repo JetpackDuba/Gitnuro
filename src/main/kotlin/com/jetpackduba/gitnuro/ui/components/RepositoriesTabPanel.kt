@@ -274,21 +274,20 @@ class TabInformation(
 
 fun emptyTabInformation() = TabInformation(mutableStateOf(""), 0, "", object : AppComponent {
     override fun inject(main: App) {}
-
     override fun appStateManager(): AppStateManager {
-        TODO()
+        error("This method should not be invoked -  emptyTabInformation")
     }
 
     override fun settingsViewModel(): SettingsViewModel {
-        TODO()
+        error("This method should not be invoked -  emptyTabInformation")
     }
 
     override fun credentialsStateManager(): CredentialsStateManager {
-        TODO()
+        error("This method should not be invoked -  emptyTabInformation")
     }
 
     override fun appPreferences(): AppSettings {
-        TODO()
+        error("This method should not be invoked -  emptyTabInformation")
     }
 })
 
