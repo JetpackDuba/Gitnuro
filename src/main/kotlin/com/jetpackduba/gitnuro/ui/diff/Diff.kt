@@ -300,13 +300,13 @@ private fun StaticImage(tempImagePath: String) {
 }
 
 @Composable
-private fun AnimatedImage(iamgePath: String) {
+private fun AnimatedImage(imagePath: String) {
     Image(
-        bitmap = loadOrNull(iamgePath) { loadAnimatedImage(iamgePath) }?.animate() ?: ImageBitmap.Blank,
+        bitmap = loadOrNull(imagePath) { loadAnimatedImage(imagePath) }?.animate() ?: ImageBitmap.Blank,
         contentDescription = null,
         modifier = Modifier.fillMaxSize()
             .handMouseClickable {
-                openFileWithExternalApp(iamgePath)
+                openFileWithExternalApp(imagePath)
             }
     )
 }
