@@ -884,8 +884,13 @@ fun CommitMessage(
                 }
             }
         }
+
+        val message = remember(commit.id.name) {
+            commit.getShortMessageTrimmed()
+        }
+
         Text(
-            text = commit.shortMessage,
+            text = message,
             modifier = Modifier
                 .padding(start = 8.dp)
                 .weight(1f),

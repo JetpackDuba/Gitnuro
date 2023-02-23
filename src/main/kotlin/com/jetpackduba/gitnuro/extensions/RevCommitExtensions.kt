@@ -9,3 +9,10 @@ fun RevCommit.fullData(repository: Repository): RevCommit? {
     else
         this
 }
+
+fun RevCommit.getShortMessageTrimmed(): String {
+    return (this.fullMessage ?: "")
+        .trimStart()
+        .replace("\r\n", "\n")
+        .takeWhile { it != '\n' }
+}
