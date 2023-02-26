@@ -48,6 +48,6 @@ val String.lineDelimiter: String?
 val String.nullIfEmpty: String?
     get() = this.ifBlank { null }
 
-fun String.lowercaseContains(other: String) : Boolean {
+fun String.lowercaseContains(other: String): Boolean {
     return this.lowercase().contains(other.lowercase().trim())
 }

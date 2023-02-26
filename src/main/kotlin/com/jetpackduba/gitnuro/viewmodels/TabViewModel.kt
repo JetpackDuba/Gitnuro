@@ -2,6 +2,8 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.ErrorsManager
+import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
+import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.*
@@ -19,8 +21,7 @@ import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.blame.BlameResult
@@ -299,11 +300,11 @@ class TabViewModel @Inject constructor(
     }
 
     fun httpCredentialsAccepted(user: String, password: String) {
-        credentialsStateManager.updateState(CredentialsState.HttpCredentialsAccepted(user, password))
+        credentialsStateManager.updateState(CredentialsAccepted.HttpCredentialsAccepted(user, password))
     }
 
     fun sshCredentialsAccepted(password: String) {
-        credentialsStateManager.updateState(CredentialsState.SshCredentialsAccepted(password))
+        credentialsStateManager.updateState(CredentialsAccepted.SshCredentialsAccepted(password))
     }
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
@@ -443,7 +444,7 @@ class TabViewModel @Inject constructor(
     }
 
     fun gpgCredentialsAccepted(password: String) {
-        credentialsStateManager.updateState(CredentialsState.GpgCredentialsAccepted(password))
+        credentialsStateManager.updateState(CredentialsAccepted.GpgCredentialsAccepted(password))
     }
 }
 

@@ -10,15 +10,12 @@ import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
 import javax.inject.Inject
 
-class DoCommitUseCase @Inject constructor(
-    private val gpgCredentialsProvider: GpgCredentialsProvider,
-) {
+class DoCommitUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, message: String, amend: Boolean): RevCommit = withContext(Dispatchers.IO) {
         git.commit()
             .setMessage(message)
             .setAllowEmpty(amend) // Only allow empty commits when amending
             .setAmend(amend)
-            .setCredentialsProvider(gpgCredentialsProvider)
             .call()
     }
 }

@@ -44,7 +44,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
         if (externalCredentialsHelper == null) {
             val credentials = askForCredentials()
 
-            if (credentials is CredentialsState.HttpCredentialsAccepted) {
+            if (credentials is CredentialsAccepted.HttpCredentialsAccepted) {
                 userItem.value = credentials.user
                 passwordItem.value = credentials.password.toCharArray()
 
@@ -59,7 +59,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 ExternalCredentialsRequestResult.FAIL -> return false
                 ExternalCredentialsRequestResult.CREDENTIALS_NOT_STORED -> {
                     val credentials = askForCredentials()
-                    if (credentials is CredentialsState.HttpCredentialsAccepted) {
+                    if (credentials is CredentialsAccepted.HttpCredentialsAccepted) {
                         userItem.value = credentials.user
                         passwordItem.value = credentials.password.toCharArray()
 
@@ -77,7 +77,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
     private fun saveCredentialsInExternalHelper(
         uri: URIish,
         externalCredentialsHelper: ExternalCredentialsHelper,
-        credentials: CredentialsState.HttpCredentialsAccepted
+        credentials: CredentialsAccepted.HttpCredentialsAccepted
     ) {
         val process = Runtime.getRuntime()
             .exec(String.format("${externalCredentialsHelper.path} %s", "store"));
@@ -102,9 +102,9 @@ class HttpCredentialsProvider @AssistedInject constructor(
     }
 
     private fun askForCredentials(): CredentialsState {
-        credentialsStateManager.updateState(CredentialsState.HttpCredentialsRequested)
+        credentialsStateManager.updateState(CredentialsRequested.HttpCredentialsRequested)
         var credentials = credentialsStateManager.currentCredentialsState
-        while (credentials is CredentialsState.CredentialsRequested) {
+        while (credentials is CredentialsRequested) {
             credentials = credentialsStateManager.currentCredentialsState
         }
 

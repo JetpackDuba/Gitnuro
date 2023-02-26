@@ -44,14 +44,14 @@ class GRemoteSession @Inject constructor(
         var result = session.userAuthPublicKeyAuto(null, null)
 
         if(result == 1) {
-            credentialsStateManager.updateState(CredentialsState.SshCredentialsRequested)
+            credentialsStateManager.updateState(CredentialsRequested.SshCredentialsRequested)
 
             var credentials = credentialsStateManager.currentCredentialsState
-            while (credentials is CredentialsState.CredentialsRequested) {
+            while (credentials is CredentialsRequested) {
                 credentials = credentialsStateManager.currentCredentialsState
             }
 
-            val password = if (credentials !is CredentialsState.SshCredentialsAccepted)
+            val password = if (credentials !is CredentialsAccepted.SshCredentialsAccepted)
                 null
             else
                 credentials.password

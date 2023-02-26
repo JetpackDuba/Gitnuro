@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.LoadingRepository
 import com.jetpackduba.gitnuro.LocalTabScope
+import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
+import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
@@ -177,34 +179,41 @@ fun AppTab(
 
 @Composable
 fun CredentialsDialog(gitManager: TabViewModel) {
-    val credentialsState by gitManager.credentialsState.collectAsState()
+    val credentialsState = gitManager.credentialsState.collectAsState()
 
-    if (credentialsState == CredentialsState.HttpCredentialsRequested) {
-        UserPasswordDialog(
-            onReject = {
-                gitManager.credentialsDenied()
-            },
-            onAccept = { user, password ->
-                gitManager.httpCredentialsAccepted(user, password)
-            }
-        )
-    } else if (credentialsState == CredentialsState.SshCredentialsRequested) {
-        SshPasswordDialog(
-            onReject = {
-                gitManager.credentialsDenied()
-            },
-            onAccept = { password ->
-                gitManager.sshCredentialsAccepted(password)
-            }
-        )
-    } else if (credentialsState == CredentialsState.GpgCredentialsRequested) {
-        GpgPasswordDialog(
-            onReject = {
-                gitManager.credentialsDenied()
-            },
-            onAccept = { password ->
-                gitManager.gpgCredentialsAccepted(password)
-            }
-        )
+    when (val credentialsStateValue = credentialsState.value) {
+        CredentialsRequested.HttpCredentialsRequested -> {
+            UserPasswordDialog(
+                onReject = {
+                    gitManager.credentialsDenied()
+                },
+                onAccept = { user, password ->
+                    gitManager.httpCredentialsAccepted(user, password)
+                }
+            )
+        }
+        CredentialsRequested.SshCredentialsRequested -> {
+            SshPasswordDialog(
+                onReject = {
+                    gitManager.credentialsDenied()
+                },
+                onAccept = { password ->
+                    gitManager.sshCredentialsAccepted(password)
+                }
+            )
+        }
+        is CredentialsRequested.GpgCredentialsRequested -> {
+            GpgPasswordDialog(
+                gpgCredentialsRequested = credentialsStateValue,
+                onReject = {
+                    gitManager.credentialsDenied()
+                },
+                onAccept = { password ->
+                    gitManager.gpgCredentialsAccepted(password)
+                }
+            )
+        }
+
+        is CredentialsAccepted, CredentialsState.None, CredentialsState.CredentialsDenied -> { /* Nothing to do */ }
     }
 }

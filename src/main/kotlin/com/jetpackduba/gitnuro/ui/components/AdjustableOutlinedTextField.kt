@@ -48,6 +48,7 @@ fun AdjustableOutlinedTextField(
     backgroundColor: Color = MaterialTheme.colors.background,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     val textColor = textStyle.color.takeOrElse {
         colors.textColor(enabled).value
@@ -90,7 +91,15 @@ fun AdjustableOutlinedTextField(
                         leadingIcon()
                         Spacer(modifier = Modifier.width(8.dp))
                     }
-                    innerTextField()
+                    Box(modifier = Modifier.weight(1f)) {
+                        innerTextField()
+                    }
+
+
+                    if (trailingIcon != null) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        trailingIcon()
+                    }
                 }
             }
         )

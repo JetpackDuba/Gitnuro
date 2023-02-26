@@ -27,6 +27,7 @@ import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.systemSeparator
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
+import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.AppTheme
@@ -40,6 +41,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.lib.GpgSigner
 import java.io.File
 import java.nio.file.Paths
 import javax.inject.Inject
@@ -56,6 +58,9 @@ class App {
 
     @Inject
     lateinit var appSettings: AppSettings
+
+    @Inject
+    lateinit var appGpgSigner: AppGpgSigner
 
     init {
         appComponent.inject(this)
@@ -80,6 +85,8 @@ class App {
         }
 
         loadTabs()
+
+        GpgSigner.setDefault(appGpgSigner)
 
         if (dirToOpen != null)
             defaultSelectedTabKey = addDirTab(dirToOpen)

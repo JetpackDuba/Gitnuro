@@ -16,6 +16,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.credentials.CredentialsRequested
+import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
@@ -25,14 +27,19 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable
 fun GpgPasswordDialog(
+    gpgCredentialsRequested: CredentialsRequested.GpgCredentialsRequested,
     onReject: () -> Unit,
     onAccept: (password: String) -> Unit
 ) {
    PasswordDialog(
-       "Introduce your GPG key's password",
-       "Your GPG key is protected with a password",
-       "key.svg",
-       onReject,
-       onAccept,
+       title = "Introduce your GPG key's password",
+       subtitle = "Your GPG key is protected with a password",
+       icon = "key.svg",
+       cancelButtonText = "Do not sign",
+       isRetry = gpgCredentialsRequested.isRetry,
+       password = gpgCredentialsRequested.password,
+       retryMessage = "Invalid password, please try again",
+       onReject = onReject,
+       onAccept = onAccept,
    )
 }

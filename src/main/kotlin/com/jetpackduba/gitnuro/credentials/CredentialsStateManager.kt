@@ -20,15 +20,20 @@ class CredentialsStateManager @Inject constructor() {
     }
 }
 
-sealed class CredentialsState {
-    object None : CredentialsState()
-    sealed class CredentialsRequested : CredentialsState()
-    object SshCredentialsRequested : CredentialsRequested()
-    object GpgCredentialsRequested : CredentialsRequested()
-    object HttpCredentialsRequested : CredentialsRequested()
-    object CredentialsDenied : CredentialsState()
-    sealed class CredentialsAccepted : CredentialsState()
-    data class SshCredentialsAccepted(val password: String) : CredentialsAccepted()
-    data class GpgCredentialsAccepted(val password: String) : CredentialsAccepted()
-    data class HttpCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted()
+sealed interface CredentialsState {
+    object None : CredentialsState
+    object CredentialsDenied : CredentialsState
 }
+
+sealed interface CredentialsAccepted : CredentialsState {
+    data class SshCredentialsAccepted(val password: String) : CredentialsAccepted
+    data class GpgCredentialsAccepted(val password: String) : CredentialsAccepted
+    data class HttpCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted
+}
+
+sealed interface CredentialsRequested : CredentialsState {
+    object SshCredentialsRequested : CredentialsRequested
+    data class GpgCredentialsRequested(val isRetry: Boolean, val password: String) : CredentialsRequested
+    object HttpCredentialsRequested : CredentialsRequested
+}
+

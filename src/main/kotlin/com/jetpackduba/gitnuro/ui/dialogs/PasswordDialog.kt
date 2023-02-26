@@ -1,25 +1,32 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
+import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
@@ -28,10 +35,16 @@ fun PasswordDialog(
     title: String,
     subtitle: String,
     icon: String,
+    password: String = "",
+    cancelButtonText: String = "Cancel",
+    isRetry: Boolean = false,
+    retryMessage: String = "",
     onReject: () -> Unit,
     onAccept: (password: String) -> Unit,
 ) {
-    var passwordField by remember { mutableStateOf("") }
+    var showRetryMessage by remember(isRetry) { mutableStateOf(isRetry) }
+    var showPassword by remember { mutableStateOf(false) }
+    var passwordField by remember { mutableStateOf(password) }
     val passwordFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
 
@@ -39,6 +52,7 @@ fun PasswordDialog(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
+            modifier = Modifier.width(IntrinsicSize.Min)
         ) {
 
             Icon(
@@ -87,9 +101,52 @@ fun PasswordDialog(
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     passwordField = it
+                    showRetryMessage = false
                 },
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val visibilityIcon = if (showPassword) {
+                        "visibility_off.svg"
+                    } else {
+                        "visibility.svg"
+                    }
+
+                    IconButton(
+                        onClick = { showPassword = !showPassword },
+                        modifier = Modifier.handOnHover()
+                            .onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    // return focus to field instead so the user can continue typing without having to click on the field again
+                                    passwordFieldFocusRequester.requestFocus()
+                                }
+                            },
+                    ) {
+                        Icon(
+                            painterResource(visibilityIcon),
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onBackground,
+                        )
+                    }
+                }
             )
+
+            if (showRetryMessage) {
+                Box(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colors.error)
+                        .align(Alignment.CenterHorizontally)
+                        .padding(4.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        retryMessage,
+                        color = MaterialTheme.colors.onError,
+                    )
+                }
+
+            }
 
             Row(
                 modifier = Modifier
@@ -97,7 +154,7 @@ fun PasswordDialog(
                     .align(Alignment.End)
             ) {
                 PrimaryButton(
-                    text = "Cancel",
+                    text = cancelButtonText,
                     modifier = Modifier.padding(end = 8.dp),
                     onClick = onReject,
                     backgroundColor = Color.Transparent,
