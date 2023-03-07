@@ -21,6 +21,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
+import org.eclipse.jgit.submodule.SubmoduleStatus
 
 @Composable
 fun SidePanel(
@@ -29,6 +30,7 @@ fun SidePanel(
     remotesViewModel: RemotesViewModel = sidePanelViewModel.remotesViewModel,
     tagsViewModel: TagsViewModel = sidePanelViewModel.tagsViewModel,
     stashesViewModel: StashesViewModel = sidePanelViewModel.stashesViewModel,
+    submodulesViewModel: SubmodulesViewModel = sidePanelViewModel.submodulesViewModel,
 ) {
     var filter by remember(sidePanelViewModel) { mutableStateOf(sidePanelViewModel.filter.value) }
 
@@ -36,6 +38,7 @@ fun SidePanel(
     val remotesState by remotesViewModel.remoteState.collectAsState()
     val tagsState by tagsViewModel.tagsState.collectAsState()
     val stashesState by stashesViewModel.stashesState.collectAsState()
+    val submodulesState by submodulesViewModel.submodules.collectAsState()
 
     var showEditRemotesDialog by remember { mutableStateOf(false) }
 
@@ -73,6 +76,11 @@ fun SidePanel(
             stashes(
                 stashesState = stashesState,
                 stashesViewModel = stashesViewModel,
+            )
+
+            submodules(
+                submodulesState = submodulesState,
+                submodulesViewModel = submodulesViewModel
             )
         }
     }
@@ -285,6 +293,38 @@ fun LazyListScope.stashes(
     }
 }
 
+fun LazyListScope.submodules(
+    submodulesState: SubmodulesState,
+    submodulesViewModel: SubmodulesViewModel,
+) {
+    val isExpanded = submodulesState.isExpanded
+    val submodules = submodulesState.submodules
+
+    item {
+        ContextMenu(
+            items = { emptyList() }
+        ) {
+            SideMenuHeader(
+                text = "Submodules",
+                icon = painterResource("topic.svg"),
+                itemsCount = submodules.count(),
+                hoverIcon = null,
+                isExpanded = isExpanded,
+                onExpand = { submodulesViewModel.onExpand() }
+            )
+        }
+    }
+
+    if (isExpanded) {
+        items(submodules, key = { it.first }) { submodule ->
+            Submodule(
+                submodule,
+                onInitializeModule = { submodulesViewModel.initializeSubmodule(submodule.first) }
+            )
+        }
+    }
+}
+
 @Composable
 private fun Branch(
     branch: Ref,
@@ -415,5 +455,35 @@ private fun Stash(
             iconResourcePath = "stash.svg",
             onClick = onClick,
         )
+    }
+}
+
+@Composable
+private fun Submodule(
+    submodulePair: Pair<String, SubmoduleStatus>,
+    onInitializeModule: () -> Unit,
+) {
+    ContextMenu(
+        items = {
+            submoduleContextMenuItems(
+                submodulePair.second,
+                onInitializeModule = onInitializeModule
+            )
+        }
+    ) {
+        SideMenuSubentry(
+            text = submodulePair.first,
+            iconResourcePath = "topic.svg",
+        ) {
+            val stateName = submodulePair.second.type.toString()
+            Tooltip(stateName) {
+                Text(
+                    text = stateName.first().toString(),
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                )
+            }
+        }
     }
 }
