@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.ui.res.painterResource
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
 import org.eclipse.jgit.lib.Ref
@@ -23,7 +24,7 @@ fun branchContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Checkout branch",
-                    icon = { painterResource("start.svg") },
+                    icon = { painterResource(AppIcons.START) },
                     onClick = onCheckoutBranch
                 )
             )
@@ -48,7 +49,7 @@ fun branchContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Delete branch",
-                    icon = { painterResource("delete.svg") },
+                    icon = { painterResource(AppIcons.DELETE) },
                     onClick = onDeleteBranch
                 )
             )
@@ -71,7 +72,7 @@ fun branchContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Delete remote branch",
-                    icon = { painterResource("delete.svg") },
+                    icon = { painterResource(AppIcons.DELETE) },
                     onClick = onDeleteRemoteBranch
                 ),
             )

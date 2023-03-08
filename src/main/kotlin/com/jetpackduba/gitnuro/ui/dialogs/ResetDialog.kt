@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.git.log.ResetType
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -32,7 +33,7 @@ fun ResetBranchDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(
-                painterResource("undo.svg"),
+                painterResource(AppIcons.UNDO),
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)

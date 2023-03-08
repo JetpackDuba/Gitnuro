@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -185,7 +186,7 @@ fun MinimizedBlame(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource("close.svg"),
+                painter = painterResource(AppIcons.CLOSE),
                 contentDescription = "Close blame",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
@@ -220,7 +221,7 @@ private fun Header(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource("close.svg"),
+                painter = painterResource(AppIcons.CLOSE),
                 contentDescription = "Close blame",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )

@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.LoadingRepository
 import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
@@ -130,7 +131,7 @@ fun AppTab(
                         Spacer(modifier = Modifier.weight(1f))
 
                         Icon(
-                            painterResource("error.svg"),
+                            painterResource(AppIcons.ERROR),
                             contentDescription = null,
                             tint = MaterialTheme.colors.error,
                             modifier = Modifier.size(24.dp)

@@ -112,7 +112,7 @@ class App {
                         isOpen = false
                     },
                     state = windowState,
-                    icon = painterResource("logo.svg"),
+                    icon = painterResource(AppIcons.LOGO),
                 ) {
                     val density = if (scale != -1f) {
                         arrayOf(LocalDensity provides Density(scale, 1f))

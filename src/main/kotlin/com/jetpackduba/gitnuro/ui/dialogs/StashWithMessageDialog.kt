@@ -15,6 +15,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -36,7 +37,7 @@ fun StashWithMessageDialog(
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                painterResource("stash.svg"),
+                painterResource(AppIcons.STASH),
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)

@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.ui.res.painterResource
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 
@@ -17,7 +18,7 @@ fun statusEntriesContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Discard file changes",
-                    icon = { painterResource("undo.svg") },
+                    icon = { painterResource(AppIcons.UNDO) },
                     onClick = onReset,
                 )
             )
@@ -26,7 +27,7 @@ fun statusEntriesContextMenuItems(
                 add(
                     ContextMenuElement.ContextTextEntry(
                         label = "Blame file",
-                        icon = { painterResource("blame.svg") },
+                        icon = { painterResource(AppIcons.BLAME) },
                         onClick = onBlame,
                     )
                 )
@@ -34,7 +35,7 @@ fun statusEntriesContextMenuItems(
                 add(
                     ContextMenuElement.ContextTextEntry(
                         label = "File history",
-                        icon = { painterResource("history.svg") },
+                        icon = { painterResource(AppIcons.HISTORY) },
                         onClick = onHistory,
                     )
                 )
@@ -48,7 +49,7 @@ fun statusEntriesContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Delete file",
-                    icon = { painterResource("delete.svg") },
+                    icon = { painterResource(AppIcons.DELETE) },
                     onClick = onDelete,
                 )
             )

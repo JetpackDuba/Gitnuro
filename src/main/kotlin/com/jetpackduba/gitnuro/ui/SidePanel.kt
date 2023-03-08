@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.isLocal
 import com.jetpackduba.gitnuro.extensions.simpleName
@@ -110,7 +111,7 @@ fun FilterTextField(value: String, onValueChange: (String) -> Unit, modifier: Mo
         maxLines = 1,
         leadingIcon = {
             Icon(
-                painterResource("search.svg"),
+                painterResource(AppIcons.SEARCH),
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
                 tint = if (value.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
@@ -133,7 +134,7 @@ fun LazyListScope.localBranches(
         ) {
             SideMenuHeader(
                 text = "Local branches",
-                icon = painterResource("branch.svg"),
+                icon = painterResource(AppIcons.BRANCH),
                 itemsCount = branches.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -175,7 +176,7 @@ fun LazyListScope.remotes(
         ) {
             SideMenuHeader(
                 text = "Remotes",
-                icon = painterResource("cloud.svg"),
+                icon = painterResource(AppIcons.CLOUD),
                 itemsCount = remotes.count(),
                 hoverIcon = {
                     IconButton(
@@ -186,7 +187,7 @@ fun LazyListScope.remotes(
                             .handOnHover(),
                     ) {
                         Icon(
-                            painter = painterResource("settings.svg"),
+                            painter = painterResource(AppIcons.SETTINGS),
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -236,7 +237,7 @@ fun LazyListScope.tags(
         ) {
             SideMenuHeader(
                 text = "Tags",
-                icon = painterResource("tag.svg"),
+                icon = painterResource(AppIcons.TAG),
                 itemsCount = tags.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -272,7 +273,7 @@ fun LazyListScope.stashes(
         ) {
             SideMenuHeader(
                 text = "Stashes",
-                icon = painterResource("stash.svg"),
+                icon = painterResource(AppIcons.STASH),
                 itemsCount = stashes.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -307,7 +308,7 @@ fun LazyListScope.submodules(
         ) {
             SideMenuHeader(
                 text = "Submodules",
-                icon = painterResource("topic.svg"),
+                icon = painterResource(AppIcons.TOPIC),
                 itemsCount = submodules.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -358,7 +359,7 @@ private fun Branch(
     ) {
         SideMenuSubentry(
             text = branch.simpleName,
-            iconResourcePath = "branch.svg",
+            iconResourcePath = AppIcons.BRANCH,
             onClick = onBranchClicked,
             onDoubleClick = onBranchDoubleClicked,
         ) {
@@ -382,7 +383,7 @@ private fun Remote(
 ) {
     SideMenuSubentry(
         text = remote.remoteInfo.remoteConfig.name,
-        iconResourcePath = "cloud.svg",
+        iconResourcePath = AppIcons.CLOUD,
         onClick = onRemoteClicked
     )
 }
@@ -404,7 +405,7 @@ private fun RemoteBranches(
         SideMenuSubentry(
             text = remoteBranch.simpleName,
             extraPadding = 24.dp,
-            iconResourcePath = "branch.svg",
+            iconResourcePath = AppIcons.BRANCH,
             onClick = onBranchClicked
         )
     }
@@ -427,7 +428,7 @@ private fun Tag(
     ) {
         SideMenuSubentry(
             text = tag.simpleName,
-            iconResourcePath = "tag.svg",
+            iconResourcePath = AppIcons.TAG,
             onClick = onTagClicked,
         )
     }
@@ -453,7 +454,7 @@ private fun Stash(
     ) {
         SideMenuSubentry(
             text = stash.shortMessage,
-            iconResourcePath = "stash.svg",
+            iconResourcePath = AppIcons.STASH,
             onClick = onClick,
         )
     }
@@ -474,7 +475,7 @@ private fun Submodule(
     ) {
         SideMenuSubentry(
             text = submodulePair.first,
-            iconResourcePath = "topic.svg",
+            iconResourcePath = AppIcons.TOPIC,
         ) {
             val stateName = submodulePair.second.type.toString()
             Tooltip(stateName) {

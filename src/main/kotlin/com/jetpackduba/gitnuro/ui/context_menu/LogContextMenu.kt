@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.ui.res.painterResource
+import com.jetpackduba.gitnuro.AppIcons
 
 fun logContextMenu(
     onCheckoutCommit: () -> Unit,
@@ -13,17 +14,17 @@ fun logContextMenu(
 ) = listOf(
     ContextMenuElement.ContextTextEntry(
         label = "Checkout commit",
-        icon = { painterResource("start.svg") },
+        icon = { painterResource(AppIcons.START) },
         onClick = onCheckoutCommit
     ),
     ContextMenuElement.ContextTextEntry(
         label = "Create branch",
-        icon = { painterResource("branch.svg") },
+        icon = { painterResource(AppIcons.BRANCH) },
         onClick = onCreateNewBranch
     ),
     ContextMenuElement.ContextTextEntry(
         label = "Create tag",
-        icon = { painterResource("tag.svg") },
+        icon = { painterResource(AppIcons.TAG) },
         onClick = onCreateNewTag
     ),
     ContextMenuElement.ContextSeparator,
@@ -33,7 +34,7 @@ fun logContextMenu(
     ),
     ContextMenuElement.ContextTextEntry(
         label = "Revert commit",
-        icon = { painterResource("revert.svg") },
+        icon = { painterResource(AppIcons.REVERT) },
         onClick = onRevertCommit
     ),
     ContextMenuElement.ContextTextEntry(
@@ -42,7 +43,7 @@ fun logContextMenu(
     ),
     ContextMenuElement.ContextTextEntry(
         label = "Reset current branch to this commit",
-        icon = { painterResource("undo.svg") },
+        icon = { painterResource(AppIcons.UNDO) },
         onClick = onResetBranch
     ),
 )

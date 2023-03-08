@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
@@ -103,7 +104,7 @@ private fun Header(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource("close.svg"),
+                painter = painterResource(AppIcons.CLOSE),
                 contentDescription = "Close history",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )

@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
@@ -45,7 +46,7 @@ fun Menu(
             modifier = Modifier
                 .padding(start = 16.dp),
             title = "Open",
-            icon = painterResource("open.svg"),
+            icon = painterResource(AppIcons.OPEN),
             onClick = onOpenAnotherRepository,
         )
 
@@ -54,7 +55,7 @@ fun Menu(
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Pull",
-            icon = painterResource("download.svg"),
+            icon = painterResource(AppIcons.DOWNLOAD),
             onClick = { menuViewModel.pull() },
             extendedListItems = pullContextMenuItems(
                 onPullRebase = {
@@ -68,7 +69,7 @@ fun Menu(
 
         ExtendedMenuButton(
             title = "Push",
-            icon = painterResource("upload.svg"),
+            icon = painterResource(AppIcons.UPLOAD),
             onClick = { menuViewModel.push() },
             extendedListItems = pushContextMenuItems(
                 onPushWithTags = {
@@ -84,7 +85,7 @@ fun Menu(
 
         MenuButton(
             title = "Branch",
-            icon = painterResource("branch.svg"),
+            icon = painterResource(AppIcons.BRANCH),
         ) {
             onCreateBranch()
         }
@@ -101,7 +102,7 @@ fun Menu(
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Stash",
-            icon = painterResource("stash.svg"),
+            icon = painterResource(AppIcons.STASH),
             onClick = { menuViewModel.stash() },
             extendedListItems = stashContextMenuItems(
                 onStashWithMessage = onStashWithMessage
@@ -110,7 +111,7 @@ fun Menu(
 
         MenuButton(
             title = "Pop",
-            icon = painterResource("apply_stash.svg"),
+            icon = painterResource(AppIcons.APPLY_STASH),
         ) { menuViewModel.popStash() }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -125,14 +126,14 @@ fun Menu(
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Actions",
-            icon = painterResource("bolt.svg"),
+            icon = painterResource(AppIcons.BOLT),
             onClick = onQuickActions,
         )
 
         MenuButton(
             modifier = Modifier.padding(end = 16.dp),
             title = "Settings",
-            icon = painterResource("settings.svg"),
+            icon = painterResource(AppIcons.SETTINGS),
             onClick = onShowSettingsDialog,
         )
     }
@@ -225,7 +226,7 @@ fun ExtendedMenuButton(
         ) {
 
             Icon(
-                painterResource("expand_more.svg"),
+                painterResource(AppIcons.EXPAND_MORE),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onBackground,
                 modifier = Modifier.size(16.dp)

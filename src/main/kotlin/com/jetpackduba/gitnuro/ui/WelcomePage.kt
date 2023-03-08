@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -109,20 +110,20 @@ fun HomeButtons(
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
             title = "Open a repository",
-            painter = painterResource("open.svg"),
+            painter = painterResource(AppIcons.OPEN),
             onClick = { openRepositoryDialog(tabViewModel) })
 
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
             title = "Clone a repository",
-            painter = painterResource("download.svg"),
+            painter = painterResource(AppIcons.DOWNLOAD),
             onClick = onShowCloneView
         )
 
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
             title = "Start a local repository",
-            painter = painterResource("open.svg"),
+            painter = painterResource(AppIcons.OPEN),
             onClick = {
                 val dir = openDirectoryDialog()
                 if (dir != null) tabViewModel.initLocalRepository(dir)
@@ -137,7 +138,7 @@ fun HomeButtons(
 
         IconTextButton(
             title = "Source code",
-            painter = painterResource("code.svg"),
+            painter = painterResource(AppIcons.CODE),
             onClick = {
                 openUrlInBrowser("https://github.com/JetpackDuba/Gitnuro")
             }
@@ -145,7 +146,7 @@ fun HomeButtons(
 
         IconTextButton(
             title = "Report a bug",
-            painter = painterResource("bug.svg"),
+            painter = painterResource(AppIcons.BUG),
             onClick = {
                 openUrlInBrowser("https://github.com/JetpackDuba/Gitnuro/issues")
             }
@@ -153,20 +154,20 @@ fun HomeButtons(
 
         IconTextButton(
             title = "Additional information",
-            painter = painterResource("info.svg"),
+            painter = painterResource(AppIcons.INFO),
             onClick = onShowAdditionalInfo
         )
 
         IconTextButton(
             title = "Settings",
-            painter = painterResource("settings.svg"),
+            painter = painterResource(AppIcons.SETTINGS),
             onClick = onShowSettings
         )
 
         if (newUpdate != null) {
             IconTextButton(
                 title = "New update ${newUpdate.appVersion} available ",
-                painter = painterResource("grade.svg"),
+                painter = painterResource(AppIcons.GRADE),
                 iconColor = MaterialTheme.colors.secondary,
                 onClick = {
                     openUrlInBrowser(newUpdate.downloadUrl)

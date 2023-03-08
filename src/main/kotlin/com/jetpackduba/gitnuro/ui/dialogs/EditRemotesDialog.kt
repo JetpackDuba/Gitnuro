@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.backgroundSelected
@@ -179,7 +180,7 @@ fun EditRemotesDialog(
                             }
                         ) {
                             Icon(
-                                painter = painterResource("add.svg"),
+                                painter = painterResource(AppIcons.ADD),
                                 contentDescription = null,
                                 tint = MaterialTheme.colors.onBackground,
                             )
@@ -195,7 +196,7 @@ fun EditRemotesDialog(
                             }
                         ) {
                             Icon(
-                                painter = painterResource("remove.svg"),
+                                painter = painterResource(AppIcons.REMOVE),
                                 contentDescription = null,
                                 tint = if (selectedRemote != null)
                                     MaterialTheme.colors.onBackground

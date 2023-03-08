@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -43,7 +44,7 @@ fun UserPasswordDialog(
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                painterResource("lock.svg"),
+                painterResource(AppIcons.LOCK),
                 contentDescription = null,
                 modifier = Modifier
                     .size(64.dp)

@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.runtime.Composable
+import com.jetpackduba.gitnuro.AppIcons
 
 @Composable
 fun SshPasswordDialog(
@@ -10,7 +11,7 @@ fun SshPasswordDialog(
     PasswordDialog(
         title = "Introduce your SSH key's password",
         subtitle = "Your SSH key is protected with a password",
-        icon = "lock.svg",
+        icon = AppIcons.LOCK,
         onReject = onReject,
         onAccept = onAccept,
     )

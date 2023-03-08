@@ -17,6 +17,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -42,7 +43,7 @@ fun SideMenuHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = painterResource(if (isExpanded) "expand_more.svg" else "chevron_right.svg"),
+            painter = painterResource(if (isExpanded) AppIcons.EXPAND_MORE else AppIcons.CHEVRON_RIGHT),
             contentDescription = null,
             tint = MaterialTheme.colors.onBackground,
             modifier = Modifier

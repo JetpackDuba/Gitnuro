@@ -12,6 +12,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -280,7 +281,7 @@ fun <T : DropDownOption> SettingDropDown(
                 )
 
                 Icon(
-                    painter = painterResource("dropdown.svg"),
+                    painter = painterResource(AppIcons.DROPDOWN),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground,
                 )

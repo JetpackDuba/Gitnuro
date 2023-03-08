@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.runtime.Composable
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 
 @Composable
@@ -12,7 +13,7 @@ fun GpgPasswordDialog(
     PasswordDialog(
         title = "Introduce your GPG key's password",
         subtitle = "Your GPG key is protected with a password",
-        icon = "key.svg",
+        icon = AppIcons.KEY,
         cancelButtonText = "Do not sign",
         isRetry = gpgCredentialsRequested.isRetry,
         password = gpgCredentialsRequested.password,

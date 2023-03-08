@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.EntryContent
@@ -314,7 +315,7 @@ private fun AnimatedImage(imagePath: String) {
 @Composable
 fun BinaryDiff() {
     Image(
-        painter = painterResource("binary.svg"),
+        painter = painterResource(AppIcons.BINARY),
         contentDescription = null,
         modifier = Modifier.width(400.dp),
         colorFilter = ColorFilter.tint(MaterialTheme.colors.primary)
@@ -704,7 +705,7 @@ private fun DiffHeader(
                     .handOnHover()
             ) {
                 Image(
-                    painter = painterResource("close.svg"),
+                    painter = painterResource(AppIcons.CLOSE),
                     contentDescription = "Close diff",
                     colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
                 )
@@ -810,7 +811,7 @@ private fun PathOnlyDiffHeader(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource("close.svg"),
+                painter = painterResource(AppIcons.CLOSE),
                 contentDescription = "Close diff",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
@@ -908,9 +909,9 @@ fun DiffLineText(line: Line, diffEntryType: DiffEntryType, onActionTriggered: ()
 
             val iconName = remember(diffEntryType) {
                 if (diffEntryType is DiffEntryType.StagedDiff) {
-                    "remove.svg"
+                    AppIcons.REMOVE
                 } else {
-                    "add.svg"
+                    AppIcons.ADD
                 }
             }
 

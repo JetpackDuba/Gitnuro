@@ -16,6 +16,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -32,9 +33,9 @@ fun QuickActionsDialog(
     val textFieldFocusRequester = remember { FocusRequester() }
     val items = remember {
         listOf(
-            QuickAction("code.svg", "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
-            QuickAction("download.svg", "Clone new repository", QuickActionType.CLONE),
-            QuickAction("refresh.svg", "Refresh repository data", QuickActionType.REFRESH),
+            QuickAction(AppIcons.CODE, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
+            QuickAction(AppIcons.DOWNLOAD, "Clone new repository", QuickActionType.CLONE),
+            QuickAction(AppIcons.REFRESH, "Refresh repository data", QuickActionType.REFRESH),
         )
     }
 

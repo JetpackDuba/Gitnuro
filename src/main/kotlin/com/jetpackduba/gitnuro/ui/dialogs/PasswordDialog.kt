@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -106,9 +107,9 @@ fun PasswordDialog(
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val visibilityIcon = if (showPassword) {
-                        "visibility_off.svg"
+                        AppIcons.VISIBILITY_OFF
                     } else {
-                        "visibility.svg"
+                        AppIcons.VISIBILITY
                     }
 
                     IconButton(

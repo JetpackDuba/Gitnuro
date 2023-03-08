@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -84,7 +85,7 @@ fun AuthorDialog(
                 modifier = Modifier.alpha(visibilityAlpha)
             ) {
                 Icon(
-                    painterResource("warning.svg"),
+                    painterResource(AppIcons.WARNING),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier.size(16.dp)

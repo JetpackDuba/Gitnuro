@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import com.jetpackduba.gitnuro.AppIcons
 
 @OptIn(ExperimentalFoundationApi::class)
 fun repositoryAdditionalOptionsMenu(
@@ -9,7 +10,7 @@ fun repositoryAdditionalOptionsMenu(
     return mutableListOf(
         DropDownContentData(
             label = "Open repository folder",
-            icon = "source.svg",
+            icon = AppIcons.SOURCE,
             onClick = onOpenRepositoryOnFileExplorer,
         ),
     )

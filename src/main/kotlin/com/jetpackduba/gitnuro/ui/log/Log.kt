@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
@@ -239,7 +240,7 @@ fun Log(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                painterResource("align_top.svg"),
+                                painterResource(AppIcons.ALIGN_TOP),
                                 contentDescription = null,
                                 tint = MaterialTheme.colors.onPrimary,
                                 modifier = Modifier.size(20.dp),
@@ -1110,7 +1111,7 @@ fun BranchChip(
     if (isCurrentBranch) {
         endingContent = {
             Icon(
-                painter = painterResource("location.svg"),
+                painter = painterResource(AppIcons.LOCATION),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 6.dp),
                 tint = MaterialTheme.colors.primaryVariant,
@@ -1122,7 +1123,7 @@ fun BranchChip(
         modifier = modifier,
         color = color,
         ref = ref,
-        icon = "branch.svg",
+        icon = AppIcons.BRANCH,
         onCheckoutRef = onCheckoutBranch,
         contextMenuItemsList = contextMenuItemsList,
         endingContent = endingContent,
@@ -1148,7 +1149,7 @@ fun TagChip(
     RefChip(
         modifier,
         ref,
-        "tag.svg",
+        AppIcons.TAG,
         onCheckoutRef = onCheckoutTag,
         contextMenuItemsList = contextMenuItemsList,
         color = color,
