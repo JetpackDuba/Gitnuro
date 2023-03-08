@@ -136,6 +136,12 @@ class TabViewModel @Inject constructor(
                     loadRepositoryState(tabState.git)
                 }
             }
+
+            launch {
+                errorsManager.error.collect {
+                    showError.value = true
+                }
+            }
         }
     }
 
