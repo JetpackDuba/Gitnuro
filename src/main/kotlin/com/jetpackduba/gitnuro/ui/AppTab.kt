@@ -38,7 +38,6 @@ fun AppTab(
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val isProcessing by tabViewModel.processing.collectAsState()
 
-    LocalTabScope.current.appStateManager
     Box {
         Column(
             modifier = Modifier
@@ -94,7 +93,6 @@ fun AppTab(
                 }
             }
         }
-
 
         if (isProcessing) {
             Box(

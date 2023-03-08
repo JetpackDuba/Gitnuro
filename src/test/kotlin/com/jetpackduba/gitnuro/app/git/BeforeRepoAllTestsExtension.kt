@@ -1,6 +1,9 @@
 package com.jetpackduba.gitnuro.app.git
 
-import com.jetpackduba.gitnuro.credentials.*
+import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.credentials.GRemoteSession
+import com.jetpackduba.gitnuro.credentials.GSessionManager
+import com.jetpackduba.gitnuro.credentials.HttpCredentialsProvider
 import com.jetpackduba.gitnuro.di.factories.HttpCredentialsFactory
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.HandleTransportUseCase

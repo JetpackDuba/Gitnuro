@@ -11,7 +11,7 @@ class LibSshChannelInputStream(private val sshChannel: ssh_channel) : InputStrea
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         val byteArray = ByteArray(len)
         val result = sshLib.ssh_channel_read(sshChannel, byteArray, len, 0)
-        for(i in 0 until len) {
+        for (i in 0 until len) {
             b[off + i] = byteArray[i]
         }
 

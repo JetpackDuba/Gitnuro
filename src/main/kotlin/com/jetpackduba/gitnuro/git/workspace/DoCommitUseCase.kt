@@ -1,13 +1,9 @@
 package com.jetpackduba.gitnuro.git.workspace
 
-import com.jetpackduba.gitnuro.credentials.GpgCredentialsProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.transport.CredentialItem
-import org.eclipse.jgit.transport.CredentialsProvider
-import org.eclipse.jgit.transport.URIish
 import javax.inject.Inject
 
 class DoCommitUseCase @Inject constructor() {

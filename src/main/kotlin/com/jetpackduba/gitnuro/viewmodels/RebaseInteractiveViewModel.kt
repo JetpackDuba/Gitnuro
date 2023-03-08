@@ -8,7 +8,6 @@ import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
 import com.jetpackduba.gitnuro.git.rebase.GetRebaseLinesFullMessageUseCase
 import com.jetpackduba.gitnuro.git.rebase.ResumeRebaseInteractiveUseCase
 import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
-import com.jetpackduba.gitnuro.logging.printLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.runBlocking

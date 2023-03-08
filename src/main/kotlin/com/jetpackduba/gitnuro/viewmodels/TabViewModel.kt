@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.viewmodels
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.ErrorsManager
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
-import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.*
@@ -21,7 +20,8 @@ import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.blame.BlameResult

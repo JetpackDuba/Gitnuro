@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
-import javax.inject.Inject
 
 private const val TAG = "BranchesViewModel"
 
@@ -40,17 +39,18 @@ class BranchesViewModel @AssistedInject constructor(
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     private val _currentBranch = MutableStateFlow<Ref?>(null)
 
-    val branchesState = combine(_branches, _currentBranch, isExpanded, filter) { branches, currentBranch, isExpanded, filter ->
-        BranchesState(
-            branches = branches.filter { it.simpleName.lowercaseContains(filter) },
-            isExpanded = isExpanded,
-            currentBranch = currentBranch
+    val branchesState =
+        combine(_branches, _currentBranch, isExpanded, filter) { branches, currentBranch, isExpanded, filter ->
+            BranchesState(
+                branches = branches.filter { it.simpleName.lowercaseContains(filter) },
+                isExpanded = isExpanded,
+                currentBranch = currentBranch
+            )
+        }.stateIn(
+            scope = tabScope,
+            started = SharingStarted.Eagerly,
+            initialValue = BranchesState(emptyList(), isExpanded.value, null)
         )
-    }.stateIn(
-        scope = tabScope,
-        started = SharingStarted.Eagerly,
-        initialValue = BranchesState(emptyList(), isExpanded.value, null)
-    )
 
     init {
 

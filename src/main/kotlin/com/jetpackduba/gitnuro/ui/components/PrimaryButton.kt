@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,7 +13,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
 
 
 @Composable
@@ -33,7 +31,7 @@ fun PrimaryButton(
             .clip(RoundedCornerShape(4.dp))
             .backgroundIf(enabled, backgroundColor, backgroundDisabled)
             .run {
-                if(enabled) {
+                if (enabled) {
                     handMouseClickable {
                         onClick()
                     }

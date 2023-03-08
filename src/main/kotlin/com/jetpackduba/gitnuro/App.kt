@@ -148,9 +148,10 @@ class App {
                 .removeSuffix("$systemSeparator.git")
             val newKey = it.count()
 
-            val existingIndex = newList.indexOfFirst { repo -> repo.path?.removeSuffix(systemSeparator) == absolutePath }
+            val existingIndex =
+                newList.indexOfFirst { repo -> repo.path?.removeSuffix(systemSeparator) == absolutePath }
 
-            defaultSelectedTabKey = if(existingIndex == -1) {
+            defaultSelectedTabKey = if (existingIndex == -1) {
                 newList.add(newAppTab(key = newKey, path = absolutePath))
                 newKey
             } else {

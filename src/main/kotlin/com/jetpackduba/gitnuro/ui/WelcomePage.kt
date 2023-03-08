@@ -26,7 +26,6 @@ import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
-import com.jetpackduba.gitnuro.ui.dialogs.CloneDialog
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 

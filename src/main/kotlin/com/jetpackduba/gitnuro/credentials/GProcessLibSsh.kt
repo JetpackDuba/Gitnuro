@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.credentials
 
-import com.jetpackduba.gitnuro.ssh.libssh.*
+import com.jetpackduba.gitnuro.ssh.libssh.LibSshChannel
+import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
 import java.io.InputStream
 import java.io.OutputStream
 

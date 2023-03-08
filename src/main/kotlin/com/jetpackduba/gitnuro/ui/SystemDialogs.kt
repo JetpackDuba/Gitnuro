@@ -89,7 +89,7 @@ private fun openJvmDialog(
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
     }
 
-    if(isMac) {
+    if (isMac) {
         System.setProperty("apple.awt.fileDialogForDirectories", "true")
         val fileChooser = if (basePath.isNullOrEmpty())
             FileDialog(null as java.awt.Frame?, "Open", FileDialog.LOAD)
@@ -110,7 +110,7 @@ private fun openJvmDialog(
         val fileChooser = if (basePath.isNullOrEmpty())
             JFileChooser()
         else
-        JFileChooser(basePath)
+            JFileChooser(basePath)
         fileChooser.fileSelectionMode = pickerType.value
         fileChooser.showOpenDialog(null)
         return if (fileChooser.selectedFile != null)

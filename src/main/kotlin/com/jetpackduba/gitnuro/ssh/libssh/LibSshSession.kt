@@ -24,7 +24,7 @@ class LibSshSession @Inject constructor() {
     fun userAuthPublicKeyAuto(username: String?, password: String?): Int {
         val result = sshLib.ssh_userauth_publickey_auto(session, username, password)
 
-        if(result != 0)
+        if (result != 0)
             println("RESULT is $result. ERROR IS: ${getError()}")
 
         return result

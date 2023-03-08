@@ -194,6 +194,7 @@ class StatusViewModel @Inject constructor(
     private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
         lastUncommitedChangesState = checkHasUncommitedChangedUseCase(git)
     }
+
     fun amend(isAmend: Boolean) {
         _isAmend.value = isAmend
 

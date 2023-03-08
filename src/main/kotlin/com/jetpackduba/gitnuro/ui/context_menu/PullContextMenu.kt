@@ -1,7 +1,5 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 fun pullContextMenuItems(
     onPullRebase: () -> Unit,
     onFetchAll: () -> Unit,

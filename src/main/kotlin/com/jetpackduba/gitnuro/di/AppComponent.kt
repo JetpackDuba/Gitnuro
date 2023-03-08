@@ -4,8 +4,6 @@ import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.modules.AppModule
-import com.jetpackduba.gitnuro.di.modules.NetworkModule
-import com.jetpackduba.gitnuro.di.modules.TabModule
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import dagger.Component

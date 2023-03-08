@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.credentials
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshOptions
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
 import org.apache.sshd.client.SshClient
-import org.apache.sshd.client.future.ConnectFuture
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
 import javax.inject.Inject
@@ -43,7 +42,7 @@ class GRemoteSession @Inject constructor(
         session.connect()
         var result = session.userAuthPublicKeyAuto(null, null)
 
-        if(result == 1) {
+        if (result == 1) {
             credentialsStateManager.updateState(CredentialsRequested.SshCredentialsRequested)
 
             var credentials = credentialsStateManager.currentCredentialsState
@@ -59,7 +58,7 @@ class GRemoteSession @Inject constructor(
             result = session.userAuthPublicKeyAuto(null, password)
         }
 
-        if(result != 0)
+        if (result != 0)
             throw Exception("Something went wrong with authentication. Code $result")
 
         this.session = session

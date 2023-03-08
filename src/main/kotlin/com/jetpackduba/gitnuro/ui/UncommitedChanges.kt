@@ -40,7 +40,10 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
-import com.jetpackduba.gitnuro.ui.context_menu.*
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.EntryType
+import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.StageStatus
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
@@ -83,7 +86,7 @@ fun UncommitedChanges(
     }
 
     val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
-    val canAmend = commitMessage.isNotEmpty()  && statusViewModel.hasPreviousCommits
+    val canAmend = commitMessage.isNotEmpty() && statusViewModel.hasPreviousCommits
 
     LaunchedEffect(statusViewModel) {
         statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->

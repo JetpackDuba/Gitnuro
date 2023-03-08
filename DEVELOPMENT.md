@@ -2,7 +2,8 @@
 
 ## Installing libssh
 
-Gitnuro depends on libssh being present as an external, native library (using [JNA](https://github.com/java-native-access/jna)).
+Gitnuro depends on libssh being present as an external, native library (
+using [JNA](https://github.com/java-native-access/jna)).
 While the release GitHub workflow packages it automatically, you'll need to install it manually when developing locally,
 such that it's available on the `$PATH`. See [here](https://www.libssh.org/get-it/) for one-liner installation
 instructions with your OS's package manager, or manually download a binary or compile it from source and place it in the
@@ -22,10 +23,12 @@ You don't need this if you only use the JDK installed by IntelliJ IDEA.
 
 Check which Java version this project currently uses (`cat build.gradle.kts | grep JavaLanguageVersion`) and install it.
 For instance on Debian-based systems, you'd run:
+
 ```bash
 sudo apt-get install openjdk-17-jre openjdk-17-jdk libssh-dev
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
+
 Once it works (e.g. `./gradlew build`), you may want to add that latter line to your `/etc/environment`.
 
 ## Running the app / unit tests

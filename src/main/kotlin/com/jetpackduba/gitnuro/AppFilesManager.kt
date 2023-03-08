@@ -35,7 +35,7 @@ class AppFilesManager @Inject constructor() {
 
         val appFolder = File(baseFolder, "gitnuro")
         // TODO test if mkdir fails for some reason
-        if(!appFolder.exists() || !appFolder.isDirectory)
+        if (!appFolder.exists() || !appFolder.isDirectory)
             appFolder.mkdir()
 
         return appFolder

@@ -151,7 +151,9 @@ class HttpCredentialsProvider @AssistedInject constructor(
 
         bufferedReader.use {
             var line: String
-            while (bufferedReader.readLine().also { line = checkNotNull(it) { "Cancelled authentication" } } != null && !(usernameSet && passwordSet)) {
+            while (bufferedReader.readLine().also {
+                    line = checkNotNull(it) { "Cancelled authentication" }
+                } != null && !(usernameSet && passwordSet)) {
                 if (line.startsWith("username=")) {
                     val split = line.split("=")
                     val userName = split.getOrNull(1) ?: return ExternalCredentialsRequestResult.CREDENTIALS_NOT_STORED

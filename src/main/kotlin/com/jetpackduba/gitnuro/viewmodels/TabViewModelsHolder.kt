@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.di.TabScope
-import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
+import com.jetpackduba.gitnuro.viewmodels.sidepanel.SidePanelViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 

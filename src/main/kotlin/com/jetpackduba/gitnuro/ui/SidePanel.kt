@@ -53,9 +53,10 @@ fun SidePanel(
                 .padding(start = 8.dp)
         )
 
-        ScrollableLazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 4.dp)
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 4.dp)
         ) {
             localBranches(
                 branchesState = branchesState,

@@ -103,7 +103,7 @@ class RemotesViewModel @AssistedInject constructor(
         val remotes = this.remotes.value
         val remoteInfo = remotes.firstOrNull { it.remoteInfo.remoteConfig.name == remoteName }
 
-        if(remoteInfo != null) {
+        if (remoteInfo != null) {
             val newRemoteInfo = remoteInfo.copy(isExpanded = !remoteClicked.isExpanded)
             val newRemotesList = remotes.toMutableList()
             val indexToReplace = newRemotesList.indexOf(remoteInfo)
