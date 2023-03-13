@@ -29,6 +29,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
@@ -44,6 +45,8 @@ import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.EntryType
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
+import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
+import com.jetpackduba.gitnuro.viewmodels.CommitterDataRequestState
 import com.jetpackduba.gitnuro.viewmodels.StageStatus
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
@@ -63,6 +66,8 @@ fun UncommitedChanges(
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
     val isAmend by statusViewModel.isAmend.collectAsState()
+    val committerDataRequestState = statusViewModel.committerDataRequestState.collectAsState()
+    val committerDataRequestStateValue = committerDataRequestState.value
 
     val stageStatus = stageStatusState.value
     val staged: List<StatusEntry>
@@ -94,10 +99,20 @@ fun UncommitedChanges(
         }
     }
 
+    if (committerDataRequestStateValue is CommitterDataRequestState.WaitingInput) {
+        CommitAuthorDialog(
+            committerDataRequestStateValue.authorInfo,
+            onClose = { statusViewModel.onRejectCommitterData() },
+            onAccept = { newAuthorInfo, persist ->
+                statusViewModel.onAcceptCommitterData(newAuthorInfo, persist)
+            },
+        )
+    }
+
     Column(
         modifier = Modifier
             .padding(end = 8.dp, bottom = 8.dp)
-            .fillMaxWidth()
+            .fillMaxWidth(),
     ) {
         AnimatedVisibility(
             visible = isLoading,
@@ -107,70 +122,74 @@ fun UncommitedChanges(
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
 
-        EntriesList(
-            modifier = Modifier
-                .weight(5f)
-                .padding(bottom = 4.dp)
-                .fillMaxWidth(),
-            title = "Staged",
-            allActionTitle = "Unstage all",
-            actionTitle = "Unstage",
-            selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
-            actionColor = MaterialTheme.colors.error,
-            actionTextColor = MaterialTheme.colors.onError,
-            statusEntries = staged,
-            lazyListState = stagedListState,
-            onDiffEntrySelected = onStagedDiffEntrySelected,
-            onDiffEntryOptionSelected = {
-                statusViewModel.unstage(it)
-            },
-            onGenerateContextMenu = { statusEntry ->
-                statusEntriesContextMenuItems(
-                    statusEntry = statusEntry,
-                    entryType = EntryType.STAGED,
-                    onBlame = { onBlameFile(statusEntry.filePath) },
-                    onReset = { statusViewModel.resetStaged(statusEntry) },
-                    onHistory = { onHistoryFile(statusEntry.filePath) },
-                )
-            },
-            onAllAction = {
-                statusViewModel.unstageAll()
-            },
-        )
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            EntriesList(
+                modifier = Modifier
+                    .weight(5f)
+                    .padding(bottom = 4.dp)
+                    .fillMaxWidth(),
+                title = "Staged",
+                allActionTitle = "Unstage all",
+                actionTitle = "Unstage",
+                selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
+                actionColor = MaterialTheme.colors.error,
+                actionTextColor = MaterialTheme.colors.onError,
+                statusEntries = staged,
+                lazyListState = stagedListState,
+                onDiffEntrySelected = onStagedDiffEntrySelected,
+                onDiffEntryOptionSelected = {
+                    statusViewModel.unstage(it)
+                },
+                onGenerateContextMenu = { statusEntry ->
+                    statusEntriesContextMenuItems(
+                        statusEntry = statusEntry,
+                        entryType = EntryType.STAGED,
+                        onBlame = { onBlameFile(statusEntry.filePath) },
+                        onReset = { statusViewModel.resetStaged(statusEntry) },
+                        onHistory = { onHistoryFile(statusEntry.filePath) },
+                    )
+                },
+                onAllAction = {
+                    statusViewModel.unstageAll()
+                },
+            )
 
-        EntriesList(
-            modifier = Modifier
-                .weight(5f)
-                .padding(bottom = 4.dp)
-                .fillMaxWidth(),
-            title = "Unstaged",
-            actionTitle = "Stage",
-            selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
-            actionColor = MaterialTheme.colors.primary,
-            actionTextColor = MaterialTheme.colors.onPrimary,
-            statusEntries = unstaged,
-            lazyListState = unstagedListState,
-            onDiffEntrySelected = onUnstagedDiffEntrySelected,
-            onDiffEntryOptionSelected = {
-                statusViewModel.stage(it)
-            },
-            onGenerateContextMenu = { statusEntry ->
-                statusEntriesContextMenuItems(
-                    statusEntry = statusEntry,
-                    entryType = EntryType.UNSTAGED,
-                    onBlame = { onBlameFile(statusEntry.filePath) },
-                    onHistory = { onHistoryFile(statusEntry.filePath) },
-                    onReset = { statusViewModel.resetUnstaged(statusEntry) },
-                    onDelete = {
-                        statusViewModel.deleteFile(statusEntry)
-                    },
-                )
-            },
-            onAllAction = {
-                statusViewModel.stageAll()
-            },
-            allActionTitle = "Stage all",
-        )
+            EntriesList(
+                modifier = Modifier
+                    .weight(5f)
+                    .padding(bottom = 4.dp)
+                    .fillMaxWidth(),
+                title = "Unstaged",
+                actionTitle = "Stage",
+                selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
+                actionColor = MaterialTheme.colors.primary,
+                actionTextColor = MaterialTheme.colors.onPrimary,
+                statusEntries = unstaged,
+                lazyListState = unstagedListState,
+                onDiffEntrySelected = onUnstagedDiffEntrySelected,
+                onDiffEntryOptionSelected = {
+                    statusViewModel.stage(it)
+                },
+                onGenerateContextMenu = { statusEntry ->
+                    statusEntriesContextMenuItems(
+                        statusEntry = statusEntry,
+                        entryType = EntryType.UNSTAGED,
+                        onBlame = { onBlameFile(statusEntry.filePath) },
+                        onHistory = { onHistoryFile(statusEntry.filePath) },
+                        onReset = { statusViewModel.resetUnstaged(statusEntry) },
+                        onDelete = {
+                            statusViewModel.deleteFile(statusEntry)
+                        },
+                    )
+                },
+                onAllAction = {
+                    statusViewModel.stageAll()
+                },
+                allActionTitle = "Stage all",
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -691,6 +710,42 @@ private fun FileEntry(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
             )
+        }
+    }
+}
+
+
+@Stable
+val BottomReversed = object : Arrangement.Vertical {
+    override fun Density.arrange(
+        totalSize: Int,
+        sizes: IntArray,
+        outPositions: IntArray
+    ) = placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = true)
+
+    override fun toString() = "Arrangement#BottomReversed"
+}
+
+internal fun placeRightOrBottom(
+    totalSize: Int,
+    size: IntArray,
+    outPosition: IntArray,
+    reverseInput: Boolean
+) {
+    val consumedSize = size.fold(0) { a, b -> a + b }
+    var current = totalSize - consumedSize
+    size.forEachIndexed(reverseInput) { index, it ->
+        outPosition[index] = current
+        current += it
+    }
+}
+
+private inline fun IntArray.forEachIndexed(reversed: Boolean, action: (Int, Int) -> Unit) {
+    if (!reversed) {
+        forEachIndexed(action)
+    } else {
+        for (i in (size - 1) downTo 0) {
+            action(i, get(i))
         }
     }
 }
