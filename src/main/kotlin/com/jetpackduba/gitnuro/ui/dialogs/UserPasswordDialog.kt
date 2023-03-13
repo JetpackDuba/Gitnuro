@@ -13,6 +13,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,8 +48,8 @@ fun UserPasswordDialog(
                 painterResource(AppIcons.LOCK),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(64.dp)
-                    .padding(vertical = 16.dp),
+                    .padding(bottom = 16.dp)
+                    .size(64.dp),
                 tint = MaterialTheme.colors.onBackground,
             )
 
@@ -58,13 +59,14 @@ fun UserPasswordDialog(
                     .padding(bottom = 8.dp),
                 color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body1,
+                fontWeight = FontWeight.SemiBold,
             )
 
             Text(
                 text = "Your remote requires authentication with a\nusername and a password",
                 modifier = Modifier
                     .padding(bottom = 16.dp),
-                color = MaterialTheme.colors.onBackgroundSecondary,
+                color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body2,
                 textAlign = TextAlign.Center,
             )

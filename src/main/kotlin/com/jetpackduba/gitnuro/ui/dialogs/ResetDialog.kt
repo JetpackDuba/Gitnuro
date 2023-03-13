@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
@@ -36,8 +37,8 @@ fun ResetBranchDialog(
                 painterResource(AppIcons.UNDO),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(64.dp)
-                    .padding(vertical = 16.dp),
+                    .padding(bottom = 16.dp)
+                    .size(64.dp),
                 tint = MaterialTheme.colors.onBackground,
             )
 
@@ -47,13 +48,14 @@ fun ResetBranchDialog(
                     .padding(bottom = 8.dp),
                 color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body1,
+                fontWeight = FontWeight.SemiBold,
             )
 
             Text(
                 text = "Reset the changes of your current branch to a \nprevious or different commit",
                 modifier = Modifier
                     .padding(bottom = 16.dp),
-                color = MaterialTheme.colors.onBackgroundSecondary,
+                color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body2,
                 textAlign = TextAlign.Center,
             )
