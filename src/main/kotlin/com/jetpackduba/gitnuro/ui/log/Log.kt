@@ -41,6 +41,7 @@ import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
+import com.jetpackduba.gitnuro.git.graph.UncommitedChangesGraphNode
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -773,6 +774,8 @@ fun CommitLine(
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
 ) {
+    val isLastCommitOfCurrentBranch =  currentBranch?.objectId?.name == graphNode.id.name
+
     ContextMenu(
         items = {
             logContextMenu(
@@ -783,6 +786,7 @@ fun CommitLine(
                 onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
                 onRebaseInteractive = onRebaseInteractive,
                 onResetBranch = { resetBranch() },
+                isLastCommit = isLastCommitOfCurrentBranch
             )
         },
     ) {
