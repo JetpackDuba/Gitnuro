@@ -72,16 +72,12 @@ fun Diff(
     val viewDiffResult = diffResultState.value ?: return
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
     Column(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
-            .focusRequester(focusRequester)
             .focusable()
+            .focusRequester(focusRequester)
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -179,7 +175,9 @@ fun Diff(
             ViewDiffResult.None -> throw NotImplementedError("None should be a possible state in the diff")
         }
 
-
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
     }
 }
 
