@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.Error
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -20,6 +21,7 @@ import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.dialogs.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.ui.dropdowns.ScaleDropDown
@@ -161,6 +163,7 @@ fun GitSettings(settingsViewModel: SettingsViewModel) {
 @Composable
 fun UiSettings(settingsViewModel: SettingsViewModel) {
     val currentTheme by settingsViewModel.themeState.collectAsState()
+    val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
     SettingDropDown(
         title = "Theme",
@@ -181,7 +184,13 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
                 val filePath = openFileDialog()
 
                 if (filePath != null) {
-                    settingsViewModel.saveCustomTheme(filePath)
+                    val error = settingsViewModel.saveCustomTheme(filePath)
+
+                    // We check if it's null because setting errorToDisplay to null could possibly hide
+                    // other errors that are being displayed
+                    if (error != null) {
+                        setErrorToDisplay(error)
+                    }
                 }
             }
         )
@@ -233,6 +242,13 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
             settingsViewModel.scaleUi = newValue.value
         }
     )
+
+    if (errorToDisplay != null) {
+        ErrorDialog(
+            errorToDisplay,
+            onAccept = { setErrorToDisplay(null) }
+        )
+    }
 }
 
 @Composable

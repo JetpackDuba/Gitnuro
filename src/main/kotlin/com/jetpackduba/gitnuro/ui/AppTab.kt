@@ -2,26 +2,21 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.LoadingRepository
-import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 import com.jetpackduba.gitnuro.credentials.CredentialsState
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
@@ -115,47 +110,10 @@ fun AppTab(
 
         val safeLastError = lastError
         if (safeLastError != null && showError) {
-            MaterialDialog {
-                Column(
-                    modifier = Modifier
-                        .width(580.dp)
-                ) {
-                    Row {
-                        Text(
-                            text = "Error",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colors.onBackground,
-                        )
-
-                        Spacer(modifier = Modifier.weight(1f))
-
-                        Icon(
-                            painterResource(AppIcons.ERROR),
-                            contentDescription = null,
-                            tint = MaterialTheme.colors.error,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    Text(
-                        text = lastError?.message ?: "",
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .widthIn(max = 600.dp),
-                        style = MaterialTheme.typography.body2,
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(top = 32.dp)
-                    ) {
-                        PrimaryButton(text = "OK", onClick = { tabViewModel.showError.value = false })
-                    }
-                }
-            }
+            ErrorDialog(
+                error = safeLastError,
+                onAccept = { tabViewModel.showError.value = false }
+            )
         }
     }
 }

@@ -166,17 +166,13 @@ class AppSettings @Inject constructor() {
         }
 
     fun saveCustomTheme(filePath: String) {
-        try {
-            val file = File(filePath)
-            val content = file.readText()
+        val file = File(filePath)
+        val content = file.readText()
 
-            Json.decodeFromString<ColorsScheme>(content) // Load to see if it's valid (it will crash if not)
+        Json.decodeFromString<ColorsScheme>(content) // Load to see if it's valid (it will crash if not)
 
-            preferences.put(PREF_CUSTOM_THEME, content)
-            loadCustomTheme()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
+        preferences.put(PREF_CUSTOM_THEME, content)
+        loadCustomTheme()
     }
 
     fun loadCustomTheme() {
