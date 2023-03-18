@@ -116,6 +116,7 @@ fun SettingsDialog(
 fun GitSettings(settingsViewModel: SettingsViewModel) {
     val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
     val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
+    val pullRebase by settingsViewModel.pullRebaseFlow.collectAsState()
     var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
 
     SettingToggle(
@@ -144,6 +145,15 @@ fun GitSettings(settingsViewModel: SettingsViewModel) {
         value = ffMerge,
         onValueChanged = { value ->
             settingsViewModel.ffMerge = value
+        }
+    )
+
+    SettingToggle(
+        title = "Pull with rebase as default",
+        subtitle = "Rebase changes instead of merging when pulling",
+        value = pullRebase,
+        onValueChanged = { value ->
+            settingsViewModel.pullRebase = value
         }
     )
 }

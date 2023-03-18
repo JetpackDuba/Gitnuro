@@ -18,6 +18,7 @@ class SettingsViewModel @Inject constructor(
 
     val themeState = appSettings.themeState
     val ffMergeFlow = appSettings.ffMergeFlow
+    val pullRebaseFlow = appSettings.pullRebaseFlow
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
 
     var scaleUi: Float
@@ -36,6 +37,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettings.ffMerge
         set(value) {
             appSettings.ffMerge = value
+        }
+
+    var pullRebase: Boolean
+        get() = appSettings.pullRebase
+        set(value) {
+            appSettings.pullRebase = value
         }
 
     var theme: Theme

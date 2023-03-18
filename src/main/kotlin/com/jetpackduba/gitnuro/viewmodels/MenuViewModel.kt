@@ -4,10 +4,12 @@ import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.FetchAllBranchesUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullBranchUseCase
+import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.git.remote_operations.PushBranchUseCase
 import com.jetpackduba.gitnuro.git.stash.PopLastStashUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import javax.inject.Inject
 
 class MenuViewModel @Inject constructor(
@@ -18,12 +20,15 @@ class MenuViewModel @Inject constructor(
     private val popLastStashUseCase: PopLastStashUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
+    private val settings: AppSettings,
 ) {
-    fun pull(rebase: Boolean = false) = tabState.safeProcessing(
+    val isPullWithRebaseDefault = settings.pullRebaseFlow
+
+    fun pull(pullType: PullType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashes = true,
     ) { git ->
-        pullBranchUseCase(git, rebase)
+        pullBranchUseCase(git, pullType)
     }
 
     fun fetchAll() = tabState.safeProcessing(

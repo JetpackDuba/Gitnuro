@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
+import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
@@ -37,6 +38,8 @@ fun Menu(
     onQuickActions: () -> Unit,
     onShowSettingsDialog: () -> Unit,
 ) {
+    val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState()
+
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
@@ -56,10 +59,18 @@ fun Menu(
             modifier = Modifier.padding(end = 4.dp),
             title = "Pull",
             icon = painterResource(AppIcons.DOWNLOAD),
-            onClick = { menuViewModel.pull() },
+            onClick = { menuViewModel.pull(PullType.DEFAULT) },
             extendedListItems = pullContextMenuItems(
-                onPullRebase = {
-                    menuViewModel.pull(true)
+                isPullWithRebaseDefault = isPullWithRebaseDefault,
+                onPullWith = {
+                    // Do the reverse of the default
+                    val pullType = if (isPullWithRebaseDefault) {
+                        PullType.MERGE
+                    } else {
+                        PullType.REBASE
+                    }
+
+                    menuViewModel.pull(pullType = pullType)
                 },
                 onFetchAll = {
                     menuViewModel.fetchAll()
