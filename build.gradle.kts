@@ -9,7 +9,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
     kotlin("kapt") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
-    id("org.jetbrains.compose") version "1.3.1-rc02"
+    id("org.jetbrains.compose") version "1.3.1"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
@@ -36,12 +36,12 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")
     implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:$jgit")
     implementation("org.apache.sshd:sshd-core:2.9.0")
-    implementation("com.google.dagger:dagger:2.44.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-    kapt("com.google.dagger:dagger-compiler:2.44.2")
+    implementation("com.google.dagger:dagger:2.45")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+    kapt("com.google.dagger:dagger-compiler:2.45")
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
-    testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+    testImplementation("io.mockk:mockk:1.13.4")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
