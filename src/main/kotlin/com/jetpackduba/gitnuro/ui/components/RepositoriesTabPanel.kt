@@ -241,7 +241,7 @@ class TabInformation(
     val tabName: MutableState<String>,
     val key: Int,
     val path: String?,
-    appComponent: AppComponent,
+    appComponent: AppComponent?,
 ) {
     private val tabComponent: TabComponent = DaggerTabComponent.builder()
         .appComponent(appComponent)
@@ -272,24 +272,7 @@ class TabInformation(
     }
 }
 
-fun emptyTabInformation() = TabInformation(mutableStateOf(""), 0, "", object : AppComponent {
-    override fun inject(main: App) {}
-    override fun appStateManager(): AppStateManager {
-        error("This method should not be invoked -  emptyTabInformation")
-    }
-
-    override fun settingsViewModel(): SettingsViewModel {
-        error("This method should not be invoked -  emptyTabInformation")
-    }
-
-    override fun credentialsStateManager(): CredentialsStateManager {
-        error("This method should not be invoked -  emptyTabInformation")
-    }
-
-    override fun appPreferences(): AppSettings {
-        error("This method should not be invoked -  emptyTabInformation")
-    }
-})
+fun emptyTabInformation() = TabInformation(mutableStateOf(""), 0, "", null)
 
 @Composable
 inline fun <reified T> gitnuroViewModel(): T {
