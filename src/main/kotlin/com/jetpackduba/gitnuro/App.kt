@@ -62,6 +62,9 @@ class App {
     @Inject
     lateinit var appGpgSigner: AppGpgSigner
 
+    @Inject
+    lateinit var appEnvInfo: AppEnvInfo
+
     init {
         appComponent.inject(this)
     }
@@ -73,6 +76,7 @@ class App {
         val dirToOpen = getDirToOpen(args)
         var defaultSelectedTabKey = 0
 
+        appEnvInfo.isFlatpak = args.contains("--flatpak") // TODO Test this
         appStateManager.loadRepositoriesTabs()
 
         try {

@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.di
 
 import com.jetpackduba.gitnuro.App
+import com.jetpackduba.gitnuro.AppEnvInfo
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.modules.AppModule
@@ -22,4 +23,6 @@ interface AppComponent {
     fun credentialsStateManager(): CredentialsStateManager
 
     fun appPreferences(): AppSettings
+
+    fun appEnvInfo(): AppEnvInfo
 }

@@ -127,12 +127,12 @@ fun Menu(
 
         Spacer(modifier = Modifier.weight(1f))
 
-//        MenuButton(
-//            modifier = Modifier.padding(end = 4.dp),
-//            title = "Terminal",
-//            icon = painterResource("terminal.svg"),
-//            onClick = onQuickActions,
-//        )
+        MenuButton(
+            modifier = Modifier.padding(end = 4.dp),
+            title = "Terminal",
+            icon = painterResource(AppIcons.TERMINAL),
+            onClick = { menuViewModel.openTerminal() },
+        )
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),

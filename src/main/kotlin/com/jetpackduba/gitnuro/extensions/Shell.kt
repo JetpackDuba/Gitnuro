@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.extensions
 
 import com.jetpackduba.gitnuro.logging.printLog
+import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -23,6 +24,14 @@ fun runCommand(command: String): String? {
         ex.printStackTrace()
         null
     }
+}
+
+fun runCommandInPath(command: String, path: String) {
+    val processBuilder = ProcessBuilder(command).apply {
+        directory(File(path))
+    }
+
+    processBuilder.start()
 }
 
 fun runCommandWithoutResult(command: String, args: String, file: String): Boolean {

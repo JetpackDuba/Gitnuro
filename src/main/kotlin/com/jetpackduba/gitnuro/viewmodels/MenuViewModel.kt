@@ -10,6 +10,7 @@ import com.jetpackduba.gitnuro.git.stash.PopLastStashUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalUseCase
 import javax.inject.Inject
 
 class MenuViewModel @Inject constructor(
@@ -20,6 +21,7 @@ class MenuViewModel @Inject constructor(
     private val popLastStashUseCase: PopLastStashUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
+    private val openRepositoryInTerminalUseCase: OpenRepositoryInTerminalUseCase,
     private val settings: AppSettings,
 ) {
     val isPullWithRebaseDefault = settings.pullRebaseFlow
@@ -57,5 +59,11 @@ class MenuViewModel @Inject constructor(
         refreshEvenIfCrashes = true,
     ) { git ->
         popLastStashUseCase(git)
+    }
+
+    fun openTerminal() = tabState.runOperation(
+        refreshType = RefreshType.NONE
+    ) { git ->
+        openRepositoryInTerminalUseCase(git.repository.directory.parent)
     }
 }
