@@ -10,19 +10,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.theme.*
-import com.jetpackduba.gitnuro.ui.components.AvatarImage
-import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.TooltipText
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.commitedChangesEntriesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesStatus
@@ -33,6 +33,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
+import androidx.compose.ui.res.painterResource
 
 @Composable
 fun CommitChanges(
@@ -82,8 +83,9 @@ fun CommitChangesView(
             .fillMaxSize(),
     ) {
         val scroll = rememberScrollState(0)
-
-
+        var showSearch by remember(commit) { mutableStateOf(false) }
+        var searchFilter by remember(commit) { mutableStateOf("") } // TODO Persist in viewmodel
+        val searchFocusRequester = remember { FocusRequester() }
 
         Column(
             modifier = Modifier
@@ -92,12 +94,12 @@ fun CommitChangesView(
                 .weight(1f, fill = true)
                 .background(MaterialTheme.colors.background)
         ) {
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(34.dp)
                     .background(MaterialTheme.colors.tertiarySurface),
-                contentAlignment = Alignment.CenterStart,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     modifier = Modifier
@@ -109,12 +111,44 @@ fun CommitChangesView(
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                 )
+
+                Box(modifier = Modifier.weight(1f))
+
+                IconButton(
+                    onClick = {
+                        showSearch = !showSearch
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(AppIcons.SEARCH),
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colors.onBackground,
+                    )
+                }
             }
 
+            if(showSearch) {
+                AdjustableOutlinedTextField(
+                    value = searchFilter,
+                    onValueChange = {
+                        searchFilter = it
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                        .focusable()
+                        .focusRequester(searchFocusRequester)
+                )
+            }
+
+            LaunchedEffect(showSearch) {
+                if(showSearch) {
+                    searchFocusRequester.requestFocus()
+                }
+            }
 
             CommitLogChanges(
                 diffSelected = diffSelected,
-                diffEntries = changes,
+                diffEntries = if(showSearch && searchFilter.isNotBlank()) changes.filter { it.filePath.lowercaseContains(searchFilter) } else changes,
                 onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
                 onHistory = onHistory,
