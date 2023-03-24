@@ -147,7 +147,7 @@ private fun CloneInput(
                 textFieldShape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
             )
 
-            Button(
+            IconButton(
                 onClick = {
                     cloneViewModel.resetStateIfError()
                     val newDirectory = openDirectoryDialog()
@@ -162,8 +162,10 @@ private fun CloneInput(
                         previous = directoryFocusRequester
                         next = cloneButtonFocusRequester
                     }
+                    .padding(start = 8.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colors.primary)
                     .height(40.dp),
-                shape = RoundedCornerShape(topEnd = 4.dp, bottomEnd = 4.dp)
             ) {
                 Icon(
                     Icons.Default.Search,
