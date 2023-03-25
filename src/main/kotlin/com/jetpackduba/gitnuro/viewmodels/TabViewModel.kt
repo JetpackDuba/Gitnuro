@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
+import com.jetpackduba.gitnuro.git.repository.OpenSubmoduleRepositoryUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
 import com.jetpackduba.gitnuro.logging.printLog
@@ -46,6 +47,7 @@ class TabViewModel @Inject constructor(
     private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
     private val initLocalRepositoryUseCase: InitLocalRepositoryUseCase,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
+    private val openSubmoduleRepositoryUseCase: OpenSubmoduleRepositoryUseCase,
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
@@ -165,15 +167,25 @@ class TabViewModel @Inject constructor(
 
         _repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
 
-        val repository: Repository = openRepositoryUseCase(directory)
-
         try {
+            val repository: Repository = if (directory.listFiles()?.any { it.name == ".git" && it.isFile } == true) {
+                openSubmoduleRepositoryUseCase(directory)
+            } else {
+                openRepositoryUseCase(directory)
+            }
+
+
             repository.workTree // test if repository is valid
             _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
             val git = Git(repository)
             tabState.initGit(git)
 
-            onRepositoryChanged(repository.directory.parent)
+            val path = if(directory.name == ".git") {
+                directory.parent
+            } else
+                directory.absolutePath
+
+            onRepositoryChanged(path)
             tabState.newSelectedItem(selectedItem = SelectedItem.UncommitedChanges)
             newDiffSelected = null
             refreshRepositoryInfo()
