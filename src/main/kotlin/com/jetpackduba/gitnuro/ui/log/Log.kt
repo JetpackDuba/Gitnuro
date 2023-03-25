@@ -297,7 +297,7 @@ fun SearchFilter(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp),
+            .height(56.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
@@ -314,14 +314,14 @@ fun SearchFilter(
                 .focusRequester(textFieldFocusRequester)
                 .onPreviewKeyEvent { keyEvent ->
                     when {
-                        keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && keyEvent.type == KeyEventType.KeyUp -> {
+                        keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && keyEvent.type == KeyEventType.KeyDown -> {
                             scope.launch {
                                 logViewModel.selectNextFilterCommit()
                             }
                             true
                         }
 
-                        keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyUp -> {
+                        keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown -> {
                             logViewModel.closeSearch()
                             true
                         }

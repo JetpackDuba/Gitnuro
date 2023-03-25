@@ -22,7 +22,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
@@ -83,7 +85,7 @@ fun Diff(
                 indication = null
             ) {}
             .onPreviewKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.EXIT)) {
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown ) {
                     onCloseDiffView()
                     true
                 } else
