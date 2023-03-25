@@ -69,6 +69,10 @@ class SubmodulesViewModel @AssistedInject constructor(
     suspend fun refresh(git: Git) {
         loadSubmodules(git)
     }
+
+    fun onOpenSubmoduleInTab(@Suppress("UNUSED_PARAMETER") path: String) {
+        TODO()
+    }
 }
 
 data class SubmodulesState(val submodules: List<Pair<String, SubmoduleStatus>>, val isExpanded: Boolean)

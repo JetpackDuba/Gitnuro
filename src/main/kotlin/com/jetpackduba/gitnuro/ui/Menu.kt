@@ -197,17 +197,12 @@ fun ExtendedMenuButton(
     onClick: () -> Unit,
     extendedListItems: List<ContextMenuElement>,
 ) {
-    var showDropDownMenu by remember { mutableStateOf(false) }
-
     Row(
         modifier = modifier
             .size(width = 64.dp, height = 56.dp)
             .ignoreKeyEvents()
             .clip(RoundedCornerShape(4.dp))
             .background(MaterialTheme.colors.surface)
-            .handMouseClickable {
-                showDropDownMenu = true
-            }
     ) {
         Column(
             modifier = Modifier
@@ -250,18 +245,6 @@ fun ExtendedMenuButton(
                 )
 
             }
-
-//            DropdownMenu(
-//                onDismissRequest = {
-//                    showDropDownMenu = false
-//                },
-//                content = {
-//                    for (item in extendedListItems) {
-//                        DropDownContent(item, onDismiss = { showDropDownMenu = false })
-//                    }
-//                },
-//                expanded = showDropDownMenu,
-//            )
         }
     }
 }
