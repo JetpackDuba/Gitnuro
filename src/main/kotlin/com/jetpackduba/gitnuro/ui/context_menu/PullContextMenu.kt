@@ -4,7 +4,7 @@ fun pullContextMenuItems(
     onPullWith: () -> Unit,
     onFetchAll: () -> Unit,
     isPullWithRebaseDefault: Boolean,
-): List<DropDownContentData> {
+): List<ContextMenuElement> {
     val pullWithText = if (isPullWithRebaseDefault) {
         "Pull with merge"
     } else {
@@ -12,11 +12,11 @@ fun pullContextMenuItems(
     }
 
     return mutableListOf(
-        DropDownContentData(
+        ContextMenuElement.ContextTextEntry(
             label = pullWithText,
             onClick = onPullWith,
         ),
-        DropDownContentData(
+        ContextMenuElement.ContextTextEntry(
             label = "Fetch all",
             onClick = onFetchAll,
         ),

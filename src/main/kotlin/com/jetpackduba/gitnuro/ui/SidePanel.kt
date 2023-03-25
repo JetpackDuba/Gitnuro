@@ -321,7 +321,8 @@ fun LazyListScope.submodules(
         items(submodules, key = { it.first }) { submodule ->
             Submodule(
                 submodule,
-                onInitializeModule = { submodulesViewModel.initializeSubmodule(submodule.first) }
+                onInitializeModule = { submodulesViewModel.initializeSubmodule(submodule.first) },
+                onOpenSubmoduleInTab = { submodulesViewModel.onOpenSubmoduleInTab(submodule.first) },
             )
         }
     }
@@ -464,12 +465,14 @@ private fun Stash(
 private fun Submodule(
     submodulePair: Pair<String, SubmoduleStatus>,
     onInitializeModule: () -> Unit,
+    onOpenSubmoduleInTab: () -> Unit,
 ) {
     ContextMenu(
         items = {
             submoduleContextMenuItems(
                 submodulePair.second,
-                onInitializeModule = onInitializeModule
+                onInitializeModule = onInitializeModule,
+                onOpenSubmoduleInTab = onOpenSubmoduleInTab,
             )
         }
     ) {

@@ -7,7 +7,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -192,7 +195,7 @@ fun ExtendedMenuButton(
     title: String,
     icon: Painter,
     onClick: () -> Unit,
-    extendedListItems: List<DropDownContentData>,
+    extendedListItems: List<ContextMenuElement>,
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
 
@@ -229,31 +232,36 @@ fun ExtendedMenuButton(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .ignoreKeyEvents(),
-            contentAlignment = Alignment.Center,
+        DropdownMenu(
+            items = { extendedListItems }
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .ignoreKeyEvents(),
+                contentAlignment = Alignment.Center,
+            ) {
 
-            Icon(
-                painterResource(AppIcons.EXPAND_MORE),
-                contentDescription = null,
-                tint = MaterialTheme.colors.onBackground,
-                modifier = Modifier.size(16.dp)
-            )
+                Icon(
+                    painterResource(AppIcons.EXPAND_MORE),
+                    contentDescription = null,
+                    tint = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.size(16.dp)
+                )
 
-            DropdownMenu(
-                onDismissRequest = {
-                    showDropDownMenu = false
-                },
-                content = {
-                    for (item in extendedListItems) {
-                        DropDownContent(item, onDismiss = { showDropDownMenu = false })
-                    }
-                },
-                expanded = showDropDownMenu,
-            )
+            }
+
+//            DropdownMenu(
+//                onDismissRequest = {
+//                    showDropDownMenu = false
+//                },
+//                content = {
+//                    for (item in extendedListItems) {
+//                        DropDownContent(item, onDismiss = { showDropDownMenu = false })
+//                    }
+//                },
+//                expanded = showDropDownMenu,
+//            )
         }
     }
 }

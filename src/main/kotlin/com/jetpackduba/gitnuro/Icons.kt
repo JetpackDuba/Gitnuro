@@ -28,6 +28,7 @@ object AppIcons {
     const val LOCK = "lock.svg"
     const val LOGO = "logo.svg"
     const val MERGE = "merge.svg"
+    const val MESSAGE = "message.svg"
     const val MORE_VERT = "more_vert.svg"
     const val OPEN = "open.svg"
     const val PERSON = "person.svg"

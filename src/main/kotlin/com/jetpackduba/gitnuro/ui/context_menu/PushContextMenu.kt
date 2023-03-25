@@ -1,18 +1,15 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
-@OptIn(ExperimentalFoundationApi::class)
 fun pushContextMenuItems(
     onPushWithTags: () -> Unit,
     onForcePush: () -> Unit,
-): List<DropDownContentData> {
+): List<ContextMenuElement> {
     return mutableListOf(
-        DropDownContentData(
+        ContextMenuElement.ContextTextEntry(
             label = "Push including tags",
             onClick = onPushWithTags,
         ),
-        DropDownContentData(
+        ContextMenuElement.ContextTextEntry(
             label = "Force push",
             onClick = onForcePush,
         ),

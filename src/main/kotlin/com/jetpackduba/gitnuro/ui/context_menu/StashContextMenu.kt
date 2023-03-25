@@ -1,15 +1,16 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.res.painterResource
+import com.jetpackduba.gitnuro.AppIcons
 
-@OptIn(ExperimentalFoundationApi::class)
 fun stashContextMenuItems(
     onStashWithMessage: () -> Unit,
-): List<DropDownContentData> {
+): List<ContextMenuElement> {
     return mutableListOf(
-        DropDownContentData(
+        ContextMenuElement.ContextTextEntry(
             label = "Stash with message",
             onClick = onStashWithMessage,
+            icon = { painterResource(AppIcons.MESSAGE) }
         ),
     )
 }

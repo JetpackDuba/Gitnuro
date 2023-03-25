@@ -13,9 +13,11 @@ import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.*
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -32,6 +34,13 @@ private const val MIN_TIME_BETWEEN_POPUPS = 20
 @Composable
 fun ContextMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
     Box(modifier = Modifier.contextMenu(items), propagateMinConstraints = true) {
+        function()
+    }
+}
+
+@Composable
+fun DropdownMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+    Box(modifier = Modifier.dropdownMenu(items), propagateMinConstraints = true) {
         function()
     }
 }
@@ -65,6 +74,51 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
         showPopup(
             lastMouseEventState.x,
             lastMouseEventState.y,
+            items(),
+            onDismissRequest = { setLastMouseEventState(null) }
+        )
+    }
+
+    return mod
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifier {
+    val (lastMouseEventState, setLastMouseEventState) = remember { mutableStateOf<MouseEvent?>(null) }
+    val (offset, setOffset) = remember { mutableStateOf<Offset?>(null) }
+    val mod = this
+        .onGloballyPositioned { layoutCoordinates ->
+            val offsetToRoot = layoutCoordinates.localToRoot(Offset.Zero)
+            println(offsetToRoot)
+
+            val offsetToBottomOfComponent = offsetToRoot.copy(y = offsetToRoot.y + layoutCoordinates.size.height)
+            setOffset(offsetToBottomOfComponent)
+        }
+        .pointerInput(Unit) {
+            while (true) {
+                val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
+                val mouseEvent = lastMouseEvent.awtEventOrNull
+
+                if (mouseEvent != null) {
+                    if (lastMouseEvent.button.isPrimary) {
+                        val currentCheck = System.currentTimeMillis()
+                        if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS) {
+                            println("IGNORE POPUP TRIGGERED!")
+                        } else {
+                            lastCheck = currentCheck
+
+                            setLastMouseEventState(mouseEvent)
+                        }
+                    }
+                }
+            }
+        }
+
+    if (offset != null && lastMouseEventState != null) {
+        showPopup(
+            offset.x.toInt(),
+            offset.y.toInt(),
             items(),
             onDismissRequest = { setLastMouseEventState(null) })
     }
