@@ -23,7 +23,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.KeyEventType
@@ -976,21 +979,35 @@ fun CommitsGraphLine(
                 }
 
                 forkingOffLanes.forEach { plotLane ->
-                    drawLine(
-                        color = colors[plotLane.position % colors.size],
-                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
-                        strokeWidth = 2f,
+                    val x1 = laneWidthWithDensity * (itemPosition + 1)
+                    val y1 = this.center.y - 1f // space for mergingLane
+                    val x2 = laneWidthWithDensity * (plotLane.position + 1)
+                    val y2 = 0f
+
+                    val path = Path()
+                    path.moveTo(x1, y1)
+                    path.cubicTo(
+                        x2, y1,
+                        x2, y1,
+                        x2, y2
                     )
+                    drawPath(path, colors[plotLane.position % colors.size], style = Stroke(width = 2f))
                 }
 
                 mergingLanes.forEach { plotLane ->
-                    drawLine(
-                        color = colors[plotLane.position % colors.size],
-                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
-                        end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        strokeWidth = 2f,
+                    val x1 = laneWidthWithDensity * (itemPosition + 1)
+                    val y1 = this.center.y + 1f // space for forkingOffLane
+                    val x2 = laneWidthWithDensity * (plotLane.position + 1)
+                    val y2 = this.size.height
+
+                    val path = Path()
+                    path.moveTo(x1, y1)
+                    path.cubicTo(
+                        x2, y1,
+                        x2, y1,
+                        x2, y2
                     )
+                    drawPath(path, colors[plotLane.position % colors.size], style = Stroke(width = 2f))
                 }
 
                 if (plotCommit.parentCount > 0) {
