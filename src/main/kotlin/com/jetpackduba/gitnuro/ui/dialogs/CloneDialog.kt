@@ -144,7 +144,6 @@ private fun CloneInput(
                     directory = it
                     cloneViewModel.directory = directory
                 },
-                textFieldShape = RoundedCornerShape(topStart = 4.dp, bottomStart = 4.dp)
             )
 
             IconButton(
