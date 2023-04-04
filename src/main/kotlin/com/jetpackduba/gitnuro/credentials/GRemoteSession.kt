@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.credentials
 
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshOptions
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
+import kotlinx.coroutines.CancellationException
 import org.apache.sshd.client.SshClient
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
@@ -51,7 +52,7 @@ class GRemoteSession @Inject constructor(
             }
 
             val password = if (credentials !is CredentialsAccepted.SshCredentialsAccepted)
-                null
+                throw CancellationException("Credentials cancelled")
             else
                 credentials.password
 

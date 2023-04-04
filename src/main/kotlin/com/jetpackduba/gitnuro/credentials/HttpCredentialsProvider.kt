@@ -10,6 +10,7 @@ import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
 import java.io.*
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.cancellation.CancellationException
 
 private const val TIMEOUT_MIN = 1L
 
@@ -49,6 +50,8 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 passwordItem.value = credentials.password.toCharArray()
 
                 return true
+            } else if(credentials is CredentialsState.CredentialsDenied) {
+                throw CancellationException("Credentials denied")
             }
 
             return false
