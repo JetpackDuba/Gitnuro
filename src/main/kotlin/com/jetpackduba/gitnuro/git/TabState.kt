@@ -78,7 +78,9 @@ class TabState @Inject constructor(
 
                 refreshEvenIfCrashesInteractiveResult = refreshEvenIfCrashesInteractive?.invoke(ex) ?: false
 
-                if (showError)
+                val containsCancellation = exceptionContainsCancellation(ex)
+
+                if (showError && !containsCancellation)
                     errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
             } finally {
                 _processing.value = false
@@ -90,6 +92,15 @@ class TabState @Inject constructor(
             }
 
         }
+
+    private fun exceptionContainsCancellation(ex: Throwable?): Boolean {
+        return when (ex) {
+            null -> false
+            ex.cause -> false
+            is CancellationException -> true
+            else -> exceptionContainsCancellation(ex.cause)
+        }
+    }
 
     fun safeProcessingWithoutGit(showError: Boolean = true, callback: suspend CoroutineScope.() -> Unit) =
         scope.launch(Dispatchers.IO) {
