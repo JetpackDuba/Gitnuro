@@ -11,9 +11,22 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 private const val TAG = "TabState"
+
+interface ProcessingInfo {
+    fun changeSubtitle(newSubtitle: String)
+    fun changeIsCancellable(newIsCancellable: Boolean)
+}
+
+sealed interface ProcessingState {
+    object None : ProcessingState
+    data class Processing(
+        val title: String,
+        val subtitle: String,
+        val isCancellable: Boolean,
+    ) : ProcessingState
+}
 
 @TabScope
 class TabState @Inject constructor(
@@ -44,8 +57,10 @@ class TabState @Inject constructor(
     @set:Synchronized
     var operationRunning = false
 
-    private val _processing = MutableStateFlow(false)
-    val processing: StateFlow<Boolean> = _processing
+    var currentJob: Job? = null
+
+    private val _processing = MutableStateFlow<ProcessingState>(ProcessingState.None)
+    val processing: StateFlow<ProcessingState> = _processing
 
     fun initGit(git: Git) {
         this.unsafeGit = git
@@ -54,23 +69,64 @@ class TabState @Inject constructor(
     fun safeProcessing(
         showError: Boolean = true,
         refreshType: RefreshType,
+        // TODO Eventually the title and subtitles should be mandatory but for now the default it's empty to slowly
+        //  migrate the code that uses this function
+        title: String = "",
+        subtitle: String = "",
+        isCancellable: Boolean = false,
         refreshEvenIfCrashes: Boolean = false,
         refreshEvenIfCrashesInteractive: ((Exception) -> Boolean)? = null,
-        callback: suspend (git: Git) -> Unit
-    ) =
-        scope.launch(Dispatchers.IO) {
+        callback: suspend ProcessingInfo.(git: Git) -> Unit
+    ): Job {
+        val job = scope.launch(Dispatchers.IO) {
             var hasProcessFailed = false
             var refreshEvenIfCrashesInteractiveResult = false
             operationRunning = true
+
+            val processingInfo: ProcessingInfo = object : ProcessingInfo {
+                override fun changeSubtitle(newSubtitle: String) {
+                    _processing.update { processingState ->
+                        if (processingState is ProcessingState.Processing) {
+                            processingState.copy(subtitle = newSubtitle)
+                        } else {
+                            ProcessingState.Processing(
+                                title = title,
+                                isCancellable = isCancellable,
+                                subtitle = newSubtitle
+                            )
+                        }
+                    }
+                }
+
+                override fun changeIsCancellable(newIsCancellable: Boolean) {
+                    _processing.update { processingState ->
+                        if (processingState is ProcessingState.Processing) {
+                            processingState.copy(isCancellable = newIsCancellable)
+                        } else {
+                            ProcessingState.Processing(
+                                title = title,
+                                isCancellable = newIsCancellable,
+                                subtitle = subtitle
+                            )
+                        }
+                    }
+                }
+            }
 
             try {
                 delayedStateChange(
                     delayMs = 300,
                     onDelayTriggered = {
-                        _processing.value = true
+                        _processing.update { processingState ->
+                            if(processingState is ProcessingState.None) {
+                                ProcessingState.Processing(title, subtitle, isCancellable)
+                            } else {
+                                processingState
+                            }
+                        }
                     }
                 ) {
-                    callback(git)
+                    processingInfo.callback(git)
                 }
             } catch (ex: Exception) {
                 hasProcessFailed = true
@@ -83,15 +139,19 @@ class TabState @Inject constructor(
                 if (showError && !containsCancellation)
                     errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
             } finally {
-                _processing.value = false
+                _processing.value = ProcessingState.None
                 operationRunning = false
 
                 if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes || refreshEvenIfCrashesInteractiveResult)) {
                     _refreshData.emit(refreshType)
                 }
             }
-
         }
+
+        this.currentJob = job
+
+        return job
+    }
 
     private fun exceptionContainsCancellation(ex: Throwable?): Boolean {
         return when (ex) {
@@ -102,9 +162,17 @@ class TabState @Inject constructor(
         }
     }
 
-    fun safeProcessingWithoutGit(showError: Boolean = true, callback: suspend CoroutineScope.() -> Unit) =
-        scope.launch(Dispatchers.IO) {
-            _processing.value = true
+    fun safeProcessingWithoutGit(
+        showError: Boolean = true,
+        // TODO Eventually the title and subtitles should be mandatory but for now the default it's empty to slowly
+        //  migrate the code that uses this function
+        title: String = "",
+        subtitle: String = "",
+        isCancellable: Boolean = false,
+        callback: suspend CoroutineScope.() -> Unit
+    ): Job {
+        val job = scope.launch(Dispatchers.IO) {
+            _processing.value = ProcessingState.Processing(title, subtitle, isCancellable)
             operationRunning = true
 
             try {
@@ -112,13 +180,20 @@ class TabState @Inject constructor(
             } catch (ex: Exception) {
                 ex.printStackTrace()
 
-                if (showError)
+                val containsCancellation = exceptionContainsCancellation(ex)
+
+                if (showError && !containsCancellation)
                     errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
             } finally {
-                _processing.value = false
+                _processing.value = ProcessingState.None
                 operationRunning = false
             }
         }
+
+        this.currentJob = job
+
+        return job
+    }
 
     fun runOperation(
         showError: Boolean = false,
@@ -201,6 +276,10 @@ class TabState @Inject constructor(
                 }
             }
     }
+
+    fun cancelCurrentTask() {
+        currentJob?.cancel()
+    }
 }
 
 enum class RefreshType {
@@ -213,8 +292,4 @@ enum class RefreshType {
     UNCOMMITED_CHANGES,
     UNCOMMITED_CHANGES_AND_LOG,
     REMOTES,
-}
-
-enum class Processing {
-
 }

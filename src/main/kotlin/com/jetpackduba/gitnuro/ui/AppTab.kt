@@ -2,12 +2,10 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,6 +15,8 @@ import com.jetpackduba.gitnuro.LoadingRepository
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 import com.jetpackduba.gitnuro.credentials.CredentialsState
+import com.jetpackduba.gitnuro.git.ProcessingState
+import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
@@ -32,7 +32,7 @@ fun AppTab(
 
     val repositorySelectionStatus = tabViewModel.repositorySelectionStatus.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
-    val isProcessing by tabViewModel.processing.collectAsState()
+    val processingState = tabViewModel.processing.collectAsState().value
 
     Box {
         Column(
@@ -90,7 +90,7 @@ fun AppTab(
             }
         }
 
-        if (isProcessing) {
+        if (processingState is ProcessingState.Processing) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -98,11 +98,33 @@ fun AppTab(
                     .onPreviewKeyEvent { true }, // Disable all keyboard events
                 contentAlignment = Alignment.Center,
             ) {
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(
+                        processingState.title,
+                        style = MaterialTheme.typography.h3,
+                        color = MaterialTheme.colors.onBackground,
+                        modifier = Modifier.padding(bottom = 8.dp),
+                    )
+                    Text(
+                        processingState.subtitle,
+                        style = MaterialTheme.typography.body1,
+                        color = MaterialTheme.colors.onBackground,
+                        modifier = Modifier.padding(bottom = 32.dp),
+                    )
                     LinearProgressIndicator(
-                        modifier = Modifier.width(340.dp),
+                        modifier = Modifier.width(280.dp)
+                            .padding(bottom = 32.dp),
                         color = MaterialTheme.colors.secondary,
                     )
+
+                    if (processingState.isCancellable) {
+                        PrimaryButton(
+                            text = "Cancel",
+                            onClick = { tabViewModel.cancelOngoingTask() }
+                        )
+                    }
                 }
             }
         }

@@ -36,6 +36,9 @@ class MenuViewModel @Inject constructor(
     fun fetchAll() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashes = true,
+        title = "Fetching",
+        subtitle = "Updating references from the remote repositories...",
+        isCancellable = true
     ) { git ->
         fetchAllBranchesUseCase(git)
     }

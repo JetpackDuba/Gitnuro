@@ -203,12 +203,12 @@ fun ExtendedMenuButton(
             .ignoreKeyEvents()
             .clip(RoundedCornerShape(4.dp))
             .background(MaterialTheme.colors.surface)
+            .handMouseClickable { if (enabled) onClick() }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f)
-                .handMouseClickable { if (enabled) onClick() },
+                .weight(1f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {

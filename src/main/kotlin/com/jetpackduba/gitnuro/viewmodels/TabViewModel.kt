@@ -74,7 +74,7 @@ class TabViewModel @Inject constructor(
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
         get() = _repositorySelectionStatus
 
-    val processing: StateFlow<Boolean> = tabState.processing
+    val processing: StateFlow<ProcessingState> = tabState.processing
 
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
 
@@ -463,6 +463,10 @@ class TabViewModel @Inject constructor(
 
     fun gpgCredentialsAccepted(password: String) {
         credentialsStateManager.updateState(CredentialsAccepted.GpgCredentialsAccepted(password))
+    }
+
+    fun cancelOngoingTask() {
+        tabState.cancelCurrentTask()
     }
 }
 
