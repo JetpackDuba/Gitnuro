@@ -51,12 +51,6 @@ class AppStateManager @Inject constructor(
         }
     }
 
-    fun repositoryTabRemoved(key: Int) = appScope.launch(Dispatchers.IO) {
-        _openRepositoriesPaths.remove(key)
-
-        updateSavedRepositoryTabs()
-    }
-
     private suspend fun updateSavedRepositoryTabs() = withContext(Dispatchers.IO) {
         val tabsList = _openRepositoriesPaths.map { it.value }
         appSettings.latestTabsOpened = Json.encodeToString(tabsList)
@@ -67,16 +61,6 @@ class AppStateManager @Inject constructor(
     }
 
     fun loadRepositoriesTabs() {
-        val repositoriesSaved = appSettings.latestTabsOpened
-
-        if (repositoriesSaved.isNotEmpty()) {
-            val repositoriesList = Json.decodeFromString<List<String>>(repositoriesSaved)
-
-            repositoriesList.forEachIndexed { index, repository ->
-                _openRepositoriesPaths[index] = repository
-            }
-        }
-
         val repositoriesPathsSaved = appSettings.latestOpenedRepositoriesPath
         if (repositoriesPathsSaved.isNotEmpty()) {
             val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)

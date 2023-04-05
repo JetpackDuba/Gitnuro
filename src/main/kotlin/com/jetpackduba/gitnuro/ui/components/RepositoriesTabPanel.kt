@@ -22,17 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.LocalTabScope
-import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.preferences.AppSettings
-import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import javax.inject.Inject
@@ -42,21 +38,20 @@ import kotlin.io.path.name
 @Composable
 fun RepositoriesTabPanel(
     tabs: List<TabInformation>,
-    selectedTabKey: Int,
-    onTabSelected: (Int) -> Unit,
-    onTabClosed: (Int) -> Unit,
-    newTabContent: (key: Int) -> TabInformation,
+    currentTab: TabInformation?,
+    onTabSelected: (TabInformation) -> Unit,
+    onTabClosed: (TabInformation) -> Unit,
+    onAddNewTab: () -> Unit,
 ) {
-    var tabsIdentifier by remember { mutableStateOf(tabs.count()) }
     val stateHorizontal = rememberLazyListState()
 
-    LaunchedEffect(selectedTabKey) {
-        val index = tabs.indexOfFirst { it.key == selectedTabKey }
-        // todo sometimes it scrolls to (index - 1) for some weird reason
-        if (index > -1) {
-            stateHorizontal.scrollToItem(index)
-        }
-    }
+//    LaunchedEffect(selectedTabKey) {
+//        val index = tabs.indexOfFirst { it.key == selectedTabKey }
+//        // todo sometimes it scrolls to (index - 1) for some weird reason
+//        if (index > -1) {
+//            stateHorizontal.scrollToItem(index)
+//        }
+//    }
 
     val canBeScrolled by remember {
         derivedStateOf {
@@ -89,31 +84,15 @@ fun RepositoriesTabPanel(
                     .fillMaxHeight(),
                 state = stateHorizontal,
             ) {
-                items(items = tabs, key = { it.key }) { tab ->
+                items(items = tabs) { tab ->
                     Tab(
                         title = tab.tabName,
-                        isSelected = tab.key == selectedTabKey,
+                        isSelected = currentTab == tab,
                         onClick = {
-                            onTabSelected(tab.key)
+                            onTabSelected(tab)
                         },
                         onCloseTab = {
-                            val isTabSelected = selectedTabKey == tab.key
-
-                            if (isTabSelected) {
-                                val nextKey = getTabNextKey(tab, tabs)
-
-                                if (nextKey >= 0) {
-                                    onTabSelected(nextKey)
-                                } else {
-                                    tabsIdentifier++
-
-                                    // Create a new tab if the tabs list is empty after removing the current one
-                                    newTabContent(tabsIdentifier)
-                                    onTabSelected(tabsIdentifier)
-                                }
-                            }
-
-                            onTabClosed(tab.key)
+                            onTabClosed(tab)
                         }
                     )
                 }
@@ -135,10 +114,7 @@ fun RepositoriesTabPanel(
 
         IconButton(
             onClick = {
-                tabsIdentifier++
-
-                newTabContent(tabsIdentifier)
-                onTabSelected(tabsIdentifier)
+                onAddNewTab()
             },
             modifier = Modifier
                 .size(36.dp)
@@ -152,24 +128,6 @@ fun RepositoriesTabPanel(
             )
         }
     }
-}
-
-
-private fun getTabNextKey(tab: TabInformation, tabs: List<TabInformation>): Int {
-    val index = tabs.indexOf(tab)
-    val nextIndex = if (index == 0 && tabs.count() >= 2) {
-        1 // If the first tab is selected, select the next one
-    } else if (index == tabs.count() - 1 && tabs.count() >= 2)
-        index - 1 // If the last tab is selected, select the previous one
-    else if (tabs.count() >= 2)
-        index + 1 // If any in between tab is selected, select the next one
-    else
-        -1 // If there aren't any additional tabs once we remove this one
-
-    return if (nextIndex >= 0)
-        tabs[nextIndex].key
-    else
-        -1
 }
 
 @Composable
@@ -239,7 +197,6 @@ fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, o
 
 class TabInformation(
     val tabName: MutableState<String>,
-    val key: Int,
     val path: String?,
     appComponent: AppComponent?,
 ) {
@@ -261,10 +218,10 @@ class TabInformation(
 
         tabViewModel.onRepositoryChanged = { path ->
             if (path == null) {
-                appStateManager.repositoryTabRemoved(key)
+//                appStateManager.repositoryTabRemoved(key)
             } else {
                 tabName.value = Path(path).name
-                appStateManager.repositoryTabChanged(key, path)
+//                appStateManager.repositoryTabChanged(path)
             }
         }
         if (path != null)
@@ -272,7 +229,7 @@ class TabInformation(
     }
 }
 
-fun emptyTabInformation() = TabInformation(mutableStateOf(""), 0, "", null)
+fun emptyTabInformation() = TabInformation(mutableStateOf(""), "", null)
 
 @Composable
 inline fun <reified T> gitnuroViewModel(): T {
