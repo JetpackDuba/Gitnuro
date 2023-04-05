@@ -57,7 +57,7 @@ class TabState @Inject constructor(
     @set:Synchronized
     var operationRunning = false
 
-    var currentJob: Job? = null
+    private var currentJob: Job? = null
 
     private val _processing = MutableStateFlow<ProcessingState>(ProcessingState.None)
     val processing: StateFlow<ProcessingState> = _processing

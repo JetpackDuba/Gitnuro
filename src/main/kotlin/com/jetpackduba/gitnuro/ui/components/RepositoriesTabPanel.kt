@@ -197,7 +197,8 @@ fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, o
 
 class TabInformation(
     val tabName: MutableState<String>,
-    val path: String?,
+    val initialPath: String?,
+    val onTabPathChanged: () -> Unit,
     appComponent: AppComponent?,
 ) {
     private val tabComponent: TabComponent = DaggerTabComponent.builder()
@@ -213,23 +214,29 @@ class TabInformation(
     @Inject
     lateinit var tabViewModelsHolder: TabViewModelsHolder
 
+    var path = initialPath
+        private set
+
     init {
         tabComponent.inject(this)
 
         tabViewModel.onRepositoryChanged = { path ->
-            if (path == null) {
-//                appStateManager.repositoryTabRemoved(key)
-            } else {
-                tabName.value = Path(path).name
-//                appStateManager.repositoryTabChanged(path)
-            }
+            this.path = path
+
+            tabName.value = Path(path).name
+            appStateManager.repositoryTabChanged(path)
+            onTabPathChanged()
         }
-        if (path != null)
-            tabViewModel.openRepository(path)
+        if (initialPath != null)
+            tabViewModel.openRepository(initialPath)
+    }
+
+    fun dispose() {
+        tabViewModel.dispose()
     }
 }
 
-fun emptyTabInformation() = TabInformation(mutableStateOf(""), "", null)
+fun emptyTabInformation() = TabInformation(mutableStateOf(""), "", {}, null)
 
 @Composable
 inline fun <reified T> gitnuroViewModel(): T {

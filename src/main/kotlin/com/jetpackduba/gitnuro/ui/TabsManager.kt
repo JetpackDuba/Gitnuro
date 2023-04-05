@@ -72,6 +72,7 @@ class TabsManager @Inject constructor(
 
         if (currentTab.value == tab) {
             val index = tabsList.indexOf(tab)
+
             if (tabsList.count() == 1) {
                 newCurrentTab = newAppTab()
             } else if (index > 0) {
@@ -81,7 +82,7 @@ class TabsManager @Inject constructor(
             }
         }
 
-        tab.tabViewModel.dispose()
+        tab.dispose()
         tabsList.remove(tab)
 
         if (newCurrentTab != null) {
@@ -99,8 +100,10 @@ class TabsManager @Inject constructor(
     }
 
     private fun updatePersistedTabs() {
-        val tabs = tabsFlow.value
-        appSettings.latestTabsOpened = Json.encodeToString(tabs)
+        val tabsPaths = tabsFlow.value
+            .mapNotNull { it.path }
+
+        appSettings.latestTabsOpened = Json.encodeToString(tabsPaths)
     }
 
     fun newTab() {
@@ -121,7 +124,8 @@ class TabsManager @Inject constructor(
     ): TabInformation {
         return TabInformation(
             tabName = tabName,
-            path = path,
+            initialPath = path,
+            onTabPathChanged = { updatePersistedTabs() },
             appComponent = appComponent,
         )
     }

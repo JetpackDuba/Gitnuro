@@ -193,7 +193,6 @@ class TabViewModel @Inject constructor(
             watchRepositoryChanges(git)
         } catch (ex: Exception) {
             ex.printStackTrace()
-            onRepositoryChanged(null)
             errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
             _repositorySelectionStatus.value = RepositorySelectionStatus.None
         }
@@ -325,8 +324,7 @@ class TabViewModel @Inject constructor(
         credentialsStateManager.updateState(CredentialsAccepted.SshCredentialsAccepted(password))
     }
 
-    var onRepositoryChanged: (path: String?) -> Unit = {}
-
+    var onRepositoryChanged: (path: String) -> Unit = {}
 
     fun dispose() {
         tabScope.cancel()

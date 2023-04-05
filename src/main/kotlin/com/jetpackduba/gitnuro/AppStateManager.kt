@@ -17,10 +17,6 @@ class AppStateManager @Inject constructor(
 ) {
     private val mutex = Mutex()
 
-    private val _openRepositoriesPaths = mutableMapOf<Int, String>()
-    val openRepositoriesPathsTabs: Map<Int, String>
-        get() = _openRepositoriesPaths
-
     private val _latestOpenedRepositoriesPaths = mutableListOf<String>()
     val latestOpenedRepositoriesPaths: List<String>
         get() = _latestOpenedRepositoriesPaths
@@ -28,13 +24,9 @@ class AppStateManager @Inject constructor(
     val latestOpenedRepositoryPath: String
         get() = _latestOpenedRepositoriesPaths.firstOrNull() ?: ""
 
-    fun repositoryTabChanged(key: Int, path: String) = appScope.launch(Dispatchers.IO) {
+    fun repositoryTabChanged(path: String) = appScope.launch(Dispatchers.IO) {
         mutex.lock()
         try {
-            // Do not save already saved repos
-            if (!_openRepositoriesPaths.containsValue(path))
-                _openRepositoriesPaths[key] = path
-
             // Remove any previously existing path
             _latestOpenedRepositoriesPaths.removeIf { it == path }
 
@@ -44,20 +36,10 @@ class AppStateManager @Inject constructor(
             if (_latestOpenedRepositoriesPaths.count() > 10)
                 _latestOpenedRepositoriesPaths.removeLast()
 
-            updateSavedRepositoryTabs()
-            updateLatestRepositoryTabs()
+            appSettings.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
         } finally {
             mutex.unlock()
         }
-    }
-
-    private suspend fun updateSavedRepositoryTabs() = withContext(Dispatchers.IO) {
-        val tabsList = _openRepositoriesPaths.map { it.value }
-        appSettings.latestTabsOpened = Json.encodeToString(tabsList)
-    }
-
-    private suspend fun updateLatestRepositoryTabs() = withContext(Dispatchers.IO) {
-        appSettings.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
     }
 
     fun loadRepositoriesTabs() {
@@ -69,6 +51,6 @@ class AppStateManager @Inject constructor(
     }
 
     fun cancelCoroutines() {
-        appScope.cancel("Closing com.jetpackduba.gitnuro.app")
+        appScope.cancel("Closing app")
     }
 }
