@@ -169,7 +169,7 @@ class App {
                     }
                 )
 
-                TabsContent(tabs, currentTab)
+                TabContent(currentTab)
             }
         }
     }
@@ -220,7 +220,7 @@ class App {
 }
 
 @Composable
-private fun TabsContent(tabs: List<TabInformation>, currentTab: TabInformation?) {
+private fun TabContent(currentTab: TabInformation?) {
     Box(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
