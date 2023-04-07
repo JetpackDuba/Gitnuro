@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.modules.AppModule
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import dagger.Component
 import javax.inject.Singleton
@@ -25,4 +26,6 @@ interface AppComponent {
     fun appPreferences(): AppSettings
 
     fun appEnvInfo(): AppEnvInfo
+
+    fun tabsManager(): TabsManager
 }

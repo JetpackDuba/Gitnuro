@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.submodules.GetSubmodulesUseCase
 import com.jetpackduba.gitnuro.git.submodules.InitializeSubmoduleUseCase
 import com.jetpackduba.gitnuro.git.submodules.UpdateSubmoduleUseCase
+import com.jetpackduba.gitnuro.ui.TabsManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,7 @@ class SubmodulesViewModel @AssistedInject constructor(
     private val initializeSubmoduleUseCase: InitializeSubmoduleUseCase,
     private val updateSubmoduleUseCase: UpdateSubmoduleUseCase,
     private val tabScope: CoroutineScope,
+    private val tabsManager: TabsManager,
     @Assisted
     private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(true) {
@@ -70,8 +72,8 @@ class SubmodulesViewModel @AssistedInject constructor(
         loadSubmodules(git)
     }
 
-    fun onOpenSubmoduleInTab(@Suppress("UNUSED_PARAMETER") path: String) {
-        TODO()
+    fun onOpenSubmoduleInTab(path: String) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
+        tabsManager.addNewTabFromPath("${git.repository.directory.parent}/$path", true)
     }
 }
 
