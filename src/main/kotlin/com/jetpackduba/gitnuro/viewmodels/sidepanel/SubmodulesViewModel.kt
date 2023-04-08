@@ -27,24 +27,16 @@ class SubmodulesViewModel @AssistedInject constructor(
 ) : SidePanelChildViewModel(true) {
 
     private val _submodules = MutableStateFlow<List<Pair<String, SubmoduleStatus>>>(listOf())
-    val submodules: StateFlow<SubmodulesState> = _submodules.combine(isExpanded) { submodules, isExpanded ->
-        SubmodulesState(submodules, isExpanded)
-    }.stateIn(
-        scope = tabScope,
-        started = SharingStarted.Eagerly,
-        initialValue = SubmodulesState(emptyList(), isExpanded.value)
-    )
-
-    val submodulesState: StateFlow<SubmodulesState> =
+    val submodules: StateFlow<SubmodulesState> =
         combine(_submodules, isExpanded, filter) { submodules, isExpanded, filter ->
             SubmodulesState(
                 submodules = submodules.filter { it.first.lowercaseContains(filter) },
-                isExpanded
+                isExpanded = isExpanded
             )
         }.stateIn(
-            tabScope,
-            SharingStarted.Eagerly,
-            SubmodulesState(emptyList(), isExpanded.value)
+            scope = tabScope,
+            started = SharingStarted.Eagerly,
+            initialValue = SubmodulesState(emptyList(), isExpanded.value)
         )
 
     init {
