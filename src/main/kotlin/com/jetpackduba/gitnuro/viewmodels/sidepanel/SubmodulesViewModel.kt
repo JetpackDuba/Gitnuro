@@ -3,9 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.submodules.GetSubmodulesUseCase
-import com.jetpackduba.gitnuro.git.submodules.InitializeSubmoduleUseCase
-import com.jetpackduba.gitnuro.git.submodules.UpdateSubmoduleUseCase
+import com.jetpackduba.gitnuro.git.submodules.*
 import com.jetpackduba.gitnuro.ui.TabsManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -20,6 +18,8 @@ class SubmodulesViewModel @AssistedInject constructor(
     private val getSubmodulesUseCase: GetSubmodulesUseCase,
     private val initializeSubmoduleUseCase: InitializeSubmoduleUseCase,
     private val updateSubmoduleUseCase: UpdateSubmoduleUseCase,
+    private val syncSubmoduleUseCase: SyncSubmoduleUseCase,
+    private val deInitializeSubmoduleUseCase: DeInitializeSubmoduleUseCase,
     private val tabScope: CoroutineScope,
     private val tabsManager: TabsManager,
     @Assisted
@@ -66,6 +66,29 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     fun onOpenSubmoduleInTab(path: String) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
         tabsManager.addNewTabFromPath("${git.repository.directory.parent}/$path", true)
+    }
+
+    fun onDeinitializeSubmodule(path: String) = tabState.safeProcessing(
+        refreshType = RefreshType.SUBMODULES,
+        title = "Deinitializing submodule $path",
+    ){ git ->
+        deInitializeSubmoduleUseCase(git, path)
+    }
+
+    fun onSyncSubmodule(path: String)  = tabState.safeProcessing(
+        refreshType = RefreshType.SUBMODULES,
+        title = "Syncing submodule $path",
+        subtitle = "Please wait until synchronization has finished",
+    ){ git ->
+        syncSubmoduleUseCase(git, path)
+    }
+
+    fun onUpdateSubmodule(path: String)  = tabState.safeProcessing(
+        refreshType = RefreshType.SUBMODULES,
+        title = "Updating submodule $path",
+        subtitle = "Please wait until update has finished",
+    ){ git ->
+        updateSubmoduleUseCase(git, path)
     }
 }
 

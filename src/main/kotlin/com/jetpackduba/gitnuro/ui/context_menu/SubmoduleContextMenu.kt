@@ -5,7 +5,10 @@ import org.eclipse.jgit.submodule.SubmoduleStatusType
 
 fun submoduleContextMenuItems(
     submoduleStatus: SubmoduleStatus,
-    onInitializeModule: () -> Unit,
+    onInitializeSubmodule: () -> Unit,
+    onDeinitializeSubmodule: () -> Unit,
+    onSyncSubmodule: () -> Unit,
+    onUpdateSubmodule: () -> Unit,
     onOpenSubmoduleInTab: () -> Unit,
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
@@ -13,7 +16,7 @@ fun submoduleContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Initialize submodule",
-                    onClick = onInitializeModule
+                    onClick = onInitializeSubmodule,
                 )
             )
         }
@@ -21,27 +24,27 @@ fun submoduleContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Open submodule in new tab",
-                    onClick = onOpenSubmoduleInTab
+                    onClick = onOpenSubmoduleInTab,
                 )
             )
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Sync submodule",
-                    onClick = onInitializeModule
+                    onClick = onSyncSubmodule,
                 )
             )
 
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Update submodule",
-                    onClick = onInitializeModule
+                    onClick = onUpdateSubmodule,
                 )
             )
 
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "DeInitialize submodule",
-                    onClick = onInitializeModule
+                    onClick = onDeinitializeSubmodule,
                 )
             )
         }

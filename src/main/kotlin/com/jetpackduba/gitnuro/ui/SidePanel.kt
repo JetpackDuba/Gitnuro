@@ -320,8 +320,11 @@ fun LazyListScope.submodules(
     if (isExpanded) {
         items(submodules, key = { it.first }) { submodule ->
             Submodule(
-                submodule,
-                onInitializeModule = { submodulesViewModel.initializeSubmodule(submodule.first) },
+                submodule = submodule,
+                onInitializeSubmodule = { submodulesViewModel.initializeSubmodule(submodule.first) },
+                onDeinitializeSubmodule = { submodulesViewModel.onDeinitializeSubmodule(submodule.first) },
+                onSyncSubmodule = { submodulesViewModel.onSyncSubmodule(submodule.first) },
+                onUpdateSubmodule = { submodulesViewModel.onUpdateSubmodule(submodule.first) },
                 onOpenSubmoduleInTab = { submodulesViewModel.onOpenSubmoduleInTab(submodule.first) },
             )
         }
@@ -463,24 +466,30 @@ private fun Stash(
 
 @Composable
 private fun Submodule(
-    submodulePair: Pair<String, SubmoduleStatus>,
-    onInitializeModule: () -> Unit,
+    submodule: Pair<String, SubmoduleStatus>,
+    onInitializeSubmodule: () -> Unit,
+    onDeinitializeSubmodule: () -> Unit,
+    onSyncSubmodule: () -> Unit,
+    onUpdateSubmodule: () -> Unit,
     onOpenSubmoduleInTab: () -> Unit,
 ) {
     ContextMenu(
         items = {
             submoduleContextMenuItems(
-                submodulePair.second,
-                onInitializeModule = onInitializeModule,
+                submodule.second,
+                onInitializeSubmodule = onInitializeSubmodule,
+                onDeinitializeSubmodule = onDeinitializeSubmodule,
+                onSyncSubmodule = onSyncSubmodule,
+                onUpdateSubmodule = onUpdateSubmodule,
                 onOpenSubmoduleInTab = onOpenSubmoduleInTab,
             )
         }
     ) {
         SideMenuSubentry(
-            text = submodulePair.first,
+            text = submodule.first,
             iconResourcePath = AppIcons.TOPIC,
         ) {
-            val stateName = submodulePair.second.type.toString()
+            val stateName = submodule.second.type.toString()
             Tooltip(stateName) {
                 Text(
                     text = stateName.first().toString(),
