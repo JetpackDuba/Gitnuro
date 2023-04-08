@@ -101,18 +101,24 @@ fun AppTab(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        processingState.title,
-                        style = MaterialTheme.typography.h3,
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    Text(
-                        processingState.subtitle,
-                        style = MaterialTheme.typography.body1,
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.padding(bottom = 32.dp),
-                    )
+                    if (processingState.title.isNotEmpty()) {
+                        Text(
+                            processingState.title,
+                            style = MaterialTheme.typography.h3,
+                            color = MaterialTheme.colors.onBackground,
+                            modifier = Modifier.padding(bottom = 8.dp),
+                        )
+                    }
+
+                    if (processingState.subtitle.isNotEmpty()) {
+                        Text(
+                            processingState.subtitle,
+                            style = MaterialTheme.typography.body1,
+                            color = MaterialTheme.colors.onBackground,
+                            modifier = Modifier.padding(bottom = 32.dp),
+                        )
+                    }
+
                     LinearProgressIndicator(
                         modifier = Modifier.width(280.dp)
                             .padding(bottom = 32.dp),

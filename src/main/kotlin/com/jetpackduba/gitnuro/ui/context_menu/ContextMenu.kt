@@ -92,8 +92,6 @@ private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifi
     val mod = this
         .onGloballyPositioned { layoutCoordinates ->
             val offsetToRoot = layoutCoordinates.localToRoot(Offset.Zero)
-            println(offsetToRoot)
-
             val offsetToBottomOfComponent = offsetToRoot.copy(y = offsetToRoot.y + layoutCoordinates.size.height)
             setOffset(offsetToBottomOfComponent)
         }

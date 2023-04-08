@@ -46,6 +46,9 @@ class MenuViewModel @Inject constructor(
     fun push(force: Boolean = false, pushTags: Boolean = false) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashes = true,
+        title = "Push",
+        subtitle = "Pushing current branch to the remote repository",
+        isCancellable = true,
     ) { git ->
         pushBranchUseCase(git, force, pushTags)
     }
