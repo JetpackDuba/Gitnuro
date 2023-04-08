@@ -56,6 +56,8 @@ class CloneRepositoryUseCase @Inject constructor(
                         override fun isCancelled(): Boolean {
                             return !isActive
                         }
+
+                        override fun showDuration(enabled: Boolean) {}
                     }
                 )
                 .setTransportConfigCallback { handleTransportUseCase(it, null) }

@@ -9,7 +9,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
     kotlin("kapt") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
-    id("org.jetbrains.compose") version "1.3.1"
+    id("org.jetbrains.compose") version "1.4.0-rc03"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    val jgit = "6.4.0.202211300538-r"
+    val jgit = "6.5.0.202303070854-r"
 
     implementation(compose.desktop.currentOs)
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)

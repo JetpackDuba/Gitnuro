@@ -49,7 +49,7 @@ fun Modifier.ignoreKeyEvents(): Modifier {
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun Modifier.handOnHover(): Modifier {
-    return this.pointerHoverIcon(PointerIconDefaults.Hand)
+    return this.pointerHoverIcon(PointerIcon.Hand)
 }
 
 // TODO Try to restore hover that was shown with clickable modifier

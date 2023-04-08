@@ -31,6 +31,7 @@ class PushBranchUseCase @Inject constructor(
                 override fun update(completed: Int) {}
                 override fun endTask() {}
                 override fun isCancelled() = !isActive
+                override fun showDuration(enabled: Boolean) {}
             })
             .call()
 
