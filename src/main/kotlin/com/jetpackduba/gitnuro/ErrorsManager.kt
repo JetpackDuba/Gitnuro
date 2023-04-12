@@ -24,7 +24,6 @@ class ErrorsManager @Inject constructor() {
         }
 
         _error.emit(error)
-        println("LastError flow: $error")
     }
 
     fun removeError(error: Error) {

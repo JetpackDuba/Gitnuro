@@ -31,6 +31,6 @@ class LibSshChannelInputStream(private val sshChannel: ssh_channel) : InputStrea
     }
 
     override fun close() {
-        println("Closing input")
+        // The channel is closed by [LibSshChannel]
     }
 }

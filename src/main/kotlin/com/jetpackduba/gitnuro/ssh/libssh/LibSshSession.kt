@@ -1,7 +1,10 @@
 package com.jetpackduba.gitnuro.ssh.libssh
 
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.ssh.libssh.streams.checkValidResult
 import javax.inject.Inject
+
+private const val TAG = "LibSshSession"
 
 class LibSshSession @Inject constructor() {
     private val sshLib = SSHLibrary.INSTANCE
@@ -25,7 +28,7 @@ class LibSshSession @Inject constructor() {
         val result = sshLib.ssh_userauth_publickey_auto(session, username, password)
 
         if (result != 0)
-            println("RESULT is $result. ERROR IS: ${getError()}")
+            printError(TAG, "Result is: $result.\nError is: ${getError()}")
 
         return result
     }

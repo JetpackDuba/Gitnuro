@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro
 
 import com.jetpackduba.gitnuro.extensions.OS
 import com.jetpackduba.gitnuro.extensions.getCurrentOs
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import java.io.File
 import javax.inject.Inject
@@ -24,7 +25,7 @@ class AppFilesManager @Inject constructor() {
             OS.WINDOWS -> System.getenv("APPDATA").orEmpty()
             OS.MAC -> System.getProperty("user.home") + "/Library/Application"
             else -> {
-                printLog(TAG, "Unknown OS")
+                printError(TAG, "Unknown OS")
                 throw Exception("Invalid OS")
             }
         }

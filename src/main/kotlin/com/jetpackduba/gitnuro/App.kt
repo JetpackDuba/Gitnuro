@@ -28,6 +28,7 @@ import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.systemSeparator
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.AppTheme
@@ -82,7 +83,7 @@ class App {
                 appSettings.loadCustomTheme()
             }
         } catch (ex: Exception) {
-            printLog(TAG, "Failed to load custom theme")
+            printError(TAG, "Failed to load custom theme")
             ex.printStackTrace()
         }
 

@@ -14,6 +14,7 @@ import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenSubmoduleRepositoryUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
+import com.jetpackduba.gitnuro.logging.printDebug
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.newErrorNow
@@ -262,11 +263,11 @@ class TabViewModel @Inject constructor(
                     // operation may be running
                     if (diffTime > MIN_TIME_IN_MS_BETWEEN_REFRESHES && !hasGitDirChanged) {
                         updateApp(false)
-                        printLog(TAG, "Sync emit with diff time $diffTime")
+                        printDebug(TAG, "Sync emit with diff time $diffTime")
                     } else {
                         asyncJob = async {
                             delay(MIN_TIME_IN_MS_BETWEEN_REFRESHES)
-                            printLog(TAG, "Async emit")
+                            printDebug(TAG, "Async emit")
                             if (isActive)
                                 updateApp(hasGitDirChanged)
 
@@ -286,11 +287,11 @@ class TabViewModel @Inject constructor(
 
     suspend fun updateApp(hasGitDirChanged: Boolean) {
         if (hasGitDirChanged) {
-            printLog(TAG, "Changes detected in git directory, full refresh")
+            printDebug(TAG, "Changes detected in git directory, full refresh")
 
             refreshRepositoryInfo()
         } else {
-            printLog(TAG, "Changes detected, partial refresh")
+            printDebug(TAG, "Changes detected, partial refresh")
 
             checkUncommitedChanges()
         }

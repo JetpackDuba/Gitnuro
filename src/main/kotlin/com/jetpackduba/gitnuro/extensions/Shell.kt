@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.extensions
 
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import java.io.File
 import java.io.IOException
@@ -48,7 +49,7 @@ fun runCommandWithoutResult(command: String, args: String, file: String): Boolea
                 printLog(TAG, "Process ended immediately.")
                 false
             } else {
-                printLog(TAG, "Process crashed.")
+                printError(TAG, "Process crashed.")
                 false
             }
         } catch (itse: IllegalThreadStateException) {
@@ -56,7 +57,7 @@ fun runCommandWithoutResult(command: String, args: String, file: String): Boolea
             true
         }
     } catch (e: IOException) {
-        printLog(TAG, "Error running command: ${e.message}")
+        printError(TAG, "Error running command: ${e.message}", e)
         e.printStackTrace()
         false
     }

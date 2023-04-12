@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.extensions
 
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import java.awt.Desktop
 import java.io.File
@@ -37,7 +38,7 @@ private fun openSystemSpecific(url: String): Boolean {
 
         OS.WINDOWS -> if (runCommandWithoutResult("explorer", "%s", url)) return true
         OS.MAC -> if (runCommandWithoutResult("open", "%s", url)) return true
-        else -> printLog(TAG, "Unknown OS")
+        else -> printError(TAG, "Unknown OS")
     }
 
     return false
@@ -48,7 +49,7 @@ private fun openUrlInBrowserJdk(url: String) {
     try {
         Desktop.getDesktop().browse(URI(url))
     } catch (ex: Exception) {
-        println("Failed to open URL in browser")
+        printError(TAG, "Failed to open URL in browser")
         ex.printStackTrace()
     }
 }
@@ -57,7 +58,7 @@ private fun openFileJdk(filePath: String) {
     try {
         Desktop.getDesktop().open(File(filePath))
     } catch (ex: Exception) {
-        println("Failed to open URL in browser")
+        printError(TAG, "Failed to open URL in browser")
         ex.printStackTrace()
     }
 }

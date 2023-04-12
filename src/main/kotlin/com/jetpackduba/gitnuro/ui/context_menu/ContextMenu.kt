@@ -23,7 +23,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -31,7 +30,7 @@ import java.awt.event.MouseEvent
 import kotlin.math.abs
 
 private var lastCheck: Long = 0
-private const val MIN_TIME_BETWEEN_POPUPS = 20
+private const val MIN_TIME_BETWEEN_POPUPS_IN_MS = 20
 
 @Composable
 fun ContextMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
@@ -60,8 +59,8 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
             if (mouseEvent != null) {
                 if (lastMouseEvent.button.isSecondary) {
                     val currentCheck = System.currentTimeMillis()
-                    if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS) {
-                        println("IGNORE POPUP TRIGGERED!")
+                    if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {
+                        println("Popup ignored!")
                     } else {
                         lastCheck = currentCheck
 
