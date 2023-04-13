@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppIcons
@@ -221,14 +222,20 @@ fun RecentRepositories(appStateManager: AppStateManager, tabViewModel: TabViewMo
                                 maxLines = 1,
                                 fontWeight = FontWeight.Medium,
                                 color = MaterialTheme.colors.primaryVariant,
-                                modifier = Modifier.padding(8.dp)
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .widthIn(max = 600.dp),
                             )
                         }
 
                         Text(
                             text = repoDirPath,
                             style = MaterialTheme.typography.body1,
-                            modifier = Modifier.padding(start = 4.dp),
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .widthIn(max = 600.dp),
                             maxLines = 1,
                             color = MaterialTheme.colors.onBackgroundSecondary
                         )

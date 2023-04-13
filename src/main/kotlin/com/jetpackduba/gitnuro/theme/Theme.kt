@@ -76,6 +76,9 @@ val Colors.diffLineAdded: Color
 val Colors.diffLineRemoved: Color
     get() = appTheme.diffLineRemoved
 
+val Colors.isDark: Boolean
+    get() = !this.isLight
+
 
 enum class Theme(val displayName: String) : DropDownOption {
     LIGHT("Light"),

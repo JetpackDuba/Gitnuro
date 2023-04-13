@@ -184,8 +184,7 @@ class App {
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp),
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             RepositoriesTabPanel(
@@ -195,7 +194,8 @@ class App {
                     tabsManager.selectTab(selectedTab)
                 },
                 onTabClosed = onCloseTab,
-                onAddNewTab = onAddedTab
+                onAddNewTab = onAddedTab,
+                tabsHeight = 40.dp,
             )
         }
     }
