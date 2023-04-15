@@ -13,6 +13,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,7 +34,6 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
-import androidx.compose.ui.res.painterResource
 
 @Composable
 fun CommitChanges(
@@ -128,7 +128,7 @@ fun CommitChangesView(
                 }
             }
 
-            if(showSearch) {
+            if (showSearch) {
                 AdjustableOutlinedTextField(
                     value = searchFilter,
                     onValueChange = {
@@ -141,14 +141,18 @@ fun CommitChangesView(
             }
 
             LaunchedEffect(showSearch) {
-                if(showSearch) {
+                if (showSearch) {
                     searchFocusRequester.requestFocus()
                 }
             }
 
             CommitLogChanges(
                 diffSelected = diffSelected,
-                diffEntries = if(showSearch && searchFilter.isNotBlank()) changes.filter { it.filePath.lowercaseContains(searchFilter) } else changes,
+                diffEntries = if (showSearch && searchFilter.isNotBlank()) changes.filter {
+                    it.filePath.lowercaseContains(
+                        searchFilter
+                    )
+                } else changes,
                 onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
                 onHistory = onHistory,

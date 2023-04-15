@@ -7,6 +7,7 @@ val logger = KotlinLogging.logger("org.slf4j")
 fun printLog(tag: String, message: String) {
     logger.info("$tag - $message")
 }
+
 fun printDebug(tag: String, message: String) {
     logger.debug("$tag - $message")
 }

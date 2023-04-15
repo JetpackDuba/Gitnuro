@@ -29,7 +29,7 @@ class FetchAllBranchesUseCase @Inject constructor(
                 .setRemoveDeletedRefs(true)
                 .setTransportConfigCallback { handleTransportUseCase(it, git) }
                 .setCredentialsProvider(CredentialsProvider.getDefault())
-                .setProgressMonitor(object: ProgressMonitor {
+                .setProgressMonitor(object : ProgressMonitor {
                     override fun start(totalTasks: Int) {}
 
                     override fun beginTask(title: String?, totalWork: Int) {}

@@ -118,7 +118,7 @@ class TabState @Inject constructor(
                     delayMs = 300,
                     onDelayTriggered = {
                         _processing.update { processingState ->
-                            if(processingState is ProcessingState.None) {
+                            if (processingState is ProcessingState.None) {
                                 ProcessingState.Processing(title, subtitle, isCancellable)
                             } else {
                                 processingState

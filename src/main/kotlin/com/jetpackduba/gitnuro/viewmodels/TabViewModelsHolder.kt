@@ -29,9 +29,4 @@ class TabViewModelsHolder @Inject constructor(
         cloneViewModel::class to cloneViewModel,
         settingsViewModel::class to settingsViewModel,
     )
-
-
-    fun getVMAndCacheIt() {
-
-    }
 }

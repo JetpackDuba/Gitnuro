@@ -71,23 +71,23 @@ class SubmodulesViewModel @AssistedInject constructor(
     fun onDeinitializeSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
         title = "Deinitializing submodule $path",
-    ){ git ->
+    ) { git ->
         deInitializeSubmoduleUseCase(git, path)
     }
 
-    fun onSyncSubmodule(path: String)  = tabState.safeProcessing(
+    fun onSyncSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
         title = "Syncing submodule $path",
         subtitle = "Please wait until synchronization has finished",
-    ){ git ->
+    ) { git ->
         syncSubmoduleUseCase(git, path)
     }
 
-    fun onUpdateSubmodule(path: String)  = tabState.safeProcessing(
+    fun onUpdateSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
         title = "Updating submodule $path",
         subtitle = "Please wait until update has finished",
-    ){ git ->
+    ) { git ->
         updateSubmoduleUseCase(git, path)
     }
 }

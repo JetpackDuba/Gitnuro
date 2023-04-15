@@ -181,7 +181,7 @@ class TabViewModel @Inject constructor(
             val git = Git(repository)
             tabState.initGit(git)
 
-            val path = if(directory.name == ".git") {
+            val path = if (directory.name == ".git") {
                 directory.parent
             } else
                 directory.absolutePath

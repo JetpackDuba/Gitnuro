@@ -50,7 +50,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 passwordItem.value = credentials.password.toCharArray()
 
                 return true
-            } else if(credentials is CredentialsState.CredentialsDenied) {
+            } else if (credentials is CredentialsState.CredentialsDenied) {
                 throw CancellationException("Credentials denied")
             }
 
@@ -83,7 +83,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
         credentials: CredentialsAccepted.HttpCredentialsAccepted
     ) {
         val process = Runtime.getRuntime()
-            .exec(String.format("${externalCredentialsHelper.path} %s", "store"));
+            .exec(String.format("${externalCredentialsHelper.path} %s", "store"))
 
         val output = process.outputStream // write to the input stream of the helper
         val bufferedWriter = BufferedWriter(OutputStreamWriter(output))

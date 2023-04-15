@@ -29,7 +29,6 @@ import com.jetpackduba.gitnuro.extensions.systemSeparator
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.logging.printError
-import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
@@ -155,7 +154,7 @@ class App {
         val tabs by tabsManager.tabsFlow.collectAsState()
         val currentTab = tabsManager.currentTab.collectAsState().value
 
-        if(currentTab != null) {
+        if (currentTab != null) {
             Column(
                 modifier = Modifier.background(MaterialTheme.colors.background)
             ) {
@@ -200,7 +199,7 @@ class App {
         }
     }
 
-    fun getDirToOpen(args: Array<String>): File? {
+    private fun getDirToOpen(args: Array<String>): File? {
         if (args.isNotEmpty()) {
             val repoToOpen = args.first()
             val path = Paths.get(repoToOpen)

@@ -1,25 +1,30 @@
 # Gitnuro - Multiplatform Git Client
+
 [![Latest release](https://img.shields.io/github/v/release/JetpackDuba/Gitnuro?color=blue&label=latest%20release)](https://github.com/JetpackDuba/Gitnuro/releases/latest)
 
 ![Icon](res/img/cover.png)
 
 A FOSS Git client based on (Jetbrains) Compose and JGit.
 
-The main goal of Gitnuro is to provide a multiplatform open source Git client without any kind of constraint to how you can use it nor relying on web technologies.
+The main goal of Gitnuro is to provide a multiplatform open source Git client without any kind of constraint to how you
+can use it nor relying on web technologies.
 
 ## Download/Install
 
 Linux:
-- Available as Flatpak [here](https://beta.flathub.org/apps/details/com.jetpackduba.Gitnuro) or by running `flatpak install --user com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup.
+
+- Available as Flatpak [here](https://beta.flathub.org/apps/details/com.jetpackduba.Gitnuro) or by
+  running `flatpak install --user com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup.
 - JAR file can be executed as a portable version (Requires JRE 17).
 
 Windows:
+
 - [Installable & portable version](https://github.com/JetpackDuba/Gitnuro/releases/latest).
 
 MacOS:
+
 - [ZIP which contains the app bundle](https://github.com/JetpackDuba/Gitnuro/releases/latest).
 - Using hombrew: `brew install jetpackduba/apps/gitnuro`
-
 
 ## Features
 
@@ -56,11 +61,9 @@ Gitnuro has support for the following features:
 - Side by side diff in text files.
 - Stage/Unstage specific lines.
 
-
-
 <details>
   <summary><b>Features planned</b></summary>
- 
+
 - Create/Apply patches
 - Remove tags from remote.
 - View stashes in the log tree.
@@ -69,13 +72,15 @@ Gitnuro has support for the following features:
 - Syntax highlighting for diff.
 - Various log options like showing the author, filtering by current branch o hide remote branches.
 - Customizations settings.
+
 </details>
 
 ## Contributing
 
 If you find a bug or you would like to suggest a new feature, feel free to open an issue.
 
-Pull requests are also welcome but please create an issue first if it's a new feature. If you want to work on an existing issue, please comment so I'm aware of it and discuss the changes if required.
+Pull requests are also welcome but please create an issue first if it's a new feature. If you want to work on an
+existing issue, please comment so I'm aware of it and discuss the changes if required.
 See [this page](DEVELOPMENT.md) for how to set up your development environment.
 
 ## FAQ
@@ -90,7 +95,8 @@ Gitnuro does not track data in any way, don't worry.
 
 > I don't like the built-in themes, can I create a custom one?
 
-Gitnuro includes the option to set custom themes in a JSON format. Keep in mind that themes may break with new releases, making the default theme the fallback option.
+Gitnuro includes the option to set custom themes in a JSON format. Keep in mind that themes may break with new releases,
+making the default theme the fallback option.
 
 For the latest stable version (1.1.0), you can use this JSON as an example:
 
@@ -124,32 +130,37 @@ For the latest stable version (1.1.0), you can use this JSON as an example:
 
 Colors are in ARGB Hex format.
 
-> Why isn't the Mac version signed? 
+> Why isn't the Mac version signed?
 
-The cost of the Apple Developer Program is quite high with a platform that currently has very few users. I may pay for it if it's a very requested feature but not for now.
+The cost of the Apple Developer Program is quite high with a platform that currently has very few users. I may pay for
+it if it's a very requested feature but not for now.
 
 > Authentication has failed. What's wrong?
 
 Currently there are some limitations regarding this topic. Here are some known problematic setups:
+
 - SSH keys managed by external agents (https://github.com/JetpackDuba/Gitnuro/issues/17).
 - Configurations added to .ssh/config
 - Non-default ssh dir path.
-- Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19) with this workaround (https://github.com/JetpackDuba/Gitnuro/issues/19#issuecomment-1374431720).
+- Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19) with this
+  workaround (https://github.com/JetpackDuba/Gitnuro/issues/19#issuecomment-1374431720).
 - Self signed server certificate (https://github.com/JetpackDuba/Gitnuro/issues/48)
 
 If the authentication fails and you think its due to a different reason, please open a new issue.
 
 
 > Does it support Git credentials manager (aka manager-core)?
-Yes but it requires specifying the full path of the binary in your `.gitconfig`.
+> Yes but it requires specifying the full path of the binary in your `.gitconfig`.
 
-Example for linux: 
+Example for linux:
+
 ```
 [credential]
    helper = /usr/share/git-credential-manager-core/git-credential-manager-core
 ```
 
-Example for windows (you may want to edit `C:\Program Files\mingw64\etc\gitconfig`): 
+Example for windows (you may want to edit `C:\Program Files\mingw64\etc\gitconfig`):
+
 ```
 [credential]
    helper = C:/Program Files/Git/mingw64/bin/git-credential-manager-core.exe

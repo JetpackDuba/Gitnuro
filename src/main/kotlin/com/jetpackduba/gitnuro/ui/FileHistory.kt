@@ -62,7 +62,7 @@ fun FileHistory(
             .focusRequester(focusRequester)
             .focusable()
             .onKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown ) {
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
                     onClose()
                     true
                 } else

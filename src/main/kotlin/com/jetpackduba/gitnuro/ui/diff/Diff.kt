@@ -85,7 +85,7 @@ fun Diff(
                 indication = null
             ) {}
             .onPreviewKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown ) {
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
                     onCloseDiffView()
                     true
                 } else

@@ -25,7 +25,7 @@ class PushBranchUseCase @Inject constructor(
                     setPushTags()
             }
             .setTransportConfigCallback { handleTransportUseCase(it, git) }
-            .setProgressMonitor(object: ProgressMonitor {
+            .setProgressMonitor(object : ProgressMonitor {
                 override fun start(totalTasks: Int) {}
                 override fun beginTask(title: String?, totalWork: Int) {}
                 override fun update(completed: Int) {}

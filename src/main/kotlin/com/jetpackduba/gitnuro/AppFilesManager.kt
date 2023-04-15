@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro
 import com.jetpackduba.gitnuro.extensions.OS
 import com.jetpackduba.gitnuro.extensions.getCurrentOs
 import com.jetpackduba.gitnuro.logging.printError
-import com.jetpackduba.gitnuro.logging.printLog
 import java.io.File
 import javax.inject.Inject
 

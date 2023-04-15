@@ -29,7 +29,6 @@ class BranchesViewModel @AssistedInject constructor(
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val mergeBranchUseCase: MergeBranchUseCase,
     private val getBranchesUseCase: GetBranchesUseCase,
-    private val createBranchUseCase: CreateBranchUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val tabScope: CoroutineScope,

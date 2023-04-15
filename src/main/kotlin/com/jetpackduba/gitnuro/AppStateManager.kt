@@ -2,7 +2,10 @@ package com.jetpackduba.gitnuro
 
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.preferences.AppSettings
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

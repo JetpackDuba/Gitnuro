@@ -56,7 +56,7 @@ fun Blame(
             .focusRequester(focusRequester)
             .focusable()
             .onPreviewKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown ) {
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
                     onClose()
                     true
                 } else

@@ -17,7 +17,6 @@ interface SSHLibrary : Library {
 
     fun ssh_connect(session: ssh_session): Int
 
-    fun ssh_userauth_agent(session: ssh_session, username: String?): Int
     fun ssh_userauth_publickey_auto(session: ssh_session, username: String?, password: String?): Int
     fun ssh_userauth_password(session: ssh_session, username: String?, password: String?): Int
     fun ssh_get_error(session: ssh_session): String
@@ -29,23 +28,13 @@ interface SSHLibrary : Library {
     fun ssh_channel_request_exec(sshChannel: ssh_channel, command: String): Int
 
     fun ssh_channel_read(sshChannel: ssh_channel, buffer: ByteArray, count: Int, isStderr: Int): Int
-    fun ssh_channel_read_timeout(
-        sshChannel: ssh_channel,
-        buffer: ByteArray,
-        count: Int,
-        isStderr: Int,
-        timeoutMs: Int
-    ): Int
 
     fun ssh_channel_poll(sshChannel: ssh_channel, isStderr: Int): Int
-    fun ssh_channel_read_nonblocking(sshChannel: ssh_channel, buffer: ByteArray, count: Int, isStderr: Int): Int
+
     fun ssh_channel_write(sshChannel: ssh_channel, data: ByteArray, len: Int): Int
 
     fun ssh_channel_close(sshChannel: ssh_channel): Int
 
-    fun ssh_channel_send_eof(sshChannel: ssh_channel): Int
-
-    fun ssh_channel_free(sshChannel: ssh_channel)
     fun ssh_channel_is_open(sshChannel: ssh_channel): Int
 
 

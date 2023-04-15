@@ -31,7 +31,7 @@ import java.io.File
 
 @Composable
 fun CloneDialog(
-    cloneViewModel: CloneViewModel = gitnuroViewModel(), // TODO THIS CRASHES
+    cloneViewModel: CloneViewModel = gitnuroViewModel(),
     onClose: () -> Unit,
     onOpenRepository: (File) -> Unit,
 ) {
