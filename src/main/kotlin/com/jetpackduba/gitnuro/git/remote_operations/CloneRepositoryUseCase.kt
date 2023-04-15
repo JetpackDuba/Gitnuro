@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.git.CloneStatus
+import com.jetpackduba.gitnuro.logging.printDebug
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.ensureActive
@@ -11,6 +12,8 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
 import java.io.File
 import javax.inject.Inject
+
+private const val TAG = "CloneRepositoryUseCase"
 
 class CloneRepositoryUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
@@ -30,7 +33,7 @@ class CloneRepositoryUseCase @Inject constructor(
                 .setProgressMonitor(
                     object : ProgressMonitor {
                         override fun start(totalTasks: Int) {
-                            println("ProgressMonitor Start with total tasks of: $totalTasks")
+                            printDebug(TAG, "ProgressMonitor Start with total tasks of: $totalTasks")
                         }
 
                         override fun beginTask(title: String?, totalWork: Int) {
@@ -42,7 +45,7 @@ class CloneRepositoryUseCase @Inject constructor(
                         }
 
                         override fun update(completed: Int) {
-                            println("ProgressMonitor Update $completed")
+                            printDebug(TAG, "ProgressMonitor Update $completed")
                             ensureActive()
 
                             progress += completed
@@ -50,7 +53,7 @@ class CloneRepositoryUseCase @Inject constructor(
                         }
 
                         override fun endTask() {
-                            println("ProgressMonitor End task")
+                            printDebug(TAG, "ProgressMonitor End task")
                         }
 
                         override fun isCancelled(): Boolean {
@@ -68,7 +71,7 @@ class CloneRepositoryUseCase @Inject constructor(
             channel.close()
         } catch (ex: Exception) {
             if (ex.cause?.cause is CancellationException) {
-                println("Clone cancelled")
+                printDebug(TAG, "Clone cancelled")
             } else {
                 trySend(CloneStatus.Fail(ex.localizedMessage))
             }
