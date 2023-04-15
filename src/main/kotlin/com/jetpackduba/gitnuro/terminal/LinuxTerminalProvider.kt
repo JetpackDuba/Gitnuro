@@ -22,6 +22,6 @@ class LinuxTerminalProvider @Inject constructor() : ITerminalProvider {
     }
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
-        runCommandInPath(terminalEmulator.path, repositoryPath)
+        runCommandInPath(listOf(terminalEmulator.path), repositoryPath)
     }
 }

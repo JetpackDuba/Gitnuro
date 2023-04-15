@@ -4,7 +4,7 @@ import com.jetpackduba.gitnuro.extensions.runCommand
 import com.jetpackduba.gitnuro.extensions.runCommandInPath
 import javax.inject.Inject
 
-private const val FLATPAK_PREFIX = "/usr/bin/flatpak-spawn --host --env=TERM=xterm-256color"
+private val FLATPAK_PREFIX = listOf("/usr/bin/flatpak-spawn", "--host", "--env=TERM=xterm-256color")
 
 // TODO Test in flatpak
 class FlatpakTerminalProvider @Inject constructor(
@@ -22,6 +22,8 @@ class FlatpakTerminalProvider @Inject constructor(
     }
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
-        runCommandInPath("$FLATPAK_PREFIX ${terminalEmulator.path}", repositoryPath)
+        val command = FLATPAK_PREFIX.toMutableList()
+        command.add(terminalEmulator.path)
+        runCommandInPath(command, repositoryPath)
     }
 }

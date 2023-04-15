@@ -245,7 +245,7 @@ class TabViewModel @Inject constructor(
         launch {
             fileChangesWatcher.changesNotifier.collect { latestUpdateChangedGitDir ->
                 if (!tabState.operationRunning) { // Only update if there isn't any process running
-                    printLog(TAG, "Detected changes in the repository's directory")
+                    printDebug(TAG, "Detected changes in the repository's directory")
 
                     if (latestUpdateChangedGitDir) {
                         hasGitDirChanged = true

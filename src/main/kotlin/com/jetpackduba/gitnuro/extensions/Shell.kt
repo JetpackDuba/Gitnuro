@@ -27,7 +27,7 @@ fun runCommand(command: String): String? {
     }
 }
 
-fun runCommandInPath(command: String, path: String) {
+fun runCommandInPath(command: List<String>, path: String) {
     val processBuilder = ProcessBuilder(command).apply {
         directory(File(path))
     }

@@ -3,11 +3,10 @@ package com.jetpackduba.gitnuro.terminal
 import com.jetpackduba.gitnuro.extensions.runCommandInPath
 import javax.inject.Inject
 
-// TODO Test this on windows
 class WindowsTerminalProvider @Inject constructor() : ITerminalProvider {
     override fun getTerminalEmulators(): List<TerminalEmulator> {
         return listOf(
-            TerminalEmulator("Powershell", "powershell"),
+            TerminalEmulator("Powershell", "powershell.exe"),
         )
     }
 
@@ -17,6 +16,6 @@ class WindowsTerminalProvider @Inject constructor() : ITerminalProvider {
     }
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
-        runCommandInPath("start ${terminalEmulator.path}", repositoryPath)
+        runCommandInPath(listOf("cmd", "/c", "start", terminalEmulator.path), repositoryPath)
     }
 }

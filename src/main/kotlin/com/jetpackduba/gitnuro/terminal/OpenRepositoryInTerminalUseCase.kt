@@ -14,7 +14,7 @@ class OpenRepositoryInTerminalUseCase @Inject constructor(
         for (terminal in terminalEmulators) {
             val isTerminalEmulatorInstalled = terminalProvider.isTerminalInstalled(terminal)
             if (isTerminalEmulatorInstalled) {
-                runCommandInPath(terminal.path, path)
+                terminalProvider.startTerminal(terminal, path)
                 break
             }
         }

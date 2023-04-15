@@ -19,6 +19,6 @@ class MacTerminalProvider @Inject constructor() : ITerminalProvider {
     }
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
-        runCommandInPath("open -a ${terminalEmulator.path}", repositoryPath)
+        runCommandInPath(listOf("open", "-a", terminalEmulator.path), repositoryPath)
     }
 }
