@@ -12,18 +12,18 @@ class LibSshChannelOutputStream(private val sshChannel: ssh_channel) : OutputStr
     private val sshLib = SSHLibrary.INSTANCE
 
     override fun write(b: Int) {
-        printLog(TAG, "Write int")
+        printDebug(TAG, "Write int")
 
         val byteArrayData = byteArrayOf(b.toByte())
         write(byteArrayData)
 
-        printLog(TAG, "Write int")
+        printDebug(TAG, "Write int")
     }
 
     override fun write(b: ByteArray) {
-        printLog(TAG, "Write byte")
+        printDebug(TAG, "Write byte")
         sshLib.ssh_channel_write(sshChannel, b, b.size)
-        printLog(TAG, "Write byte finished")
+        printDebug(TAG, "Write byte finished")
     }
 
     override fun close() {
