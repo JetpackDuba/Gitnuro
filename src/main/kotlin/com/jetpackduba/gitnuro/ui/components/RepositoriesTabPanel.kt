@@ -100,6 +100,7 @@ fun RepositoriesTabPanel(
                         Tab(
                             title = tab.tabName,
                             isSelected = currentTab == tab,
+                            isNewTab = tab.path == null,
                             onClick = {
                                 onTabSelected(tab)
                             },
@@ -143,7 +144,12 @@ fun RepositoriesTabPanel(
 }
 
 @Composable
-fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, onCloseTab: () -> Unit) {
+fun Tab(
+    title: MutableState<String>,
+    isSelected: Boolean,
+    isNewTab: Boolean,
+    onClick: () -> Unit, onCloseTab: () -> Unit
+) {
     val backgroundColor = if (isSelected)
         MaterialTheme.colors.surface
     else
@@ -151,6 +157,13 @@ fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, o
 
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
+    val tabTitle = if (isNewTab)
+        title.value
+    else
+        title.value.replace(
+            " ",
+            "-"
+        ) // TODO This replace is a workaround for https://issuetracker.google.com/issues/278044455
 
     Box(
         modifier = Modifier
@@ -168,7 +181,7 @@ fun Tab(title: MutableState<String>, isSelected: Boolean, onClick: () -> Unit, o
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = title.value.replace(" ", "-"), // TODO This replace is a workaround for https://issuetracker.google.com/issues/278044455
+                text = tabTitle,
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .weight(1f)
