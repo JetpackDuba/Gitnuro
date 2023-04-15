@@ -19,6 +19,7 @@ interface SSHLibrary : Library {
 
     fun ssh_userauth_agent(session: ssh_session, username: String?): Int
     fun ssh_userauth_publickey_auto(session: ssh_session, username: String?, password: String?): Int
+    fun ssh_userauth_password(session: ssh_session, username: String?, password: String?): Int
     fun ssh_get_error(session: ssh_session): String
 
     fun ssh_channel_new(sshSession: ssh_session): ssh_channel

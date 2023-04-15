@@ -33,6 +33,15 @@ class LibSshSession @Inject constructor() {
         return result
     }
 
+    fun userAuthPassword(password: String): Int {
+        val result = sshLib.ssh_userauth_password(session, null, password)
+
+        if (result != 0)
+            printError(TAG, "Result is: $result.\nError is: ${getError()}")
+
+        return result
+    }
+
     fun createChannel(): LibSshChannel {
         val newChannel = LibSshChannel(session)
 

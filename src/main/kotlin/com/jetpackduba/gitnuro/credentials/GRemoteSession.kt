@@ -57,6 +57,10 @@ class GRemoteSession @Inject constructor(
                 credentials.password
 
             result = session.userAuthPublicKeyAuto(null, password)
+
+            if (result != 0) {
+                result = session.userAuthPassword(password)
+            }
         }
 
         if (result != 0)
