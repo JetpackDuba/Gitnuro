@@ -74,8 +74,8 @@ fun MaterialDialog(
         ) {
             Box(
                 modifier = Modifier
-                    .border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
-                    .clip(RoundedCornerShape(16.dp))
+                    .border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(8.dp))
                     .background(background)
                     .padding(
                         horizontal = paddingHorizontal,
