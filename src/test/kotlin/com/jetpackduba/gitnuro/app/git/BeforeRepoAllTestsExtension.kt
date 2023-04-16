@@ -51,7 +51,7 @@ class BeforeRepoAllTestsExtension : BeforeAllCallback, AfterAllCallback {
                         },
                     )
                 )
-            cloneRepositoryUseCase(repoDir, REPO_URL)
+            cloneRepositoryUseCase(repoDir, REPO_URL, false)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->
                     println("Cloning test repository: $newCloneStatus")

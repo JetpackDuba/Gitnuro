@@ -18,7 +18,7 @@ private const val TAG = "CloneRepositoryUseCase"
 class CloneRepositoryUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
 ) {
-    operator fun invoke(directory: File, url: String): Flow<CloneStatus> = callbackFlow {
+    operator fun invoke(directory: File, url: String, cloneSubmodules: Boolean): Flow<CloneStatus> = callbackFlow {
         var lastTitle: String = ""
         var lastTotalWork = 0
         var progress = 0
@@ -64,6 +64,7 @@ class CloneRepositoryUseCase @Inject constructor(
                     }
                 )
                 .setTransportConfigCallback { handleTransportUseCase(it, null) }
+                .setCloneSubmodules(cloneSubmodules)
                 .call()
 
             ensureActive()

@@ -26,7 +26,7 @@ class CloneViewModel @Inject constructor(
 
     private var cloneJob: Job? = null
 
-    fun clone(directoryPath: String, url: String) {
+    fun clone(directoryPath: String, url: String, cloneSubmodules: Boolean) {
         cloneJob = tabState.safeProcessingWithoutGit {
             if (directoryPath.isBlank()) {
                 _cloneStatus.value = CloneStatus.Fail("Invalid empty directory")
@@ -69,7 +69,7 @@ class CloneViewModel @Inject constructor(
                 repoDir.mkdir()
             }
 
-            cloneRepositoryUseCase(repoDir, url)
+            cloneRepositoryUseCase(repoDir, url, cloneSubmodules)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->
                     _cloneStatus.value = newCloneStatus

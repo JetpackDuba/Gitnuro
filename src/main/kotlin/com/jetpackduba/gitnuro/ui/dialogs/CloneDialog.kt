@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.CloneStatus
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 
@@ -85,6 +87,7 @@ private fun CloneInput(
 ) {
     var url by remember { mutableStateOf(cloneViewModel.url) }
     var directory by remember { mutableStateOf(cloneViewModel.directory) }
+    var cloneSubmodules by remember { mutableStateOf(true) }
 
     val urlFocusRequester = remember { FocusRequester() }
     val directoryFocusRequester = remember { FocusRequester() }
@@ -174,6 +177,34 @@ private fun CloneInput(
             }
         }
 
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.handMouseClickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                cloneSubmodules = !cloneSubmodules
+            }
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            Checkbox(
+                checked = cloneSubmodules,
+                onCheckedChange = {
+                    cloneSubmodules = it
+                },
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .size(12.dp)
+            )
+
+            Text(
+                "Clone submodules recursively",
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackground,
+            )
+        }
+
         if (errorMessage != null) {
             Box(
                 modifier = Modifier
@@ -213,7 +244,7 @@ private fun CloneInput(
             )
             PrimaryButton(
                 onClick = {
-                    cloneViewModel.clone(directory, url)
+                    cloneViewModel.clone(directory, url, cloneSubmodules)
                 },
                 modifier = Modifier
                     .focusRequester(cloneButtonFocusRequester)
