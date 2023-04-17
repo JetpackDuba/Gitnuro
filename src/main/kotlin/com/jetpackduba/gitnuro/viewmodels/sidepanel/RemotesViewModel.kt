@@ -68,16 +68,9 @@ class RemotesViewModel @AssistedInject constructor(
     }
 
     private suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
-        val remotes = git.remoteList()
-            .call()
         val allRemoteBranches = getRemoteBranchesUseCase(git)
 
-        val remoteInfoList = remotes.map { remoteConfig ->
-            val remoteBranches = allRemoteBranches.filter { branch ->
-                branch.name.startsWith("refs/remotes/${remoteConfig.name}")
-            }
-            RemoteInfo(remoteConfig, remoteBranches)
-        }
+        val remoteInfoList = getRemotesUseCase(git, allRemoteBranches)
 
         val remoteViewList = remoteInfoList.map { remoteInfo ->
             RemoteView(remoteInfo, true)
