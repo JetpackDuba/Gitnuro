@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro
+package com.jetpackduba.gitnuro.managers
 
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.openDirectory

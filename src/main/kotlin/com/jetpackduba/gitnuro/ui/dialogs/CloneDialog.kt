@@ -27,7 +27,6 @@ import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
-import com.jetpackduba.gitnuro.ui.openDirectoryDialog
 import com.jetpackduba.gitnuro.viewmodels.CloneViewModel
 import java.io.File
 
@@ -152,7 +151,7 @@ private fun CloneInput(
             IconButton(
                 onClick = {
                     cloneViewModel.resetStateIfError()
-                    val newDirectory = openDirectoryDialog()
+                    val newDirectory = cloneViewModel.openDirectoryPicker()
                     if (newDirectory != null) {
                         directory = newDirectory
                         cloneViewModel.directory = directory

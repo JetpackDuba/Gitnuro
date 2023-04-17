@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.git
 
-import com.jetpackduba.gitnuro.extensions.systemSeparator
+import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.logging.printLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow

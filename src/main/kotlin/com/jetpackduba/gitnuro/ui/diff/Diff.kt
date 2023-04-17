@@ -158,7 +158,7 @@ fun Diff(
                     )
 
                     is DiffResult.NonText -> {
-                        NonTextDiff(diffResult)
+                        NonTextDiff(diffResult, onOpenFileWithExternalApp = { path -> diffViewModel.openFileWithExternalApp(path) })
                     }
                 }
             }
@@ -184,7 +184,7 @@ fun Diff(
 }
 
 @Composable
-fun NonTextDiff(diffResult: DiffResult.NonText) {
+fun NonTextDiff(diffResult: DiffResult.NonText, onOpenFileWithExternalApp: (String) -> Unit) {
     val oldBinaryContent = diffResult.oldBinaryContent
     val newBinaryContent = diffResult.newBinaryContent
 
@@ -204,7 +204,7 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 SideTitle("Old")
-                SideDiff(oldBinaryContent)
+                SideDiff(oldBinaryContent, onOpenFileWithExternalApp)
             }
             Column(
                 modifier = Modifier
@@ -213,7 +213,7 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 SideTitle("New")
-                SideDiff(newBinaryContent)
+                SideDiff(newBinaryContent, onOpenFileWithExternalApp)
             }
         } else if (oldBinaryContent != EntryContent.Missing) {
             Box(
@@ -221,7 +221,7 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                     .fillMaxSize()
                     .padding(all = 24.dp),
             ) {
-                SideDiff(oldBinaryContent)
+                SideDiff(oldBinaryContent, onOpenFileWithExternalApp)
             }
         } else if (newBinaryContent != EntryContent.Missing) {
             Column(
@@ -232,7 +232,7 @@ fun NonTextDiff(diffResult: DiffResult.NonText) {
                 verticalArrangement = Arrangement.Center,
             ) {
                 Spacer(modifier = Modifier.height(24.dp))
-                SideDiff(newBinaryContent)
+                SideDiff(newBinaryContent, onOpenFileWithExternalApp)
             }
         }
     }
@@ -248,10 +248,14 @@ fun SideTitle(text: String) {
 }
 
 @Composable
-fun SideDiff(entryContent: EntryContent) {
+fun SideDiff(entryContent: EntryContent, onOpenFileWithExternalApp: (String) -> Unit) {
     when (entryContent) {
         EntryContent.Binary -> BinaryDiff()
-        is EntryContent.ImageBinary -> ImageDiff(entryContent.imagePath, entryContent.contentType)
+        is EntryContent.ImageBinary -> ImageDiff(
+            entryContent.imagePath,
+            entryContent.contentType,
+            onOpenFileWithExternalApp = { onOpenFileWithExternalApp(entryContent.imagePath) }
+        )
         else -> {
         }
 //        is EntryContent.Text -> //TODO maybe have a text view if the file was a binary before?
@@ -260,16 +264,23 @@ fun SideDiff(entryContent: EntryContent) {
 }
 
 @Composable
-private fun ImageDiff(imagePath: String, contentType: String) {
+private fun ImageDiff(
+    imagePath: String,
+    contentType: String,
+    onOpenFileWithExternalApp: () -> Unit
+) {
     if (animatedImages.contains(contentType)) {
-        AnimatedImage(imagePath)
+        AnimatedImage(imagePath, onOpenFileWithExternalApp)
     } else {
-        StaticImage(imagePath)
+        StaticImage(imagePath, onOpenFileWithExternalApp)
     }
 }
 
 @Composable
-private fun StaticImage(tempImagePath: String) {
+private fun StaticImage(
+    tempImagePath: String,
+    onOpenFileWithExternalApp: () -> Unit
+) {
     var image by remember(tempImagePath) { mutableStateOf<ImageBitmap?>(null) }
 
     LaunchedEffect(tempImagePath) {
@@ -295,19 +306,22 @@ private fun StaticImage(tempImagePath: String) {
                 }
             }
             .handMouseClickable {
-                openFileWithExternalApp(tempImagePath)
+                onOpenFileWithExternalApp()
             }
     )
 }
 
 @Composable
-private fun AnimatedImage(imagePath: String) {
+private fun AnimatedImage(
+    imagePath: String,
+    onOpenFileWithExternalApp: () -> Unit
+) {
     Image(
         bitmap = loadOrNull(imagePath) { loadAnimatedImage(imagePath) }?.animate() ?: ImageBitmap.Blank,
         contentDescription = null,
         modifier = Modifier.fillMaxSize()
             .handMouseClickable {
-                openFileWithExternalApp(imagePath)
+                onOpenFileWithExternalApp()
             }
     )
 }

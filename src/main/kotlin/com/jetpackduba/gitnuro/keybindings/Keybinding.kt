@@ -4,8 +4,8 @@ package com.jetpackduba.gitnuro.keybindings
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.*
-import com.jetpackduba.gitnuro.extensions.OS
-import com.jetpackduba.gitnuro.extensions.getCurrentOs
+import com.jetpackduba.gitnuro.system.OS
+import com.jetpackduba.gitnuro.system.getCurrentOs
 
 data class Keybinding(
     val alt: Boolean = false,

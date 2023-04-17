@@ -1,7 +1,7 @@
-package com.jetpackduba.gitnuro
+package com.jetpackduba.gitnuro.managers
 
-import com.jetpackduba.gitnuro.extensions.OS
-import com.jetpackduba.gitnuro.extensions.getCurrentOs
+import com.jetpackduba.gitnuro.system.OS
+import com.jetpackduba.gitnuro.system.getCurrentOs
 import com.jetpackduba.gitnuro.logging.printError
 import java.io.File
 import javax.inject.Inject

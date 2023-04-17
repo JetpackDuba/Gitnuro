@@ -25,10 +25,11 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
-import com.jetpackduba.gitnuro.extensions.systemSeparator
+import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.logging.printError
+import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme

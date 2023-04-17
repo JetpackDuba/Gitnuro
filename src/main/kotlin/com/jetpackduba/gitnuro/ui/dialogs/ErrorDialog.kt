@@ -12,7 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.Error
+import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable

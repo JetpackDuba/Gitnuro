@@ -13,7 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.Error
+import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -25,7 +25,6 @@ import com.jetpackduba.gitnuro.ui.dialogs.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.ui.dropdowns.ScaleDropDown
-import com.jetpackduba.gitnuro.ui.openFileDialog
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -181,7 +180,7 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
             subtitle = "Select a JSON file to load the custom theme",
             buttonText = "Open file",
             onClick = {
-                val filePath = openFileDialog()
+                val filePath = settingsViewModel.openFileDialog()
 
                 if (filePath != null) {
                     val error = settingsViewModel.saveCustomTheme(filePath)

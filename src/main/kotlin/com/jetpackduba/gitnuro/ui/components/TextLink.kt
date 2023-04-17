@@ -10,7 +10,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.openUrlInBrowser
 
 
 @Composable
@@ -19,6 +18,7 @@ fun TextLink(
     url: String,
     modifier: Modifier = Modifier,
     colorsInverted: Boolean = false,
+    onClick: () -> Unit,
 ) {
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
@@ -29,14 +29,15 @@ fun TextLink(
         MaterialTheme.colors.primaryVariant
     }
 
-    Text(
+    TooltipText(
         text = text,
         modifier = Modifier
             .hoverable(hoverInteraction)
             .handMouseClickable {
-                openUrlInBrowser(url)
+                onClick()
             }
             .then(modifier),
         color = textColor,
+        tooltipTitle = url
     )
 }

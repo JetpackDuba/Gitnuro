@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.extensions
 
+import com.jetpackduba.gitnuro.system.systemSeparator
 import java.math.BigInteger
 import java.security.MessageDigest
 

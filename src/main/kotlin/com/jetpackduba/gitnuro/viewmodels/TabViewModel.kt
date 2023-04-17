@@ -1,7 +1,5 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.AppStateManager
-import com.jetpackduba.gitnuro.ErrorsManager
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
@@ -16,8 +14,13 @@ import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
 import com.jetpackduba.gitnuro.logging.printDebug
 import com.jetpackduba.gitnuro.logging.printLog
+import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.managers.ErrorsManager
+import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
-import com.jetpackduba.gitnuro.newErrorNow
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
+import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
+import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
@@ -62,6 +65,8 @@ class TabViewModel @Inject constructor(
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
     private val abortRebaseUseCase: AbortRebaseUseCase,
+    private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val tabScope: CoroutineScope,
 ) {
     val errorsManager: ErrorsManager = tabState.errorsManager
@@ -302,11 +307,6 @@ class TabViewModel @Inject constructor(
     ) {
         updateDiffEntry()
         tabState.refreshData(RefreshType.UNCOMMITED_CHANGES_AND_LOG)
-//
-//        // Stashes list should only be updated if we are doing a stash operation, however it's a small operation
-//        // that we can afford to do when doing other operations
-//        stashesViewModel.refresh(git)
-//        loadRepositoryState(git)
     }
 
     private suspend fun refreshRepositoryInfo() {
@@ -345,6 +345,12 @@ class TabViewModel @Inject constructor(
             diffViewModel?.cancelRunningJobs()
             diffViewModel = null // Free the view model from the memory if not being used.
         }
+    }
+
+    fun openDirectoryPicker(): String? {
+        val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
+
+        return openFilePickerUseCase(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
 
     fun initLocalRepository(dir: String) = tabState.safeProcessingWithoutGit(
@@ -466,6 +472,10 @@ class TabViewModel @Inject constructor(
 
     fun cancelOngoingTask() {
         tabState.cancelCurrentTask()
+    }
+
+    fun openUrlInBrowser(url: String) {
+        openUrlInBrowserUseCase(url)
     }
 }
 

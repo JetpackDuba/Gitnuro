@@ -3,6 +3,8 @@ package com.jetpackduba.gitnuro.viewmodels
 import com.jetpackduba.gitnuro.git.CloneStatus
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
+import com.jetpackduba.gitnuro.system.PickerType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -15,6 +17,7 @@ import javax.inject.Inject
 class CloneViewModel @Inject constructor(
     private val tabState: TabState,
     private val cloneRepositoryUseCase: CloneRepositoryUseCase,
+    private val openFilePickerUseCase: OpenFilePickerUseCase,
 ) {
 
     private val _cloneStatus = MutableStateFlow<CloneStatus>(CloneStatus.None)
@@ -91,5 +94,9 @@ class CloneViewModel @Inject constructor(
 
     fun resetStateIfError() {
         _cloneStatus.value = CloneStatus.None
+    }
+
+    fun openDirectoryPicker(): String? {
+        return openFilePickerUseCase(PickerType.DIRECTORIES, null)
     }
 }

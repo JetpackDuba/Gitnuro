@@ -1,9 +1,11 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.Error
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
-import com.jetpackduba.gitnuro.newErrorNow
+import com.jetpackduba.gitnuro.managers.Error
+import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
+import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.theme.Theme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -13,6 +15,7 @@ import javax.inject.Singleton
 @Singleton
 class SettingsViewModel @Inject constructor(
     private val appSettings: AppSettings,
+    private val openFilePickerUseCase: OpenFilePickerUseCase,
     @AppCoroutineScope private val appScope: CoroutineScope,
 ) {
     // Temporary values to detect changed variables
@@ -74,5 +77,9 @@ class SettingsViewModel @Inject constructor(
         if (appSettings.commitsLimit != commitsLimit) {
             appSettings.setCommitsLimit(commitsLimit)
         }
+    }
+
+    fun openFileDialog(): String? {
+        return openFilePickerUseCase(PickerType.FILES, null)
     }
 }

@@ -24,8 +24,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.AppStateManager
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
@@ -63,10 +63,24 @@ fun WelcomePage(
         ) {
             HomeButtons(
                 newUpdate = newUpdate,
-                tabViewModel = tabViewModel,
+                onOpenRepository = {
+                    val repo = tabViewModel.openDirectoryPicker()
+
+                    if (repo != null) {
+                        tabViewModel.openRepository(repo)
+                    }
+                },
+                onStartRepository = {
+                    val dir = tabViewModel.openDirectoryPicker()
+
+                    if (dir != null) {
+                        tabViewModel.initLocalRepository(dir)
+                    }
+                },
                 onShowCloneView = onShowCloneDialog,
                 onShowAdditionalInfo = { showAdditionalInfo = true },
                 onShowSettings = onShowSettings,
+                onOpenUrlInBrowser = { url -> tabViewModel.openUrlInBrowser(url) }
             )
 
             RecentRepositories(appStateManager, tabViewModel)
@@ -87,6 +101,7 @@ fun WelcomePage(
     if (showAdditionalInfo) {
         AppInfoDialog(
             onClose = { showAdditionalInfo = false },
+            onOpenUrlInBrowser = { url -> tabViewModel.openUrlInBrowser(url) }
         )
     }
 }
@@ -94,10 +109,12 @@ fun WelcomePage(
 @Composable
 fun HomeButtons(
     newUpdate: Update?,
-    tabViewModel: TabViewModel,
+    onOpenRepository: () -> Unit,
+    onStartRepository: () -> Unit,
     onShowCloneView: () -> Unit,
     onShowAdditionalInfo: () -> Unit,
     onShowSettings: () -> Unit,
+    onOpenUrlInBrowser: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier.padding(end = 32.dp),
@@ -113,7 +130,8 @@ fun HomeButtons(
             modifier = Modifier.padding(bottom = 8.dp),
             title = "Open a repository",
             painter = painterResource(AppIcons.OPEN),
-            onClick = { openRepositoryDialog(tabViewModel) })
+            onClick = onOpenRepository
+        )
 
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
@@ -126,10 +144,7 @@ fun HomeButtons(
             modifier = Modifier.padding(bottom = 8.dp),
             title = "Start a local repository",
             painter = painterResource(AppIcons.OPEN),
-            onClick = {
-                val dir = openDirectoryDialog()
-                if (dir != null) tabViewModel.initLocalRepository(dir)
-            }
+            onClick = onStartRepository
         )
 
         Text(
@@ -142,7 +157,7 @@ fun HomeButtons(
             title = "Source code",
             painter = painterResource(AppIcons.CODE),
             onClick = {
-                openUrlInBrowser("https://github.com/JetpackDuba/Gitnuro")
+                onOpenUrlInBrowser("https://github.com/JetpackDuba/Gitnuro")
             }
         )
 
@@ -150,7 +165,7 @@ fun HomeButtons(
             title = "Report a bug",
             painter = painterResource(AppIcons.BUG),
             onClick = {
-                openUrlInBrowser("https://github.com/JetpackDuba/Gitnuro/issues")
+                onOpenUrlInBrowser("https://github.com/JetpackDuba/Gitnuro/issues")
             }
         )
 
@@ -172,7 +187,7 @@ fun HomeButtons(
                 painter = painterResource(AppIcons.GRADE),
                 iconColor = MaterialTheme.colors.secondary,
                 onClick = {
-                    openUrlInBrowser(newUpdate.downloadUrl)
+                    onOpenUrlInBrowser(newUpdate.downloadUrl)
                 }
             )
         }

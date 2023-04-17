@@ -19,6 +19,7 @@ import com.jetpackduba.gitnuro.ui.components.TextLink
 @Composable
 fun AppInfoDialog(
     onClose: () -> Unit,
+    onOpenUrlInBrowser: (String) -> Unit,
 ) {
     MaterialDialog(onCloseRequested = onClose) {
         Column(
@@ -52,7 +53,7 @@ fun AppInfoDialog(
                 }
 
                 items(openSourceProjects) {
-                    ProjectUsed(it)
+                    ProjectUsed(it, onOpenUrlInBrowser = onOpenUrlInBrowser)
                 }
             }
 
@@ -70,7 +71,10 @@ fun AppInfoDialog(
 }
 
 @Composable
-fun ProjectUsed(project: Project) {
+fun ProjectUsed(
+    project: Project,
+    onOpenUrlInBrowser: (String) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp)
@@ -80,7 +84,8 @@ fun ProjectUsed(project: Project) {
             text = project.name,
             url = project.url,
             modifier = Modifier
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            onClick = { onOpenUrlInBrowser(project.url) }
         )
 
         Spacer(Modifier.weight(1f))
@@ -90,7 +95,8 @@ fun ProjectUsed(project: Project) {
             url = project.license.url,
             modifier = Modifier
                 .padding(vertical = 8.dp),
-            colorsInverted = true
+            colorsInverted = true,
+            onClick = { onOpenUrlInBrowser(project.license.url) }
         )
     }
 }

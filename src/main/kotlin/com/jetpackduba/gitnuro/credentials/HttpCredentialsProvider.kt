@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.credentials
 
 import com.jetpackduba.gitnuro.exceptions.NotSupportedHelper
+import com.jetpackduba.gitnuro.managers.IShellManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.eclipse.jgit.api.Git
@@ -16,6 +17,7 @@ private const val TIMEOUT_MIN = 1L
 
 class HttpCredentialsProvider @AssistedInject constructor(
     private val credentialsStateManager: CredentialsStateManager,
+    private val shellManager: IShellManager,
     @Assisted val git: Git?,
 ) : CredentialsProvider() {
     override fun isInteractive(): Boolean {
@@ -82,8 +84,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
         externalCredentialsHelper: ExternalCredentialsHelper,
         credentials: CredentialsAccepted.HttpCredentialsAccepted
     ) {
-        val process = Runtime.getRuntime()
-            .exec(String.format("${externalCredentialsHelper.path} %s", "store"))
+        val process = shellManager.runCommandProcess(listOf(externalCredentialsHelper.path, "store"))
 
         val output = process.outputStream // write to the input stream of the helper
         val bufferedWriter = BufferedWriter(OutputStreamWriter(output))
@@ -119,8 +120,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
         uri: URIish,
         items: Array<out CredentialItem>
     ): ExternalCredentialsRequestResult {
-        val process = Runtime.getRuntime()
-            .exec(String.format("${externalCredentialsHelper.path} %s", "get"))
+        val process = shellManager.runCommandProcess(listOf(externalCredentialsHelper.path, "get"))
 
         val output = process.outputStream // write to the input stream of the helper
         val input = process.inputStream // reads from the output stream of the helper

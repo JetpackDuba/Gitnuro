@@ -1,10 +1,11 @@
 package com.jetpackduba.gitnuro.terminal
 
-import com.jetpackduba.gitnuro.extensions.runCommand
-import com.jetpackduba.gitnuro.extensions.runCommandInPath
+import com.jetpackduba.gitnuro.managers.IShellManager
 import javax.inject.Inject
 
-class LinuxTerminalProvider @Inject constructor() : ITerminalProvider {
+class LinuxTerminalProvider @Inject constructor(
+    private val shellManager: IShellManager
+) : ITerminalProvider {
     override fun getTerminalEmulators(): List<TerminalEmulator> {
         return listOf(
             TerminalEmulator("Gnome Terminal", "gnome-terminal"),
@@ -16,12 +17,12 @@ class LinuxTerminalProvider @Inject constructor() : ITerminalProvider {
     }
 
     override fun isTerminalInstalled(terminalEmulator: TerminalEmulator): Boolean {
-        val checkTerminalInstalled = runCommand("which ${terminalEmulator.path} 2>/dev/null")
+        val checkTerminalInstalled = shellManager.runCommand(listOf("which", terminalEmulator.path, "2>/dev/null"))
 
         return !checkTerminalInstalled.isNullOrEmpty()
     }
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
-        runCommandInPath(listOf(terminalEmulator.path), repositoryPath)
+        shellManager.runCommandInPath(listOf(terminalEmulator.path), repositoryPath)
     }
 }

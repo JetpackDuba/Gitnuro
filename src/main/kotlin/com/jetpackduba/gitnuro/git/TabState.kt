@@ -1,9 +1,9 @@
 package com.jetpackduba.gitnuro.git
 
-import com.jetpackduba.gitnuro.ErrorsManager
+import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.newErrorNow
+import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*

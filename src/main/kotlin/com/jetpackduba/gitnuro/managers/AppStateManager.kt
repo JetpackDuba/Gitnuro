@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro
+package com.jetpackduba.gitnuro.managers
 
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.preferences.AppSettings
