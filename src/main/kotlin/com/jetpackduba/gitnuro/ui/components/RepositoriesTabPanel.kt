@@ -163,7 +163,7 @@ fun Tab(
         title.value.replace(
             " ",
             "-"
-        ) // TODO This replace is a workaround for https://issuetracker.google.com/issues/278044455
+        ) // Long tab names with spaces make compose not taking full text width for the tab. More info https://issuetracker.google.com/issues/278044455
 
     Box(
         modifier = Modifier
