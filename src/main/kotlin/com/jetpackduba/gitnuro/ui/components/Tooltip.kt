@@ -20,7 +20,7 @@ fun Tooltip(text: String?, content: @Composable () -> Unit) {
         tooltip = {
             if (text != null) {
                 val border = if (MaterialTheme.colors.isDark) {
-                    BorderStroke(2.dp, MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.4f))
+                    BorderStroke(2.dp, MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.2f))
                 } else
                     null
 

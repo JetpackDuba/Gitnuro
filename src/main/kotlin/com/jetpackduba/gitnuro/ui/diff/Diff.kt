@@ -515,6 +515,7 @@ fun SplitDiffLine(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SplitDiffLineSide(
     modifier: Modifier,

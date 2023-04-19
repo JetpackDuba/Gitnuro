@@ -2,44 +2,60 @@
 
 package com.jetpackduba.gitnuro
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.LocalTextContextMenu
+import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.input.InputMode
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
-import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.window.*
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
-import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
+import com.jetpackduba.gitnuro.theme.isDark
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
+import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.Separator
+import com.jetpackduba.gitnuro.ui.context_menu.TextEntry
 import org.eclipse.jgit.lib.GpgSigner
+import java.awt.event.KeyEvent
 import java.io.File
 import java.nio.file.Paths
 import javax.inject.Inject
@@ -70,6 +86,7 @@ class App {
         appComponent.inject(this)
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     fun start(args: Array<String>) {
         tabsManager.appComponent = this.appComponent
         val windowPlacement = appSettings.windowPlacement.toWindowPlacement
@@ -117,12 +134,15 @@ class App {
                     state = windowState,
                     icon = painterResource(AppIcons.LOGO),
                 ) {
-                    val density = if (scale != -1f) {
-                        arrayOf(LocalDensity provides Density(scale, 1f))
-                    } else
-                        emptyArray()
+                    val compositionValues: MutableList<ProvidedValue<*>> = mutableListOf(LocalTextContextMenu provides AppPopupMenu())
 
-                    CompositionLocalProvider(values = density) {
+                    if (scale != -1f) {
+                        compositionValues.add(LocalDensity provides Density(scale, 1f))
+                    }
+
+                    CompositionLocalProvider(
+                        values = compositionValues.toTypedArray()
+                    ) {
                         AppTheme(
                             selectedTheme = theme,
                             customTheme = customTheme,
@@ -228,10 +248,9 @@ private fun TabContent(currentTab: TabInformation?) {
             .fillMaxSize(),
     ) {
         if (currentTab != null) {
-            val density = arrayOf(LocalTabScope provides currentTab)
+            val tabScope = arrayOf(LocalTabScope provides currentTab)
 
-
-            CompositionLocalProvider(values = density) {
+            CompositionLocalProvider(values = tabScope) {
                 AppTab(currentTab.tabViewModel)
             }
         }
@@ -249,13 +268,5 @@ fun LoadingRepository(repoPath: String) {
             Text("Opening repository", fontSize = 36.sp, color = MaterialTheme.colors.onBackground)
             Text(repoPath, fontSize = 24.sp, color = MaterialTheme.colors.onBackgroundSecondary)
         }
-    }
-}
-
-object AboutIcon : Painter() {
-    override val intrinsicSize = Size(256f, 256f)
-
-    override fun DrawScope.onDraw() {
-        drawOval(Color(0xFFFFA500))
     }
 }
