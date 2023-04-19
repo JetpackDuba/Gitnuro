@@ -100,7 +100,6 @@ fun RepositoriesTabPanel(
                         Tab(
                             title = tab.tabName,
                             isSelected = currentTab == tab,
-                            isNewTab = tab.path == null,
                             onClick = {
                                 onTabSelected(tab)
                             },
@@ -147,7 +146,6 @@ fun RepositoriesTabPanel(
 fun Tab(
     title: MutableState<String>,
     isSelected: Boolean,
-    isNewTab: Boolean,
     onClick: () -> Unit, onCloseTab: () -> Unit
 ) {
     val backgroundColor = if (isSelected)
@@ -157,18 +155,11 @@ fun Tab(
 
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
-    val tabTitle = if (isNewTab)
-        title.value
-    else
-        title.value.replace(
-            " ",
-            "-"
-        ) // Long tab names with spaces make compose not taking full text width for the tab. More info https://issuetracker.google.com/issues/278044455
 
     Box(
         modifier = Modifier
             .widthIn(min = 200.dp)
-            .width(IntrinsicSize.Min)
+            .width(IntrinsicSize.Max)
             .fillMaxHeight()
             .hoverable(hoverInteraction)
             .handMouseClickable { onClick() }
@@ -181,7 +172,7 @@ fun Tab(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = tabTitle,
+                text = title.value,
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .weight(1f)
