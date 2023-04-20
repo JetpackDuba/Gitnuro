@@ -16,8 +16,8 @@ class CheckoutRefUseCase @Inject constructor() {
             if (ref.isBranch && ref.name.startsWith("refs/remotes/")) {
                 setCreateBranch(true)
                 setName(ref.simpleName)
-                setStartPoint(ref.objectId.name)
-                setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                setStartPoint(ref.name)
+                setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
             }
             call()
         }
