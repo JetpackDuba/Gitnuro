@@ -1,9 +1,11 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.isMerging
 import com.jetpackduba.gitnuro.extensions.isReverting
+import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
@@ -18,10 +20,7 @@ import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -54,8 +53,50 @@ class StatusViewModel @Inject constructor(
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val tabScope: CoroutineScope,
 ) {
-    private val _stageStatus = MutableStateFlow<StageStatus>(StageStatus.Loaded(listOf(), listOf(), false))
-    val stageStatus: StateFlow<StageStatus> = _stageStatus
+    private val _showSearchUnstaged = MutableStateFlow(false)
+    val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
+
+    private val _showSearchStaged = MutableStateFlow(false)
+    val showSearchStaged: StateFlow<Boolean> = _showSearchStaged
+
+    private val _searchFilterUnstaged = MutableStateFlow(TextFieldValue(""))
+    val searchFilterUnstaged: StateFlow<TextFieldValue> = _searchFilterUnstaged
+
+    private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
+    val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
+
+    private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
+
+    val stageState: StateFlow<StageState> = combine(
+        _stageState,
+        _showSearchStaged,
+        _searchFilterStaged,
+        _showSearchUnstaged,
+        _searchFilterUnstaged,
+    ) { state, showSearchStaged, filterStaged, showSearchUnstaged, filterUnstaged ->
+        if (state is StageState.Loaded) {
+            val unstaged = if (showSearchUnstaged && filterUnstaged.text.isNotBlank()) {
+                state.unstaged.filter { it.filePath.lowercaseContains(filterUnstaged.text) }
+            } else {
+                state.unstaged
+            }
+
+            val staged = if (showSearchStaged && filterStaged.text.isNotBlank()) {
+                state.staged.filter { it.filePath.lowercaseContains(filterStaged.text) }
+            } else {
+                state.staged
+            }
+
+            state.copy(stagedFiltered = staged, unstagedFiltered = unstaged)
+
+        } else {
+            state
+        }
+    }.stateIn(
+        tabScope,
+        SharingStarted.Lazily,
+        StageState.Loading
+    )
 
     var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
 
@@ -145,7 +186,7 @@ class StatusViewModel @Inject constructor(
     }
 
     private suspend fun loadStatus(git: Git) {
-        val previousStatus = _stageStatus.value
+        val previousStatus = _stageState.value
 
         val requiredMessageType = if (git.repository.repositoryState == RepositoryState.MERGING) {
             MessageType.MERGE
@@ -166,10 +207,10 @@ class StatusViewModel @Inject constructor(
             delayedStateChange(
                 delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
                 onDelayTriggered = {
-                    if (previousStatus is StageStatus.Loaded) {
-                        _stageStatus.value = previousStatus.copy(isPartiallyReloading = true)
+                    if (previousStatus is StageState.Loaded) {
+                        _stageState.value = previousStatus.copy(isPartiallyReloading = true)
                     } else {
-                        _stageStatus.value = StageStatus.Loading
+                        _stageState.value = StageState.Loading
                     }
                 }
             ) {
@@ -177,10 +218,15 @@ class StatusViewModel @Inject constructor(
                 val staged = getStagedUseCase(status).sortedBy { it.filePath }
                 val unstaged = getUnstagedUseCase(status).sortedBy { it.filePath }
 
-                _stageStatus.value = StageStatus.Loaded(staged, unstaged, isPartiallyReloading = false)
+                _stageState.value = StageState.Loaded(
+                    staged = staged,
+                    stagedFiltered = staged,
+                    unstaged = unstaged,
+                    unstagedFiltered = unstaged, isPartiallyReloading = false
+                )
             }
         } catch (ex: Exception) {
-            _stageStatus.value = previousStatus
+            _stageState.value = previousStatus
             throw ex
         }
     }
@@ -330,15 +376,33 @@ class StatusViewModel @Inject constructor(
     fun onAcceptCommitterData(newAuthorInfo: AuthorInfo, persist: Boolean) {
         this._committerDataRequestState.value = CommitterDataRequestState.Accepted(newAuthorInfo, persist)
     }
+
+    fun onSearchFilterToggledStaged(visible: Boolean) {
+        _showSearchStaged.value = visible
+    }
+
+    fun onSearchFilterChangedStaged(filter: TextFieldValue) {
+        _searchFilterStaged.value = filter
+    }
+
+    fun onSearchFilterToggledUnstaged(visible: Boolean) {
+        _showSearchUnstaged.value = visible
+    }
+
+    fun onSearchFilterChangedUnstaged(filter: TextFieldValue) {
+        _searchFilterUnstaged.value = filter
+    }
 }
 
-sealed class StageStatus {
-    object Loading : StageStatus()
+sealed class StageState {
+    object Loading : StageState()
     data class Loaded(
         val staged: List<StatusEntry>,
+        val stagedFiltered: List<StatusEntry>,
         val unstaged: List<StatusEntry>,
+        val unstagedFiltered: List<StatusEntry>,
         val isPartiallyReloading: Boolean
-    ) : StageStatus()
+    ) : StageState()
 }
 
 data class CommitMessage(val message: String, val messageType: MessageType)

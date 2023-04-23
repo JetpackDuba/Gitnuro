@@ -626,13 +626,15 @@ fun HunkHeader(
                     text = "Discard hunk",
                     backgroundButton = MaterialTheme.colors.error,
                     textColor = MaterialTheme.colors.onError,
-                    onClick = onResetHunk
+                    onClick = onResetHunk,
+                    modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
 
             SecondaryButton(
                 text = buttonText,
                 backgroundButton = color,
+                modifier = Modifier.padding(horizontal = 16.dp),
                 onClick = {
                     if (diffEntryType is DiffEntryType.StagedDiff) {
                         onUnstageHunk()
@@ -787,6 +789,7 @@ fun UncommitedDiffFileHeaderButtons(
     SecondaryButton(
         text = buttonText,
         backgroundButton = color,
+        modifier = Modifier.padding(horizontal = 16.dp),
         onClick = {
             if (diffEntryType is DiffEntryType.StagedDiff) {
                 onUnstageFile(diffEntryType.statusEntry)

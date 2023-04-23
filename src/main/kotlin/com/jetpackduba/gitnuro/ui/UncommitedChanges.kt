@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -23,14 +24,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
@@ -38,16 +44,14 @@ import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
-import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.SecondaryButton
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.EntryType
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.viewmodels.CommitterDataRequestState
-import com.jetpackduba.gitnuro.viewmodels.StageStatus
+import com.jetpackduba.gitnuro.viewmodels.StageState
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
 
@@ -61,7 +65,7 @@ fun UncommitedChanges(
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
 ) {
-    val stageStatusState = statusViewModel.stageStatus.collectAsState()
+    val stageStatus = statusViewModel.stageState.collectAsState().value
     var commitMessage by remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
@@ -69,14 +73,18 @@ fun UncommitedChanges(
     val committerDataRequestState = statusViewModel.committerDataRequestState.collectAsState()
     val committerDataRequestStateValue = committerDataRequestState.value
 
-    val stageStatus = stageStatusState.value
+    val showSearchStaged by statusViewModel.showSearchStaged.collectAsState()
+    val searchFilterStaged by statusViewModel.searchFilterStaged.collectAsState()
+    val showSearchUnstaged by statusViewModel.showSearchUnstaged.collectAsState()
+    val searchFilterUnstaged by statusViewModel.searchFilterUnstaged.collectAsState()
+
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
     val isLoading: Boolean
 
-    if (stageStatus is StageStatus.Loaded) {
-        staged = stageStatus.staged
-        unstaged = stageStatus.unstaged
+    if (stageStatus is StageState.Loaded) {
+        staged = stageStatus.stagedFiltered
+        unstaged = stageStatus.unstagedFiltered
         isLoading = stageStatus.isPartiallyReloading
     } else {
         staged = listOf()
@@ -133,12 +141,21 @@ fun UncommitedChanges(
                 title = "Staged",
                 allActionTitle = "Unstage all",
                 actionTitle = "Unstage",
+                actionIcon = AppIcons.REMOVE_DONE,
                 selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
                 actionColor = MaterialTheme.colors.error,
                 actionTextColor = MaterialTheme.colors.onError,
                 statusEntries = staged,
                 lazyListState = stagedListState,
                 onDiffEntrySelected = onStagedDiffEntrySelected,
+                showSearch = showSearchStaged,
+                searchFilter = searchFilterStaged,
+                onSearchFilterToggled = {
+                    statusViewModel.onSearchFilterToggledStaged(it)
+                },
+                onSearchFilterChanged = {
+                    statusViewModel.onSearchFilterChangedStaged(it)
+                },
                 onDiffEntryOptionSelected = {
                     statusViewModel.unstage(it)
                 },
@@ -163,12 +180,21 @@ fun UncommitedChanges(
                     .fillMaxWidth(),
                 title = "Unstaged",
                 actionTitle = "Stage",
+                actionIcon = AppIcons.DONE,
                 selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
                 actionColor = MaterialTheme.colors.primary,
                 actionTextColor = MaterialTheme.colors.onPrimary,
                 statusEntries = unstaged,
                 lazyListState = unstagedListState,
                 onDiffEntrySelected = onUnstagedDiffEntrySelected,
+                showSearch = showSearchUnstaged,
+                searchFilter = searchFilterUnstaged,
+                onSearchFilterToggled = {
+                    statusViewModel.onSearchFilterToggledUnstaged(it)
+                },
+                onSearchFilterChanged = {
+                    statusViewModel.onSearchFilterChangedUnstaged(it)
+                },
                 onDiffEntryOptionSelected = {
                     statusViewModel.stage(it)
                 },
@@ -558,6 +584,11 @@ private fun EntriesList(
     actionTitle: String,
     actionColor: Color,
     actionTextColor: Color,
+    actionIcon: String,
+    showSearch: Boolean,
+    searchFilter: TextFieldValue,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
     statusEntries: List<StatusEntry>,
     lazyListState: LazyListState,
     onDiffEntrySelected: (StatusEntry) -> Unit,
@@ -567,19 +598,30 @@ private fun EntriesList(
     allActionTitle: String,
     selectedEntryType: DiffEntryType?,
 ) {
+    val searchFocusRequester = remember { FocusRequester() }
+    val headerHoverInteraction = remember { MutableInteractionSource() }
+    val isHeaderHovered by headerHoverInteraction.collectIsHoveredAsState()
+
+    /**
+     * State used to prevent the text field from getting the focus when returning from another tab
+     */
+    var requestFocus by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .height(34.dp)
                 .fillMaxWidth()
                 .background(color = MaterialTheme.colors.tertiarySurface)
+                .hoverable(headerHoverInteraction),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 modifier = Modifier
-                    .padding(vertical = 8.dp, horizontal = 16.dp)
-                    .fillMaxWidth(),
+                    .padding(start = 16.dp, end = 8.dp)
+                    .weight(1f),
                 text = title,
                 fontWeight = FontWeight.Normal,
                 textAlign = TextAlign.Left,
@@ -588,13 +630,47 @@ private fun EntriesList(
                 maxLines = 1,
             )
 
-            SecondaryButton(
-                modifier = Modifier.align(Alignment.CenterEnd),
+            IconButton(
+                onClick = {
+                    onSearchFilterToggled(!showSearch)
+
+                    if (!showSearch)
+                        requestFocus = true
+                },
+                modifier = Modifier.handOnHover()
+            ) {
+                Icon(
+                    painter = painterResource(AppIcons.SEARCH),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colors.onBackground,
+                )
+            }
+
+            SecondaryButtonCompactable(
                 text = allActionTitle,
+                icon = actionIcon,
+                isParentHovered = isHeaderHovered,
                 backgroundButton = actionColor,
                 textColor = actionTextColor,
-                onClick = onAllAction
+                onClick = onAllAction,
+                modifier = Modifier.padding(start = 4.dp, end = 16.dp),
             )
+        }
+
+        if (showSearch) {
+            SearchTextField(
+                searchFilter = searchFilter,
+                onSearchFilterChanged = onSearchFilterChanged,
+                searchFocusRequester = searchFocusRequester,
+            )
+        }
+
+        LaunchedEffect(showSearch, requestFocus) {
+            if (showSearch && requestFocus) {
+                searchFocusRequester.requestFocus()
+                requestFocus = false
+            }
         }
 
         ScrollableLazyColumn(

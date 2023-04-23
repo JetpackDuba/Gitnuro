@@ -146,7 +146,8 @@ fun RepositoriesTabPanel(
 fun Tab(
     title: MutableState<String>,
     isSelected: Boolean,
-    onClick: () -> Unit, onCloseTab: () -> Unit
+    onClick: () -> Unit,
+    onCloseTab: () -> Unit,
 ) {
     val backgroundColor = if (isSelected)
         MaterialTheme.colors.surface

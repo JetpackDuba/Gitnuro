@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -115,6 +116,106 @@ fun AdjustableOutlinedTextField(
             }
 
             if (value.isEmpty() && hint.isNotEmpty()) {
+                Text(
+                    hint,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    style = MaterialTheme.typography.body2
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AdjustableOutlinedTextField(
+    value: TextFieldValue,
+    hint: String = "",
+    onValueChange: (TextFieldValue) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    isError: Boolean = false,
+    singleLine: Boolean = false,
+    colors: TextFieldColors = outlinedTextFieldColors(),
+    maxLines: Int = Int.MAX_VALUE,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    textStyle: TextStyle = LocalTextStyle.current.copy(
+        fontSize = MaterialTheme.typography.body1.fontSize,
+        color = MaterialTheme.colors.onBackground,
+    ),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    shape: Shape = RoundedCornerShape(4.dp),
+    backgroundColor: Color = MaterialTheme.colors.background,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    val textColor = textStyle.color.takeOrElse {
+        colors.textColor(enabled).value
+    }
+
+    val cursorColor = colors.cursorColor(isError).value
+    val indicatorColor by colors.indicatorColor(enabled, isError, interactionSource)
+
+    Box(
+        modifier = modifier
+            .height(IntrinsicSize.Min)
+    ) {
+        BasicTextField(
+            modifier = Modifier
+                .heightIn(min = 38.dp)
+                .background(backgroundColor)
+                .fillMaxWidth(),
+            value = value,
+            onValueChange = onValueChange,
+            enabled = enabled,
+            maxLines = maxLines,
+            textStyle = textStyle.copy(color = textColor),
+            interactionSource = interactionSource,
+            keyboardOptions = keyboardOptions,
+            cursorBrush = SolidColor(cursorColor),
+            singleLine = singleLine,
+            visualTransformation = visualTransformation,
+            decorationBox = { innerTextField: @Composable () -> Unit ->
+                Row(
+                    modifier = Modifier
+                        .border(
+                            width = 2.dp,
+                            color = indicatorColor,
+                            shape = shape
+                        )
+                        .padding(horizontal = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (leadingIcon != null) {
+                        leadingIcon()
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    Box(modifier = Modifier.weight(1f)) {
+                        innerTextField()
+                    }
+
+
+                    if (trailingIcon != null) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        trailingIcon()
+                    }
+                }
+            }
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(start = 12.dp),
+        ) {
+            if (leadingIcon != null) {
+                leadingIcon()
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            if (value.text.isEmpty() && hint.isNotEmpty()) {
                 Text(
                     hint,
                     maxLines = 1,

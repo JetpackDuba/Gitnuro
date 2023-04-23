@@ -11,11 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,7 +26,7 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.commitedChangesEntriesContextMenuItems
-import com.jetpackduba.gitnuro.viewmodels.CommitChangesStatus
+import com.jetpackduba.gitnuro.viewmodels.CommitChangesState
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,21 +48,36 @@ fun CommitChanges(
         commitChangesViewModel.loadChanges(selectedItem.revCommit)
     }
 
-    val commitChangesStatusState = commitChangesViewModel.commitChangesStatus.collectAsState()
+    val commitChangesStatus = commitChangesViewModel.commitChangesState.collectAsState().value
+    val showSearch by commitChangesViewModel.showSearch.collectAsState()
 
-    when (val commitChangesStatus = commitChangesStatusState.value) {
-        CommitChangesStatus.Loading -> {
+
+    var searchFilter by remember(commitChangesViewModel, showSearch, commitChangesStatus) {
+        mutableStateOf(commitChangesViewModel.searchFilter.value)
+    }
+
+    when (commitChangesStatus) {
+        CommitChangesState.Loading -> {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
         }
 
-        is CommitChangesStatus.Loaded -> {
+        is CommitChangesState.Loaded -> {
             CommitChangesView(
                 diffSelected = diffSelected,
                 commit = commitChangesStatus.commit,
-                changes = commitChangesStatus.changes,
+                changes = commitChangesStatus.changesFiltered,
                 onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
                 onHistory = onHistory,
+                showSearch = showSearch,
+                searchFilter = searchFilter,
+                onSearchFilterToggled = { visible ->
+                    commitChangesViewModel.onSearchFilterToggled(visible)
+                },
+                onSearchFilterChanged = { filter ->
+                    searchFilter = filter
+                    commitChangesViewModel.onSearchFilterChanged(filter)
+                },
             )
         }
     }
@@ -76,15 +91,23 @@ fun CommitChangesView(
     diffSelected: DiffEntryType?,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
+    showSearch: Boolean,
+    searchFilter: TextFieldValue,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
 ) {
+
+    /**
+     * State used to prevent the text field from getting the focus when returning from another tab
+     */
+    var requestFocus by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .padding(end = 8.dp, bottom = 8.dp)
             .fillMaxSize(),
     ) {
         val scroll = rememberScrollState(0)
-        var showSearch by remember(commit) { mutableStateOf(false) }
-        var searchFilter by remember(commit) { mutableStateOf("") } // TODO Persist in viewmodel
         val searchFocusRequester = remember { FocusRequester() }
 
         Column(
@@ -116,43 +139,40 @@ fun CommitChangesView(
 
                 IconButton(
                     onClick = {
-                        showSearch = !showSearch
-                    }
+                        onSearchFilterToggled(!showSearch)
+
+                        if (!showSearch)
+                            requestFocus = true
+                    },
+                    modifier = Modifier.handOnHover(),
                 ) {
                     Icon(
                         painter = painterResource(AppIcons.SEARCH),
                         contentDescription = null,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier.size(18.dp),
                         tint = MaterialTheme.colors.onBackground,
                     )
                 }
             }
 
             if (showSearch) {
-                AdjustableOutlinedTextField(
-                    value = searchFilter,
-                    onValueChange = {
-                        searchFilter = it
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                        .focusable()
-                        .focusRequester(searchFocusRequester)
+                SearchTextField(
+                    searchFilter = searchFilter,
+                    onSearchFilterChanged = onSearchFilterChanged,
+                    searchFocusRequester = searchFocusRequester,
                 )
             }
 
-            LaunchedEffect(showSearch) {
-                if (showSearch) {
+            LaunchedEffect(showSearch, requestFocus) {
+                if (showSearch && requestFocus) {
                     searchFocusRequester.requestFocus()
+                    requestFocus = false
                 }
             }
 
             CommitLogChanges(
                 diffSelected = diffSelected,
-                diffEntries = if (showSearch && searchFilter.isNotBlank()) changes.filter {
-                    it.filePath.lowercaseContains(
-                        searchFilter
-                    )
-                } else changes,
+                diffEntries = changes,
                 onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
                 onHistory = onHistory,
