@@ -48,11 +48,13 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
+import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.viewmodels.LogSearch
 import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
@@ -436,6 +438,7 @@ fun MessagesList(
                 onRebaseBranch = onRebase,
                 onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
+                onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) }
             )
         }
 
@@ -586,6 +589,14 @@ fun LogDialogs(
         })
 
         LogDialog.None -> {
+        }
+
+        is LogDialog.ChangeDefaultBranch -> {
+            SetDefaultUpstreamBranchDialog(
+                viewModel = gitnuroDynamicViewModel(),
+                branch = showLogDialog.ref,
+                onClose = { onResetShowLogDialog() },
+            )
         }
     }
 }
@@ -772,6 +783,7 @@ fun CommitLine(
     onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
+    onChangeDefaultUpstreamBranch: (Ref) -> Unit,
 ) {
     val isLastCommitOfCurrentBranch = currentBranch?.objectId?.name == graphNode.id.name
 
@@ -828,6 +840,7 @@ fun CommitLine(
                     onRebaseBranch = { ref -> onRebaseBranch(ref) },
                     onPushRemoteBranch = { ref -> logViewModel.pushToRemoteBranch(ref) },
                     onPullRemoteBranch = { ref -> logViewModel.pullFromRemoteBranch(ref) },
+                    onChangeDefaultUpstreamBranch = { ref -> onChangeDefaultUpstreamBranch(ref) },
                 )
             }
         }
@@ -849,6 +862,7 @@ fun CommitMessage(
     onDeleteTag: (ref: Ref) -> Unit,
     onPushRemoteBranch: (ref: Ref) -> Unit,
     onPullRemoteBranch: (ref: Ref) -> Unit,
+    onChangeDefaultUpstreamBranch: (ref: Ref) -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxSize(),
@@ -884,6 +898,7 @@ fun CommitMessage(
                         onRebaseBranch = { onRebaseBranch(ref) },
                         onPullRemoteBranch = { onPullRemoteBranch(ref) },
                         onPushRemoteBranch = { onPushRemoteBranch(ref) },
+                        onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
                     )
                 }
             }
@@ -1092,6 +1107,7 @@ fun BranchChip(
     onRebaseBranch: () -> Unit,
     onPushRemoteBranch: () -> Unit,
     onPullRemoteBranch: () -> Unit,
+    onChangeDefaultUpstreamBranch: () -> Unit,
     color: Color,
 ) {
     val contextMenuItemsList = {
@@ -1107,6 +1123,7 @@ fun BranchChip(
             onRebaseBranch = onRebaseBranch,
             onPushToRemoteBranch = onPushRemoteBranch,
             onPullFromRemoteBranch = onPullRemoteBranch,
+            onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
         )
     }
 

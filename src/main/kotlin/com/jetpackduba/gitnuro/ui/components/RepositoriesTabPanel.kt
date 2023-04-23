@@ -263,3 +263,9 @@ inline fun <reified T> gitnuroViewModel(): T {
         tab.tabViewModelsHolder.viewModels[T::class] as T
     }
 }
+@Composable
+inline fun <reified T> gitnuroDynamicViewModel(): T {
+    val tab = LocalTabScope.current
+
+    return tab.tabViewModelsHolder.dynamicViewModel(T::class) as T
+}

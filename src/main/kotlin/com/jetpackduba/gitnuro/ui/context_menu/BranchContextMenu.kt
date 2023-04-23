@@ -18,6 +18,7 @@ fun branchContextMenuItems(
     onDeleteRemoteBranch: () -> Unit = {},
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
+    onChangeDefaultUpstreamBranch: () -> Unit,
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
         if (!isCurrentBranch) {
@@ -68,6 +69,16 @@ fun branchContextMenuItems(
                 )
             )
         }
+
+        if(isLocal) {
+            add(
+                ContextMenuElement.ContextTextEntry(
+                    label = "Change default upstream branch",
+                    onClick = onChangeDefaultUpstreamBranch
+                ),
+            )
+        }
+
         if (!isLocal) {
             add(
                 ContextMenuElement.ContextTextEntry(

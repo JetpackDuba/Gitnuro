@@ -52,7 +52,6 @@ class BranchesViewModel @AssistedInject constructor(
         )
 
     init {
-
         tabScope.launch {
             tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
             {

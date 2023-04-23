@@ -80,19 +80,16 @@ val Colors.isDark: Boolean
     get() = !this.isLight
 
 
-enum class Theme(val displayName: String) : DropDownOption {
+enum class Theme(val displayName: String) {
     LIGHT("Light"),
     DARK("Dark"),
     DARK_GRAY("Dark gray"),
     CUSTOM("Custom");
-
-    override val optionName: String
-        get() = displayName
 }
 
 val themeLists = listOf(
-    Theme.LIGHT,
-    Theme.DARK,
-    Theme.DARK_GRAY,
-    Theme.CUSTOM,
+    DropDownOption(Theme.LIGHT, Theme.LIGHT.displayName),
+    DropDownOption(Theme.DARK, Theme.DARK.displayName),
+    DropDownOption(Theme.DARK_GRAY, Theme.DARK_GRAY.displayName),
+    DropDownOption(Theme.CUSTOM, Theme.CUSTOM.displayName),
 )

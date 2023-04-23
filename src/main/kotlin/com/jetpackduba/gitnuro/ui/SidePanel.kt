@@ -18,6 +18,7 @@ import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.*
+import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import org.eclipse.jgit.lib.Ref
@@ -42,6 +43,7 @@ fun SidePanel(
     val submodulesState by submodulesViewModel.submodules.collectAsState()
 
     var showEditRemotesDialog by remember { mutableStateOf(false) }
+    val (branchToChangeUpstream, setBranchToChangeUpstream) = remember { mutableStateOf<Ref?>(null) }
 
     Column {
         FilterTextField(
@@ -62,6 +64,7 @@ fun SidePanel(
             localBranches(
                 branchesState = branchesState,
                 branchesViewModel = branchesViewModel,
+                onChangeDefaultUpstreamBranch = { setBranchToChangeUpstream(it) }
             )
 
             remotes(
@@ -95,6 +98,14 @@ fun SidePanel(
             },
         )
     }
+
+    if (branchToChangeUpstream != null) {
+        SetDefaultUpstreamBranchDialog(
+            viewModel = gitnuroDynamicViewModel(),
+            branch = branchToChangeUpstream,
+            onClose = { setBranchToChangeUpstream(null) }
+        )
+    }
 }
 
 @Composable
@@ -123,6 +134,7 @@ fun FilterTextField(value: String, onValueChange: (String) -> Unit, modifier: Mo
 fun LazyListScope.localBranches(
     branchesState: BranchesState,
     branchesViewModel: BranchesViewModel,
+    onChangeDefaultUpstreamBranch: (Ref) -> Unit,
 ) {
     val isExpanded = branchesState.isExpanded
     val branches = branchesState.branches
@@ -157,6 +169,7 @@ fun LazyListScope.localBranches(
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onPushToRemoteBranch = { branchesViewModel.pushToRemoteBranch(branch) },
                 onPullFromRemoteBranch = { branchesViewModel.pullFromRemoteBranch(branch) },
+                onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) }
             )
         }
     }
@@ -344,6 +357,7 @@ private fun Branch(
     onDeleteBranch: () -> Unit,
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
+    onChangeDefaultUpstreamBranch: () -> Unit,
 ) {
     ContextMenu(
         items = {
@@ -358,6 +372,7 @@ private fun Branch(
                 onRebaseBranch = onRebaseBranch,
                 onPushToRemoteBranch = onPushToRemoteBranch,
                 onPullFromRemoteBranch = onPullFromRemoteBranch,
+                onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch
             )
         }
     ) {

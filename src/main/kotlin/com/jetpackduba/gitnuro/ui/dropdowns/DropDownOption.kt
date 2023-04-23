@@ -1,5 +1,3 @@
 package com.jetpackduba.gitnuro.ui.dropdowns
 
-interface DropDownOption {
-    val optionName: String
-}
+data class DropDownOption<T>(val value: T, val optionName: String)

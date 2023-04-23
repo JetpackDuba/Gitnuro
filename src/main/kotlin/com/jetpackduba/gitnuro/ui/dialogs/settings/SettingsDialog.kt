@@ -24,7 +24,6 @@ import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
-import com.jetpackduba.gitnuro.ui.dropdowns.ScaleDropDown
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -168,9 +167,9 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
         title = "Theme",
         subtitle = "Select the UI theme between light and dark mode",
         dropDownOptions = themeLists,
-        currentOption = currentTheme,
-        onOptionSelected = { theme ->
-            settingsViewModel.theme = theme
+        currentOption = DropDownOption(currentTheme, currentTheme.displayName),
+        onOptionSelected = { themeDropDown ->
+            settingsViewModel.theme = themeDropDown.value
         }
     )
 
@@ -199,12 +198,12 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
     var options by remember {
         mutableStateOf(
             listOf(
-                ScaleDropDown(1f, "100%"),
-                ScaleDropDown(1.25f, "125%"),
-                ScaleDropDown(1.5f, "150%"),
-                ScaleDropDown(2f, "200%"),
-                ScaleDropDown(2.5f, "250%"),
-                ScaleDropDown(3f, "300%"),
+                DropDownOption(1f, "100%"),
+                DropDownOption(1.25f, "125%"),
+                DropDownOption(1.5f, "150%"),
+                DropDownOption(2f, "200%"),
+                DropDownOption(2.5f, "250%"),
+                DropDownOption(3f, "300%"),
             )
         )
     }
@@ -221,7 +220,7 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
 
         if (matchingOption == null) { // Scale that we haven't taken in consideration
             // Create a new scale and add it to the options list
-            matchingOption = ScaleDropDown(scaleUi, "${(scaleUi * 100).toInt()}%")
+            matchingOption = DropDownOption(scaleUi, "${(scaleUi * 100).toInt()}%")
             val newOptions = options.toMutableList()
             newOptions.add(matchingOption)
             newOptions.sortBy { it.value }
@@ -275,12 +274,12 @@ fun Category(
 
 
 @Composable
-fun <T : DropDownOption> SettingDropDown(
+fun <T> SettingDropDown(
     title: String,
     subtitle: String,
-    dropDownOptions: List<T>,
-    onOptionSelected: (T) -> Unit,
-    currentOption: T,
+    dropDownOptions: List<DropDownOption<T>>,
+    onOptionSelected: (DropDownOption<T>) -> Unit,
+    currentOption: DropDownOption<T>,
 ) {
     var showThemeDropdown by remember { mutableStateOf(false) }
     Row(
