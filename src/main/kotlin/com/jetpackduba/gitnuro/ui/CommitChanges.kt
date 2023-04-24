@@ -160,6 +160,7 @@ fun CommitChangesView(
                     searchFilter = searchFilter,
                     onSearchFilterChanged = onSearchFilterChanged,
                     searchFocusRequester = searchFocusRequester,
+                    onClose = { onSearchFilterToggled(false) },
                 )
             }
 
