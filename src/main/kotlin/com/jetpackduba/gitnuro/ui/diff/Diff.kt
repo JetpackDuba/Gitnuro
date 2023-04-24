@@ -939,7 +939,7 @@ fun DiffLineText(line: Line, diffEntryType: DiffEntryType, onActionTriggered: ()
                 tint = Color.White,
                 modifier = Modifier
                     .fastClickable(line) { onActionTriggered() }
-                    .size(14.dp)
+                    .size(16.dp)
                     .clip(RoundedCornerShape(2.dp))
                     .background(color),
             )
