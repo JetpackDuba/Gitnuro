@@ -4,29 +4,14 @@ package com.jetpackduba.gitnuro
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.LocalTextContextMenu
-import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalInputModeManager
-import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -43,7 +28,6 @@ import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
-import com.jetpackduba.gitnuro.theme.isDark
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.TabsManager
@@ -51,11 +35,7 @@ import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
-import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
-import com.jetpackduba.gitnuro.ui.context_menu.Separator
-import com.jetpackduba.gitnuro.ui.context_menu.TextEntry
 import org.eclipse.jgit.lib.GpgSigner
-import java.awt.event.KeyEvent
 import java.io.File
 import java.nio.file.Paths
 import javax.inject.Inject
@@ -183,7 +163,7 @@ class App {
                     tabsInformationList = tabs,
                     currentTab = currentTab,
                     onAddedTab = {
-                        tabsManager.newTab()
+                        tabsManager.addNewEmptyTab()
                     },
                     onCloseTab = { tab ->
                         tabsManager.closeTab(tab)

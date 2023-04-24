@@ -29,19 +29,16 @@ class TabsManager @Inject constructor(
     fun loadPersistedTabs() {
         val repositoriesSaved = appSettings.latestTabsOpened
 
-        val tabs = if (repositoriesSaved.isNotEmpty()) {
-            val repositoriesList = Json.decodeFromString<List<String>>(repositoriesSaved)
-
-            repositoriesList.map { path ->
+        val repositoriesList = if (repositoriesSaved.isNotEmpty())
+            Json.decodeFromString<List<String>>(repositoriesSaved).map { path ->
                 newAppTab(
                     path = path,
                 )
             }
-        } else {
-            listOf(newAppTab())
-        }
+        else
+            listOf()
 
-        _tabsFlow.value = tabs
+        _tabsFlow.value = repositoriesList.ifEmpty { listOf(newAppTab()) }
         _currentTab.value = _tabsFlow.value.first()
     }
 
@@ -106,7 +103,7 @@ class TabsManager @Inject constructor(
         appSettings.latestTabsOpened = Json.encodeToString(tabsPaths)
     }
 
-    fun newTab() {
+    fun addNewEmptyTab() {
         val newTab = newAppTab()
 
         _tabsFlow.update {
