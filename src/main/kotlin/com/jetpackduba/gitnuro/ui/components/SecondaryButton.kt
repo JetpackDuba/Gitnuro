@@ -55,7 +55,7 @@ fun SecondaryButtonCompactable(
     modifier: Modifier = Modifier,
     icon: String,
     text: String,
-    textColor: Color = MaterialTheme.colors.onPrimary,
+    onBackgroundColor: Color = MaterialTheme.colors.onPrimary,
     backgroundButton: Color,
     maxLines: Int = 1,
     isParentHovered: Boolean,
@@ -74,23 +74,27 @@ fun SecondaryButtonCompactable(
     }
 
     val targetBackground: Color
+    val iconColor: Color
     val iconPadding: Float
 
     if (isExpanded) {
         targetBackground = backgroundButton
+        iconColor = onBackgroundColor
         iconPadding = 12f
     } else {
         targetBackground = MaterialTheme.colors.tertiarySurface
+        iconColor = MaterialTheme.colors.onBackground
         iconPadding = 0f
     }
 
-    val color by animateColorAsState(targetBackground)
+    val backgroundColorState by animateColorAsState(targetBackground)
+    val iconColorState by animateColorAsState(iconColor)
     val iconPaddingState by animateFloatAsState(iconPadding)
 
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
-            .background(color)
+            .background(backgroundColorState)
             .hoverable(hoverInteraction)
             .handMouseClickable { onClick() }
             .padding(horizontal = 4.dp),
@@ -99,7 +103,7 @@ fun SecondaryButtonCompactable(
         Icon(
             painterResource(icon),
             contentDescription = null,
-            tint = MaterialTheme.colors.onBackground,
+            tint = iconColorState,
             modifier = Modifier
                 .padding(start = iconPaddingState.dp, end = 8.dp)
                 .size(18.dp)
@@ -111,7 +115,7 @@ fun SecondaryButtonCompactable(
             Text(
                 text = text,
                 style = MaterialTheme.typography.body2,
-                color = textColor,
+                color = onBackgroundColor,
                 maxLines = maxLines,
                 modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 12.dp)
             )

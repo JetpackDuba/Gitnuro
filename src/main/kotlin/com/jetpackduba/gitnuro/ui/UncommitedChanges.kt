@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -25,7 +24,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -652,7 +650,7 @@ private fun EntriesList(
                 icon = actionIcon,
                 isParentHovered = isHeaderHovered,
                 backgroundButton = actionColor,
-                textColor = actionTextColor,
+                onBackgroundColor = actionTextColor,
                 onClick = onAllAction,
                 modifier = Modifier.padding(start = 4.dp, end = 16.dp),
             )
