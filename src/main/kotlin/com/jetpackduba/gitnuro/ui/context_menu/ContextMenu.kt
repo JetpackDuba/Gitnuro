@@ -4,6 +4,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextContextMenu
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -66,21 +67,26 @@ fun DropdownMenu(items: () -> List<ContextMenuElement>, function: @Composable ()
 @Composable
 private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifier {
     val (lastMouseEventState, setLastMouseEventState) = remember { mutableStateOf<MouseEvent?>(null) }
-    val mod = this.pointerInput(Unit) {
 
-        while (true) {
-            val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
-            val mouseEvent = lastMouseEvent.awtEventOrNull
+    val modifier = this.pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                val lastMouseEvent = awaitFirstDownEvent()
+                val mouseEvent = lastMouseEvent.awtEventOrNull
 
-            if (mouseEvent != null) {
-                if (lastMouseEvent.button.isSecondary) {
-                    val currentCheck = System.currentTimeMillis()
-                    if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {
-                        println("Popup ignored!")
-                    } else {
-                        lastCheck = currentCheck
+                if (mouseEvent != null) {
 
-                        setLastMouseEventState(mouseEvent)
+                    if (lastMouseEvent.button.isSecondary) {
+                        lastMouseEvent.changes.forEach { it.consume() }
+
+                        val currentCheck = System.currentTimeMillis()
+                        if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {
+                            println("Popup ignored!")
+                        } else {
+                            lastCheck = currentCheck
+
+                            setLastMouseEventState(mouseEvent)
+                        }
                     }
                 }
             }
@@ -88,18 +94,19 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
     }
 
     if (lastMouseEventState != null) {
-        showPopup(
-            lastMouseEventState.x,
-            lastMouseEventState.y,
-            items(),
-            onDismissRequest = { setLastMouseEventState(null) }
-        )
+        DisableSelection {
+            showPopup(
+                lastMouseEventState.x,
+                lastMouseEventState.y,
+                items(),
+                onDismissRequest = { setLastMouseEventState(null) }
+            )
+        }
     }
 
-    return mod
+    return modifier
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifier {
     val (isClicked, setIsClicked) = remember { mutableStateOf(false) }
@@ -127,9 +134,6 @@ private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifi
 
 @Composable
 fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onDismissRequest: () -> Unit) {
-    LaunchedEffect(contextMenuElements) {
-        println("Items count ${contextMenuElements.count()}")
-    }
     Popup(
         focusable = true,
         popupPositionProvider = object : PopupPositionProvider {
@@ -178,7 +182,11 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
                 .widthIn(min = 180.dp)
                 .run {
                     if (MaterialTheme.colors.isDark) {
-                        this.border(2.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.2f), shape = RoundedCornerShape(BORDER_RADIUS.dp))
+                        this.border(
+                            2.dp,
+                            MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(BORDER_RADIUS.dp)
+                        )
                     } else
                         this
                 }
@@ -214,12 +222,6 @@ fun Separator() {
             .height(1.dp)
             .background(MaterialTheme.colors.onBackground.copy(alpha = 0.4f))
     )
-}
-
-@Composable
-internal fun focusRequesterAndModifier(): Pair<FocusRequester, Modifier> {
-    val focusRequester = remember { FocusRequester() }
-    return focusRequester to Modifier.focusRequester(focusRequester)
 }
 
 @Composable
@@ -343,14 +345,14 @@ class AppContextMenuRepresentation : ContextMenuRepresentation {
                             }
 
                             KeyEvent.VK_DOWN -> {
-                                inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                                focusManager!!.moveFocus(FocusDirection.Next)
+                                inputModeManager?.requestInputMode(InputMode.Keyboard)
+                                focusManager?.moveFocus(FocusDirection.Next)
                                 true
                             }
 
                             KeyEvent.VK_UP -> {
-                                inputModeManager!!.requestInputMode(InputMode.Keyboard)
-                                focusManager!!.moveFocus(FocusDirection.Previous)
+                                inputModeManager?.requestInputMode(InputMode.Keyboard)
+                                focusManager?.moveFocus(FocusDirection.Previous)
                                 true
                             }
 
