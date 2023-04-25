@@ -3,12 +3,12 @@ package com.jetpackduba.gitnuro.git
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import java.io.File
 
-sealed class CloneStatus {
-    object None : CloneStatus()
-    data class Cloning(val taskName: String, val progress: Int, val total: Int) : CloneStatus()
-    object Cancelling : CloneStatus()
-    data class Fail(val reason: String) : CloneStatus()
-    data class Completed(val repoDir: File) : CloneStatus()
+sealed class CloneState {
+    object None : CloneState()
+    data class Cloning(val taskName: String, val progress: Int, val total: Int) : CloneState()
+    object Cancelling : CloneState()
+    data class Fail(val reason: String) : CloneState()
+    data class Completed(val repoDir: File) : CloneState()
 }
 
 val RemoteRefUpdate.Status.isRejected: Boolean

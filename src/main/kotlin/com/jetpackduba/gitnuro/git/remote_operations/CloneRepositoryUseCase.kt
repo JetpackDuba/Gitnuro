@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
-import com.jetpackduba.gitnuro.git.CloneStatus
+import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.logging.printDebug
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.awaitClose
@@ -18,14 +18,14 @@ private const val TAG = "CloneRepositoryUseCase"
 class CloneRepositoryUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
 ) {
-    operator fun invoke(directory: File, url: String, cloneSubmodules: Boolean): Flow<CloneStatus> = callbackFlow {
+    operator fun invoke(directory: File, url: String, cloneSubmodules: Boolean): Flow<CloneState> = callbackFlow {
         var lastTitle: String = ""
         var lastTotalWork = 0
         var progress = 0
 
         try {
             ensureActive()
-            trySend(CloneStatus.Cloning("Starting...", progress, lastTotalWork))
+            trySend(CloneState.Cloning("Starting...", progress, lastTotalWork))
 
             Git.cloneRepository()
                 .setDirectory(directory)
@@ -41,7 +41,7 @@ class CloneRepositoryUseCase @Inject constructor(
                             lastTitle = title.orEmpty()
                             lastTotalWork = totalWork
                             progress = 0
-                            trySend(CloneStatus.Cloning(lastTitle, progress, lastTotalWork))
+                            trySend(CloneState.Cloning(lastTitle, progress, lastTotalWork))
                         }
 
                         override fun update(completed: Int) {
@@ -49,7 +49,7 @@ class CloneRepositoryUseCase @Inject constructor(
                             ensureActive()
 
                             progress += completed
-                            trySend(CloneStatus.Cloning(lastTitle, progress, lastTotalWork))
+                            trySend(CloneState.Cloning(lastTitle, progress, lastTotalWork))
                         }
 
                         override fun endTask() {
@@ -68,13 +68,13 @@ class CloneRepositoryUseCase @Inject constructor(
                 .call()
 
             ensureActive()
-            trySend(CloneStatus.Completed(directory))
+            trySend(CloneState.Completed(directory))
             channel.close()
         } catch (ex: Exception) {
             if (ex.cause?.cause is CancellationException) {
                 printDebug(TAG, "Clone cancelled")
             } else {
-                trySend(CloneStatus.Fail(ex.localizedMessage))
+                trySend(CloneState.Fail(ex.localizedMessage))
             }
 
             channel.close()

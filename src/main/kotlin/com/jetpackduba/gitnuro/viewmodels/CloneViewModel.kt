@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.git.CloneStatus
+import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
@@ -20,9 +20,9 @@ class CloneViewModel @Inject constructor(
     private val openFilePickerUseCase: OpenFilePickerUseCase,
 ) {
 
-    private val _cloneStatus = MutableStateFlow<CloneStatus>(CloneStatus.None)
-    val cloneStatus: StateFlow<CloneStatus>
-        get() = _cloneStatus
+    private val _cloneState = MutableStateFlow<CloneState>(CloneState.None)
+    val cloneState: StateFlow<CloneState>
+        get() = _cloneState
 
     var url: String = ""
     var directory: String = ""
@@ -32,12 +32,12 @@ class CloneViewModel @Inject constructor(
     fun clone(directoryPath: String, url: String, cloneSubmodules: Boolean) {
         cloneJob = tabState.safeProcessingWithoutGit {
             if (directoryPath.isBlank()) {
-                _cloneStatus.value = CloneStatus.Fail("Invalid empty directory")
+                _cloneState.value = CloneState.Fail("Invalid empty directory")
                 return@safeProcessingWithoutGit
             }
 
             if (url.isBlank()) {
-                _cloneStatus.value = CloneStatus.Fail("Invalid empty URL")
+                _cloneState.value = CloneState.Fail("Invalid empty URL")
                 return@safeProcessingWithoutGit
             }
 
@@ -57,7 +57,7 @@ class CloneViewModel @Inject constructor(
             }
 
             if (repoName.isNullOrBlank()) {
-                _cloneStatus.value = CloneStatus.Fail("Check your URL and try again")
+                _cloneState.value = CloneState.Fail("Check your URL and try again")
                 return@safeProcessingWithoutGit
             }
 
@@ -75,25 +75,25 @@ class CloneViewModel @Inject constructor(
             cloneRepositoryUseCase(repoDir, url, cloneSubmodules)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->
-                    _cloneStatus.value = newCloneStatus
+                    _cloneState.value = newCloneStatus
                 }
         }
     }
 
     fun reset() {
-        _cloneStatus.value = CloneStatus.None
+        _cloneState.value = CloneState.None
         url = ""
         directory = ""
     }
 
     fun cancelClone() = tabState.safeProcessingWithoutGit {
-        _cloneStatus.value = CloneStatus.Cancelling
+        _cloneState.value = CloneState.Cancelling
         cloneJob?.cancelAndJoin()
-        _cloneStatus.value = CloneStatus.None
+        _cloneState.value = CloneState.None
     }
 
     fun resetStateIfError() {
-        _cloneStatus.value = CloneStatus.None
+        _cloneState.value = CloneState.None
     }
 
     fun openDirectoryPicker(): String? {
