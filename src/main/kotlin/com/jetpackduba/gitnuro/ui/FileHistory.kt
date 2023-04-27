@@ -175,7 +175,8 @@ fun HistoryContentLoaded(
                             onUnstageHunk = { _, _ -> },
                             onStageHunk = { _, _ -> },
                             onResetHunk = { _, _ -> },
-                            onActionTriggered = { _, _, _ -> }
+                            onUnStageLine = { _, _, _ -> },
+                            onDiscardLine = { _, _, _ -> },
                         )
                     }
 
@@ -187,7 +188,8 @@ fun HistoryContentLoaded(
                             onUnstageHunk = { _, _ -> },
                             onStageHunk = { _, _ -> },
                             onResetHunk = { _, _ -> },
-                            onActionTriggered = { _, _, _ -> },
+                            onUnStageLine = { _, _, _ -> },
+                            onDiscardLine = { _, _, _ -> },
                         )
                     }
 

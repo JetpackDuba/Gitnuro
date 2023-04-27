@@ -34,6 +34,7 @@ class DiffViewModel @Inject constructor(
     private val openFileInExternalAppUseCase: OpenFileInExternalAppUseCase,
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
+    private val discardUnstagedHunkLineUseCase: DiscardUnstagedHunkLineUseCase,
     tabScope: CoroutineScope,
 ) {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading(""))
@@ -191,6 +192,13 @@ class DiffViewModel @Inject constructor(
 
     fun openFileWithExternalApp(path: String) {
         openFileInExternalAppUseCase(path)
+    }
+
+    fun discardHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        showError = true,
+    ) { git ->
+        discardUnstagedHunkLineUseCase(git, entry, hunk, line)
     }
 }
 
