@@ -285,7 +285,7 @@ class TabViewModel @Inject constructor(
             }
         }
         fileChangesWatcher.watchDirectoryPath(
-            pathStr = git.repository.directory.parent,
+            pathStr = git.repository.workTree.absolutePath,
             ignoredDirsPath = ignored,
         )
     }
@@ -456,7 +456,7 @@ class TabViewModel @Inject constructor(
         showError = true,
         refreshType = RefreshType.NONE,
     ) { git ->
-        Desktop.getDesktop().open(git.repository.directory.parentFile)
+        Desktop.getDesktop().open(git.repository.workTree)
     }
 
     fun cancelRebaseInteractive() = tabState.safeProcessing(

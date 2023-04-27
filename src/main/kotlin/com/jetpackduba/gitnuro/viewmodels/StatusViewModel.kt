@@ -351,7 +351,7 @@ class StatusViewModel @Inject constructor(
     ) { git ->
         val path = statusEntry.filePath
 
-        val fileToDelete = File(git.repository.directory.parent, path)
+        val fileToDelete = File(git.repository.workTree, path)
 
         fileToDelete.delete()
     }

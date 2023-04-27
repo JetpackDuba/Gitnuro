@@ -65,29 +65,27 @@ fun Modifier.onDoubleClick(
 ): Modifier {
     return this.pointerInput(Unit) {
         coroutineScope {
-            forEachGesture {
-                awaitPointerEventScope {
-                    // Detect first click without consuming it (other, independent handlers want it).
-                    awaitFirstDown()
-                    val firstUp = waitForUpOrCancellation() ?: return@awaitPointerEventScope
+            awaitEachGesture {
+                // Detect first click without consuming it (other, independent handlers want it).
+                awaitFirstDown()
+                val firstUp = waitForUpOrCancellation() ?: return@awaitEachGesture
 
-                    // Detect and consume the second click if it's received within the timeout.
-                    val secondDown = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
-                        val minUptime = firstUp.uptimeMillis + viewConfiguration.doubleTapMinTimeMillis
-                        var change: PointerInputChange
-                        // The second tap doesn't count if it happens before DoubleTapMinTime of the first tap
-                        do {
-                            change = awaitFirstDown()
-                        } while (change.uptimeMillis < minUptime)
-                        change
-                    } ?: return@awaitPointerEventScope
-                    secondDown.consume()
-                    val secondUp = waitForUpOrCancellation() ?: return@awaitPointerEventScope
-                    secondUp.consume()
+                // Detect and consume the second click if it's received within the timeout.
+                val secondDown = withTimeoutOrNull(viewConfiguration.doubleTapTimeoutMillis) {
+                    val minUptime = firstUp.uptimeMillis + viewConfiguration.doubleTapMinTimeMillis
+                    var change: PointerInputChange
+                    // The second tap doesn't count if it happens before DoubleTapMinTime of the first tap
+                    do {
+                        change = awaitFirstDown()
+                    } while (change.uptimeMillis < minUptime)
+                    change
+                } ?: return@awaitEachGesture
+                secondDown.consume()
+                val secondUp = waitForUpOrCancellation() ?: return@awaitEachGesture
+                secondUp.consume()
 
-                    // Both clicks happened in time, fire the event.
-                    onDoubleClick()
-                }
+                // Both clicks happened in time, fire the event.
+                onDoubleClick()
             }
         }
     }

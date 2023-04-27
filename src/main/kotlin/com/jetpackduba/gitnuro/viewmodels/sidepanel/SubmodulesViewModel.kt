@@ -65,7 +65,7 @@ class SubmodulesViewModel @AssistedInject constructor(
     }
 
     fun onOpenSubmoduleInTab(path: String) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
-        tabsManager.addNewTabFromPath("${git.repository.directory.parent}/$path", true)
+        tabsManager.addNewTabFromPath("${git.repository.workTree}/$path", true)
     }
 
     fun onDeinitializeSubmodule(path: String) = tabState.safeProcessing(

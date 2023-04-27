@@ -20,7 +20,7 @@ class DiscardUnstagedHunkLineUseCase @Inject constructor(
             val repository = git.repository
 
             try {
-                val file = File(repository.directory.parent, diffEntry.oldPath)
+                val file = File(repository.workTree, diffEntry.oldPath)
                 val content = file.readText()
                 val textLines = getLinesFromTextUseCase(content, content.lineDelimiter).toMutableList()
 

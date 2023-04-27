@@ -70,6 +70,6 @@ class MenuViewModel @Inject constructor(
     fun openTerminal() = tabState.runOperation(
         refreshType = RefreshType.NONE
     ) { git ->
-        openRepositoryInTerminalUseCase(git.repository.directory.parent)
+        openRepositoryInTerminalUseCase(git.repository.workTree.absolutePath)
     }
 }
