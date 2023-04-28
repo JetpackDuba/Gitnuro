@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.git
 import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
@@ -138,6 +139,8 @@ class TabState @Inject constructor(
 
                 if (showError && !containsCancellation)
                     errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
+
+                printError(TAG, ex.message.orEmpty(), ex)
             } finally {
                 _processing.value = ProcessingState.None
                 operationRunning = false
@@ -184,6 +187,8 @@ class TabState @Inject constructor(
 
                 if (showError && !containsCancellation)
                     errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+
+                printError(TAG, ex.message.orEmpty(), ex)
             } finally {
                 _processing.value = ProcessingState.None
                 operationRunning = false
@@ -213,6 +218,8 @@ class TabState @Inject constructor(
 
             if (showError)
                 errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+
+            printError(TAG, ex.message.orEmpty(), ex)
         } finally {
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
                 _refreshData.emit(refreshType)
