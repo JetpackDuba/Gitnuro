@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
+import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
 import com.jetpackduba.gitnuro.git.branches.DeleteLocallyRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
@@ -30,6 +31,7 @@ class RemotesViewModel @AssistedInject constructor(
     private val addRemoteUseCase: AddRemoteUseCase,
     private val updateRemoteUseCase: UpdateRemoteUseCase,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
+    private val checkoutRefUseCase: CheckoutRefUseCase,
     private val tabScope: CoroutineScope,
     @Assisted
     private val filter: StateFlow<String>
@@ -168,6 +170,12 @@ class RemotesViewModel @AssistedInject constructor(
             uri = selectedRemoteConfig.pushUri,
             uriType = RemoteSetUrlCommand.UriType.PUSH
         )
+    }
+
+    fun checkoutRemoteBranch(remoteBranch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        checkoutRefUseCase(git, remoteBranch)
     }
 }
 

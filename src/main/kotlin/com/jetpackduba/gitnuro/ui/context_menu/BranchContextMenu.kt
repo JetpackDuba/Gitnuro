@@ -46,15 +46,6 @@ fun branchContextMenuItems(
                 add(ContextMenuElement.ContextSeparator)
             }
         }
-        if (isLocal && !isCurrentBranch) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Delete branch",
-                    icon = { painterResource(AppIcons.DELETE) },
-                    onClick = onDeleteBranch
-                )
-            )
-        }
         if (!isLocal && currentBranch != null && !currentBranch.isHead) {
             add(
                 ContextMenuElement.ContextTextEntry(
@@ -86,6 +77,16 @@ fun branchContextMenuItems(
                     icon = { painterResource(AppIcons.DELETE) },
                     onClick = onDeleteRemoteBranch
                 ),
+            )
+        }
+
+        if (isLocal && !isCurrentBranch) {
+            add(
+                ContextMenuElement.ContextTextEntry(
+                    label = "Delete branch",
+                    icon = { painterResource(AppIcons.DELETE) },
+                    onClick = onDeleteBranch
+                )
             )
         }
 

@@ -228,6 +228,7 @@ fun LazyListScope.remotes(
                     RemoteBranches(
                         remoteBranch = remoteBranch,
                         onBranchClicked = { remotesViewModel.selectBranch(remoteBranch) },
+                        onDoubleClick = { remotesViewModel.checkoutRemoteBranch(remoteBranch) },
                         onDeleteBranch = { remotesViewModel.deleteRemoteBranch(remoteBranch) },
                     )
                 }
@@ -412,6 +413,7 @@ private fun Remote(
 private fun RemoteBranches(
     remoteBranch: Ref,
     onBranchClicked: () -> Unit,
+    onDoubleClick: () -> Unit,
     onDeleteBranch: () -> Unit,
 ) {
     ContextMenu(
@@ -425,7 +427,8 @@ private fun RemoteBranches(
             text = remoteBranch.simpleName,
             extraPadding = 24.dp,
             iconResourcePath = AppIcons.BRANCH,
-            onClick = onBranchClicked
+            onClick = onBranchClicked,
+            onDoubleClick = onDoubleClick,
         )
     }
 }
