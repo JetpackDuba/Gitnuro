@@ -19,10 +19,14 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 
@@ -97,10 +101,11 @@ private fun CloneDialogView(
     ) {
         Text(
             "Clone a new repository",
-            style = MaterialTheme.typography.h3,
+            style = MaterialTheme.typography.h4,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp)
+                .padding(vertical = 4.dp),
+            fontWeight = FontWeight.SemiBold,
         )
 
         TextInput(
@@ -122,9 +127,8 @@ private fun CloneDialogView(
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.Bottom,
         ) {
-
             TextInput(
                 modifier = Modifier.padding(top = 16.dp),
                 title = "Directory",
@@ -139,35 +143,37 @@ private fun CloneDialogView(
                     cloneViewModel.onDirectoryPathChanged(directory)
                     cloneViewModel.resetStateIfError()
                 },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            cloneViewModel.resetStateIfError()
+                            val newDirectory = cloneViewModel.openDirectoryPicker()
+                            if (newDirectory != null) {
+                                directory = TextFieldValue(newDirectory, selection = TextRange(newDirectory.count()))
+                                cloneViewModel.onDirectoryPathChanged(directory)
+                                cloneViewModel.resetStateIfError()
+                                directoryFocusRequester.requestFocus()
+                            }
+                        },
+                        modifier = Modifier
+                            .focusRequester(directoryButtonFocusRequester)
+                            .focusProperties {
+                                previous = directoryFocusRequester
+                                next = cloneButtonFocusRequester
+                            }
+                            .handOnHover()
+                            .size(40.dp),
+                    ) {
+                        Icon(
+                            painterResource(AppIcons.SEARCH),
+                            contentDescription = "Search",
+                            tint = MaterialTheme.colors.onBackground,
+                        )
+                    }
+                }
             )
 
-            IconButton(
-                onClick = {
-                    cloneViewModel.resetStateIfError()
-                    val newDirectory = cloneViewModel.openDirectoryPicker()
-                    if (newDirectory != null) {
-                        directory = TextFieldValue(newDirectory, selection = TextRange(newDirectory.count()))
-                        cloneViewModel.onDirectoryPathChanged(directory)
-                        cloneViewModel.resetStateIfError()
-                    }
-                },
-                modifier = Modifier
-                    .focusRequester(directoryButtonFocusRequester)
-                    .focusProperties {
-                        previous = directoryFocusRequester
-                        next = cloneButtonFocusRequester
-                    }
-                    .padding(start = 8.dp)
-                    .clip(RoundedCornerShape(4.dp))
-                    .background(MaterialTheme.colors.primary)
-                    .height(40.dp),
-            ) {
-                Icon(
-                    Icons.Default.Search,
-                    contentDescription = null,
-                    tint = MaterialTheme.colors.onPrimary,
-                )
-            }
+
         }
 
         Row(
@@ -341,6 +347,7 @@ private fun TextInput(
     focusProperties: FocusProperties.() -> Unit,
     onValueChange: (TextFieldValue) -> Unit,
     textFieldShape: Shape = RoundedCornerShape(4.dp),
+    trailingIcon: @Composable (() -> Unit)? = null,
 ) {
     Column(
         modifier = modifier,
@@ -362,6 +369,7 @@ private fun TextInput(
             colors = outlinedTextFieldColors(),
             singleLine = true,
             shape = textFieldShape,
+            trailingIcon = trailingIcon,
         )
     }
 }
