@@ -20,6 +20,8 @@ class SubmodulesViewModel @AssistedInject constructor(
     private val updateSubmoduleUseCase: UpdateSubmoduleUseCase,
     private val syncSubmoduleUseCase: SyncSubmoduleUseCase,
     private val deInitializeSubmoduleUseCase: DeInitializeSubmoduleUseCase,
+    private val addSubmoduleUseCase: AddSubmoduleUseCase,
+    private val deleteSubmoduleUseCase: DeleteSubmoduleUseCase,
     private val tabScope: CoroutineScope,
     private val tabsManager: TabsManager,
     @Assisted
@@ -41,8 +43,7 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.SUBMODULES)
-            {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.UNCOMMITED_CHANGES, RefreshType.SUBMODULES) {
                 refresh(tabState.git)
             }
         }
@@ -89,6 +90,23 @@ class SubmodulesViewModel @AssistedInject constructor(
         subtitle = "Please wait until update has finished",
     ) { git ->
         updateSubmoduleUseCase(git, path)
+    }
+
+    fun onCreateSubmodule(repository: String, directory: String) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        addSubmoduleUseCase(
+            git = git,
+            name = directory,
+            path = directory,
+            uri = repository,
+        )
+    }
+
+    fun onDeleteSubmodule(path: String) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+    ) { git ->
+        deleteSubmoduleUseCase(git, path)
     }
 }
 

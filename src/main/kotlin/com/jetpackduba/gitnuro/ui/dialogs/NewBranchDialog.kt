@@ -46,7 +46,7 @@ fun NewBranchDialog(
             )
 
             Text(
-                text = "Set branch name",
+                text = "New branch",
                 modifier = Modifier
                     .padding(bottom = 8.dp),
                 color = MaterialTheme.colors.onBackground,

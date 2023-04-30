@@ -20,6 +20,7 @@ import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
+import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -44,6 +45,7 @@ fun SidePanel(
 
     var showEditRemotesDialog by remember { mutableStateOf(false) }
     val (branchToChangeUpstream, setBranchToChangeUpstream) = remember { mutableStateOf<Ref?>(null) }
+    var showEditSubmodulesDialog by remember { mutableStateOf(false) }
 
     Column {
         FilterTextField(
@@ -85,7 +87,8 @@ fun SidePanel(
 
             submodules(
                 submodulesState = submodulesState,
-                submodulesViewModel = submodulesViewModel
+                submodulesViewModel = submodulesViewModel,
+                onShowEditSubmodulesDialog = { showEditSubmodulesDialog = true },
             )
         }
     }
@@ -104,6 +107,18 @@ fun SidePanel(
             viewModel = gitnuroDynamicViewModel(),
             branch = branchToChangeUpstream,
             onClose = { setBranchToChangeUpstream(null) }
+        )
+    }
+
+    if (showEditSubmodulesDialog) {
+        AddSubmodulesDialog(
+            onCancel = {
+                showEditSubmodulesDialog = false
+            },
+            onAccept = { repository, directory ->
+                submodulesViewModel.onCreateSubmodule(repository, directory)
+                showEditSubmodulesDialog = false
+            }
         )
     }
 }
@@ -262,14 +277,12 @@ fun LazyListScope.tags(
 
     if (isExpanded) {
         items(tags, key = { it.name }) { tag ->
-//            if () {
             Tag(
                 tag,
                 onTagClicked = { tagsViewModel.selectTag(tag) },
                 onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
                 onDeleteTag = { tagsViewModel.deleteTag(tag) }
             )
-//            }
         }
     }
 }
@@ -312,6 +325,7 @@ fun LazyListScope.stashes(
 fun LazyListScope.submodules(
     submodulesState: SubmodulesState,
     submodulesViewModel: SubmodulesViewModel,
+    onShowEditSubmodulesDialog: () -> Unit,
 ) {
     val isExpanded = submodulesState.isExpanded
     val submodules = submodulesState.submodules
@@ -324,7 +338,23 @@ fun LazyListScope.submodules(
                 text = "Submodules",
                 icon = painterResource(AppIcons.TOPIC),
                 itemsCount = submodules.count(),
-                hoverIcon = null,
+                hoverIcon = {
+                    IconButton(
+                        onClick = onShowEditSubmodulesDialog,
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .size(16.dp)
+                            .handOnHover(),
+                    ) {
+                        Icon(
+                            painter = painterResource(AppIcons.ADD),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            tint = MaterialTheme.colors.onBackground,
+                        )
+                    }
+                },
                 isExpanded = isExpanded,
                 onExpand = { submodulesViewModel.onExpand() }
             )
@@ -336,10 +366,11 @@ fun LazyListScope.submodules(
             Submodule(
                 submodule = submodule,
                 onInitializeSubmodule = { submodulesViewModel.initializeSubmodule(submodule.first) },
-                onDeinitializeSubmodule = { submodulesViewModel.onDeinitializeSubmodule(submodule.first) },
+//                onDeinitializeSubmodule = { submodulesViewModel.onDeinitializeSubmodule(submodule.first) },
                 onSyncSubmodule = { submodulesViewModel.onSyncSubmodule(submodule.first) },
                 onUpdateSubmodule = { submodulesViewModel.onUpdateSubmodule(submodule.first) },
                 onOpenSubmoduleInTab = { submodulesViewModel.onOpenSubmoduleInTab(submodule.first) },
+                onDeleteSubmodule = { submodulesViewModel.onDeleteSubmodule(submodule.first) },
             )
         }
     }
@@ -486,26 +517,29 @@ private fun Stash(
 private fun Submodule(
     submodule: Pair<String, SubmoduleStatus>,
     onInitializeSubmodule: () -> Unit,
-    onDeinitializeSubmodule: () -> Unit,
+//    onDeinitializeSubmodule: () -> Unit,
     onSyncSubmodule: () -> Unit,
     onUpdateSubmodule: () -> Unit,
     onOpenSubmoduleInTab: () -> Unit,
+    onDeleteSubmodule: () -> Unit,
 ) {
     ContextMenu(
         items = {
             submoduleContextMenuItems(
                 submodule.second,
                 onInitializeSubmodule = onInitializeSubmodule,
-                onDeinitializeSubmodule = onDeinitializeSubmodule,
+//                onDeinitializeSubmodule = onDeinitializeSubmodule,
                 onSyncSubmodule = onSyncSubmodule,
                 onUpdateSubmodule = onUpdateSubmodule,
                 onOpenSubmoduleInTab = onOpenSubmoduleInTab,
+                onDeleteSubmodule = onDeleteSubmodule,
             )
         }
     ) {
         SideMenuSubentry(
             text = submodule.first,
             iconResourcePath = AppIcons.TOPIC,
+            onClick = onOpenSubmoduleInTab,
         ) {
             val stateName = submodule.second.type.toString()
             Tooltip(stateName) {

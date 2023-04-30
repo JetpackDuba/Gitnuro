@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SidePanelViewModel
+import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.reflect.KClass
@@ -21,6 +22,7 @@ class TabViewModelsHolder @Inject constructor(
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val changeDefaultUpstreamBranchViewModelProvider: Provider<ChangeDefaultUpstreamBranchViewModel>,
+    private val submoduleDialogViewModelProvider: Provider<SubmoduleDialogViewModel>,
     ) {
     val viewModels = mapOf(
         logViewModel::class to logViewModel,
@@ -40,6 +42,7 @@ class TabViewModelsHolder @Inject constructor(
             HistoryViewModel::class -> historyViewModelProvider.get()
             AuthorViewModel::class -> authorViewModelProvider.get()
             ChangeDefaultUpstreamBranchViewModel::class -> changeDefaultUpstreamBranchViewModelProvider.get()
+            SubmoduleDialogViewModel::class -> submoduleDialogViewModelProvider.get()
             else -> throw NotImplementedError("View model provider not implemented")
         }
     }
