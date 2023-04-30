@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
@@ -9,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import java.io.File
 import javax.inject.Inject
@@ -19,25 +20,29 @@ class CloneViewModel @Inject constructor(
     private val cloneRepositoryUseCase: CloneRepositoryUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
 ) {
+    private val _repositoryUrl = MutableStateFlow(TextFieldValue(""))
+    val repositoryUrl = _repositoryUrl.asStateFlow()
+
+    private val _directoryPath = MutableStateFlow(TextFieldValue(""))
+    val directoryPath = _directoryPath.asStateFlow()
 
     private val _cloneState = MutableStateFlow<CloneState>(CloneState.None)
-    val cloneState: StateFlow<CloneState>
-        get() = _cloneState
+    val cloneState = _cloneState.asStateFlow()
 
-    var url: String = ""
-    var directory: String = ""
+    private val _error = MutableStateFlow("")
+    val error = _error.asStateFlow()
 
     private var cloneJob: Job? = null
 
     fun clone(directoryPath: String, url: String, cloneSubmodules: Boolean) {
         cloneJob = tabState.safeProcessingWithoutGit {
             if (directoryPath.isBlank()) {
-                _cloneState.value = CloneState.Fail("Invalid empty directory")
+                _error.value = "Invalid empty directory"
                 return@safeProcessingWithoutGit
             }
 
             if (url.isBlank()) {
-                _cloneState.value = CloneState.Fail("Invalid empty URL")
+                _error.value = "Invalid empty URL"
                 return@safeProcessingWithoutGit
             }
 
@@ -57,7 +62,7 @@ class CloneViewModel @Inject constructor(
             }
 
             if (repoName.isNullOrBlank()) {
-                _cloneState.value = CloneState.Fail("Check your URL and try again")
+                _error.value = "Check your URL and try again"
                 return@safeProcessingWithoutGit
             }
 
@@ -75,15 +80,14 @@ class CloneViewModel @Inject constructor(
             cloneRepositoryUseCase(repoDir, url, cloneSubmodules)
                 .flowOn(Dispatchers.IO)
                 .collect { newCloneStatus ->
-                    _cloneState.value = newCloneStatus
+                    if (newCloneStatus is CloneState.Fail) {
+                        _error.value = newCloneStatus.reason
+                        _cloneState.value = CloneState.None
+                    } else {
+                        _cloneState.value = newCloneStatus
+                    }
                 }
         }
-    }
-
-    fun reset() {
-        _cloneState.value = CloneState.None
-        url = ""
-        directory = ""
     }
 
     fun cancelClone() = tabState.safeProcessingWithoutGit {
@@ -93,10 +97,18 @@ class CloneViewModel @Inject constructor(
     }
 
     fun resetStateIfError() {
-        _cloneState.value = CloneState.None
+        _error.value = ""
     }
 
     fun openDirectoryPicker(): String? {
         return openFilePickerUseCase(PickerType.DIRECTORIES, null)
+    }
+
+    fun onDirectoryPathChanged(directory: TextFieldValue) {
+        _directoryPath.value = directory
+    }
+
+    fun onRepositoryUrlChanged(repositoryUrl: TextFieldValue) {
+        _repositoryUrl.value = repositoryUrl
     }
 }

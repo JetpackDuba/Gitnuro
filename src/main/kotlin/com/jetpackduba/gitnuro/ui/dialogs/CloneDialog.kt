@@ -19,6 +19,8 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.CloneState
@@ -63,13 +65,7 @@ fun CloneDialog(
                     onClose()
                 }
 
-                is CloneState.Fail -> CloneInput(
-                    cloneViewModel = cloneViewModel,
-                    onClose = onClose,
-                    errorMessage = cloneStatusValue.reason
-                )
-
-                CloneState.None -> CloneInput(
+                is CloneState.Fail, CloneState.None -> CloneDialogView(
                     cloneViewModel = cloneViewModel,
                     onClose = onClose,
                 )
@@ -79,14 +75,15 @@ fun CloneDialog(
 }
 
 @Composable
-private fun CloneInput(
+private fun CloneDialogView(
     cloneViewModel: CloneViewModel,
     onClose: () -> Unit,
-    errorMessage: String? = null,
 ) {
-    var url by remember { mutableStateOf(cloneViewModel.url) }
-    var directory by remember { mutableStateOf(cloneViewModel.directory) }
+    var url by remember(cloneViewModel) { mutableStateOf(cloneViewModel.repositoryUrl.value) }
+    var directory by remember(cloneViewModel) { mutableStateOf(cloneViewModel.directoryPath.value) }
     var cloneSubmodules by remember { mutableStateOf(true) }
+
+    val error by cloneViewModel.error.collectAsState()
 
     val urlFocusRequester = remember { FocusRequester() }
     val directoryFocusRequester = remember { FocusRequester() }
@@ -115,10 +112,10 @@ private fun CloneInput(
                 previous = cancelButtonFocusRequester
                 next = directoryFocusRequester
             },
-            onValueChange = {
+            onValueChange = { repositoryUrl ->
+                url = repositoryUrl
+                cloneViewModel.onRepositoryUrlChanged(repositoryUrl)
                 cloneViewModel.resetStateIfError()
-                url = it
-                cloneViewModel.url = url
             }
         )
 
@@ -138,9 +135,9 @@ private fun CloneInput(
                     next = directoryButtonFocusRequester
                 },
                 onValueChange = {
-                    cloneViewModel.resetStateIfError()
                     directory = it
-                    cloneViewModel.directory = directory
+                    cloneViewModel.onDirectoryPathChanged(directory)
+                    cloneViewModel.resetStateIfError()
                 },
             )
 
@@ -149,8 +146,9 @@ private fun CloneInput(
                     cloneViewModel.resetStateIfError()
                     val newDirectory = cloneViewModel.openDirectoryPicker()
                     if (newDirectory != null) {
-                        directory = newDirectory
-                        cloneViewModel.directory = directory
+                        directory = TextFieldValue(newDirectory, selection = TextRange(newDirectory.count()))
+                        cloneViewModel.onDirectoryPathChanged(directory)
+                        cloneViewModel.resetStateIfError()
                     }
                 },
                 modifier = Modifier
@@ -200,7 +198,7 @@ private fun CloneInput(
             )
         }
 
-        AnimatedVisibility (errorMessage != null) {
+        AnimatedVisibility (error.isNotBlank()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -209,7 +207,7 @@ private fun CloneInput(
                     .background(MaterialTheme.colors.error)
             ) {
                 Text(
-                    errorMessage.orEmpty(),
+                    error,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp, horizontal = 8.dp),
@@ -237,7 +235,7 @@ private fun CloneInput(
             )
             PrimaryButton(
                 onClick = {
-                    cloneViewModel.clone(directory, url, cloneSubmodules)
+                    cloneViewModel.clone(directory.text, url.text, cloneSubmodules)
                 },
                 modifier = Modifier
                     .focusRequester(cloneButtonFocusRequester)
@@ -247,6 +245,10 @@ private fun CloneInput(
                     },
                 text = "Clone"
             )
+        }
+
+        LaunchedEffect(Unit) {
+            urlFocusRequester.requestFocus()
         }
     }
 }
@@ -333,11 +335,11 @@ private fun Cancelling() {
 private fun TextInput(
     modifier: Modifier = Modifier,
     title: String,
-    value: String,
+    value: TextFieldValue,
     enabled: Boolean = true,
     focusRequester: FocusRequester,
     focusProperties: FocusProperties.() -> Unit,
-    onValueChange: (String) -> Unit,
+    onValueChange: (TextFieldValue) -> Unit,
     textFieldShape: Shape = RoundedCornerShape(4.dp),
 ) {
     Column(
