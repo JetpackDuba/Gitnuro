@@ -18,9 +18,9 @@ import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.*
-import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
-import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
 import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
+import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
+import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
@@ -199,34 +199,30 @@ fun LazyListScope.remotes(
     val remotes = remotesState.remotes
 
     item {
-        ContextMenu(
-            items = { remoteBranchesContextMenu(onShowEditRemotesDialog) }
-        ) {
-            SideMenuHeader(
-                text = "Remotes",
-                icon = painterResource(AppIcons.CLOUD),
-                itemsCount = remotes.count(),
-                hoverIcon = {
-                    IconButton(
-                        onClick = onShowEditRemotesDialog,
+        SideMenuHeader(
+            text = "Remotes",
+            icon = painterResource(AppIcons.CLOUD),
+            itemsCount = remotes.count(),
+            hoverIcon = {
+                IconButton(
+                    onClick = onShowEditRemotesDialog,
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .size(16.dp)
+                        .handOnHover(),
+                ) {
+                    Icon(
+                        painter = painterResource(AppIcons.SETTINGS),
+                        contentDescription = null,
                         modifier = Modifier
-                            .padding(end = 16.dp)
-                            .size(16.dp)
-                            .handOnHover(),
-                    ) {
-                        Icon(
-                            painter = painterResource(AppIcons.SETTINGS),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            tint = MaterialTheme.colors.onBackground,
-                        )
-                    }
-                },
-                isExpanded = isExpanded,
-                onExpand = { remotesViewModel.onExpand() }
-            )
-        }
+                            .fillMaxSize(),
+                        tint = MaterialTheme.colors.onBackground,
+                    )
+                }
+            },
+            isExpanded = isExpanded,
+            onExpand = { remotesViewModel.onExpand() }
+        )
     }
 
     if (isExpanded) {
@@ -242,9 +238,12 @@ fun LazyListScope.remotes(
                 items(remote.remoteInfo.branchesList) { remoteBranch ->
                     RemoteBranches(
                         remoteBranch = remoteBranch,
+                        currentBranch = remotesState.currentBranch,
                         onBranchClicked = { remotesViewModel.selectBranch(remoteBranch) },
-                        onDoubleClick = { remotesViewModel.checkoutRemoteBranch(remoteBranch) },
+                        onCheckoutBranch = { remotesViewModel.checkoutRemoteBranch(remoteBranch) },
                         onDeleteBranch = { remotesViewModel.deleteRemoteBranch(remoteBranch) },
+                        onPushRemoteBranch = { remotesViewModel.pushToRemoteBranch(remoteBranch) },
+                        onPullRemoteBranch = { remotesViewModel.pullFromRemoteBranch(remoteBranch) },
                     )
                 }
             }
@@ -443,14 +442,28 @@ private fun Remote(
 @Composable
 private fun RemoteBranches(
     remoteBranch: Ref,
+    currentBranch: Ref?,
     onBranchClicked: () -> Unit,
-    onDoubleClick: () -> Unit,
+    onCheckoutBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
+    onPushRemoteBranch: () -> Unit,
+    onPullRemoteBranch: () -> Unit,
 ) {
     ContextMenu(
         items = {
-            remoteBranchesContextMenu(
-                onDeleteBranch = onDeleteBranch
+            branchContextMenuItems(
+                branch = remoteBranch,
+                currentBranch = currentBranch,
+                isCurrentBranch = false,
+                isLocal = false,
+                onCheckoutBranch = onCheckoutBranch,
+                onMergeBranch = {},
+                onDeleteBranch = {},
+                onDeleteRemoteBranch = onDeleteBranch,
+                onRebaseBranch = {},
+                onPushToRemoteBranch = onPushRemoteBranch,
+                onPullFromRemoteBranch = onPullRemoteBranch,
+                onChangeDefaultUpstreamBranch = {},
             )
         }
     ) {
@@ -459,7 +472,7 @@ private fun RemoteBranches(
             extraPadding = 24.dp,
             iconResourcePath = AppIcons.BRANCH,
             onClick = onBranchClicked,
-            onDoubleClick = onDoubleClick,
+            onDoubleClick = onCheckoutBranch,
         )
     }
 }
