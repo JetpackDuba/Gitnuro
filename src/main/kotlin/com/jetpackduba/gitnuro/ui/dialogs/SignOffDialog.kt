@@ -14,7 +14,9 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
@@ -43,7 +45,7 @@ fun SignOffDialog(
             ""
         }
 
-        mutableStateOf(signOff)
+        mutableStateOf(TextFieldValue(signOff, TextRange(signOff.count())))
     }
 
     var enabledSignOff by remember(viewModel, state) {
@@ -157,9 +159,9 @@ fun SignOffDialog(
                             this.previous = signOffFieldFocusRequester
                             this.next = signOffFieldFocusRequester
                         },
-                    enabled = signOffField.isNotBlank() && state is SignOffState.Loaded,
+                    enabled = signOffField.text.isNotBlank() && state is SignOffState.Loaded,
                     onClick = {
-                        viewModel.saveSignOffFormat(enabledSignOff, signOffField)
+                        viewModel.saveSignOffFormat(enabledSignOff, signOffField.text)
                         onClose()
                     },
                     text = "Save"
