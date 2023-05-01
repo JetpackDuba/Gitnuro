@@ -21,7 +21,7 @@ class ResetHunkUseCase @Inject constructor(
             val file = File(repository.workTree, diffEntry.oldPath)
 
             val content = file.readText()
-            val textLines = getLinesFromTextUseCase(content, content.lineDelimiter).toMutableList()
+            val textLines = getLinesFromTextUseCase(content).toMutableList() // TODO Test this
             val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
 
             val addedLines = hunkLines

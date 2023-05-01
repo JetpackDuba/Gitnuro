@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.git.workspace
 
+import com.jetpackduba.gitnuro.extensions.filePath
 import com.jetpackduba.gitnuro.extensions.lineDelimiter
 import com.jetpackduba.gitnuro.git.diff.Hunk
 import com.jetpackduba.gitnuro.git.diff.Line
@@ -20,9 +21,9 @@ class DiscardUnstagedHunkLineUseCase @Inject constructor(
             val repository = git.repository
 
             try {
-                val file = File(repository.workTree, diffEntry.oldPath)
+                val file = File(repository.workTree, diffEntry.filePath)
                 val content = file.readText()
-                val textLines = getLinesFromTextUseCase(content, content.lineDelimiter).toMutableList()
+                val textLines = getLinesFromTextUseCase(content).toMutableList()
 
                 if (line.lineType == LineType.ADDED) {
                     textLines.removeAt(line.newLineNumber)
@@ -46,6 +47,7 @@ class DiscardUnstagedHunkLineUseCase @Inject constructor(
                     }
                 }
 
+                println(content)
                 val resultText = textLines.joinToString("")
 
 

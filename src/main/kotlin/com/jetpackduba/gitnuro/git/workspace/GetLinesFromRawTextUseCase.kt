@@ -7,9 +7,8 @@ class GetLinesFromRawTextUseCase @Inject constructor(
     private val getLinesFromTextUseCase: GetLinesFromTextUseCase,
 ) {
     operator fun invoke(rawFile: RawText): List<String> {
-        val content = rawFile.rawContent.toString(Charsets.UTF_8)//.removeSuffix(rawFile.lineDelimiter)
-        val lineDelimiter: String? = rawFile.lineDelimiter
+        val content = rawFile.rawContent.toString(Charsets.UTF_8)
 
-        return getLinesFromTextUseCase(content, lineDelimiter)
+        return getLinesFromTextUseCase(content) // TODO Test this
     }
 }
