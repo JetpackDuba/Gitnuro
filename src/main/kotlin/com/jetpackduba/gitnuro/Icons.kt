@@ -42,6 +42,7 @@ object AppIcons {
     const val REVERT = "revert.svg"
     const val SEARCH = "search.svg"
     const val SETTINGS = "settings.svg"
+    const val SIGN = "sign.svg"
     const val SOURCE = "source.svg"
     const val START = "start.svg"
     const val STASH = "stash.svg"

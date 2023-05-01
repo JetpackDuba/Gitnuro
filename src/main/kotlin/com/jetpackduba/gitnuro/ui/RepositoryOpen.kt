@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
@@ -53,6 +54,7 @@ fun RepositoryOpenPage(
     var showNewBranchDialog by remember { mutableStateOf(false) }
     var showStashWithMessageDialog by remember { mutableStateOf(false) }
     var showQuickActionsDialog by remember { mutableStateOf(false) }
+    var showSignOffDialog by remember { mutableStateOf(false) }
 
     if (showNewBranchDialog) {
         NewBranchDialog(
@@ -93,8 +95,14 @@ fun RepositoryOpenPage(
                     QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> tabViewModel.openFolderInFileExplorer()
                     QuickActionType.CLONE -> onShowCloneDialog()
                     QuickActionType.REFRESH -> tabViewModel.refreshAll()
+                    QuickActionType.SIGN_OFF -> showSignOffDialog = true
                 }
             },
+        )
+    } else if (showSignOffDialog) {
+        SignOffDialog(
+            viewModel = gitnuroDynamicViewModel(),
+            onClose = { showSignOffDialog = false },
         )
     }
 

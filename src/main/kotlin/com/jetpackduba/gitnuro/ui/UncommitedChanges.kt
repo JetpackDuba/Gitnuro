@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -43,10 +44,7 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
-import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
-import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
-import com.jetpackduba.gitnuro.ui.context_menu.EntryType
-import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
+import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.viewmodels.CommitterDataRequestState
 import com.jetpackduba.gitnuro.viewmodels.StageState
@@ -306,7 +304,7 @@ fun UncommitedChanges(
                     onAmendChecked = { isAmend ->
                         statusViewModel.amend(isAmend)
                     },
-                    onCommit = { doCommit() },
+                    onCommit = doCommit,
                 )
             }
         }
@@ -322,8 +320,6 @@ fun UncommitedChangesButtons(
     onAmendChecked: (Boolean) -> Unit,
     onCommit: () -> Unit
 ) {
-    var showDropDownMenu by remember { mutableStateOf(false) }
-
     val buttonText = if (isAmend)
         "Amend"
     else
@@ -368,47 +364,8 @@ fun UncommitedChangesButtons(
                     onCommit()
                 },
                 enabled = canCommit || (canAmend && isAmend),
-                shape = MaterialTheme.shapes.small.copy(topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
+                shape = RoundedCornerShape(4.dp)
             )
-            Spacer(
-                modifier = Modifier
-                    .width(1.dp)
-                    .height(36.dp),
-            )
-
-            Box(
-                modifier = Modifier
-                    .height(36.dp)
-                    .clip(MaterialTheme.shapes.small.copy(topStart = CornerSize(0.dp), bottomStart = CornerSize(0.dp)))
-                    .background(MaterialTheme.colors.primary)
-                    .handMouseClickable { showDropDownMenu = true }
-            ) {
-                Icon(
-                    Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = Color.White,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .align(Alignment.Center),
-                )
-                DropdownMenu(
-                    onDismissRequest = {
-                        showDropDownMenu = false
-                    },
-                    content = {
-                        /*DropDownContent(
-                            enabled = canAmend,
-                            dropDownContentData = DropDownContentData(
-                                label = "Amend previous commit",
-                                icon = null,
-                                onClick = onCommit
-                            ),
-                            onDismiss = { showDropDownMenu = false }
-                        )*/
-                    },
-                    expanded = showDropDownMenu,
-                )
-            }
         }
     }
 }

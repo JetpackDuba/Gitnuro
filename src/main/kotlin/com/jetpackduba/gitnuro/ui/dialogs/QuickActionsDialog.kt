@@ -36,6 +36,7 @@ fun QuickActionsDialog(
             QuickAction(AppIcons.CODE, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
             QuickAction(AppIcons.DOWNLOAD, "Clone new repository", QuickActionType.CLONE),
             QuickAction(AppIcons.REFRESH, "Refresh repository data", QuickActionType.REFRESH),
+            QuickAction(AppIcons.SIGN, "Signoff config", QuickActionType.SIGN_OFF),
         )
     }
 
@@ -126,5 +127,6 @@ data class QuickAction(val icon: String, val title: String, val type: QuickActio
 enum class QuickActionType {
     OPEN_DIR_IN_FILE_MANAGER,
     CLONE,
-    REFRESH;
+    REFRESH,
+    SIGN_OFF
 }

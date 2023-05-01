@@ -26,13 +26,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import kotlinx.coroutines.delay
@@ -264,9 +264,12 @@ inline fun <reified T> gitnuroViewModel(): T {
         tab.tabViewModelsHolder.viewModels[T::class] as T
     }
 }
+
 @Composable
 inline fun <reified T> gitnuroDynamicViewModel(): T {
     val tab = LocalTabScope.current
 
-    return tab.tabViewModelsHolder.dynamicViewModel(T::class) as T
+    return remember(tab) {
+        tab.tabViewModelsHolder.dynamicViewModel(T::class) as T
+    }
 }
