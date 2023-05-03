@@ -29,6 +29,11 @@ dependencies {
     val jgit = "6.5.0.202303070854-r"
 
     implementation(compose.desktop.currentOs)
+    when (currentOs()) {
+        OS.LINUX -> implementation(compose.desktop.linux_arm64) // Include arm for linux builds
+        else -> {}
+    }
+
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose.desktop.components.splitPane)
     implementation(compose("org.jetbrains.compose.ui:ui-util"))
@@ -50,6 +55,22 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
 
+}
+
+fun currentOs(): OS {
+    val os = System.getProperty("os.name")
+    return when {
+        os.equals("Mac OS X", ignoreCase = true) -> OS.MAC
+        os.startsWith("Win", ignoreCase = true) -> OS.WINDOWS
+        os.startsWith("Linux", ignoreCase = true) -> OS.LINUX
+        else -> error("Unknown OS name: $os")
+    }
+}
+
+enum class OS {
+    LINUX,
+    WINDOWS,
+    MAC
 }
 
 tasks.test {
