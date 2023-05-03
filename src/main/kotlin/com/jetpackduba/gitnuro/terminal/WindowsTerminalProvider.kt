@@ -8,6 +8,7 @@ class WindowsTerminalProvider @Inject constructor(
 ) : ITerminalProvider {
     override fun getTerminalEmulators(): List<TerminalEmulator> {
         return listOf(
+            // TODO powershell is the only terminal emulator supported until we add support for custom
             TerminalEmulator("Powershell", "powershell.exe"),
         )
     }

@@ -4,7 +4,6 @@ package com.jetpackduba.gitnuro.terminal
 import com.jetpackduba.gitnuro.managers.IShellManager
 import javax.inject.Inject
 
-// TODO Test this on MacOS
 class MacTerminalProvider @Inject constructor(
     private val shellManager: IShellManager
 ) : ITerminalProvider {
@@ -15,12 +14,11 @@ class MacTerminalProvider @Inject constructor(
     }
 
     override fun isTerminalInstalled(terminalEmulator: TerminalEmulator): Boolean {
-        val checkTerminalInstalled = shellManager.runCommand(listOf("which", terminalEmulator.path, "2>/dev/null"))
-
-        return !checkTerminalInstalled.isNullOrEmpty()
+        return true // TODO Return true always until we support multiple terminals
     }
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
-        shellManager.runCommandInPath(listOf("open", "-a", terminalEmulator.path), repositoryPath)
+        // TODO Check if passing the path as argument is required for other terminal emulators
+        shellManager.runCommandInPath(listOf("open", "-a", terminalEmulator.path, "--args", repositoryPath), repositoryPath)
     }
 }
