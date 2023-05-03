@@ -4,7 +4,6 @@ import com.jetpackduba.gitnuro.ssh.libssh.SSHLibrary
 import com.jetpackduba.gitnuro.ssh.libssh.ssh_channel
 import java.io.InputStream
 
-
 class LibSshChannelInputStream(private val sshChannel: ssh_channel) : InputStream() {
     private val sshLib = SSHLibrary.INSTANCE
 
@@ -24,8 +23,6 @@ class LibSshChannelInputStream(private val sshChannel: ssh_channel) : InputStrea
         sshLib.ssh_channel_read(sshChannel, buffer, 1, 0)
 
         val first = buffer.first()
-
-        print(String(buffer))
 
         return first.toInt()
     }
