@@ -9,7 +9,7 @@ class LinuxTerminalProvider @Inject constructor(
     override fun getTerminalEmulators(): List<TerminalEmulator> {
         return listOf(
             TerminalEmulator("Gnome Terminal", "gnome-terminal"),
-            TerminalEmulator("KDE Terminal", "kde-terminal"),
+            TerminalEmulator("KDE Terminal", "konsole"),
             TerminalEmulator("XFCE Terminal", "xfce4-terminal"),
             TerminalEmulator("Mate Terminal", "mate-terminal"),
             TerminalEmulator("LXQT Terminal", "qterminal"),
