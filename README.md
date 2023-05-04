@@ -60,6 +60,8 @@ Gitnuro has support for the following features:
 - Theming.
 - Side by side diff in text files.
 - Stage/Unstage specific lines.
+- Submodules support.
+- Change the tracking of a specific branch.
 
 <details>
   <summary><b>Features planned</b></summary>
@@ -67,8 +69,6 @@ Gitnuro has support for the following features:
 - Create/Apply patches
 - Remove tags from remote.
 - View stashes in the log tree.
-- Submodules support (planned for 1.2.0).
-- Change the tracking of a specific branch.
 - Syntax highlighting for diff.
 - Various log options like showing the author, filtering by current branch o hide remote branches.
 - Customizations settings.
