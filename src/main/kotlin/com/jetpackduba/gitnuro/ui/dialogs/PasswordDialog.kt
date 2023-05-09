@@ -14,7 +14,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
@@ -100,6 +99,7 @@ fun PasswordDialog(
                     },
                 value = passwordField,
                 maxLines = 1,
+                singleLine = true,
                 colors = outlinedTextFieldColors(),
                 onValueChange = {
                     passwordField = it
@@ -114,14 +114,11 @@ fun PasswordDialog(
                     }
 
                     IconButton(
-                        onClick = { showPassword = !showPassword },
-                        modifier = Modifier.handOnHover()
-                            .onFocusChanged { focusState ->
-                                if (focusState.isFocused) {
-                                    // return focus to field instead so the user can continue typing without having to click on the field again
-                                    passwordFieldFocusRequester.requestFocus()
-                                }
-                            },
+                        onClick = {
+                            showPassword = !showPassword
+                            passwordFieldFocusRequester.requestFocus()
+                        },
+                        modifier = Modifier.handOnHover(),
                     ) {
                         Icon(
                             painterResource(visibilityIcon),
