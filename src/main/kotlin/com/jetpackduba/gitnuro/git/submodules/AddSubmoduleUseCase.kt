@@ -1,21 +1,24 @@
 package com.jetpackduba.gitnuro.git.submodules
 
-import com.jetpackduba.gitnuro.models.ProgressMonitorInfo
+import com.jetpackduba.gitnuro.git.remote_operations.HandleTransportUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
+import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
 
-class AddSubmoduleUseCase @Inject constructor() {
-    suspend operator fun invoke(git: Git, name: String, path: String, uri: String) = withContext(Dispatchers.IO) {
-
+class AddSubmoduleUseCase @Inject constructor(
+    private val handleTransportUseCase: HandleTransportUseCase,
+) {
+    suspend operator fun invoke(git: Git, name: String, path: String, uri: String): Unit = withContext(Dispatchers.IO) {
         git.submoduleAdd()
             .setName(name)
             .setPath(path)
             .setURI(uri)
+            .setTransportConfigCallback { handleTransportUseCase(it, git) }
+            .setCredentialsProvider(CredentialsProvider.getDefault())
             .setProgressMonitor(object : ProgressMonitor {
                 override fun start(totalTasks: Int) {}
                 override fun beginTask(title: String?, totalWork: Int) {}
