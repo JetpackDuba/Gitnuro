@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.di.modules.AppModule
 import com.jetpackduba.gitnuro.di.modules.ShellModule
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.IShellManager
+import com.jetpackduba.gitnuro.managers.TempFilesManager
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.terminal.ITerminalProvider
 import com.jetpackduba.gitnuro.ui.TabsManager
@@ -36,4 +37,6 @@ interface AppComponent {
     fun shellManager(): IShellManager
 
     fun terminalProvider(): ITerminalProvider
+
+    fun tempFilesManager(): TempFilesManager
 }

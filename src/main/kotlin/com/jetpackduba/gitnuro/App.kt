@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.managers.TempFilesManager
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.theme.AppTheme
@@ -61,6 +62,9 @@ class App {
 
     @Inject
     lateinit var tabsManager: TabsManager
+
+    @Inject
+    lateinit var tempFilesManager: TempFilesManager
 
     init {
         appComponent.inject(this)
@@ -134,6 +138,7 @@ class App {
                     }
                 }
             } else {
+                tempFilesManager.clearAll()
                 appStateManager.cancelCoroutines()
                 this.exitApplication()
             }

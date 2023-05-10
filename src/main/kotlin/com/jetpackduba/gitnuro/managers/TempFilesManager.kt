@@ -4,19 +4,19 @@ import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.openDirectory
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@TabScope
+@Singleton
 class TempFilesManager @Inject constructor(
     private val appFilesManager: AppFilesManager,
 ) {
     fun tempDir(): File {
         val appDataDir = appFilesManager.getAppFolder()
-        val tempDir = appDataDir.openDirectory("tmp")
+        return appDataDir.openDirectory("tmp")
+    }
 
-        if (!tempDir.exists() || !tempDir.isDirectory) {
-            tempDir.mkdir()
-        }
-
-        return tempDir
+    fun clearAll() {
+        val dir = tempDir()
+        dir.deleteRecursively()
     }
 }
