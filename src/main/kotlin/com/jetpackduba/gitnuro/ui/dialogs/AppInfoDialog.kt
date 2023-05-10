@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppConstants.openSourceProjects
 import com.jetpackduba.gitnuro.Project
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.TextLink
@@ -60,7 +61,8 @@ fun AppInfoDialog(
             TextButton(
                 modifier = Modifier
                     .padding(top = 16.dp, end = 8.dp)
-                    .align(Alignment.End),
+                    .align(Alignment.End)
+                    .handOnHover(),
                 onClick = onClose,
                 colors = textButtonColors(),
             ) {

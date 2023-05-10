@@ -4,7 +4,7 @@ object AppConstants {
     val openSourceProjects = listOf(
         Project("Apache SSHD", "https://mina.apache.org/sshd-project/", apache__2_0),
         Project("Google Dagger", "https://dagger.dev/", apache__2_0),
-        Project("Jetbrains Compose", "https://www.jetbrains.com/lp/compose-mpp/", apache__2_0),
+        Project("Compose Multiplatform", "https://www.jetbrains.com/lp/compose-mpp/", apache__2_0),
         Project("JGit", "https://www.eclipse.org/jgit/", edl),
         Project("JUnit 5", "https://junit.org/junit5/", edl),
         Project("Kotlin", "https://kotlinlang.org/", apache__2_0),
@@ -15,6 +15,7 @@ object AppConstants {
         ),
         Project("Mockk", "https://mockk.io/", apache__2_0),
         Project("Retrofit2", "https://square.github.io/retrofit/", apache__2_0),
+        Project("LibSSH", "libssh.org/", lgpl__2_1),
     )
 
 
@@ -30,6 +31,7 @@ object AppConstants {
 
 private val apache__2_0 = License("Apache 2.0", "https://www.apache.org/licenses/LICENSE-2.0")
 private val edl = License("EDL", "https://www.eclipse.org/org/documents/edl-v10.php")
+private val lgpl__2_1 = License("LGPL-2.1", "https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html")
 
 data class License(
     val name: String,
