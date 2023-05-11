@@ -90,10 +90,12 @@ class DiffViewModel @Inject constructor(
             }
 
             // If it's a different file or different state (index or workdir), reset the scroll state
-            if (oldDiffEntryType != null &&
+            if (
+                oldDiffEntryType?.filePath != diffEntryType.filePath ||
                 oldDiffEntryType is DiffEntryType.UncommitedDiff &&
                 diffEntryType is DiffEntryType.UncommitedDiff &&
-                oldDiffEntryType.statusEntry.filePath != diffEntryType.statusEntry.filePath
+                oldDiffEntryType.statusEntry.filePath == diffEntryType.statusEntry.filePath &&
+                oldDiffEntryType::class != diffEntryType::class
             ) {
                 lazyListState.value = LazyListState(
                     0,
