@@ -1,5 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.filePath
@@ -25,6 +27,14 @@ class CommitChangesViewModel @Inject constructor(
 
     private val _searchFilter = MutableStateFlow(TextFieldValue(""))
     val searchFilter: StateFlow<TextFieldValue> = _searchFilter
+
+    val changesLazyListState = MutableStateFlow(
+        LazyListState(firstVisibleItemIndex = 0, firstVisibleItemScrollOffset = 0)
+    )
+
+    val textScroll = MutableStateFlow(
+        ScrollState(0)
+    )
 
     private val _commitChangesState = MutableStateFlow<CommitChangesState>(CommitChangesState.Loading)
     val commitChangesState: StateFlow<CommitChangesState> =
@@ -66,6 +76,11 @@ class CommitChangesViewModel @Inject constructor(
 
             _showSearch.value = false
             _searchFilter.value = TextFieldValue("")
+            changesLazyListState.value = LazyListState(
+                0,
+                0
+            )
+            textScroll.value = ScrollState(0)
         }
     }
 

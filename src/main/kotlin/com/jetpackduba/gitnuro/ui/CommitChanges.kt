@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -50,7 +51,8 @@ fun CommitChanges(
 
     val commitChangesStatus = commitChangesViewModel.commitChangesState.collectAsState().value
     val showSearch by commitChangesViewModel.showSearch.collectAsState()
-
+    val changesListScroll by commitChangesViewModel.changesLazyListState.collectAsState()
+    val textScroll by commitChangesViewModel.textScroll.collectAsState()
 
     var searchFilter by remember(commitChangesViewModel, showSearch, commitChangesStatus) {
         mutableStateOf(commitChangesViewModel.searchFilter.value)
@@ -66,11 +68,14 @@ fun CommitChanges(
                 diffSelected = diffSelected,
                 commit = commitChangesStatus.commit,
                 changes = commitChangesStatus.changesFiltered,
-                onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
                 onHistory = onHistory,
                 showSearch = showSearch,
+                changesListScroll = changesListScroll,
+                textScroll = textScroll,
                 searchFilter = searchFilter,
+                onDiffSelected = onDiffSelected,
+
                 onSearchFilterToggled = { visible ->
                     commitChangesViewModel.onSearchFilterToggled(visible)
                 },
@@ -87,12 +92,14 @@ fun CommitChanges(
 fun CommitChangesView(
     commit: RevCommit,
     changes: List<DiffEntry>,
-    onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,
-    onBlame: (String) -> Unit,
-    onHistory: (String) -> Unit,
+    changesListScroll: LazyListState,
+    textScroll: ScrollState,
     showSearch: Boolean,
     searchFilter: TextFieldValue,
+    onBlame: (String) -> Unit,
+    onHistory: (String) -> Unit,
+    onDiffSelected: (DiffEntry) -> Unit,
     onSearchFilterToggled: (Boolean) -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
 ) {
@@ -107,7 +114,6 @@ fun CommitChangesView(
             .padding(end = 8.dp, bottom = 8.dp)
             .fillMaxSize(),
     ) {
-        val scroll = rememberScrollState(0)
         val searchFocusRequester = remember { FocusRequester() }
 
         Column(
@@ -173,6 +179,7 @@ fun CommitChangesView(
 
             CommitLogChanges(
                 diffSelected = diffSelected,
+                changesListScroll = changesListScroll,
                 diffEntries = changes,
                 onDiffSelected = onDiffSelected,
                 onBlame = onBlame,
@@ -195,7 +202,7 @@ fun CommitChangesView(
                         .fillMaxWidth()
                         .height(120.dp)
                         .padding(8.dp)
-                        .verticalScroll(scroll),
+                        .verticalScroll(textScroll),
                 )
             }
 
@@ -293,14 +300,16 @@ fun Author(
 @Composable
 fun CommitLogChanges(
     diffEntries: List<DiffEntry>,
-    onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,
+    changesListScroll: LazyListState,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
+    onDiffSelected: (DiffEntry) -> Unit,
 ) {
     ScrollableLazyColumn(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
+        state = changesListScroll,
     ) {
         items(items = diffEntries) { diffEntry ->
             ContextMenu(
