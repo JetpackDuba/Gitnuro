@@ -353,7 +353,7 @@ class StatusViewModel @Inject constructor(
 
         val fileToDelete = File(git.repository.workTree, path)
 
-        fileToDelete.delete()
+        fileToDelete.deleteRecursively()
     }
 
     fun updateCommitMessage(message: String) {
