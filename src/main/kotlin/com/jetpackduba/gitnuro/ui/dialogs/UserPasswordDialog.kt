@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -15,11 +16,14 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
@@ -30,6 +34,7 @@ fun UserPasswordDialog(
 ) {
     var userField by remember { mutableStateOf("") }
     var passwordField by remember { mutableStateOf("") }
+    var showPassword by remember { mutableStateOf(false) }
     val userFieldFocusRequester = remember { FocusRequester() }
     val passwordFieldFocusRequester = remember { FocusRequester() }
     val buttonFieldFocusRequester = remember { FocusRequester() }
@@ -87,7 +92,9 @@ fun UserPasswordDialog(
                         }
                     },
                 value = userField,
+                colors = outlinedTextFieldColors(),
                 maxLines = 1,
+                singleLine = true,
                 hint = "Username",
                 onValueChange = {
                     userField = it
@@ -112,11 +119,35 @@ fun UserPasswordDialog(
                     },
                 value = passwordField,
                 maxLines = 1,
+                singleLine = true,
+                colors = outlinedTextFieldColors(),
                 hint = "Password",
                 onValueChange = {
                     passwordField = it
                 },
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val visibilityIcon = if (showPassword) {
+                        AppIcons.VISIBILITY_OFF
+                    } else {
+                        AppIcons.VISIBILITY
+                    }
+
+                    IconButton(
+                        onClick = {
+                            showPassword = !showPassword
+                            passwordFieldFocusRequester.requestFocus()
+                        },
+                        modifier = Modifier.handOnHover()
+                            .size(20.dp),
+                    ) {
+                        Icon(
+                            painterResource(visibilityIcon),
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onBackground,
+                        )
+                    }
+                }
             )
 
             Row(

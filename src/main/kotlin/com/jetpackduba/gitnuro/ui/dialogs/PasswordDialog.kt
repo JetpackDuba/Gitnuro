@@ -118,7 +118,8 @@ fun PasswordDialog(
                             showPassword = !showPassword
                             passwordFieldFocusRequester.requestFocus()
                         },
-                        modifier = Modifier.handOnHover(),
+                        modifier = Modifier.handOnHover()
+                            .size(20.dp),
                     ) {
                         Icon(
                             painterResource(visibilityIcon),
