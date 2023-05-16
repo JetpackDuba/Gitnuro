@@ -42,7 +42,7 @@ class GRemoteSession @Inject constructor(
         session.loadOptionsFromConfig()
 
         session.connect()
-        var result = session.userAuthPublicKeyAuto(null, null)
+        var result = session.userAuthPublicKeyAuto(null, "")
 
         if (result == 1) {
             credentialsStateManager.updateState(CredentialsRequested.SshCredentialsRequested)
