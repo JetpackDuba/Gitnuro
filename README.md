@@ -138,10 +138,6 @@ it if it's a very requested feature but not for now.
 > Authentication has failed. What's wrong?
 
 Currently there are some limitations regarding this topic. Here are some known problematic setups:
-
-- SSH keys managed by external agents (https://github.com/JetpackDuba/Gitnuro/issues/17).
-- Configurations added to .ssh/config
-- Non-default ssh dir path.
 - Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19) with this
   workaround (https://github.com/JetpackDuba/Gitnuro/issues/19#issuecomment-1374431720).
 - Self signed server certificate (https://github.com/JetpackDuba/Gitnuro/issues/48)
