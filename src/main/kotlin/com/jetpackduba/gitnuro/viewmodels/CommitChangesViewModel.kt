@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.filePath
+import com.jetpackduba.gitnuro.extensions.fullData
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -63,15 +64,36 @@ class CommitChangesViewModel @Inject constructor(
         // Check if it's a different commit before resetting everything
         if (
             state is CommitChangesState.Loading ||
-            state is CommitChangesState.Loaded && state.commit != commit
+            state is CommitChangesState.Loaded //&& state.commit != commit
         ) {
             delayedStateChange(
                 delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
                 onDelayTriggered = { _commitChangesState.value = CommitChangesState.Loading }
             ) {
-                val changes = getCommitDiffEntriesUseCase(git, commit)
+                val fullCommit = commit.fullData(git.repository)
 
-                _commitChangesState.value = CommitChangesState.Loaded(commit, changes, changes)
+                if (fullCommit != null) {
+                    val changes = getCommitDiffEntriesUseCase(git, fullCommit).toMutableList()
+
+                    if (fullCommit.parentCount == 3) {
+                        val untrackedFilesCommit =
+                            fullCommit.parents?.firstOrNull {
+                                val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
+
+                                parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
+                            }
+
+                        if (untrackedFilesCommit != null) {
+                            val untrackedFilesChanges = getCommitDiffEntriesUseCase(git, untrackedFilesCommit)
+
+                            if(untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
+                                changes.addAll(untrackedFilesChanges)
+                            }
+                        }
+                    }
+
+                    _commitChangesState.value = CommitChangesState.Loaded(commit, changes, changes)
+                }
             }
 
             _showSearch.value = false

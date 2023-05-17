@@ -58,7 +58,6 @@ class MenuViewModel @Inject constructor(
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
     ) { git ->
-        stageUntrackedFileUseCase(git)
         stashChangesUseCase(git, null)
     }
 
