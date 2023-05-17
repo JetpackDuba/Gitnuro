@@ -64,7 +64,7 @@ class CommitChangesViewModel @Inject constructor(
         // Check if it's a different commit before resetting everything
         if (
             state is CommitChangesState.Loading ||
-            state is CommitChangesState.Loaded //&& state.commit != commit
+            state is CommitChangesState.Loaded && state.commit != commit
         ) {
             delayedStateChange(
                 delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
