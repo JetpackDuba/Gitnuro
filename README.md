@@ -155,7 +155,7 @@ Example for linux:
    helper = /usr/share/git-credential-manager-core/git-credential-manager-core
 ```
 
-Example for windows (you may want to edit `C:\Program Files\mingw64\etc\gitconfig`):
+Example for windows (you may want to edit `C:\Program Files\Git\etc\gitconfig`):
 
 ```
 [credential]
