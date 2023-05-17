@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.dialogs.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -9,17 +10,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
+import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
@@ -28,10 +30,26 @@ import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-enum class SettingsCategory(val displayName: String) {
-    UI("UI"),
-    GIT("Git"),
+sealed interface SettingsEntry {
+    data class Section(val name: String) : SettingsEntry
+
+    data class Entry(val icon: String, val name: String, val content: @Composable (SettingsViewModel) -> Unit) :
+        SettingsEntry
 }
+
+val settings = listOf(
+    SettingsEntry.Section("User interface"),
+    SettingsEntry.Entry(AppIcons.PALETTE, "Appearance") { UiSettings(it) },
+    SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { },
+
+    SettingsEntry.Section("GIT"),
+    SettingsEntry.Entry(AppIcons.LIST, "Commits history") { GitSettings(it) },
+    SettingsEntry.Entry(AppIcons.BRANCH, "Branches") { },
+    SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { },
+
+    SettingsEntry.Section("Network"),
+    SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { },
+)
 
 
 @Composable
@@ -44,14 +62,11 @@ fun SettingsDialog(
         settingsViewModel.resetInfo()
     }
 
-    val categories = remember {
-        listOf(
-            SettingsCategory.UI,
-            SettingsCategory.GIT,
+    var selectedCategory by remember {
+        mutableStateOf<SettingsEntry.Entry>(
+            settings.filterIsInstance(SettingsEntry.Entry::class.java).first()
         )
     }
-
-    var selectedCategory by remember { mutableStateOf(SettingsCategory.UI) }
 
     MaterialDialog(
         background = MaterialTheme.colors.surface,
@@ -59,57 +74,118 @@ fun SettingsDialog(
             settingsViewModel.savePendingChanges()
 
             onDismiss()
-        }
+        },
+        paddingHorizontal = 0.dp,
+        paddingVertical = 0.dp,
     ) {
-        Column(modifier = Modifier.height(720.dp)) {
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.h3,
-                color = MaterialTheme.colors.onBackground,
-                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
-            )
+        Row(modifier = Modifier.height(720.dp).width(1000.dp)) {
+            Column(
+                modifier = Modifier
+                    .width(200.dp)
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colors.background)
+            ) {
+                Text(
+                    text = "Settings",
+                    style = MaterialTheme.typography.h3,
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.padding(16.dp),
+                    fontWeight = FontWeight.Bold,
+                )
 
-            Row(modifier = Modifier.weight(1f)) {
-                ScrollableColumn(
-                    modifier = Modifier
-                        .width(200.dp)
-                        .fillMaxHeight()
-                        .background(MaterialTheme.colors.background)
-                ) {
-                    categories.forEach { category ->
-                        Category(
-                            category = category,
-                            isSelected = category == selectedCategory,
-                            onClick = { selectedCategory = category }
-                        )
-                    }
-                }
+                Row(modifier = Modifier.weight(1f)) {
+                    ScrollableLazyColumn(
+                        modifier = Modifier
+                    ) {
+                        itemsIndexed(settings) { index, settingEntry ->
+                            when (settingEntry) {
+                                is SettingsEntry.Section -> {
+                                    if (index != 0) {
+                                        Spacer(Modifier.height(16.dp))
+                                    }
+                                    Section(settingEntry.name)
+                                }
 
-
-                Column(
-                    modifier = Modifier
-                        .width(720.dp)
-                        .padding(horizontal = 16.dp)
-                ) {
-                    when (selectedCategory) {
-                        SettingsCategory.UI -> UiSettings(settingsViewModel)
-                        SettingsCategory.GIT -> GitSettings(settingsViewModel)
+                                is SettingsEntry.Entry -> Entry(
+                                    icon = settingEntry.icon,
+                                    name = settingEntry.name,
+                                    isSelected = settingEntry == selectedCategory,
+                                    onClick = {
+                                        selectedCategory = settingEntry
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
 
-            PrimaryButton(
-                text = "Accept",
-                modifier = Modifier
-                    .padding(end = 8.dp, bottom = 8.dp)
-                    .align(Alignment.End),
-                onClick = {
-                    settingsViewModel.savePendingChanges()
-                    onDismiss()
-                },
-            )
+            Column {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, true)
+                        .padding(start = 16.dp, top = 64.dp, end = 16.dp)
+                ) {
+                    selectedCategory.content(settingsViewModel)
+                }
+
+                PrimaryButton(
+                    text = "Accept",
+                    modifier = Modifier
+                        .padding(end = 16.dp, bottom = 16.dp)
+                        .align(Alignment.End),
+                    onClick = {
+                        settingsViewModel.savePendingChanges()
+                        onDismiss()
+                    },
+                )
+            }
+
         }
     }
+}
+
+@Composable
+private fun Entry(icon: String, name: String, isSelected: Boolean, onClick: () -> Unit) {
+    val backgroundColor = if (isSelected)
+        MaterialTheme.colors.backgroundSelected
+    else
+        MaterialTheme.colors.background
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .background(color = backgroundColor)
+            .handMouseClickable(onClick)
+            .fillMaxWidth(),
+    ) {
+        Icon(
+            painterResource(icon),
+            contentDescription = name,
+            tint = MaterialTheme.colors.onBackgroundSecondary,
+            modifier = Modifier
+                .padding(start = 16.dp, top = 4.dp, bottom = 4.dp, end = 8.dp)
+                .size(24.dp)
+        )
+
+        Text(
+            text = name,
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.onBackground,
+        )
+    }
+}
+
+@Composable
+private fun Section(name: String) {
+    Text(
+        text = name.uppercase(),
+        color = MaterialTheme.colors.onBackgroundSecondary,
+        style = MaterialTheme.typography.body2,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+        fontWeight = FontWeight.Bold,
+    )
 }
 
 @Composable
@@ -249,29 +325,6 @@ fun UiSettings(settingsViewModel: SettingsViewModel) {
     }
 }
 
-@Composable
-fun Category(
-    category: SettingsCategory,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-) {
-    val backgroundColor = if (isSelected)
-        MaterialTheme.colors.backgroundSelected
-    else
-        MaterialTheme.colors.background
-
-    Text(
-        text = category.displayName,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = backgroundColor)
-            .handMouseClickable(onClick)
-            .padding(8.dp),
-        style = MaterialTheme.typography.body1,
-        color = MaterialTheme.colors.onBackground,
-    )
-}
-
 
 @Composable
 fun <T> SettingDropDown(
@@ -372,48 +425,6 @@ fun SettingToggle(
             checked = value,
             onCheckedChange = onValueChanged,
             colors = SwitchDefaults.colors(uncheckedThumbColor = MaterialTheme.colors.secondary)
-        )
-    }
-}
-
-@Composable
-fun SettingSlider(
-    title: String,
-    subtitle: String,
-    value: Float,
-    minValue: Float,
-    maxValue: Float,
-    steps: Int,
-    onValueChanged: (Float) -> Unit,
-    onValueChangeFinished: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        FieldTitles(title, subtitle)
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Text(
-            text = "${minValue.toInt()}%",
-            style = MaterialTheme.typography.caption,
-        )
-
-        Slider(
-            value = value,
-            onValueChange = onValueChanged,
-            onValueChangeFinished = onValueChangeFinished,
-            steps = steps,
-            valueRange = minValue..maxValue,
-            modifier = Modifier
-                .width(200.dp)
-                .padding(horizontal = 4.dp)
-        )
-
-        Text(
-            text = "${maxValue.toInt()}%",
-            style = MaterialTheme.typography.caption,
         )
     }
 }
