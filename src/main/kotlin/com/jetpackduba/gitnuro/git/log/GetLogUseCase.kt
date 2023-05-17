@@ -20,6 +20,7 @@ class GetLogUseCase @Inject constructor() {
             if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
                 val logList = git.log().setMaxCount(1).call().toList()
 
+                //TODO: Perhaps cache GraphWalk when the commitsLimit is too big? This would ensure a fast traversal of the commits graph but would use more memory. Benchmark it and perhaps offer the option as a setting
                 val walk = GraphWalk(git.repository)
 
                 walk.use {
