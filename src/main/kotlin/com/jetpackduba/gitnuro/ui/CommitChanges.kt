@@ -206,17 +206,18 @@ fun CommitChangesView(
                 )
             }
 
-            Author(commit.id, commit.authorIdent)
+            Author(commit.shortName, commit.name, commit.authorIdent)
         }
     }
 }
 
 @Composable
 fun Author(
-    id: ObjectId,
+    shortName: String,
+    name: String,
     author: PersonIdent,
 ) {
-    var copied by remember(id) { mutableStateOf(false) }
+    var copied by remember(name) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboardManager.current
 
@@ -248,13 +249,13 @@ fun Author(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = id.abbreviate(7).name(),
+                    text = shortName,
                     color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.handMouseClickable {
                         scope.launch {
-                            clipboard.setText(AnnotatedString(id.name))
+                            clipboard.setText(AnnotatedString(name))
                             copied = true
                             delay(2000) // 2s
                             copied = false

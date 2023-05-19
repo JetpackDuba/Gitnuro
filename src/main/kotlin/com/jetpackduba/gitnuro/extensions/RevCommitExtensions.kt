@@ -10,6 +10,10 @@ fun RevCommit.fullData(repository: Repository): RevCommit? {
         this
 }
 
+val RevCommit.shortName: String
+    get() = this.name().orEmpty().take(7)
+
+
 fun RevCommit.getShortMessageTrimmed(): String {
     return (this.fullMessage ?: "")
         .trimStart()

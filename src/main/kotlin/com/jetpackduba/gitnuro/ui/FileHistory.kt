@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.shortName
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.git.diff.DiffResult
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -237,7 +238,7 @@ fun HistoryCommit(commit: RevCommit, onCommitSelected: () -> Unit) {
 
             Row {
                 Text(
-                    text = commit.name.take(7),
+                    text = commit.shortName,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackgroundSecondary,

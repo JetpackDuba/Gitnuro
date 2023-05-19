@@ -3,6 +3,8 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.extensions.shortName
+import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.TaskEvent
@@ -162,6 +164,8 @@ class LogViewModel @Inject constructor(
 
     fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Push",
+        subtitle = "Pushing current branch to ${branch.simpleName}",
     ) { git ->
         pushToSpecificBranchUseCase(
             git = git,
@@ -173,6 +177,8 @@ class LogViewModel @Inject constructor(
 
     fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Pull",
+        subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
     ) { git ->
         pullFromSpecificBranchUseCase(
             git = git,
@@ -183,6 +189,8 @@ class LogViewModel @Inject constructor(
 
     fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Commit checkout",
+        subtitle = "Checking out commit ${revCommit.name}",
     ) { git ->
         checkoutCommitUseCase(git, revCommit)
     }
@@ -190,24 +198,32 @@ class LogViewModel @Inject constructor(
     fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashes = true,
+        title = "Commit revert",
+        subtitle = "Reverting commit ${revCommit.name}",
     ) { git ->
         revertCommitUseCase(git, revCommit)
     }
 
     fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Branch reset",
+        subtitle = "Reseting branch to commit ${revCommit.shortName}",
     ) { git ->
         resetToCommitUseCase(git, revCommit, resetType = resetType)
     }
 
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Branch checkout",
+        subtitle = "Checking out branch ${ref.simpleName}",
     ) { git ->
         checkoutRefUseCase(git, ref)
     }
 
     fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        title = "Cherry-pick",
+        subtitle = "Cherry-picking commit ${revCommit.shortName}",
     ) { git ->
         cherryPickCommitUseCase(git, revCommit)
     }
@@ -215,36 +231,42 @@ class LogViewModel @Inject constructor(
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
+        title = "New branch",
+        subtitle = "Creating new branch \"$branch\" on commit ${revCommit.shortName}",
     ) { git ->
         createBranchOnCommitUseCase(git, branch, revCommit)
     }
 
     fun createTagOnCommit(tag: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "New tag",
+        subtitle = "Creating new tag \"$tag\" on commit ${revCommit.shortName}",
     ) { git ->
         createTagOnCommitUseCase(git, tag, revCommit)
     }
 
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Branch merge",
+        subtitle = "Merging branch ${ref.simpleName}",
     ) { git ->
         mergeBranchUseCase(git, ref, appSettings.ffMerge)
     }
 
     fun deleteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Branch delete",
+        subtitle = "Deleting branch ${branch.simpleName}",
     ) { git ->
         deleteBranchUseCase(git, branch)
     }
 
     fun deleteTag(tag: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Tag delete",
+        subtitle = "Deleting tag ${tag.simpleName}",
     ) { git ->
         deleteTagUseCase(git, tag)
-    }
-
-    suspend fun refreshUncommitedChanges(git: Git) {
-        uncommitedChangesLoadLog(git)
     }
 
     private suspend fun uncommitedChangesLoadLog(git: Git) {
@@ -279,6 +301,8 @@ class LogViewModel @Inject constructor(
 
     fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Branch rebase",
+        subtitle = "Rebasing branch ${ref.simpleName}",
     ) { git ->
         rebaseBranchUseCase(git, ref)
     }
@@ -412,6 +436,8 @@ class LogViewModel @Inject constructor(
 
     fun deleteRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Delete remote branch",
+        subtitle = "Deleting remote branch ${branch.simpleName}",
     ) { git ->
         deleteRemoteBranchUseCase(git, branch)
     }

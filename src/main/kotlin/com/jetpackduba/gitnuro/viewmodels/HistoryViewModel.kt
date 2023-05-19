@@ -76,6 +76,8 @@ class HistoryViewModel @Inject constructor(
 
     fun fileHistory(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
+        title = "History",
+        subtitle = "Loading file history",
     ) { git ->
         this@HistoryViewModel.filePath = filePath
         _historyState.value = HistoryState.Loading(filePath)
