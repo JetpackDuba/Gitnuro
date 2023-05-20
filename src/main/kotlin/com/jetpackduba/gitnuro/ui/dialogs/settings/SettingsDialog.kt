@@ -40,7 +40,7 @@ sealed interface SettingsEntry {
 val settings = listOf(
     SettingsEntry.Section("User interface"),
     SettingsEntry.Entry(AppIcons.PALETTE, "Appearance") { UiSettings(it) },
-    SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { },
+    SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { Layout(it) },
 
     SettingsEntry.Section("GIT"),
     SettingsEntry.Entry(AppIcons.LIST, "Commits history") { GitSettings(it) },
@@ -230,6 +230,20 @@ fun GitSettings(settingsViewModel: SettingsViewModel) {
         value = pullRebase,
         onValueChanged = { value ->
             settingsViewModel.pullRebase = value
+        }
+    )
+}
+
+@Composable
+fun Layout(settingsViewModel: SettingsViewModel) {
+    val swapUncommitedChanges by settingsViewModel.swapUncommitedChangesFlow.collectAsState()
+
+    SettingToggle(
+        title = "Swap position for staged/unstaged views",
+        subtitle = "Show the list of unstaged changes above the list of staged changes",
+        value = swapUncommitedChanges,
+        onValueChanged = { value ->
+            settingsViewModel.swapUncommitedChanges = value
         }
     )
 }

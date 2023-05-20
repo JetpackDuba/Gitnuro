@@ -14,16 +14,12 @@ import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -44,7 +40,10 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
-import com.jetpackduba.gitnuro.ui.context_menu.*
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.EntryType
+import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.viewmodels.CommitterDataRequestState
 import com.jetpackduba.gitnuro.viewmodels.StageState
@@ -62,6 +61,7 @@ fun UncommitedChanges(
     onHistoryFile: (String) -> Unit,
 ) {
     val stageStatus = statusViewModel.stageState.collectAsState().value
+    val swapUncommitedChanges by statusViewModel.swapUncommitedChanges.collectAsState()
     var commitMessage by remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
@@ -129,88 +129,100 @@ fun UncommitedChanges(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            EntriesList(
-                modifier = Modifier
-                    .weight(5f)
-                    .padding(bottom = 4.dp)
-                    .fillMaxWidth(),
-                title = "Staged",
-                allActionTitle = "Unstage all",
-                actionTitle = "Unstage",
-                actionIcon = AppIcons.REMOVE_DONE,
-                selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
-                actionColor = MaterialTheme.colors.error,
-                actionTextColor = MaterialTheme.colors.onError,
-                statusEntries = staged,
-                lazyListState = stagedListState,
-                onDiffEntrySelected = onStagedDiffEntrySelected,
-                showSearch = showSearchStaged,
-                searchFilter = searchFilterStaged,
-                onSearchFilterToggled = {
-                    statusViewModel.onSearchFilterToggledStaged(it)
-                },
-                onSearchFilterChanged = {
-                    statusViewModel.onSearchFilterChangedStaged(it)
-                },
-                onDiffEntryOptionSelected = {
-                    statusViewModel.unstage(it)
-                },
-                onGenerateContextMenu = { statusEntry ->
-                    statusEntriesContextMenuItems(
-                        statusEntry = statusEntry,
-                        entryType = EntryType.STAGED,
-                        onBlame = { onBlameFile(statusEntry.filePath) },
-                        onReset = { statusViewModel.resetStaged(statusEntry) },
-                        onHistory = { onHistoryFile(statusEntry.filePath) },
-                    )
-                },
-                onAllAction = {
-                    statusViewModel.unstageAll()
-                },
-            )
+            val stagedView: @Composable () -> Unit = {
+                EntriesList(
+                    modifier = Modifier
+                        .weight(5f)
+                        .padding(bottom = 4.dp)
+                        .fillMaxWidth(),
+                    title = "Staged",
+                    allActionTitle = "Unstage all",
+                    actionTitle = "Unstage",
+                    actionIcon = AppIcons.REMOVE_DONE,
+                    selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
+                    actionColor = MaterialTheme.colors.error,
+                    actionTextColor = MaterialTheme.colors.onError,
+                    statusEntries = staged,
+                    lazyListState = stagedListState,
+                    onDiffEntrySelected = onStagedDiffEntrySelected,
+                    showSearch = showSearchStaged,
+                    searchFilter = searchFilterStaged,
+                    onSearchFilterToggled = {
+                        statusViewModel.onSearchFilterToggledStaged(it)
+                    },
+                    onSearchFilterChanged = {
+                        statusViewModel.onSearchFilterChangedStaged(it)
+                    },
+                    onDiffEntryOptionSelected = {
+                        statusViewModel.unstage(it)
+                    },
+                    onGenerateContextMenu = { statusEntry ->
+                        statusEntriesContextMenuItems(
+                            statusEntry = statusEntry,
+                            entryType = EntryType.STAGED,
+                            onBlame = { onBlameFile(statusEntry.filePath) },
+                            onReset = { statusViewModel.resetStaged(statusEntry) },
+                            onHistory = { onHistoryFile(statusEntry.filePath) },
+                        )
+                    },
+                    onAllAction = {
+                        statusViewModel.unstageAll()
+                    },
+                )
+            }
 
-            EntriesList(
-                modifier = Modifier
-                    .weight(5f)
-                    .padding(bottom = 4.dp)
-                    .fillMaxWidth(),
-                title = "Unstaged",
-                actionTitle = "Stage",
-                actionIcon = AppIcons.DONE,
-                selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
-                actionColor = MaterialTheme.colors.primary,
-                actionTextColor = MaterialTheme.colors.onPrimary,
-                statusEntries = unstaged,
-                lazyListState = unstagedListState,
-                onDiffEntrySelected = onUnstagedDiffEntrySelected,
-                showSearch = showSearchUnstaged,
-                searchFilter = searchFilterUnstaged,
-                onSearchFilterToggled = {
-                    statusViewModel.onSearchFilterToggledUnstaged(it)
-                },
-                onSearchFilterChanged = {
-                    statusViewModel.onSearchFilterChangedUnstaged(it)
-                },
-                onDiffEntryOptionSelected = {
-                    statusViewModel.stage(it)
-                },
-                onGenerateContextMenu = { statusEntry ->
-                    statusEntriesContextMenuItems(
-                        statusEntry = statusEntry,
-                        entryType = EntryType.UNSTAGED,
-                        onBlame = { onBlameFile(statusEntry.filePath) },
-                        onHistory = { onHistoryFile(statusEntry.filePath) },
-                        onReset = { statusViewModel.resetUnstaged(statusEntry) },
-                        onDelete = {
-                            statusViewModel.deleteFile(statusEntry)
-                        },
-                    )
-                },
-                onAllAction = {
-                    statusViewModel.stageAll()
-                },
-                allActionTitle = "Stage all",
-            )
+            val unstagedView: @Composable () -> Unit = {
+                EntriesList(
+                    modifier = Modifier
+                        .weight(5f)
+                        .padding(bottom = 4.dp)
+                        .fillMaxWidth(),
+                    title = "Unstaged",
+                    actionTitle = "Stage",
+                    actionIcon = AppIcons.DONE,
+                    selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
+                    actionColor = MaterialTheme.colors.primary,
+                    actionTextColor = MaterialTheme.colors.onPrimary,
+                    statusEntries = unstaged,
+                    lazyListState = unstagedListState,
+                    onDiffEntrySelected = onUnstagedDiffEntrySelected,
+                    showSearch = showSearchUnstaged,
+                    searchFilter = searchFilterUnstaged,
+                    onSearchFilterToggled = {
+                        statusViewModel.onSearchFilterToggledUnstaged(it)
+                    },
+                    onSearchFilterChanged = {
+                        statusViewModel.onSearchFilterChangedUnstaged(it)
+                    },
+                    onDiffEntryOptionSelected = {
+                        statusViewModel.stage(it)
+                    },
+                    onGenerateContextMenu = { statusEntry ->
+                        statusEntriesContextMenuItems(
+                            statusEntry = statusEntry,
+                            entryType = EntryType.UNSTAGED,
+                            onBlame = { onBlameFile(statusEntry.filePath) },
+                            onHistory = { onHistoryFile(statusEntry.filePath) },
+                            onReset = { statusViewModel.resetUnstaged(statusEntry) },
+                            onDelete = {
+                                statusViewModel.deleteFile(statusEntry)
+                            },
+                        )
+                    },
+                    onAllAction = {
+                        statusViewModel.stageAll()
+                    },
+                    allActionTitle = "Stage all",
+                )
+            }
+
+            if (swapUncommitedChanges) {
+                unstagedView()
+                stagedView()
+            } else {
+                stagedView()
+                unstagedView()
+            }
         }
 
         Column(

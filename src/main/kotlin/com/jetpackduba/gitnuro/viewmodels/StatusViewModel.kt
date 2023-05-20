@@ -18,6 +18,7 @@ import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -52,6 +53,7 @@ class StatusViewModel @Inject constructor(
     private val loadAuthorUseCase: LoadAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val tabScope: CoroutineScope,
+    private val appSettings: AppSettings,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
@@ -64,6 +66,8 @@ class StatusViewModel @Inject constructor(
 
     private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
+
+    val swapUncommitedChanges = appSettings.swapUncommitedChangesFlow
 
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 

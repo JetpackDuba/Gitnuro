@@ -25,6 +25,7 @@ class SettingsViewModel @Inject constructor(
     val ffMergeFlow = appSettings.ffMergeFlow
     val pullRebaseFlow = appSettings.pullRebaseFlow
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
+    val swapUncommitedChangesFlow = appSettings.swapUncommitedChangesFlow
 
     var scaleUi: Float
         get() = appSettings.scaleUi
@@ -36,6 +37,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettings.commitsLimitEnabled
         set(value) {
             appSettings.commitsLimitEnabled = value
+        }
+
+    var swapUncommitedChanges: Boolean
+        get() = appSettings.swapUncommitedChanges
+        set(value) {
+            appSettings.swapUncommitedChanges = value
         }
 
     var ffMerge: Boolean

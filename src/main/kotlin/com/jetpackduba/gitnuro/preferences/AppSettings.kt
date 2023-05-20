@@ -7,8 +7,8 @@ import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -27,6 +27,7 @@ private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 private const val PREF_CUSTOM_THEME = "customTheme"
 private const val PREF_UI_SCALE = "ui_scale"
 private const val PREF_DIFF_TYPE = "diffType"
+private const val PREF_SWAP_UNCOMMITED_CHANGES = "inverseUncommitedChanges"
 
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
@@ -34,6 +35,7 @@ private const val PREF_GIT_PULL_REBASE = "gitPullRebase"
 
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
+private const val DEFAULT_SWAP_UNCOMMITED_CHANGES = false
 const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
@@ -41,28 +43,31 @@ class AppSettings @Inject constructor() {
     private val preferences: Preferences = Preferences.userRoot().node(PREFERENCES_NAME)
 
     private val _themeState = MutableStateFlow(theme)
-    val themeState: StateFlow<Theme> = _themeState
+    val themeState = _themeState.asStateFlow()
 
     private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
-    val commitsLimitEnabledFlow: MutableStateFlow<Boolean> = _commitsLimitEnabledFlow
+    val commitsLimitEnabledFlow = _commitsLimitEnabledFlow.asStateFlow()
+
+    private val _swapUncommitedChangesFlow = MutableStateFlow(swapUncommitedChanges)
+    val swapUncommitedChangesFlow = _swapUncommitedChangesFlow.asStateFlow()
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
-    val ffMergeFlow: StateFlow<Boolean> = _ffMergeFlow
+    val ffMergeFlow = _ffMergeFlow.asStateFlow()
 
     private val _pullRebaseFlow = MutableStateFlow(pullRebase)
-    val pullRebaseFlow: StateFlow<Boolean> = _pullRebaseFlow
+    val pullRebaseFlow = _pullRebaseFlow.asStateFlow()
 
     private val _commitsLimitFlow = MutableSharedFlow<Int>()
-    val commitsLimitFlow: SharedFlow<Int> = _commitsLimitFlow
+    val commitsLimitFlow = _commitsLimitFlow.asSharedFlow()
 
     private val _customThemeFlow = MutableStateFlow<ColorsScheme?>(null)
-    val customThemeFlow: StateFlow<ColorsScheme?> = _customThemeFlow
+    val customThemeFlow = _customThemeFlow.asStateFlow()
 
     private val _scaleUiFlow = MutableStateFlow(scaleUi)
-    val scaleUiFlow: StateFlow<Float> = _scaleUiFlow
+    val scaleUiFlow = _scaleUiFlow.asStateFlow()
 
     private val _textDiffTypeFlow = MutableStateFlow(textDiffType)
-    val textDiffTypeFlow: StateFlow<TextDiffType> = _textDiffTypeFlow
+    val textDiffTypeFlow = _textDiffTypeFlow.asStateFlow()
 
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
@@ -98,6 +103,15 @@ class AppSettings @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_COMMITS_LIMIT_ENABLED, value)
             _commitsLimitEnabledFlow.value = value
+        }
+
+    var swapUncommitedChanges: Boolean
+        get() {
+            return preferences.getBoolean(PREF_SWAP_UNCOMMITED_CHANGES, DEFAULT_SWAP_UNCOMMITED_CHANGES)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_SWAP_UNCOMMITED_CHANGES, value)
+            _swapUncommitedChangesFlow.value = value
         }
 
     var scaleUi: Float
