@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -39,13 +40,13 @@ sealed interface SettingsEntry {
 
 val settings = listOf(
     SettingsEntry.Section("User interface"),
-    SettingsEntry.Entry(AppIcons.PALETTE, "Appearance") { UiSettings(it) },
+    SettingsEntry.Entry(AppIcons.PALETTE, "Appearance") { Appearance(it) },
     SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { Layout(it) },
 
     SettingsEntry.Section("GIT"),
-    SettingsEntry.Entry(AppIcons.LIST, "Commits history") { GitSettings(it) },
-    SettingsEntry.Entry(AppIcons.BRANCH, "Branches") { },
-    SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { },
+    SettingsEntry.Entry(AppIcons.LIST, "Commits history") { CommitsHistory(it) },
+    SettingsEntry.Entry(AppIcons.BRANCH, "Branches") { Branches(it) },
+    SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { RemoteActions(it) },
 
     SettingsEntry.Section("Network"),
     SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { },
@@ -188,11 +189,10 @@ private fun Section(name: String) {
     )
 }
 
+
 @Composable
-fun GitSettings(settingsViewModel: SettingsViewModel) {
+private fun CommitsHistory(settingsViewModel: SettingsViewModel) {
     val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
-    val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
-    val pullRebase by settingsViewModel.pullRebaseFlow.collectAsState()
     var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
 
     SettingToggle(
@@ -214,15 +214,11 @@ fun GitSettings(settingsViewModel: SettingsViewModel) {
             settingsViewModel.commitsLimit = value
         }
     )
+}
 
-    SettingToggle(
-        title = "Fast-forward merge",
-        subtitle = "Try to fast-forward merges when possible",
-        value = ffMerge,
-        onValueChanged = { value ->
-            settingsViewModel.ffMerge = value
-        }
-    )
+@Composable
+private fun RemoteActions(settingsViewModel: SettingsViewModel) {
+    val pullRebase by settingsViewModel.pullRebaseFlow.collectAsState()
 
     SettingToggle(
         title = "Pull with rebase as default",
@@ -233,9 +229,22 @@ fun GitSettings(settingsViewModel: SettingsViewModel) {
         }
     )
 }
+@Composable
+private fun Branches(settingsViewModel: SettingsViewModel) {
+    val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
+
+    SettingToggle(
+        title = "Fast-forward merge",
+        subtitle = "Try to fast-forward merges when possible",
+        value = ffMerge,
+        onValueChanged = { value ->
+            settingsViewModel.ffMerge = value
+        }
+    )
+}
 
 @Composable
-fun Layout(settingsViewModel: SettingsViewModel) {
+private fun Layout(settingsViewModel: SettingsViewModel) {
     val swapUncommitedChanges by settingsViewModel.swapUncommitedChangesFlow.collectAsState()
 
     SettingToggle(
@@ -249,7 +258,7 @@ fun Layout(settingsViewModel: SettingsViewModel) {
 }
 
 @Composable
-fun UiSettings(settingsViewModel: SettingsViewModel) {
+private fun Appearance(settingsViewModel: SettingsViewModel) {
     val currentTheme by settingsViewModel.themeState.collectAsState()
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
@@ -438,7 +447,8 @@ fun SettingToggle(
         Switch(
             checked = value,
             onCheckedChange = onValueChanged,
-            colors = SwitchDefaults.colors(uncheckedThumbColor = MaterialTheme.colors.secondary)
+            colors = SwitchDefaults.colors(uncheckedThumbColor = MaterialTheme.colors.secondary),
+            modifier = Modifier.handOnHover(),
         )
     }
 }
