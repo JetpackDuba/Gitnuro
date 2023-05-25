@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.isLocal
+import com.jetpackduba.gitnuro.extensions.isValid
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.*
@@ -552,7 +553,11 @@ private fun Submodule(
         SideMenuSubentry(
             text = submodule.first,
             iconResourcePath = AppIcons.TOPIC,
-            onClick = onOpenSubmoduleInTab,
+            onClick = {
+                if (submodule.second.type.isValid()) {
+                    onOpenSubmoduleInTab()
+                }
+            },
         ) {
             val stateName = submodule.second.type.toString()
             Tooltip(stateName) {

@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.extensions.isValid
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.eclipse.jgit.submodule.SubmoduleStatusType
 
@@ -23,7 +24,7 @@ fun submoduleContextMenuItems(
                 )
             )
         }
-        if (submoduleStatus.type != SubmoduleStatusType.UNINITIALIZED) {
+        if (submoduleStatus.type.isValid()) {
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Open submodule in new tab",
