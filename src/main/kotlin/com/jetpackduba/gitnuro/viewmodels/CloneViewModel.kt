@@ -26,6 +26,9 @@ class CloneViewModel @Inject constructor(
     private val _directoryPath = MutableStateFlow(TextFieldValue(""))
     val directoryPath = _directoryPath.asStateFlow()
 
+    private val _folder = MutableStateFlow(TextFieldValue(""))
+    val folder = _folder.asStateFlow()
+
     private val _cloneState = MutableStateFlow<CloneState>(CloneState.None)
     val cloneState = _cloneState.asStateFlow()
 
@@ -34,7 +37,7 @@ class CloneViewModel @Inject constructor(
 
     private var cloneJob: Job? = null
 
-    fun clone(directoryPath: String, url: String, cloneSubmodules: Boolean) {
+    fun clone(directoryPath: String, url: String, folder: String, cloneSubmodules: Boolean) {
         cloneJob = tabState.safeProcessingWithoutGit {
             if (directoryPath.isBlank()) {
                 _error.value = "Invalid empty directory"
@@ -46,23 +49,16 @@ class CloneViewModel @Inject constructor(
                 return@safeProcessingWithoutGit
             }
 
+            if (folder.isBlank()) {
+                _error.value = "Invalid empty folder name"
+                return@safeProcessingWithoutGit
+            }
+
             val urlSplit = url.split("/", "\\").toMutableList()
 
             // Removes the last element for URLs that end with "/" or "\" instead of the repo name like https://github.com/JetpackDuba/Gitnuro/
             if (urlSplit.isNotEmpty() && urlSplit.last().isBlank()) {
                 urlSplit.removeLast()
-            }
-
-            // Take the last element of the path/URL to generate obtain the repo name
-            var repoName = urlSplit.lastOrNull()
-
-            if (repoName?.endsWith(".git") == true) {
-                repoName = repoName.removeSuffix(".git")
-            }
-
-            if (repoName.isNullOrBlank()) {
-                _error.value = "Check your URL and try again"
-                return@safeProcessingWithoutGit
             }
 
             val directory = File(directoryPath)
@@ -71,7 +67,7 @@ class CloneViewModel @Inject constructor(
                 directory.mkdirs()
             }
 
-            val repoDir = File(directory, repoName)
+            val repoDir = File(directory, folder)
             if (!repoDir.exists()) {
                 repoDir.mkdir()
             }
@@ -99,6 +95,18 @@ class CloneViewModel @Inject constructor(
         _error.value = ""
     }
 
+    fun repoName(url: String): String {
+        val urlSplit = url.split("/", "\\").toMutableList()
+
+        // Removes the last element for URLs that end with "/" or "\" instead of the repo name like https://github.com/JetpackDuba/Gitnuro/
+        if (urlSplit.isNotEmpty() && urlSplit.last().isBlank()) {
+            urlSplit.removeLast()
+        }
+
+        // Take the last element of the path/URL to generate obtain the repo name
+        return urlSplit.lastOrNull()?.removeSuffix(".git").orEmpty()
+    }
+
     fun openDirectoryPicker(): String? {
         return openFilePickerUseCase(PickerType.DIRECTORIES, null)
     }
@@ -109,5 +117,9 @@ class CloneViewModel @Inject constructor(
 
     fun onRepositoryUrlChanged(repositoryUrl: TextFieldValue) {
         _repositoryUrl.value = repositoryUrl
+    }
+
+    fun onFolderNameChanged(folderName: TextFieldValue) {
+        _folder.value = folderName
     }
 }

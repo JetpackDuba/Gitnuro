@@ -7,16 +7,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusProperties
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
@@ -29,7 +24,6 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -85,12 +79,14 @@ private fun CloneDialogView(
 ) {
     var url by remember(cloneViewModel) { mutableStateOf(cloneViewModel.repositoryUrl.value) }
     var directory by remember(cloneViewModel) { mutableStateOf(cloneViewModel.directoryPath.value) }
+    var folder by remember(cloneViewModel) { mutableStateOf(cloneViewModel.folder.value) }
     var cloneSubmodules by remember { mutableStateOf(true) }
 
     val error by cloneViewModel.error.collectAsState()
 
     val urlFocusRequester = remember { FocusRequester() }
     val directoryFocusRequester = remember { FocusRequester() }
+    val folderFocusRequester = remember { FocusRequester() }
     val directoryButtonFocusRequester = remember { FocusRequester() }
     val cloneButtonFocusRequester = remember { FocusRequester() }
     val cancelButtonFocusRequester = remember { FocusRequester() }
@@ -109,7 +105,11 @@ private fun CloneDialogView(
         )
 
         TextInput(
-            modifier = Modifier.padding(top = 8.dp),
+            modifier = Modifier.padding(top = 8.dp).onFocusChanged {
+                if (!it.hasFocus) {
+                    folder = TextFieldValue(cloneViewModel.repoName(url.text))
+                }
+            },
             title = "URL",
             value = url,
             focusRequester = urlFocusRequester,
@@ -124,57 +124,65 @@ private fun CloneDialogView(
             }
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            TextInput(
-                modifier = Modifier.padding(top = 16.dp),
-                title = "Directory",
-                value = directory,
-                focusRequester = directoryFocusRequester,
-                focusProperties = {
-                    previous = urlFocusRequester
-                    next = directoryButtonFocusRequester
-                },
-                onValueChange = {
-                    directory = it
-                    cloneViewModel.onDirectoryPathChanged(directory)
-                    cloneViewModel.resetStateIfError()
-                },
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
+        TextInput(
+            modifier = Modifier.padding(top = 16.dp),
+            title = "Directory",
+            value = directory,
+            focusRequester = directoryFocusRequester,
+            focusProperties = {
+                previous = urlFocusRequester
+                next = directoryButtonFocusRequester
+            },
+            onValueChange = {
+                directory = it
+                cloneViewModel.onDirectoryPathChanged(directory)
+                cloneViewModel.resetStateIfError()
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = {
+                        cloneViewModel.resetStateIfError()
+                        val newDirectory = cloneViewModel.openDirectoryPicker()
+                        if (newDirectory != null) {
+                            directory = TextFieldValue(newDirectory, selection = TextRange(newDirectory.count()))
+                            cloneViewModel.onDirectoryPathChanged(directory)
                             cloneViewModel.resetStateIfError()
-                            val newDirectory = cloneViewModel.openDirectoryPicker()
-                            if (newDirectory != null) {
-                                directory = TextFieldValue(newDirectory, selection = TextRange(newDirectory.count()))
-                                cloneViewModel.onDirectoryPathChanged(directory)
-                                cloneViewModel.resetStateIfError()
-                                directoryFocusRequester.requestFocus()
-                            }
-                        },
-                        modifier = Modifier
-                            .focusRequester(directoryButtonFocusRequester)
-                            .focusProperties {
-                                previous = directoryFocusRequester
-                                next = cloneButtonFocusRequester
-                            }
-                            .handOnHover()
-                            .size(40.dp),
-                    ) {
-                        Icon(
-                            painterResource(AppIcons.SEARCH),
-                            contentDescription = "Search",
-                            tint = MaterialTheme.colors.onBackground,
-                        )
-                    }
+                            directoryFocusRequester.requestFocus()
+                        }
+                    },
+                    modifier = Modifier
+                        .focusRequester(directoryButtonFocusRequester)
+                        .focusProperties {
+                            previous = directoryFocusRequester
+                            next = folderFocusRequester
+                        }
+                        .handOnHover()
+                        .size(40.dp),
+                ) {
+                    Icon(
+                        painterResource(AppIcons.SEARCH),
+                        contentDescription = "Search",
+                        tint = MaterialTheme.colors.onBackground,
+                    )
                 }
-            )
+            }
+        )
 
-
-        }
+        TextInput(
+            modifier = Modifier.padding(top = 16.dp),
+            title = "Folder",
+            value = folder,
+            focusRequester = folderFocusRequester,
+            focusProperties = {
+                previous = cancelButtonFocusRequester
+                next = directoryFocusRequester
+            },
+            onValueChange = { folderName ->
+                folder = folderName
+                cloneViewModel.onFolderNameChanged(folderName)
+                cloneViewModel.resetStateIfError()
+            }
+        )
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -204,7 +212,7 @@ private fun CloneDialogView(
             )
         }
 
-        AnimatedVisibility (error.isNotBlank()) {
+        AnimatedVisibility(error.isNotBlank()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -241,7 +249,7 @@ private fun CloneDialogView(
             )
             PrimaryButton(
                 onClick = {
-                    cloneViewModel.clone(directory.text, url.text, cloneSubmodules)
+                    cloneViewModel.clone(directory.text, url.text, folder.text, cloneSubmodules)
                 },
                 modifier = Modifier
                     .focusRequester(cloneButtonFocusRequester)

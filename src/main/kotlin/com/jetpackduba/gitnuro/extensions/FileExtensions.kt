@@ -6,7 +6,7 @@ fun File.openDirectory(dirName: String): File {
     val newDir = File(this, dirName)
 
     if (!newDir.exists() || !newDir.isDirectory) {
-        newDir.mkdir()
+        newDir.mkdirs()
     }
 
     return newDir
