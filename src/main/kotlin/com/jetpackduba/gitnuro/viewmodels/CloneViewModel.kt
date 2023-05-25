@@ -54,13 +54,6 @@ class CloneViewModel @Inject constructor(
                 return@safeProcessingWithoutGit
             }
 
-            val urlSplit = url.split("/", "\\").toMutableList()
-
-            // Removes the last element for URLs that end with "/" or "\" instead of the repo name like https://github.com/JetpackDuba/Gitnuro/
-            if (urlSplit.isNotEmpty() && urlSplit.last().isBlank()) {
-                urlSplit.removeLast()
-            }
-
             val directory = File(directoryPath)
 
             if (!directory.exists()) {
