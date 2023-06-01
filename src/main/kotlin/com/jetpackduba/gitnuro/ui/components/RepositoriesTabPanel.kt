@@ -32,6 +32,7 @@ import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.onMiddleMouseButtonClick
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
@@ -95,7 +96,7 @@ fun RepositoriesTabPanel(
                     .weight(1f, false),
                 state = stateHorizontal,
             ) {
-                items(items = tabs) { tab ->
+                items(items = tabs, key = { it.tabViewModel }) { tab ->
                     Tooltip(tab.path) {
                         Tab(
                             title = tab.tabName,
@@ -164,6 +165,9 @@ fun Tab(
             .fillMaxHeight()
             .hoverable(hoverInteraction)
             .handMouseClickable { onClick() }
+            .onMiddleMouseButtonClick {
+                onCloseTab()
+            }
             .background(backgroundColor),
     ) {
         Row(

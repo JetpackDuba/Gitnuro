@@ -110,6 +110,22 @@ fun Modifier.fastClickable(key: Any = Unit, key2: Any = Unit, onClick: () -> Uni
             }
         }
 
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun Modifier.onMiddleMouseButtonClick(key: Any = Unit, key2: Any = Unit, onClick: () -> Unit) =
+    this.pointerInput(key, key2) {
+            while (true) {
+                val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
+                val mouseEvent = lastMouseEvent.awtEventOrNull
+
+                if (mouseEvent != null) {
+                    if (lastMouseEvent.button.isTertiary) {
+                        onClick()
+                    }
+                }
+            }
+        }
+
 @Composable
 private fun Modifier.hoverBackground(): Modifier {
     val hoverInteraction = remember { MutableInteractionSource() }
