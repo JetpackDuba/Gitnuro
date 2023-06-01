@@ -25,8 +25,7 @@ import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.blame.BlameResult
@@ -361,14 +360,9 @@ class TabViewModel @Inject constructor(
         openRepository(repoDir)
     }
 
-    suspend fun latestRelease(): Update? = withContext(Dispatchers.IO) {
-        try {
-            updatesRepository.latestRelease()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            null
-        }
-    }
+    val hasUpdates: StateFlow<Update?> = updatesRepository.hasUpdatesFlow()
+        .flowOn(Dispatchers.IO)
+        .stateIn(tabScope, started = SharingStarted.Eagerly, null)
 
     fun blameFile(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,

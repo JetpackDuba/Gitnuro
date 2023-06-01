@@ -19,11 +19,13 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
@@ -207,6 +209,7 @@ fun RebaseInteractiveStartedExternally(
 @Composable
 private fun BottomInfoBar(tabViewModel: TabViewModel) {
     val userInfo by tabViewModel.authorInfoSimple.collectAsState()
+    val newUpdate = tabViewModel.hasUpdates.collectAsState().value
 
     Row(
         modifier = Modifier
@@ -228,6 +231,22 @@ private fun BottomInfoBar(tabViewModel: TabViewModel) {
                 color = MaterialTheme.colors.onBackground,
             )
         }
+        Spacer(Modifier.weight(1f, true))
+
+        if (newUpdate != null) {
+            SecondaryButton(
+                text = "Update ${newUpdate.appVersion} available",
+                onClick = { tabViewModel.openUrlInBrowser(newUpdate.downloadUrl) },
+                backgroundButton = MaterialTheme.colors.primary,
+                modifier = Modifier.padding(end = 16.dp)
+            )
+        }
+
+        Text(
+            "Version ${AppConstants.APP_VERSION}",
+            style = MaterialTheme.typography.body2,
+            maxLines = 1,
+        )
     }
 }
 

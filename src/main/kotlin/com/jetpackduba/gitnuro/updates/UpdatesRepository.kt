@@ -1,22 +1,35 @@
 package com.jetpackduba.gitnuro.updates
 
 import com.jetpackduba.gitnuro.AppConstants
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.isActive
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
+import javax.inject.Singleton
+import kotlin.coroutines.coroutineContext
+import kotlin.time.Duration.Companion.minutes
 
 private val updateJson = Json {
     this.ignoreUnknownKeys = true
 }
 
+@Singleton
 class UpdatesRepository @Inject constructor(
     private val updatesWebService: UpdatesService,
 ) {
-    suspend fun latestRelease(): Update? = withContext(Dispatchers.IO) {
+    fun hasUpdatesFlow() = flow<Update> {
         val latestReleaseJson = updatesWebService.release(AppConstants.VERSION_CHECK_URL)
 
-        updateJson.decodeFromString(latestReleaseJson)
+        while(coroutineContext.isActive) {
+            val update = updateJson.decodeFromString<Update?>(latestReleaseJson)
+
+            if (update != null && update.appCode > AppConstants.APP_VERSION_CODE) {
+                emit(update)
+            }
+
+            delay(5.minutes)
+        }
     }
 }

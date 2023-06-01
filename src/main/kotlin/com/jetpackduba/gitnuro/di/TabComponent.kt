@@ -9,7 +9,6 @@ import dagger.Component
 @TabScope
 @Component(
     modules = [
-        NetworkModule::class,
         TabModule::class,
     ],
     dependencies = [
