@@ -1,8 +1,10 @@
 package com.jetpackduba.gitnuro.git.workspace
 
+import com.jetpackduba.gitnuro.extensions.isMerging
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
 import com.jetpackduba.gitnuro.git.config.LoadSignOffConfigUseCase
 import com.jetpackduba.gitnuro.git.config.LocalConfigConstants
+import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -13,6 +15,7 @@ import javax.inject.Inject
 class DoCommitUseCase @Inject constructor(
     private val loadSignOffConfigUseCase: LoadSignOffConfigUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
+    private val getRepositoryStateUseCase: GetRepositoryStateUseCase
 ) {
     suspend operator fun invoke(
         git: Git,
@@ -33,9 +36,12 @@ class DoCommitUseCase @Inject constructor(
         } else
             message
 
+        val state = getRepositoryStateUseCase(git)
+        val isMerging = state.isMerging
+
         git.commit()
             .setMessage(finalMessage)
-            .setAllowEmpty(amend) // Only allow empty commits when amending
+            .setAllowEmpty(amend || isMerging) // Only allow empty commits when amending
             .setAmend(amend)
             .setAuthor(author)
             .call()
