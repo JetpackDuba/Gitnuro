@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.credentials
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshOptions
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
 import kotlinx.coroutines.CancellationException
-import org.apache.sshd.client.SshClient
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
 import javax.inject.Inject
@@ -16,7 +15,6 @@ class GRemoteSession @Inject constructor(
     private val processSession: Provider<LibSshSession>,
     private val credentialsStateManager: CredentialsStateManager,
 ) : RemoteSession {
-    private val client = SshClient.setUpDefaultClient()
     private var session: LibSshSession? = null
 
     override fun exec(commandName: String, timeout: Int): Process {
@@ -29,9 +27,8 @@ class GRemoteSession @Inject constructor(
         return process
     }
 
-
     override fun disconnect() {
-        client.close()
+        session?.disconnect()
     }
 
     fun setup(uri: URIish) {

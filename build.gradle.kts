@@ -40,7 +40,6 @@ dependencies {
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")
     implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:$jgit")
-    implementation("org.apache.sshd:sshd-core:2.9.0")
     implementation("com.google.dagger:dagger:2.45")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     kapt("com.google.dagger:dagger-compiler:2.45")

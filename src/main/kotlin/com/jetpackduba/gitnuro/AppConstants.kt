@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro
 
 object AppConstants {
     val openSourceProjects = listOf(
-        Project("Apache SSHD", "https://mina.apache.org/sshd-project/", apache__2_0),
         Project("Google Dagger", "https://dagger.dev/", apache__2_0),
         Project("Compose Multiplatform", "https://www.jetbrains.com/lp/compose-mpp/", apache__2_0),
         Project("JGit", "https://www.eclipse.org/jgit/", edl),

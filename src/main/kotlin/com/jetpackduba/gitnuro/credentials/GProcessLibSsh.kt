@@ -50,7 +50,6 @@ class GProcessLibSsh : Process() {
             channel.close()
         }
 
-        session.disconnect()
         println("Destroy called")
     }
 
