@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import com.jetpackduba.gitnuro.AppConstants
+import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -137,6 +138,7 @@ fun RepositoryOpenPage(
                         onCancelRebaseInteractive = { tabViewModel.cancelRebaseInteractive() }
                     )
                 } else {
+                    val currentTabInformation = LocalTabScope.current
                     Column(modifier = Modifier.weight(1f)) {
                         Menu(
                             modifier = Modifier
@@ -150,7 +152,7 @@ fun RepositoryOpenPage(
                                 val repo = tabViewModel.openDirectoryPicker()
 
                                 if (repo != null) {
-                                    tabViewModel.openRepository(repo)
+                                    tabViewModel.openAnotherRepository(repo, currentTabInformation)
                                 }
                             },
                             onQuickActions = { showQuickActionsDialog = true },

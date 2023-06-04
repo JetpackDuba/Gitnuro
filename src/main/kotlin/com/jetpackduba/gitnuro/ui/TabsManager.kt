@@ -42,16 +42,23 @@ class TabsManager @Inject constructor(
         _currentTab.value = _tabsFlow.value.first()
     }
 
-    fun addNewTabFromPath(path: String, selectTab: Boolean) {
+    fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplaced: TabInformation? = null) {
         val newTab = newAppTab(
             tabName = mutableStateOf(""),
             path = path,
         )
 
         _tabsFlow.update {
-            it.toMutableList().apply {
-                add(newTab)
+            val newTabsList = it.toMutableList()
+
+            if (tabToBeReplaced != null) {
+                val index = newTabsList.indexOf(tabToBeReplaced)
+                newTabsList[index] = newTab
+            } else {
+                newTabsList.add(newTab)
             }
+
+            newTabsList
         }
 
         if (selectTab) {
@@ -116,7 +123,7 @@ class TabsManager @Inject constructor(
     }
 
     private fun newAppTab(
-        tabName: MutableState<String> = mutableStateOf("New tab"),
+        tabName: MutableState<String> = mutableStateOf(TabInformation.DEFAULT_NAME),
         path: String? = null,
     ): TabInformation {
         return TabInformation(

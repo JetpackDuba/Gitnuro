@@ -34,6 +34,17 @@ fun AppTab(
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val processingState = tabViewModel.processing.collectAsState().value
 
+    LaunchedEffect(tabViewModel) {
+        // Init the tab content when the tab is selected and also remove the "initialPath" to avoid opening the
+        // repository everytime the user changes between tabs
+        val initialPath = tabViewModel.initialPath
+        tabViewModel.initialPath = null
+
+        if (initialPath != null) {
+            tabViewModel.openRepository(initialPath)
+        }
+    }
+
     Box {
         Column(
             modifier = Modifier

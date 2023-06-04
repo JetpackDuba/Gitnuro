@@ -242,19 +242,33 @@ class TabInformation(
     init {
         tabComponent.inject(this)
 
-        tabViewModel.onRepositoryChanged = { path ->
-            this.path = path
+        if (initialPath != null) {
+            tabName.value = Path(initialPath).name
+        }
 
-            tabName.value = Path(path).name
-            appStateManager.repositoryTabChanged(path)
+        tabViewModel.onRepositoryChanged = { newPath ->
+            this.path = newPath
+
+            if (newPath == null) {
+                tabName.value = TabInformation.DEFAULT_NAME
+            } else {
+                tabName.value = Path(newPath).name
+                appStateManager.repositoryTabChanged(newPath)
+            }
+
             onTabPathChanged()
         }
-        if (initialPath != null)
-            tabViewModel.openRepository(initialPath)
+
+        // Set the path that should be loaded when the tab is selected for the first time
+        tabViewModel.initialPath = initialPath
     }
 
     fun dispose() {
         tabViewModel.dispose()
+    }
+
+    companion object {
+        const val DEFAULT_NAME = "New tab"
     }
 }
 

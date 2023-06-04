@@ -22,6 +22,8 @@ import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.ui.SelectedItem
+import com.jetpackduba.gitnuro.ui.TabsManager
+import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.*
@@ -66,8 +68,10 @@ class TabViewModel @Inject constructor(
     private val abortRebaseUseCase: AbortRebaseUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
+    private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
 ) {
+    var initialPath: String? = null // Stores the path that should be opened when the tab is selected
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
     var diffViewModel: DiffViewModel? = null
@@ -163,6 +167,15 @@ class TabViewModel @Inject constructor(
         rebaseInteractiveViewModel?.startRebaseInteractive(taskEvent.revCommit)
     }
 
+    /**
+     * To make sure the tab opens the new repository with a clean state,
+     * instead of opening the repo in the same ViewModel we simply create a new tab with a new TabViewModel
+     * replacing the current tab
+     */
+    fun openAnotherRepository(directory: String, current: TabInformation) {
+        tabsManager.addNewTabFromPath(directory, true, current)
+    }
+
     fun openRepository(directory: String) {
         openRepository(File(directory))
     }
@@ -197,6 +210,7 @@ class TabViewModel @Inject constructor(
 
             watchRepositoryChanges(git)
         } catch (ex: Exception) {
+            onRepositoryChanged(null)
             ex.printStackTrace()
             errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
             _repositorySelectionStatus.value = RepositorySelectionStatus.None
@@ -324,7 +338,7 @@ class TabViewModel @Inject constructor(
         credentialsStateManager.updateState(CredentialsAccepted.SshCredentialsAccepted(password))
     }
 
-    var onRepositoryChanged: (path: String) -> Unit = {}
+    var onRepositoryChanged: (path: String?) -> Unit = {}
 
     fun dispose() {
         tabScope.cancel()
