@@ -18,7 +18,7 @@ import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCa
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
-import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangedUseCase
+import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.GetStatusSummaryUseCase
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.preferences.AppSettings
@@ -49,7 +49,7 @@ private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 class LogViewModel @Inject constructor(
     private val getLogUseCase: GetLogUseCase,
     private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
-    private val checkHasUncommitedChangedUseCase: CheckHasUncommitedChangedUseCase,
+    private val checkHasUncommitedChangesUseCase: CheckHasUncommitedChangesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
@@ -271,7 +271,7 @@ class LogViewModel @Inject constructor(
 
     private suspend fun uncommitedChangesLoadLog(git: Git) {
         val currentBranch = getCurrentBranchUseCase(git)
-        val hasUncommitedChanges = checkHasUncommitedChangedUseCase(git)
+        val hasUncommitedChanges = checkHasUncommitedChangesUseCase(git)
 
         val statsSummary = if (hasUncommitedChanges) {
             getStatusSummaryUseCase(

@@ -48,7 +48,7 @@ class StatusViewModel @Inject constructor(
     private val getStatusUseCase: GetStatusUseCase,
     private val getStagedUseCase: GetStagedUseCase,
     private val getUnstagedUseCase: GetUnstagedUseCase,
-    private val checkHasUncommitedChangedUseCase: CheckHasUncommitedChangedUseCase,
+    private val checkHasUncommitedChangesUseCase: CheckHasUncommitedChangesUseCase,
     private val doCommitUseCase: DoCommitUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
@@ -251,7 +251,7 @@ class StatusViewModel @Inject constructor(
     }
 
     private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
-        lastUncommitedChangesState = checkHasUncommitedChangedUseCase(git)
+        lastUncommitedChangesState = checkHasUncommitedChangesUseCase(git)
     }
 
     fun amend(isAmend: Boolean) {

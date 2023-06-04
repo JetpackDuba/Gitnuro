@@ -6,7 +6,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
-class CheckHasUncommitedChangedUseCase @Inject constructor() {
+class CheckHasUncommitedChangesUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git) = withContext(Dispatchers.IO) {
         val status = git
             .status()
