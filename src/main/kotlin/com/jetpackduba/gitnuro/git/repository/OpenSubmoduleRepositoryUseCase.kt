@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git.repository
 
 import com.jetpackduba.gitnuro.exceptions.InvalidDirectoryException
+import com.jetpackduba.gitnuro.system.systemSeparator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.lib.Repository
@@ -17,7 +18,7 @@ class OpenSubmoduleRepositoryUseCase @Inject constructor(
 
         val repository = openRepositoryUseCase(parent)
 
-        val submoduleRelativePath = directory.absolutePath.removePrefix("${repository.directory.parent}/")
+        val submoduleRelativePath = directory.absolutePath.removePrefix("${repository.directory.parent}$systemSeparator")
 
         return@withContext SubmoduleWalk.getSubmoduleRepository(repository, submoduleRelativePath)
             ?: throw InvalidDirectoryException("Invalid submodule directory. Check if the submodule has been initialized before trying to open it.")
