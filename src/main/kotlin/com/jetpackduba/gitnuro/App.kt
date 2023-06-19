@@ -201,6 +201,9 @@ class App {
                 onTabClosed = onCloseTab,
                 onAddNewTab = onAddedTab,
                 tabsHeight = 40.dp,
+                onMoveTab = { fromIndex, toIndex ->
+                    tabsManager.onMoveTab(fromIndex, toIndex)
+                },
             )
         }
     }

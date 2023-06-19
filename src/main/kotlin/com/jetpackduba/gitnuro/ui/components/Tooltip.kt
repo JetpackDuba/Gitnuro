@@ -15,8 +15,9 @@ import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Tooltip(text: String?, content: @Composable () -> Unit) {
+fun Tooltip(text: String?, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     TooltipArea(
+        modifier = modifier,
         tooltip = {
             if (text != null) {
                 val border = if (MaterialTheme.colors.isDark) {

@@ -133,4 +133,14 @@ class TabsManager @Inject constructor(
             appComponent = appComponent,
         )
     }
+
+    fun onMoveTab(fromIndex: Int, toIndex: Int) {
+        _tabsFlow.update {
+            it.toMutableList().apply {
+                add(toIndex, removeAt(fromIndex))
+            }
+        }
+
+        updatePersistedTabs()
+    }
 }

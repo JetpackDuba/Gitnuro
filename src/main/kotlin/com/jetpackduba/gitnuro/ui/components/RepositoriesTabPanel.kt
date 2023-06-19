@@ -1,20 +1,14 @@
 package com.jetpackduba.gitnuro.ui.components
 
-import androidx.compose.foundation.HorizontalScrollbar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.v2.maxScrollOffset
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
@@ -25,8 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.LocalTabScope
+import com.jetpackduba.gitnuro.*
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
@@ -34,6 +27,9 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.onMiddleMouseButtonClick
 import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.ui.drag_sorting.DraggableItem
+import com.jetpackduba.gitnuro.ui.drag_sorting.dragContainer
+import com.jetpackduba.gitnuro.ui.drag_sorting.rememberDragDropState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import kotlinx.coroutines.delay
@@ -42,6 +38,7 @@ import javax.inject.Inject
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RepositoriesTabPanel(
     tabs: List<TabInformation>,
@@ -49,6 +46,7 @@ fun RepositoriesTabPanel(
     tabsHeight: Dp,
     onTabSelected: (TabInformation) -> Unit,
     onTabClosed: (TabInformation) -> Unit,
+    onMoveTab: (Int, Int) -> Unit,
     onAddNewTab: () -> Unit,
 ) {
     val stateHorizontal = rememberLazyListState()
@@ -89,25 +87,37 @@ fun RepositoriesTabPanel(
             }
         }
 
+
+        val dragDropState = rememberDragDropState(stateHorizontal) { fromIndex, toIndex ->
+            onMoveTab(fromIndex, toIndex)
+        }
+
         Row {
             LazyRow(
                 modifier = Modifier
                     .height(tabsHeight)
-                    .weight(1f, false),
+                    .weight(1f, false)
+                    .dragContainer(dragDropState),
                 state = stateHorizontal,
             ) {
-                items(items = tabs, key = { it.tabViewModel }) { tab ->
-                    Tooltip(tab.path) {
-                        Tab(
-                            title = tab.tabName,
-                            isSelected = currentTab == tab,
-                            onClick = {
-                                onTabSelected(tab)
-                            },
-                            onCloseTab = {
-                                onTabClosed(tab)
-                            }
-                        )
+                itemsIndexed(
+                    items = tabs,
+                    key = { _, tab -> tab.tabViewModel }
+                ) { index, tab ->
+                    DraggableItem(dragDropState, index) { _ ->
+                        Tooltip(tab.path) {
+                            Tab(
+                                modifier = Modifier,
+                                title = tab.tabName,
+                                isSelected = currentTab == tab,
+                                onClick = {
+                                    onTabSelected(tab)
+                                },
+                                onCloseTab = {
+                                    onTabClosed(tab)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -145,6 +155,7 @@ fun RepositoriesTabPanel(
 
 @Composable
 fun Tab(
+    modifier: Modifier,
     title: MutableState<String>,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -159,7 +170,7 @@ fun Tab(
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .widthIn(min = 200.dp)
             .width(IntrinsicSize.Max)
             .fillMaxHeight()

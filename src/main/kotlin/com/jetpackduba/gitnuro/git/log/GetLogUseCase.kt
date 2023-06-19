@@ -9,9 +9,12 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.Repository
 import javax.inject.Inject
 
 class GetLogUseCase @Inject constructor() {
+    private var graphWalkCached: GraphWalk? = null
+
     suspend operator fun invoke(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean, commitsLimit: Int) =
         withContext(Dispatchers.IO) {
             val commitList = GraphCommitList()
@@ -20,7 +23,6 @@ class GetLogUseCase @Inject constructor() {
             if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
                 val logList = git.log().setMaxCount(1).call().toList()
 
-                //TODO: Perhaps cache GraphWalk when the commitsLimit is too big? This would ensure a fast traversal of the commits graph but would use more memory. Benchmark it and perhaps offer the option as a setting
                 val walk = GraphWalk(git.repository)
 
                 walk.use {
@@ -47,4 +49,17 @@ class GetLogUseCase @Inject constructor() {
 
             return@withContext commitList
         }
+
+    private fun cachedGraphWalk(repository: Repository): GraphWalk {
+        val graphWalkCached = this.graphWalkCached
+
+        return if(graphWalkCached != null) {
+            graphWalkCached
+        } else {
+            val newGraphWalk = GraphWalk(repository)
+            this.graphWalkCached = newGraphWalk
+
+            newGraphWalk
+        }
+    }
 }
