@@ -39,7 +39,12 @@ class TabsManager @Inject constructor(
             listOf()
 
         _tabsFlow.value = repositoriesList.ifEmpty { listOf(newAppTab()) }
-        _currentTab.value = _tabsFlow.value.first()
+
+        val latestSelectedTabPath = appSettings.latestRepositoryTabSelected
+
+        val latestSelectedTab = repositoriesList.firstOrNull { it.path == latestSelectedTabPath }
+
+        _currentTab.value = latestSelectedTab ?: _tabsFlow.value.first()
     }
 
     fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplaced: TabInformation? = null) {
@@ -68,6 +73,12 @@ class TabsManager @Inject constructor(
 
     fun selectTab(tab: TabInformation) {
         _currentTab.value = tab
+
+        persistTabSelected(tab)
+    }
+
+    private fun persistTabSelected(tab: TabInformation) {
+        appSettings.latestRepositoryTabSelected = tab.path.orEmpty()
     }
 
     fun closeTab(tab: TabInformation) {
