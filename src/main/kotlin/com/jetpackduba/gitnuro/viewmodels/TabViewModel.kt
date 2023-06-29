@@ -165,6 +165,9 @@ class TabViewModel @Inject constructor(
     private suspend fun onRebaseInteractive(taskEvent: TaskEvent.RebaseInteractive) {
         rebaseInteractiveViewModel = rebaseInteractiveViewModelProvider.get()
         rebaseInteractiveViewModel?.startRebaseInteractive(taskEvent.revCommit)
+        rebaseInteractiveViewModel?.onRebaseComplete = {
+            rebaseInteractiveViewModel = null
+        }
     }
 
     /**

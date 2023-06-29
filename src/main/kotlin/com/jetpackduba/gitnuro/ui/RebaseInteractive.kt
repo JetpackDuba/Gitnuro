@@ -15,8 +15,10 @@ import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.viewmodels.RebaseAction
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveState
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
+import com.jetpackduba.gitnuro.viewmodels.RebaseLine
 import org.eclipse.jgit.lib.RebaseTodoLine
 import org.eclipse.jgit.lib.RebaseTodoLine.Action
 
@@ -99,7 +101,7 @@ fun RebaseStateLoaded(
             )
             PrimaryButton(
                 modifier = Modifier.padding(end = 16.dp),
-                enabled = stepsList.any { it.action != Action.PICK },
+                enabled = stepsList.any { it.rebaseAction != RebaseAction.PICK },
                 onClick = {
                     rebaseInteractiveViewModel.continueRebaseInteractive()
                 },
@@ -111,15 +113,15 @@ fun RebaseStateLoaded(
 
 @Composable
 fun RebaseCommit(
-    rebaseLine: RebaseTodoLine,
+    rebaseLine: RebaseLine,
     isFirst: Boolean,
     message: String?,
-    onActionChanged: (Action) -> Unit,
+    onActionChanged: (RebaseAction) -> Unit,
     onMessageChanged: (String) -> Unit,
 ) {
-    val action = rebaseLine.action
+    val action = rebaseLine.rebaseAction
     var newMessage by remember(rebaseLine.commit.name(), action) {
-        if (action == Action.REWORD) {
+        if (action == RebaseAction.REWORD) {
             mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/
         } else
             mutableStateOf(rebaseLine.shortMessage) // If it's not reword, use the original shortMessage
@@ -132,7 +134,7 @@ fun RebaseCommit(
             .fillMaxWidth()
     ) {
         ActionDropdown(
-            rebaseLine.action,
+            action,
             isFirst = isFirst,
             onActionChanged = onActionChanged,
         )
@@ -141,14 +143,14 @@ fun RebaseCommit(
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = 40.dp),
-            enabled = rebaseLine.action == Action.REWORD,
+            enabled = action == RebaseAction.REWORD,
             value = newMessage,
             onValueChange = {
                 newMessage = it
                 onMessageChanged(it)
             },
             textStyle = MaterialTheme.typography.body2,
-            backgroundColor = if (rebaseLine.action == Action.REWORD) {
+            backgroundColor = if (action == RebaseAction.REWORD) {
                 MaterialTheme.colors.background
             } else
                 MaterialTheme.colors.surface
@@ -160,9 +162,9 @@ fun RebaseCommit(
 
 @Composable
 fun ActionDropdown(
-    action: Action,
+    action: RebaseAction,
     isFirst: Boolean,
-    onActionChanged: (Action) -> Unit,
+    onActionChanged: (RebaseAction) -> Unit,
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
     Box {
@@ -174,7 +176,7 @@ fun ActionDropdown(
                 .padding(end = 8.dp),
         ) {
             Text(
-                action.toToken().replaceFirstChar { it.uppercase() },
+                action.displayName,
                 color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.weight(1f)
@@ -206,7 +208,7 @@ fun ActionDropdown(
                     }
                 ) {
                     Text(
-                        text = dropDownOption.toToken().replaceFirstChar { it.uppercase() },
+                        text = dropDownOption.displayName,
                         style = MaterialTheme.typography.body1,
                     )
                 }
@@ -216,15 +218,15 @@ fun ActionDropdown(
 }
 
 val firstItemActions = listOf(
-    Action.PICK,
-    Action.REWORD,
+    RebaseAction.PICK,
+    RebaseAction.REWORD,
 )
 
 val actions = listOf(
-    Action.PICK,
-    Action.REWORD,
-    Action.SQUASH,
-    Action.FIXUP,
+    RebaseAction.PICK,
+    RebaseAction.REWORD,
+    RebaseAction.SQUASH,
+    RebaseAction.FIXUP,
+    RebaseAction.EDIT,
+    RebaseAction.DROP,
 )
-
-
