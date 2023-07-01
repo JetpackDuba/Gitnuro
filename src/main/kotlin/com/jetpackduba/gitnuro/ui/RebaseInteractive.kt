@@ -15,16 +15,15 @@ import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
-import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveState
+import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseLine
-import org.eclipse.jgit.lib.RebaseTodoLine
-import org.eclipse.jgit.lib.RebaseTodoLine.Action
 
 @Composable
 fun RebaseInteractive(
-    rebaseInteractiveViewModel: RebaseInteractiveViewModel,
+    rebaseInteractiveViewModel: RebaseInteractiveViewModel = gitnuroDynamicViewModel(),
 ) {
     val rebaseState = rebaseInteractiveViewModel.rebaseState.collectAsState()
     val rebaseStateValue = rebaseState.value
@@ -35,8 +34,8 @@ fun RebaseInteractive(
             .fillMaxSize(),
     ) {
         when (rebaseStateValue) {
-            is RebaseInteractiveState.Failed -> {}
-            is RebaseInteractiveState.Loaded -> {
+            is RebaseInteractiveViewState.Failed -> {}
+            is RebaseInteractiveViewState.Loaded -> {
                 RebaseStateLoaded(
                     rebaseInteractiveViewModel,
                     rebaseStateValue,
@@ -46,7 +45,7 @@ fun RebaseInteractive(
                 )
             }
 
-            RebaseInteractiveState.Loading -> {
+            RebaseInteractiveViewState.Loading -> {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
@@ -56,7 +55,7 @@ fun RebaseInteractive(
 @Composable
 fun RebaseStateLoaded(
     rebaseInteractiveViewModel: RebaseInteractiveViewModel,
-    rebaseState: RebaseInteractiveState.Loaded,
+    rebaseState: RebaseInteractiveViewState.Loaded,
     onCancel: () -> Unit,
 ) {
     val stepsList = rebaseState.stepsList
@@ -220,6 +219,7 @@ fun ActionDropdown(
 val firstItemActions = listOf(
     RebaseAction.PICK,
     RebaseAction.REWORD,
+    RebaseAction.DROP,
 )
 
 val actions = listOf(

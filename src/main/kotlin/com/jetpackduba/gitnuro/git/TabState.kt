@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.git
 import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.git.log.FindCommitUseCase
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.ui.SelectedItem
@@ -10,6 +11,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
@@ -33,6 +35,7 @@ sealed interface ProcessingState {
 class TabState @Inject constructor(
     val errorsManager: ErrorsManager,
     private val scope: CoroutineScope,
+    private val findCommitUseCase: FindCommitUseCase,
 ) {
     private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommitedChanges)
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
@@ -247,15 +250,16 @@ class TabState @Inject constructor(
         if (objectId == null) {
             newSelectedItem(SelectedItem.None)
         } else {
-            val commit = findCommit(git, objectId)
-            val newSelectedItem = SelectedItem.Ref(commit)
-            newSelectedItem(newSelectedItem)
-            _taskEvent.emit(TaskEvent.ScrollToGraphItem(newSelectedItem))
-        }
-    }
+            val commit = findCommitUseCase(git, objectId)
 
-    private fun findCommit(git: Git, objectId: ObjectId): RevCommit {
-        return git.repository.parseCommit(objectId)
+            if(commit == null) {
+                newSelectedItem(SelectedItem.None)
+            } else {
+                val newSelectedItem = SelectedItem.Ref(commit)
+                newSelectedItem(newSelectedItem)
+                _taskEvent.emit(TaskEvent.ScrollToGraphItem(newSelectedItem))
+            }
+        }
     }
 
     suspend fun newSelectedItem(selectedItem: SelectedItem, scrollToItem: Boolean = false) {
@@ -300,4 +304,5 @@ enum class RefreshType {
     UNCOMMITED_CHANGES,
     UNCOMMITED_CHANGES_AND_LOG,
     REMOTES,
+    REBASE_INTERACTIVE_STATE,
 }

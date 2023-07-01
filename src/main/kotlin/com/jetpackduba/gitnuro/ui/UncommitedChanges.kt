@@ -29,11 +29,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -66,13 +66,18 @@ fun UncommitedChanges(
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
     val isAmend by statusViewModel.isAmend.collectAsState()
+    val isAmendRebaseInteractive by statusViewModel.isAmendRebaseInteractive.collectAsState()
     val committerDataRequestState = statusViewModel.committerDataRequestState.collectAsState()
     val committerDataRequestStateValue = committerDataRequestState.value
+    val rebaseInteractiveState = statusViewModel.rebaseInteractiveState.collectAsState().value
 
     val showSearchStaged by statusViewModel.showSearchStaged.collectAsState()
     val searchFilterStaged by statusViewModel.searchFilterStaged.collectAsState()
     val showSearchUnstaged by statusViewModel.showSearchUnstaged.collectAsState()
     val searchFilterUnstaged by statusViewModel.searchFilterUnstaged.collectAsState()
+
+    val isAmenableRebaseInteractive =
+        repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits && rebaseInteractiveState.isCurrentStepAmenable
 
     val staged: List<StatusEntry>
     val unstaged: List<StatusEntry>
@@ -247,9 +252,9 @@ fun UncommitedChanges(
 
                     statusViewModel.updateCommitMessage(it)
                 },
-                enabled = !repositoryState.isRebasing,
+                enabled = !repositoryState.isRebasing || isAmenableRebaseInteractive,
                 label = {
-                    val text = if (repositoryState.isRebasing) {
+                    val text = if (repositoryState.isRebasing && !isAmenableRebaseInteractive) {
                         "Commit message (read-only)"
                     } else {
                         "Write your commit message here"
@@ -275,15 +280,20 @@ fun UncommitedChanges(
                     onMerge = { doCommit() }
                 )
 
-                repositoryState.isRebasing -> RebasingButtons(
-                    canContinue = staged.isNotEmpty() || unstaged.isNotEmpty(),
+                repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits -> RebasingButtons(
+                    canContinue = staged.isNotEmpty() || unstaged.isNotEmpty() || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.isNotEmpty()),
                     haveConflictsBeenSolved = unstaged.isEmpty(),
                     onAbort = {
                         statusViewModel.abortRebase()
                         statusViewModel.updateCommitMessage("")
                     },
-                    onContinue = { statusViewModel.continueRebase() },
+                    onContinue = { statusViewModel.continueRebase(commitMessage) },
                     onSkip = { statusViewModel.skipRebase() },
+                    isAmendable = rebaseInteractiveState.isCurrentStepAmenable,
+                    isAmend = isAmendRebaseInteractive,
+                    onAmendChecked = { isAmend ->
+                        statusViewModel.amendRebaseInteractive(isAmend)
+                    }
                 )
 
                 repositoryState.isCherryPicking -> CherryPickingButtons(
@@ -338,31 +348,11 @@ fun UncommitedChangesButtons(
         "Commit"
 
     Column {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.handMouseClickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                onAmendChecked(!isAmend)
-            }
-        ) {
-            Checkbox(
-                checked = isAmend,
-                onCheckedChange = {
-                    onAmendChecked(!isAmend)
-                },
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .size(12.dp)
-            )
-
-            Text(
-                "Amend previous commit",
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onBackground,
-            )
-        }
+        CheckboxText(
+            value = isAmend,
+            onCheckedChange = { onAmendChecked(!isAmend) },
+            text = "Amend previous commit"
+        )
         Row(
             modifier = Modifier
                 .padding(top = 2.dp)
@@ -439,40 +429,52 @@ fun CherryPickingButtons(
 @Composable
 fun RebasingButtons(
     canContinue: Boolean,
+    isAmendable: Boolean,
+    isAmend: Boolean,
+    onAmendChecked: (Boolean) -> Unit,
     haveConflictsBeenSolved: Boolean,
     onAbort: () -> Unit,
     onContinue: () -> Unit,
     onSkip: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        AbortButton(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 4.dp),
-            onClick = onAbort
-        )
-
-        if (canContinue) {
-            ConfirmationButton(
-                text = "Continue",
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp),
-                enabled = haveConflictsBeenSolved,
-                onClick = onContinue,
-            )
-        } else {
-            ConfirmationButton(
-                text = "Skip",
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp),
-                onClick = onSkip,
+    Column {
+        if (isAmendable) {
+            CheckboxText(
+                value = isAmend,
+                onCheckedChange = { onAmendChecked(!isAmend) },
+                text = "Amend previous commit"
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            AbortButton(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp),
+                onClick = onAbort
+            )
+
+            if (canContinue) {
+                ConfirmationButton(
+                    text = "Continue",
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    enabled = haveConflictsBeenSolved,
+                    onClick = onContinue,
+                )
+            } else {
+                ConfirmationButton(
+                    text = "Skip",
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    onClick = onSkip,
+                )
+            }
+        }
     }
 }
 
@@ -757,18 +759,6 @@ private fun FileEntry(
             )
         }
     }
-}
-
-
-@Stable
-val BottomReversed = object : Arrangement.Vertical {
-    override fun Density.arrange(
-        totalSize: Int,
-        sizes: IntArray,
-        outPositions: IntArray
-    ) = placeRightOrBottom(totalSize, sizes, outPositions, reverseInput = true)
-
-    override fun toString() = "Arrangement#BottomReversed"
 }
 
 internal fun placeRightOrBottom(

@@ -1,11 +1,13 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
-import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
+import com.jetpackduba.gitnuro.git.rebase.GetRebaseInteractiveStateUseCase
+import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
@@ -54,7 +56,6 @@ class TabViewModel @Inject constructor(
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val openSubmoduleRepositoryUseCase: OpenSubmoduleRepositoryUseCase,
     private val diffViewModelProvider: Provider<DiffViewModel>,
-    private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val tabState: TabState,
@@ -65,9 +66,10 @@ class TabViewModel @Inject constructor(
     private val createBranchUseCase: CreateBranchUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
-    private val abortRebaseUseCase: AbortRebaseUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
+    private val getRebaseInteractiveStateUseCase: GetRebaseInteractiveStateUseCase,
+    private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
 ) {
@@ -76,12 +78,12 @@ class TabViewModel @Inject constructor(
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
     var diffViewModel: DiffViewModel? = null
 
-    var rebaseInteractiveViewModel: RebaseInteractiveViewModel? = null
-        private set
-
     private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
         get() = _repositorySelectionStatus
+
+    val repositoryState: StateFlow<RepositoryState> = sharedRepositoryStateManager.repositoryState
+    val rebaseInteractiveState: StateFlow<RebaseInteractiveState> = sharedRepositoryStateManager.rebaseInteractiveState
 
     val processing: StateFlow<ProcessingState> = tabState.processing
 
@@ -96,9 +98,6 @@ class TabViewModel @Inject constructor(
             _diffSelected.value = value
             updateDiffEntry()
         }
-
-    private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
-    val repositoryState: StateFlow<RepositoryState> = _repositoryState
 
     private val _blameState = MutableStateFlow<BlameState>(BlameState.None)
     val blameState: StateFlow<BlameState> = _blameState
@@ -123,28 +122,8 @@ class TabViewModel @Inject constructor(
     init {
         tabScope.run {
             launch {
-                tabState.refreshData.collect { refreshType ->
-                    when (refreshType) {
-                        RefreshType.NONE -> printLog(TAG, "Not refreshing...")
-                        RefreshType.REPO_STATE -> refreshRepositoryState()
-                        else -> {}
-                    }
-                }
-            }
-            launch {
-                tabState.taskEvent.collect { taskEvent ->
-                    when (taskEvent) {
-                        is TaskEvent.RebaseInteractive -> onRebaseInteractive(taskEvent)
-                        else -> { /*Nothing to do here*/
-                        }
-                    }
-                }
-            }
-
-            launch {
-                tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REPO_STATE)
-                {
-                    loadRepositoryState(tabState.git)
+                tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REPO_STATE) {
+                    loadAuthorInfo(tabState.git)
                 }
             }
 
@@ -156,19 +135,6 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    private fun refreshRepositoryState() = tabState.safeProcessing(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        loadRepositoryState(git)
-    }
-
-    private suspend fun onRebaseInteractive(taskEvent: TaskEvent.RebaseInteractive) {
-        rebaseInteractiveViewModel = rebaseInteractiveViewModelProvider.get()
-        rebaseInteractiveViewModel?.startRebaseInteractive(taskEvent.revCommit)
-        rebaseInteractiveViewModel?.onRebaseComplete = {
-            rebaseInteractiveViewModel = null
-        }
-    }
 
     /**
      * To make sure the tab opens the new repository with a clean state,
@@ -220,16 +186,6 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadRepositoryState(git: Git) = withContext(Dispatchers.IO) {
-        val newRepoState = getRepositoryStateUseCase(git)
-        printLog(TAG, "Refreshing repository state $newRepoState")
-        _repositoryState.value = newRepoState
-
-        loadAuthorInfo(git)
-
-        onRepositoryStateChanged(newRepoState)
-    }
-
     private fun loadAuthorInfo(git: Git) {
         val config = git.repository.config
         config.load()
@@ -248,13 +204,6 @@ class TabViewModel @Inject constructor(
     fun closeAuthorInfoDialog() {
         _showAuthorInfo.value = false
         authorViewModel = null
-    }
-
-    private fun onRepositoryStateChanged(newRepoState: RepositoryState) {
-        if (newRepoState != RepositoryState.REBASING_INTERACTIVE && rebaseInteractiveViewModel != null) {
-            rebaseInteractiveViewModel?.cancel()
-            rebaseInteractiveViewModel = null
-        }
     }
 
     private suspend fun watchRepositoryChanges(git: Git) = tabScope.launch(Dispatchers.IO) {
@@ -468,13 +417,6 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         Desktop.getDesktop().open(git.repository.workTree)
-    }
-
-    fun cancelRebaseInteractive() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-    ) { git ->
-        abortRebaseUseCase(git)
-        rebaseInteractiveViewModel = null // shouldn't be necessary but just to make sure
     }
 
     fun gpgCredentialsAccepted(password: String) {

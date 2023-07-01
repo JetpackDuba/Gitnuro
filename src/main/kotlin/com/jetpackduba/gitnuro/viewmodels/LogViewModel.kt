@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.log.*
 import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
+import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
@@ -65,6 +66,7 @@ class LogViewModel @Inject constructor(
     private val createTagOnCommitUseCase: CreateTagOnCommitUseCase,
     private val deleteTagUseCase: DeleteTagUseCase,
     private val rebaseBranchUseCase: RebaseBranchUseCase,
+    private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
     private val tabScope: CoroutineScope,
@@ -96,7 +98,6 @@ class LogViewModel @Inject constructor(
 
     val verticalListState = MutableStateFlow(LazyListState(0, 0))
     val horizontalListState = MutableStateFlow(ScrollState(0))
-
 
     private val _logSearchFilterResults = MutableStateFlow<LogSearch>(LogSearch.NotSearching)
     val logSearchFilterResults: StateFlow<LogSearch> = _logSearchFilterResults
@@ -428,10 +429,10 @@ class LogViewModel @Inject constructor(
         _logSearchFilterResults.value = LogSearch.NotSearching
     }
 
-    fun rebaseInteractive(revCommit: RevCommit) = tabState.runOperation(
-        refreshType = RefreshType.NONE
-    ) {
-        tabState.emitNewTaskEvent(TaskEvent.RebaseInteractive(revCommit))
+    fun rebaseInteractive(revCommit: RevCommit) = tabState.safeProcessing(
+        refreshType = RefreshType.REBASE_INTERACTIVE_STATE,
+    ) { git ->
+        startRebaseInteractiveUseCase(git, revCommit)
     }
 
     fun deleteRemoteBranch(branch: Ref) = tabState.safeProcessing(

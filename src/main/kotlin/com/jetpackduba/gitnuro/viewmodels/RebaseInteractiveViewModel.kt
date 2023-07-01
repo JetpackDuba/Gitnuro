@@ -4,10 +4,7 @@ import com.jetpackduba.gitnuro.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.exceptions.RebaseCancelledException
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
-import com.jetpackduba.gitnuro.git.rebase.GetRebaseLinesFullMessageUseCase
-import com.jetpackduba.gitnuro.git.rebase.ResumeRebaseInteractiveUseCase
-import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
+import com.jetpackduba.gitnuro.git.rebase.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
@@ -22,21 +19,23 @@ private const val TAG = "RebaseInteractiveViewMo"
 class RebaseInteractiveViewModel @Inject constructor(
     private val tabState: TabState,
     private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
-    private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
+    private val getRebaseInteractiveTodoLinesUseCase: GetRebaseInteractiveTodoLinesUseCase,
     private val abortRebaseUseCase: AbortRebaseUseCase,
     private val resumeRebaseInteractiveUseCase: ResumeRebaseInteractiveUseCase,
 ) {
     private lateinit var commit: RevCommit
-    private val _rebaseState = MutableStateFlow<RebaseInteractiveState>(RebaseInteractiveState.Loading)
-    val rebaseState: StateFlow<RebaseInteractiveState> = _rebaseState
+    private val _rebaseState = MutableStateFlow<RebaseInteractiveViewState>(RebaseInteractiveViewState.Loading)
+    val rebaseState: StateFlow<RebaseInteractiveViewState> = _rebaseState
     var rewordSteps = ArrayDeque<RebaseLine>()
 
-    var onRebaseComplete: () -> Unit = {}
+    init {
+        loadRebaseInteractiveData()
+    }
 
     private var interactiveHandlerContinue = object : InteractiveHandler {
         override fun prepareSteps(steps: MutableList<RebaseTodoLine>) {
             val rebaseState = _rebaseState.value
-            if (rebaseState !is RebaseInteractiveState.Loaded) {
+            if (rebaseState !is RebaseInteractiveViewState.Loaded) {
                 throw Exception("prepareSteps called when rebaseState is not Loaded") // Should never happen, just in case
             }
 
@@ -56,7 +55,7 @@ class RebaseInteractiveViewModel @Inject constructor(
             val step = rewordSteps.removeLastOrNull() ?: return commit
 
             val rebaseState = _rebaseState.value
-            if (rebaseState !is RebaseInteractiveState.Loaded) {
+            if (rebaseState !is RebaseInteractiveViewState.Loaded) {
                 throw Exception("modifyCommitMessage called when rebaseState is not Loaded") // Should never happen, just in case
             }
 
@@ -65,19 +64,11 @@ class RebaseInteractiveViewModel @Inject constructor(
         }
     }
 
-    suspend fun startRebaseInteractive(revCommit: RevCommit) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        showError = true
+    private fun loadRebaseInteractiveData() = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
     ) { git ->
-        this@RebaseInteractiveViewModel.commit = revCommit
-
-        val interactiveHandler = object : InteractiveHandler {
-            override fun prepareSteps(steps: MutableList<RebaseTodoLine>?) {}
-            override fun modifyCommitMessage(message: String?): String = ""
-        }
-
         try {
-            val lines = startRebaseInteractiveUseCase(git, interactiveHandler, revCommit, true)
+            val lines = getRebaseInteractiveTodoLinesUseCase(git)
             val messages = getRebaseLinesFullMessageUseCase(tabState.git, lines)
             val rebaseLines = lines.map {
                 RebaseLine(
@@ -87,7 +78,7 @@ class RebaseInteractiveViewModel @Inject constructor(
                 )
             }
 
-            _rebaseState.value = RebaseInteractiveState.Loaded(rebaseLines, messages)
+            _rebaseState.value = RebaseInteractiveViewState.Loaded(rebaseLines, messages)
 
         } catch (ex: Exception) {
             if (ex is RebaseCancelledException) {
@@ -102,17 +93,13 @@ class RebaseInteractiveViewModel @Inject constructor(
     fun continueRebaseInteractive() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
-        try {
-            resumeRebaseInteractiveUseCase(git, interactiveHandlerContinue)
-        } finally {
-            onRebaseComplete()
-        }
+        resumeRebaseInteractiveUseCase(git, interactiveHandlerContinue)
     }
 
     fun onCommitMessageChanged(commit: AbbreviatedObjectId, message: String) {
         val rebaseState = _rebaseState.value
 
-        if (rebaseState !is RebaseInteractiveState.Loaded)
+        if (rebaseState !is RebaseInteractiveViewState.Loaded)
             return
 
         val messagesMap = rebaseState.messages.toMutableMap()
@@ -124,7 +111,7 @@ class RebaseInteractiveViewModel @Inject constructor(
     fun onCommitActionChanged(commit: AbbreviatedObjectId, rebaseAction: RebaseAction) {
         val rebaseState = _rebaseState.value
 
-        if (rebaseState !is RebaseInteractiveState.Loaded)
+        if (rebaseState !is RebaseInteractiveViewState.Loaded)
             return
 
         val newStepsList =
@@ -149,17 +136,17 @@ class RebaseInteractiveViewModel @Inject constructor(
     }
 
     fun cancel() = tabState.runOperation(
-        refreshType = RefreshType.REPO_STATE
+        refreshType = RefreshType.ALL_DATA,
     ) { git ->
         abortRebaseUseCase(git)
     }
 }
 
 
-sealed interface RebaseInteractiveState {
-    object Loading : RebaseInteractiveState
-    data class Loaded(val stepsList: List<RebaseLine>, val messages: Map<String, String>) : RebaseInteractiveState
-    data class Failed(val error: String) : RebaseInteractiveState
+sealed interface RebaseInteractiveViewState {
+    object Loading : RebaseInteractiveViewState
+    data class Loaded(val stepsList: List<RebaseLine>, val messages: Map<String, String>) : RebaseInteractiveViewState
+    data class Failed(val error: String) : RebaseInteractiveViewState
 }
 
 data class RebaseLine(

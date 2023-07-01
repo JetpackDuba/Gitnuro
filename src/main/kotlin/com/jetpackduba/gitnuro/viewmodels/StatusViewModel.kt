@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
+import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.isMerging
 import com.jetpackduba.gitnuro.extensions.isReverting
@@ -12,9 +13,9 @@ import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
 import com.jetpackduba.gitnuro.git.author.SaveAuthorUseCase
 import com.jetpackduba.gitnuro.git.log.CheckHasPreviousCommitsUseCase
 import com.jetpackduba.gitnuro.git.log.GetLastCommitMessageUseCase
-import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
-import com.jetpackduba.gitnuro.git.rebase.ContinueRebaseUseCase
-import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
+import com.jetpackduba.gitnuro.git.log.GetSpecificCommitMessageUseCase
+import com.jetpackduba.gitnuro.git.rebase.*
+import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
@@ -52,6 +53,10 @@ class StatusViewModel @Inject constructor(
     private val doCommitUseCase: DoCommitUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
+    private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
+    private val getRebaseAmendCommitIdUseCase: GetRebaseAmendCommitIdUseCase,
+    private val sharedRepositoryStateManager: SharedRepositoryStateManager,
+    private val getSpecificCommitMessageUseCase: GetSpecificCommitMessageUseCase,
     private val tabScope: CoroutineScope,
     private val appSettings: AppSettings,
 ) {
@@ -68,6 +73,7 @@ class StatusViewModel @Inject constructor(
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
 
     val swapUncommitedChanges = appSettings.swapUncommitedChangesFlow
+    val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 
@@ -122,6 +128,9 @@ class StatusViewModel @Inject constructor(
 
     private val _isAmend = MutableStateFlow(false)
     val isAmend: StateFlow<Boolean> = _isAmend
+
+    private val _isAmendRebaseInteractive = MutableStateFlow(false)
+    val isAmendRebaseInteractive: StateFlow<Boolean> = _isAmendRebaseInteractive
 
     init {
         tabScope.launch {
@@ -262,6 +271,14 @@ class StatusViewModel @Inject constructor(
         }
     }
 
+    fun amendRebaseInteractive(isAmend: Boolean) {
+        _isAmendRebaseInteractive.value = isAmend
+
+        if (isAmend && savedCommitMessage.message.isEmpty()) {
+            takeMessageFromAmendCommit()
+        }
+    }
+
     fun commit(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
@@ -272,9 +289,18 @@ class StatusViewModel @Inject constructor(
         } else
             message
 
+
+        val personIdent = getPersonIdent(git)
+
+        doCommitUseCase(git, commitMessage, amend, personIdent)
+        updateCommitMessage("")
+        _isAmend.value = false
+    }
+
+    private suspend fun getPersonIdent(git: Git): PersonIdent? {
         val author = loadAuthorUseCase(git)
 
-        val personIdent = if (
+        return if (
             author.name.isNullOrEmpty() && author.globalName.isNullOrEmpty() ||
             author.email.isNullOrEmpty() && author.globalEmail.isNullOrEmpty()
         ) {
@@ -299,10 +325,6 @@ class StatusViewModel @Inject constructor(
             }
         } else
             null
-
-        doCommitUseCase(git, commitMessage, amend, personIdent)
-        updateCommitMessage("")
-        _isAmend.value = false
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -326,9 +348,25 @@ class StatusViewModel @Inject constructor(
         return (hasNowUncommitedChanges != hadUncommitedChanges)
     }
 
-    fun continueRebase() = tabState.safeProcessing(
+    fun continueRebase(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
     ) { git ->
+        val repositoryState = sharedRepositoryStateManager.repositoryState.value
+        val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState.value
+
+        if (
+            repositoryState == RepositoryState.REBASING_INTERACTIVE &&
+            rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits &&
+            rebaseInteractiveState.isCurrentStepAmenable &&
+            isAmendRebaseInteractive.value
+        ) {
+            val amendCommitId = getRebaseAmendCommitIdUseCase(git)
+
+            if (!amendCommitId.isNullOrBlank()) {
+                doCommitUseCase(git, message, true, getPersonIdent(git))
+            }
+        }
+
         continueRebaseUseCase(git)
     }
 
@@ -369,6 +407,22 @@ class StatusViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         savedCommitMessage = savedCommitMessage.copy(message = getLastCommitMessageUseCase(git))
+        persistMessage()
+        _commitMessageChangesFlow.emit(savedCommitMessage.message)
+    }
+
+    private fun takeMessageFromAmendCommit() = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        val rebaseInteractiveState = rebaseInteractiveState.value
+        if (rebaseInteractiveState !is RebaseInteractiveState.ProcessingCommits) {
+            return@runOperation
+        }
+
+        val commitId = rebaseInteractiveState.commitToAmendId ?: return@runOperation
+        val message = getSpecificCommitMessageUseCase(git, commitId)
+
+        savedCommitMessage = savedCommitMessage.copy(message = message)
         persistMessage()
         _commitMessageChangesFlow.emit(savedCommitMessage.message)
     }
