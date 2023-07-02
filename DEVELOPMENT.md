@@ -17,6 +17,8 @@ If you don't have another preference, the recommendation is to download and inst
 [Compose Multiplatform IDE Support](https://plugins.jetbrains.com/plugin/16541-compose-multiplatform-ide-support)
 plugin.
 
+By default, the JDK used by "IntelliJ IDEA Community Edition (2023.1.3)" is "JetBrains Runtime version 21" which is not currently supported by the project.
+
 ## Alternative: Setting up JDK for use on CLI
 
 You don't need this if you only use the JDK installed by IntelliJ IDEA.
