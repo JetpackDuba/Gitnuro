@@ -187,7 +187,7 @@ fun LazyItemScope.DraggableItem(
                 translationX = dragDropState.previousItemOffset.value
             }
     } else {
-        Modifier.animateItemPlacement()
+        Modifier
     }
     Column(modifier = modifier.then(draggingModifier)) {
         content(dragging)
