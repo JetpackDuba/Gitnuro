@@ -360,7 +360,7 @@ class StatusViewModel @Inject constructor(
             rebaseInteractiveState.isCurrentStepAmenable &&
             isAmendRebaseInteractive.value
         ) {
-            val amendCommitId = getRebaseAmendCommitIdUseCase(git)
+            val amendCommitId = rebaseInteractiveState.commitToAmendId
 
             if (!amendCommitId.isNullOrBlank()) {
                 doCommitUseCase(git, message, true, getPersonIdent(git))
