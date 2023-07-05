@@ -104,5 +104,5 @@ fun KeyEvent.matchesBinding(keybindingOption: KeybindingOption): Boolean {
                 keybinding.meta == this.isMetaPressed &&
                 keybinding.shift == this.isShiftPressed &&
                 keybinding.key == this.key
-    }
+    } && this.type == KeyEventType.KeyDown
 }

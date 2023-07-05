@@ -1,17 +1,16 @@
 package com.jetpackduba.gitnuro.git
 
-import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.git.log.FindCommitUseCase
 import com.jetpackduba.gitnuro.logging.printError
+import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
@@ -70,6 +69,7 @@ class TabState @Inject constructor(
         this.unsafeGit = git
     }
 
+    @Synchronized
     fun safeProcessing(
         showError: Boolean = true,
         refreshType: RefreshType,
@@ -252,7 +252,7 @@ class TabState @Inject constructor(
         } else {
             val commit = findCommitUseCase(git, objectId)
 
-            if(commit == null) {
+            if (commit == null) {
                 newSelectedItem(SelectedItem.None)
             } else {
                 val newSelectedItem = SelectedItem.Ref(commit)

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.ui.components
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +21,7 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     text: String,
     enabled: Boolean = true,
+    focusable: Boolean = true,
     backgroundColor: Color = MaterialTheme.colors.primary,
     backgroundDisabled: Color = MaterialTheme.colors.primary.copy(0.5f),
     textColor: Color = MaterialTheme.colors.onPrimary,
@@ -30,6 +32,7 @@ fun PrimaryButton(
         modifier = modifier
             .clip(RoundedCornerShape(4.dp))
             .backgroundIf(enabled, backgroundColor, backgroundDisabled)
+            .focusable(focusable)
             .run {
                 if (enabled) {
                     handMouseClickable {

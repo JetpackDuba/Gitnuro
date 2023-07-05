@@ -6,9 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
@@ -20,9 +18,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -379,12 +379,15 @@ fun MergeButtons(
     onMerge: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(36.dp)
     ) {
         AbortButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 4.dp),
+                .padding(end = 4.dp)
+                .fillMaxHeight(),
             onClick = onAbort
         )
 
@@ -392,7 +395,8 @@ fun MergeButtons(
             text = "Merge",
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 4.dp),
+                .padding(start = 4.dp)
+                .fillMaxHeight(),
             enabled = haveConflictsBeenSolved,
             onClick = onMerge,
         )
@@ -406,12 +410,15 @@ fun CherryPickingButtons(
     onCommit: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(36.dp)
     ) {
         AbortButton(
             modifier = Modifier
                 .weight(1f)
-                .padding(end = 4.dp),
+                .padding(end = 4.dp)
+                .fillMaxHeight(),
             onClick = onAbort
         )
 
@@ -419,7 +426,8 @@ fun CherryPickingButtons(
             text = "Commit",
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 4.dp),
+                .padding(start = 4.dp)
+                .fillMaxHeight(),
             enabled = haveConflictsBeenSolved,
             onClick = onCommit,
         )
@@ -447,12 +455,15 @@ fun RebasingButtons(
         }
 
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(36.dp)
         ) {
             AbortButton(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(end = 4.dp),
+                    .padding(end = 4.dp)
+                    .fillMaxHeight(),
                 onClick = onAbort
             )
 
@@ -461,7 +472,8 @@ fun RebasingButtons(
                     text = "Continue",
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 4.dp),
+                        .padding(start = 4.dp)
+                        .fillMaxHeight(),
                     enabled = haveConflictsBeenSolved,
                     onClick = onContinue,
                 )
@@ -470,7 +482,8 @@ fun RebasingButtons(
                     text = "Skip",
                     modifier = Modifier
                         .weight(1f)
-                        .padding(start = 4.dp),
+                        .padding(start = 4.dp)
+                        .fillMaxHeight(),
                     onClick = onSkip,
                 )
             }
@@ -486,7 +499,9 @@ fun RevertingButtons(
     onCommit: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(36.dp)
     ) {
         AbortButton(
             modifier = Modifier
@@ -499,7 +514,8 @@ fun RevertingButtons(
             text = "Continue",
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 4.dp),
+                .padding(start = 4.dp)
+                .fillMaxHeight(),
             enabled = canCommit && haveConflictsBeenSolved,
             onClick = onCommit,
         )
@@ -508,12 +524,13 @@ fun RevertingButtons(
 
 @Composable
 fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.abortButton,
-        )
+    Box(
+        modifier = modifier
+            .clickable { onClick() }
+            .focusable(false)
+            .clip(MaterialTheme.shapes.small)
+            .background(MaterialTheme.colors.abortButton),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = "Abort",
@@ -530,18 +547,24 @@ fun ConfirmationButton(
     shape: Shape = MaterialTheme.shapes.small,
     onClick: () -> Unit,
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier,
-        enabled = enabled,
-        shape = shape,
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.primary,
-        )
+    val (backgroundColor, contentColor) = if (enabled) {
+        (MaterialTheme.colors.primary to MaterialTheme.colors.onPrimary)
+    } else {
+        (MaterialTheme.colors.onSurface.copy(alpha = 0.12f)
+            .compositeOver(MaterialTheme.colors.surface) to MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.disabled))
+    }
+
+    Box(
+        modifier = modifier
+            .clickable { if (enabled) onClick() }
+            .focusable(false) // TODO this and the abort button should be focusable (show some kind of border when focused?)
+            .clip(shape)
+            .background(backgroundColor),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.onPrimary),
+            style = MaterialTheme.typography.body1.copy(color = contentColor),
         )
     }
 }
