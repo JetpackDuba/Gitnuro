@@ -15,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
 import javax.inject.Inject
@@ -41,20 +42,31 @@ class DiffViewModel @Inject constructor(
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
 
     val diffTypeFlow = settings.textDiffTypeFlow
-    private var diffEntryType: DiffEntryType? = null
-    private var diffTypeFlowChangesCount = 0
+    val isDisplayFullFile = settings.diffDisplayFullFileFlow
 
+    private var diffEntryType: DiffEntryType? = null
     private var diffJob: Job? = null
 
     init {
         tabScope.launch {
-            diffTypeFlow.collect {
+            diffTypeFlow
+                .drop(1) // Ignore the first time the flow triggers, we only care about updates
+                .collect {
                 val diffEntryType = this@DiffViewModel.diffEntryType
-                if (diffTypeFlowChangesCount > 0 && diffEntryType != null) { // Ignore the first time the flow triggers, we only care about updates
+                if (diffEntryType != null) {
                     updateDiff(diffEntryType)
                 }
+            }
+        }
 
-                diffTypeFlowChangesCount++
+        tabScope.launch {
+            isDisplayFullFile
+                .drop(1) // Ignore the first time the flow triggers, we only care about updates
+                .collect {
+                val diffEntryType = this@DiffViewModel.diffEntryType
+                if (diffEntryType != null) {
+                    updateDiff(diffEntryType)
+                }
             }
         }
 
@@ -110,7 +122,7 @@ class DiffViewModel @Inject constructor(
                     delayMs = if (isFirstLoad) 0 else DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD,
                     onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading(diffEntryType.filePath) }
                 ) {
-                    val diffFormat = formatDiffUseCase(git, diffEntryType)
+                    val diffFormat = formatDiffUseCase(git, diffEntryType, isDisplayFullFile.value)
                     val diffEntry = diffFormat.diffEntry
                     if (
                         diffTypeFlow.value == TextDiffType.SPLIT &&
@@ -176,6 +188,10 @@ class DiffViewModel @Inject constructor(
 
     fun changeTextDiffType(newDiffType: TextDiffType) {
         settings.textDiffType = newDiffType
+    }
+
+    fun changeDisplayFullFile(isDisplayFullFile: Boolean) {
+        settings.diffDisplayFullFile = isDisplayFullFile
     }
 
     fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(

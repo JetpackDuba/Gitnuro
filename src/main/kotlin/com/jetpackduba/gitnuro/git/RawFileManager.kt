@@ -34,12 +34,6 @@ val animatedImages = arrayOf(
 class RawFileManager @Inject constructor(
     private val tempFilesManager: TempFilesManager,
 ) {
-    private fun source(iterator: AbstractTreeIterator, reader: ObjectReader): ContentSource {
-        return if (iterator is WorkingTreeIterator)
-            ContentSource.create(iterator)
-        else
-            ContentSource.create(reader)
-    }
 
     fun getRawContent(
         repository: Repository,
@@ -74,6 +68,13 @@ class RawFileManager @Inject constructor(
                     EntryContent.Binary
             }
         }
+    }
+
+    private fun source(iterator: AbstractTreeIterator, reader: ObjectReader): ContentSource {
+        return if (iterator is WorkingTreeIterator)
+            ContentSource.create(iterator)
+        else
+            ContentSource.create(reader)
     }
 
     private fun generateImageBinary(

@@ -30,6 +30,7 @@ private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 private const val PREF_CUSTOM_THEME = "customTheme"
 private const val PREF_UI_SCALE = "ui_scale"
 private const val PREF_DIFF_TYPE = "diffType"
+private const val PREF_DIFF_FULL_FILE = "diffFullFile"
 private const val PREF_SWAP_UNCOMMITED_CHANGES = "inverseUncommitedChanges"
 
 
@@ -71,6 +72,9 @@ class AppSettings @Inject constructor() {
 
     private val _textDiffTypeFlow = MutableStateFlow(textDiffType)
     val textDiffTypeFlow = _textDiffTypeFlow.asStateFlow()
+
+    private val _textDiffFullFileFlow = MutableStateFlow(diffDisplayFullFile)
+    val diffDisplayFullFileFlow = _textDiffFullFileFlow.asStateFlow()
 
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
@@ -186,6 +190,16 @@ class AppSettings @Inject constructor() {
             preferences.putInt(PREF_DIFF_TYPE, placement.value)
 
             _textDiffTypeFlow.value = textDiffType
+        }
+
+    var diffDisplayFullFile: Boolean
+        get() {
+            return preferences.getBoolean(PREF_DIFF_FULL_FILE, false)
+        }
+        set(newValue) {
+            preferences.putBoolean(PREF_DIFF_TYPE, newValue)
+
+            _textDiffFullFileFlow.value = newValue
         }
 
     fun saveCustomTheme(filePath: String) {

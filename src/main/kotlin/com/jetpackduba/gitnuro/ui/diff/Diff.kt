@@ -55,6 +55,7 @@ import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
+import com.jetpackduba.gitnuro.ui.components.Tooltip
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.CustomTextContextMenu
@@ -80,6 +81,7 @@ fun Diff(
 ) {
     val diffResultState = diffViewModel.diffResult.collectAsState()
     val diffType by diffViewModel.diffTypeFlow.collectAsState()
+    val isDisplayFullFile by diffViewModel.isDisplayFullFile.collectAsState()
     val viewDiffResult = diffResultState.value ?: return
     val focusRequester = remember { FocusRequester() }
 
@@ -116,9 +118,11 @@ fun Diff(
                     diffEntry = diffEntry,
                     onCloseDiffView = onCloseDiffView,
                     diffType = diffType,
+                    isDisplayFullFile = isDisplayFullFile,
                     onStageFile = { diffViewModel.stageFile(it) },
                     onUnstageFile = { diffViewModel.unstageFile(it) },
-                    onChangeDiffType = { diffViewModel.changeTextDiffType(it) }
+                    onChangeDiffType = { diffViewModel.changeTextDiffType(it) },
+                    onDisplayFullFile = { diffViewModel.changeDisplayFullFile(it) },
                 )
 
                 val scrollState by diffViewModel.lazyListState.collectAsState()
@@ -773,10 +777,12 @@ private fun DiffHeader(
     diffEntryType: DiffEntryType,
     diffEntry: DiffEntry,
     diffType: TextDiffType,
+    isDisplayFullFile: Boolean,
     onCloseDiffView: () -> Unit,
     onStageFile: (StatusEntry) -> Unit,
     onUnstageFile: (StatusEntry) -> Unit,
     onChangeDiffType: (TextDiffType) -> Unit,
+    onDisplayFullFile: (Boolean) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -825,8 +831,15 @@ private fun DiffHeader(
 
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
-                DiffTypeButtons(diffType = diffType, onChangeDiffType = onChangeDiffType)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
+                    DiffTypeButtons(
+                        diffType = diffType,
+                        isDisplayFullFile = isDisplayFullFile,
+                        onChangeDiffType = onChangeDiffType,
+                        onDisplayFullFile = onDisplayFullFile,
+                    )
+                }
             }
 
             if (diffEntryType is DiffEntryType.UncommitedDiff) {
@@ -853,40 +866,114 @@ private fun DiffHeader(
 }
 
 @Composable
-fun DiffTypeButtons(diffType: TextDiffType, onChangeDiffType: (TextDiffType) -> Unit) {
+fun StateIcon(
+    icon: String,
+    tooltip: String,
+    isToggled: Boolean,
+    onClick: () -> Unit,
+) {
+    Tooltip(tooltip) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .run {
+                    if (isToggled)
+                        this.background(MaterialTheme.colors.onSurface.copy(alpha = 0.2f))
+                    else
+                        this
+                }
+                .handMouseClickable { if(!isToggled) onClick() }
+                .padding(4.dp)
+        ) {
+            Icon(
+                painterResource(icon),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onSurface,
+                modifier = Modifier
+                    .size(24.dp),
+            )
+        }
+    }
+}
+
+@Composable
+fun DiffTypeButtons(
+    diffType: TextDiffType,
+    isDisplayFullFile: Boolean,
+    onChangeDiffType: (TextDiffType) -> Unit,
+    onDisplayFullFile: (Boolean) -> Unit
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        Text(
-            "Unified",
-            color = MaterialTheme.colors.onBackground,
-            style = MaterialTheme.typography.caption,
-        )
 
-        Switch(
-            checked = diffType == TextDiffType.SPLIT,
-            onCheckedChange = { checked ->
-                val newType = if (checked)
-                    TextDiffType.SPLIT
-                else
-                    TextDiffType.UNIFIED
-
-                onChangeDiffType(newType)
-            },
-            colors = SwitchDefaults.colors(
-                uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
-                uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
-                uncheckedTrackAlpha = 0.54f
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(end = 16.dp)
+        ) {
+            StateIcon(
+                icon = AppIcons.HORIZONTAL_SPLIT,
+                tooltip = "Divide by hunks",
+                isToggled = !isDisplayFullFile,
+                onClick = { onDisplayFullFile(false) },
             )
-        )
 
-        Text(
-            "Split",
-            color = MaterialTheme.colors.onBackground,
-//            modifier = Modifier.padding(horizontal = 4.dp),
-            style = MaterialTheme.typography.caption,
-        )
+            StateIcon(
+                icon = AppIcons.DESCRIPTION,
+                tooltip = "View the complete file",
+                isToggled = isDisplayFullFile,
+                onClick = { onDisplayFullFile(true) },
+            )
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            StateIcon(
+                icon = AppIcons.UNIFIED,
+                tooltip = "Unified diff",
+                isToggled = diffType == TextDiffType.UNIFIED,
+                onClick = { onChangeDiffType(TextDiffType.UNIFIED) },
+            )
+
+            StateIcon(
+                icon = AppIcons.VERTICAL_SPLIT,
+                tooltip = "Split diff",
+                isToggled = diffType == TextDiffType.SPLIT,
+                onClick = { onChangeDiffType(TextDiffType.SPLIT) },
+            )
+        }
+//
+//        Text(
+//            "Unified",
+//            color = MaterialTheme.colors.onBackground,
+//            style = MaterialTheme.typography.caption,
+//        )
+//
+//        Switch(
+//            checked = diffType == TextDiffType.SPLIT,
+//            onCheckedChange = { checked ->
+//                val newType = if (checked)
+//                    TextDiffType.SPLIT
+//                else
+//                    TextDiffType.UNIFIED
+//
+//                onChangeDiffType(newType)
+//            },
+//            colors = SwitchDefaults.colors(
+//                uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
+//                uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
+//                uncheckedTrackAlpha = 0.54f
+//            )
+//        )
+//
+//        Text(
+//            "Split",
+//            color = MaterialTheme.colors.onBackground,
+////            modifier = Modifier.padding(horizontal = 4.dp),
+//            style = MaterialTheme.typography.caption,
+//        )
     }
 }
 

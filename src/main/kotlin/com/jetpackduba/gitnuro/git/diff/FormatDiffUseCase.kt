@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git.diff
 
 import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.EntryContent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -9,13 +10,20 @@ import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.ByteArrayOutputStream
+import java.io.InvalidObjectException
 import javax.inject.Inject
 
 class FormatDiffUseCase @Inject constructor(
-    private val hunkDiffGenerator: HunkDiffGenerator,
     private val getDiffEntryForUncommitedDiffUseCase: GetDiffEntryForUncommitedDiffUseCase,
+    private val canGenerateTextDiffUseCase: CanGenerateTextDiffUseCase,
+    private val getDiffContentUseCase: GetDiffContentUseCase,
+    private val formatHunksUseCase: FormatHunksUseCase,
 ) {
-    suspend operator fun invoke(git: Git, diffEntryType: DiffEntryType): DiffResult = withContext(Dispatchers.IO) {
+    suspend operator fun invoke(
+        git: Git,
+        diffEntryType: DiffEntryType,
+        isDisplayFullFile: Boolean
+    ): DiffResult = withContext(Dispatchers.IO) {
         val byteArrayOutputStream = ByteArrayOutputStream()
         val repository = git.repository
         val diffEntry: DiffEntry
@@ -54,11 +62,31 @@ class FormatDiffUseCase @Inject constructor(
             newTree = null
         }
 
-        return@withContext hunkDiffGenerator.format(
-            repository,
-            diffEntry,
-            oldTree,
-            newTree,
-        )
+        val diffContent = getDiffContentUseCase(repository, diffEntry, oldTree, newTree)
+        val fileHeader = diffContent.fileHeader
+
+        val rawOld = diffContent.rawOld
+        val rawNew = diffContent.rawNew
+
+        if (rawOld == EntryContent.InvalidObjectBlob || rawNew == EntryContent.InvalidObjectBlob)
+            throw InvalidObjectException("Invalid object in diff format")
+
+        var diffResult: DiffResult = DiffResult.Text(diffEntry, emptyList())
+
+        // If we can, generate text diff (if one of the files has never been a binary file)
+        val hasGeneratedTextDiff = canGenerateTextDiffUseCase(rawOld, rawNew) { oldRawText, newRawText ->
+            if (isDisplayFullFile) {
+                TODO()
+            } else {
+                diffResult = DiffResult.Text(diffEntry, formatHunksUseCase(fileHeader, oldRawText, newRawText))
+            }
+
+        }
+
+        if (!hasGeneratedTextDiff) {
+            diffResult = DiffResult.NonText(diffEntry, rawOld, rawNew)
+        }
+
+        return@withContext diffResult
     }
 }
