@@ -75,11 +75,8 @@ class FormatDiffUseCase @Inject constructor(
 
         // If we can, generate text diff (if one of the files has never been a binary file)
         val hasGeneratedTextDiff = canGenerateTextDiffUseCase(rawOld, rawNew) { oldRawText, newRawText ->
-            if (isDisplayFullFile) {
-                TODO()
-            } else {
-                diffResult = DiffResult.Text(diffEntry, formatHunksUseCase(fileHeader, oldRawText, newRawText))
-            }
+            diffResult =
+                DiffResult.Text(diffEntry, formatHunksUseCase(fileHeader, oldRawText, newRawText, isDisplayFullFile))
 
         }
 

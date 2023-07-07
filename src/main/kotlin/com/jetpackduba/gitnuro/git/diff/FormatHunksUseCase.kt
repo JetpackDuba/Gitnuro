@@ -9,7 +9,7 @@ import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
 
-private const val CONTEXT_LINES = 2
+private const val CONTEXT_LINES = 3
 
 /**
  * Generator of [Hunk] lists from [DiffEntry]
@@ -19,24 +19,48 @@ class FormatHunksUseCase @Inject constructor() {
         fileHeader: FileHeader,
         rawOld: RawText,
         rawNew: RawText,
+        isDisplayFullFile: Boolean,
     ): List<Hunk> {
         return if (fileHeader.patchType == PatchType.UNIFIED)
-            format(fileHeader.toEditList(), rawOld, rawNew)
+            format(fileHeader.toEditList(), rawOld, rawNew, isDisplayFullFile)
         else
             emptyList()
     }
 
-    private fun format(edits: EditList, oldRawText: RawText, newRawText: RawText): List<Hunk> {
+    private fun format(
+        edits: EditList,
+        oldRawText: RawText,
+        newRawText: RawText,
+        isDisplayFullFile: Boolean
+    ): List<Hunk> {
         var curIdx = 0
         val hunksList = mutableListOf<Hunk>()
-        while (curIdx < edits.size) {
+        while (curIdx < edits.count()) {
             var curEdit = edits[curIdx]
-            val endIdx = findCombinedEnd(edits, curIdx)
+
+            val endIdx: Int = if (isDisplayFullFile)
+                edits.lastIndex
+            else
+                findCombinedEnd(edits, curIdx)
+
             val endEdit = edits[endIdx]
-            var oldCurrentLine = max(0, curEdit.beginA - CONTEXT_LINES)
-            var newCurrentLine = max(0, curEdit.beginB - CONTEXT_LINES)
-            val oldEndLine = min(oldRawText.size(), endEdit.endA + CONTEXT_LINES)
-            val newEndLine = min(newRawText.size(), endEdit.endB + CONTEXT_LINES)
+
+            var oldCurrentLine: Int
+            var newCurrentLine: Int
+            val oldEndLine: Int
+            val newEndLine: Int
+
+            if (isDisplayFullFile) {
+                oldCurrentLine = 0
+                newCurrentLine = 0
+                oldEndLine = oldRawText.size()
+                newEndLine = newRawText.size()
+            } else {
+                oldCurrentLine = max(0, curEdit.beginA - CONTEXT_LINES)
+                newCurrentLine = max(0, curEdit.beginB - CONTEXT_LINES)
+                oldEndLine = min(oldRawText.size(), endEdit.endA + CONTEXT_LINES)
+                newEndLine = min(newRawText.size(), endEdit.endB + CONTEXT_LINES)
+            }
 
             val headerText = createHunkHeader(oldCurrentLine, oldEndLine, newCurrentLine, newEndLine)
             val lines = mutableListOf<Line>()
