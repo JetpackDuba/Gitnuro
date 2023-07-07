@@ -787,9 +787,9 @@ private fun DiffHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp)
+            .height(34.dp)
             .background(MaterialTheme.colors.tertiarySurface)
-            .padding(start = 8.dp, end = 8.dp),
+            .padding(start = 16.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val fileName = diffEntry.fileName
@@ -806,8 +806,7 @@ private fun DiffHeader(
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier
-                        .weight(1f, false)
-                        .padding(start = 16.dp),
+                        .weight(1f, false),
                 )
 
                 Text(
@@ -830,16 +829,17 @@ private fun DiffHeader(
         }
 
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
-                    DiffTypeButtons(
-                        diffType = diffType,
-                        isDisplayFullFile = isDisplayFullFile,
-                        onChangeDiffType = onChangeDiffType,
-                        onDisplayFullFile = onDisplayFullFile,
-                    )
-                }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
+                DiffTypeButtons(
+                    diffType = diffType,
+                    isDisplayFullFile = isDisplayFullFile,
+                    onChangeDiffType = onChangeDiffType,
+                    onDisplayFullFile = onDisplayFullFile,
+                )
             }
 
             if (diffEntryType is DiffEntryType.UncommitedDiff) {
@@ -855,10 +855,11 @@ private fun DiffHeader(
                 modifier = Modifier
                     .handOnHover()
             ) {
-                Image(
+                Icon(
                     painter = painterResource(AppIcons.CLOSE),
                     contentDescription = "Close diff",
-                    colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
+                    tint = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.size(24.dp),
                 )
             }
         }
@@ -882,7 +883,7 @@ fun StateIcon(
                     else
                         this
                 }
-                .handMouseClickable { if(!isToggled) onClick() }
+                .handMouseClickable { if (!isToggled) onClick() }
                 .padding(4.dp)
         ) {
             Icon(
@@ -905,7 +906,6 @@ fun DiffTypeButtons(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(horizontal = 16.dp)
     ) {
 
         Row(
@@ -997,7 +997,6 @@ fun UncommitedDiffFileHeaderButtons(
     SecondaryButton(
         text = buttonText,
         backgroundButton = color,
-        modifier = Modifier.padding(horizontal = 16.dp),
         onClick = {
             if (diffEntryType is DiffEntryType.StagedDiff) {
                 onUnstageFile(diffEntryType.statusEntry)
