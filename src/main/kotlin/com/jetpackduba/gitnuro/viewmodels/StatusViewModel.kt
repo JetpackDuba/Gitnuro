@@ -129,7 +129,7 @@ class StatusViewModel @Inject constructor(
     private val _isAmend = MutableStateFlow(false)
     val isAmend: StateFlow<Boolean> = _isAmend
 
-    private val _isAmendRebaseInteractive = MutableStateFlow(false)
+    private val _isAmendRebaseInteractive = MutableStateFlow(true) // TODO should copy message from previous commit when this is required
     val isAmendRebaseInteractive: StateFlow<Boolean> = _isAmendRebaseInteractive
 
     init {
