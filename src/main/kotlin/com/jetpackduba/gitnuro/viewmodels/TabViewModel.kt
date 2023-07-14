@@ -36,6 +36,7 @@ import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import uniffi.gitnuro.WatcherInitException
 import java.awt.Desktop
 import java.io.File
 import javax.inject.Inject
@@ -181,7 +182,7 @@ class TabViewModel @Inject constructor(
         } catch (ex: Exception) {
             onRepositoryChanged(null)
             ex.printStackTrace()
-            errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+            errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
             _repositorySelectionStatus.value = RepositorySelectionStatus.None
         }
     }
@@ -207,7 +208,6 @@ class TabViewModel @Inject constructor(
     }
 
     private suspend fun watchRepositoryChanges(git: Git) = tabScope.launch(Dispatchers.IO) {
-        val ignored = git.status().call().ignoredNotInIndex.toList()
         var asyncJob: Job? = null
         var lastNotify = 0L
         var hasGitDirChanged = false
@@ -249,10 +249,32 @@ class TabViewModel @Inject constructor(
                 }
             }
         }
-        fileChangesWatcher.watchDirectoryPath(
-            pathStr = git.repository.workTree.absolutePath,
-            ignoredDirsPath = ignored,
-        )
+
+        try {
+            fileChangesWatcher.watchDirectoryPath(
+                repository = git.repository,
+                pathStr = git.repository.workTree.absolutePath,
+            )
+        } catch (ex: WatcherInitException) {
+            val message = when (ex) {
+                is WatcherInitException.Generic -> ex.error
+                is WatcherInitException.InvalidConfig -> "Invalid configuration"
+                is WatcherInitException.Io -> ex.error
+                is WatcherInitException.MaxFilesWatch -> "Reached the limit of files that can be watched. Please increase the system inotify limit to be able to detect the changes on this repository."
+                is WatcherInitException.PathNotFound -> "Path not found, check if your repository still exists"
+                is WatcherInitException.WatchNotFound -> null // This should never trigger as we don't unwatch files
+            }
+
+            if(message != null) {
+                errorsManager.addError(
+                    newErrorNow(
+                        exception = ex,
+                        title = "Repository changes detection has stopped working",
+                        message = message,
+                    ),
+                )
+            }
+        }
     }
 
     suspend fun updateApp(hasGitDirChanged: Boolean) {

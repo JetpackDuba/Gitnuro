@@ -142,7 +142,7 @@ class TabState @Inject constructor(
                 val containsCancellation = exceptionContainsCancellation(ex)
 
                 if (showError && !containsCancellation)
-                    errorsManager.addError(newErrorNow(ex, ex.message.orEmpty()))
+                    errorsManager.addError(newErrorNow(ex, null, ex.message.orEmpty()))
 
                 printError(TAG, ex.message.orEmpty(), ex)
             } finally {
@@ -190,7 +190,7 @@ class TabState @Inject constructor(
                 val containsCancellation = exceptionContainsCancellation(ex)
 
                 if (showError && !containsCancellation)
-                    errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+                    errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
 
                 printError(TAG, ex.message.orEmpty(), ex)
             } finally {
@@ -221,7 +221,7 @@ class TabState @Inject constructor(
             hasProcessFailed = true
 
             if (showError)
-                errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+                errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
 
             printError(TAG, ex.message.orEmpty(), ex)
         } finally {
@@ -284,7 +284,7 @@ class TabState @Inject constructor(
                     callback(it)
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    errorsManager.addError(newErrorNow(ex, ex.localizedMessage))
+                    errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
                 }
             }
     }

@@ -13,3 +13,5 @@ build/
 /captures
 .externalNativeBuild
 .cxx
+rs/target/
+rs/Cargo.lock

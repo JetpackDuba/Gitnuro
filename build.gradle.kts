@@ -16,8 +16,16 @@ plugins {
 val projectVersion = "1.2.1"
 val projectName = "Gitnuro"
 
+val rustGeneratedSource = "${buildDir}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
+
 group = "com.jetpackduba"
 version = projectVersion
+
+sourceSets.getByName("main") {
+    kotlin.sourceSets.main.get().kotlin.srcDir(rustGeneratedSource)
+}
+
+sourceSets.main.get().java.srcDirs("src/main/resources").includes.addAll(arrayOf("**/*.*"))
 
 repositories {
     mavenCentral()
@@ -53,7 +61,7 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:4.0.0-beta-27")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
-
+    implementation("io.arrow-kt:arrow-core:1.2.0")
 }
 
 fun currentOs(): OS {
@@ -101,6 +109,14 @@ compose.desktop {
     application {
         mainClass = "com.jetpackduba.gitnuro.MainKt"
 
+        this@application.dependsOn("rust_generateKotlinFromUdl")
+        this@application.dependsOn("rust_build")
+        this@application.dependsOn("rust_copyBuild")
+
+        sourceSets.forEach {
+            it.java.srcDir(rustGeneratedSource)
+        }
+
         nativeDistributions {
             includeAllModules = true
             packageName = projectName
@@ -142,4 +158,59 @@ task("fatJarLinux", type = Jar::class) {
         )
     }
     with(tasks.jar.get() as CopySpec)
+}
+
+
+task("rust_generateKotlinFromUdl", type = Exec::class) {
+    println("Generate Kotlin")
+    workingDir = File(project.projectDir, "rs")
+    commandLine = listOf(
+        "cargo", "run", "--features=uniffi/cli",
+        "--bin", "uniffi-bindgen", "generate", "src/repository_watcher.udl",
+        "--language", "kotlin",
+        "--out-dir", rustGeneratedSource
+    )
+}
+
+task("rust_build", type = Exec::class) {
+    println("Build rs called")
+    workingDir = File(project.projectDir, "rs")
+    commandLine = listOf(
+        "cargo", "build", "--release", "--features=uniffi/cli",
+    )
+}
+
+tasks.getByName("compileKotlin").dependsOn("rustTasks")
+tasks.getByName("compileTestKotlin").dependsOn("rustTasks")
+
+
+task("tasksList") {
+    println("Tasks")
+    tasks.forEach {
+        println("- ${it.name}")
+    }
+}
+
+task("rustTasks") {
+    dependsOn("rust_build")
+    dependsOn("rust_generateKotlinFromUdl")
+    dependsOn("rust_copyBuild")
+}
+
+task("rust_copyBuild", type = Exec::class) {
+    val outputDir = "${buildDir}/classes/kotlin/main"
+    println("Copy rs called")
+    workingDir = File(project.projectDir, "rs")
+
+    val f = File(outputDir)
+    f.mkdirs()
+
+    val lib = when (currentOs()) {
+        OS.LINUX -> "libuniffi_gitnuro.so"
+        OS.WINDOWS -> "libuniffi_gitnuro.dll"
+        OS.MAC -> "libuniffi_gitnuro.so" //TODO or is it a dylib? must be tested
+    }
+    commandLine = listOf(
+        "cp", "target/release/libgitnuro_rs.so", "$outputDir/$lib",
+    )
 }

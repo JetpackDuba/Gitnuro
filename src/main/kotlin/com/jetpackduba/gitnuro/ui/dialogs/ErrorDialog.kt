@@ -27,7 +27,7 @@ fun ErrorDialog(
         ) {
             Row {
                 Text(
-                    text = "Error",
+                    text = error.title ?: "Error",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colors.onBackground,
