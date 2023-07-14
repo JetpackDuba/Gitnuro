@@ -50,8 +50,10 @@ val settings = listOf(
 
     SettingsEntry.Section("Network"),
     SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { },
-)
 
+    SettingsEntry.Section("Tools"),
+    SettingsEntry.Entry(AppIcons.TERMINAL, "Terminal") { Terminal(it) },
+)
 
 @Composable
 fun SettingsDialog(
@@ -229,6 +231,23 @@ private fun RemoteActions(settingsViewModel: SettingsViewModel) {
         }
     )
 }
+
+@Composable
+fun Terminal(settingsViewModel: SettingsViewModel) {
+    var commitsLimit by remember { mutableStateOf(settingsViewModel.terminalPath) }
+
+    SettingTextInput(
+        title = "Custom terminal path",
+        subtitle = "If empty, Gitnuro will try to open the default terminal emulator",
+        value = commitsLimit,
+        onValueChanged = { value ->
+            commitsLimit = value
+            settingsViewModel.terminalPath = value
+        }
+    )
+}
+
+
 @Composable
 private fun Branches(settingsViewModel: SettingsViewModel) {
     val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
@@ -501,6 +520,41 @@ fun SettingIntInput(
             colors = outlinedTextFieldColors(),
             singleLine = true,
             textStyle = LocalTextStyle.current.copy(textAlign = TextAlign.End),
+        )
+    }
+}
+
+@Composable
+fun SettingTextInput(
+    title: String,
+    subtitle: String,
+    value: String,
+    enabled: Boolean = true,
+    onValueChanged: (String) -> Unit,
+) {
+    Row(
+        modifier = Modifier.padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FieldTitles(title, subtitle)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        var text by remember {
+            mutableStateOf(value)
+        }
+
+        AdjustableOutlinedTextField(
+            value = text,
+            modifier = Modifier.width(240.dp),
+            isError = false,
+            enabled = enabled,
+            onValueChange = {
+                text = it
+                onValueChanged(it)
+            },
+            colors = outlinedTextFieldColors(),
+            singleLine = true,
         )
     }
 }

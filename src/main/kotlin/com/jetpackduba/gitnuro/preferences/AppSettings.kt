@@ -32,6 +32,7 @@ private const val PREF_UI_SCALE = "ui_scale"
 private const val PREF_DIFF_TYPE = "diffType"
 private const val PREF_DIFF_FULL_FILE = "diffFullFile"
 private const val PREF_SWAP_UNCOMMITED_CHANGES = "inverseUncommitedChanges"
+private const val PREF_TERMINAL_PATH = "terminalPath"
 
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
@@ -75,6 +76,9 @@ class AppSettings @Inject constructor() {
 
     private val _textDiffFullFileFlow = MutableStateFlow(diffDisplayFullFile)
     val diffDisplayFullFileFlow = _textDiffFullFileFlow.asStateFlow()
+
+    private val _terminalPathFlow = MutableStateFlow(terminalPath)
+    val terminalPathFlow = _terminalPathFlow.asStateFlow()
 
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
@@ -202,6 +206,14 @@ class AppSettings @Inject constructor() {
             _textDiffFullFileFlow.value = newValue
         }
 
+    var terminalPath: String
+        get() = preferences.get(PREF_TERMINAL_PATH, "")
+        set(value) {
+            preferences.put(PREF_TERMINAL_PATH, value)
+
+            _terminalPathFlow.value = value
+        }
+
     fun saveCustomTheme(filePath: String) {
         val file = File(filePath)
         val content = file.readText()
@@ -222,10 +234,10 @@ class AppSettings @Inject constructor() {
 
 // TODO migrate old prefs path to new one?
 fun initPreferencesPath() {
-    if(getCurrentOs() == OS.LINUX) {
+    if (getCurrentOs() == OS.LINUX) {
         val xdgConfigHome: String? = System.getenv("XDG_CONFIG_HOME")
 
-        val settingsPath = if(xdgConfigHome.isNullOrBlank()) {
+        val settingsPath = if (xdgConfigHome.isNullOrBlank()) {
             val home = System.getProperty("user.home").orEmpty()
             "$home/.config/gitnuro"
         } else {

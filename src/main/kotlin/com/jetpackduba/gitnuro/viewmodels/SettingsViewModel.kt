@@ -26,6 +26,7 @@ class SettingsViewModel @Inject constructor(
     val pullRebaseFlow = appSettings.pullRebaseFlow
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
     val swapUncommitedChangesFlow = appSettings.swapUncommitedChangesFlow
+    val terminalPathFlow = appSettings.terminalPathFlow
 
     var scaleUi: Float
         get() = appSettings.scaleUi
@@ -61,6 +62,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettings.theme
         set(value) {
             appSettings.theme = value
+        }
+
+    var terminalPath: String
+        get() = appSettings.terminalPath
+        set(value) {
+            appSettings.terminalPath = value
         }
 
     fun saveCustomTheme(filePath: String): Error? {
