@@ -24,9 +24,8 @@ jobs:
       - uses: actions-rs/cargo@v1
         name: Rust build
         with:
-          working-directory: ./rs
           command: build
-          args: --release --features=uniffi/cli
+          args: --manifest-path=./rs/Cargo.toml --release --features=uniffi/cli
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
