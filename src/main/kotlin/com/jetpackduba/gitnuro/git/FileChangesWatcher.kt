@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import uniffi.gitnuro.WatchDirectoryNotifier
 import uniffi.gitnuro.watchDirectory
@@ -28,6 +29,12 @@ class FileChangesWatcher @Inject constructor(
         pathStr: String
     ) = withContext(Dispatchers.IO) {
         var ignoreRules = getIgnoreRulesUseCase(repository)
+        val gitDirIgnoredFiles = listOf(
+            Constants.COMMIT_EDITMSG,
+            Constants.MERGE_MSG,
+            Constants.SQUASH_MSG,
+        )
+
         val checker = object : WatchDirectoryNotifier {
             override fun shouldKeepLooping(): Boolean {
                 return isActive
@@ -41,12 +48,19 @@ class FileChangesWatcher @Inject constructor(
                 }
 
                 val areAllPathsIgnored = paths.all { path ->
-                    ignoreRules.any { rule ->
+                    val matchesAnyRule = ignoreRules.any { rule ->
                         rule.isMatch(path, Files.isDirectory(Paths.get(path)))
                     }
+
+                    val isGitIgnoredFile = gitDirIgnoredFiles.any { ignoredFile ->
+                        "$pathStr/.git/$ignoredFile" == path
+                    }
+
+                    matchesAnyRule || isGitIgnoredFile
                 }
 
-                val hasGitDirChanged = paths.any { it == "$pathStr$systemSeparator.git" }
+
+                val hasGitDirChanged = paths.any { it.startsWith("$pathStr$systemSeparator.git%$systemSeparator") }
 
                 if (!areAllPathsIgnored) {
                     _changesNotifier.emit(hasGitDirChanged)
