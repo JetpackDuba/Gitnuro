@@ -59,7 +59,6 @@ class FileChangesWatcher @Inject constructor(
                     matchesAnyRule || isGitIgnoredFile
                 }
 
-
                 val hasGitDirChanged = paths.any { it.startsWith("$pathStr$systemSeparator.git%$systemSeparator") }
 
                 if (!areAllPathsIgnored) {

@@ -75,7 +75,6 @@ fun CommitChanges(
                 textScroll = textScroll,
                 searchFilter = searchFilter,
                 onDiffSelected = onDiffSelected,
-
                 onSearchFilterToggled = { visible ->
                     commitChangesViewModel.onSearchFilterToggled(visible)
                 },

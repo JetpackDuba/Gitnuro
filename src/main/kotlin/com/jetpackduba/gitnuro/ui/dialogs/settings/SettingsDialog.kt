@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
+import androidx.compose.material.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,10 +21,7 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
-import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.dialogs.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
@@ -463,11 +461,9 @@ fun SettingToggle(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Switch(
-            checked = value,
-            onCheckedChange = onValueChanged,
-            colors = SwitchDefaults.colors(uncheckedThumbColor = MaterialTheme.colors.secondary),
-            modifier = Modifier.handOnHover(),
+        AppSwitch(
+            isChecked = value,
+            onValueChanged = onValueChanged,
         )
     }
 }
