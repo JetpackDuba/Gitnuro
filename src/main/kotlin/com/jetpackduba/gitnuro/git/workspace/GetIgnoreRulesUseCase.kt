@@ -29,20 +29,22 @@ class GetIgnoreRulesUseCase @Inject constructor() {
         }
 
         if (baseConfig != null) {
-            var excludesFilePath = baseConfig.getString("core", null, "excludesFile")
+            var excludesFilePath = baseConfig.getString("core", null, "excludesFile") ?: ""
 
-            if (excludesFilePath.startsWith("~")) {
-                excludesFilePath = excludesFilePath.replace("~", System.getProperty("user.home").orEmpty())
-            }
+            if (excludesFilePath.isNotEmpty()) {
+                if (excludesFilePath.startsWith("~")) {
+                    excludesFilePath = excludesFilePath.replace("~", System.getProperty("user.home").orEmpty())
+                }
 
-            val excludesFile = FileSystems
-                .getDefault()
-                .getPath(excludesFilePath)
-                .normalize()
-                .toFile()
+                val excludesFile = FileSystems
+                    .getDefault()
+                    .getPath(excludesFilePath)
+                    .normalize()
+                    .toFile()
 
-            if (excludesFile.exists() && excludesFile.isFile) {
-                ignoreLines.addAll(excludesFile.readLines())
+                if (excludesFile.exists() && excludesFile.isFile) {
+                    ignoreLines.addAll(excludesFile.readLines())
+                }
             }
         }
 
