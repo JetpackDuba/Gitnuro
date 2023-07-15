@@ -197,20 +197,28 @@ task("rustTasks") {
     dependsOn("rust_copyBuild")
 }
 
-task("rust_copyBuild", type = Exec::class) {
+task("rust_copyBuild") {
     val outputDir = "${buildDir}/classes/kotlin/main"
     println("Copy rs called")
-    workingDir = File(project.projectDir, "rs")
+    val workingDir = File(project.projectDir, "rs/target/release")
 
-    val f = File(outputDir)
-    f.mkdirs()
+    val directory = File(outputDir)
+    directory.mkdirs()
 
-    val lib = when (currentOs()) {
+    val originLib = when (currentOs()) {
         OS.LINUX -> "libuniffi_gitnuro.so"
-        OS.WINDOWS -> "libuniffi_gitnuro.dll"
+        OS.WINDOWS -> "gitnuro_rs.dll"
         OS.MAC -> "libuniffi_gitnuro.so" //TODO or is it a dylib? must be tested
     }
-    commandLine = listOf(
-        "cp", "target/release/libgitnuro_rs.so", "$outputDir/$lib",
-    )
+
+    val destinyLib = when (currentOs()) {
+        OS.LINUX -> "libuniffi_gitnuro.so"
+        OS.WINDOWS -> "uniffi_gitnuro.dll"
+        OS.MAC -> "libuniffi_gitnuro.so" //TODO or is it a dylib? must be tested
+    }
+
+    val originFile = File(workingDir, originLib)
+    val destinyFile = File(directory, destinyLib)
+
+    com.google.common.io.Files.copy(originFile, destinyFile)
 }
