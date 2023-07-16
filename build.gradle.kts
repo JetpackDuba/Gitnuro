@@ -109,9 +109,7 @@ compose.desktop {
     application {
         mainClass = "com.jetpackduba.gitnuro.MainKt"
 
-        this@application.dependsOn("rust_generateKotlinFromUdl")
-        this@application.dependsOn("rust_build")
-        this@application.dependsOn("rust_copyBuild")
+        this@application.dependsOn("rustTasks")
 
         sourceSets.forEach {
             it.java.srcDir(rustGeneratedSource)
@@ -161,27 +159,28 @@ task("fatJarLinux", type = Jar::class) {
 }
 
 
-task("rust_generateKotlinFromUdl", type = Exec::class) {
+task("rust_generateKotlinFromUdl") {
     println("Generate Kotlin")
-    workingDir = File(project.projectDir, "rs")
-    commandLine = listOf(
-        "cargo", "run", "--features=uniffi/cli",
-        "--bin", "uniffi-bindgen", "generate", "src/repository_watcher.udl",
-        "--language", "kotlin",
-        "--out-dir", rustGeneratedSource
-    )
+    generateKotlinFromUdl()
 }
 
-task("rust_build", type = Exec::class) {
-    println("Build rs called")
-    workingDir = File(project.projectDir, "rs")
-    commandLine = listOf(
-        "cargo", "build", "--release", "--features=uniffi/cli",
-    )
+task("rust_build") {
+    buildRust()
 }
 
-tasks.getByName("compileKotlin").dependsOn("rustTasks")
-tasks.getByName("compileTestKotlin").dependsOn("rustTasks")
+tasks.getByName("compileKotlin").doLast {
+    println("compileKotlin called")
+    buildRust()
+    copyRustBuild()
+    generateKotlinFromUdl()
+}
+
+tasks.getByName("compileTestKotlin").doLast {
+    println("compileTestKotlin called")
+    buildRust()
+    copyRustBuild()
+    generateKotlinFromUdl()
+}
 
 
 task("tasksList") {
@@ -192,14 +191,40 @@ task("tasksList") {
 }
 
 task("rustTasks") {
-    dependsOn("rust_build")
-    dependsOn("rust_generateKotlinFromUdl")
-    dependsOn("rust_copyBuild")
+    buildRust()
+    copyRustBuild()
+    generateKotlinFromUdl()
 }
 
 task("rust_copyBuild") {
+    copyRustBuild()
+}
+
+fun generateKotlinFromUdl() {
+    exec {
+        workingDir = File(project.projectDir, "rs")
+        commandLine = listOf(
+            "cargo", "run", "--features=uniffi/cli",
+            "--bin", "uniffi-bindgen", "generate", "src/repository_watcher.udl",
+            "--language", "kotlin",
+            "--out-dir", rustGeneratedSource
+        )
+    }
+}
+
+fun buildRust() {
+    exec {
+        println("Build rs called")
+        workingDir = File(project.projectDir, "rs")
+        commandLine = listOf(
+            "cargo", "build", "--release", "--features=uniffi/cli",
+        )
+    }
+}
+
+fun copyRustBuild() {
     val outputDir = "${buildDir}/classes/kotlin/main"
-    println("Copy rs called")
+    println("Copy rs build called")
     val workingDir = File(project.projectDir, "rs/target/release")
 
     val directory = File(outputDir)
@@ -221,4 +246,6 @@ task("rust_copyBuild") {
     val destinyFile = File(directory, destinyLib)
 
     com.google.common.io.Files.copy(originFile, destinyFile)
+
+    println("Copy rs build completed")
 }
