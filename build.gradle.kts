@@ -206,9 +206,9 @@ task("rust_copyBuild") {
     directory.mkdirs()
 
     val originLib = when (currentOs()) {
-        OS.LINUX -> "libuniffi_gitnuro.so"
+        OS.LINUX -> "libgitnuro_rs.so"
         OS.WINDOWS -> "gitnuro_rs.dll"
-        OS.MAC -> "libuniffi_gitnuro.so" //TODO or is it a dylib? must be tested
+        OS.MAC -> "libgitnuro_rs.so" //TODO or is it a dylib? must be tested
     }
 
     val destinyLib = when (currentOs()) {
