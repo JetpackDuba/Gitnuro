@@ -332,14 +332,14 @@ fun SearchFilter(
                 .focusRequester(textFieldFocusRequester)
                 .onPreviewKeyEvent { keyEvent ->
                     when {
-                        keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && keyEvent.type == KeyEventType.KeyDown -> {
+                        keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) -> {
                             scope.launch {
                                 logViewModel.selectNextFilterCommit()
                             }
                             true
                         }
 
-                        keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown -> {
+                        keyEvent.matchesBinding(KeybindingOption.EXIT) -> {
                             logViewModel.closeSearch()
                             true
                         }
