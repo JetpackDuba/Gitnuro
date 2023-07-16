@@ -9,11 +9,15 @@ import javax.inject.Inject
 
 class GetTrackingBranchUseCase @Inject constructor() {
     operator fun invoke(git: Git, ref: Ref): TrackingBranch? {
+        return this.invoke(git, ref.simpleName)
+    }
+
+    operator fun invoke(git: Git, refName: String): TrackingBranch? {
         val repository: Repository = git.repository
 
         val config: Config = repository.config
-        val remote: String? = config.getString("branch", ref.simpleName, "remote")
-        val branch: String? = config.getString("branch", ref.simpleName, "merge")
+        val remote: String? = config.getString("branch", refName, "remote")
+        val branch: String? = config.getString("branch", refName, "merge")
 
         if (remote != null && branch != null) {
             return TrackingBranch(remote, branch.removePrefix(BranchesConstants.UPSTREAM_BRANCH_CONFIG_PREFIX))

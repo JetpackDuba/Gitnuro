@@ -24,6 +24,7 @@ class SettingsViewModel @Inject constructor(
     val themeState = appSettings.themeState
     val ffMergeFlow = appSettings.ffMergeFlow
     val pullRebaseFlow = appSettings.pullRebaseFlow
+    val pushWithLeaseFlow = appSettings.pushWithLeaseFlow
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
     val swapUncommitedChangesFlow = appSettings.swapUncommitedChangesFlow
     val terminalPathFlow = appSettings.terminalPathFlow
@@ -56,6 +57,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettings.pullRebase
         set(value) {
             appSettings.pullRebase = value
+        }
+
+    var pushWithLease: Boolean
+        get() = appSettings.pushWithLease
+        set(value) {
+            appSettings.pushWithLease = value
         }
 
     var theme: Theme

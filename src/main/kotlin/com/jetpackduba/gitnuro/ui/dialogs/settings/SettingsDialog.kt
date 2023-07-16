@@ -219,6 +219,7 @@ private fun CommitsHistory(settingsViewModel: SettingsViewModel) {
 @Composable
 private fun RemoteActions(settingsViewModel: SettingsViewModel) {
     val pullRebase by settingsViewModel.pullRebaseFlow.collectAsState()
+    val pushWithLease by settingsViewModel.pushWithLeaseFlow.collectAsState()
 
     SettingToggle(
         title = "Pull with rebase as default",
@@ -226,6 +227,15 @@ private fun RemoteActions(settingsViewModel: SettingsViewModel) {
         value = pullRebase,
         onValueChanged = { value ->
             settingsViewModel.pullRebase = value
+        }
+    )
+
+    SettingToggle(
+        title = "Force push with lease",
+        subtitle = "Check if the local version remote branch is up to date to avoid accidentally overriding unintended commits",
+        value = pushWithLease,
+        onValueChanged = { value ->
+            settingsViewModel.pushWithLease = value
         }
     )
 }

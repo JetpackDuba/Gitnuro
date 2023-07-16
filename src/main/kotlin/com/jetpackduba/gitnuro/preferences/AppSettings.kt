@@ -7,10 +7,7 @@ import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -37,6 +34,7 @@ private const val PREF_TERMINAL_PATH = "terminalPath"
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
 private const val PREF_GIT_PULL_REBASE = "gitPullRebase"
+private const val PREF_GIT_PUSH_WITH_LEASE = "gitPushWithLease"
 
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
@@ -61,6 +59,9 @@ class AppSettings @Inject constructor() {
 
     private val _pullRebaseFlow = MutableStateFlow(pullRebase)
     val pullRebaseFlow = _pullRebaseFlow.asStateFlow()
+
+    private val _pushWithLeaseFlow = MutableStateFlow(pushWithLease)
+    val pushWithLeaseFlow: StateFlow<Boolean> = _pushWithLeaseFlow.asStateFlow()
 
     private val _commitsLimitFlow = MutableSharedFlow<Int>()
     val commitsLimitFlow = _commitsLimitFlow.asSharedFlow()
@@ -162,6 +163,15 @@ class AppSettings @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_GIT_PULL_REBASE, value)
             _pullRebaseFlow.value = value
+        }
+
+    var pushWithLease: Boolean
+        get() {
+            return preferences.getBoolean(PREF_GIT_PUSH_WITH_LEASE, true)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_GIT_PUSH_WITH_LEASE, value)
+            _pushWithLeaseFlow.value = value
         }
 
     val commitsLimit: Int
