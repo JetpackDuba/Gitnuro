@@ -3,10 +3,7 @@ package com.jetpackduba.gitnuro
 import com.jetpackduba.gitnuro.extensions.openDirectory
 import com.jetpackduba.gitnuro.system.OS
 import com.jetpackduba.gitnuro.system.getCurrentOs
-import org.apache.log4j.ConsoleAppender
-import org.apache.log4j.LogManager
-import org.apache.log4j.PatternLayout
-import org.apache.log4j.RollingFileAppender
+import org.apache.log4j.*
 import java.io.File
 
 fun initLogging() {
@@ -28,6 +25,7 @@ fun initLogging() {
     LogManager.getRootLogger().apply {
         addAppender(fileAppender)
         addAppender(consoleAppender)
+        level = Level.INFO
     }
 }
 
