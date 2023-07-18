@@ -2,6 +2,8 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
@@ -106,7 +108,12 @@ fun AppTab(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colors.surface)
-                    .onPreviewKeyEvent { true }, // Disable all keyboard events
+                    .onPreviewKeyEvent { true } // Disable all keyboard events
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = {},
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(
