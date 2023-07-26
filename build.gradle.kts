@@ -58,7 +58,7 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
     implementation("net.java.dev.jna:jna:5.13.0")
-    implementation("io.github.oshai:kotlin-logging-jvm:4.0.0-beta-27")
+    implementation("io.github.oshai:kotlin-logging-jvm:5.0.1")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
     implementation("io.arrow-kt:arrow-core:1.2.0")
