@@ -9,13 +9,19 @@ such that it's available on the `$PATH`. See [here](https://www.libssh.org/get-i
 instructions with your OS's package manager, or manually download a binary or compile it from source and place it in the
 main project directory (next to `LICENSE`) or elsewhere on your `$PATH`.
 
+## Setting up Rust
+
+Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust environment, 
+please read [its documentation](https://www.rust-lang.org/). `Cargo` and `rustc` must be available in the path in order to build Gitnuro properly.
+
 ## Setting up an IDE
 
 If you don't have another preference, the recommendation is to download and install
 [IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/)
-(possibly through the JetBrains Toolbox, if you have it already) as well as the
-[Compose Multiplatform IDE Support](https://plugins.jetbrains.com/plugin/16541-compose-multiplatform-ide-support)
-plugin.
+(possibly through the JetBrains Toolbox, if you have it already). The recommended plugins to improve the DX are:
+
+- [Compose Multiplatform IDE Support](https://plugins.jetbrains.com/plugin/16541-compose-multiplatform-ide-support)
+- [Rust Plugin](https://plugins.jetbrains.com/plugin/8182-rust)
 
 By default, the JDK used by "IntelliJ IDEA Community Edition (2023.1.3)" is "JetBrains Runtime version 21" which is not currently supported by the project.
 
