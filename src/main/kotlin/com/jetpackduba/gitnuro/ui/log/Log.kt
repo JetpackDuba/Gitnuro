@@ -26,9 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
@@ -94,10 +92,49 @@ fun Log(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
 ) {
-    val scope = rememberCoroutineScope()
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
     val showLogDialog by logViewModel.logDialog.collectAsState()
+
+    when (logStatus) {
+        is LogStatus.Loaded -> LogLoaded(logViewModel, logStatus, showLogDialog, selectedItem, repositoryState)
+        LogStatus.Loading -> LogLoading()
+    }
+}
+
+@Composable
+private fun LogLoading() {
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CircularProgressIndicator()
+        Text(
+            text = "Loading commits history...",
+            style = MaterialTheme.typography.h4,
+            modifier = Modifier.padding(top = 8.dp),
+        )
+    }
+}
+
+@Composable
+private fun LogLoaded(
+    logViewModel: LogViewModel,
+    logStatus: LogStatus.Loaded,
+    showLogDialog: LogDialog,
+    selectedItem: SelectedItem,
+    repositoryState: RepositoryState
+) {
+    val scope = rememberCoroutineScope()
+    val hasUncommitedChanges = logStatus.hasUncommittedChanges
+    val commitList = logStatus.plotCommitList
+    val verticalScrollState by logViewModel.verticalListState.collectAsState()
+    val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
+    val searchFilter = logViewModel.logSearchFilterResults.collectAsState()
+    val searchFilterValue = searchFilter.value
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit
@@ -105,173 +142,161 @@ fun Log(
         null
     }
 
-    if (logStatus is LogStatus.Loaded) {
-        val hasUncommitedChanges = logStatus.hasUncommitedChanges
-        val commitList = logStatus.plotCommitList
-        val verticalScrollState by logViewModel.verticalListState.collectAsState()
-        val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
-        val searchFilter = logViewModel.logSearchFilterResults.collectAsState()
-        val searchFilterValue = searchFilter.value
-        // With this method, whenever the scroll changes, the log is recomposed and the graph list is updated with
-        // the proper scroll position
-        verticalScrollState.observeScrollChanges()
-
-        LaunchedEffect(verticalScrollState, commitList) {
-            launch {
-                logViewModel.focusCommit.collect { commit ->
-                    scrollToCommit(verticalScrollState, commitList, commit)
-                }
-            }
-            launch {
-                logViewModel.scrollToUncommitedChanges.collect {
-                    scrollToUncommitedChanges(verticalScrollState, commitList)
-                }
+    LaunchedEffect(verticalScrollState, commitList) {
+        launch {
+            logViewModel.focusCommit.collect { commit ->
+                scrollToCommit(verticalScrollState, commitList, commit)
             }
         }
+        launch {
+            logViewModel.scrollToUncommitedChanges.collect {
+                scrollToUncommitedChanges(verticalScrollState, commitList)
+            }
+        }
+    }
 
-        LogDialogs(
-            logViewModel,
-            onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
-            showLogDialog = showLogDialog,
+    LogDialogs(
+        logViewModel,
+        onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
+        showLogDialog = showLogDialog,
+    )
+
+    Column(
+        modifier = Modifier
+            .background(MaterialTheme.colors.background)
+            .fillMaxSize()
+    ) {
+        var graphPadding by remember(logViewModel) { mutableStateOf(logViewModel.graphPadding) }
+        var graphWidth = (CANVAS_DEFAULT_WIDTH + graphPadding).dp
+
+        if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
+
+        val maxLinePosition = if (commitList.isNotEmpty())
+            commitList.maxLine
+        else
+            MIN_GRAPH_LANES
+
+        var graphRealWidth = ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
+
+        // Using remember(graphRealWidth, graphWidth) makes the selected background color glitch when changing tabs
+        if (graphRealWidth < graphWidth) {
+            graphRealWidth = graphWidth
+        }
+
+
+        if (searchFilterValue is LogSearch.SearchResults) {
+            SearchFilter(logViewModel, searchFilterValue)
+        }
+        GraphHeader(
+            graphWidth = graphWidth,
+            onPaddingChange = {
+                graphPadding += it
+                logViewModel.graphPadding = graphPadding
+            },
+            onShowSearch = { scope.launch { logViewModel.onSearchValueChanged("") } }
         )
 
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colors.background)
-                .fillMaxSize()
-        ) {
-            var graphPadding by remember(logViewModel) { mutableStateOf(logViewModel.graphPadding) }
-            var graphWidth = (CANVAS_DEFAULT_WIDTH + graphPadding).dp
-
-            if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
-
-            val maxLinePosition = if (commitList.isNotEmpty())
-                commitList.maxLine
-            else
-                MIN_GRAPH_LANES
-
-            var graphRealWidth = ((maxLinePosition + MARGIN_GRAPH_LANES) * LANE_WIDTH).dp
-
-            // Using remember(graphRealWidth, graphWidth) makes the selected background color glitch when changing tabs
-            if (graphRealWidth < graphWidth) {
-                graphRealWidth = graphWidth
-            }
-
-
-            if (searchFilterValue is LogSearch.SearchResults) {
-                SearchFilter(logViewModel, searchFilterValue)
-            }
-            GraphHeader(
-                graphWidth = graphWidth,
-                onPaddingChange = {
-                    graphPadding += it
-                    logViewModel.graphPadding = graphPadding
-                },
-                onShowSearch = { scope.launch { logViewModel.onSearchValueChanged("") } }
-            )
-
-            Box {
+        Box {
+            Box(
+                Modifier
+                    .width(graphWidth)
+                    .fillMaxHeight()
+            ) {
                 Box(
-                    Modifier
-                        .width(graphWidth)
-                        .fillMaxHeight()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .horizontalScroll(horizontalScrollState)
+                        .padding(bottom = 8.dp)
                 ) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .horizontalScroll(horizontalScrollState)
-                            .padding(bottom = 8.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.width(graphRealWidth)
-                        )
-                    }
+                        modifier = Modifier.width(graphRealWidth)
+                    )
                 }
+            }
 
-                // The commits' messages list overlaps with the graph list to catch all the click events but leaves
-                // a padding, so it doesn't cover the graph
-                MessagesList(
-                    scrollState = verticalScrollState,
-                    horizontalScrollState = horizontalScrollState,
-                    hasUncommitedChanges = hasUncommitedChanges,
-                    searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
-                    selectedCommit = selectedCommit,
-                    logStatus = logStatus,
-                    repositoryState = repositoryState,
-                    selectedItem = selectedItem,
-                    commitList = commitList,
-                    logViewModel = logViewModel,
-                    graphWidth = graphWidth,
-                    commitsLimit = logStatus.commitsLimit,
-                    onMerge = { ref ->
-                        logViewModel.mergeBranch(ref)
-                    },
-                    onRebase = { ref ->
-                        logViewModel.rebaseBranch(ref)
-                    },
-                    onShowLogDialog = { dialog ->
-                        logViewModel.showDialog(dialog)
-                    }
-                )
+            // The commits' messages list overlaps with the graph list to catch all the click events but leaves
+            // a padding, so it doesn't cover the graph
+            MessagesList(
+                scrollState = verticalScrollState,
+                horizontalScrollState = horizontalScrollState,
+                hasUncommitedChanges = hasUncommitedChanges,
+                searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
+                selectedCommit = selectedCommit,
+                logStatus = logStatus,
+                repositoryState = repositoryState,
+                selectedItem = selectedItem,
+                commitList = commitList,
+                logViewModel = logViewModel,
+                graphWidth = graphWidth,
+                commitsLimit = logStatus.commitsLimit,
+                onMerge = { ref ->
+                    logViewModel.mergeBranch(ref)
+                },
+                onRebase = { ref ->
+                    logViewModel.rebaseBranch(ref)
+                },
+                onShowLogDialog = { dialog ->
+                    logViewModel.showDialog(dialog)
+                }
+            )
 
-                val density = LocalDensity.current.density
-                DividerLog(
-                    modifier = Modifier.draggable(
-                        rememberDraggableState {
-                            graphPadding += it / density
-                            logViewModel.graphPadding = graphPadding
-                        }, Orientation.Horizontal
-                    ),
-                    graphWidth = graphWidth,
-                )
+            val density = LocalDensity.current.density
+            DividerLog(
+                modifier = Modifier.draggable(
+                    rememberDraggableState {
+                        graphPadding += it / density
+                        logViewModel.graphPadding = graphPadding
+                    }, Orientation.Horizontal
+                ),
+                graphWidth = graphWidth,
+            )
 
 
-                // Scrollbar used to scroll horizontally the graph nodes
-                // Added after every component to have the highest priority when clicking
-                HorizontalScrollbar(
+            // Scrollbar used to scroll horizontally the graph nodes
+            // Added after every component to have the highest priority when clicking
+            HorizontalScrollbar(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .width(graphWidth)
+                    .padding(start = 4.dp, bottom = 4.dp), style = LocalScrollbarStyle.current.copy(
+                    unhoverColor = MaterialTheme.colors.scrollbarNormal,
+                    hoverColor = MaterialTheme.colors.scrollbarHover,
+                ),
+                adapter = rememberScrollbarAdapter(horizontalScrollState)
+            )
+
+            val isFirstItemVisible by remember {
+                derivedStateOf { verticalScrollState.firstVisibleItemIndex > 0 }
+            }
+
+            if (isFirstItemVisible) {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .width(graphWidth)
-                        .padding(start = 4.dp, bottom = 4.dp), style = LocalScrollbarStyle.current.copy(
-                        unhoverColor = MaterialTheme.colors.scrollbarNormal,
-                        hoverColor = MaterialTheme.colors.scrollbarHover,
-                    ),
-                    adapter = rememberScrollbarAdapter(horizontalScrollState)
-                )
-
-                val isFirstItemVisible by remember {
-                    derivedStateOf { verticalScrollState.firstVisibleItemIndex > 0 }
-                }
-
-                if (isFirstItemVisible) {
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 16.dp)
-                            .clip(RoundedCornerShape(50))
-                            .handMouseClickable {
-                                scope.launch {
-                                    verticalScrollState.scrollToItem(0)
-                                }
+                        .align(Alignment.TopCenter)
+                        .padding(top = 16.dp)
+                        .clip(RoundedCornerShape(50))
+                        .handMouseClickable {
+                            scope.launch {
+                                verticalScrollState.scrollToItem(0)
                             }
-                            .background(MaterialTheme.colors.primary)
-                            .padding(vertical = 4.dp, horizontal = 8.dp),
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painterResource(AppIcons.ALIGN_TOP),
-                                contentDescription = null,
-                                tint = MaterialTheme.colors.onPrimary,
-                                modifier = Modifier.size(20.dp),
-                            )
-
-                            Text(
-                                text = "Scroll to top",
-                                modifier = Modifier.padding(start = 8.dp),
-                                color = MaterialTheme.colors.onPrimary,
-                                style = MaterialTheme.typography.body2,
-                            )
                         }
+                        .background(MaterialTheme.colors.primary)
+                        .padding(vertical = 4.dp, horizontal = 8.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            painterResource(AppIcons.ALIGN_TOP),
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.onPrimary,
+                            modifier = Modifier.size(20.dp),
+                        )
+
+                        Text(
+                            text = "Scroll to top",
+                            modifier = Modifier.padding(start = 8.dp),
+                            color = MaterialTheme.colors.onPrimary,
+                            style = MaterialTheme.typography.body2,
+                        )
                     }
                 }
             }
