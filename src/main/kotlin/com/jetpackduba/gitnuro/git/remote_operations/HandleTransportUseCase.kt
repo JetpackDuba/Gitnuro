@@ -12,11 +12,39 @@ class HandleTransportUseCase @Inject constructor(
     private val sessionManager: GSessionManager,
     private val httpCredentialsProvider: HttpCredentialsFactory,
 ) {
-    operator fun invoke(transport: Transport?, git: Git?) {
-        if (transport is SshTransport) {
-            transport.sshSessionFactory = sessionManager.generateSshSessionFactory()
-        } else if (transport is HttpTransport) {
-            transport.credentialsProvider = httpCredentialsProvider.create(git)
+    suspend operator fun invoke(git: Git?, block: suspend CredentialsHandler.() -> Unit) {
+        var cache: CredentialsCache? = null
+
+        val credentialsHandler = object: CredentialsHandler {
+            override fun handleTransport(transport: Transport?) {
+                cache = when (transport) {
+                    is SshTransport -> {
+                        val sshSessionFactory = sessionManager.generateSshSessionFactory()
+                        transport.sshSessionFactory = sshSessionFactory
+                        sshSessionFactory
+                    }
+
+                    is HttpTransport -> {
+                        val httpCredentials = httpCredentialsProvider.create(git)
+                        transport.credentialsProvider = httpCredentials
+                        httpCredentials
+                    }
+
+                    else -> {
+                        null
+                    }
+                }
+            }
         }
+
+        credentialsHandler.block()
+        cache?.cacheCredentialsIfNeeded()
     }
+}
+interface CredentialsCache {
+    suspend fun cacheCredentialsIfNeeded()
+}
+
+interface CredentialsHandler {
+    fun handleTransport(transport: Transport?)
 }

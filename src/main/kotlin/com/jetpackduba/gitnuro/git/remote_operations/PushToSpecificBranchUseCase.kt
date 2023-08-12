@@ -18,30 +18,32 @@ class PushToSpecificBranchUseCase @Inject constructor(
         withContext(Dispatchers.IO) {
             val currentBranchRefSpec = git.repository.fullBranch
 
-            val pushResult = git
-                .push()
-                .setRefSpecs(RefSpec("$currentBranchRefSpec:${remoteBranch.simpleName}"))
-                .setRemote(remoteBranch.remoteName)
-                .setForce(force)
-                .apply {
-                    if (pushTags)
-                        setPushTags()
+            handleTransportUseCase(git) {
+                val pushResult = git
+                    .push()
+                    .setRefSpecs(RefSpec("$currentBranchRefSpec:${remoteBranch.simpleName}"))
+                    .setRemote(remoteBranch.remoteName)
+                    .setForce(force)
+                    .apply {
+                        if (pushTags)
+                            setPushTags()
+                    }
+                    .setTransportConfigCallback { handleTransport(it) }
+                    .call()
+
+                val results =
+                    pushResult.map { it.remoteUpdates.filter { remoteRefUpdate -> remoteRefUpdate.status.isRejected } }
+                        .flatten()
+                if (results.isNotEmpty()) {
+                    val error = StringBuilder()
+
+                    results.forEach { result ->
+                        error.append(result.statusMessage)
+                        error.append("\n")
+                    }
+
+                    throw Exception(error.toString())
                 }
-                .setTransportConfigCallback { handleTransportUseCase(it, git) }
-                .call()
-
-            val results =
-                pushResult.map { it.remoteUpdates.filter { remoteRefUpdate -> remoteRefUpdate.status.isRejected } }
-                    .flatten()
-            if (results.isNotEmpty()) {
-                val error = StringBuilder()
-
-                results.forEach { result ->
-                    error.append(result.statusMessage)
-                    error.append("\n")
-                }
-
-                throw Exception(error.toString())
             }
         }
 }

@@ -285,7 +285,7 @@ class LogViewModel @Inject constructor(
 
         if (previousLogStatusValue is LogStatus.Loaded) {
             val newLogStatusValue = LogStatus.Loaded(
-                hasUncommitedChanges = hasUncommitedChanges,
+                hasUncommittedChanges = hasUncommitedChanges,
                 plotCommitList = previousLogStatusValue.plotCommitList,
                 currentBranch = currentBranch,
                 statusSummary = statsSummary,
@@ -447,7 +447,7 @@ class LogViewModel @Inject constructor(
 sealed class LogStatus {
     object Loading : LogStatus()
     class Loaded(
-        val hasUncommitedChanges: Boolean,
+        val hasUncommittedChanges: Boolean,
         val plotCommitList: GraphCommitList,
         val currentBranch: Ref?,
         val statusSummary: StatusSummary,

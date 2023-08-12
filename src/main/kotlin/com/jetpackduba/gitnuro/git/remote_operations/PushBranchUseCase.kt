@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.git.branches.GetTrackingBranchUseCase
+import com.jetpackduba.gitnuro.git.branches.TrackingBranch
 import com.jetpackduba.gitnuro.git.isRejected
 import com.jetpackduba.gitnuro.git.statusMessage
 import com.jetpackduba.gitnuro.preferences.AppSettings
@@ -27,7 +28,18 @@ class PushBranchUseCase @Inject constructor(
         } else {
             currentBranch
         }
+        handleTransportUseCase(git) {
+            push(git, tracking, refSpecStr, force, pushTags)
+        }
+    }
 
+    private suspend fun CredentialsHandler.push(
+        git: Git,
+        tracking: TrackingBranch?,
+        refSpecStr: String?,
+        force: Boolean,
+        pushTags: Boolean
+    ) = withContext(Dispatchers.IO) {
         val pushResult = git
             .push()
             .setRefSpecs(RefSpec(refSpecStr))
@@ -66,7 +78,7 @@ class PushBranchUseCase @Inject constructor(
                     this
                 }
             }
-            .setTransportConfigCallback { handleTransportUseCase(it, git) }
+            .setTransportConfigCallback { handleTransport(it) }
             .setProgressMonitor(object : ProgressMonitor {
                 override fun start(totalTasks: Int) {}
                 override fun beginTask(title: String?, totalWork: Int) {}
@@ -105,5 +117,4 @@ class PushBranchUseCase @Inject constructor(
             throw Exception(error.toString())
         }
     }
-
 }

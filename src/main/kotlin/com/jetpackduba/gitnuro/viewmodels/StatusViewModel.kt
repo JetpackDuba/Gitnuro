@@ -72,7 +72,7 @@ class StatusViewModel @Inject constructor(
     private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
 
-    val swapUncommitedChanges = appSettings.swapUncommitedChangesFlow
+    val swapUncommitedChanges = appSettings.swapUncommittedChangesFlow
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)

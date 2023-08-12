@@ -26,7 +26,8 @@ class SettingsViewModel @Inject constructor(
     val pullRebaseFlow = appSettings.pullRebaseFlow
     val pushWithLeaseFlow = appSettings.pushWithLeaseFlow
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
-    val swapUncommitedChangesFlow = appSettings.swapUncommitedChangesFlow
+    val swapUncommittedChangesFlow = appSettings.swapUncommittedChangesFlow
+    val cacheCredentialsInMemoryFlow = appSettings.cacheCredentialsInMemoryFlow
     val terminalPathFlow = appSettings.terminalPathFlow
 
     var scaleUi: Float
@@ -42,15 +43,21 @@ class SettingsViewModel @Inject constructor(
         }
 
     var swapUncommitedChanges: Boolean
-        get() = appSettings.swapUncommitedChanges
+        get() = appSettings.swapUncommittedChanges
         set(value) {
-            appSettings.swapUncommitedChanges = value
+            appSettings.swapUncommittedChanges = value
         }
 
     var ffMerge: Boolean
         get() = appSettings.ffMerge
         set(value) {
             appSettings.ffMerge = value
+        }
+
+    var cacheCredentialsInMemory: Boolean
+        get() = appSettings.cacheCredentialsInMemory
+        set(value) {
+            appSettings.cacheCredentialsInMemory = value
         }
 
     var pullRebase: Boolean

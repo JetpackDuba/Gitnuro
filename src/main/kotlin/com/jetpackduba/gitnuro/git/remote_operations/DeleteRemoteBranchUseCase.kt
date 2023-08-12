@@ -25,35 +25,33 @@ class DeleteRemoteBranchUseCase @Inject constructor(
             .setSource(null)
             .setDestination(branchName)
 
-        val pushResults = git.push()
-            .setTransportConfigCallback {
-                handleTransportUseCase(it, git)
+        handleTransportUseCase(git) {
+            val pushResults = git.push()
+                .setTransportConfigCallback {
+                    handleTransport(it)
+                }
+                .setRefSpecs(refSpec)
+                .setRemote(remoteName)
+                .call()
+
+            val results = pushResults.map { pushResult ->
+                pushResult.remoteUpdates.filter { remoteRefUpdate ->
+                    remoteRefUpdate.status.isRejected
+                }
+            }.flatten()
+
+            if (results.isNotEmpty()) {
+                val error = StringBuilder()
+
+                results.forEach { result ->
+                    error.append(result.statusMessage)
+                    error.append("\n")
+                }
+
+                throw Exception(error.toString())
             }
-            .setRefSpecs(refSpec)
-            .setRemote(remoteName)
-            .call()
-
-        val results = pushResults.map { pushResult ->
-            pushResult.remoteUpdates.filter { remoteRefUpdate ->
-                remoteRefUpdate.status.isRejected
-            }
-        }.flatten()
-
-        if (results.isNotEmpty()) {
-            val error = StringBuilder()
-
-            results.forEach { result ->
-                error.append(result.statusMessage)
-                error.append("\n")
-            }
-
-            throw Exception(error.toString())
         }
-
         deleteBranchUseCase(git, ref)
-//        git
-//            .branchDelete()
-//            .setBranchNames(ref.name)
-//            .call()
+
     }
 }

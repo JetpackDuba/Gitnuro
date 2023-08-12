@@ -26,46 +26,47 @@ class CloneRepositoryUseCase @Inject constructor(
         try {
             ensureActive()
             trySend(CloneState.Cloning("Starting...", progress, lastTotalWork))
+            handleTransportUseCase(null) {
+                Git.cloneRepository()
+                    .setDirectory(directory)
+                    .setURI(url)
+                    .setProgressMonitor(
+                        object : ProgressMonitor {
+                            override fun start(totalTasks: Int) {
+                                printDebug(TAG, "ProgressMonitor Start with total tasks of: $totalTasks")
+                            }
 
-            Git.cloneRepository()
-                .setDirectory(directory)
-                .setURI(url)
-                .setProgressMonitor(
-                    object : ProgressMonitor {
-                        override fun start(totalTasks: Int) {
-                            printDebug(TAG, "ProgressMonitor Start with total tasks of: $totalTasks")
+                            override fun beginTask(title: String?, totalWork: Int) {
+                                println("ProgressMonitor Begin task with title: $title")
+                                lastTitle = title.orEmpty()
+                                lastTotalWork = totalWork
+                                progress = 0
+                                trySend(CloneState.Cloning(lastTitle, progress, lastTotalWork))
+                            }
+
+                            override fun update(completed: Int) {
+                                printDebug(TAG, "ProgressMonitor Update $completed")
+                                ensureActive()
+
+                                progress += completed
+                                trySend(CloneState.Cloning(lastTitle, progress, lastTotalWork))
+                            }
+
+                            override fun endTask() {
+                                printDebug(TAG, "ProgressMonitor End task")
+                            }
+
+                            override fun isCancelled(): Boolean {
+                                return !isActive
+                            }
+
+                            override fun showDuration(enabled: Boolean) {}
                         }
-
-                        override fun beginTask(title: String?, totalWork: Int) {
-                            println("ProgressMonitor Begin task with title: $title")
-                            lastTitle = title.orEmpty()
-                            lastTotalWork = totalWork
-                            progress = 0
-                            trySend(CloneState.Cloning(lastTitle, progress, lastTotalWork))
-                        }
-
-                        override fun update(completed: Int) {
-                            printDebug(TAG, "ProgressMonitor Update $completed")
-                            ensureActive()
-
-                            progress += completed
-                            trySend(CloneState.Cloning(lastTitle, progress, lastTotalWork))
-                        }
-
-                        override fun endTask() {
-                            printDebug(TAG, "ProgressMonitor End task")
-                        }
-
-                        override fun isCancelled(): Boolean {
-                            return !isActive
-                        }
-
-                        override fun showDuration(enabled: Boolean) {}
-                    }
-                )
-                .setTransportConfigCallback { handleTransportUseCase(it, null) }
-                .setCloneSubmodules(cloneSubmodules)
-                .call()
+                    )
+                    .setTransportConfigCallback { handleTransport(it) }
+                    .setCloneSubmodules(cloneSubmodules)
+                    .call()
+            }
 
             ensureActive()
             trySend(CloneState.Completed(directory))

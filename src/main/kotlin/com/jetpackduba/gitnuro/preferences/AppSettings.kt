@@ -28,8 +28,9 @@ private const val PREF_CUSTOM_THEME = "customTheme"
 private const val PREF_UI_SCALE = "ui_scale"
 private const val PREF_DIFF_TYPE = "diffType"
 private const val PREF_DIFF_FULL_FILE = "diffFullFile"
-private const val PREF_SWAP_UNCOMMITED_CHANGES = "inverseUncommitedChanges"
+private const val PREF_SWAP_UNCOMMITTED_CHANGES = "inverseUncommittedChanges"
 private const val PREF_TERMINAL_PATH = "terminalPath"
+private const val PREF_CACHE_CREDENTIALS_IN_MEMORY = "credentialsInMemory"
 
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
@@ -38,7 +39,8 @@ private const val PREF_GIT_PUSH_WITH_LEASE = "gitPushWithLease"
 
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
-private const val DEFAULT_SWAP_UNCOMMITED_CHANGES = false
+private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
+private const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
 const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
@@ -51,8 +53,11 @@ class AppSettings @Inject constructor() {
     private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
     val commitsLimitEnabledFlow = _commitsLimitEnabledFlow.asStateFlow()
 
-    private val _swapUncommitedChangesFlow = MutableStateFlow(swapUncommitedChanges)
-    val swapUncommitedChangesFlow = _swapUncommitedChangesFlow.asStateFlow()
+    private val _swapUncommittedChangesFlow = MutableStateFlow(swapUncommittedChanges)
+    val swapUncommittedChangesFlow = _swapUncommittedChangesFlow.asStateFlow()
+
+    private val _cacheCredentialsInMemoryFlow = MutableStateFlow(cacheCredentialsInMemory)
+    val cacheCredentialsInMemoryFlow = _cacheCredentialsInMemoryFlow.asStateFlow()
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
     val ffMergeFlow = _ffMergeFlow.asStateFlow()
@@ -123,13 +128,22 @@ class AppSettings @Inject constructor() {
             _commitsLimitEnabledFlow.value = value
         }
 
-    var swapUncommitedChanges: Boolean
+    var swapUncommittedChanges: Boolean
         get() {
-            return preferences.getBoolean(PREF_SWAP_UNCOMMITED_CHANGES, DEFAULT_SWAP_UNCOMMITED_CHANGES)
+            return preferences.getBoolean(PREF_SWAP_UNCOMMITTED_CHANGES, DEFAULT_SWAP_UNCOMMITTED_CHANGES)
         }
         set(value) {
-            preferences.putBoolean(PREF_SWAP_UNCOMMITED_CHANGES, value)
-            _swapUncommitedChangesFlow.value = value
+            preferences.putBoolean(PREF_SWAP_UNCOMMITTED_CHANGES, value)
+            _swapUncommittedChangesFlow.value = value
+        }
+
+    var cacheCredentialsInMemory: Boolean
+        get() {
+            return preferences.getBoolean(PREF_CACHE_CREDENTIALS_IN_MEMORY, DEFAULT_CACHE_CREDENTIALS_IN_MEMORY)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_CACHE_CREDENTIALS_IN_MEMORY, value)
+            _cacheCredentialsInMemoryFlow.value = value
         }
 
     var scaleUi: Float

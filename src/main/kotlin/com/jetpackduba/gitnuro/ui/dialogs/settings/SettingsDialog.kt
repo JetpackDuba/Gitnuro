@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
-import androidx.compose.material.Switch
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,7 +16,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -48,6 +46,7 @@ val settings = listOf(
 
     SettingsEntry.Section("Network"),
     SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { },
+    SettingsEntry.Entry(AppIcons.PASSWORD, "Authentication") { Authentication(it) },
 
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(AppIcons.TERMINAL, "Terminal") { Terminal(it) },
@@ -240,6 +239,21 @@ private fun RemoteActions(settingsViewModel: SettingsViewModel) {
     )
 }
 
+
+@Composable
+private fun Authentication(settingsViewModel: SettingsViewModel) {
+    val cacheCredentialsInMemory by settingsViewModel.cacheCredentialsInMemoryFlow.collectAsState()
+
+    SettingToggle(
+        title = "Cache HTTP credentials in memory",
+        subtitle = "If active, HTTP Credentials will be remember until Gitnuro is closed",
+        value = cacheCredentialsInMemory,
+        onValueChanged = { value ->
+            settingsViewModel.cacheCredentialsInMemory = value
+        }
+    )
+}
+
 @Composable
 fun Terminal(settingsViewModel: SettingsViewModel) {
     var commitsLimit by remember { mutableStateOf(settingsViewModel.terminalPath) }
@@ -272,7 +286,7 @@ private fun Branches(settingsViewModel: SettingsViewModel) {
 
 @Composable
 private fun Layout(settingsViewModel: SettingsViewModel) {
-    val swapUncommitedChanges by settingsViewModel.swapUncommitedChangesFlow.collectAsState()
+    val swapUncommitedChanges by settingsViewModel.swapUncommittedChangesFlow.collectAsState()
 
     SettingToggle(
         title = "Swap position for staged/unstaged views",

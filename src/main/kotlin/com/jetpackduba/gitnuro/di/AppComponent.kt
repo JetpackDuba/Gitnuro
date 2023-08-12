@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.di
 
 import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppEnvInfo
+import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.di.modules.AppModule
 import com.jetpackduba.gitnuro.di.modules.NetworkModule
@@ -44,4 +45,6 @@ interface AppComponent {
     fun tempFilesManager(): TempFilesManager
 
     fun updatesRepository(): UpdatesRepository
+
+    fun credentialsCacheRepository(): CredentialsCacheRepository
 }

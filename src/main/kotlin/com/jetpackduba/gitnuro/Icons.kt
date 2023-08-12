@@ -40,6 +40,7 @@ object AppIcons {
     const val NETWORK = "network.svg"
     const val OPEN = "open.svg"
     const val PALETTE = "palette.svg"
+    const val PASSWORD = "password.svg"
     const val PASTE = "paste.svg"
     const val PERSON = "person.svg"
     const val REFRESH = "refresh.svg"

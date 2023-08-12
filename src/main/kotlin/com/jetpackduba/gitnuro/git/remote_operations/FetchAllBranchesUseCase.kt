@@ -23,26 +23,28 @@ class FetchAllBranchesUseCase @Inject constructor(
         val errors = mutableListOf<Pair<RemoteConfig, Exception>>()
         for (remote in remotes) {
             try {
-                git.fetch()
-                    .setRemote(remote.name)
-                    .setRefSpecs(remote.fetchRefSpecs)
-                    .setRemoveDeletedRefs(true)
-                    .setTransportConfigCallback { handleTransportUseCase(it, git) }
-                    .setCredentialsProvider(CredentialsProvider.getDefault())
-                    .setProgressMonitor(object : ProgressMonitor {
-                        override fun start(totalTasks: Int) {}
+                handleTransportUseCase(git) {
+                    git.fetch()
+                        .setRemote(remote.name)
+                        .setRefSpecs(remote.fetchRefSpecs)
+                        .setRemoveDeletedRefs(true)
+                        .setTransportConfigCallback { handleTransport(it) }
+                        .setCredentialsProvider(CredentialsProvider.getDefault())
+                        .setProgressMonitor(object : ProgressMonitor {
+                            override fun start(totalTasks: Int) {}
 
-                        override fun beginTask(title: String?, totalWork: Int) {}
+                            override fun beginTask(title: String?, totalWork: Int) {}
 
-                        override fun update(completed: Int) {}
+                            override fun update(completed: Int) {}
 
-                        override fun endTask() {}
+                            override fun endTask() {}
 
-                        override fun isCancelled(): Boolean = isActive
+                            override fun isCancelled(): Boolean = isActive
 
-                        override fun showDuration(enabled: Boolean) {}
-                    })
-                    .call()
+                            override fun showDuration(enabled: Boolean) {}
+                        })
+                        .call()
+                }
             } catch (ex: Exception) {
                 printError(TAG, "Fetch failed for remote ${remote.name} with error ${ex.message}", ex)
 

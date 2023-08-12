@@ -129,7 +129,7 @@ private fun LogLoaded(
     repositoryState: RepositoryState
 ) {
     val scope = rememberCoroutineScope()
-    val hasUncommitedChanges = logStatus.hasUncommittedChanges
+    val hasUncommittedChanges = logStatus.hasUncommittedChanges
     val commitList = logStatus.plotCommitList
     val verticalScrollState by logViewModel.verticalListState.collectAsState()
     val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
@@ -219,7 +219,7 @@ private fun LogLoaded(
             MessagesList(
                 scrollState = verticalScrollState,
                 horizontalScrollState = horizontalScrollState,
-                hasUncommitedChanges = hasUncommitedChanges,
+                hasUncommittedChanges = hasUncommittedChanges,
                 searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
                 selectedCommit = selectedCommit,
                 logStatus = logStatus,
@@ -427,7 +427,7 @@ fun SearchFilter(
 @Composable
 fun MessagesList(
     scrollState: LazyListState,
-    hasUncommitedChanges: Boolean,
+    hasUncommittedChanges: Boolean,
     searchFilter: List<GraphNode>?,
     selectedCommit: RevCommit?,
     logStatus: LogStatus.Loaded,
@@ -447,7 +447,7 @@ fun MessagesList(
         modifier = Modifier.fillMaxSize(),
     ) {
         if (
-            hasUncommitedChanges ||
+            hasUncommittedChanges ||
             repositoryState.isMerging ||
             repositoryState.isRebasing ||
             repositoryState.isCherryPicking
