@@ -111,9 +111,9 @@ fun NewBranchDialog(
                 )
             }
         }
-    }
 
-    LaunchedEffect(Unit) {
-        branchFieldFocusRequester.requestFocus()
+        LaunchedEffect(Unit) {
+            branchFieldFocusRequester.requestFocus()
+        }
     }
 }

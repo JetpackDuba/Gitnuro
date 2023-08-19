@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
@@ -135,7 +136,9 @@ private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifi
 @Composable
 fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onDismissRequest: () -> Unit) {
     Popup(
-        focusable = true,
+        properties = PopupProperties(
+            focusable = true,
+        ),
         popupPositionProvider = object : PopupPositionProvider {
             override fun calculatePosition(
                 anchorBounds: IntRect,
@@ -331,7 +334,9 @@ class AppContextMenuRepresentation : ContextMenuRepresentation {
             var inputModeManager: InputModeManager? by mutableStateOf(null)
 
             Popup(
-                focusable = true,
+                properties = PopupProperties(
+                    focusable = true,
+                ),
                 onDismissRequest = { state.status = ContextMenuState.Status.Closed },
                 popupPositionProvider = rememberPopupPositionProviderAtPosition(
                     positionPx = status.rect.center

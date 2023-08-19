@@ -1149,7 +1149,7 @@ fun DiffLineText(line: Line, diffEntryType: DiffEntryType, onActionTriggered: ()
                 contentDescription = null,
                 tint = Color.White,
                 modifier = Modifier
-                    .fastClickable(line) { onActionTriggered() }
+                    .clickable { onActionTriggered() }
                     .size(16.dp)
                     .clip(RoundedCornerShape(2.dp))
                     .background(color),

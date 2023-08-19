@@ -111,9 +111,9 @@ fun StashWithMessageDialog(
                 )
             }
         }
-    }
 
-    LaunchedEffect(Unit) {
-        textFieldFocusRequester.requestFocus()
+        LaunchedEffect(Unit) {
+            textFieldFocusRequester.requestFocus()
+        }
     }
 }

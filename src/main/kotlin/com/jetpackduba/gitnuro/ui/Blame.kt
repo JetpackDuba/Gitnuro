@@ -4,6 +4,7 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.DisableSelection
@@ -96,7 +97,7 @@ fun Blame(
                                     .width(200.dp)
                                     .fillMaxHeight()
                                     .background(MaterialTheme.colors.secondarySurface)
-                                    .fastClickable { if (commit != null) onSelectCommit(commit) },
+                                    .clickable { if (commit != null) onSelectCommit(commit) },
                                 verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(

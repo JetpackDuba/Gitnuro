@@ -26,6 +26,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.dialogOverlay
@@ -40,7 +41,9 @@ fun MaterialDialog(
     content: @Composable () -> Unit
 ) {
     Popup(
-        focusable = true,
+        properties = PopupProperties(
+            focusable = true,
+        ),
         popupPositionProvider = object : PopupPositionProvider {
             override fun calculatePosition(
                 anchorBounds: IntRect,

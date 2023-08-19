@@ -111,9 +111,9 @@ fun NewTagDialog(
                 )
             }
         }
-    }
 
-    LaunchedEffect(Unit) {
-        fieldFocusRequester.requestFocus()
+        LaunchedEffect(Unit) {
+            fieldFocusRequester.requestFocus()
+        }
     }
 }

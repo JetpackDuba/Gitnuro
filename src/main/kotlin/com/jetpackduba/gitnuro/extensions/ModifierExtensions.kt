@@ -91,25 +91,6 @@ fun Modifier.onDoubleClick(
     }
 }
 
-// TODO Try to restore hover that was shown with clickable modifier
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun Modifier.fastClickable(key: Any = Unit, key2: Any = Unit, onClick: () -> Unit) =
-    this.handOnHover()
-        .hoverBackground()
-        .pointerInput(key, key2) {
-            while (true) {
-                val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
-                val mouseEvent = lastMouseEvent.awtEventOrNull
-
-                if (mouseEvent != null) {
-                    if (lastMouseEvent.button.isPrimary) {
-                        onClick()
-                    }
-                }
-            }
-        }
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Modifier.onMiddleMouseButtonClick(key: Any = Unit, key2: Any = Unit, onClick: () -> Unit) =

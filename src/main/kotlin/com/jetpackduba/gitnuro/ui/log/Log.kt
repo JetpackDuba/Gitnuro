@@ -457,7 +457,7 @@ fun MessagesList(
                     modifier = Modifier.height(LINE_HEIGHT.dp)
                         .clipToBounds()
                         .fillMaxWidth()
-                        .fastClickable { logViewModel.selectUncommitedChanges() }
+                        .clickable { logViewModel.selectUncommitedChanges() }
                 ) {
                     UncommitedChangesGraphNode(
                         hasPreviousCommits = commitList.isNotEmpty(),
@@ -760,7 +760,7 @@ fun CommitLine(
     ) {
         Box(
             modifier = Modifier
-                .fastClickable(graphNode, logViewModel) { onRevCommitSelected() }
+                .clickable { onRevCommitSelected() }
         ) {
             val nodeColor = colors[graphNode.lane.position % colors.size]
 

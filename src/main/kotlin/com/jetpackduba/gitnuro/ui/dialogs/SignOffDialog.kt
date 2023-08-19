@@ -168,9 +168,9 @@ fun SignOffDialog(
                 )
             }
         }
-    }
 
-    LaunchedEffect(state) {
-        signOffFieldFocusRequester.requestFocus()
+        LaunchedEffect(state) {
+            signOffFieldFocusRequester.requestFocus()
+        }
     }
 }
