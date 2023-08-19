@@ -795,38 +795,42 @@ private fun DiffHeader(
         val fileName = diffEntry.fileName
         val dirPath: String = diffEntry.parentDirectoryPath
 
-        Row(Modifier.weight(1f, true)) {
-            if (dirPath.isNotEmpty()) {
-                Text(
-                    text = dirPath.removeSuffix("/"),
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.onBackgroundSecondary,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier
-                        .weight(1f, false),
-                )
+        SelectionContainer {
+            Row {
+                if (dirPath.isNotEmpty()) {
+                    Text(
+                        text = dirPath.removeSuffix("/"),
+                        style = MaterialTheme.typography.body2,
+                        color = MaterialTheme.colors.onBackgroundSecondary,
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .weight(1f, false),
+                    )
 
+                    Text(
+                        text = "/",
+                        maxLines = 1,
+                        softWrap = false,
+                        style = MaterialTheme.typography.body2,
+                        overflow = TextOverflow.Visible,
+                        color = MaterialTheme.colors.onBackgroundSecondary,
+                    )
+                }
                 Text(
-                    text = "/",
-                    maxLines = 1,
-                    softWrap = false,
+                    text = fileName,
                     style = MaterialTheme.typography.body2,
-                    overflow = TextOverflow.Visible,
-                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    color = MaterialTheme.colors.onBackground,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                    modifier = Modifier.padding(end = 16.dp),
                 )
             }
-            Text(
-                text = fileName,
-                style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.onBackground,
-                fontWeight = FontWeight.Medium,
-                maxLines = 1,
-                modifier = Modifier.padding(end = 16.dp),
-            )
         }
+
+        Spacer(Modifier.weight(1f, true))
 
 
         Row(
