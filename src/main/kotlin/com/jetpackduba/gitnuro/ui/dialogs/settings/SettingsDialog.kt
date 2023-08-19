@@ -12,6 +12,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
@@ -45,12 +47,78 @@ val settings = listOf(
     SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { RemoteActions(it) },
 
     SettingsEntry.Section("Network"),
-    SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { },
+    SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { Proxy() },
     SettingsEntry.Entry(AppIcons.PASSWORD, "Authentication") { Authentication(it) },
 
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(AppIcons.TERMINAL, "Terminal") { Terminal(it) },
 )
+
+@Composable
+fun Proxy() {
+    var useProxy by remember { mutableStateOf(false) }
+
+    var hostName by remember { mutableStateOf("") }
+    var portNumber by remember { mutableStateOf(80) }
+    var login by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    val proxyTypes = listOf(ProxyType.HTTP, ProxyType.SOCKS)
+    val proxyTypesDropDownOptions = proxyTypes.map { DropDownOption(it, it.name) }
+    var currentProxyType by remember { mutableStateOf(proxyTypesDropDownOptions.first()) }
+
+    Column {
+        SettingToggle(
+            title = "Use proxy",
+            subtitle = "Set up your proxy configuration if needed",
+            value = useProxy,
+            onValueChanged = { useProxy = it },
+        )
+
+        SettingDropDown(
+            title = "Proxy type",
+            subtitle = "Pick between HTTP or SOCKS",
+            dropDownOptions = proxyTypesDropDownOptions,
+            currentOption = currentProxyType,
+            onOptionSelected = { currentProxyType = it }
+        )
+
+        SettingTextInput(
+            title = "Host name",
+            subtitle = "",
+            value = hostName,
+            onValueChanged = { hostName = it },
+            enabled = useProxy,
+        )
+
+        SettingIntInput(
+            title = "Port number",
+            subtitle = "",
+            value = portNumber,
+            onValueChanged = { portNumber = it },
+            enabled = useProxy,
+        )
+
+        SettingTextInput(
+            title = "Login",
+            subtitle = "",
+            value = login,
+            onValueChanged = { login = it },
+            enabled = useProxy,
+        )
+
+
+        SettingTextInput(
+            title = "Password",
+            subtitle = "",
+            value = password,
+            onValueChanged = { password = it },
+            isPassword = true,
+            enabled = useProxy,
+        )
+
+    }
+}
 
 @Composable
 fun SettingsDialog(
@@ -550,6 +618,7 @@ fun SettingTextInput(
     subtitle: String,
     value: String,
     enabled: Boolean = true,
+    isPassword: Boolean = false,
     onValueChanged: (String) -> Unit,
 ) {
     Row(
@@ -573,6 +642,7 @@ fun SettingTextInput(
                 text = it
                 onValueChanged(it)
             },
+            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             colors = outlinedTextFieldColors(),
             singleLine = true,
         )
@@ -619,4 +689,9 @@ private fun isValidFloat(value: String): Boolean {
     } catch (ex: Exception) {
         false
     }
+}
+
+enum class ProxyType {
+    HTTP,
+    SOCKS,
 }
