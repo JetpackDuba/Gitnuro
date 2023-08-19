@@ -261,7 +261,7 @@ class TabInformation(
             this.path = newPath
 
             if (newPath == null) {
-                tabName.value = TabInformation.DEFAULT_NAME
+                tabName.value = DEFAULT_NAME
             } else {
                 tabName.value = Path(newPath).name
                 appStateManager.repositoryTabChanged(newPath)
