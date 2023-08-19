@@ -33,8 +33,6 @@ fn watch_directory(
     while notifier.should_keep_looping() {
         match rx.recv_timeout(Duration::from_secs(1)) {
             Ok(e) => {
-                println!("{:?}", e);
-
                 if let Some(paths) = get_paths_from_event_result(&e) {
                     notifier.detected_change(paths)
                 }

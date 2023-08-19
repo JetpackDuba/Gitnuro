@@ -40,6 +40,8 @@ class TabState @Inject constructor(
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
     private val _taskEvent = MutableSharedFlow<TaskEvent>()
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent
+    var lastOperation: Long = 0
+        private set
 
     private var unsafeGit: Git? = null
     val git: Git
@@ -87,6 +89,8 @@ class TabState @Inject constructor(
             var hasProcessFailed = false
             var refreshEvenIfCrashesInteractiveResult = false
             operationRunning = true
+
+            lastOperation = System.currentTimeMillis()
 
             val processingInfo: ProcessingInfo = object : ProcessingInfo {
                 override fun changeSubtitle(newSubtitle: String) {
@@ -213,6 +217,8 @@ class TabState @Inject constructor(
         var hasProcessFailed = false
 
         operationRunning = true
+        lastOperation = System.currentTimeMillis()
+
         try {
             block(git)
         } catch (ex: Exception) {

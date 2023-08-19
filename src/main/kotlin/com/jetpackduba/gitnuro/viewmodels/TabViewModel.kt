@@ -6,7 +6,6 @@ import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
-import com.jetpackduba.gitnuro.git.rebase.GetRebaseInteractiveStateUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
@@ -43,6 +42,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 1000L
+private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
 
 private const val TAG = "TabViewModel"
 
@@ -69,7 +69,6 @@ class TabViewModel @Inject constructor(
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
-    private val getRebaseInteractiveStateUseCase: GetRebaseInteractiveStateUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
@@ -162,7 +161,6 @@ class TabViewModel @Inject constructor(
                 openRepositoryUseCase(directory)
             }
 
-
             repository.workTree // test if repository is valid
             _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
             val git = Git(repository)
@@ -227,6 +225,12 @@ class TabViewModel @Inject constructor(
                     // To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
                     // the app by constantly running "git status".
                     val currentTimeMillis = System.currentTimeMillis()
+
+                    if (currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION) {
+                        printDebug(TAG, "Git operation was executed recently, ignoring file system change")
+                        return@collect
+                    }
+
                     val diffTime = currentTimeMillis - lastNotify
 
                     // When .git dir has changed, do the refresh with a delay to avoid doing operations while a git
