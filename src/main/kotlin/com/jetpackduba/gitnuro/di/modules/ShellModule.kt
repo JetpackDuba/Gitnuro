@@ -5,7 +5,7 @@ import com.jetpackduba.gitnuro.managers.FlatpakShellManager
 import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.managers.ShellManager
 import com.jetpackduba.gitnuro.system.OS
-import com.jetpackduba.gitnuro.system.getCurrentOs
+import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.terminal.ITerminalProvider
 import com.jetpackduba.gitnuro.terminal.LinuxTerminalProvider
 import com.jetpackduba.gitnuro.terminal.MacTerminalProvider
@@ -34,7 +34,7 @@ class ShellModule {
         windowsTerminalProvider: Provider<WindowsTerminalProvider>,
         macTerminalProvider: Provider<MacTerminalProvider>,
     ): ITerminalProvider {
-        return when (getCurrentOs()) {
+        return when (currentOs) {
             OS.LINUX -> linuxTerminalProvider.get()
             OS.WINDOWS -> windowsTerminalProvider.get()
             OS.MAC -> macTerminalProvider.get()

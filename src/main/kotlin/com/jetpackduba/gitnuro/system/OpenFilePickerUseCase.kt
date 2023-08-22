@@ -21,9 +21,8 @@ class OpenFilePickerUseCase @Inject constructor(
     private val shellManager: ShellManager
 ) {
     operator fun invoke(pickerType: PickerType, basePath: String?): String? {
-        val os = getCurrentOs()
-        val isLinux = os.isLinux()
-        val isMac = os.isMac()
+        val isLinux = currentOs.isLinux()
+        val isMac = currentOs.isMac()
 
         return if (isLinux) {
             openDirectoryDialogLinux(pickerType)

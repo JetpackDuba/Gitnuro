@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.managers
 
 import com.jetpackduba.gitnuro.system.OS
-import com.jetpackduba.gitnuro.system.getCurrentOs
+import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.logging.printError
 import java.io.File
 import javax.inject.Inject
@@ -10,7 +10,7 @@ private const val TAG = "AppFilesManager"
 
 class AppFilesManager @Inject constructor() {
     fun getAppFolder(): File {
-        val baseFolderPath = when (getCurrentOs()) {
+        val baseFolderPath = when (currentOs) {
             OS.LINUX -> {
                 var configFolder: String? = System.getenv("XDG_CONFIG_HOME")
 

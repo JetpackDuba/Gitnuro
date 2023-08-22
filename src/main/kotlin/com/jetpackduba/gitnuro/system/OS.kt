@@ -18,18 +18,17 @@ enum class OS {
     fun isMac() = this == MAC
 }
 
-fun getCurrentOs(): OS {
+val currentOs by lazy {
     val os = System.getProperty("os.name").lowercase()
     printLog(TAG, "OS is $os")
 
-    return when {
+    return@lazy when {
         os.contains("linux") -> OS.LINUX
         os.contains("windows") -> OS.WINDOWS
         os.contains("mac") -> OS.MAC
         else -> OS.UNKNOWN
     }
 }
-
 
 val systemSeparator: String by lazy {
     FileSystems.getDefault().separator

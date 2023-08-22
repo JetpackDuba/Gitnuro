@@ -2,7 +2,7 @@ package com.jetpackduba.gitnuro.preferences
 
 import com.jetpackduba.gitnuro.extensions.defaultWindowPlacement
 import com.jetpackduba.gitnuro.system.OS
-import com.jetpackduba.gitnuro.system.getCurrentOs
+import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
@@ -258,7 +258,7 @@ class AppSettings @Inject constructor() {
 
 // TODO migrate old prefs path to new one?
 fun initPreferencesPath() {
-    if (getCurrentOs() == OS.LINUX) {
+    if (currentOs == OS.LINUX) {
         val xdgConfigHome: String? = System.getenv("XDG_CONFIG_HOME")
 
         val settingsPath = if (xdgConfigHome.isNullOrBlank()) {

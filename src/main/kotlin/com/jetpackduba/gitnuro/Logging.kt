@@ -2,14 +2,14 @@ package com.jetpackduba.gitnuro
 
 import com.jetpackduba.gitnuro.extensions.openDirectory
 import com.jetpackduba.gitnuro.system.OS
-import com.jetpackduba.gitnuro.system.getCurrentOs
+import com.jetpackduba.gitnuro.system.currentOs
 import org.apache.log4j.*
 import java.io.File
 
 fun initLogging() {
     val layout = PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n")
 
-    val filePath = when (getCurrentOs()) {
+    val filePath = when (currentOs) {
         OS.LINUX -> linuxLogsPathAppender()
         OS.WINDOWS -> windowsLogsPathAppender()
         OS.MAC -> macosLogsPath()

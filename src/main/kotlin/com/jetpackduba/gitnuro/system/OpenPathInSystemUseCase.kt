@@ -19,7 +19,7 @@ class OpenPathInSystemUseCase @Inject constructor(
     private val shellManager: ShellManager
 ) {
     operator fun invoke(path: String): Boolean {
-        when (getCurrentOs()) {
+        when (currentOs) {
             OS.LINUX -> {
                 if (shellManager.runCommandWithoutResult(listOf("xdg-open", path)))
                     return true
