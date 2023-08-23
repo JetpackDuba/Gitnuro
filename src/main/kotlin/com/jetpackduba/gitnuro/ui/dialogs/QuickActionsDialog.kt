@@ -50,10 +50,6 @@ fun QuickActionsDialog(
         mutableStateOf(0)
     }
 
-    LaunchedEffect(Unit) {
-        textFieldFocusRequester.requestFocus()
-    }
-
     MaterialDialog(
         onCloseRequested = onClose,
         background = MaterialTheme.colors.surface,
@@ -117,6 +113,10 @@ fun QuickActionsDialog(
                         )
                     }
                 }
+            }
+
+            LaunchedEffect(Unit) {
+                textFieldFocusRequester.requestFocus()
             }
         }
     }
