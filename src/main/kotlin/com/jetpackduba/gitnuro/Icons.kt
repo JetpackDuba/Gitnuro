@@ -20,6 +20,7 @@ object AppIcons {
     const val DESCRIPTION = "description.svg"
     const val DONE = "done.svg"
     const val DOWNLOAD = "download.svg"
+    const val DRAG = "drag.svg"
     const val DROPDOWN = "dropdown.svg"
     const val ERROR = "error.svg"
     const val EXPAND_MORE = "expand_more.svg"

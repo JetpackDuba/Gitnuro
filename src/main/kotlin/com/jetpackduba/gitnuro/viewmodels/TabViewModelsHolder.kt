@@ -16,9 +16,9 @@ class TabViewModelsHolder @Inject constructor(
     cloneViewModel: CloneViewModel,
     settingsViewModel: SettingsViewModel,
     sidePanelViewModel: SidePanelViewModel,
+    rebaseInteractiveViewModel: RebaseInteractiveViewModel,
     // Dynamic VM
     private val diffViewModelProvider: Provider<DiffViewModel>,
-    private val rebaseInteractiveViewModelProvider: Provider<RebaseInteractiveViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val changeDefaultUpstreamBranchViewModelProvider: Provider<ChangeDefaultUpstreamBranchViewModel>,
@@ -33,13 +33,13 @@ class TabViewModelsHolder @Inject constructor(
         commitChangesViewModel::class to commitChangesViewModel,
         cloneViewModel::class to cloneViewModel,
         settingsViewModel::class to settingsViewModel,
+        rebaseInteractiveViewModel::class to rebaseInteractiveViewModel,
     )
 
     // TODO Call this when required
     fun dynamicViewModel(type: KClass<*>): Any {
         return when(type) {
             DiffViewModel::class -> diffViewModelProvider.get()
-            RebaseInteractiveViewModel::class -> rebaseInteractiveViewModelProvider.get()
             HistoryViewModel::class -> historyViewModelProvider.get()
             AuthorViewModel::class -> authorViewModelProvider.get()
             ChangeDefaultUpstreamBranchViewModel::class -> changeDefaultUpstreamBranchViewModelProvider.get()

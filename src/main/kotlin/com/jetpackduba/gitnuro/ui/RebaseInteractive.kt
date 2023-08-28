@@ -1,32 +1,40 @@
 package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
+import com.jetpackduba.gitnuro.theme.backgroundSelected
+import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
-import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
+import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.RebaseLine
 
 @Composable
 fun RebaseInteractive(
-    rebaseInteractiveViewModel: RebaseInteractiveViewModel = gitnuroDynamicViewModel(),
+    rebaseInteractiveViewModel: RebaseInteractiveViewModel = gitnuroViewModel(),
 ) {
     val rebaseState = rebaseInteractiveViewModel.rebaseState.collectAsState()
     val rebaseStateValue = rebaseState.value
+    val selectedItem by rebaseInteractiveViewModel.selectedItem.collectAsState()
+
+    LaunchedEffect(rebaseInteractiveViewModel) {
+        rebaseInteractiveViewModel.loadRebaseInteractiveData()
+    }
 
     Box(
         modifier = Modifier
@@ -39,6 +47,10 @@ fun RebaseInteractive(
                 RebaseStateLoaded(
                     rebaseInteractiveViewModel,
                     rebaseStateValue,
+                    selectedItem,
+                    onFocusLine = {
+                        rebaseInteractiveViewModel.selectLine(it)
+                    },
                     onCancel = {
                         rebaseInteractiveViewModel.cancel()
                     },
@@ -56,6 +68,8 @@ fun RebaseInteractive(
 fun RebaseStateLoaded(
     rebaseInteractiveViewModel: RebaseInteractiveViewModel,
     rebaseState: RebaseInteractiveViewState.Loaded,
+    selectedItem: SelectedItem,
+    onFocusLine: (RebaseLine) -> Unit,
     onCancel: () -> Unit,
 ) {
     val stepsList = rebaseState.stepsList
@@ -75,7 +89,11 @@ fun RebaseStateLoaded(
                 RebaseCommit(
                     rebaseLine = rebaseTodoLine,
                     message = rebaseState.messages[rebaseTodoLine.commit.name()],
+                    isSelected = selectedItem is SelectedItem.Commit && selectedItem.revCommit.id.startsWith(
+                        rebaseTodoLine.commit
+                    ),
                     isFirst = stepsList.first() == rebaseTodoLine,
+                    onFocusLine = { onFocusLine(rebaseTodoLine) },
                     onActionChanged = { newAction ->
                         rebaseInteractiveViewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
                     },
@@ -114,11 +132,15 @@ fun RebaseStateLoaded(
 fun RebaseCommit(
     rebaseLine: RebaseLine,
     isFirst: Boolean,
+    isSelected: Boolean,
     message: String?,
+    onFocusLine: () -> Unit,
     onActionChanged: (RebaseAction) -> Unit,
     onMessageChanged: (String) -> Unit,
 ) {
     val action = rebaseLine.rebaseAction
+    val focusRequester = remember { FocusRequester() }
+
     var newMessage by remember(rebaseLine.commit.name(), action) {
         if (action == RebaseAction.REWORD) {
             mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/
@@ -128,20 +150,45 @@ fun RebaseCommit(
 
     Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
             .height(IntrinsicSize.Min)
             .fillMaxWidth()
+            .onFocusEvent {
+                if (it.hasFocus) {
+                    onFocusLine()
+                    focusRequester.requestFocus()
+                }
+            }
+            .clickable { onFocusLine() }
+            .run {
+                if (isSelected) {
+                    background(MaterialTheme.colors.backgroundSelected)
+                } else {
+                    this
+                }
+            }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            painterResource(AppIcons.DRAG),
+            contentDescription = "Drag line",
+            modifier = Modifier
+                .size(24.dp)
+                .pointerHoverIcon(resizePointerIconNorth),
+        )
+
         ActionDropdown(
             action,
             isFirst = isFirst,
+            onActionDropDownClicked = onFocusLine,
             onActionChanged = onActionChanged,
         )
 
         AdjustableOutlinedTextField(
             modifier = Modifier
                 .weight(1f)
-                .heightIn(min = 40.dp),
+                .heightIn(min = 40.dp)
+                .focusRequester(focusRequester),
             enabled = action == RebaseAction.REWORD,
             value = newMessage,
             onValueChange = {
@@ -163,12 +210,16 @@ fun RebaseCommit(
 fun ActionDropdown(
     action: RebaseAction,
     isFirst: Boolean,
+    onActionDropDownClicked: () -> Unit,
     onActionChanged: (RebaseAction) -> Unit,
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
     Box {
         TextButton(
-            onClick = { showDropDownMenu = true },
+            onClick = {
+                showDropDownMenu = true
+                onActionDropDownClicked()
+            },
             modifier = Modifier
                 .width(120.dp)
                 .height(40.dp)

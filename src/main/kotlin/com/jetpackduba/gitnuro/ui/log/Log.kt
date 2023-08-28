@@ -50,6 +50,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
+import com.jetpackduba.gitnuro.ui.resizePointerIconEast
 import com.jetpackduba.gitnuro.viewmodels.LogSearch
 import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
@@ -917,7 +918,7 @@ fun DividerLog(modifier: Modifier, graphWidth: Dp) {
             .padding(start = graphWidth)
             .width(DIVIDER_WIDTH.dp)
             .then(modifier)
-            .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+            .pointerHoverIcon(resizePointerIconEast)
     ) {
         Box(
             modifier = Modifier

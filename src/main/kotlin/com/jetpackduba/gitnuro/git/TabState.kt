@@ -250,6 +250,17 @@ class TabState @Inject constructor(
         newSelectedItem(SelectedItem.None)
     }
 
+    fun newSelectedCommit(revCommit: RevCommit?) = runOperation(
+        refreshType = RefreshType.NONE,
+    ) { _ ->
+        if (revCommit == null) {
+            newSelectedItem(SelectedItem.None)
+        } else {
+            val newSelectedItem = SelectedItem.Commit(revCommit)
+            newSelectedItem(newSelectedItem)
+        }
+    }
+
     fun newSelectedRef(objectId: ObjectId?) = runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->

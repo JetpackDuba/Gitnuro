@@ -333,7 +333,7 @@ class LogViewModel @Inject constructor(
     fun selectLogLine(commit: GraphNode) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
-        tabState.newSelectedItem(SelectedItem.Commit(commit))
+        tabState.newSelectedCommit(commit)
 
         val searchValue = _logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {

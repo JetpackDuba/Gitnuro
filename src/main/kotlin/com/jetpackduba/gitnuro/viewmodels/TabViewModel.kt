@@ -397,13 +397,7 @@ class TabViewModel @Inject constructor(
     fun selectCommit(commit: RevCommit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
-        tabState.newSelectedItem(SelectedItem.Commit(commit))
-    }
-
-    fun selectUncommitedChanges() = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) {
-        tabState.newSelectedItem(SelectedItem.UncommitedChanges, true)
+        tabState.newSelectedCommit(commit)
     }
 
     fun fileHistory(filePath: String) {

@@ -14,10 +14,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.LocalTabScope
@@ -26,7 +23,6 @@ import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
@@ -40,7 +36,6 @@ import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 import org.jetbrains.compose.splitpane.HorizontalSplitPane
 import org.jetbrains.compose.splitpane.SplitterScope
 import org.jetbrains.compose.splitpane.rememberSplitPaneState
-import java.awt.Cursor
 
 @Composable
 fun RepositoryOpenPage(
@@ -54,7 +49,6 @@ fun RepositoryOpenPage(
     val blameState by tabViewModel.blameState.collectAsState()
     val showHistory by tabViewModel.showHistory.collectAsState()
     val showAuthorInfo by tabViewModel.showAuthorInfo.collectAsState()
-    val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
 
     var showNewBranchDialog by remember { mutableStateOf(false) }
     var showStashWithMessageDialog by remember { mutableStateOf(false) }
@@ -131,39 +125,35 @@ fun RepositoryOpenPage(
                         }
                     }
             ) {
-                if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction) {
-                    RebaseInteractive()
-                } else {
-                    val currentTabInformation = LocalTabScope.current
-                    Column(modifier = Modifier.weight(1f)) {
-                        Menu(
-                            modifier = Modifier
-                                .padding(
-                                    vertical = 4.dp
-                                )
-                                .fillMaxWidth(),
-                            onCreateBranch = { showNewBranchDialog = true },
-                            onStashWithMessage = { showStashWithMessageDialog = true },
-                            onOpenAnotherRepository = {
-                                val repo = tabViewModel.openDirectoryPicker()
+                val currentTabInformation = LocalTabScope.current
+                Column(modifier = Modifier.weight(1f)) {
+                    Menu(
+                        modifier = Modifier
+                            .padding(
+                                vertical = 4.dp
+                            )
+                            .fillMaxWidth(),
+                        onCreateBranch = { showNewBranchDialog = true },
+                        onStashWithMessage = { showStashWithMessageDialog = true },
+                        onOpenAnotherRepository = {
+                            val repo = tabViewModel.openDirectoryPicker()
 
-                                if (repo != null) {
-                                    tabViewModel.openAnotherRepository(repo, currentTabInformation)
-                                }
-                            },
-                            onQuickActions = { showQuickActionsDialog = true },
-                            onShowSettingsDialog = onShowSettingsDialog
-                        )
+                            if (repo != null) {
+                                tabViewModel.openAnotherRepository(repo, currentTabInformation)
+                            }
+                        },
+                        onQuickActions = { showQuickActionsDialog = true },
+                        onShowSettingsDialog = onShowSettingsDialog
+                    )
 
-                        RepoContent(
-                            tabViewModel = tabViewModel,
-                            diffSelected = diffSelected,
-                            selectedItem = selectedItem,
-                            repositoryState = repositoryState,
-                            blameState = blameState,
-                            showHistory = showHistory,
-                        )
-                    }
+                    RepoContent(
+                        tabViewModel = tabViewModel,
+                        diffSelected = diffSelected,
+                        selectedItem = selectedItem,
+                        repositoryState = repositoryState,
+                        blameState = blameState,
+                        showHistory = showHistory,
+                    )
                 }
             }
         }
@@ -176,31 +166,6 @@ fun RepositoryOpenPage(
         )
 
         BottomInfoBar(tabViewModel)
-    }
-}
-
-@Composable
-fun RebaseInteractiveStartedExternally(
-    onCancelRebaseInteractive: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            "Rebase interactive started externally or Gitnuro (or this repository's tab)\nhas been restarted during the rebase.",
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Medium,
-            style = MaterialTheme.typography.body1,
-        )
-        PrimaryButton(
-            modifier = Modifier.padding(top = 8.dp),
-            text = "Abort rebase interactive",
-            onClick = onCancelRebaseInteractive,
-            backgroundColor = MaterialTheme.colors.error,
-            textColor = MaterialTheme.colors.onError,
-        )
     }
 }
 
@@ -288,10 +253,19 @@ fun MainContentView(
     repositoryState: RepositoryState,
     blameState: BlameState,
 ) {
+    val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
+
+    println("Rebase interactive state is $rebaseInteractiveState")
+
     HorizontalSplitPane(
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
     ) {
-        first(minSize = 180.dp) {
+        val size = if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction)
+            1.dp
+        else
+            180.dp
+
+        first(minSize = size) {
             SidePanel()
         }
 
@@ -308,7 +282,9 @@ fun MainContentView(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
-                        if (blameState is BlameState.Loaded && !blameState.isMinimized) {
+                        if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction) {
+                            RebaseInteractive()
+                        } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                             Blame(
                                 filePath = blameState.filePath,
                                 blameResult = blameState.blameResult,
@@ -391,6 +367,7 @@ fun MainContentView(
                                     onHistoryFile = { tabViewModel.fileHistory(it) }
                                 )
                             }
+
                             is SelectedItem.CommitBasedItem -> {
                                 CommitChanges(
                                     selectedItem = selectedItem,
@@ -403,6 +380,7 @@ fun MainContentView(
                                     onHistory = { tabViewModel.fileHistory(it) },
                                 )
                             }
+
                             SelectedItem.None -> {}
                         }
                     }
@@ -425,7 +403,7 @@ fun SplitterScope.repositorySplitter() {
         Box(
             Modifier
                 .markAsHandle()
-                .pointerHoverIcon(PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR)))
+                .pointerHoverIcon(resizePointerIconEast)
                 .background(Color.Transparent)
                 .width(8.dp)
                 .fillMaxHeight()
