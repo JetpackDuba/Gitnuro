@@ -20,7 +20,7 @@ class LibSshChannelOutputStream(private val sshChannel: ssh_channel) : OutputStr
     }
 }
 
-fun checkValidResult(result: Int) {
+fun checkValidResult(tag: String, result: Int) {
     if (result != 0)
-        throw Exception("Result is $result")
+        throw Exception("$tag - Result is $result")
 }

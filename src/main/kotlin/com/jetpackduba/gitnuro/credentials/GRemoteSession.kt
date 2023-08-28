@@ -34,8 +34,15 @@ class GRemoteSession @Inject constructor(
     fun setup(uri: URIish) {
         val session = processSession.get()
         session.setOptions(LibSshOptions.SSH_OPTIONS_HOST, uri.host)
-        session.setOptions(LibSshOptions.SSH_OPTIONS_USER, uri.user)
-        session.setOptions(LibSshOptions.SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES, "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256,ssh-dss")
+
+        uri.user?.let {
+            session.setOptions(LibSshOptions.SSH_OPTIONS_USER, uri.user)
+        }
+
+        session.setOptions(
+            LibSshOptions.SSH_OPTIONS_PUBLICKEY_ACCEPTED_TYPES,
+            "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256,ssh-dss"
+        )
         session.loadOptionsFromConfig()
 
         session.connect()

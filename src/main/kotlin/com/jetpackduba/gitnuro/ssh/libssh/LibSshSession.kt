@@ -17,7 +17,7 @@ class LibSshSession @Inject constructor() {
     }
 
     fun loadOptionsFromConfig() {
-        checkValidResult(sshLib.ssh_options_parse_config(session, null))
+        checkValidResult("loadOptionsFromConfig", sshLib.ssh_options_parse_config(session, null))
     }
 
     fun connect() {
