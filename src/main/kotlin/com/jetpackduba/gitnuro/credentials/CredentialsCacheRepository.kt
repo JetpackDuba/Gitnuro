@@ -84,7 +84,7 @@ class CredentialsCacheRepository @Inject constructor() {
     }
 
     private fun getRandomKey(): String {
-        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9') + '#!$%=?-_.,@µ*:;+~'
+        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9') + "#!$%=?-_.,@µ*:;+~".toList()
         return (1..KEY_LENGTH)
             .map { allowedChars.random() }
             .joinToString("")
