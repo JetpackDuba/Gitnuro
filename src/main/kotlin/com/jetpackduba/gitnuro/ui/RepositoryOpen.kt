@@ -255,8 +255,6 @@ fun MainContentView(
 ) {
     val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
 
-    println("Rebase interactive state is $rebaseInteractiveState")
-
     HorizontalSplitPane(
         splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
     ) {
@@ -282,7 +280,7 @@ fun MainContentView(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
-                        if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction) {
+                        if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction && diffSelected == null) {
                             RebaseInteractive()
                         } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                             Blame(

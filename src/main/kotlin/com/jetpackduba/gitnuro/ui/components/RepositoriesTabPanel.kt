@@ -27,9 +27,9 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.onMiddleMouseButtonClick
 import com.jetpackduba.gitnuro.managers.AppStateManager
-import com.jetpackduba.gitnuro.ui.drag_sorting.DraggableItem
-import com.jetpackduba.gitnuro.ui.drag_sorting.dragContainer
-import com.jetpackduba.gitnuro.ui.drag_sorting.rememberDragDropState
+import com.jetpackduba.gitnuro.ui.drag_sorting.HorizontalDraggableItem
+import com.jetpackduba.gitnuro.ui.drag_sorting.horizontalDragContainer
+import com.jetpackduba.gitnuro.ui.drag_sorting.rememberHorizontalDragDropState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import kotlinx.coroutines.delay
@@ -88,7 +88,7 @@ fun RepositoriesTabPanel(
         }
 
 
-        val dragDropState = rememberDragDropState(stateHorizontal) { fromIndex, toIndex ->
+        val dragDropState = rememberHorizontalDragDropState(stateHorizontal) { fromIndex, toIndex ->
             onMoveTab(fromIndex, toIndex)
         }
 
@@ -97,14 +97,19 @@ fun RepositoriesTabPanel(
                 modifier = Modifier
                     .height(tabsHeight)
                     .weight(1f, false)
-                    .dragContainer(dragDropState),
+                    .horizontalDragContainer(dragDropState),
                 state = stateHorizontal,
             ) {
                 itemsIndexed(
                     items = tabs,
                     key = { _, tab -> tab.tabViewModel }
                 ) { index, tab ->
-                    DraggableItem(dragDropState, index) { _ ->
+                    HorizontalDraggableItem(dragDropState, index) { isDragged ->
+                        LaunchedEffect(isDragged) {
+                            if (isDragged) {
+                                onTabSelected(tab)
+                            }
+                        }
                         Tooltip(tab.path) {
                             Tab(
                                 modifier = Modifier,
