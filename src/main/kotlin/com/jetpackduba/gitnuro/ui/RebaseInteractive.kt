@@ -2,11 +2,11 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,17 +15,16 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.theme.backgroundSelected
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
-import com.jetpackduba.gitnuro.ui.drag_sorting.rememberVerticalDragDropState
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
@@ -164,7 +163,7 @@ fun RebaseCommit(
             .height(IntrinsicSize.Min)
             .fillMaxWidth()
             .onFocusEvent {
-                if (it.hasFocus) {
+                if (it.hasFocus && !isSelected) {
                     onFocusLine()
                     focusRequester.requestFocus()
                 }
@@ -180,14 +179,6 @@ fun RebaseCommit(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            painterResource(AppIcons.DRAG),
-            contentDescription = "Drag line",
-            modifier = Modifier
-                .size(24.dp)
-                .pointerHoverIcon(resizePointerIconNorth),
-        )
-
         ActionDropdown(
             action,
             isFirst = isFirst,
@@ -197,6 +188,7 @@ fun RebaseCommit(
 
         AdjustableOutlinedTextField(
             modifier = Modifier
+                .padding(start = 8.dp)
                 .weight(1f)
                 .heightIn(min = 40.dp)
                 .focusRequester(focusRequester),
@@ -225,7 +217,14 @@ fun ActionDropdown(
     onActionChanged: (RebaseAction) -> Unit,
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
-    Box {
+    Box(
+        modifier = Modifier
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(4.dp),
+            )
+    ) {
         TextButton(
             onClick = {
                 showDropDownMenu = true
@@ -233,8 +232,7 @@ fun ActionDropdown(
             },
             modifier = Modifier
                 .width(120.dp)
-                .height(40.dp)
-                .padding(end = 8.dp),
+                .height(40.dp),
         ) {
             Text(
                 action.displayName,
@@ -246,7 +244,8 @@ fun ActionDropdown(
             Icon(
                 painterResource(AppIcons.EXPAND_MORE),
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier
+                    .size(20.dp),
                 tint = MaterialTheme.colors.onBackground,
             )
         }
