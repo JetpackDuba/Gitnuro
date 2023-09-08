@@ -9,7 +9,7 @@ plugins {
     kotlin("jvm") version "1.7.10"
     kotlin("kapt") version "1.7.10"
     kotlin("plugin.serialization") version "1.7.10"
-    id("org.jetbrains.compose") version "1.5.0"
+    id("org.jetbrains.compose") version "1.5.1"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
@@ -34,7 +34,7 @@ repositories {
 }
 
 dependencies {
-    val jgit = "6.5.0.202303070854-r"
+    val jgit = "6.7.0.202309050840-r"
 
     implementation(compose.desktop.currentOs)
     when (currentOs()) {
