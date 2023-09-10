@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.system.OS
 import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.Theme
+import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
 import kotlinx.coroutines.flow.*
@@ -30,6 +31,13 @@ private const val PREF_DIFF_TYPE = "diffType"
 private const val PREF_DIFF_FULL_FILE = "diffFullFile"
 private const val PREF_SWAP_UNCOMMITTED_CHANGES = "inverseUncommittedChanges"
 private const val PREF_TERMINAL_PATH = "terminalPath"
+private const val PREF_USE_PROXY = "useProxy"
+private const val PREF_PROXY_TYPE = "proxyType"
+private const val PREF_PROXY_HOST_NAME = "proxyHostName"
+private const val PREF_PROXY_PORT = "proxyPort"
+private const val PREF_PROXY_USE_AUTH = "proxyUseAuth"
+private const val PREF_PROXY_USER = "proxyHostUser"
+private const val PREF_PROXY_PASSWORD = "proxyHostPassword"
 private const val PREF_CACHE_CREDENTIALS_IN_MEMORY = "credentialsInMemory"
 
 
@@ -85,6 +93,20 @@ class AppSettings @Inject constructor() {
 
     private val _terminalPathFlow = MutableStateFlow(terminalPath)
     val terminalPathFlow = _terminalPathFlow.asStateFlow()
+
+    private val _proxyFlow = MutableStateFlow(
+        ProxySettings(
+            useProxy,
+            proxyType,
+            proxyHostName,
+            proxyPortNumber,
+            proxyUseAuth,
+            proxyHostUser,
+            proxyHostPassword,
+        )
+    )
+
+    val proxyFlow = _proxyFlow.asStateFlow()
 
     var latestTabsOpened: String
         get() = preferences.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
@@ -238,6 +260,62 @@ class AppSettings @Inject constructor() {
             _terminalPathFlow.value = value
         }
 
+    var useProxy: Boolean
+        get() {
+            return preferences.getBoolean(PREF_USE_PROXY, false)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_USE_PROXY, value)
+            _proxyFlow.value = _proxyFlow.value.copy(useProxy = value)
+        }
+
+    var proxyUseAuth: Boolean
+        get() {
+            return preferences.getBoolean(PREF_PROXY_USE_AUTH, false)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_PROXY_USE_AUTH, value)
+            _proxyFlow.value = _proxyFlow.value.copy(useAuth = value)
+        }
+
+    var proxyType: ProxyType
+        get() {
+            val value = preferences.getInt(PREF_PROXY_TYPE, ProxyType.HTTP.value)
+            return ProxyType.fromInt(value)
+        }
+        set(value) {
+            preferences.putInt(PREF_PROXY_TYPE, value.value)
+            _proxyFlow.value = _proxyFlow.value.copy(proxyType = value)
+        }
+
+    var proxyHostName: String
+        get() = preferences.get(PREF_PROXY_HOST_NAME, "")
+        set(value) {
+            preferences.put(PREF_PROXY_HOST_NAME, value)
+            _proxyFlow.value = _proxyFlow.value.copy(hostName = value)
+        }
+
+    var proxyPortNumber: Int
+        get() = preferences.getInt(PREF_PROXY_PORT, 80)
+        set(value) {
+            preferences.putInt(PREF_PROXY_PORT, value)
+            _proxyFlow.value = _proxyFlow.value.copy(hostPort = value)
+        }
+
+    var proxyHostUser: String
+        get() = preferences.get(PREF_PROXY_USER, "")
+        set(value) {
+            preferences.put(PREF_PROXY_USER, value)
+            _proxyFlow.value = _proxyFlow.value.copy(hostUser = value)
+        }
+
+    var proxyHostPassword: String
+        get() = preferences.get(PREF_PROXY_PASSWORD, "")
+        set(value) {
+            preferences.put(PREF_PROXY_PASSWORD, value)
+            _proxyFlow.value = _proxyFlow.value.copy(hostPassword = value)
+        }
+
     fun saveCustomTheme(filePath: String) {
         val file = File(filePath)
         val content = file.readText()
@@ -254,7 +332,30 @@ class AppSettings @Inject constructor() {
             _customThemeFlow.value = Json.decodeFromString<ColorsScheme>(themeJson)
         }
     }
+
+    private fun loadProxySettings() {
+        _proxyFlow.value = ProxySettings(
+            useProxy,
+            proxyType,
+            proxyHostName,
+            proxyPortNumber,
+            proxyUseAuth,
+            proxyHostUser,
+            proxyHostPassword,
+        )
+    }
 }
+
+data class ProxySettings(
+    val useProxy: Boolean,
+    val proxyType: ProxyType,
+    val hostName: String,
+    val hostPort: Int,
+    val useAuth: Boolean,
+    val hostUser: String,
+    val hostPassword: String,
+)
+
 
 // TODO migrate old prefs path to new one?
 fun initPreferencesPath() {

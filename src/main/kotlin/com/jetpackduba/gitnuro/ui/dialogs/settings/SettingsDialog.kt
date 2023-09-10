@@ -47,7 +47,7 @@ val settings = listOf(
     SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { RemoteActions(it) },
 
     SettingsEntry.Section("Network"),
-    SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { Proxy() },
+    SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { Proxy(it) },
     SettingsEntry.Entry(AppIcons.PASSWORD, "Authentication") { Authentication(it) },
 
     SettingsEntry.Section("Tools"),
@@ -55,24 +55,32 @@ val settings = listOf(
 )
 
 @Composable
-fun Proxy() {
-    var useProxy by remember { mutableStateOf(false) }
+fun Proxy(settingsViewModel: SettingsViewModel) {
+    var useProxy by remember { mutableStateOf(settingsViewModel.useProxy) }
 
-    var hostName by remember { mutableStateOf("") }
-    var portNumber by remember { mutableStateOf(80) }
-    var login by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var hostName by remember { mutableStateOf(settingsViewModel.proxyHostName) }
+    var portNumber by remember { mutableStateOf(settingsViewModel.proxyPortNumber) }
+
+    var useAuth by remember { mutableStateOf(settingsViewModel.proxyUseAuth) }
+    var user by remember { mutableStateOf(settingsViewModel.proxyHostUser) }
+    var password by remember { mutableStateOf(settingsViewModel.proxyHostPassword) }
 
     val proxyTypes = listOf(ProxyType.HTTP, ProxyType.SOCKS)
     val proxyTypesDropDownOptions = proxyTypes.map { DropDownOption(it, it.name) }
-    var currentProxyType by remember { mutableStateOf(proxyTypesDropDownOptions.first()) }
+
+    var currentProxyType by remember {
+        mutableStateOf(proxyTypesDropDownOptions.first { it.value == settingsViewModel.proxyType })
+    }
 
     Column {
         SettingToggle(
             title = "Use proxy",
             subtitle = "Set up your proxy configuration if needed",
             value = useProxy,
-            onValueChanged = { useProxy = it },
+            onValueChanged = {
+                useProxy = it
+                settingsViewModel.useProxy = it
+            },
         )
 
         SettingDropDown(
@@ -80,14 +88,20 @@ fun Proxy() {
             subtitle = "Pick between HTTP or SOCKS",
             dropDownOptions = proxyTypesDropDownOptions,
             currentOption = currentProxyType,
-            onOptionSelected = { currentProxyType = it }
+            onOptionSelected = {
+                currentProxyType = it
+                settingsViewModel.proxyType = it.value
+            }
         )
 
         SettingTextInput(
             title = "Host name",
             subtitle = "",
             value = hostName,
-            onValueChanged = { hostName = it },
+            onValueChanged = {
+                hostName = it
+                settingsViewModel.proxyHostName = it
+            },
             enabled = useProxy,
         )
 
@@ -95,16 +109,32 @@ fun Proxy() {
             title = "Port number",
             subtitle = "",
             value = portNumber,
-            onValueChanged = { portNumber = it },
+            onValueChanged = {
+                portNumber = it
+                settingsViewModel.proxyPortNumber = it
+            },
             enabled = useProxy,
+        )
+
+        SettingToggle(
+            title = "Proxy authentication",
+            subtitle = "Use your credentials to provide your identity the proxy server",
+            value = useAuth,
+            onValueChanged = {
+                useAuth = it
+                settingsViewModel.proxyUseAuth = it
+            }
         )
 
         SettingTextInput(
             title = "Login",
             subtitle = "",
-            value = login,
-            onValueChanged = { login = it },
-            enabled = useProxy,
+            value = user,
+            onValueChanged = {
+                user = it
+                settingsViewModel.proxyHostUser = it
+            },
+            enabled = useProxy && useAuth,
         )
 
 
@@ -112,9 +142,12 @@ fun Proxy() {
             title = "Password",
             subtitle = "",
             value = password,
-            onValueChanged = { password = it },
+            onValueChanged = {
+                password = it
+                settingsViewModel.proxyHostPassword = it
+            },
             isPassword = true,
-            enabled = useProxy,
+            enabled = useProxy && useAuth,
         )
 
     }
@@ -691,7 +724,17 @@ private fun isValidFloat(value: String): Boolean {
     }
 }
 
-enum class ProxyType {
-    HTTP,
-    SOCKS,
+enum class ProxyType(val value: Int) {
+    HTTP(1),
+    SOCKS(2);
+
+    companion object {
+        fun fromInt(value: Int): ProxyType {
+            return when (value) {
+                HTTP.value -> HTTP
+                SOCKS.value -> SOCKS
+                else -> throw NotImplementedError("Proxy type unknown")
+            }
+        }
+    }
 }

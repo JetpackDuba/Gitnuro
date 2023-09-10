@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.theme.Theme
+import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -82,6 +83,48 @@ class SettingsViewModel @Inject constructor(
         get() = appSettings.terminalPath
         set(value) {
             appSettings.terminalPath = value
+        }
+
+    var useProxy: Boolean
+        get() = appSettings.useProxy
+        set(value) {
+            appSettings.useProxy = value
+        }
+
+    var proxyType: ProxyType
+        get() = appSettings.proxyType
+        set(value) {
+            appSettings.proxyType = value
+        }
+
+    var proxyHostName: String
+        get() = appSettings.proxyHostName
+        set(value) {
+            appSettings.proxyHostName = value
+        }
+
+    var proxyPortNumber: Int
+        get() = appSettings.proxyPortNumber
+        set(value) {
+            appSettings.proxyPortNumber = value
+        }
+
+    var proxyUseAuth: Boolean
+        get() = appSettings.proxyUseAuth
+        set(value) {
+            appSettings.proxyUseAuth = value
+        }
+
+    var proxyHostUser: String
+        get() = appSettings.proxyHostUser
+        set(value) {
+            appSettings.proxyHostUser = value
+        }
+
+    var proxyHostPassword: String
+        get() = appSettings.proxyHostPassword
+        set(value) {
+            appSettings.proxyHostPassword = value
         }
 
     fun saveCustomTheme(filePath: String): Error? {
