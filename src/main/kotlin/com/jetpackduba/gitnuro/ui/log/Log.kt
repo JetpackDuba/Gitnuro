@@ -450,7 +450,6 @@ fun MessagesList(
                     .clickable { logViewModel.selectUncommitedChanges() }
             ) {
                 UncommitedChangesGraphNode(
-                    hasPreviousCommits = commitList.isNotEmpty(),
                     isSelected = selectedItem is SelectedItem.UncommitedChanges,
                     modifier = Modifier.offset(-horizontalScrollState.value.dp)
                 )
@@ -1035,7 +1034,6 @@ fun CommitNode(
 @Composable
 fun UncommitedChangesGraphNode(
     modifier: Modifier = Modifier,
-    hasPreviousCommits: Boolean,
     isSelected: Boolean,
 ) {
     val density = LocalDensity.current.density
@@ -1051,7 +1049,7 @@ fun UncommitedChangesGraphNode(
             modifier = Modifier.fillMaxSize()
         ) {
             clipRect {
-                if (hasPreviousCommits) drawLine(
+                drawLine(
                     color = colors[0],
                     start = Offset(laneWidthWithDensity, this.center.y),
                     end = Offset(laneWidthWithDensity, this.size.height),
