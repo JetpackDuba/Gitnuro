@@ -94,6 +94,8 @@ class RemotesViewModel @AssistedInject constructor(
 
     fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        title = "Deleting remote branch",
+        subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
     ) { git ->
         deleteRemoteBranchUseCase(git, ref)
     }

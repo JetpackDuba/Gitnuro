@@ -437,8 +437,8 @@ class LogViewModel @Inject constructor(
 
     fun deleteRemoteBranch(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        title = "Delete remote branch",
-        subtitle = "Deleting remote branch ${branch.simpleName}",
+        title = "Deleting remote branch",
+        subtitle = "Remote branch ${branch.simpleName} will be deleted from the remote",
     ) { git ->
         deleteRemoteBranchUseCase(git, branch)
     }
