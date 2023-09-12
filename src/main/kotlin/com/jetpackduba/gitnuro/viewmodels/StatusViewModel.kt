@@ -85,17 +85,18 @@ class StatusViewModel @Inject constructor(
         _searchFilterUnstaged,
     ) { state, showSearchStaged, filterStaged, showSearchUnstaged, filterUnstaged ->
         if (state is StageState.Loaded) {
+
             val unstaged = if (showSearchUnstaged && filterUnstaged.text.isNotBlank()) {
                 state.unstaged.filter { it.filePath.lowercaseContains(filterUnstaged.text) }
             } else {
                 state.unstaged
-            }
+            }.prioritizeConflicts()
 
             val staged = if (showSearchStaged && filterStaged.text.isNotBlank()) {
                 state.staged.filter { it.filePath.lowercaseContains(filterStaged.text) }
             } else {
                 state.staged
-            }
+            }.prioritizeConflicts()
 
             state.copy(stagedFiltered = staged, unstagedFiltered = unstaged)
 
@@ -107,6 +108,21 @@ class StatusViewModel @Inject constructor(
         SharingStarted.Lazily,
         StageState.Loading
     )
+
+    fun List<StatusEntry>.prioritizeConflicts(): List<StatusEntry> {
+        return this.groupBy { it.filePath }
+            .map {
+                val statusEntries = it.value
+                return@map if (statusEntries.count() == 1) {
+                    statusEntries.first()
+                } else {
+                    val conflictingEntry =
+                        statusEntries.firstOrNull { entry -> entry.statusType == StatusType.CONFLICTING }
+
+                    conflictingEntry ?: statusEntries.first()
+                }
+            }
+    }
 
     var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
 
@@ -129,7 +145,8 @@ class StatusViewModel @Inject constructor(
     private val _isAmend = MutableStateFlow(false)
     val isAmend: StateFlow<Boolean> = _isAmend
 
-    private val _isAmendRebaseInteractive = MutableStateFlow(true) // TODO should copy message from previous commit when this is required
+    private val _isAmendRebaseInteractive =
+        MutableStateFlow(true) // TODO should copy message from previous commit when this is required
     val isAmendRebaseInteractive: StateFlow<Boolean> = _isAmendRebaseInteractive
 
     init {
