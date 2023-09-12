@@ -952,7 +952,7 @@ fun CommitsGraphLine(
             modifier = Modifier.fillMaxSize()
         ) {
             clipRect {
-                if (plotCommit.childCount > 0) {
+                if (plotCommit.childCount > 0 || itemPosition == 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
