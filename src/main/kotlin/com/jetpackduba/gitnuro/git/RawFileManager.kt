@@ -43,6 +43,7 @@ class RawFileManager @Inject constructor(
         newTreeIterator: AbstractTreeIterator?,
     ): EntryContent {
         if (entry.getMode(side) === FileMode.MISSING) return EntryContent.Missing
+        if (entry.getMode(side).objectType == Constants.OBJ_COMMIT) return EntryContent.Submodule
         if (entry.getMode(side).objectType != Constants.OBJ_BLOB) return EntryContent.InvalidObjectBlob
 
         val reader: ObjectReader = repository.newObjectReader()
@@ -111,6 +112,7 @@ sealed class EntryContent {
     object Missing : EntryContent()
     object InvalidObjectBlob : EntryContent()
     data class Text(val rawText: RawText) : EntryContent()
+    object Submodule : EntryContent()
     sealed class BinaryContent : EntryContent()
     data class ImageBinary(val imagePath: String, val contentType: String) : BinaryContent()
     object Binary : BinaryContent()

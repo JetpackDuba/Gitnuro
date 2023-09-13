@@ -56,9 +56,11 @@ fun submoduleContextMenuItems(
 //            )
         }
 
-        add(
-            ContextMenuElement.ContextSeparator,
-        )
+        if(isNotEmpty()) {
+            add(
+                ContextMenuElement.ContextSeparator,
+            )
+        }
 
         add(
             ContextMenuElement.ContextTextEntry(

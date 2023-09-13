@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.git.diff.*
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppUseCase
+import com.jetpackduba.gitnuro.ui.TabsManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,6 +37,7 @@ class DiffViewModel @Inject constructor(
     private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
     private val discardUnstagedHunkLineUseCase: DiscardUnstagedHunkLineUseCase,
+    private val tabsManager: TabsManager,
     tabScope: CoroutineScope,
 ) {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading(""))
@@ -217,6 +219,10 @@ class DiffViewModel @Inject constructor(
         showError = true,
     ) { git ->
         discardUnstagedHunkLineUseCase(git, entry, hunk, line)
+    }
+
+    fun openSubmodule(path: String) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
+        tabsManager.addNewTabFromPath("${git.repository.workTree}/$path", true)
     }
 }
 

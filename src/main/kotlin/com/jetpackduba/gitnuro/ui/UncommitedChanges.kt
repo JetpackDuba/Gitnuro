@@ -176,9 +176,6 @@ fun UncommitedChanges(
                 )
             }
 
-            // TODO After moving to compose 1.5.0 (beta and RC), the right click event stops working randomly just on
-            //  unstaged changes. It could be related to the changes to the Popup API and the custom implementation
-            //  that Gitnuro uses
             val unstagedView: @Composable () -> Unit = {
                 EntriesList(
                     modifier = Modifier

@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.PlatformLocalization
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -53,6 +54,7 @@ import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.Tooltip
@@ -65,6 +67,7 @@ import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.jetbrains.compose.animatedimage.Blank
 import org.jetbrains.compose.animatedimage.animate
 import org.jetbrains.compose.animatedimage.loadAnimatedImage
@@ -118,6 +121,7 @@ fun Diff(
                     diffEntry = diffEntry,
                     onCloseDiffView = onCloseDiffView,
                     diffType = diffType,
+                    isTextDiff = diffResult is DiffResult.Text,
                     isDisplayFullFile = isDisplayFullFile,
                     onStageFile = { diffViewModel.stageFile(it) },
                     onUnstageFile = { diffViewModel.unstageFile(it) },
@@ -180,6 +184,13 @@ fun Diff(
                         NonTextDiff(
                             diffResult,
                             onOpenFileWithExternalApp = { path -> diffViewModel.openFileWithExternalApp(path) })
+                    }
+
+                    is DiffResult.Submodule -> {
+                        SubmoduleDiff(
+                            diffResult,
+                            onOpenSubmodule = { diffViewModel.openSubmodule(diffResult.diffEntry.filePath) }
+                        )
                     }
                 }
             }
@@ -257,6 +268,60 @@ fun NonTextDiff(diffResult: DiffResult.NonText, onOpenFileWithExternalApp: (Stri
             }
         }
     }
+}
+
+@Composable
+fun SubmoduleDiff(diffResult: DiffResult.Submodule, onOpenSubmodule: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Submodule ${diffResult.diffEntry.filePath}",
+            style = MaterialTheme.typography.h4,
+            modifier = Modifier.padding(bottom = 8.dp),
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colors.onBackground,
+        )
+
+        SelectionContainer {
+            Column {
+                Text(
+                    AnnotatedString(
+                        "Old ID: ",
+                        SpanStyle(fontWeight = FontWeight.SemiBold)
+                    ) + AnnotatedString(diffResult.diffEntry.oldId.name()),
+                    color = MaterialTheme.colors.onBackground,
+                )
+                Text(
+                    AnnotatedString(
+                        "New ID: ",
+                        SpanStyle(fontWeight = FontWeight.SemiBold)
+                    ) + AnnotatedString(diffResult.diffEntry.newId.name()),
+                    color = MaterialTheme.colors.onBackground,
+                )
+            }
+        }
+
+        val submoduleStatus = diffResult.submoduleStatus
+
+        if (
+            submoduleStatus != null &&
+            listOf(
+                SubmoduleStatusType.INITIALIZED,
+                SubmoduleStatusType.REV_CHECKED_OUT
+            ).contains(submoduleStatus.type) &&
+            submoduleStatus.indexId == diffResult.diffEntry.newId?.toObjectId()
+        ) {
+            PrimaryButton(
+                modifier = Modifier.padding(top = 8.dp),
+                text = "Open submodule",
+                onClick = onOpenSubmodule,
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -778,6 +843,7 @@ private fun DiffHeader(
     diffEntry: DiffEntry,
     diffType: TextDiffType,
     isDisplayFullFile: Boolean,
+    isTextDiff: Boolean,
     onCloseDiffView: () -> Unit,
     onStageFile: (StatusEntry) -> Unit,
     onUnstageFile: (StatusEntry) -> Unit,
@@ -837,7 +903,7 @@ private fun DiffHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED) {
+            if (diffEntryType.statusType != StatusType.ADDED && diffEntryType.statusType != StatusType.REMOVED && isTextDiff) {
                 DiffTypeButtons(
                     diffType = diffType,
                     isDisplayFullFile = isDisplayFullFile,
@@ -948,36 +1014,6 @@ fun DiffTypeButtons(
                 onClick = { onChangeDiffType(TextDiffType.SPLIT) },
             )
         }
-//
-//        Text(
-//            "Unified",
-//            color = MaterialTheme.colors.onBackground,
-//            style = MaterialTheme.typography.caption,
-//        )
-//
-//        Switch(
-//            checked = diffType == TextDiffType.SPLIT,
-//            onCheckedChange = { checked ->
-//                val newType = if (checked)
-//                    TextDiffType.SPLIT
-//                else
-//                    TextDiffType.UNIFIED
-//
-//                onChangeDiffType(newType)
-//            },
-//            colors = SwitchDefaults.colors(
-//                uncheckedThumbColor = MaterialTheme.colors.secondaryVariant,
-//                uncheckedTrackColor = MaterialTheme.colors.secondaryVariant,
-//                uncheckedTrackAlpha = 0.54f
-//            )
-//        )
-//
-//        Text(
-//            "Split",
-//            color = MaterialTheme.colors.onBackground,
-////            modifier = Modifier.padding(horizontal = 4.dp),
-//            style = MaterialTheme.typography.caption,
-//        )
     }
 }
 
