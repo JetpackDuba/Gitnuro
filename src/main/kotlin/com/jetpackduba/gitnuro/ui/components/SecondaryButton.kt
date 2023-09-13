@@ -30,7 +30,7 @@ fun SecondaryButton(
     modifier: Modifier = Modifier,
     text: String,
     textColor: Color = MaterialTheme.colors.onPrimary,
-    backgroundButton: Color,
+    backgroundButton: Color = MaterialTheme.colors.primary,
     maxLines: Int = 1,
     onClick: () -> Unit,
 ) {

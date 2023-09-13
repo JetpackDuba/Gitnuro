@@ -384,6 +384,7 @@ fun MergeButtons(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 8.dp)
             .height(36.dp)
     ) {
         AbortButton(
@@ -415,6 +416,7 @@ fun CherryPickingButtons(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 8.dp)
             .height(36.dp)
     ) {
         AbortButton(
@@ -460,6 +462,7 @@ fun RebasingButtons(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 8.dp)
                 .height(36.dp)
         ) {
             AbortButton(
@@ -504,6 +507,7 @@ fun RevertingButtons(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(top = 8.dp)
             .height(36.dp)
     ) {
         AbortButton(
