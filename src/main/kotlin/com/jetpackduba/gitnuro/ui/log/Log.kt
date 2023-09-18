@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -57,6 +58,7 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import java.awt.Cursor
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -128,6 +130,7 @@ private fun LogLoaded(
     repositoryState: RepositoryState
 ) {
     val scope = rememberCoroutineScope()
+    val hasUncommittedChanges = logStatus.hasUncommittedChanges
     val commitList = logStatus.plotCommitList
     val verticalScrollState by logViewModel.verticalListState.collectAsState()
     val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
@@ -216,6 +219,8 @@ private fun LogLoaded(
             // a padding, so it doesn't cover the graph
             MessagesList(
                 scrollState = verticalScrollState,
+                horizontalScrollState = horizontalScrollState,
+                hasUncommittedChanges = hasUncommittedChanges,
                 searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
                 selectedCommit = selectedCommit,
                 logStatus = logStatus,
@@ -223,6 +228,7 @@ private fun LogLoaded(
                 selectedItem = selectedItem,
                 commitList = commitList,
                 logViewModel = logViewModel,
+                graphWidth = graphWidth,
                 commitsLimit = logStatus.commitsLimit,
                 onMerge = { ref ->
                     logViewModel.mergeBranch(ref)
@@ -232,9 +238,7 @@ private fun LogLoaded(
                 },
                 onShowLogDialog = { dialog ->
                     logViewModel.showDialog(dialog)
-                },
-                graphWidth = graphWidth,
-                horizontalScrollState = horizontalScrollState
+                }
             )
 
             val density = LocalDensity.current.density
@@ -424,6 +428,7 @@ fun SearchFilter(
 @Composable
 fun MessagesList(
     scrollState: LazyListState,
+    hasUncommittedChanges: Boolean,
     searchFilter: List<GraphNode>?,
     selectedCommit: RevCommit?,
     logStatus: LogStatus.Loaded,
@@ -442,25 +447,32 @@ fun MessagesList(
         state = scrollState,
         modifier = Modifier.fillMaxSize(),
     ) {
-        item {
-            Box(
-                modifier = Modifier.height(LINE_HEIGHT.dp)
-                    .clipToBounds()
-                    .fillMaxWidth()
-                    .clickable { logViewModel.selectUncommitedChanges() }
-            ) {
-                UncommitedChangesGraphNode(
-                    hasPreviousCommits = commitList.isNotEmpty(),
-                    isSelected = selectedItem is SelectedItem.UncommitedChanges,
-                    modifier = Modifier.offset(-horizontalScrollState.value.dp)
-                )
+        if (
+            hasUncommittedChanges ||
+            repositoryState.isMerging ||
+            repositoryState.isRebasing ||
+            repositoryState.isCherryPicking
+        ) {
+            item {
+                Box(
+                    modifier = Modifier.height(LINE_HEIGHT.dp)
+                        .clipToBounds()
+                        .fillMaxWidth()
+                        .clickable { logViewModel.selectUncommitedChanges() }
+                ) {
+                    UncommitedChangesGraphNode(
+                        hasPreviousCommits = commitList.isNotEmpty(),
+                        isSelected = selectedItem is SelectedItem.UncommitedChanges,
+                        modifier = Modifier.offset(-horizontalScrollState.value.dp)
+                    )
 
-                UncommitedChangesLine(
-                    graphWidth = graphWidth,
-                    isSelected = selectedItem == SelectedItem.UncommitedChanges,
-                    statusSummary = logStatus.statusSummary,
-                    repositoryState = repositoryState,
-                )
+                    UncommitedChangesLine(
+                        graphWidth = graphWidth,
+                        isSelected = selectedItem == SelectedItem.UncommitedChanges,
+                        statusSummary = logStatus.statusSummary,
+                        repositoryState = repositoryState,
+                    )
+                }
             }
         }
 
