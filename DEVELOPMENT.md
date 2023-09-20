@@ -1,19 +1,5 @@
 # Developing Gitnuro
 
-## Installing libssh
-
-Gitnuro depends on libssh being present as an external, native library (
-using [JNA](https://github.com/java-native-access/jna)).
-While the release GitHub workflow packages it automatically, you'll need to install it manually when developing locally,
-such that it's available on the `$PATH`. See [here](https://www.libssh.org/get-it/) for one-liner installation
-instructions with your OS's package manager, or manually download a binary or compile it from source and place it in the
-main project directory (next to `LICENSE`) or elsewhere on your `$PATH`.
-
-## Setting up Rust
-
-Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust environment, 
-please read [its documentation](https://www.rust-lang.org/). `Cargo` and `rustc` must be available in the path in order to build Gitnuro properly.
-
 ## Setting up an IDE
 
 If you don't have another preference, the recommendation is to download and install
@@ -21,7 +7,7 @@ If you don't have another preference, the recommendation is to download and inst
 (possibly through the JetBrains Toolbox, if you have it already). The recommended plugins to improve the DX are:
 
 - [Compose Multiplatform IDE Support](https://plugins.jetbrains.com/plugin/16541-compose-multiplatform-ide-support)
-- [Rust Plugin](https://plugins.jetbrains.com/plugin/8182-rust)
+- [Rust Plugin](https://plugins.jetbrains.com/plugin/8182-rust) (deprecated due to [RustRover IDE](https://blog.jetbrains.com/rust/2023/09/13/introducing-rustrover-a-standalone-rust-ide-by-jetbrains/) but still works).
 
 By default, the JDK used by "IntelliJ IDEA Community Edition (2023.1.3)" is "JetBrains Runtime version 21" which is not currently supported by the project.
 
@@ -48,3 +34,10 @@ won't have to open the "Gradle" window again.
 You can also run these in debug mode and set break points in the code.
 
 Alternatively on CLI: `./gradlew run` or `./gradlew test`.
+
+## Setting up Rust
+
+Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust environment,
+please read [its documentation](https://www.rust-lang.org/). `Cargo` and `rustc` must be available in the path in order to build Gitnuro properly.
+
+You may need to install `perl` to build OpenSSL. This can be an issues specially in Windows, where perl is not installed by default.
