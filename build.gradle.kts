@@ -233,13 +233,13 @@ fun copyRustBuild() {
     val originLib = when (currentOs()) {
         OS.LINUX -> "libgitnuro_rs.so"
         OS.WINDOWS -> "gitnuro_rs.dll"
-        OS.MAC -> "libgitnuro_rs.so" //TODO or is it a dylib? must be tested
+        OS.MAC -> "libgitnuro_rs.dylib"
     }
 
     val destinyLib = when (currentOs()) {
         OS.LINUX -> "libuniffi_gitnuro.so"
         OS.WINDOWS -> "uniffi_gitnuro.dll"
-        OS.MAC -> "libuniffi_gitnuro.so" //TODO or is it a dylib? must be tested
+        OS.MAC -> "libuniffi_gitnuro.dylib"
     }
 
     val originFile = File(workingDir, originLib)
