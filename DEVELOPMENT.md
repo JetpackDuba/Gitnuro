@@ -19,7 +19,7 @@ Check which Java version this project currently uses (`cat build.gradle.kts | gr
 For instance on Debian-based systems, you'd run:
 
 ```bash
-sudo apt-get install openjdk-17-jre openjdk-17-jdk libssh-dev
+sudo apt-get install openjdk-17-jre openjdk-17-jdk
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
