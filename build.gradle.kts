@@ -205,7 +205,7 @@ fun generateKotlinFromUdl() {
         workingDir = File(project.projectDir, "rs")
         commandLine = listOf(
             "cargo", "run", "--features=uniffi/cli",
-            "--bin", "uniffi-bindgen", "generate", "src/repository_watcher.udl",
+            "--bin", "uniffi-bindgen", "generate", "src/gitnuro.udl",
             "--language", "kotlin",
             "--out-dir", rustGeneratedSource
         )

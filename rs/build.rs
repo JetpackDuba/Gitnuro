@@ -1,3 +1,3 @@
 fn main() {
-    uniffi::generate_scaffolding("src/repository_watcher.udl").unwrap();
+    uniffi::generate_scaffolding("src/gitnuro.udl").unwrap();
 }

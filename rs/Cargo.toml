@@ -13,6 +13,7 @@ name = "gitnuro_rs"
 uniffi = { version = "0.24.1" }
 notify = "6.0.1"
 thiserror = "1.0.43"
+libssh-rs = "0.2.1"
 
 [build-dependencies]
 uniffi = { version = "0.24.1", features = [ "build" ] }

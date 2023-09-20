@@ -1,28 +1,26 @@
 package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import com.jetpackduba.gitnuro.ssh.libssh.SSHLibrary
-import com.jetpackduba.gitnuro.ssh.libssh.ssh_channel
+import uniffi.gitnuro.Channel
 import java.io.InputStream
 
-class LibSshChannelInputStream(private val sshChannel: ssh_channel) : InputStream() {
-    private val sshLib = SSHLibrary.INSTANCE
-
+class LibSshChannelInputStream(private val sshChannel: Channel) : InputStream() {
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        val byteArray = ByteArray(len)
-        val result = sshLib.ssh_channel_read(sshChannel, byteArray, len, 0)
+        val result = sshChannel.read(false, len.toULong())
+        val byteArray = result.data
+        val read = result.readCount
+
         for (i in 0 until len) {
             b[off + i] = byteArray[i]
         }
 
-        return result
+        return read.toInt()
     }
 
     override fun read(): Int {
-        val buffer = ByteArray(1)
 
-        sshLib.ssh_channel_read(sshChannel, buffer, 1, 0)
+        val result = sshChannel.read(false, 1u)
 
-        val first = buffer.first()
+        val first = result.data.first()
 
         return first.toInt()
     }

@@ -1,26 +1,18 @@
 package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import com.jetpackduba.gitnuro.ssh.libssh.SSHLibrary
-import com.jetpackduba.gitnuro.ssh.libssh.ssh_channel
+import uniffi.gitnuro.Channel
 import java.io.OutputStream
 
-class LibSshChannelOutputStream(private val sshChannel: ssh_channel) : OutputStream() {
-    private val sshLib = SSHLibrary.INSTANCE
-
+class LibSshChannelOutputStream(private val sshChannel: Channel) : OutputStream() {
     override fun write(b: Int) {
         val byteArrayData = byteArrayOf(b.toByte())
         write(byteArrayData)
     }
 
     override fun write(b: ByteArray) {
-        sshLib.ssh_channel_write(sshChannel, b, b.size)
+        sshChannel.writeBytes(b)
     }
 
     override fun close() {
     }
-}
-
-fun checkValidResult(tag: String, result: Int) {
-    if (result != 0)
-        throw Exception("$tag - Result is $result")
 }

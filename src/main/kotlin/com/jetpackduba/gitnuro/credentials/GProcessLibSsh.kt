@@ -1,13 +1,14 @@
 package com.jetpackduba.gitnuro.credentials
 
 import com.jetpackduba.gitnuro.ssh.libssh.LibSshChannel
-import com.jetpackduba.gitnuro.ssh.libssh.LibSshSession
+import uniffi.gitnuro.Channel
+import uniffi.gitnuro.Session
 import java.io.InputStream
 import java.io.OutputStream
 
 class GProcessLibSsh : Process() {
     private lateinit var channel: LibSshChannel
-    private lateinit var session: LibSshSession
+    private lateinit var session: Session
 
     private val outputStream by lazy {
         channel.outputStream
@@ -42,7 +43,9 @@ class GProcessLibSsh : Process() {
         check(!isRunning())
         println("exitValue called")
 
-        return channel.close()
+        channel.close()
+
+        return 0
     }
 
     override fun destroy() {
@@ -57,8 +60,8 @@ class GProcessLibSsh : Process() {
         return channel.isOpen()
     }
 
-    fun setup(session: LibSshSession, commandName: String) {
-        val channel = session.createChannel()
+    fun setup(session: Session, commandName: String) {
+        val channel = LibSshChannel(session)
 
         channel.openSession()
         channel.requestExec(commandName)

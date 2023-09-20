@@ -3,30 +3,29 @@ package com.jetpackduba.gitnuro.ssh.libssh
 import com.jetpackduba.gitnuro.ssh.libssh.streams.LibSshChannelInputErrStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.LibSshChannelInputStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.LibSshChannelOutputStream
+import uniffi.gitnuro.Channel
+import uniffi.gitnuro.Session
 
-class LibSshChannel internal constructor(sshSession: ssh_session) {
-    private val sshLib = SSHLibrary.INSTANCE
-    private var channel: ssh_channel = sshLib.ssh_channel_new(sshSession)
+class LibSshChannel internal constructor(sshSession: Session) {
+    private var channel = Channel(sshSession)
 
     val outputStream = LibSshChannelOutputStream(channel)
     val inputStream = LibSshChannelInputStream(channel)
     val errorOutputStream = LibSshChannelInputErrStream(channel)
 
-
     fun openSession() {
-        sshLib.ssh_channel_open_session(channel)
+        channel.openSession()
     }
 
     fun requestExec(commandName: String) {
-        sshLib.ssh_channel_request_exec(channel, commandName)
+        channel.requestExec(commandName)
     }
 
     fun isOpen(): Boolean {
-        return sshLib.ssh_channel_is_open(channel) == 1
+        return channel.isOpen()
     }
 
-    fun close(): Int {
-        return sshLib.ssh_channel_close(channel)
+    fun close() {
+        channel.close()
     }
-
 }
