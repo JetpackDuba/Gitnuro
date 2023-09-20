@@ -19,12 +19,20 @@ interface WatcherInitError {
     MaxFilesWatch();
 };
 
+enum AuthStatus {
+    "Success",
+    "Denied",
+    "Partial",
+    "Info",
+    "Again",
+};
+
 
 interface Session {
     constructor();
-    void setup(string host, string? user, i32 port);
-    void public_key_auth();
-    void password_auth(string password);
+    void setup(string host, string? user, u16? port);
+    AuthStatus public_key_auth(string password);
+    AuthStatus password_auth(string password);
     void disconnect();
 };
 

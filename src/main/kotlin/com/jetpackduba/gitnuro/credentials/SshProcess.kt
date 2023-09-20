@@ -1,13 +1,12 @@
 package com.jetpackduba.gitnuro.credentials
 
-import com.jetpackduba.gitnuro.ssh.libssh.LibSshChannel
-import uniffi.gitnuro.Channel
+import com.jetpackduba.gitnuro.ssh.libssh.ChannelWrapper
 import uniffi.gitnuro.Session
 import java.io.InputStream
 import java.io.OutputStream
 
-class GProcessLibSsh : Process() {
-    private lateinit var channel: LibSshChannel
+class SshProcess : Process() {
+    private lateinit var channel: ChannelWrapper
     private lateinit var session: Session
 
     private val outputStream by lazy {
@@ -61,7 +60,7 @@ class GProcessLibSsh : Process() {
     }
 
     fun setup(session: Session, commandName: String) {
-        val channel = LibSshChannel(session)
+        val channel = ChannelWrapper(session)
 
         channel.openSession()
         channel.requestExec(commandName)

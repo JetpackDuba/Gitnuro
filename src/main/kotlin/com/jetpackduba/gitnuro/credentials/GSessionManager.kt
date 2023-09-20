@@ -18,7 +18,7 @@ class GSessionManager @Inject constructor(
 }
 
 class MySessionFactory @Inject constructor(
-    private val sessionProvider: Provider<GRemoteSession>
+    private val sessionProvider: Provider<SshRemoteSession>
 )  : SshSessionFactory(), CredentialsCache {
     override fun getSession(
         uri: URIish,

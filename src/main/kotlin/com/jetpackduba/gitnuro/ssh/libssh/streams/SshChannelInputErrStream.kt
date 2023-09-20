@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.ssh.libssh.streams
 import uniffi.gitnuro.Channel
 import java.io.InputStream
 
-class LibSshChannelInputErrStream(private val sshChannel: Channel) : InputStream() {
+class SshChannelInputErrStream(private val sshChannel: Channel) : InputStream() {
     private var cancelled = false
 
     override fun read(): Int {

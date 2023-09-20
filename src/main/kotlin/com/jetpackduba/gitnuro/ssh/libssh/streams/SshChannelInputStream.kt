@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.ssh.libssh.streams
 import uniffi.gitnuro.Channel
 import java.io.InputStream
 
-class LibSshChannelInputStream(private val sshChannel: Channel) : InputStream() {
+class SshChannelInputStream(private val sshChannel: Channel) : InputStream() {
     override fun read(b: ByteArray, off: Int, len: Int): Int {
         val result = sshChannel.read(false, len.toULong())
         val byteArray = result.data

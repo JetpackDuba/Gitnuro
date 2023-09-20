@@ -7,8 +7,9 @@ use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
-use libssh_rs::{PollStatus, SshOption};
+use libssh_rs::{AuthStatus, PollStatus, SshOption};
 use notify::{Config, Error, ErrorKind, Event, RecommendedWatcher, RecursiveMode, Watcher};
+
 
 uniffi::include_scaffolding!("gitnuro");
 
@@ -133,7 +134,7 @@ impl Session {
         }
     }
 
-    fn setup(&self, host: String, user: Option<String>, port: i32) {
+    fn setup(&self, host: String, user: Option<String>, port: Option<u16>) {
         let session = self.session.write().unwrap();
         session.set_option(SshOption::Hostname(host)).unwrap();
 
@@ -141,7 +142,7 @@ impl Session {
             session.set_option(SshOption::User(Some(user))).unwrap();
         }
 
-        if let Ok(port) = port.try_into() {
+        if let Some(port) = port {
             session.set_option(SshOption::Port(port)).unwrap();
         }
 
@@ -150,14 +151,21 @@ impl Session {
         session.connect().unwrap();
     }
 
-    fn public_key_auth(&self) {
+    fn public_key_auth(&self, password: String) -> AuthStatus {
+        println!("Public key auth");
+
         let session = self.session.write().unwrap();
-        session.userauth_public_key_auto(None, Some("")).unwrap();
+
+        let status = session.userauth_public_key_auto(None, Some(&password)).unwrap();
+
+        println!("Status is {status:?}");
+
+        status
     }
 
-    fn password_auth(&self, password: String) {
+    fn password_auth(&self, password: String) -> AuthStatus {
         let session = self.session.write().unwrap();
-        session.userauth_password(None, Some(&password)).unwrap();
+        session.userauth_password(None, Some(&password)).unwrap()
     }
 
     fn disconnect(&self) {
