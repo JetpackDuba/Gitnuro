@@ -7,7 +7,6 @@ import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.git.repository.OpenSubmoduleRepositoryUseCase
@@ -52,7 +51,6 @@ private const val TAG = "TabViewModel"
  * across full app recompositions), therefore, tab's content can be recreated with these view models.
  */
 class TabViewModel @Inject constructor(
-    private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
     private val initLocalRepositoryUseCase: InitLocalRepositoryUseCase,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val openSubmoduleRepositoryUseCase: OpenSubmoduleRepositoryUseCase,
