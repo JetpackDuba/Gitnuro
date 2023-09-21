@@ -37,7 +37,7 @@ fun RebaseInteractive(
 ) {
     val rebaseState = rebaseInteractiveViewModel.rebaseState.collectAsState()
     val rebaseStateValue = rebaseState.value
-    val selectedItem by rebaseInteractiveViewModel.selectedItem.collectAsState()
+    val selectedItem = rebaseInteractiveViewModel.selectedItem.collectAsState().value
 
     LaunchedEffect(rebaseInteractiveViewModel) {
         rebaseInteractiveViewModel.loadRebaseInteractiveData()
@@ -56,7 +56,12 @@ fun RebaseInteractive(
                     rebaseStateValue,
                     selectedItem,
                     onFocusLine = {
-                        rebaseInteractiveViewModel.selectLine(it)
+                        if (
+                            selectedItem !is SelectedItem.Commit ||
+                            !selectedItem.revCommit.id.startsWith(it.commit)
+                        ) {
+                            rebaseInteractiveViewModel.selectLine(it)
+                        }
                     },
                     onCancel = {
                         rebaseInteractiveViewModel.cancel()
@@ -98,7 +103,7 @@ fun RebaseStateLoaded(
             modifier = Modifier
                 .weight(1f)
         ) {
-            items(stepsList) { rebaseTodoLine ->
+            items(stepsList, key = { it.commit }) { rebaseTodoLine ->
                 RebaseCommit(
                     rebaseLine = rebaseTodoLine,
                     message = rebaseState.messages[rebaseTodoLine.commit.name()],
