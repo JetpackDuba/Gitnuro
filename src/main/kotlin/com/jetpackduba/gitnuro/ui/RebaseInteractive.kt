@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
@@ -83,11 +84,13 @@ fun RebaseStateLoaded(
 
     Column(
         modifier = Modifier.fillMaxSize()
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.background)
     ) {
         Text(
             text = "Rebase interactive",
             color = MaterialTheme.colors.onBackground,
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
             fontSize = 20.sp,
         )
 
@@ -168,7 +171,9 @@ fun RebaseCommit(
                     focusRequester.requestFocus()
                 }
             }
-            .clickable { onFocusLine() }
+            .clickable {
+                onFocusLine()
+            }
             .run {
                 if (isSelected) {
                     background(MaterialTheme.colors.backgroundSelected)
