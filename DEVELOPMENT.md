@@ -1,5 +1,14 @@
 # Developing Gitnuro
 
+## Requirements
+
+- **JDK 17 or higher**: You don't need this if you only use the JDK installed by IntelliJ IDEA. If you want to build using the CLI, check this [section](#alternative-setting-up-jdk-for-use-on-cli).
+- **Rust:** Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust environment, 
+please read [its documentation](https://www.rust-lang.org/). `cargo` and `rustc` must be available in the path in order to build Gitnuro properly.
+- **Perl:** Perl is required to build openssl (which is required for LibSSH to work).
+- **Packages for Linux ARM64/aarch64**: You need to install the `aarch64-linux-gnu-gcc` package to cross compile the 
+Rust components to ARM from x86_64. You will also need to use `rustup` to add a new target: `rustup target add aarch64-unknown-linux-gnu` 
+
 ## Setting up an IDE
 
 If you don't have another preference, the recommendation is to download and install
@@ -13,17 +22,17 @@ By default, the JDK used by "IntelliJ IDEA Community Edition (2023.1.3)" is "Jet
 
 ## Alternative: Setting up JDK for use on CLI
 
-You don't need this if you only use the JDK installed by IntelliJ IDEA.
+You don't need this if you only use the JDK installed by IntelliJ IDEA and build using the IDE.
 
 Check which Java version this project currently uses (`cat build.gradle.kts | grep JavaLanguageVersion`) and install it.
 For instance on Debian-based systems, you'd run:
 
 ```bash
-sudo apt-get install openjdk-17-jre openjdk-17-jdk
+sudo apt install openjdk-17-jre openjdk-17-jdk
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
-Once it works (e.g. `./gradlew build`), you may want to add that latter line to your `/etc/environment`.
+Once it works (e.g. `./gradlew build`). On Linux, you may want to add that latter line to your `/etc/environment` or user-specific files such as `.profile` or `.bashrc`.
 
 ## Running the app / unit tests
 
@@ -34,10 +43,3 @@ won't have to open the "Gradle" window again.
 You can also run these in debug mode and set break points in the code.
 
 Alternatively on CLI: `./gradlew run` or `./gradlew test`.
-
-## Setting up Rust
-
-Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust environment,
-please read [its documentation](https://www.rust-lang.org/). `Cargo` and `rustc` must be available in the path in order to build Gitnuro properly.
-
-You may need to install `perl` to build OpenSSL. This can be an issues specially in Windows, where perl is not installed by default.
