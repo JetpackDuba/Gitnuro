@@ -3,6 +3,7 @@ import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val javaLanguageVersion = JavaLanguageVersion.of(17)
+val linuxArmTarget = "aarch64-unknown-linux-gnu"
 
 plugins {
     // Kotlin version must match compose version
@@ -21,6 +22,9 @@ val rustGeneratedSource = "${buildDir}/generated/source/uniffi/main/com/jetpackd
 group = "com.jetpackduba"
 version = projectVersion
 
+val isLinuxAarch64 = (properties.getOrDefault("isLinuxAarch64", "false") as String).toBoolean()
+
+
 sourceSets.getByName("main") {
     kotlin.sourceSets.main.get().kotlin.srcDir(rustGeneratedSource)
 }
@@ -35,11 +39,11 @@ repositories {
 
 dependencies {
     val jgit = "6.7.0.202309050840-r"
-
-    implementation(compose.desktop.currentOs)
-    when (currentOs()) {
-        OS.LINUX -> implementation(compose.desktop.linux_arm64) // Include arm for linux builds
-        else -> {}
+    println("isLinuxAarch64=$isLinuxAarch64")
+    if (currentOs() == OS.LINUX && isLinuxAarch64) {
+        implementation(compose.desktop.linux_arm64)
+    } else {
+        implementation(compose.desktop.currentOs)
     }
 
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
@@ -215,17 +219,30 @@ fun generateKotlinFromUdl() {
 fun buildRust() {
     exec {
         println("Build rs called")
-        workingDir = File(project.projectDir, "rs")
-        commandLine = listOf(
+        val params = mutableListOf(
             "cargo", "build", "--release", "--features=uniffi/cli",
         )
+
+        if (currentOs() == OS.LINUX && isLinuxAarch64) {
+            params.add("--target=$linuxArmTarget")
+        }
+
+        workingDir = File(project.projectDir, "rs")
+        commandLine = params
     }
 }
 
 fun copyRustBuild() {
     val outputDir = "${buildDir}/classes/kotlin/main"
     println("Copy rs build called")
-    val workingDir = File(project.projectDir, "rs/target/release")
+
+    val workingDirPath = if (currentOs() == OS.LINUX && isLinuxAarch64) {
+        "rs/target/$linuxArmTarget/release"
+    } else {
+        "rs/target/release"
+    }
+
+    val workingDir = File(project.projectDir, workingDirPath)
 
     val directory = File(outputDir)
     directory.mkdirs()
