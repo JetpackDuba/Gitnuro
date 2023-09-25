@@ -290,7 +290,7 @@ class VerticalDragDropState internal constructor(
 }
 
 @Composable
-fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState): Modifier {
+fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onDraggedTab: (Int) -> Unit): Modifier {
     val state = rememberDraggableState {
         println("Dragging horizontally $it")
         dragDropState.onDrag(Offset(it, 0f))
@@ -302,6 +302,11 @@ fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState): Mo
         startDragImmediately = false,
         onDragStarted = {
             dragDropState.onDragStart(it)
+            val index = dragDropState.draggingItemIndex
+
+            if (index != null) {
+                onDraggedTab(index)
+            }
         },
         onDragStopped = {
             println("On drag stopped")

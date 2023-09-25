@@ -97,19 +97,23 @@ fun RepositoriesTabPanel(
                 modifier = Modifier
                     .height(tabsHeight)
                     .weight(1f, false)
-                    .horizontalDragContainer(dragDropState),
+                    .horizontalDragContainer(
+                        dragDropState = dragDropState,
+                        onDraggedTab = {
+                            val tab = tabs.getOrNull(it)
+
+                            if (tab != null) {
+                                onTabSelected(tab)
+                            }
+                        },
+                    ),
                 state = stateHorizontal,
             ) {
                 itemsIndexed(
                     items = tabs,
                     key = { _, tab -> tab.tabViewModel }
                 ) { index, tab ->
-                    HorizontalDraggableItem(dragDropState, index) { isDragged ->
-                        LaunchedEffect(isDragged) {
-                            if (isDragged) {
-                                onTabSelected(tab)
-                            }
-                        }
+                    HorizontalDraggableItem(dragDropState, index) { _ ->
                         Tooltip(tab.path) {
                             Tab(
                                 modifier = Modifier,
