@@ -48,18 +48,21 @@ class FileChangesWatcher @Inject constructor(
                 }
 
                 val areAllPathsIgnored = paths.all { path ->
-                    val matchesAnyRule = ignoreRules.any { rule ->
+                    val matchesAnyIgnoreRule = ignoreRules.any { rule ->
                         rule.isMatch(path, Files.isDirectory(Paths.get(path)))
                     }
 
                     val isGitIgnoredFile = gitDirIgnoredFiles.any { ignoredFile ->
-                        "$pathStr/.git/$ignoredFile" == path
+                        "$pathStr$systemSeparator.git$systemSeparator$ignoredFile" == path
                     }
 
-                    matchesAnyRule || isGitIgnoredFile
+                    // JGit may create .probe-UUID files for its internal stuff, we should not care about it
+                    val onlyProbeFiles = paths.all { it.contains("$systemSeparator.git$systemSeparator.probe-") }
+
+                    matchesAnyIgnoreRule || isGitIgnoredFile || onlyProbeFiles
                 }
 
-                val hasGitDirChanged = paths.any { it.startsWith("$pathStr$systemSeparator.git%$systemSeparator") }
+                val hasGitDirChanged = paths.any { it.startsWith("$pathStr$systemSeparator.git$systemSeparator") }
 
                 if (!areAllPathsIgnored) {
                     _changesNotifier.emit(hasGitDirChanged)

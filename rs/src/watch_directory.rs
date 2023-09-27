@@ -36,7 +36,7 @@ pub fn watch_directory(
             }
             Err(e) => {
                 if e != RecvTimeoutError::Timeout {
-                    println!("Watch error: {:?}", e)
+                    println!("Watch error: {:?}", e);
                 }
             }
         }

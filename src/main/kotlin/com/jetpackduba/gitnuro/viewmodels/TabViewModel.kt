@@ -279,7 +279,7 @@ class TabViewModel @Inject constructor(
         }
     }
 
-    suspend fun updateApp(hasGitDirChanged: Boolean) {
+    private suspend fun updateApp(hasGitDirChanged: Boolean) {
         if (hasGitDirChanged) {
             printLog(TAG, "Changes detected in git directory, full refresh")
 
