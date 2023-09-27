@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val javaLanguageVersion = JavaLanguageVersion.of(17)
 val linuxArmTarget = "aarch64-unknown-linux-gnu"
+val linuxX64Target = "x86_64-unknown-linux-gnu"
 
 plugins {
     // Kotlin version must match compose version
@@ -219,12 +220,22 @@ fun generateKotlinFromUdl() {
 fun buildRust() {
     exec {
         println("Build rs called")
+        val binary = if (currentOs() == OS.LINUX) {
+            "cross"
+        } else {
+            "cargo"
+        }
+
         val params = mutableListOf(
-            "cargo", "build", "--release", "--features=uniffi/cli",
+            binary, "build", "--release", "--features=uniffi/cli",
         )
 
-        if (currentOs() == OS.LINUX && isLinuxAarch64) {
-            params.add("--target=$linuxArmTarget")
+        if (currentOs() == OS.LINUX) {
+            if (isLinuxAarch64) {
+                params.add("--target=$linuxArmTarget")
+            } else {
+                params.add("--target=$linuxX64Target")
+            }
         }
 
         workingDir = File(project.projectDir, "rs")
@@ -234,10 +245,13 @@ fun buildRust() {
 
 fun copyRustBuild() {
     val outputDir = "${buildDir}/classes/kotlin/main"
-    println("Copy rs build called")
 
-    val workingDirPath = if (currentOs() == OS.LINUX && isLinuxAarch64) {
-        "rs/target/$linuxArmTarget/release"
+    val workingDirPath = if (currentOs() == OS.LINUX) {
+        if (isLinuxAarch64) {
+            "rs/target/$linuxArmTarget/release"
+        } else {
+            "rs/target/$linuxX64Target/release"
+        }
     } else {
         "rs/target/release"
     }
