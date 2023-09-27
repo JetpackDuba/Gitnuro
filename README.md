@@ -16,7 +16,7 @@ Linux:
 - Available as Flatpak [here](https://flathub.org/apps/details/com.jetpackduba.Gitnuro) or by
   running `flatpak install com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup. 
   - If Flathub is not set up, you can add the source with the following command `flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`.
-- JAR file can be executed as a portable version (Requires JRE 17). SSH support requires installing [LibSSH](https://www.libssh.org/get-it/).
+- JAR file can be executed as a portable version (Requires JRE 17).
 
 Windows:
 
@@ -24,7 +24,7 @@ Windows:
 
 MacOS:
 
-- [ZIP which contains the app bundle](https://github.com/JetpackDuba/Gitnuro/releases/latest). SSH support requires installing LibSSH `brew install libssh`.
+- [ZIP which contains the app bundle](https://github.com/JetpackDuba/Gitnuro/releases/latest).
 - Using hombrew: `brew install jetpackduba/apps/gitnuro`
 
 ## Features
