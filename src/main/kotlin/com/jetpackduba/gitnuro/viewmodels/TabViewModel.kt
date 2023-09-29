@@ -40,7 +40,6 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
 
-private const val MIN_TIME_IN_MS_BETWEEN_REFRESHES = 1000L
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
 
 private const val TAG = "TabViewModel"
@@ -202,10 +201,14 @@ class TabViewModel @Inject constructor(
         _showAuthorInfo.value = false
         authorViewModel = null
     }
+    /**
+     * Sometimes external apps can run filesystem multiple operations in a fraction of a second.
+     * To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
+     * the app by constantly running "git status" or even full refreshes.
+     *
+     */
 
     private suspend fun watchRepositoryChanges(git: Git) = tabScope.launch(Dispatchers.IO) {
-        var asyncJob: Job? = null
-        var lastNotify = 0L
         var hasGitDirChanged = false
 
         launch {
@@ -213,15 +216,6 @@ class TabViewModel @Inject constructor(
                 if (!tabState.operationRunning) { // Only update if there isn't any process running
                     printDebug(TAG, "Detected changes in the repository's directory")
 
-                    if (latestUpdateChangedGitDir) {
-                        hasGitDirChanged = true
-                    }
-
-                    asyncJob?.cancel()
-
-                    // Sometimes external apps can run filesystem multiple operations in a fraction of a second.
-                    // To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
-                    // the app by constantly running "git status".
                     val currentTimeMillis = System.currentTimeMillis()
 
                     if (currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION) {
@@ -229,25 +223,17 @@ class TabViewModel @Inject constructor(
                         return@collect
                     }
 
-                    val diffTime = currentTimeMillis - lastNotify
-
-                    // When .git dir has changed, do the refresh with a delay to avoid doing operations while a git
-                    // operation may be running
-                    if (diffTime > MIN_TIME_IN_MS_BETWEEN_REFRESHES && !hasGitDirChanged) {
-                        updateApp(false)
-                        printDebug(TAG, "Sync emit with diff time $diffTime")
-                    } else {
-                        asyncJob = async {
-                            delay(MIN_TIME_IN_MS_BETWEEN_REFRESHES)
-                            printDebug(TAG, "Async emit")
-                            if (isActive)
-                                updateApp(hasGitDirChanged)
-
-                            hasGitDirChanged = false
-                        }
+                    if (latestUpdateChangedGitDir) {
+                        hasGitDirChanged = true
                     }
 
-                    lastNotify = currentTimeMillis
+                    if (isActive) {
+                        updateApp(hasGitDirChanged)
+                    }
+
+                    hasGitDirChanged = false
+                } else {
+                    printDebug(TAG, "Ignored file events during operation")
                 }
             }
         }
@@ -267,7 +253,7 @@ class TabViewModel @Inject constructor(
                 is WatcherInitException.WatchNotFound -> null // This should never trigger as we don't unwatch files
             }
 
-            if(message != null) {
+            if (message != null) {
                 errorsManager.addError(
                     newErrorNow(
                         exception = ex,

@@ -90,8 +90,6 @@ class TabState @Inject constructor(
             var refreshEvenIfCrashesInteractiveResult = false
             operationRunning = true
 
-            lastOperation = System.currentTimeMillis()
-
             val processingInfo: ProcessingInfo = object : ProcessingInfo {
                 override fun changeSubtitle(newSubtitle: String) {
                     _processing.update { processingState ->
@@ -152,6 +150,7 @@ class TabState @Inject constructor(
             } finally {
                 _processing.value = ProcessingState.None
                 operationRunning = false
+                lastOperation = System.currentTimeMillis()
 
                 if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes || refreshEvenIfCrashesInteractiveResult)) {
                     _refreshData.emit(refreshType)
@@ -217,7 +216,6 @@ class TabState @Inject constructor(
         var hasProcessFailed = false
 
         operationRunning = true
-        lastOperation = System.currentTimeMillis()
 
         try {
             block(git)
@@ -235,6 +233,7 @@ class TabState @Inject constructor(
                 _refreshData.emit(refreshType)
 
             operationRunning = false
+            lastOperation = System.currentTimeMillis()
         }
     }
 

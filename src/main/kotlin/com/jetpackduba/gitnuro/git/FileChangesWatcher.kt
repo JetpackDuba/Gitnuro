@@ -59,7 +59,10 @@ class FileChangesWatcher @Inject constructor(
                     // JGit may create .probe-UUID files for its internal stuff, we should not care about it
                     val onlyProbeFiles = paths.all { it.contains("$systemSeparator.git$systemSeparator.probe-") }
 
-                    matchesAnyIgnoreRule || isGitIgnoredFile || onlyProbeFiles
+                    // Ignore it if the change is the directory itself
+                    val isGitDir = paths.count() == 1 && paths.first() == "$pathStr$systemSeparator.git$systemSeparator"
+
+                    matchesAnyIgnoreRule || isGitIgnoredFile || onlyProbeFiles || isGitDir
                 }
 
                 val hasGitDirChanged = paths.any { it.startsWith("$pathStr$systemSeparator.git$systemSeparator") }

@@ -1,10 +1,14 @@
 extern crate notify;
 
 use std::fmt::Debug;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::sync::mpsc::{channel, RecvTimeoutError};
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use notify::{Config, Error, ErrorKind, Event, RecommendedWatcher, RecursiveMode, Watcher};
+
+const MIN_TIME_IN_MS_BETWEEN_REFRESHES: u128 = 500;
+const WATCH_TIMEOUT: u64 = 500;
+
 
 pub fn watch_directory(
     path: String,
@@ -27,11 +31,49 @@ pub fn watch_directory(
         .watch(Path::new(path.as_str()), RecursiveMode::Recursive)
         .map_err(|err| err.kind.into_watcher_init_error())?;
 
+    let mut paths_cached: Vec<String> = Vec::new();
+
+    let mut last_update: u128 = 0;
+
     while notifier.should_keep_looping() {
-        match rx.recv_timeout(Duration::from_secs(1)) {
+        let current_time = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("We need a TARDIS to fix this")
+            .as_millis();
+
+        // Updates are batched to prevent excessive communication between Kotlin and Rust, as the
+        // bridge has overhead
+        if last_update != 0 && current_time > (last_update + MIN_TIME_IN_MS_BETWEEN_REFRESHES) {
+            last_update = 0;
+
+            if paths_cached.len() == 1 {
+                let first_path = paths_cached.first().unwrap();
+                let is_dir = PathBuf::from(first_path).is_dir();
+
+                if is_dir {
+                    println!("Ignored path cached {first_path} because it is a dir");
+                } else {
+                    println!("Sending single file event to Kotlin side");
+                    notifier.detected_change(paths_cached.to_vec());
+                }
+            } else {
+                println!("Sending batched events to Kotlin side");
+                notifier.detected_change(paths_cached.to_vec());
+            }
+
+            paths_cached.clear();
+        }
+
+        match rx.recv_timeout(Duration::from_millis(WATCH_TIMEOUT)) {
             Ok(e) => {
-                if let Some(paths) = get_paths_from_event_result(&e) {
-                    notifier.detected_change(paths)
+                if let Some(mut paths) = get_paths_from_event_result(&e) {
+                    paths_cached.append(&mut paths);
+
+                    last_update = SystemTime::now()
+                        .duration_since(UNIX_EPOCH)
+                        .expect("We need a TARDIS to fix this")
+                        .as_millis();
+                    println!("Event: {e:?}");
                 }
             }
             Err(e) => {
