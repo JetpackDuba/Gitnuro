@@ -121,7 +121,7 @@ fun Diff(
                     diffEntry = diffEntry,
                     onCloseDiffView = onCloseDiffView,
                     diffType = diffType,
-                    isTextDiff = diffResult is DiffResult.Text,
+                    isTextDiff = diffResult is DiffResult.TextDiff,
                     isDisplayFullFile = isDisplayFullFile,
                     onStageFile = { diffViewModel.stageFile(it) },
                     onUnstageFile = { diffViewModel.unstageFile(it) },
