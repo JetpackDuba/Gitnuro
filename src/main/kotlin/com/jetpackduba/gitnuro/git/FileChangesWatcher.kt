@@ -26,8 +26,10 @@ class FileChangesWatcher @Inject constructor(
 
     suspend fun watchDirectoryPath(
         repository: Repository,
-        pathStr: String
     ) = withContext(Dispatchers.IO) {
+        val workspacePath = repository.workTree.absolutePath
+        val gitRepoPath = repository.directory.absolutePath + systemSeparator
+
         var ignoreRules = getIgnoreRulesUseCase(repository)
         val gitDirIgnoredFiles = listOf(
             Constants.COMMIT_EDITMSG,
@@ -41,7 +43,7 @@ class FileChangesWatcher @Inject constructor(
             }
 
             override fun detectedChange(paths: List<String>) = runBlocking {
-                val hasGitIgnoreChanged = paths.any { it == "$pathStr$systemSeparator.gitignore" }
+                val hasGitIgnoreChanged = paths.any { it == "$workspacePath$systemSeparator.gitignore" }
 
                 if (hasGitIgnoreChanged) {
                     ignoreRules = getIgnoreRulesUseCase(repository)
@@ -53,19 +55,13 @@ class FileChangesWatcher @Inject constructor(
                     }
 
                     val isGitIgnoredFile = gitDirIgnoredFiles.any { ignoredFile ->
-                        "$pathStr$systemSeparator.git$systemSeparator$ignoredFile" == path
+                        "$workspacePath$systemSeparator.git$systemSeparator$ignoredFile" == path
                     }
 
-                    // JGit may create .probe-UUID files for its internal stuff, we should not care about it
-                    val onlyProbeFiles = paths.all { it.contains("$systemSeparator.git$systemSeparator.probe-") }
-
-                    // Ignore it if the change is the directory itself
-                    val isGitDir = paths.count() == 1 && paths.first() == "$pathStr$systemSeparator.git$systemSeparator"
-
-                    matchesAnyIgnoreRule || isGitIgnoredFile || onlyProbeFiles || isGitDir
+                    matchesAnyIgnoreRule || isGitIgnoredFile
                 }
 
-                val hasGitDirChanged = paths.any { it.startsWith("$pathStr$systemSeparator.git$systemSeparator") }
+                val hasGitDirChanged = paths.any { it.startsWith("$workspacePath$systemSeparator.git$systemSeparator") }
 
                 if (!areAllPathsIgnored) {
                     _changesNotifier.emit(hasGitDirChanged)
@@ -73,6 +69,6 @@ class FileChangesWatcher @Inject constructor(
             }
         }
 
-        watchDirectory(pathStr, checker)
+        watchDirectory(workspacePath, gitRepoPath, checker)
     }
 }

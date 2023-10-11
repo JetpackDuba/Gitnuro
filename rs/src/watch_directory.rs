@@ -12,6 +12,7 @@ const WATCH_TIMEOUT: u64 = 500;
 
 pub fn watch_directory(
     path: String,
+    git_dir_path: String,
     notifier: Box<dyn WatchDirectoryNotifier>,
 ) -> Result<(), WatcherInitError> {
     // Create a channel to receive the events.
@@ -56,7 +57,7 @@ pub fn watch_directory(
                     println!("Sending single file event to Kotlin side");
                     notifier.detected_change(paths_cached.to_vec());
                 }
-            } else {
+            } else if !paths_cached.is_empty() {
                 println!("Sending batched events to Kotlin side");
                 notifier.detected_change(paths_cached.to_vec());
             }
@@ -66,13 +67,18 @@ pub fn watch_directory(
 
         match rx.recv_timeout(Duration::from_millis(WATCH_TIMEOUT)) {
             Ok(e) => {
-                if let Some(mut paths) = get_paths_from_event_result(&e) {
-                    paths_cached.append(&mut paths);
+                if let Some(paths) = get_paths_from_event_result(&e, &git_dir_path) {
+                    let mut paths_without_dirs: Vec<String> = paths
+                        .into_iter()
+                        .collect();
+
+                    paths_cached.append(&mut paths_without_dirs);
 
                     last_update = SystemTime::now()
                         .duration_since(UNIX_EPOCH)
                         .expect("We need a TARDIS to fix this")
                         .as_millis();
+
                     println!("Event: {e:?}");
                 }
             }
@@ -91,14 +97,34 @@ pub fn watch_directory(
     Ok(())
 }
 
-pub fn get_paths_from_event_result(event_result: &Result<Event, Error>) -> Option<Vec<String>> {
+pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_path: &str) -> Option<Vec<String>> {
     match event_result {
         Ok(event) => {
             let events: Vec<String> = event
                 .paths
                 .clone()
                 .into_iter()
-                .filter_map(|path| path.into_os_string().into_string().ok())
+                .filter_map(|path| {
+                    // Directories are not tracked by Git so we don't care about them (just about their content)
+                    // We won't be able to check if it's a dir if it has been deleted but that's good enough
+                    if path.is_dir() {
+                        println!("Ignoring directory {path:#?}");
+                        None
+                    } else {
+                        let path_str = path.into_os_string()
+                            .into_string()
+                            .ok()?;
+
+                        // JGit may create .probe-UUID files for its internal stuff, we don't care about it
+                        let probe_prefix = format!("{git_dir_path}.probe-");
+                        if path_str.starts_with(probe_prefix.as_str()) {
+                            println!("Ignoring .probe file");
+                            None
+                        } else {
+                            Some(path_str)
+                        }
+                    }
+                })
                 .collect();
 
             if events.is_empty() {

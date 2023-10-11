@@ -241,7 +241,6 @@ class TabViewModel @Inject constructor(
         try {
             fileChangesWatcher.watchDirectoryPath(
                 repository = git.repository,
-                pathStr = git.repository.workTree.absolutePath,
             )
         } catch (ex: WatcherInitException) {
             val message = when (ex) {

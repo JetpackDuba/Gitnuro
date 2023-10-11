@@ -1,6 +1,6 @@
 namespace gitnuro {
     [Throws=WatcherInitError]
-    void watch_directory(string path, WatchDirectoryNotifier checker);
+    void watch_directory(string path, string git_dir_path, WatchDirectoryNotifier checker);
 };
 
 callback interface WatchDirectoryNotifier {
