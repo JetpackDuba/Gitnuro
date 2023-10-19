@@ -82,6 +82,12 @@ fun <T> FilterDropdown(
                     modifier = Modifier.focusable(showDropdown)
                         .focusRequester(filterFocusRequester)
                 )
+
+                LaunchedEffect(showDropdown) {
+                    if (showDropdown) {
+                        filterFocusRequester.requestFocus()
+                    }
+                }
             }
 
             for (dropDownOption in filteredDropdownItems) {
@@ -94,12 +100,6 @@ fun <T> FilterDropdown(
                 ) {
                     Text(dropDownOption.optionName, style = MaterialTheme.typography.body2)
                 }
-            }
-        }
-
-        LaunchedEffect(showDropdown) {
-            if (showDropdown) {
-                filterFocusRequester.requestFocus()
             }
         }
     }
