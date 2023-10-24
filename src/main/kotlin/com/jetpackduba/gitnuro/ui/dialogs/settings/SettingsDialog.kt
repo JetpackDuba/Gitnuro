@@ -347,7 +347,7 @@ private fun Authentication(settingsViewModel: SettingsViewModel) {
 
     SettingToggle(
         title = "Cache HTTP credentials in memory",
-        subtitle = "If active, HTTP Credentials will be remember until Gitnuro is closed",
+        subtitle = "If active, HTTP Credentials will be remembered until Gitnuro is closed",
         value = cacheCredentialsInMemory,
         onValueChanged = { value ->
             settingsViewModel.cacheCredentialsInMemory = value
