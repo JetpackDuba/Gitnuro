@@ -5,17 +5,45 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
-class StageAllUseCase @Inject constructor() {
+
+class StageAllUseCase @Inject constructor(
+    private val getStatusUseCase: GetStatusUseCase,
+    private val getUnstagedUseCase: GetUnstagedUseCase,
+) {
     suspend operator fun invoke(git: Git): Unit = withContext(Dispatchers.IO) {
-        git
+        val status = getStatusUseCase(git)
+        val unstaged = getUnstagedUseCase(status)
+
+        addAllExceptNew(git, unstaged.filter { it.statusType != StatusType.ADDED })
+        addNewFiles(git, unstaged.filter { it.statusType == StatusType.ADDED })
+    }
+
+    /**
+     * The setUpdate flag of the addCommand adds deleted files but not newly added when active
+     */
+    private fun addAllExceptNew(git: Git, allExceptNew: List<StatusEntry>) {
+        val addCommand = git
             .add()
-            .addFilepattern(".")
-            .setUpdate(true) // Modified and deleted files
-            .call()
-        git
+
+        for (entry in allExceptNew) {
+            addCommand.addFilepattern(entry.filePath)
+        }
+
+        addCommand.setUpdate(true)
+
+        addCommand.call()
+    }
+
+    private fun addNewFiles(git: Git, newFiles: List<StatusEntry>) {
+        val addCommand = git
             .add()
-            .addFilepattern(".")
-            .setUpdate(false) // For newly added files
-            .call()
+
+        for (path in newFiles) {
+            addCommand.addFilepattern(path.filePath)
+        }
+
+        addCommand.setUpdate(false)
+
+        addCommand.call()
     }
 }
