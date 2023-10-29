@@ -24,6 +24,7 @@ group = "com.jetpackduba"
 version = projectVersion
 
 val isLinuxAarch64 = (properties.getOrDefault("isLinuxAarch64", "false") as String).toBoolean()
+val useCross = (properties.getOrDefault("useCross", "false") as String).toBoolean()
 
 
 sourceSets.getByName("main") {
@@ -220,7 +221,7 @@ fun generateKotlinFromUdl() {
 fun buildRust() {
     exec {
         println("Build rs called")
-        val binary = if (currentOs() == OS.LINUX) {
+        val binary = if (currentOs() == OS.LINUX && useCross) {
             "cross"
         } else {
             "cargo"
