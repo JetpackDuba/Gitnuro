@@ -16,26 +16,18 @@ permissions:
   contents: read
 
 jobs:
-  build:
-
+  build_windows:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v3
-
-      - name: Check out my other private repo
-        uses: actions/checkout@master
+      - uses: actions-rs/toolchain@v1
         with:
-          repository: Microsoft/vcpkg
-      - name: Get vcpkg
-        run: |
-          dir -Force
-          bootstrap-vcpkg.bat
-      - name: Install libssh
-        run: |
-          ls -a
-          ./vcpkg.exe install libssh
-        shell: bash
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        name: Rust build
+        with:
+          command: build
+          args: --manifest-path=./rs/Cargo.toml --release --features=uniffi/cli
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -45,4 +37,27 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
-          arguments: build
+          arguments: createDistributable
+
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - uses: actions-rs/cargo@v1
+        name: Rust build
+        with:
+          command: build
+          args: --manifest-path=./rs/Cargo.toml --release --features=uniffi/cli
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          architecture: x64
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: fatJarLinux
