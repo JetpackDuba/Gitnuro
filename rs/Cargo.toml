@@ -10,13 +10,15 @@ crate-type = ["cdylib"]
 name = "gitnuro_rs"
 
 [dependencies]
-uniffi = { version = "0.24.1" }
+uniffi = { version = "0.25.0" }
 notify = "6.0.1"
 thiserror = "1.0.43"
-libssh-rs = { version = "0.2.1", features = [ "vendored", "vendored-openssl" ] }
+#TODO Remove git URL and branch once upstream libssh-rs merges this PR https://github.com/wez/libssh-rs/pull/19.
+# Also change version to target that version as the minimum one
+libssh-rs = { version = "0.2.1", git = "https://github.com/JetpackDuba/libssh-rs.git", branch = "#18", features = [ "vendored", "vendored-openssl" ] }
 
 [build-dependencies]
-uniffi = { version = "0.24.1", features = [ "build" ] }
+uniffi = { version = "0.25.0", features = [ "build" ] }
 
 [[bin]]
 # This can be whatever name makes sense for your project, but the rest of this tutorial assumes uniffi-bindgen.
