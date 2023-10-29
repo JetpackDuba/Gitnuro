@@ -22,6 +22,9 @@ class StageAllUseCase @Inject constructor(
      * The setUpdate flag of the addCommand adds deleted files but not newly added when active
      */
     private fun addAllExceptNew(git: Git, allExceptNew: List<StatusEntry>) {
+        if (allExceptNew.isEmpty())
+            return
+
         val addCommand = git
             .add()
 
@@ -35,6 +38,9 @@ class StageAllUseCase @Inject constructor(
     }
 
     private fun addNewFiles(git: Git, newFiles: List<StatusEntry>) {
+        if (newFiles.isEmpty())
+            return
+
         val addCommand = git
             .add()
 
