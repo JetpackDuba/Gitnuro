@@ -143,9 +143,13 @@ compose.desktop {
 
 
 task("fatJarLinux", type = Jar::class) {
+    val archSuffix = if (isLinuxAarch64) {
+        "arm_aarch64"
+    } else {
+        "x86_64"
+    }
 
-    archiveBaseName.set("$projectName-linux")
-
+    archiveBaseName.set("$projectName-linux-$archSuffix")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
