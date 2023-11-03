@@ -118,7 +118,6 @@ pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_
                         // JGit may create .probe-UUID files for its internal stuff, we don't care about it
                         let probe_prefix = format!("{git_dir_path}.probe-");
                         if path_str.starts_with(probe_prefix.as_str()) {
-                            println!("Ignoring .probe file");
                             None
                         } else {
                             Some(path_str)
