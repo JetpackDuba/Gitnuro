@@ -105,7 +105,7 @@ fun Log(
 
 @Composable
 private fun LogLoading() {
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colors.background),
@@ -615,7 +615,7 @@ fun GraphHeader(
                 onClick = onShowSearch
             ) {
                 Icon(
-                    Icons.Default.Search,
+                    painterResource(AppIcons.SEARCH),
                     modifier = Modifier.size(18.dp),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground,
