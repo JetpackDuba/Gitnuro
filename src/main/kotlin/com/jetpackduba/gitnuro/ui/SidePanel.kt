@@ -135,7 +135,7 @@ fun FilterTextField(value: String, onValueChange: (String) -> Unit, modifier: Mo
             fontSize = MaterialTheme.typography.body2.fontSize,
             color = MaterialTheme.colors.onBackground,
         ),
-        maxLines = 1,
+        singleLine = true,
         leadingIcon = {
             Icon(
                 painterResource(AppIcons.SEARCH),
@@ -143,6 +143,22 @@ fun FilterTextField(value: String, onValueChange: (String) -> Unit, modifier: Mo
                 modifier = Modifier.size(16.dp),
                 tint = if (value.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
             )
+        },
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(
+                    onClick = { onValueChange("") },
+                    modifier = Modifier
+                        .size(16.dp)
+                        .handOnHover(),
+                ) {
+                    Icon(
+                        painterResource(AppIcons.CLOSE),
+                        contentDescription = null,
+                        tint = if (value.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
+                    )
+                }
+            }
         }
     )
 }
