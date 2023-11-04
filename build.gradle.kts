@@ -1,6 +1,8 @@
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.io.FileOutputStream
+import java.nio.file.Files
 
 val javaLanguageVersion = JavaLanguageVersion.of(17)
 val linuxArmTarget = "aarch64-unknown-linux-gnu"
@@ -8,17 +10,16 @@ val linuxX64Target = "x86_64-unknown-linux-gnu"
 
 plugins {
     // Kotlin version must match compose version
-    kotlin("jvm") version "1.7.10"
-    kotlin("kapt") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
-    id("org.jetbrains.compose") version "1.5.1"
+    kotlin("jvm") version "1.9.20"
+    kotlin("plugin.serialization") version "1.9.20"
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
+    id("org.jetbrains.compose") version "1.5.10"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
 val projectVersion = "1.3.1"
 val projectName = "Gitnuro"
-
-val rustGeneratedSource = "${buildDir}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
+val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
 group = "com.jetpackduba"
 version = projectVersion
@@ -28,7 +29,7 @@ val useCross = (properties.getOrDefault("useCross", "false") as String).toBoolea
 
 
 sourceSets.getByName("main") {
-    kotlin.sourceSets.main.get().kotlin.srcDir(rustGeneratedSource)
+    kotlin.srcDir(rustGeneratedSource)
 }
 
 sourceSets.main.get().java.srcDirs("src/main/resources").includes.addAll(arrayOf("**/*.*"))
@@ -41,7 +42,7 @@ repositories {
 
 dependencies {
     val jgit = "6.7.0.202309050840-r"
-    println("isLinuxAarch64=$isLinuxAarch64")
+
     if (currentOs() == OS.LINUX && isLinuxAarch64) {
         implementation(compose.desktop.linux_arm64)
     } else {
@@ -54,9 +55,9 @@ dependencies {
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")
     implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:$jgit")
-    implementation("com.google.dagger:dagger:2.45")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
-    kapt("com.google.dagger:dagger-compiler:2.45")
+    implementation("com.google.dagger:dagger:2.48.1")
+    ksp("com.google.dagger:dagger-compiler:2.48.1")
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("io.mockk:mockk:1.13.4")
@@ -281,7 +282,8 @@ fun copyRustBuild() {
     val originFile = File(workingDir, originLib)
     val destinyFile = File(directory, destinyLib)
 
-    com.google.common.io.Files.copy(originFile, destinyFile)
+    Files.copy(originFile.toPath(), FileOutputStream(destinyFile))
+//    com.google.common.io.Files.copy(originFile, destinyFile)
 
     println("Copy rs build completed")
 }
