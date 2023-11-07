@@ -23,6 +23,7 @@ import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.GetStatusSummaryUseCase
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.preferences.RepositorySettings
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
@@ -70,6 +71,7 @@ class LogViewModel @Inject constructor(
     private val tabState: TabState,
     private val appSettings: AppSettings,
     private val tabScope: CoroutineScope,
+    private val repositorySettings: RepositorySettings,
 ) : ViewModel {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
@@ -78,6 +80,9 @@ class LogViewModel @Inject constructor(
 
     var savedSearchFilter: String = ""
     var graphPadding = 0f
+    fun graphPaddingPersisted(): Float {
+        return 0f
+    }
 
     private val scrollToItem: Flow<RevCommit> = tabState.taskEvent
         .filterIsInstance<TaskEvent.ScrollToGraphItem>()
@@ -442,6 +447,10 @@ class LogViewModel @Inject constructor(
     ) { git ->
         deleteRemoteBranchUseCase(git, branch)
     }
+
+//    fun persistGraphPadding() {
+//        repositorySettings.setGraphWidth(tabState.git.repository, graphPadding)
+//    }
 }
 
 sealed class LogStatus {

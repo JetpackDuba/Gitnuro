@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -58,7 +57,6 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import java.awt.Cursor
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -167,7 +165,10 @@ private fun LogLoaded(
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
-        var graphPadding by remember(logViewModel) { mutableStateOf(logViewModel.graphPadding) }
+        var graphPadding by remember(logViewModel) {
+            mutableStateOf(logViewModel.graphPaddingPersisted())
+        }
+
         var graphWidth = (CANVAS_DEFAULT_WIDTH + graphPadding).dp
 
         if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
@@ -193,6 +194,9 @@ private fun LogLoaded(
             onPaddingChange = {
                 graphPadding += it
                 logViewModel.graphPadding = graphPadding
+            },
+            dragStopped = {
+//                logViewModel.persistGraphPadding()
             },
             onShowSearch = { scope.launch { logViewModel.onSearchValueChanged("") } }
         )
@@ -566,6 +570,7 @@ fun LogDialogs(
 fun GraphHeader(
     graphWidth: Dp,
     onPaddingChange: (Float) -> Unit,
+    dragStopped: () -> Unit,
     onShowSearch: () -> Unit
 ) {
     Box(
@@ -593,8 +598,14 @@ fun GraphHeader(
             SimpleDividerLog(
                 modifier = Modifier.draggable(
                     rememberDraggableState {
+//                        println("OnDelta")
                         onPaddingChange(it * density) // Multiply by density for screens with scaling > 1
-                    }, Orientation.Horizontal
+                    },
+                    Orientation.Horizontal,
+                    onDragStopped = {
+//                        println("Drag Stopped")
+                        dragStopped()
+                    }
                 ),
             )
 
