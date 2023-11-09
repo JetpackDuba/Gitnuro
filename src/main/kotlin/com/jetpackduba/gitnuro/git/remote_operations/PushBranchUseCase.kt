@@ -20,6 +20,7 @@ class PushBranchUseCase @Inject constructor(
     private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
     private val appSettings: AppSettings,
 ) {
+    // TODO This use case should also set the tracking branch to the new remote branch
     suspend operator fun invoke(git: Git, force: Boolean, pushTags: Boolean) = withContext(Dispatchers.IO) {
         val currentBranch = git.repository.fullBranch
         val tracking = getTrackingBranchUseCase(git, git.repository.branch)
