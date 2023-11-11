@@ -51,10 +51,7 @@ pub fn watch_directory(
                 let first_path = paths_cached.first().unwrap();
                 let is_dir = PathBuf::from(first_path).is_dir();
 
-                if is_dir {
-                    println!("Ignored path cached {first_path} because it is a dir");
-                } else {
-                    println!("Sending single file event to Kotlin side");
+                if !is_dir {
                     notifier.detected_change(paths_cached.to_vec());
                 }
             } else if !paths_cached.is_empty() {

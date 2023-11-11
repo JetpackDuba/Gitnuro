@@ -134,7 +134,6 @@ class HorizontalDragDropState internal constructor(
         val startOffset = draggingItem.offset + draggingItemOffset
         val endOffset = startOffset + draggingItem.size
         val middleOffset = startOffset + (endOffset - startOffset) / 2f
-        println("Middle offset is $middleOffset")
 
         val targetItem = state.layoutInfo.visibleItemsInfo.find { item ->
             middleOffset.toInt() in item.offset..item.offsetEnd &&
@@ -292,7 +291,6 @@ class VerticalDragDropState internal constructor(
 @Composable
 fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onDraggedTab: (Int) -> Unit): Modifier {
     val state = rememberDraggableState {
-        println("Dragging horizontally $it")
         dragDropState.onDrag(Offset(it, 0f))
     }
 
@@ -309,7 +307,6 @@ fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onD
             }
         },
         onDragStopped = {
-            println("On drag stopped")
             dragDropState.onDragInterrupted()
         },
     )
