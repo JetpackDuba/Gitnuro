@@ -2,9 +2,7 @@
 
 package com.jetpackduba.gitnuro.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -17,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.backgroundIf
+import com.jetpackduba.gitnuro.extensions.onDoubleClick
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 
 
@@ -29,7 +28,7 @@ fun SideMenuSubentry(
     iconResourcePath: String,
     isSelected: Boolean,
     extraPadding: Dp = 0.dp,
-    onClick: (() -> Unit)? = null,
+    onClick: () -> Unit,
     onDoubleClick: (() -> Unit)? = null,
     additionalInfo: @Composable () -> Unit = {}
 ) {
@@ -37,9 +36,10 @@ fun SideMenuSubentry(
         modifier = Modifier
             .height(ENTRY_HEIGHT.dp)
             .fillMaxWidth()
+            .clickable { onClick() }
             .run {
-                if (onClick != null)
-                    combinedClickable(onClick = onClick, onDoubleClick = onDoubleClick)
+                if (onDoubleClick != null)
+                    this.onDoubleClick(onDoubleClick)
                 else
                     this
             }
