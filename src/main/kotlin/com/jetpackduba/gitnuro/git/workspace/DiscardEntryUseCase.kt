@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
-class ResetEntryUseCase @Inject constructor() {
+class DiscardEntryUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, statusEntry: StatusEntry, staged: Boolean): Unit =
         withContext(Dispatchers.IO) {
             if (staged || statusEntry.statusType == StatusType.CONFLICTING) {

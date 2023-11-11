@@ -37,7 +37,7 @@ class StatusViewModel @Inject constructor(
     private val tabState: TabState,
     private val stageEntryUseCase: StageEntryUseCase,
     private val unstageEntryUseCase: UnstageEntryUseCase,
-    private val resetEntryUseCase: ResetEntryUseCase,
+    private val resetEntryUseCase: DiscardEntryUseCase,
     private val stageAllUseCase: StageAllUseCase,
     private val unstageAllUseCase: UnstageAllUseCase,
     private val checkHasPreviousCommitsUseCase: CheckHasPreviousCommitsUseCase,

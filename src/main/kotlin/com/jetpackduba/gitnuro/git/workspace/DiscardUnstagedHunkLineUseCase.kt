@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.git.workspace
 
 import com.jetpackduba.gitnuro.extensions.filePath
-import com.jetpackduba.gitnuro.extensions.lineDelimiter
 import com.jetpackduba.gitnuro.git.diff.Hunk
 import com.jetpackduba.gitnuro.git.diff.Line
 import com.jetpackduba.gitnuro.git.diff.LineType
@@ -10,7 +9,6 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import java.io.File
-import java.io.FileWriter
 import javax.inject.Inject
 
 class DiscardUnstagedHunkLineUseCase @Inject constructor(
@@ -22,7 +20,7 @@ class DiscardUnstagedHunkLineUseCase @Inject constructor(
 
             try {
                 val file = File(repository.workTree, diffEntry.filePath)
-                val content = file.readText()
+                val content = file.readText(Charsets.UTF_8)
                 val textLines = getLinesFromTextUseCase(content).toMutableList()
 
                 if (line.lineType == LineType.ADDED) {
@@ -47,13 +45,9 @@ class DiscardUnstagedHunkLineUseCase @Inject constructor(
                     }
                 }
 
-                println(content)
                 val resultText = textLines.joinToString("")
+                file.writeText(resultText, Charsets.UTF_8)
 
-
-                FileWriter(file).use { fw ->
-                    fw.write(resultText)
-                }
             } catch (ex: Exception) {
                 throw Exception(
                     "Discard hunk line failed. Check if the file still exists and has the write permissions set",
