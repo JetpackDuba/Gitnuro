@@ -3,6 +3,7 @@
 package com.jetpackduba.gitnuro.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
@@ -15,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.extensions.backgroundIf
+import com.jetpackduba.gitnuro.theme.backgroundSelected
 
 
 const val ENTRY_HEIGHT = 36
@@ -24,6 +27,7 @@ const val ENTRY_HEIGHT = 36
 fun SideMenuSubentry(
     text: String,
     iconResourcePath: String,
+    isSelected: Boolean,
     extraPadding: Dp = 0.dp,
     onClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
@@ -39,8 +43,8 @@ fun SideMenuSubentry(
                 else
                     this
             }
-            .padding(start = extraPadding),
-//            .background(background),
+            .padding(start = extraPadding)
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(

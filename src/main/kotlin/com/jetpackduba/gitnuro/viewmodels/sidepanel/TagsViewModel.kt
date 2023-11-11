@@ -67,7 +67,7 @@ class TagsViewModel @AssistedInject constructor(
     }
 
     fun selectTag(tag: Ref) {
-        tabState.newSelectedRef(tag.objectId)
+        tabState.newSelectedRef(tag, tag.objectId)
     }
 
     suspend fun refresh(git: Git) {

@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.ui.SelectedItem
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -53,8 +54,7 @@ class BranchesViewModel @AssistedInject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA)
-            {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA) {
                 refresh(tabState.git)
             }
         }
@@ -105,7 +105,7 @@ class BranchesViewModel @AssistedInject constructor(
     }
 
     fun selectBranch(ref: Ref) {
-        tabState.newSelectedRef(ref.objectId)
+        tabState.newSelectedRef(ref, ref.objectId)
     }
 
     fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(

@@ -37,6 +37,7 @@ fun SidePanel(
     submodulesViewModel: SubmodulesViewModel = sidePanelViewModel.submodulesViewModel,
 ) {
     var filter by remember(sidePanelViewModel) { mutableStateOf(sidePanelViewModel.filter.value) }
+    val selectedItem by sidePanelViewModel.selectedItem.collectAsState()
 
     val branchesState by branchesViewModel.branchesState.collectAsState()
     val remotesState by remotesViewModel.remoteState.collectAsState()
@@ -66,6 +67,7 @@ fun SidePanel(
         ) {
             localBranches(
                 branchesState = branchesState,
+                selectedItem = selectedItem,
                 branchesViewModel = branchesViewModel,
                 onChangeDefaultUpstreamBranch = { setBranchToChangeUpstream(it) }
             )
@@ -78,11 +80,13 @@ fun SidePanel(
 
             tags(
                 tagsState = tagsState,
+                selectedItem = selectedItem,
                 tagsViewModel = tagsViewModel,
             )
 
             stashes(
                 stashesState = stashesState,
+                selectedItem = selectedItem,
                 stashesViewModel = stashesViewModel,
             )
 
@@ -165,6 +169,7 @@ fun FilterTextField(value: String, onValueChange: (String) -> Unit, modifier: Mo
 
 fun LazyListScope.localBranches(
     branchesState: BranchesState,
+    selectedItem: SelectedItem,
     branchesViewModel: BranchesViewModel,
     onChangeDefaultUpstreamBranch: (Ref) -> Unit,
 ) {
@@ -191,18 +196,17 @@ fun LazyListScope.localBranches(
         items(branches, key = { it.name }) { branch ->
             Branch(
                 branch = branch,
+                isSelectedItem = selectedItem is SelectedItem.Ref && selectedItem.ref == branch,
                 currentBranch = currentBranch,
-                isCurrentBranch = currentBranch?.name == branch.name,
                 onBranchClicked = { branchesViewModel.selectBranch(branch) },
                 onBranchDoubleClicked = { branchesViewModel.checkoutRef(branch) },
                 onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
                 onMergeBranch = { branchesViewModel.mergeBranch(branch) },
-                onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
+                onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
                 onPushToRemoteBranch = { branchesViewModel.pushToRemoteBranch(branch) },
-                onPullFromRemoteBranch = { branchesViewModel.pullFromRemoteBranch(branch) },
-                onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) }
-            )
+                onPullFromRemoteBranch = { branchesViewModel.pullFromRemoteBranch(branch) }
+            ) { onChangeDefaultUpstreamBranch(branch) }
         }
     }
 }
@@ -272,6 +276,7 @@ fun LazyListScope.remotes(
 fun LazyListScope.tags(
     tagsState: TagsState,
     tagsViewModel: TagsViewModel,
+    selectedItem: SelectedItem,
 ) {
     val isExpanded = tagsState.isExpanded
     val tags = tagsState.tags
@@ -295,6 +300,7 @@ fun LazyListScope.tags(
         items(tags, key = { it.name }) { tag ->
             Tag(
                 tag,
+                isSelected = selectedItem is SelectedItem.Ref && selectedItem.ref == tag,
                 onTagClicked = { tagsViewModel.selectTag(tag) },
                 onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
                 onDeleteTag = { tagsViewModel.deleteTag(tag) }
@@ -306,6 +312,7 @@ fun LazyListScope.tags(
 fun LazyListScope.stashes(
     stashesState: StashesState,
     stashesViewModel: StashesViewModel,
+    selectedItem: SelectedItem,
 ) {
     val isExpanded = stashesState.isExpanded
     val stashes = stashesState.stashes
@@ -329,6 +336,7 @@ fun LazyListScope.stashes(
         items(stashes, key = { it.name }) { stash ->
             Stash(
                 stash,
+                isSelected = selectedItem is SelectedItem.Stash && selectedItem.revCommit == stash,
                 onClick = { stashesViewModel.selectStash(stash) },
                 onApply = { stashesViewModel.applyStash(stash) },
                 onPop = { stashesViewModel.popStash(stash) },
@@ -396,7 +404,7 @@ fun LazyListScope.submodules(
 private fun Branch(
     branch: Ref,
     currentBranch: Ref?,
-    isCurrentBranch: Boolean,
+    isSelectedItem: Boolean,
     onBranchClicked: () -> Unit,
     onBranchDoubleClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
@@ -407,6 +415,8 @@ private fun Branch(
     onPullFromRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
 ) {
+    val isCurrentBranch = currentBranch?.name == branch.name
+
     ContextMenu(
         items = {
             branchContextMenuItems(
@@ -427,6 +437,7 @@ private fun Branch(
         SideMenuSubentry(
             text = branch.simpleName,
             iconResourcePath = AppIcons.BRANCH,
+            isSelected = isSelectedItem,
             onClick = onBranchClicked,
             onDoubleClick = onBranchDoubleClicked,
         ) {
@@ -451,7 +462,8 @@ private fun Remote(
     SideMenuSubentry(
         text = remote.remoteInfo.remoteConfig.name,
         iconResourcePath = AppIcons.CLOUD,
-        onClick = onRemoteClicked
+        onClick = onRemoteClicked,
+        isSelected = false,
     )
 }
 
@@ -487,6 +499,7 @@ private fun RemoteBranches(
         SideMenuSubentry(
             text = remoteBranch.simpleName,
             extraPadding = 24.dp,
+            isSelected = false,
             iconResourcePath = AppIcons.BRANCH,
             onClick = onBranchClicked,
             onDoubleClick = onCheckoutBranch,
@@ -497,6 +510,7 @@ private fun RemoteBranches(
 @Composable
 private fun Tag(
     tag: Ref,
+    isSelected: Boolean,
     onTagClicked: () -> Unit,
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
@@ -511,6 +525,7 @@ private fun Tag(
     ) {
         SideMenuSubentry(
             text = tag.simpleName,
+            isSelected = isSelected,
             iconResourcePath = AppIcons.TAG,
             onClick = onTagClicked,
         )
@@ -521,6 +536,7 @@ private fun Tag(
 @Composable
 private fun Stash(
     stash: RevCommit,
+    isSelected: Boolean,
     onClick: () -> Unit,
     onApply: () -> Unit,
     onPop: () -> Unit,
@@ -537,6 +553,7 @@ private fun Stash(
     ) {
         SideMenuSubentry(
             text = stash.shortMessage,
+            isSelected = isSelected,
             iconResourcePath = AppIcons.STASH,
             onClick = onClick,
         )
@@ -569,6 +586,7 @@ private fun Submodule(
         SideMenuSubentry(
             text = submodule.first,
             iconResourcePath = AppIcons.TOPIC,
+            isSelected = false,
             onClick = {
                 if (submodule.second.type.isValid()) {
                     onOpenSubmoduleInTab()

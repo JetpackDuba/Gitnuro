@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -179,13 +180,7 @@ fun RebaseCommit(
             .clickable {
                 onFocusLine()
             }
-            .run {
-                if (isSelected) {
-                    background(MaterialTheme.colors.backgroundSelected)
-                } else {
-                    this
-                }
-            }
+            .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

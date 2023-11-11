@@ -120,7 +120,7 @@ class RemotesViewModel @AssistedInject constructor(
     }
 
     fun selectBranch(ref: Ref) {
-        tabState.newSelectedRef(ref.objectId)
+        tabState.newSelectedRef(ref, ref.objectId)
     }
 
     fun deleteRemote(remoteName: String, isNew: Boolean) = tabState.safeProcessing(

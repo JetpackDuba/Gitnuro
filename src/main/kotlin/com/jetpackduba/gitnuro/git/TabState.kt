@@ -11,6 +11,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
+import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
@@ -242,7 +243,7 @@ class TabState @Inject constructor(
     }
 
     suspend fun newSelectedStash(stash: RevCommit) {
-        newSelectedItem(SelectedItem.Stash(stash))
+        newSelectedItem(SelectedItem.Stash(stash), true)
     }
 
     suspend fun noneSelected() {
@@ -260,7 +261,7 @@ class TabState @Inject constructor(
         }
     }
 
-    fun newSelectedRef(objectId: ObjectId?) = runOperation(
+    fun newSelectedRef(ref: Ref, objectId: ObjectId?) = runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
         if (objectId == null) {
@@ -271,7 +272,7 @@ class TabState @Inject constructor(
             if (commit == null) {
                 newSelectedItem(SelectedItem.None)
             } else {
-                val newSelectedItem = SelectedItem.Ref(commit)
+                val newSelectedItem = SelectedItem.Ref(ref, commit)
                 newSelectedItem(newSelectedItem)
                 _taskEvent.emit(TaskEvent.ScrollToGraphItem(newSelectedItem))
             }

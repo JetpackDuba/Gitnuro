@@ -30,6 +30,7 @@ import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.viewmodels.BlameState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
@@ -413,7 +414,7 @@ sealed class SelectedItem {
     object None : SelectedItem()
     object UncommitedChanges : SelectedItem()
     sealed class CommitBasedItem(val revCommit: RevCommit) : SelectedItem()
-    class Ref(revCommit: RevCommit) : CommitBasedItem(revCommit)
+    class Ref(val ref: org.eclipse.jgit.lib.Ref, revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Commit(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Stash(revCommit: RevCommit) : CommitBasedItem(revCommit)
 }
