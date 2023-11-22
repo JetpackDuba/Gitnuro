@@ -71,7 +71,7 @@ class AppSettings @Inject constructor() {
     val cacheCredentialsInMemoryFlow = _cacheCredentialsInMemoryFlow.asStateFlow()
 
     private val _verifySslFlow = MutableStateFlow(cacheCredentialsInMemory)
-    val verifySslFlow = _cacheCredentialsInMemoryFlow.asStateFlow()
+    val verifySslFlow = _verifySslFlow.asStateFlow()
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
     val ffMergeFlow = _ffMergeFlow.asStateFlow()
