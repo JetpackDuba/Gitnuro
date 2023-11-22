@@ -49,6 +49,7 @@ object AppIcons {
     const val REMOVE_DONE = "remove_done.svg"
     const val REVERT = "revert.svg"
     const val SEARCH = "search.svg"
+    const val SECURITY = "security.svg"
     const val SETTINGS = "settings.svg"
     const val SIGN = "sign.svg"
     const val SOURCE = "source.svg"

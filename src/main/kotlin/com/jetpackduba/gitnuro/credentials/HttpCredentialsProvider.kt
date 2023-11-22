@@ -2,13 +2,18 @@ package com.jetpackduba.gitnuro.credentials
 
 import com.jetpackduba.gitnuro.exceptions.NotSupportedHelper
 import com.jetpackduba.gitnuro.git.remote_operations.CredentialsCache
+import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.preferences.AppSettings
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.internal.JGitText
 import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.transport.CredentialItem
+import org.eclipse.jgit.transport.CredentialItem.Password
+import org.eclipse.jgit.transport.CredentialItem.Username
+import org.eclipse.jgit.transport.CredentialItem.YesNoType
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
 import java.io.*
@@ -16,6 +21,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.cancellation.CancellationException
 
 private const val TIMEOUT_MIN = 1L
+private const val TAG = "HttpCredentialsProvider"
 
 class HttpCredentialsProvider @AssistedInject constructor(
     private val credentialsStateManager: CredentialsStateManager,
@@ -33,20 +39,40 @@ class HttpCredentialsProvider @AssistedInject constructor(
 
     override fun supports(vararg items: CredentialItem?): Boolean {
         val fields = items.map { credentialItem -> credentialItem?.promptText }
-        return if (fields.isEmpty()) {
-            true
-        } else
-            fields.size == 2 &&
-                    fields.contains("Username") &&
-                    fields.contains("Password")
+        val isEmpty = fields.isEmpty()
+
+        val isUserPasswordAuth = fields.size == 2 &&
+                fields.contains("Username") &&
+                fields.contains("Password")
+
+        val isAskingForSslDisable = items.any { it is YesNoType }
+
+        return isEmpty || isUserPasswordAuth || isAskingForSslDisable
     }
 
     override fun get(uri: URIish, vararg items: CredentialItem): Boolean {
-        val userItem = items.firstOrNull { it.promptText == "Username" }
-        val passwordItem = items.firstOrNull { it.promptText == "Password" }
+        val itemsMap = items.map { "${it::class.simpleName} - ${it.promptText}" }
 
-        if (userItem !is CredentialItem.Username || passwordItem !is CredentialItem.Password) {
+        printLog(TAG, "Items are $itemsMap")
+
+        val sslTrustNowItem = items
+            .filterIsInstance<YesNoType>()
+            .firstOrNull { it.promptText.contains(JGitText.get().sslTrustNow) }
+
+        val userItem = items
+            .filterIsInstance<Username>()
+            .firstOrNull()
+
+        val passwordItem = items
+            .filterIsInstance<Password>()
+            .firstOrNull()
+
+        if (userItem == null || passwordItem == null) {
             return false
+        }
+
+        if (sslTrustNowItem != null) {
+            sslTrustNowItem.value = appSettings.verifySsl
         }
 
         val externalCredentialsHelper = getExternalCredentialsHelper(uri, git)

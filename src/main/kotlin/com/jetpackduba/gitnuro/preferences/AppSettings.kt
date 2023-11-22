@@ -45,10 +45,13 @@ private const val PREF_GIT_FF_MERGE = "gitFFMerge"
 private const val PREF_GIT_PULL_REBASE = "gitPullRebase"
 private const val PREF_GIT_PUSH_WITH_LEASE = "gitPushWithLease"
 
+private const val PREF_VERIFY_SSL = "verifySsl"
+
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
 private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
 private const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
+private const val DEFAULT_VERIFY_SSL = true
 const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
@@ -66,6 +69,9 @@ class AppSettings @Inject constructor() {
 
     private val _cacheCredentialsInMemoryFlow = MutableStateFlow(cacheCredentialsInMemory)
     val cacheCredentialsInMemoryFlow = _cacheCredentialsInMemoryFlow.asStateFlow()
+
+    private val _verifySslFlow = MutableStateFlow(cacheCredentialsInMemory)
+    val verifySslFlow = _cacheCredentialsInMemoryFlow.asStateFlow()
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
     val ffMergeFlow = _ffMergeFlow.asStateFlow()
@@ -166,6 +172,15 @@ class AppSettings @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_CACHE_CREDENTIALS_IN_MEMORY, value)
             _cacheCredentialsInMemoryFlow.value = value
+        }
+
+    var verifySsl: Boolean
+        get() {
+            return preferences.getBoolean(PREF_VERIFY_SSL, DEFAULT_VERIFY_SSL)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_VERIFY_SSL, value)
+            _verifySslFlow.value = value
         }
 
     var scaleUi: Float

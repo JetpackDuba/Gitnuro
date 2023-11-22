@@ -29,6 +29,7 @@ class SettingsViewModel @Inject constructor(
     val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
     val swapUncommittedChangesFlow = appSettings.swapUncommittedChangesFlow
     val cacheCredentialsInMemoryFlow = appSettings.cacheCredentialsInMemoryFlow
+    val verifySslFlow = appSettings.verifySslFlow
     val terminalPathFlow = appSettings.terminalPathFlow
 
     var scaleUi: Float
@@ -59,6 +60,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettings.cacheCredentialsInMemory
         set(value) {
             appSettings.cacheCredentialsInMemory = value
+        }
+
+    var verifySsl: Boolean
+        get() = appSettings.verifySsl
+        set(value) {
+            appSettings.verifySsl = value
         }
 
     var pullRebase: Boolean

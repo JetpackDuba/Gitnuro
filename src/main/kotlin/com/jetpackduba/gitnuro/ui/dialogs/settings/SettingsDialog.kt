@@ -49,6 +49,7 @@ val settings = listOf(
     SettingsEntry.Section("Network"),
     SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { Proxy(it) },
     SettingsEntry.Entry(AppIcons.PASSWORD, "Authentication") { Authentication(it) },
+    SettingsEntry.Entry(AppIcons.SECURITY, "Security") { Security(it) },
 
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(AppIcons.TERMINAL, "Terminal") { Terminal(it) },
@@ -351,6 +352,20 @@ private fun Authentication(settingsViewModel: SettingsViewModel) {
         value = cacheCredentialsInMemory,
         onValueChanged = { value ->
             settingsViewModel.cacheCredentialsInMemory = value
+        }
+    )
+}
+
+@Composable
+private fun Security(settingsViewModel: SettingsViewModel) {
+    val verifySsl by settingsViewModel.verifySslFlow.collectAsState()
+
+    SettingToggle(
+        title = "Do not verify SSL security",
+        subtitle = "If active, you may connect to the remote server via insecure HTTPS connection",
+        value = !verifySsl,
+        onValueChanged = { value ->
+            settingsViewModel.verifySsl = !value
         }
     )
 }
