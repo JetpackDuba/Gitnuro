@@ -16,6 +16,7 @@ open class GraphNode(id: AnyObjectId?) : RevCommit(id), IGraphNode {
     var lane: GraphLane = NO_LANE
     var children: Array<GraphNode> = NO_CHILDREN
     var refs: List<Ref> = NO_REFS
+    var isStash: Boolean = false
 
     fun addForkingOffLane(graphLane: GraphLane) {
         forkingOffLanes = addLane(graphLane, forkingOffLanes)

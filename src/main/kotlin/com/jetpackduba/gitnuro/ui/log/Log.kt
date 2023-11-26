@@ -24,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -808,7 +809,6 @@ fun CommitLine(
                 ) {
                     CommitMessage(
                         commit = graphNode,
-                        refs = graphNode.refs,
                         nodeColor = nodeColor,
                         matchesSearchFilter = matchesSearchFilter,
                         currentBranch = currentBranch,
@@ -830,8 +830,7 @@ fun CommitLine(
 
 @Composable
 fun CommitMessage(
-    commit: RevCommit,
-    refs: List<Ref>,
+    commit: GraphNode,
     currentBranch: Ref?,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
@@ -852,35 +851,37 @@ fun CommitMessage(
         Row(
             modifier = Modifier.padding(start = 16.dp)
         ) {
-            refs.sortedWith { ref1, ref2 ->
-                if (ref1.isSameBranch(currentBranch)) {
-                    -1
-                } else {
-                    ref1.name.compareTo(ref2.name)
-                }
-            }.forEach { ref ->
-                if (ref.isTag) {
-                    TagChip(
-                        ref = ref,
-                        color = nodeColor,
-                        onCheckoutTag = { onCheckoutRef(ref) },
-                        onDeleteTag = { onDeleteTag(ref) },
-                    )
-                } else if (ref.isBranch) {
-                    BranchChip(
-                        ref = ref,
-                        color = nodeColor,
-                        currentBranch = currentBranch,
-                        isCurrentBranch = ref.isSameBranch(currentBranch),
-                        onCheckoutBranch = { onCheckoutRef(ref) },
-                        onMergeBranch = { onMergeBranch(ref) },
-                        onDeleteBranch = { onDeleteBranch(ref) },
-                        onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
-                        onRebaseBranch = { onRebaseBranch(ref) },
-                        onPullRemoteBranch = { onPullRemoteBranch(ref) },
-                        onPushRemoteBranch = { onPushRemoteBranch(ref) },
-                        onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
-                    )
+            if (!commit.isStash) {
+                commit.refs.sortedWith { ref1, ref2 ->
+                    if (ref1.isSameBranch(currentBranch)) {
+                        -1
+                    } else {
+                        ref1.name.compareTo(ref2.name)
+                    }
+                }.forEach { ref ->
+                    if (ref.isTag) {
+                        TagChip(
+                            ref = ref,
+                            color = nodeColor,
+                            onCheckoutTag = { onCheckoutRef(ref) },
+                            onDeleteTag = { onDeleteTag(ref) },
+                        )
+                    } else if (ref.isBranch) {
+                        BranchChip(
+                            ref = ref,
+                            color = nodeColor,
+                            currentBranch = currentBranch,
+                            isCurrentBranch = ref.isSameBranch(currentBranch),
+                            onCheckoutBranch = { onCheckoutRef(ref) },
+                            onMergeBranch = { onMergeBranch(ref) },
+                            onDeleteBranch = { onDeleteBranch(ref) },
+                            onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
+                            onRebaseBranch = { onRebaseBranch(ref) },
+                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
+                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
+                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
+                        )
+                    }
                 }
             }
         }
@@ -1028,18 +1029,36 @@ fun CommitNode(
     color: Color,
 ) {
     val author = plotCommit.authorIdent
-    Tooltip("${author.name} <${author.emailAddress}>") {
+    if (plotCommit.isStash) {
         Box(
             modifier = modifier
                 .size(30.dp)
                 .border(2.dp, color, shape = CircleShape)
                 .clip(CircleShape)
+                .background(MaterialTheme.colors.background),
+            contentAlignment = Alignment.Center,
         ) {
-            AvatarImage(
-                modifier = Modifier.fillMaxSize(),
-                personIdent = plotCommit.authorIdent,
-                color = color,
+            Image(
+                painterResource(AppIcons.STASH),
+                modifier = Modifier.size(20.dp),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(color),
             )
+        }
+    } else {
+        Tooltip("${author.name} <${author.emailAddress}>") {
+            Box(
+                modifier = modifier
+                    .size(30.dp)
+                    .border(2.dp, color, shape = CircleShape)
+                    .clip(CircleShape)
+            ) {
+                AvatarImage(
+                    modifier = Modifier.fillMaxSize(),
+                    personIdent = plotCommit.authorIdent,
+                    color = color,
+                )
+            }
         }
     }
 }

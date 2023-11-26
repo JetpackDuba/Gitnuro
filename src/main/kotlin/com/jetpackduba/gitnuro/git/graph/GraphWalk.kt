@@ -48,8 +48,12 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
     override fun next(): RevCommit? {
         val graphNode = super.next() as GraphNode?
 
-        if (graphNode != null)
-            graphNode.refs = getRefs(graphNode)
+        if (graphNode != null) {
+            val refs = getRefs(graphNode)
+
+            graphNode.isStash = refs.count() == 1 && refs.firstOrNull()?.name == "refs/stash"
+            graphNode.refs = refs
+        }
 
         return graphNode
     }
