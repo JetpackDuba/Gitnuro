@@ -17,6 +17,9 @@ import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
+import com.jetpackduba.gitnuro.git.stash.ApplyStashUseCase
+import com.jetpackduba.gitnuro.git.stash.DeleteStashUseCase
+import com.jetpackduba.gitnuro.git.stash.PopStashUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangesUseCase
@@ -67,10 +70,14 @@ class LogViewModel @Inject constructor(
     private val deleteTagUseCase: DeleteTagUseCase,
     private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
+    private val applyStashUseCase: ApplyStashUseCase,
+    private val popStashUseCase: PopStashUseCase,
+    private val deleteStashUseCase: DeleteStashUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
     private val tabScope: CoroutineScope,
-) : ViewModel {
+    sharedStashViewModel: SharedStashViewModel,
+) : ViewModel, ISharedStashViewModel by sharedStashViewModel  {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
     val logStatus: StateFlow<LogStatus>
@@ -445,7 +452,7 @@ class LogViewModel @Inject constructor(
 }
 
 sealed class LogStatus {
-    object Loading : LogStatus()
+    data object Loading : LogStatus()
     class Loaded(
         val hasUncommittedChanges: Boolean,
         val plotCommitList: GraphCommitList,
@@ -456,7 +463,7 @@ sealed class LogStatus {
 }
 
 sealed class LogSearch {
-    object NotSearching : LogSearch()
+    data object NotSearching : LogSearch()
     data class SearchResults(
         val commits: List<GraphNode>,
         val index: Int,

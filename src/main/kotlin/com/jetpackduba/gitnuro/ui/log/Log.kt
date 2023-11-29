@@ -495,7 +495,10 @@ fun MessagesList(
                 onRebaseBranch = onRebase,
                 onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
-                onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) }
+                onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) },
+                onDeleteStash = { logViewModel.deleteStash(graphNode) },
+                onApplyStash = { logViewModel.applyStash(graphNode) },
+                onPopStash = { logViewModel.popStash(graphNode) },
             )
         }
 
@@ -737,6 +740,9 @@ fun CommitLine(
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
     resetBranch: () -> Unit,
+    onApplyStash: () -> Unit,
+    onPopStash: () -> Unit,
+    onDeleteStash: () -> Unit,
     onMergeBranch: (Ref) -> Unit,
     onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: () -> Unit,
@@ -748,16 +754,24 @@ fun CommitLine(
 
     ContextMenu(
         items = {
-            logContextMenu(
-                onCheckoutCommit = { logViewModel.checkoutCommit(graphNode) },
-                onCreateNewBranch = showCreateNewBranch,
-                onCreateNewTag = showCreateNewTag,
-                onRevertCommit = { logViewModel.revertCommit(graphNode) },
-                onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
-                onRebaseInteractive = onRebaseInteractive,
-                onResetBranch = { resetBranch() },
-                isLastCommit = isLastCommitOfCurrentBranch
-            )
+            if (graphNode.isStash) {
+                stashesContextMenuItems(
+                    onApply = onApplyStash,
+                    onPop = onPopStash,
+                    onDelete = onDeleteStash,
+                )
+            } else {
+                logContextMenu(
+                    onCheckoutCommit = { logViewModel.checkoutCommit(graphNode) },
+                    onCreateNewBranch = showCreateNewBranch,
+                    onCreateNewTag = showCreateNewTag,
+                    onRevertCommit = { logViewModel.revertCommit(graphNode) },
+                    onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
+                    onRebaseInteractive = onRebaseInteractive,
+                    onResetBranch = { resetBranch() },
+                    isLastCommit = isLastCommitOfCurrentBranch
+                )
+            }
         },
     ) {
         Box(
