@@ -99,7 +99,7 @@ Gitnuro does not track data in any way, don't worry.
 Gitnuro includes the option to set custom themes in a JSON format. Keep in mind that themes may break with new releases,
 making the default theme the fallback option.
 
-For the latest stable version (1.1.0), you can use this JSON as an example:
+For the latest stable version, you can use this JSON as an example:
 
 ```
 {
