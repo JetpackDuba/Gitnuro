@@ -74,7 +74,6 @@ class TabState @Inject constructor(
 
     @Synchronized
     fun safeProcessing(
-        showError: Boolean = true,
         refreshType: RefreshType,
         // TODO Eventually the title and subtitles should be mandatory but for now the default it's empty to slowly
         //  migrate the code that uses this function
@@ -144,7 +143,7 @@ class TabState @Inject constructor(
 
                 val containsCancellation = exceptionContainsCancellation(ex)
 
-                if (showError && !containsCancellation)
+                if (!containsCancellation)
                     errorsManager.addError(newErrorNow(ex, null, ex.message.orEmpty()))
 
                 printError(TAG, ex.message.orEmpty(), ex)
@@ -174,7 +173,6 @@ class TabState @Inject constructor(
     }
 
     fun safeProcessingWithoutGit(
-        showError: Boolean = true,
         // TODO Eventually the title and subtitles should be mandatory but for now the default it's empty to slowly
         //  migrate the code that uses this function
         title: String = "",
@@ -193,7 +191,7 @@ class TabState @Inject constructor(
 
                 val containsCancellation = exceptionContainsCancellation(ex)
 
-                if (showError && !containsCancellation)
+                if (!containsCancellation)
                     errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
 
                 printError(TAG, ex.message.orEmpty(), ex)
@@ -318,8 +316,8 @@ enum class RefreshType {
     ONLY_LOG,
     STASHES,
     SUBMODULES,
-    UNCOMMITED_CHANGES,
-    UNCOMMITED_CHANGES_AND_LOG,
+    UNCOMMITTED_CHANGES,
+    UNCOMMITTED_CHANGES_AND_LOG,
     REMOTES,
     REBASE_INTERACTIVE_STATE,
 }

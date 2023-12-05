@@ -153,8 +153,8 @@ class StatusViewModel @Inject constructor(
         tabScope.launch {
             tabState.refreshFlowFiltered(
                 RefreshType.ALL_DATA,
-                RefreshType.UNCOMMITED_CHANGES,
-                RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+                RefreshType.UNCOMMITTED_CHANGES,
+                RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
             ) {
                 refresh(tabState.git)
             }
@@ -177,14 +177,14 @@ class StatusViewModel @Inject constructor(
     }
 
     fun stage(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         stageEntryUseCase(git, statusEntry)
     }
 
     fun unstage(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         unstageEntryUseCase(git, statusEntry)
@@ -192,25 +192,25 @@ class StatusViewModel @Inject constructor(
 
 
     fun unstageAll() = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
     ) { git ->
         unstageAllUseCase(git)
     }
 
     fun stageAll() = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
     ) { git ->
         stageAllUseCase(git)
     }
 
     fun resetStaged(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
     ) { git ->
         resetEntryUseCase(git, statusEntry, staged = true)
     }
 
     fun resetUnstaged(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
     ) { git ->
         resetEntryUseCase(git, statusEntry, staged = false)
     }
@@ -406,7 +406,7 @@ class StatusViewModel @Inject constructor(
     }
 
     fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
     ) { git ->
         val path = statusEntry.filePath
 

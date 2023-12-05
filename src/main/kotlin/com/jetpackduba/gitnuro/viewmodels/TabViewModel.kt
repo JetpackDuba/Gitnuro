@@ -280,7 +280,7 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) {
         updateDiffEntry()
-        tabState.refreshData(RefreshType.UNCOMMITED_CHANGES_AND_LOG)
+        tabState.refreshData(RefreshType.UNCOMMITTED_CHANGES_AND_LOG)
     }
 
     private suspend fun refreshRepositoryInfo() {
@@ -327,9 +327,7 @@ class TabViewModel @Inject constructor(
         return openFilePickerUseCase(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
 
-    fun initLocalRepository(dir: String) = tabState.safeProcessingWithoutGit(
-        showError = true,
-    ) {
+    fun initLocalRepository(dir: String) = tabState.safeProcessingWithoutGit {
         val repoDir = File(dir)
         initLocalRepositoryUseCase(repoDir)
         openRepository(repoDir)
@@ -409,7 +407,7 @@ class TabViewModel @Inject constructor(
     }
 
     fun stashWithMessage(message: String) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
     ) { git ->
         stageUntrackedFileUseCase(git)
         stashChangesUseCase(git, message)

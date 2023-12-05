@@ -25,14 +25,14 @@ class SharedStashViewModel @Inject constructor(
     private val tabState: TabState,
 ) : ISharedStashViewModel {
     override fun applyStash(stashInfo: RevCommit) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
         applyStashUseCase(git, stashInfo)
     }
 
     override fun popStash(stash: RevCommit) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
         popStashUseCase(git, stash)

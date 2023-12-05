@@ -28,41 +28,41 @@ class MenuViewModel @Inject constructor(
 
     fun pull(pullType: PullType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        refreshEvenIfCrashes = true,
         title = "Pulling",
-        subtitle = "Pulling changes from the remote branch to the current branch"
+        subtitle = "Pulling changes from the remote branch to the current branch",
+        refreshEvenIfCrashes = true
     ) { git ->
         pullBranchUseCase(git, pullType)
     }
 
     fun fetchAll() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        refreshEvenIfCrashes = true,
         title = "Fetching",
         subtitle = "Updating references from the remote repositories...",
-        isCancellable = false
+        isCancellable = false,
+        refreshEvenIfCrashes = true
     ) { git ->
         fetchAllBranchesUseCase(git)
     }
 
     fun push(force: Boolean = false, pushTags: Boolean = false) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        refreshEvenIfCrashes = true,
         title = "Push",
         subtitle = "Pushing current branch to the remote repository",
         isCancellable = false,
+        refreshEvenIfCrashes = true,
     ) { git ->
         pushBranchUseCase(git, force, pushTags)
     }
 
     fun stash() = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
     ) { git ->
         stashChangesUseCase(git, null)
     }
 
     fun popStash() = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
     ) { git ->
         popLastStashUseCase(git)

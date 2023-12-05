@@ -119,7 +119,7 @@ class HistoryViewModel @Inject constructor(
             _viewDiffResult.value = ViewDiffResult.Loaded(diffEntryType, formattedDiffResult)
         } catch (ex: Exception) {
             if (ex is MissingDiffEntryException) {
-                tabState.refreshData(refreshType = RefreshType.UNCOMMITED_CHANGES)
+                tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
                 _viewDiffResult.value = ViewDiffResult.DiffNotFound
             } else
                 ex.printStackTrace()

@@ -17,9 +17,6 @@ import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
-import com.jetpackduba.gitnuro.git.stash.ApplyStashUseCase
-import com.jetpackduba.gitnuro.git.stash.DeleteStashUseCase
-import com.jetpackduba.gitnuro.git.stash.PopStashUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangesUseCase
@@ -53,7 +50,7 @@ private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 class LogViewModel @Inject constructor(
     private val getLogUseCase: GetLogUseCase,
     private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
-    private val checkHasUncommitedChangesUseCase: CheckHasUncommitedChangesUseCase,
+    private val checkHasUncommittedChangesUseCase: CheckHasUncommitedChangesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
@@ -70,13 +67,10 @@ class LogViewModel @Inject constructor(
     private val deleteTagUseCase: DeleteTagUseCase,
     private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
-    private val applyStashUseCase: ApplyStashUseCase,
-    private val popStashUseCase: PopStashUseCase,
-    private val deleteStashUseCase: DeleteStashUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
     private val tabScope: CoroutineScope,
-    sharedStashViewModel: SharedStashViewModel,
+    private val sharedStashViewModel: SharedStashViewModel,
 ) : ViewModel, ISharedStashViewModel by sharedStashViewModel  {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
@@ -125,10 +119,10 @@ class LogViewModel @Inject constructor(
             tabState.refreshFlowFiltered(
                 RefreshType.ALL_DATA,
                 RefreshType.ONLY_LOG,
-                RefreshType.UNCOMMITED_CHANGES,
-                RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+                RefreshType.UNCOMMITTED_CHANGES,
+                RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
             ) { refreshType ->
-                if (refreshType == RefreshType.UNCOMMITED_CHANGES) {
+                if (refreshType == RefreshType.UNCOMMITTED_CHANGES) {
                     uncommitedChangesLoadLog(tabState.git)
                 } else
                     refresh(tabState.git)
@@ -205,9 +199,9 @@ class LogViewModel @Inject constructor(
 
     fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        refreshEvenIfCrashes = true,
         title = "Commit revert",
         subtitle = "Reverting commit ${revCommit.name}",
+        refreshEvenIfCrashes = true,
     ) { git ->
         revertCommitUseCase(git, revCommit)
     }
@@ -229,7 +223,7 @@ class LogViewModel @Inject constructor(
     }
 
     fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         title = "Cherry-pick",
         subtitle = "Cherry-picking commit ${revCommit.shortName}",
     ) { git ->
@@ -238,9 +232,9 @@ class LogViewModel @Inject constructor(
 
     fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
         title = "New branch",
         subtitle = "Creating new branch \"$branch\" on commit ${revCommit.shortName}",
+        refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
     ) { git ->
         createBranchOnCommitUseCase(git, branch, revCommit)
     }
@@ -279,7 +273,7 @@ class LogViewModel @Inject constructor(
 
     private suspend fun uncommitedChangesLoadLog(git: Git) {
         val currentBranch = getCurrentBranchUseCase(git)
-        val hasUncommitedChanges = checkHasUncommitedChangesUseCase(git)
+        val hasUncommitedChanges = checkHasUncommittedChangesUseCase(git)
 
         val statsSummary = if (hasUncommitedChanges) {
             getStatusSummaryUseCase(

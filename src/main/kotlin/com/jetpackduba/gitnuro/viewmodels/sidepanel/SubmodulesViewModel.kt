@@ -43,7 +43,7 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.UNCOMMITED_CHANGES, RefreshType.SUBMODULES) {
+            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.UNCOMMITTED_CHANGES, RefreshType.SUBMODULES) {
                 refresh(tabState.git)
             }
         }
@@ -54,7 +54,6 @@ class SubmodulesViewModel @AssistedInject constructor(
     }
 
     fun initializeSubmodule(path: String) = tabState.safeProcessing(
-        showError = true,
         refreshType = RefreshType.SUBMODULES,
     ) { git ->
         initializeSubmoduleUseCase(git, path)

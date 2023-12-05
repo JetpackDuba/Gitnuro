@@ -74,8 +74,8 @@ class DiffViewModel @Inject constructor(
 
         tabScope.launch {
             tabState.refreshFlowFiltered(
-                RefreshType.UNCOMMITED_CHANGES,
-                RefreshType.UNCOMMITED_CHANGES_AND_LOG,
+                RefreshType.UNCOMMITTED_CHANGES,
+                RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
             ) {
                 val diffResultValue = diffResult.value
                 if (diffResultValue is ViewDiffResult.Loaded) {
@@ -143,7 +143,7 @@ class DiffViewModel @Inject constructor(
                 }
             } catch (ex: Exception) {
                 if (ex is MissingDiffEntryException) {
-                    tabState.refreshData(refreshType = RefreshType.UNCOMMITED_CHANGES)
+                    tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
                     _diffResult.value = ViewDiffResult.DiffNotFound
                 } else
                     ex.printStackTrace()
@@ -152,33 +152,33 @@ class DiffViewModel @Inject constructor(
     }
 
     fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
     ) { git ->
         stageHunkUseCase(git, diffEntry, hunk)
     }
 
     fun resetHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         resetHunkUseCase(git, diffEntry, hunk)
     }
 
     fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
     ) { git ->
         unstageHunkUseCase(git, diffEntry, hunk)
     }
 
     fun stageFile(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         stageEntryUseCase(git, statusEntry)
     }
 
     fun unstageFile(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         unstageEntryUseCase(git, statusEntry)
@@ -197,14 +197,14 @@ class DiffViewModel @Inject constructor(
     }
 
     fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         stageHunkLineUseCase(git, entry, hunk, line)
     }
 
     fun unstageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         unstageHunkLineUseCase(git, entry, hunk, line)
@@ -215,7 +215,7 @@ class DiffViewModel @Inject constructor(
     }
 
     fun discardHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITED_CHANGES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
         showError = true,
     ) { git ->
         discardUnstagedHunkLineUseCase(git, entry, hunk, line)

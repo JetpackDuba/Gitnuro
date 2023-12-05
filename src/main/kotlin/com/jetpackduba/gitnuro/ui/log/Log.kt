@@ -477,8 +477,8 @@ fun MessagesList(
             }
         }
 
-        // Setting a key makes the graph preserve the scroll position when a new line has been added on top (uncommited changes)
-        // Therefore, after popping a stash, the uncommited changes wouldn't be visible and requires the user scrolling.
+        // Setting a key makes the graph preserve the scroll position when a new line has been added on top (uncommitted changes)
+        // Therefore, after popping a stash, the uncommitted changes wouldn't be visible and requires the user scrolling.
         items(items = commitList) { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
