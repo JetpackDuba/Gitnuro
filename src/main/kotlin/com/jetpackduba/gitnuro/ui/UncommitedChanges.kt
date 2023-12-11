@@ -51,7 +51,7 @@ import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
-fun UncommitedChanges(
+fun UncommittedChanges(
     statusViewModel: StatusViewModel = gitnuroViewModel(),
     selectedEntryType: DiffEntryType?,
     repositoryState: RepositoryState,
@@ -61,7 +61,7 @@ fun UncommitedChanges(
     onHistoryFile: (String) -> Unit,
 ) {
     val stageStatus = statusViewModel.stageState.collectAsState().value
-    val swapUncommitedChanges by statusViewModel.swapUncommitedChanges.collectAsState()
+    val swapUncommittedChanges by statusViewModel.swapUncommittedChanges.collectAsState()
     var commitMessage by remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
@@ -221,7 +221,7 @@ fun UncommitedChanges(
                 )
             }
 
-            if (swapUncommitedChanges) {
+            if (swapUncommittedChanges) {
                 unstagedView()
                 stagedView()
             } else {
@@ -319,7 +319,7 @@ fun UncommitedChanges(
                     }
                 )
 
-                else -> UncommitedChangesButtons(
+                else -> UncommittedChangesButtons(
                     canCommit = canCommit,
                     canAmend = canAmend,
                     isAmend = isAmend,
@@ -335,7 +335,7 @@ fun UncommitedChanges(
 }
 
 @Composable
-fun UncommitedChangesButtons(
+fun UncommittedChangesButtons(
     canCommit: Boolean,
     canAmend: Boolean,
     isAmend: Boolean,
@@ -678,7 +678,7 @@ private fun EntriesList(
         ) {
             items(statusEntries, key = { it.filePath }) { statusEntry ->
                 val isEntrySelected = selectedEntryType != null &&
-                        selectedEntryType is DiffEntryType.UncommitedDiff && // Added for smartcast
+                        selectedEntryType is DiffEntryType.UncommittedDiff && // Added for smartcast
                         selectedEntryType.statusEntry == statusEntry
                 FileEntry(
                     statusEntry = statusEntry,

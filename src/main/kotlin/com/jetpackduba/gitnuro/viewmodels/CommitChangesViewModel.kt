@@ -115,9 +115,9 @@ class CommitChangesViewModel @Inject constructor(
     }
 }
 
-sealed class CommitChangesState {
-    object Loading : CommitChangesState()
+sealed interface CommitChangesState {
+    data object Loading : CommitChangesState
     data class Loaded(val commit: RevCommit, val changes: List<DiffEntry>, val changesFiltered: List<DiffEntry>) :
-        CommitChangesState()
+        CommitChangesState
 }
 

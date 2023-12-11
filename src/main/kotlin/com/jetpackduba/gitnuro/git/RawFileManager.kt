@@ -108,13 +108,13 @@ class RawFileManager @Inject constructor(
     }
 }
 
-sealed class EntryContent {
-    object Missing : EntryContent()
-    object InvalidObjectBlob : EntryContent()
-    data class Text(val rawText: RawText) : EntryContent()
-    object Submodule : EntryContent()
-    sealed class BinaryContent : EntryContent()
-    data class ImageBinary(val imagePath: String, val contentType: String) : BinaryContent()
-    object Binary : BinaryContent()
-    object TooLargeEntry : EntryContent()
+sealed interface EntryContent {
+    data object Missing : EntryContent
+    data object InvalidObjectBlob : EntryContent
+    data class Text(val rawText: RawText) : EntryContent
+    data object Submodule : EntryContent
+    sealed interface BinaryContent : EntryContent
+    data class ImageBinary(val imagePath: String, val contentType: String) : BinaryContent
+    data object Binary : BinaryContent
+    data object TooLargeEntry : EntryContent
 }

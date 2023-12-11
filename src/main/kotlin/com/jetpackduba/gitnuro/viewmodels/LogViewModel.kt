@@ -19,7 +19,7 @@ import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCa
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
-import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommitedChangesUseCase
+import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommittedChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.GetStatusSummaryUseCase
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.preferences.AppSettings
@@ -50,7 +50,7 @@ private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 class LogViewModel @Inject constructor(
     private val getLogUseCase: GetLogUseCase,
     private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
-    private val checkHasUncommittedChangesUseCase: CheckHasUncommitedChangesUseCase,
+    private val checkHasUncommittedChangesUseCase: CheckHasUncommittedChangesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
@@ -86,7 +86,7 @@ class LogViewModel @Inject constructor(
         .filterIsInstance<SelectedItem.CommitBasedItem>()
         .map { it.revCommit }
 
-    val scrollToUncommitedChanges: Flow<SelectedItem.UncommitedChanges> = tabState.taskEvent
+    val scrollToUncommittedChanges: Flow<SelectedItem.UncommittedChanges> = tabState.taskEvent
         .filterIsInstance<TaskEvent.ScrollToGraphItem>()
         .map { it.selectedItem }
         .filterIsInstance()
@@ -123,7 +123,7 @@ class LogViewModel @Inject constructor(
                 RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
             ) { refreshType ->
                 if (refreshType == RefreshType.UNCOMMITTED_CHANGES) {
-                    uncommitedChangesLoadLog(tabState.git)
+                    uncommittedChangesLoadLog(tabState.git)
                 } else
                     refresh(tabState.git)
             }
@@ -143,7 +143,7 @@ class LogViewModel @Inject constructor(
             git = git,
         )
 
-        val hasUncommitedChanges = statusSummary.total > 0
+        val hasUncommittedChanges = statusSummary.total > 0
         val commitsLimit = if (appSettings.commitsLimitEnabled) {
             appSettings.commitsLimit
         } else
@@ -154,10 +154,10 @@ class LogViewModel @Inject constructor(
         } else
             -1
 
-        val log = getLogUseCase(git, currentBranch, hasUncommitedChanges, commitsLimit)
+        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, commitsLimit)
 
         _logStatus.value =
-            LogStatus.Loaded(hasUncommitedChanges, log, currentBranch, statusSummary, commitsLimitDisplayed)
+            LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary, commitsLimitDisplayed)
 
         // Remove search filter if the log has been updated
         _logSearchFilterResults.value = LogSearch.NotSearching
@@ -271,11 +271,11 @@ class LogViewModel @Inject constructor(
         deleteTagUseCase(git, tag)
     }
 
-    private suspend fun uncommitedChangesLoadLog(git: Git) {
+    private suspend fun uncommittedChangesLoadLog(git: Git) {
         val currentBranch = getCurrentBranchUseCase(git)
-        val hasUncommitedChanges = checkHasUncommittedChangesUseCase(git)
+        val hasUncommittedChanges = checkHasUncommittedChangesUseCase(git)
 
-        val statsSummary = if (hasUncommitedChanges) {
+        val statsSummary = if (hasUncommittedChanges) {
             getStatusSummaryUseCase(
                 git = git,
             )
@@ -286,7 +286,7 @@ class LogViewModel @Inject constructor(
 
         if (previousLogStatusValue is LogStatus.Loaded) {
             val newLogStatusValue = LogStatus.Loaded(
-                hasUncommittedChanges = hasUncommitedChanges,
+                hasUncommittedChanges = hasUncommittedChanges,
                 plotCommitList = previousLogStatusValue.plotCommitList,
                 currentBranch = currentBranch,
                 statusSummary = statsSummary,
@@ -309,10 +309,10 @@ class LogViewModel @Inject constructor(
         rebaseBranchUseCase(git, ref)
     }
 
-    fun selectUncommitedChanges() = tabState.runOperation(
+    fun selectUncommittedChanges() = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
-        tabState.newSelectedItem(SelectedItem.UncommitedChanges)
+        tabState.newSelectedItem(SelectedItem.UncommittedChanges)
 
         val searchValue = _logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {
@@ -445,22 +445,22 @@ class LogViewModel @Inject constructor(
     }
 }
 
-sealed class LogStatus {
-    data object Loading : LogStatus()
+sealed interface LogStatus {
+    data object Loading : LogStatus
     class Loaded(
         val hasUncommittedChanges: Boolean,
         val plotCommitList: GraphCommitList,
         val currentBranch: Ref?,
         val statusSummary: StatusSummary,
         val commitsLimit: Int,
-    ) : LogStatus()
+    ) : LogStatus
 }
 
-sealed class LogSearch {
-    data object NotSearching : LogSearch()
+sealed interface LogSearch {
+    data object NotSearching : LogSearch
     data class SearchResults(
         val commits: List<GraphNode>,
         val index: Int,
         val totalCount: Int = commits.count(),
-    ) : LogSearch()
+    ) : LogSearch
 }

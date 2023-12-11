@@ -19,7 +19,7 @@ class RevertCommitUseCase @Inject constructor() {
         val failingResult: MergeResult? = revertCommand.failingResult
 
         when (failingResult?.mergeStatus) {
-            MergeResult.MergeStatus.FAILED -> throw RevertCommitException("Revert failed. Clear your workspace from uncommited changes.")
+            MergeResult.MergeStatus.FAILED -> throw RevertCommitException("Revert failed. Clear your workspace from uncommitted changes.")
             MergeResult.MergeStatus.CONFLICTING -> throw RevertCommitException("Revert failed. Fix the conflicts and commit the desired changes.")
             MergeResult.MergeStatus.ABORTED -> throw RevertCommitException("Revert aborted.")
             else -> {}

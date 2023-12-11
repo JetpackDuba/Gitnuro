@@ -49,7 +49,7 @@ class StatusViewModel @Inject constructor(
     private val getStatusUseCase: GetStatusUseCase,
     private val getStagedUseCase: GetStagedUseCase,
     private val getUnstagedUseCase: GetUnstagedUseCase,
-    private val checkHasUncommitedChangesUseCase: CheckHasUncommitedChangesUseCase,
+    private val checkHasUncommittedChangesUseCase: CheckHasUncommittedChangesUseCase,
     private val doCommitUseCase: DoCommitUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
@@ -72,7 +72,7 @@ class StatusViewModel @Inject constructor(
     private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
 
-    val swapUncommitedChanges = appSettings.swapUncommittedChangesFlow
+    val swapUncommittedChanges = appSettings.swapUncommittedChangesFlow
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
@@ -128,7 +128,7 @@ class StatusViewModel @Inject constructor(
 
     var hasPreviousCommits = true // When false, disable "amend previous commit"
 
-    private var lastUncommitedChangesState = false
+    private var lastUncommittedChangesState = false
 
     val stagedLazyListState = MutableStateFlow(LazyListState(0, 0))
     val unstagedLazyListState = MutableStateFlow(LazyListState(0, 0))
@@ -276,8 +276,8 @@ class StatusViewModel @Inject constructor(
         return message.orEmpty().replace("\t", "    ")
     }
 
-    private suspend fun loadHasUncommitedChanges(git: Git) = withContext(Dispatchers.IO) {
-        lastUncommitedChangesState = checkHasUncommitedChangesUseCase(git)
+    private suspend fun loadHasUncommittedChanges(git: Git) = withContext(Dispatchers.IO) {
+        lastUncommittedChangesState = checkHasUncommittedChangesUseCase(git)
     }
 
     fun amend(isAmend: Boolean) {
@@ -346,23 +346,7 @@ class StatusViewModel @Inject constructor(
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
         loadStatus(git)
-        loadHasUncommitedChanges(git)
-    }
-
-    /**
-     * Checks if there are uncommited changes and returns if the state has changed (
-     */
-    suspend fun updateHasUncommitedChanges(git: Git): Boolean {
-        val hadUncommitedChanges = this.lastUncommitedChangesState
-
-        loadStatus(git)
-        loadHasUncommitedChanges(git)
-
-        val hasNowUncommitedChanges = this.lastUncommitedChangesState
-        hasPreviousCommits = checkHasPreviousCommitsUseCase(git)
-
-        // Return true to update the log only if the uncommitedChanges status has changed
-        return (hasNowUncommitedChanges != hadUncommitedChanges)
+        loadHasUncommittedChanges(git)
     }
 
     fun continueRebase(message: String) = tabState.safeProcessing(
@@ -469,15 +453,15 @@ class StatusViewModel @Inject constructor(
     }
 }
 
-sealed class StageState {
-    object Loading : StageState()
+sealed interface StageState {
+    data object Loading : StageState
     data class Loaded(
         val staged: List<StatusEntry>,
         val stagedFiltered: List<StatusEntry>,
         val unstaged: List<StatusEntry>,
         val unstagedFiltered: List<StatusEntry>,
         val isPartiallyReloading: Boolean
-    ) : StageState()
+    ) : StageState
 }
 
 data class CommitMessage(val message: String, val messageType: MessageType)

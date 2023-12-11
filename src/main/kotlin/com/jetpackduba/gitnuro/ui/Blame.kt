@@ -107,7 +107,7 @@ fun Blame(
                                     style = MaterialTheme.typography.body2,
                                 )
                                 Text(
-                                    text = commit?.shortMessage ?: "Uncommited change",
+                                    text = commit?.shortMessage ?: "Uncommitted change",
                                     style = MaterialTheme.typography.caption,
                                     maxLines = 1,
                                     modifier = Modifier.padding(start = 16.dp),

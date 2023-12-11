@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.git.branches
 
-import com.jetpackduba.gitnuro.exceptions.UncommitedChangesDetectedException
+import com.jetpackduba.gitnuro.exceptions.UncommittedChangesDetectedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -23,7 +23,7 @@ class MergeBranchUseCase @Inject constructor() {
             .call()
 
         if (mergeResult.mergeStatus == MergeResult.MergeStatus.FAILED) {
-            throw UncommitedChangesDetectedException("Merge failed, makes sure you repository doesn't contain uncommited changes.")
+            throw UncommittedChangesDetectedException("Merge failed, makes sure you repository doesn't contain uncommitted changes.")
         }
     }
 }

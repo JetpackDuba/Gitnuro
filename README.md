@@ -35,7 +35,7 @@ Gitnuro has support for the following features:
 - View your history log and all its branches.
 - Add (stage) & reset (unstage) files.
 - Stage & unstage of hunks.
-- Checkout files (revert changes of uncommited files).
+- Checkout files (revert changes of uncommitted files).
 - Clone.
 - Commit.
 - Reset commits.

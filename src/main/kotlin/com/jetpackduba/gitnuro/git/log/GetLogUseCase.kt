@@ -15,7 +15,7 @@ import javax.inject.Inject
 class GetLogUseCase @Inject constructor() {
     private var graphWalkCached: GraphWalk? = null
 
-    suspend operator fun invoke(git: Git, currentBranch: Ref?, hasUncommitedChanges: Boolean, commitsLimit: Int) =
+    suspend operator fun invoke(git: Git, currentBranch: Ref?, hasUncommittedChanges: Boolean, commitsLimit: Int) =
         withContext(Dispatchers.IO) {
             val commitList = GraphCommitList()
             val repositoryState = git.repository.repositoryState
@@ -35,8 +35,8 @@ class GetLogUseCase @Inject constructor() {
                     walk.markStartAllRefs(Constants.R_TAGS)
                     walk.markStartAllRefs(Constants.R_STASH)
 
-                    if (hasUncommitedChanges)
-                        commitList.addUncommitedChangesGraphCommit(logList.first())
+                    if (hasUncommittedChanges)
+                        commitList.addUncommittedChangesGraphCommit(logList.first())
 
                     commitList.source(walk)
                     commitList.fillTo(commitsLimit)

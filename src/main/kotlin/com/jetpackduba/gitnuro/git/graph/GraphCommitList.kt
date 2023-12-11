@@ -55,19 +55,19 @@ class GraphCommitList : RevCommitList<GraphNode>() {
 
     private var parentId: AnyObjectId? = null
 
-    private val graphCommit = UncommitedChangesGraphNode()
+    private val graphCommit = UncommittedChangesGraphNode()
 
-    fun addUncommitedChangesGraphCommit(parent: RevCommit) {
+    fun addUncommittedChangesGraphCommit(parent: RevCommit) {
         parentId = parent.id
         graphCommit.lane = nextFreeLane()
     }
 
     override fun enter(index: Int, currCommit: GraphNode) {
-        var isUncommitedChangesNodeParent = false
+        var isUncommittedChangesNodeParent = false
         if (currCommit.id == parentId) {
             graphCommit.graphParent = currCommit
             currCommit.addChild(graphCommit, addFirst = true)
-            isUncommitedChangesNodeParent = true
+            isUncommittedChangesNodeParent = true
         }
 
         setupChildren(currCommit)
@@ -104,7 +104,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
             var lengthOfReservedLane = -1
 
 
-            if (isUncommitedChangesNodeParent) {
+            if (isUncommittedChangesNodeParent) {
                 val length = laneLength[graphCommit.lane]
                 if (length != null) {
                     reservedLane = graphCommit.lane

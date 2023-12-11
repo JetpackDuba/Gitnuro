@@ -402,14 +402,14 @@ private fun Branches(settingsViewModel: SettingsViewModel) {
 
 @Composable
 private fun Layout(settingsViewModel: SettingsViewModel) {
-    val swapUncommitedChanges by settingsViewModel.swapUncommittedChangesFlow.collectAsState()
+    val swapUncommittedChanges by settingsViewModel.swapUncommittedChangesFlow.collectAsState()
 
     SettingToggle(
         title = "Swap position for staged/unstaged views",
         subtitle = "Show the list of unstaged changes above the list of staged changes",
-        value = swapUncommitedChanges,
+        value = swapUncommittedChanges,
         onValueChanged = { value ->
-            settingsViewModel.swapUncommitedChanges = value
+            settingsViewModel.swapUncommittedChanges = value
         }
     )
 }

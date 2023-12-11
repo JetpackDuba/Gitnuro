@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -59,7 +58,6 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import java.awt.Cursor
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -151,8 +149,8 @@ private fun LogLoaded(
             }
         }
         launch {
-            logViewModel.scrollToUncommitedChanges.collect {
-                scrollToUncommitedChanges(verticalScrollState, commitList)
+            logViewModel.scrollToUncommittedChanges.collect {
+                scrollToUncommittedChanges(verticalScrollState, commitList)
             }
         }
     }
@@ -318,7 +316,7 @@ suspend fun scrollToCommit(
     if (index >= 0) verticalScrollState.scrollToItem(index)
 }
 
-suspend fun scrollToUncommitedChanges(
+suspend fun scrollToUncommittedChanges(
     verticalScrollState: LazyListState,
     commitList: GraphCommitList,
 ) {
@@ -459,17 +457,17 @@ fun MessagesList(
                     modifier = Modifier.height(LINE_HEIGHT.dp)
                         .clipToBounds()
                         .fillMaxWidth()
-                        .clickable { logViewModel.selectUncommitedChanges() }
+                        .clickable { logViewModel.selectUncommittedChanges() }
                 ) {
-                    UncommitedChangesGraphNode(
+                    UncommittedChangesGraphNode(
                         hasPreviousCommits = commitList.isNotEmpty(),
-                        isSelected = selectedItem is SelectedItem.UncommitedChanges,
+                        isSelected = selectedItem is SelectedItem.UncommittedChanges,
                         modifier = Modifier.offset(-horizontalScrollState.value.dp)
                     )
 
-                    UncommitedChangesLine(
+                    UncommittedChangesLine(
                         graphWidth = graphWidth,
-                        isSelected = selectedItem == SelectedItem.UncommitedChanges,
+                        isSelected = selectedItem == SelectedItem.UncommittedChanges,
                         statusSummary = logStatus.statusSummary,
                         repositoryState = repositoryState,
                     )
@@ -630,7 +628,7 @@ fun GraphHeader(
 }
 
 @Composable
-fun UncommitedChangesLine(
+fun UncommittedChangesLine(
     graphWidth: Dp,
     isSelected: Boolean,
     repositoryState: RepositoryState,
@@ -649,7 +647,7 @@ fun UncommitedChangesLine(
             repositoryState.isMerging -> "Pending changes to merge"
             repositoryState.isCherryPicking -> "Pending changes to cherry-pick"
             repositoryState.isReverting -> "Pending changes to revert"
-            else -> "Uncommited changes"
+            else -> "Uncommitted changes"
         }
 
         Text(
@@ -1078,7 +1076,7 @@ fun CommitNode(
 }
 
 @Composable
-fun UncommitedChangesGraphNode(
+fun UncommittedChangesGraphNode(
     modifier: Modifier = Modifier,
     hasPreviousCommits: Boolean,
     isSelected: Boolean,

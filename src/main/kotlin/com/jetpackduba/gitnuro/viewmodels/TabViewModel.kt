@@ -169,7 +169,7 @@ class TabViewModel @Inject constructor(
                 directory.absolutePath
 
             onRepositoryChanged(path)
-            tabState.newSelectedItem(selectedItem = SelectedItem.UncommitedChanges)
+            tabState.newSelectedItem(selectedItem = SelectedItem.UncommittedChanges)
             newDiffSelected = null
             refreshRepositoryInfo()
 
@@ -272,11 +272,11 @@ class TabViewModel @Inject constructor(
         } else {
             printLog(TAG, "Changes detected, partial refresh")
 
-            checkUncommitedChanges()
+            checkUncommittedChanges()
         }
     }
 
-    private suspend fun checkUncommitedChanges() = tabState.runOperation(
+    private suspend fun checkUncommittedChanges() = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         updateDiffEntry()
@@ -445,5 +445,5 @@ sealed interface BlameState {
 
     data class Loaded(val filePath: String, val blameResult: BlameResult, val isMinimized: Boolean = false) : BlameState
 
-    object None : BlameState
+    data object None : BlameState
 }

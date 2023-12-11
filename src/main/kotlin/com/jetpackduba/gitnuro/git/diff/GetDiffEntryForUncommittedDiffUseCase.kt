@@ -12,13 +12,13 @@ import org.eclipse.jgit.treewalk.EmptyTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilter
 import javax.inject.Inject
 
-class GetDiffEntryForUncommitedDiffUseCase @Inject constructor(
+class GetDiffEntryForUncommittedDiffUseCase @Inject constructor(
     private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
 ) {
     suspend operator fun invoke(
         git: Git,
-        diffEntryType: DiffEntryType.UncommitedDiff,
+        diffEntryType: DiffEntryType.UncommittedDiff,
     ) = withContext(Dispatchers.IO) {
         val statusEntry = diffEntryType.statusEntry
         val cached = diffEntryType is DiffEntryType.StagedDiff

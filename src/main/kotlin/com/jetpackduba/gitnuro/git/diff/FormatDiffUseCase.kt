@@ -10,8 +10,6 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
-import org.eclipse.jgit.submodule.SubmoduleStatus
-import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.ByteArrayOutputStream
 import java.io.InvalidObjectException
@@ -21,7 +19,7 @@ class FormatDiffUseCase @Inject constructor(
     private val formatHunksUseCase: FormatHunksUseCase,
     private val getDiffContentUseCase: GetDiffContentUseCase,
     private val canGenerateTextDiffUseCase: CanGenerateTextDiffUseCase,
-    private val getDiffEntryForUncommitedDiffUseCase: GetDiffEntryForUncommitedDiffUseCase,
+    private val getDiffEntryForUncommittedDiffUseCase: GetDiffEntryForUncommittedDiffUseCase,
     private val getSubmodulesUseCase: GetSubmodulesUseCase,
 ) {
     suspend operator fun invoke(
@@ -48,8 +46,8 @@ class FormatDiffUseCase @Inject constructor(
                     diffEntryType.diffEntry
                 }
 
-                is DiffEntryType.UncommitedDiff -> {
-                    getDiffEntryForUncommitedDiffUseCase(git, diffEntryType)
+                is DiffEntryType.UncommittedDiff -> {
+                    getDiffEntryForUncommittedDiffUseCase(git, diffEntryType)
                 }
             }
 

@@ -6,8 +6,8 @@ import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 import org.eclipse.jgit.diff.DiffEntry
 
-sealed class DiffEntryType {
-    class CommitDiff(val diffEntry: DiffEntry) : DiffEntryType() {
+sealed interface DiffEntryType {
+    class CommitDiff(val diffEntry: DiffEntry) : DiffEntryType {
         override val filePath: String
             get() = diffEntry.filePath
 
@@ -15,7 +15,7 @@ sealed class DiffEntryType {
             get() = diffEntry.toStatusType()
     }
 
-    sealed class UncommitedDiff(val statusEntry: StatusEntry) : DiffEntryType() {
+    sealed class UncommittedDiff(val statusEntry: StatusEntry) : DiffEntryType {
         override val filePath: String
             get() = statusEntry.filePath
 
@@ -23,8 +23,8 @@ sealed class DiffEntryType {
             get() = statusEntry.statusType
     }
 
-    sealed class UnstagedDiff(statusEntry: StatusEntry) : UncommitedDiff(statusEntry)
-    sealed class StagedDiff(statusEntry: StatusEntry) : UncommitedDiff(statusEntry)
+    sealed class UnstagedDiff(statusEntry: StatusEntry) : UncommittedDiff(statusEntry)
+    sealed class StagedDiff(statusEntry: StatusEntry) : UncommittedDiff(statusEntry)
 
     /**
      * State used to represent staged changes when the repository state is not [org.eclipse.jgit.lib.RepositoryState.SAFE]
@@ -39,7 +39,7 @@ sealed class DiffEntryType {
     class SafeStagedDiff(statusEntry: StatusEntry) : StagedDiff(statusEntry)
     class SafeUnstagedDiff(statusEntry: StatusEntry) : UnstagedDiff(statusEntry)
 
-    abstract val filePath: String
-    abstract val statusType: StatusType
+    val filePath: String
+    val statusType: StatusType
 
 }

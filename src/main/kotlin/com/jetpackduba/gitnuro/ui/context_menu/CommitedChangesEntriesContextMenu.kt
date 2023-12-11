@@ -6,7 +6,7 @@ import com.jetpackduba.gitnuro.AppIcons
 import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalFoundationApi::class)
-fun commitedChangesEntriesContextMenuItems(
+fun committedChangesEntriesContextMenuItems(
     diffEntry: DiffEntry,
     onBlame: () -> Unit,
     onHistory: () -> Unit,

@@ -30,7 +30,6 @@ import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.viewmodels.BlameState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
@@ -338,8 +337,8 @@ fun MainContentView(
                             .fillMaxHeight()
                     ) {
                         when (selectedItem) {
-                            SelectedItem.UncommitedChanges -> {
-                                UncommitedChanges(
+                            SelectedItem.UncommittedChanges -> {
+                                UncommittedChanges(
                                     selectedEntryType = diffSelected,
                                     repositoryState = repositoryState,
                                     onStagedDiffEntrySelected = { diffEntry ->
@@ -410,10 +409,10 @@ fun SplitterScope.repositorySplitter() {
     }
 }
 
-sealed class SelectedItem {
-    object None : SelectedItem()
-    object UncommitedChanges : SelectedItem()
-    sealed class CommitBasedItem(val revCommit: RevCommit) : SelectedItem()
+sealed interface SelectedItem {
+    data object None : SelectedItem
+    data object UncommittedChanges : SelectedItem
+    sealed class CommitBasedItem(val revCommit: RevCommit) : SelectedItem
     class Ref(val ref: org.eclipse.jgit.lib.Ref, revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Commit(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Stash(revCommit: RevCommit) : CommitBasedItem(revCommit)

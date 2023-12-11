@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.git.rebase
 
-import com.jetpackduba.gitnuro.exceptions.UncommitedChangesDetectedException
+import com.jetpackduba.gitnuro.exceptions.UncommittedChangesDetectedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -17,7 +17,7 @@ class RebaseBranchUseCase @Inject constructor() {
             .call()
 
         if (rebaseResult.status == RebaseResult.Status.UNCOMMITTED_CHANGES) {
-            throw UncommitedChangesDetectedException("Rebase failed, the repository contains uncommited changes.")
+            throw UncommittedChangesDetectedException("Rebase failed, the repository contains uncommitted changes.")
         }
     }
 }

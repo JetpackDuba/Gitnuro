@@ -44,7 +44,7 @@ class SettingsViewModel @Inject constructor(
             appSettings.commitsLimitEnabled = value
         }
 
-    var swapUncommitedChanges: Boolean
+    var swapUncommittedChanges: Boolean
         get() = appSettings.swapUncommittedChanges
         set(value) {
             appSettings.swapUncommittedChanges = value

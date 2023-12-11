@@ -23,7 +23,7 @@ interface ProcessingInfo {
 }
 
 sealed interface ProcessingState {
-    object None : ProcessingState
+    data object None : ProcessingState
     data class Processing(
         val title: String,
         val subtitle: String,
@@ -37,7 +37,7 @@ class TabState @Inject constructor(
     private val scope: CoroutineScope,
     private val findCommitUseCase: FindCommitUseCase,
 ) {
-    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommitedChanges)
+    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommittedChanges)
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
     private val _taskEvent = MutableSharedFlow<TaskEvent>()
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent

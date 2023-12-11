@@ -798,7 +798,7 @@ fun HunkHeader(
         // Hunks options are only visible when repository is a normal state (not during merge/rebase)
         if (
             (diffEntryType is DiffEntryType.SafeStagedDiff || diffEntryType is DiffEntryType.SafeUnstagedDiff) &&
-            (diffEntryType is DiffEntryType.UncommitedDiff && // Added just to make smartcast work
+            (diffEntryType is DiffEntryType.UncommittedDiff && // Added just to make smartcast work
                     diffEntryType.statusEntry.statusType == StatusType.MODIFIED)
         ) {
             val buttonText: String
@@ -914,8 +914,8 @@ private fun DiffHeader(
                 )
             }
 
-            if (diffEntryType is DiffEntryType.UncommitedDiff) {
-                UncommitedDiffFileHeaderButtons(
+            if (diffEntryType is DiffEntryType.UncommittedDiff) {
+                UncommittedDiffFileHeaderButtons(
                     diffEntryType,
                     onUnstageFile = onUnstageFile,
                     onStageFile = onStageFile
@@ -1020,8 +1020,8 @@ fun DiffTypeButtons(
 }
 
 @Composable
-fun UncommitedDiffFileHeaderButtons(
-    diffEntryType: DiffEntryType.UncommitedDiff,
+fun UncommittedDiffFileHeaderButtons(
+    diffEntryType: DiffEntryType.UncommittedDiff,
     onUnstageFile: (StatusEntry) -> Unit,
     onStageFile: (StatusEntry) -> Unit
 ) {
@@ -1167,7 +1167,7 @@ fun DiffLineText(line: Line, diffEntryType: DiffEntryType, onActionTriggered: ()
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     Box(modifier = Modifier.hoverable(hoverInteraction)) {
-        if (isHovered && diffEntryType is DiffEntryType.UncommitedDiff && line.lineType != LineType.CONTEXT) {
+        if (isHovered && diffEntryType is DiffEntryType.UncommittedDiff && line.lineType != LineType.CONTEXT) {
             val color: Color = if (diffEntryType is DiffEntryType.StagedDiff) {
                 MaterialTheme.colors.error
             } else {

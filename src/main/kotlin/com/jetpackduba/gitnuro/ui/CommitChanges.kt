@@ -26,13 +26,12 @@ import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
-import com.jetpackduba.gitnuro.ui.context_menu.commitedChangesEntriesContextMenuItems
+import com.jetpackduba.gitnuro.ui.context_menu.committedChangesEntriesContextMenuItems
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesState
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -314,7 +313,7 @@ fun CommitLogChanges(
         items(items = diffEntries) { diffEntry ->
             ContextMenu(
                 items = {
-                    commitedChangesEntriesContextMenuItems(
+                    committedChangesEntriesContextMenuItems(
                         diffEntry,
                         onBlame = { onBlame(diffEntry.filePath) },
                         onHistory = { onHistory(diffEntry.filePath) },
