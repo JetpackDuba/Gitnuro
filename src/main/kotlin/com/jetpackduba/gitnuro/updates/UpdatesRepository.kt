@@ -19,7 +19,7 @@ private val updateJson = Json {
 class UpdatesRepository @Inject constructor(
     private val updatesWebService: UpdatesService,
 ) {
-    fun hasUpdatesFlow() = flow<Update> {
+    fun hasUpdatesFlow() = flow {
         val latestReleaseJson = updatesWebService.release(AppConstants.VERSION_CHECK_URL)
 
         while(coroutineContext.isActive) {

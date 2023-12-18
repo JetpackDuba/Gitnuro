@@ -40,7 +40,6 @@ class StatusViewModel @Inject constructor(
     private val resetEntryUseCase: DiscardEntryUseCase,
     private val stageAllUseCase: StageAllUseCase,
     private val unstageAllUseCase: UnstageAllUseCase,
-    private val checkHasPreviousCommitsUseCase: CheckHasPreviousCommitsUseCase,
     private val getLastCommitMessageUseCase: GetLastCommitMessageUseCase,
     private val resetRepositoryStateUseCase: ResetRepositoryStateUseCase,
     private val continueRebaseUseCase: ContinueRebaseUseCase,
@@ -53,12 +52,10 @@ class StatusViewModel @Inject constructor(
     private val doCommitUseCase: DoCommitUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
-    private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
-    private val getRebaseAmendCommitIdUseCase: GetRebaseAmendCommitIdUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageUseCase: GetSpecificCommitMessageUseCase,
-    private val tabScope: CoroutineScope,
-    private val appSettings: AppSettings,
+    tabScope: CoroutineScope,
+    appSettings: AppSettings,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged

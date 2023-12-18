@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.git.diff
 
+import com.jetpackduba.gitnuro.extensions.filePath
 import com.jetpackduba.gitnuro.extensions.fullData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -36,6 +37,7 @@ class GetCommitDiffEntriesUseCase @Inject constructor() {
             .setNewTree(newTreeParser)
             .setOldTree(oldTreeParser)
             .call()
+            .sortedBy { it.filePath }
     }
 }
 

@@ -23,6 +23,6 @@ class GetStagedUseCase @Inject constructor() {
                 added,
                 modified,
                 removed,
-            )
+            ).sortedBy { it.filePath }
         }
 }

@@ -8,16 +8,13 @@ import javax.inject.Inject
 
 class GetUnstagedUseCase @Inject constructor() {
     suspend operator fun invoke(status: Status) = withContext(Dispatchers.IO) {
-        // TODO Test uninitialized modules after the refactor
-//        val uninitializedSubmodules = submodulesManager.uninitializedSubmodules(git)
-
-        val added = status.untracked.map {
+        val untracked = status.untracked.map {
             StatusEntry(it, StatusType.ADDED)
         }
         val modified = status.modified.map {
             StatusEntry(it, StatusType.MODIFIED)
         }
-        val removed = status.missing.map {
+        val missing = status.missing.map {
             StatusEntry(it, StatusType.REMOVED)
         }
         val conflicting = status.conflicting.map {
@@ -25,10 +22,10 @@ class GetUnstagedUseCase @Inject constructor() {
         }
 
         return@withContext flatListOf(
-            added,
+            untracked,
             modified,
-            removed,
+            missing,
             conflicting,
-        )
+        ).sortedBy { it.filePath }
     }
 }
