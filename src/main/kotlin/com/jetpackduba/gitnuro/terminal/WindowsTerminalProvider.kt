@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.terminal
 
 import com.jetpackduba.gitnuro.managers.IShellManager
-import java.io.File
 import javax.inject.Inject
 
 class WindowsTerminalProvider @Inject constructor(

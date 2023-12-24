@@ -54,22 +54,22 @@ class DiffViewModel @Inject constructor(
             diffTypeFlow
                 .drop(1) // Ignore the first time the flow triggers, we only care about updates
                 .collect {
-                val diffEntryType = this@DiffViewModel.diffEntryType
-                if (diffEntryType != null) {
-                    updateDiff(diffEntryType)
+                    val diffEntryType = this@DiffViewModel.diffEntryType
+                    if (diffEntryType != null) {
+                        updateDiff(diffEntryType)
+                    }
                 }
-            }
         }
 
         tabScope.launch {
             isDisplayFullFile
                 .drop(1) // Ignore the first time the flow triggers, we only care about updates
                 .collect {
-                val diffEntryType = this@DiffViewModel.diffEntryType
-                if (diffEntryType != null) {
-                    updateDiff(diffEntryType)
+                    val diffEntryType = this@DiffViewModel.diffEntryType
+                    if (diffEntryType != null) {
+                        updateDiff(diffEntryType)
+                    }
                 }
-            }
         }
 
         tabScope.launch {

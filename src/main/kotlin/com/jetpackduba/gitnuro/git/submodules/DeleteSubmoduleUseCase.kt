@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.git.submodules
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.storage.file.FileBasedConfig
 import java.io.File
 import javax.inject.Inject

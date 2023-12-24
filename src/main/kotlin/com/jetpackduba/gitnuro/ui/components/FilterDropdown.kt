@@ -21,10 +21,10 @@ import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 @Composable
 fun FilterDropdownPreview() {
     val items = listOf(
-        DropDownOption("","Test1"),
-        DropDownOption("","Test2"),
-        DropDownOption("","Test3"),
-        DropDownOption("","Test4"),
+        DropDownOption("", "Test1"),
+        DropDownOption("", "Test2"),
+        DropDownOption("", "Test3"),
+        DropDownOption("", "Test4"),
     )
 
     FilterDropdown(
@@ -44,7 +44,8 @@ fun <T> FilterDropdown(
     var showDropdown by remember { mutableStateOf(false) }
     var filter by remember { mutableStateOf("") }
     val filterFocusRequester = remember { FocusRequester() }
-    val filteredDropdownItems = remember(filter, dropdownItems) { dropdownItems.filter { it.optionName.lowercaseContains(filter) } }
+    val filteredDropdownItems =
+        remember(filter, dropdownItems) { dropdownItems.filter { it.optionName.lowercaseContains(filter) } }
 
     Box {
         OutlinedButton(

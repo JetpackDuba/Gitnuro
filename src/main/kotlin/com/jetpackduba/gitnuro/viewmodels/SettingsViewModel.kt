@@ -140,7 +140,11 @@ class SettingsViewModel @Inject constructor(
             null
         } catch (ex: Exception) {
             ex.printStackTrace()
-            newErrorNow(ex, "Saving theme failed", "Failed to parse selected theme JSON. Please check if it's valid and try again.")
+            newErrorNow(
+                ex,
+                "Saving theme failed",
+                "Failed to parse selected theme JSON. Please check if it's valid and try again."
+            )
         }
     }
 

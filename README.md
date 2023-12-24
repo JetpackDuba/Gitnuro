@@ -14,8 +14,9 @@ can use it nor relying on web technologies.
 Linux:
 
 - Available as Flatpak [here](https://flathub.org/apps/details/com.jetpackduba.Gitnuro) or by
-  running `flatpak install com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup. 
-  - If Flathub is not set up, you can add the source with the following command `flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`.
+  running `flatpak install com.jetpackduba.Gitnuro` if you have Flatpak & Flathub already setup.
+    - If Flathub is not set up, you can add the source with the following
+      command `flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`.
 - JAR file can be executed as a portable version (Requires JRE 17).
 
 Windows:
@@ -139,6 +140,7 @@ it if it's a very requested feature but not for now.
 > Authentication has failed. What's wrong?
 
 Currently there are some limitations regarding this topic. Here are some known problematic setups:
+
 - Multicast DNS remote URL (https://github.com/JetpackDuba/Gitnuro/issues/19) with this
   workaround (https://github.com/JetpackDuba/Gitnuro/issues/19#issuecomment-1374431720).
 - Self signed server certificate (https://github.com/JetpackDuba/Gitnuro/issues/48)

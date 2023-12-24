@@ -15,7 +15,7 @@ class HandleTransportUseCase @Inject constructor(
     suspend operator fun invoke(git: Git?, block: suspend CredentialsHandler.() -> Unit) {
         var cache: CredentialsCache? = null
 
-        val credentialsHandler = object: CredentialsHandler {
+        val credentialsHandler = object : CredentialsHandler {
             override fun handleTransport(transport: Transport?) {
                 cache = when (transport) {
                     is SshTransport -> {
@@ -41,6 +41,7 @@ class HandleTransportUseCase @Inject constructor(
         cache?.cacheCredentialsIfNeeded()
     }
 }
+
 interface CredentialsCache {
     suspend fun cacheCredentialsIfNeeded()
 }

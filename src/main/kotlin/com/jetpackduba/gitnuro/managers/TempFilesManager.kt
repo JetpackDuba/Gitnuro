@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.managers
 
-import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.extensions.openDirectory
 import java.io.File
 import javax.inject.Inject

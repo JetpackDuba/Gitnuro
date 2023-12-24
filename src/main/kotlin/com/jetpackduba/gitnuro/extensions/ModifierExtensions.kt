@@ -1,7 +1,10 @@
 package com.jetpackduba.gitnuro.extensions
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -95,17 +98,17 @@ fun Modifier.onDoubleClick(
 @Composable
 fun Modifier.onMiddleMouseButtonClick(key: Any = Unit, key2: Any = Unit, onClick: () -> Unit) =
     this.pointerInput(key, key2) {
-            while (true) {
-                val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
-                val mouseEvent = lastMouseEvent.awtEventOrNull
+        while (true) {
+            val lastMouseEvent = awaitPointerEventScope { awaitFirstDownEvent() }
+            val mouseEvent = lastMouseEvent.awtEventOrNull
 
-                if (mouseEvent != null) {
-                    if (lastMouseEvent.button.isTertiary) {
-                        onClick()
-                    }
+            if (mouseEvent != null) {
+                if (lastMouseEvent.button.isTertiary) {
+                    onClick()
                 }
             }
         }
+    }
 
 @Composable
 private fun Modifier.hoverBackground(): Modifier {

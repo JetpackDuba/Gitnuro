@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.git.workspace
 
-import com.jetpackduba.gitnuro.extensions.lineDelimiter
 import com.jetpackduba.gitnuro.git.diff.Hunk
 import com.jetpackduba.gitnuro.git.diff.LineType
 import kotlinx.coroutines.Dispatchers

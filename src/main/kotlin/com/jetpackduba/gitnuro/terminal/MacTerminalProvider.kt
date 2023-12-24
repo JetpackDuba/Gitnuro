@@ -19,6 +19,9 @@ class MacTerminalProvider @Inject constructor(
 
     override fun startTerminal(terminalEmulator: TerminalEmulator, repositoryPath: String) {
         // TODO Check if passing the path as argument is required for other terminal emulators
-        shellManager.runCommandInPath(listOf("open", "-a", terminalEmulator.path, "-n", "--args", repositoryPath), repositoryPath)
+        shellManager.runCommandInPath(
+            listOf("open", "-a", terminalEmulator.path, "-n", "--args", repositoryPath),
+            repositoryPath
+        )
     }
 }

@@ -56,7 +56,7 @@ fun submoduleContextMenuItems(
 //            )
         }
 
-        if(isNotEmpty()) {
+        if (isNotEmpty()) {
             add(
                 ContextMenuElement.ContextSeparator,
             )

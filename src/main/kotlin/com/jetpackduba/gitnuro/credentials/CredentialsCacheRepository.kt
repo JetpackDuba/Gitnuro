@@ -15,6 +15,7 @@ private const val KEY_LENGTH = 16
 class CredentialsCacheRepository @Inject constructor() {
     private val credentialsCached = mutableListOf<CredentialsType>()
     private val credentialsLock = Mutex(false)
+
     // having a random key to encrypt the password may help in case of a memory dump attack
     private val encryptionKey = getRandomKey()
 

@@ -24,7 +24,7 @@ class TabViewModelsHolder @Inject constructor(
     private val changeDefaultUpstreamBranchViewModelProvider: Provider<ChangeDefaultUpstreamBranchViewModel>,
     private val submoduleDialogViewModelProvider: Provider<SubmoduleDialogViewModel>,
     private val signOffDialogViewModelProvider: Provider<SignOffDialogViewModel>,
-    ) {
+) {
     val viewModels = mapOf(
         logViewModel::class to logViewModel,
         sidePanelViewModel::class to sidePanelViewModel,
@@ -38,7 +38,7 @@ class TabViewModelsHolder @Inject constructor(
 
     // TODO Call this when required
     fun dynamicViewModel(type: KClass<*>): Any {
-        return when(type) {
+        return when (type) {
             DiffViewModel::class -> diffViewModelProvider.get()
             HistoryViewModel::class -> historyViewModelProvider.get()
             AuthorViewModel::class -> authorViewModelProvider.get()

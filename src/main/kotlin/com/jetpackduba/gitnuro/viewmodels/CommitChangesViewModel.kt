@@ -86,7 +86,7 @@ class CommitChangesViewModel @Inject constructor(
                         if (untrackedFilesCommit != null) {
                             val untrackedFilesChanges = getCommitDiffEntriesUseCase(git, untrackedFilesCommit)
 
-                            if(untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
+                            if (untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
                                 changes.addAll(untrackedFilesChanges)
                             }
                         }

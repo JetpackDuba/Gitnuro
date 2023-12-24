@@ -4,7 +4,6 @@ import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.PullResult
 import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
@@ -23,7 +22,7 @@ class PullBranchUseCase @Inject constructor(
         handleTransportUseCase(git) {
             val pullResult = git
                 .pull()
-                .setTransportConfigCallback {this.handleTransport(it) }
+                .setTransportConfigCallback { this.handleTransport(it) }
                 .setRebase(pullWithRebase)
                 .setCredentialsProvider(CredentialsProvider.getDefault())
                 .call()

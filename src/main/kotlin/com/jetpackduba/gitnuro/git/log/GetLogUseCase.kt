@@ -54,7 +54,7 @@ class GetLogUseCase @Inject constructor() {
     private fun cachedGraphWalk(repository: Repository): GraphWalk {
         val graphWalkCached = this.graphWalkCached
 
-        return if(graphWalkCached != null) {
+        return if (graphWalkCached != null) {
             graphWalkCached
         } else {
             val newGraphWalk = GraphWalk(repository)

@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.exceptions.FetchException
-import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.logging.printError
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -48,13 +47,13 @@ class FetchAllBranchesUseCase @Inject constructor(
             } catch (ex: Exception) {
                 printError(TAG, "Fetch failed for remote ${remote.name} with error ${ex.message}", ex)
 
-                if(ex.message != "Cancelled authentication" && ex !is CancellationException) {
-                       errors.add(remote to ex)
+                if (ex.message != "Cancelled authentication" && ex !is CancellationException) {
+                    errors.add(remote to ex)
                 }
             }
         }
 
-        if(errors.isNotEmpty()) {
+        if (errors.isNotEmpty()) {
             val errorText = errors.joinToString("\n") {
                 "Fetch failed for remote ${it.first.name}: ${it.second.message}"
             }

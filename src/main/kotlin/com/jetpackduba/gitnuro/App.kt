@@ -2,7 +2,8 @@
 
 package com.jetpackduba.gitnuro
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.LocalTextContextMenu
 import androidx.compose.material.MaterialTheme
@@ -17,7 +18,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.*
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
@@ -44,7 +47,6 @@ import java.io.File
 import java.net.Authenticator
 import java.net.PasswordAuthentication
 import java.nio.file.Paths
-import java.util.*
 import javax.inject.Inject
 
 

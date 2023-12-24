@@ -25,7 +25,7 @@ class DoCommitUseCase @Inject constructor(
     ): RevCommit = withContext(Dispatchers.IO) {
         val signOffConfig = loadSignOffConfigUseCase(git.repository)
 
-        val finalMessage = if(signOffConfig.isEnabled) {
+        val finalMessage = if (signOffConfig.isEnabled) {
             val authorToSign = author ?: loadAuthorUseCase(git).toPersonIdent()
 
             val signature = signOffConfig.format

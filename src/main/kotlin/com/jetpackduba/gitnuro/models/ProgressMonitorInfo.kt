@@ -1,9 +1,5 @@
 package com.jetpackduba.gitnuro.models
 
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.lib.ProgressMonitor
-
 sealed interface ProgressMonitorInfo {
     object Loading : ProgressMonitorInfo
 

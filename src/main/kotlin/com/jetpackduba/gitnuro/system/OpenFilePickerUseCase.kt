@@ -40,7 +40,12 @@ class OpenFilePickerUseCase @Inject constructor(
 
         if (isZenityInstalled) {
             val command = when (pickerType) {
-                PickerType.FILES, PickerType.FILES_AND_DIRECTORIES -> listOf("zenity", "--file-selection", "--title=Open")
+                PickerType.FILES, PickerType.FILES_AND_DIRECTORIES -> listOf(
+                    "zenity",
+                    "--file-selection",
+                    "--title=Open"
+                )
+
                 PickerType.DIRECTORIES -> listOf("zenity", "--file-selection", "--title=Open", "--directory")
             }
 

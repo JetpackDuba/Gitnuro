@@ -2,12 +2,16 @@
 
 ## Requirements
 
-- **JDK 17 or higher**: You don't need this if you only use the JDK installed by IntelliJ IDEA. If you want to build using the CLI, check this [section](#alternative-setting-up-jdk-for-use-on-cli).
-- **Rust:** Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust environment, 
-please read [its documentation](https://www.rust-lang.org/). `cargo` and `rustc` must be available in the path in order to build Gitnuro properly.
+- **JDK 17 or higher**: You don't need this if you only use the JDK installed by IntelliJ IDEA. If you want to build
+  using the CLI, check this [section](#alternative-setting-up-jdk-for-use-on-cli).
+- **Rust:** Gitnuro is mainly written in Kotlin (JVM) but also uses Rust for some specific tasks. To set up your Rust
+  environment,
+  please read [its documentation](https://www.rust-lang.org/). `cargo` and `rustc` must be available in the path in
+  order to build Gitnuro properly.
 - **Perl:** Perl is required to build openssl (which is required for LibSSH to work).
-- **Packages for Linux ARM64/aarch64**: You need to install the `aarch64-linux-gnu-gcc` package to cross compile the 
-Rust components to ARM from x86_64. You will also need to use `rustup` to add a new target: `rustup target add aarch64-unknown-linux-gnu` 
+- **Packages for Linux ARM64/aarch64**: You need to install the `aarch64-linux-gnu-gcc` package to cross compile the
+  Rust components to ARM from x86_64. You will also need to use `rustup` to add a new
+  target: `rustup target add aarch64-unknown-linux-gnu`
 
 ## Setting up an IDE
 
@@ -16,9 +20,12 @@ If you don't have another preference, the recommendation is to download and inst
 (possibly through the JetBrains Toolbox, if you have it already). The recommended plugins to improve the DX are:
 
 - [Compose Multiplatform IDE Support](https://plugins.jetbrains.com/plugin/16541-compose-multiplatform-ide-support)
-- [Rust Plugin](https://plugins.jetbrains.com/plugin/8182-rust) (deprecated due to [RustRover IDE](https://blog.jetbrains.com/rust/2023/09/13/introducing-rustrover-a-standalone-rust-ide-by-jetbrains/) but still works).
+- [Rust Plugin](https://plugins.jetbrains.com/plugin/8182-rust) (deprecated due
+  to [RustRover IDE](https://blog.jetbrains.com/rust/2023/09/13/introducing-rustrover-a-standalone-rust-ide-by-jetbrains/)
+  but still works).
 
-By default, the JDK used by "IntelliJ IDEA Community Edition (2023.1.3)" is "JetBrains Runtime version 21" which is not currently supported by the project.
+By default, the JDK used by "IntelliJ IDEA Community Edition (2023.1.3)" is "JetBrains Runtime version 21" which is not
+currently supported by the project.
 
 ## Alternative: Setting up JDK for use on CLI
 
@@ -32,7 +39,8 @@ sudo apt install openjdk-17-jre openjdk-17-jdk
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ```
 
-Once it works (e.g. `./gradlew build`). On Linux, you may want to add that latter line to your `/etc/environment` or user-specific files such as `.profile` or `.bashrc`.
+Once it works (e.g. `./gradlew build`). On Linux, you may want to add that latter line to your `/etc/environment` or
+user-specific files such as `.profile` or `.bashrc`.
 
 ## Running the app / unit tests
 

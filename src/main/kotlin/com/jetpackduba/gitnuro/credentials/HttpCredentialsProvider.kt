@@ -11,9 +11,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.JGitText
 import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.transport.CredentialItem
-import org.eclipse.jgit.transport.CredentialItem.Password
-import org.eclipse.jgit.transport.CredentialItem.Username
-import org.eclipse.jgit.transport.CredentialItem.YesNoType
+import org.eclipse.jgit.transport.CredentialItem.*
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
 import java.io.*

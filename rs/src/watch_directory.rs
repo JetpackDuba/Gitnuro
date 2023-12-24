@@ -4,6 +4,7 @@ use std::fmt::Debug;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{channel, RecvTimeoutError};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
 use notify::{Config, Error, ErrorKind, Event, RecommendedWatcher, RecursiveMode, Watcher};
 
 const MIN_TIME_IN_MS_BETWEEN_REFRESHES: u128 = 500;

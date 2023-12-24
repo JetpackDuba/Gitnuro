@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.managers
 
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.system.OS
 import com.jetpackduba.gitnuro.system.currentOs
-import com.jetpackduba.gitnuro.logging.printError
 import java.io.File
 import javax.inject.Inject
 

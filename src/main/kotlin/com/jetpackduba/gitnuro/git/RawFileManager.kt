@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.git
 
-import com.jetpackduba.gitnuro.managers.TempFilesManager
 import com.jetpackduba.gitnuro.extensions.fileName
+import com.jetpackduba.gitnuro.managers.TempFilesManager
 import org.eclipse.jgit.diff.ContentSource
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.RawText

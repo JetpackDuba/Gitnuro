@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.git.branches
 
 import com.jetpackduba.gitnuro.extensions.simpleName
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Config
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.StoredConfig

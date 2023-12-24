@@ -108,7 +108,11 @@ class HistoryViewModel @Inject constructor(
 
             val diffEntryType = DiffEntryType.CommitDiff(diffEntry)
 
-            val diffResult = formatDiffUseCase(git, diffEntryType, false) // TODO This hardcoded false should be changed when the UI is implemented
+            val diffResult = formatDiffUseCase(
+                git,
+                diffEntryType,
+                false
+            ) // TODO This hardcoded false should be changed when the UI is implemented
             val textDiffType = settings.textDiffType
 
             val formattedDiffResult = if (textDiffType == TextDiffType.SPLIT && diffResult is DiffResult.Text) {

@@ -1,6 +1,7 @@
-use libssh_rs::{AuthStatus, PollStatus, SshOption};
+use std::io::Write;
 use std::sync::{Arc, RwLock};
-use std::io::{Write};
+
+use libssh_rs::{AuthStatus, PollStatus, SshOption};
 
 const ACCEPTED_SSH_TYPES: &str = "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256,ssh-dss";
 
@@ -63,6 +64,7 @@ pub struct Channel {
 }
 
 unsafe impl Send for Channel {}
+
 unsafe impl Sync for Channel {}
 
 impl Channel {
@@ -105,7 +107,7 @@ impl Channel {
         }
     }
 
-    pub fn read(&self, is_stderr: bool, len: u64) ->  ReadResult {
+    pub fn read(&self, is_stderr: bool, len: u64) -> ReadResult {
         let ulen = len as usize;
 
         let channel = self.channel.write().unwrap();

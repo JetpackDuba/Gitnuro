@@ -43,7 +43,11 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.UNCOMMITTED_CHANGES, RefreshType.SUBMODULES) {
+            tabState.refreshFlowFiltered(
+                RefreshType.ALL_DATA,
+                RefreshType.UNCOMMITTED_CHANGES,
+                RefreshType.SUBMODULES
+            ) {
                 refresh(tabState.git)
             }
         }

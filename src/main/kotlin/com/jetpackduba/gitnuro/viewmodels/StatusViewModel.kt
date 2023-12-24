@@ -11,11 +11,12 @@ import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
 import com.jetpackduba.gitnuro.git.author.SaveAuthorUseCase
-import com.jetpackduba.gitnuro.git.log.CheckHasPreviousCommitsUseCase
 import com.jetpackduba.gitnuro.git.log.GetLastCommitMessageUseCase
 import com.jetpackduba.gitnuro.git.log.GetSpecificCommitMessageUseCase
-import com.jetpackduba.gitnuro.git.rebase.*
-import com.jetpackduba.gitnuro.git.repository.GetRepositoryStateUseCase
+import com.jetpackduba.gitnuro.git.rebase.AbortRebaseUseCase
+import com.jetpackduba.gitnuro.git.rebase.ContinueRebaseUseCase
+import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
+import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo

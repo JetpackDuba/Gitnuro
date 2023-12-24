@@ -1,14 +1,13 @@
 package com.jetpackduba.gitnuro.git.branches
 
-import com.jetpackduba.gitnuro.extensions.isBranch
-import com.jetpackduba.gitnuro.extensions.simpleName
-import io.mockk.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.api.CheckoutCommand
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectIdRef
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class CheckoutRefUseCaseTest {
@@ -18,7 +17,7 @@ class CheckoutRefUseCaseTest {
     @Test
     fun `invokes git checkout when ref is a local branch`() {
         val checkoutCommand = mockk<CheckoutCommand>(relaxed = true)
-        val branchName ="refs/heads/feature-branch"
+        val branchName = "refs/heads/feature-branch"
         every { refMock.name } returns branchName
         every { gitMock.checkout() } returns checkoutCommand
 

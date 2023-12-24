@@ -1,9 +1,8 @@
 package com.jetpackduba.gitnuro.git.diff
 
 import io.mockk.mockk
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 class GenerateSplitHunkFromDiffResultUseCaseTest {
 

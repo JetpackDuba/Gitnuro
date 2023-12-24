@@ -71,7 +71,7 @@ class LogViewModel @Inject constructor(
     private val appSettings: AppSettings,
     private val tabScope: CoroutineScope,
     private val sharedStashViewModel: SharedStashViewModel,
-) : ViewModel, ISharedStashViewModel by sharedStashViewModel  {
+) : ViewModel, ISharedStashViewModel by sharedStashViewModel {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
     val logStatus: StateFlow<LogStatus>

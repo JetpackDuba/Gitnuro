@@ -10,7 +10,8 @@ object LocalConfigConstants {
 
         const val DEFAULT_SIGN_OFF_FORMAT_USER = "%user"
         const val DEFAULT_SIGN_OFF_FORMAT_EMAIL = "%email"
-        const val DEFAULT_SIGN_OFF_FORMAT = "Signed-off-by: $DEFAULT_SIGN_OFF_FORMAT_USER <$DEFAULT_SIGN_OFF_FORMAT_EMAIL>"
+        const val DEFAULT_SIGN_OFF_FORMAT =
+            "Signed-off-by: $DEFAULT_SIGN_OFF_FORMAT_USER <$DEFAULT_SIGN_OFF_FORMAT_EMAIL>"
         const val DEFAULT_SIGN_OFF_ENABLED = false
     }
 }

@@ -148,7 +148,7 @@ fun AddSubmodulesDialog(
                 },
             )
 
-            AnimatedVisibility (error.isNotBlank()) {
+            AnimatedVisibility(error.isNotBlank()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

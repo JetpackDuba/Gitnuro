@@ -22,7 +22,7 @@ class UpdatesRepository @Inject constructor(
     fun hasUpdatesFlow() = flow {
         val latestReleaseJson = updatesWebService.release(AppConstants.VERSION_CHECK_URL)
 
-        while(coroutineContext.isActive) {
+        while (coroutineContext.isActive) {
             val update = updateJson.decodeFromString<Update?>(latestReleaseJson)
 
             if (update != null && update.appCode > AppConstants.APP_VERSION_CODE) {

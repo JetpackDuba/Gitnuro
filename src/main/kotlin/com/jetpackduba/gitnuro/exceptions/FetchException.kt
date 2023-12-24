@@ -1,3 +1,3 @@
 package com.jetpackduba.gitnuro.exceptions
 
-class FetchException(msg: String): GitnuroException(msg)
+class FetchException(msg: String) : GitnuroException(msg)

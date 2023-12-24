@@ -201,6 +201,7 @@ class TabViewModel @Inject constructor(
         _showAuthorInfo.value = false
         authorViewModel = null
     }
+
     /**
      * Sometimes external apps can run filesystem multiple operations in a fraction of a second.
      * To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down

@@ -23,6 +23,7 @@ class GetRebaseInteractiveStateUseCase @Inject constructor(
 
                 RebaseInteractiveState.ProcessingCommits(commitId)
             }
+
             else -> RebaseInteractiveState.AwaitingInteraction
         }
     }

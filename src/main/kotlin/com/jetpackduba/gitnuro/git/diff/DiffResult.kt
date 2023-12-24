@@ -7,7 +7,7 @@ import org.eclipse.jgit.submodule.SubmoduleStatus
 sealed class DiffResult(
     val diffEntry: DiffEntry,
 ) {
-    sealed class TextDiff(diffEntry: DiffEntry): DiffResult(diffEntry)
+    sealed class TextDiff(diffEntry: DiffEntry) : DiffResult(diffEntry)
 
     class Text(
         diffEntry: DiffEntry,

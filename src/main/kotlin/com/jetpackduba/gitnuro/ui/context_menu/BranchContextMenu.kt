@@ -61,7 +61,7 @@ fun branchContextMenuItems(
             )
         }
 
-        if(isLocal) {
+        if (isLocal) {
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Change default upstream branch",
