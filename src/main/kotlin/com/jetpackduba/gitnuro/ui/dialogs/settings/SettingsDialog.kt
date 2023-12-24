@@ -454,12 +454,15 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
     var options by remember {
         mutableStateOf(
             listOf(
+                DropDownOption(0.75f, "75%"),
                 DropDownOption(1f, "100%"),
                 DropDownOption(1.25f, "125%"),
                 DropDownOption(1.5f, "150%"),
                 DropDownOption(1.75f, "175%"),
                 DropDownOption(2f, "200%"),
+                DropDownOption(2.25f, "225%"),
                 DropDownOption(2.5f, "250%"),
+                DropDownOption(2.75f, "275%"),
                 DropDownOption(3f, "300%"),
             )
         )
