@@ -49,7 +49,6 @@ import kotlin.math.abs
 
 private var lastCheck: Long = 0
 private const val MIN_TIME_BETWEEN_POPUPS_IN_MS = 20
-private const val BORDER_RADIUS = 4
 
 @Composable
 fun ContextMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
@@ -180,7 +179,7 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
         Box(
             modifier = Modifier
                 .shadow(8.dp)
-                .clip(RoundedCornerShape(BORDER_RADIUS.dp))
+                .clip(MaterialTheme.shapes.small)
                 .background(MaterialTheme.colors.background)
                 .width(IntrinsicSize.Max)
                 .widthIn(min = 180.dp)
@@ -189,7 +188,7 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
                         this.border(
                             2.dp,
                             MaterialTheme.colors.onBackground.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(BORDER_RADIUS.dp)
+                            shape = MaterialTheme.shapes.small
                         )
                     } else
                         this
@@ -380,14 +379,14 @@ class AppContextMenuRepresentation : ContextMenuRepresentation {
                 Column(
                     modifier = Modifier
                         .shadow(8.dp)
-                        .clip(RoundedCornerShape(BORDER_RADIUS.dp))
+                        .clip(MaterialTheme.shapes.small)
                         .background(MaterialTheme.colors.background)
                         .width(IntrinsicSize.Max)
                         .widthIn(min = 180.dp)
                         .verticalScroll(rememberScrollState())
                         .run {
                             if (border != null)
-                                border(border, RoundedCornerShape(BORDER_RADIUS.dp))
+                                border(border, MaterialTheme.shapes.small)
                             else
                                 this
                         }

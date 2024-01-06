@@ -1058,7 +1058,10 @@ fun CommitNode(
             )
         }
     } else {
-        Tooltip("${author.name} <${author.emailAddress}>") {
+        InstantTooltip(
+            "${author.name} <${author.emailAddress}>",
+            position = InstantTooltipPosition.RIGHT,
+        ) {
             Box(
                 modifier = modifier
                     .size(30.dp)

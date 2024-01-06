@@ -28,6 +28,7 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
+import com.jetpackduba.gitnuro.ui.components.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
@@ -50,19 +51,31 @@ fun Menu(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MenuButton(
-            modifier = Modifier
-                .padding(start = 16.dp),
-            title = "Open",
-            icon = painterResource(AppIcons.OPEN),
-            onClick = onOpenAnotherRepository,
-        )
+        InstantTooltip(
+            text = "Open a different repository"
+        ) {
+            MenuButton(
+                modifier = Modifier
+                    .padding(start = 16.dp),
+                title = "Open",
+                icon = painterResource(AppIcons.OPEN),
+                onClick = onOpenAnotherRepository,
+            )
+        }
 
         Spacer(modifier = Modifier.weight(1f))
+
+        val pullTooltip = if (isPullWithRebaseDefault) {
+            "Pull current branch with rebase"
+        } else {
+            "Pull current branch"
+        }
+
 
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Pull",
+            tooltipText = pullTooltip,
             icon = painterResource(AppIcons.DOWNLOAD),
             onClick = { menuViewModel.pull(PullType.DEFAULT) },
             extendedListItems = pullContextMenuItems(
@@ -85,6 +98,7 @@ fun Menu(
 
         ExtendedMenuButton(
             title = "Push",
+            tooltipText = "Push current branch changes",
             icon = painterResource(AppIcons.UPLOAD),
             onClick = { menuViewModel.push() },
             extendedListItems = pushContextMenuItems(
@@ -99,25 +113,24 @@ fun Menu(
 
         Spacer(modifier = Modifier.width(32.dp))
 
-        MenuButton(
-            title = "Branch",
-            icon = painterResource(AppIcons.BRANCH),
+        InstantTooltip(
+            text = "Create a new branch",
         ) {
-            onCreateBranch()
+            MenuButton(
+                title = "Branch",
+                icon = painterResource(AppIcons.BRANCH),
+            ) {
+                onCreateBranch()
+            }
         }
 
-//        MenuButton(
-//            title = "Merge",
-//            icon = painterResource("merge.svg"),
-//        ) {
-//            onCreateBranch()
-//        }
 
         Spacer(modifier = Modifier.width(32.dp))
 
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Stash",
+            tooltipText = "Stash uncommitted changes",
             icon = painterResource(AppIcons.STASH),
             onClick = { menuViewModel.stash() },
             extendedListItems = stashContextMenuItems(
@@ -125,19 +138,27 @@ fun Menu(
             )
         )
 
-        MenuButton(
-            title = "Pop",
-            icon = painterResource(AppIcons.APPLY_STASH),
-        ) { menuViewModel.popStash() }
+        InstantTooltip(
+            text = "Pop the last stash"
+        ) {
+            MenuButton(
+                title = "Pop",
+                icon = painterResource(AppIcons.APPLY_STASH),
+            ) { menuViewModel.popStash() }
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        MenuButton(
-            modifier = Modifier.padding(end = 4.dp),
-            title = "Terminal",
-            icon = painterResource(AppIcons.TERMINAL),
-            onClick = { menuViewModel.openTerminal() },
-        )
+        InstantTooltip(
+            text = "Open a terminal in the repository's path"
+        ) {
+            MenuButton(
+                modifier = Modifier.padding(end = 4.dp),
+                title = "Terminal",
+                icon = painterResource(AppIcons.TERMINAL),
+                onClick = { menuViewModel.openTerminal() },
+            )
+        }
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
@@ -146,12 +167,16 @@ fun Menu(
             onClick = onQuickActions,
         )
 
-        MenuButton(
-            modifier = Modifier.padding(end = 16.dp),
-            title = "Settings",
-            icon = painterResource(AppIcons.SETTINGS),
-            onClick = onShowSettingsDialog,
-        )
+        InstantTooltip(
+            text = "Gitnuro's settings",
+            modifier = Modifier.padding(end = 16.dp)
+        ) {
+            MenuButton(
+                title = "Settings",
+                icon = painterResource(AppIcons.SETTINGS),
+                onClick = onShowSettingsDialog,
+            )
+        }
     }
 }
 
@@ -195,6 +220,7 @@ fun ExtendedMenuButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     title: String,
+    tooltipText: String,
     icon: Painter,
     onClick: () -> Unit,
     extendedListItems: List<ContextMenuElement>,
@@ -207,26 +233,32 @@ fun ExtendedMenuButton(
             .background(MaterialTheme.colors.surface)
             .handMouseClickable { if (enabled) onClick() }
     ) {
-        Column(
+        InstantTooltip(
+            text = tooltipText,
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(
-                painter = icon,
-                contentDescription = title,
+            Column(
                 modifier = Modifier
-                    .size(24.dp),
-                tint = MaterialTheme.colors.onBackground,
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onBackground,
-                maxLines = 1,
-            )
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    painter = icon,
+                    contentDescription = title,
+                    modifier = Modifier
+                        .size(24.dp),
+                    tint = MaterialTheme.colors.onBackground,
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.onBackground,
+                    maxLines = 1,
+                )
+            }
         }
 
         DropdownMenu(
