@@ -13,7 +13,7 @@ plugins {
     kotlin("jvm") version "1.9.20"
     kotlin("plugin.serialization") version "1.9.20"
     id("com.google.devtools.ksp") version "1.9.20-1.0.14"
-    id("org.jetbrains.compose") version "1.5.10"
+    id("org.jetbrains.compose") version "1.5.11"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
