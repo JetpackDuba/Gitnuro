@@ -595,7 +595,7 @@ fun GraphHeader(
             SimpleDividerLog(
                 modifier = Modifier.draggable(
                     rememberDraggableState {
-                        onPaddingChange(it * density) // Multiply by density for screens with scaling > 1
+                        onPaddingChange(it / density) // Divide by density for screens with scaling > 1
                     }, Orientation.Horizontal
                 ),
             )
