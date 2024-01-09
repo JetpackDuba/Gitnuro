@@ -12,9 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.LocalTabScope
@@ -24,6 +22,7 @@ import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
+import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplit
 import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
@@ -33,9 +32,6 @@ import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
-import org.jetbrains.compose.splitpane.HorizontalSplitPane
-import org.jetbrains.compose.splitpane.SplitterScope
-import org.jetbrains.compose.splitpane.rememberSplitPaneState
 
 @Composable
 fun RepositoryOpenPage(
@@ -244,7 +240,6 @@ fun RepoContent(
     }
 }
 
-@OptIn(ExperimentalSplitPaneApi::class)
 @Composable
 fun MainContentView(
     tabViewModel: TabViewModel,
@@ -255,158 +250,125 @@ fun MainContentView(
 ) {
     val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
 
-    HorizontalSplitPane(
-        splitPaneState = rememberSplitPaneState(initialPositionPercentage = 0.20f)
-    ) {
-        val size = if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction)
-            1.dp
-        else
-            180.dp
-
-        first(minSize = size) {
+    TripleVerticalSplit(
+        modifier = Modifier.fillMaxSize(),
+        initialFirstWidth = 220f,
+        minFirstWidth = 150f,
+        initialThirdWidth = 360f,
+        minThirdWidth = 180f,
+        first = {
             SidePanel()
-        }
-
-        splitter {
-            this.repositorySplitter()
-        }
-
-        second {
-            HorizontalSplitPane(
-                splitPaneState = rememberSplitPaneState(0.9f)
+        },
+        second = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
-                first {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                    ) {
-                        if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction && diffSelected == null) {
-                            RebaseInteractive()
-                        } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
-                            Blame(
-                                filePath = blameState.filePath,
-                                blameResult = blameState.blameResult,
-                                onClose = { tabViewModel.resetBlameState() },
-                                onSelectCommit = { tabViewModel.selectCommit(it) }
-                            )
-                        } else {
-                            Column {
-                                Box(modifier = Modifier.weight(1f, true)) {
-                                    when (diffSelected) {
-                                        null -> {
-                                            Log(
-                                                selectedItem = selectedItem,
-                                                repositoryState = repositoryState,
-                                            )
-                                        }
-
-                                        else -> {
-                                            val diffViewModel = tabViewModel.diffViewModel
-
-                                            if (diffViewModel != null) {
-                                                Diff(
-                                                    diffViewModel = diffViewModel,
-                                                    onCloseDiffView = {
-                                                        tabViewModel.newDiffSelected = null
-                                                    }
-                                                )
-                                            }
-                                        }
-                                    }
+                if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction && diffSelected == null) {
+                    RebaseInteractive()
+                } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
+                    Blame(
+                        filePath = blameState.filePath,
+                        blameResult = blameState.blameResult,
+                        onClose = { tabViewModel.resetBlameState() },
+                        onSelectCommit = { tabViewModel.selectCommit(it) }
+                    )
+                } else {
+                    Column {
+                        Box(modifier = Modifier.weight(1f, true)) {
+                            when (diffSelected) {
+                                null -> {
+                                    Log(
+                                        selectedItem = selectedItem,
+                                        repositoryState = repositoryState,
+                                    )
                                 }
 
-                                if (blameState is BlameState.Loaded) { // BlameState.isMinimized is true here
-                                    MinimizedBlame(
-                                        filePath = blameState.filePath,
-                                        onExpand = { tabViewModel.expandBlame() },
-                                        onClose = { tabViewModel.resetBlameState() }
-                                    )
+                                else -> {
+                                    val diffViewModel = tabViewModel.diffViewModel
+
+                                    if (diffViewModel != null) {
+                                        Diff(
+                                            diffViewModel = diffViewModel,
+                                            onCloseDiffView = {
+                                                tabViewModel.newDiffSelected = null
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
-                }
 
-                splitter {
-                    this.repositorySplitter()
-                }
-
-                second(minSize = 250.dp) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                    ) {
-                        when (selectedItem) {
-                            SelectedItem.UncommittedChanges -> {
-                                UncommittedChanges(
-                                    selectedEntryType = diffSelected,
-                                    repositoryState = repositoryState,
-                                    onStagedDiffEntrySelected = { diffEntry ->
-                                        tabViewModel.minimizeBlame()
-
-                                        tabViewModel.newDiffSelected = if (diffEntry != null) {
-                                            if (repositoryState == RepositoryState.SAFE)
-                                                DiffEntryType.SafeStagedDiff(diffEntry)
-                                            else
-                                                DiffEntryType.UnsafeStagedDiff(diffEntry)
-                                        } else {
-                                            null
-                                        }
-                                    },
-                                    onUnstagedDiffEntrySelected = { diffEntry ->
-                                        tabViewModel.minimizeBlame()
-
-                                        if (repositoryState == RepositoryState.SAFE)
-                                            tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
-                                        else
-                                            tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
-                                    },
-                                    onBlameFile = { tabViewModel.blameFile(it) },
-                                    onHistoryFile = { tabViewModel.fileHistory(it) }
-                                )
-                            }
-
-                            is SelectedItem.CommitBasedItem -> {
-                                CommitChanges(
-                                    selectedItem = selectedItem,
-                                    diffSelected = diffSelected,
-                                    onDiffSelected = { diffEntry ->
-                                        tabViewModel.minimizeBlame()
-                                        tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
-                                    },
-                                    onBlame = { tabViewModel.blameFile(it) },
-                                    onHistory = { tabViewModel.fileHistory(it) },
-                                )
-                            }
-
-                            SelectedItem.None -> {}
+                        if (blameState is BlameState.Loaded) { // BlameState.isMinimized is true here
+                            MinimizedBlame(
+                                filePath = blameState.filePath,
+                                onExpand = { tabViewModel.expandBlame() },
+                                onClose = { tabViewModel.resetBlameState() }
+                            )
                         }
                     }
                 }
             }
-        }
-    }
-}
+        },
+        third = {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+            ) {
+                when (selectedItem) {
+                    SelectedItem.UncommittedChanges -> {
+                        UncommittedChanges(
+                            selectedEntryType = diffSelected,
+                            repositoryState = repositoryState,
+                            onStagedDiffEntrySelected = { diffEntry ->
+                                tabViewModel.minimizeBlame()
 
-fun SplitterScope.repositorySplitter() {
-    visiblePart {
-        Box(
-            Modifier
-                .width(8.dp)
-                .fillMaxHeight()
-                .background(Color.Transparent)
-        )
-    }
-    handle {
-        Box(
-            Modifier
-                .markAsHandle()
-                .pointerHoverIcon(resizePointerIconEast)
-                .background(Color.Transparent)
-                .width(8.dp)
-                .fillMaxHeight()
-        )
-    }
+                                tabViewModel.newDiffSelected = if (diffEntry != null) {
+                                    if (repositoryState == RepositoryState.SAFE)
+                                        DiffEntryType.SafeStagedDiff(diffEntry)
+                                    else
+                                        DiffEntryType.UnsafeStagedDiff(diffEntry)
+                                } else {
+                                    null
+                                }
+                            },
+                            onUnstagedDiffEntrySelected = { diffEntry ->
+                                tabViewModel.minimizeBlame()
+
+                                if (repositoryState == RepositoryState.SAFE)
+                                    tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
+                                else
+                                    tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
+                            },
+                            onBlameFile = { tabViewModel.blameFile(it) },
+                            onHistoryFile = { tabViewModel.fileHistory(it) }
+                        )
+                    }
+
+                    is SelectedItem.CommitBasedItem -> {
+                        CommitChanges(
+                            selectedItem = selectedItem,
+                            diffSelected = diffSelected,
+                            onDiffSelected = { diffEntry ->
+                                tabViewModel.minimizeBlame()
+                                tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
+                            },
+                            onBlame = { tabViewModel.blameFile(it) },
+                            onHistory = { tabViewModel.fileHistory(it) },
+                        )
+                    }
+
+                    SelectedItem.None -> {}
+                }
+            }
+        },
+        onFirstSizeChanged = {
+
+        },
+        onThirdSizeChanged = {
+
+        },
+    )
 }
 
 sealed interface SelectedItem {
