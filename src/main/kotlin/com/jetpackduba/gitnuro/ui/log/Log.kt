@@ -295,6 +295,7 @@ private fun LogLoaded(
                             text = "Scroll to top",
                             modifier = Modifier.padding(start = 8.dp),
                             color = MaterialTheme.colors.onPrimary,
+                            maxLines = 1,
                             style = MaterialTheme.typography.body2,
                         )
                     }
