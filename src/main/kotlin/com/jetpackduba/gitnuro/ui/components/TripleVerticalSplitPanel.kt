@@ -8,14 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun TripleVerticalSplitPanel(
     modifier: Modifier = Modifier,
