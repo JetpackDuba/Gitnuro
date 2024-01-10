@@ -252,8 +252,8 @@ fun MainContentView(
     val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
     val density = LocalDensity.current.density
 
-    var firstWidth by remember { mutableStateOf(180f) }
-    var thirdWidth by remember { mutableStateOf(360f) }
+    var firstWidth by remember(tabViewModel) { mutableStateOf(tabViewModel.firstPaneWidth) }
+    var thirdWidth by remember(tabViewModel) { mutableStateOf(tabViewModel.thirdPaneWidth) }
 
     TripleVerticalSplitPanel(
         modifier = Modifier.fillMaxSize(),
@@ -370,6 +370,7 @@ fun MainContentView(
 
             if (newWidth > 150) {
                 firstWidth = newWidth
+                tabViewModel.firstPaneWidth = firstWidth
             }
         },
         onThirdSizeDrag = {
@@ -377,6 +378,7 @@ fun MainContentView(
 
             if (newWidth > 150) {
                 thirdWidth = newWidth
+                tabViewModel.thirdPaneWidth = thirdWidth
             }
         },
     )

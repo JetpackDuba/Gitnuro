@@ -70,6 +70,8 @@ class TabViewModel @Inject constructor(
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
 ) {
+    var firstPaneWidth = 220f
+    var thirdPaneWidth = 360f
     var initialPath: String? = null // Stores the path that should be opened when the tab is selected
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
