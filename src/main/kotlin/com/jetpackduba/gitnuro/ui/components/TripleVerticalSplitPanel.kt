@@ -8,33 +8,29 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TripleVerticalSplit(
+fun TripleVerticalSplitPanel(
     modifier: Modifier = Modifier,
     first: @Composable () -> Unit,
     second: @Composable () -> Unit,
     third: @Composable () -> Unit,
-    initialFirstWidth: Float,
-    minFirstWidth: Float,
-    initialThirdWidth: Float,
-    minThirdWidth: Float,
-    onFirstSizeChanged: (Float) -> Unit,
-    onThirdSizeChanged: (Float) -> Unit,
+    firstWidth: Float,
+    thirdWidth: Float,
+    onFirstSizeDrag: (Float) -> Unit,
+    onThirdSizeDrag: (Float) -> Unit,
 ) {
-    val density = LocalDensity.current.density
-    var firstWidth by remember { mutableStateOf(initialFirstWidth) }
-    var thirdWidth by remember { mutableStateOf(initialThirdWidth) }
-
     Row(
         modifier = modifier
     ) {
-        Box(modifier = Modifier.width((firstWidth).dp)) {
+        Box(modifier = Modifier.width(firstWidth.dp)) {
             first()
         }
 
@@ -44,12 +40,7 @@ fun TripleVerticalSplit(
                 .width(8.dp)
                 .draggable(
                     state = rememberDraggableState {
-                        val newWidth = firstWidth + it / density
-
-                        if (newWidth > minFirstWidth) {
-                            firstWidth = newWidth
-                            onFirstSizeChanged(firstWidth)
-                        }
+                        onFirstSizeDrag(it)
                     },
                     orientation = Orientation.Horizontal
                 )
@@ -66,12 +57,7 @@ fun TripleVerticalSplit(
                 .width(8.dp)
                 .draggable(
                     rememberDraggableState {
-                        val newWidth = thirdWidth - it / density
-
-                        if(newWidth > minThirdWidth) {
-                            thirdWidth = newWidth
-                            onThirdSizeChanged(thirdWidth)
-                        }
+                        onThirdSizeDrag(it)
                     }, Orientation.Horizontal
                 )
                 .pointerHoverIcon(resizePointerIconEast)

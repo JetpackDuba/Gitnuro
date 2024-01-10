@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.LocalTabScope
@@ -22,7 +23,7 @@ import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
-import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplit
+import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
 import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
@@ -249,13 +250,15 @@ fun MainContentView(
     blameState: BlameState,
 ) {
     val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
+    val density = LocalDensity.current.density
 
-    TripleVerticalSplit(
+    var firstWidth by remember { mutableStateOf(180f) }
+    var thirdWidth by remember { mutableStateOf(360f) }
+
+    TripleVerticalSplitPanel(
         modifier = Modifier.fillMaxSize(),
-        initialFirstWidth = 220f,
-        minFirstWidth = 150f,
-        initialThirdWidth = 360f,
-        minThirdWidth = 180f,
+        firstWidth = firstWidth,
+        thirdWidth = thirdWidth,
         first = {
             SidePanel()
         },
@@ -362,11 +365,19 @@ fun MainContentView(
                 }
             }
         },
-        onFirstSizeChanged = {
+        onFirstSizeDrag = {
+            val newWidth = firstWidth + it / density
 
+            if (newWidth > 150) {
+                firstWidth = newWidth
+            }
         },
-        onThirdSizeChanged = {
+        onThirdSizeDrag = {
+            val newWidth = thirdWidth - it / density
 
+            if (newWidth > 150) {
+                thirdWidth = newWidth
+            }
         },
     )
 }
