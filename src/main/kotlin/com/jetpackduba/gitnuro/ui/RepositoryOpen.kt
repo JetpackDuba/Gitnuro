@@ -257,7 +257,7 @@ fun MainContentView(
 
     TripleVerticalSplitPanel(
         modifier = Modifier.fillMaxSize(),
-        firstWidth = firstWidth,
+        firstWidth = if(rebaseInteractiveState is RebaseInteractiveState.AwaitingInteraction) 0f else firstWidth,
         thirdWidth = thirdWidth,
         first = {
             SidePanel()
@@ -368,7 +368,7 @@ fun MainContentView(
         onFirstSizeDrag = {
             val newWidth = firstWidth + it / density
 
-            if (newWidth > 150) {
+            if (newWidth > 150 && rebaseInteractiveState !is RebaseInteractiveState.AwaitingInteraction) {
                 firstWidth = newWidth
                 tabViewModel.firstPaneWidth = firstWidth
             }
