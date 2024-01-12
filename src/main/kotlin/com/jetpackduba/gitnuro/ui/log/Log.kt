@@ -6,6 +6,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -197,26 +198,23 @@ private fun LogLoaded(
         )
 
         Box {
+
+            // This Box is only used to get a scroll state. With this scroll state we will manually add an offset in
+            // the messages list
             Box(
                 Modifier
                     .width(graphWidth)
                     .fillMaxHeight()
+                    .horizontalScroll(horizontalScrollState)
+                    .padding(bottom = 8.dp)
             ) {
+                // The content has to be bigger in order to show the scroll bar in the parent component
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .horizontalScroll(horizontalScrollState)
-                        .padding(bottom = 8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.width(graphRealWidth)
-                    )
-                }
+                    modifier = Modifier.width(graphRealWidth)
+                )
             }
 
-            // The commits' messages list overlaps with the graph list to catch all the click events but leaves
-            // a padding, so it doesn't cover the graph
-            MessagesList(
+            CommitsList(
                 scrollState = verticalScrollState,
                 horizontalScrollState = horizontalScrollState,
                 hasUncommittedChanges = hasUncommittedChanges,
@@ -426,7 +424,7 @@ fun SearchFilter(
 }
 
 @Composable
-fun MessagesList(
+fun CommitsList(
     scrollState: LazyListState,
     hasUncommittedChanges: Boolean,
     searchFilter: List<GraphNode>?,
@@ -729,7 +727,7 @@ fun SummaryEntry(
 }
 
 @Composable
-fun CommitLine(
+private fun CommitLine(
     graphWidth: Dp,
     logViewModel: LogViewModel,
     graphNode: GraphNode,
@@ -787,7 +785,7 @@ fun CommitLine(
                         .fillMaxWidth()
                         .offset(-horizontalScrollState.value.dp)
                 ) {
-                    CommitsGraphLine(
+                    CommitsGraph(
                         modifier = Modifier
                             .fillMaxHeight(),
                         plotCommit = graphNode,
@@ -858,7 +856,11 @@ fun CommitMessage(
     onChangeDefaultUpstreamBranch: (ref: Ref) -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .hoverable(
+                // This modifier is added just to prevent committer tooltip is shown then it is underneath this message
+                remember { MutableInteractionSource() },
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
@@ -951,7 +953,7 @@ fun SimpleDividerLog(modifier: Modifier) {
 
 
 @Composable
-fun CommitsGraphLine(
+fun CommitsGraph(
     modifier: Modifier = Modifier,
     plotCommit: GraphNode,
     nodeColor: Color,
