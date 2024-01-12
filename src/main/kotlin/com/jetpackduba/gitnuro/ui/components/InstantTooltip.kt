@@ -28,7 +28,7 @@ import com.jetpackduba.gitnuro.theme.isDark
 
 @Composable
 fun InstantTooltip(
-    text: String,
+    text: String?,
     modifier: Modifier = Modifier,
     position: InstantTooltipPosition = InstantTooltipPosition.BOTTOM,
     content: @Composable () -> Unit,
@@ -47,7 +47,7 @@ fun InstantTooltip(
         content()
     }
 
-    if (isHovered && coordinates != null) {
+    if (isHovered && coordinates != null && text != null) {
         Popup(
             properties = PopupProperties(
                 focusable = false,

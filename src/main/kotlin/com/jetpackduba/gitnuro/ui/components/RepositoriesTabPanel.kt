@@ -118,7 +118,7 @@ fun RepositoriesTabPanel(
                     key = { _, tab -> tab.tabViewModel }
                 ) { index, tab ->
                     HorizontalDraggableItem(dragDropState, index) { _ ->
-                        Tooltip(tab.path) {
+                        InstantTooltip(tab.path) {
                             Tab(
                                 modifier = Modifier,
                                 title = tab.tabName,
