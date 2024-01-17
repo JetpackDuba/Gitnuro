@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.ui.dialogs.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -196,10 +195,10 @@ fun SettingsDialog(
                 )
 
                 Row(modifier = Modifier.weight(1f)) {
-                    ScrollableLazyColumn(
-                        modifier = Modifier
+                    ScrollableColumn(
+                        modifier = Modifier.fillMaxHeight()
                     ) {
-                        itemsIndexed(settings) { index, settingEntry ->
+                        settings.forEachIndexed { index, settingEntry ->
                             when (settingEntry) {
                                 is SettingsEntry.Section -> {
                                     if (index != 0) {
