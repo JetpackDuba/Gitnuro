@@ -327,7 +327,7 @@ fun CommitLogChanges(
             ) {
                 Column(
                     modifier = Modifier
-                        .height(40.dp)
+                        .height(36.dp)
                         .fillMaxWidth()
                         .handMouseClickable {
                             onDiffSelected(diffEntry)
