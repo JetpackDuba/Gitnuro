@@ -282,7 +282,7 @@ class App {
                 },
                 onTabClosed = onCloseTab,
                 onAddNewTab = onAddedTab,
-                tabsHeight = 40.dp,
+                tabsHeight = 36.dp,
                 onMoveTab = { fromIndex, toIndex ->
                     tabsManager.onMoveTab(fromIndex, toIndex)
                 },

@@ -90,7 +90,7 @@ private const val MARGIN_GRAPH_LANES = 2
 private const val LANE_WIDTH = 30f
 private const val DIVIDER_WIDTH = 8
 
-private const val LINE_HEIGHT = 40
+private const val LINE_HEIGHT = 36
 private const val LOG_BOTTOM_PADDING = 80
 
 // TODO Min size for message column
@@ -658,7 +658,7 @@ fun UncommittedChangesLine(
 ) {
     Row(
         modifier = Modifier
-            .height(40.dp)
+            .height(LINE_HEIGHT.dp)
             .padding(start = graphWidth)
             .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
             .padding(DIVIDER_WIDTH.dp),
