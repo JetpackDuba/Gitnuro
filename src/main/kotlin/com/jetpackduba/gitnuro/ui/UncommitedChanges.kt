@@ -28,25 +28,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
-import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.theme.abortButton
+import com.jetpackduba.gitnuro.theme.tertiarySurface
+import com.jetpackduba.gitnuro.theme.textFieldColors
 import com.jetpackduba.gitnuro.ui.components.*
-import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.EntryType
+import com.jetpackduba.gitnuro.ui.context_menu.statusDirEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
+import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.viewmodels.CommitterDataRequestState
-import com.jetpackduba.gitnuro.viewmodels.StageState
+import com.jetpackduba.gitnuro.viewmodels.StageStateUi
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import org.eclipse.jgit.lib.RepositoryState
 
@@ -60,9 +61,9 @@ fun UncommittedChanges(
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
 ) {
-    val stageStatus = statusViewModel.stageState.collectAsState().value
+    val stageStateUi = statusViewModel.stageStateUi.collectAsState().value
     val swapUncommittedChanges by statusViewModel.swapUncommittedChanges.collectAsState()
-    var commitMessage by remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
+    val (commitMessage, setCommitMessage) = remember(statusViewModel) { mutableStateOf(statusViewModel.savedCommitMessage.message) }
     val stagedListState by statusViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusViewModel.unstagedLazyListState.collectAsState()
     val isAmend by statusViewModel.isAmend.collectAsState()
@@ -79,32 +80,18 @@ fun UncommittedChanges(
     val isAmenableRebaseInteractive =
         repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits && rebaseInteractiveState.isCurrentStepAmenable
 
-    val staged: List<StatusEntry>
-    val unstaged: List<StatusEntry>
-    val isLoading: Boolean
-
-    if (stageStatus is StageState.Loaded) {
-        staged = stageStatus.stagedFiltered
-        unstaged = stageStatus.unstagedFiltered
-        isLoading = stageStatus.isPartiallyReloading
-    } else {
-        staged = listOf()
-        unstaged = listOf() // return empty lists if still loading
-        isLoading = true
-    }
-
     val doCommit = {
         statusViewModel.commit(commitMessage)
         onStagedDiffEntrySelected(null)
-        commitMessage = ""
+        setCommitMessage("")
     }
 
-    val canCommit = commitMessage.isNotEmpty() && staged.isNotEmpty()
+    val canCommit = commitMessage.isNotEmpty() && stageStateUi.hasStagedFiles
     val canAmend = commitMessage.isNotEmpty() && statusViewModel.hasPreviousCommits
 
     LaunchedEffect(statusViewModel) {
         statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
-            commitMessage = newCommitMessage
+            setCommitMessage(newCommitMessage)
         }
     }
 
@@ -124,7 +111,7 @@ fun UncommittedChanges(
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = isLoading,
+            visible = stageStateUi.isLoading,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -132,206 +119,422 @@ fun UncommittedChanges(
         }
 
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
-            val stagedView: @Composable () -> Unit = {
-                EntriesList(
-                    modifier = Modifier
-                        .weight(5f)
-                        .padding(bottom = 4.dp)
-                        .fillMaxWidth(),
-                    title = "Staged",
-                    allActionTitle = "Unstage all",
-                    actionTitle = "Unstage",
-                    actionIcon = AppIcons.REMOVE_DONE,
-                    selectedEntryType = if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null,
-                    actionColor = MaterialTheme.colors.error,
-                    actionTextColor = MaterialTheme.colors.onError,
-                    statusEntries = staged,
-                    lazyListState = stagedListState,
-                    onDiffEntrySelected = onStagedDiffEntrySelected,
-                    showSearch = showSearchStaged,
-                    searchFilter = searchFilterStaged,
-                    onSearchFilterToggled = {
-                        statusViewModel.onSearchFilterToggledStaged(it)
-                    },
-                    onSearchFilterChanged = {
-                        statusViewModel.onSearchFilterChangedStaged(it)
-                    },
-                    onDiffEntryOptionSelected = {
-                        statusViewModel.unstage(it)
-                    },
-                    onGenerateContextMenu = { statusEntry ->
-                        statusEntriesContextMenuItems(
-                            statusEntry = statusEntry,
-                            entryType = EntryType.STAGED,
-                            onBlame = { onBlameFile(statusEntry.filePath) },
-                            onReset = { statusViewModel.resetStaged(statusEntry) },
-                            onHistory = { onHistoryFile(statusEntry.filePath) },
-                        )
-                    },
-                    onAllAction = {
-                        statusViewModel.unstageAll()
-                    },
-                )
-            }
+            if (stageStateUi is StageStateUi.Loaded) {
+                @Composable
+                fun staged() {
+                    StagedView(
+                        stageStateUi,
+                        showSearchStaged,
+                        searchFilterStaged,
+                        stagedListState,
+                        selectedEntryType,
+                        onSearchFilterToggled = { statusViewModel.onSearchFilterToggledStaged(it) },
+                        onDiffEntryOptionSelected = { statusViewModel.unstage(it) },
+                        onDiffEntrySelected = onStagedDiffEntrySelected,
+                        onSearchFilterChanged = { statusViewModel.onSearchFilterChangedStaged(it) },
+                        onBlameFile = onBlameFile,
+                        onHistoryFile = onHistoryFile,
+                        onReset = { statusViewModel.resetStaged(it) },
+                        onDelete = { statusViewModel.deleteFile(it) },
+                        onAllAction = { statusViewModel.unstageAll() },
+                        onAlternateShowAsTree = { statusViewModel.alternateShowAsTree() },
+                        onTreeDirectoryClicked = { statusViewModel.stagedTreeDirectoryClicked(it) },
+                        onTreeDirectoryAction = { statusViewModel.unstageByDirectory(it) },
+                    )
+                }
 
-            val unstagedView: @Composable () -> Unit = {
-                EntriesList(
-                    modifier = Modifier
-                        .weight(5f)
-                        .padding(bottom = 4.dp)
-                        .fillMaxWidth(),
-                    title = "Unstaged",
-                    actionTitle = "Stage",
-                    actionIcon = AppIcons.DONE,
-                    selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
-                    actionColor = MaterialTheme.colors.primary,
-                    actionTextColor = MaterialTheme.colors.onPrimary,
-                    statusEntries = unstaged,
-                    lazyListState = unstagedListState,
-                    onDiffEntrySelected = onUnstagedDiffEntrySelected,
-                    showSearch = showSearchUnstaged,
-                    searchFilter = searchFilterUnstaged,
-                    onSearchFilterToggled = {
-                        statusViewModel.onSearchFilterToggledUnstaged(it)
-                    },
-                    onSearchFilterChanged = {
-                        statusViewModel.onSearchFilterChangedUnstaged(it)
-                    },
-                    onDiffEntryOptionSelected = {
-                        statusViewModel.stage(it)
-                    },
-                    onGenerateContextMenu = { statusEntry ->
-                        statusEntriesContextMenuItems(
-                            statusEntry = statusEntry,
-                            entryType = EntryType.UNSTAGED,
-                            onBlame = { onBlameFile(statusEntry.filePath) },
-                            onHistory = { onHistoryFile(statusEntry.filePath) },
-                            onReset = { statusViewModel.resetUnstaged(statusEntry) },
-                            onDelete = {
-                                statusViewModel.deleteFile(statusEntry)
-                            },
-                        )
-                    },
-                    onAllAction = {
-                        statusViewModel.stageAll()
-                    },
-                    allActionTitle = "Stage all",
-                )
-            }
+                @Composable
+                fun unstaged() {
+                    UnstagedView(
+                        stageStateUi,
+                        showSearchUnstaged,
+                        searchFilterUnstaged,
+                        unstagedListState,
+                        selectedEntryType,
+                        onSearchFilterToggled = { statusViewModel.onSearchFilterToggledUnstaged(it) },
+                        onDiffEntryOptionSelected = { statusViewModel.stage(it) },
+                        onDiffEntrySelected = onUnstagedDiffEntrySelected,
+                        onSearchFilterChanged = { statusViewModel.onSearchFilterChangedUnstaged(it) },
+                        onBlameFile = onBlameFile,
+                        onHistoryFile = onHistoryFile,
+                        onReset = { statusViewModel.resetUnstaged(it) },
+                        onDelete = { statusViewModel.deleteFile(it) },
+                        onAllAction = { statusViewModel.stageAll() },
+                        onAlternateShowAsTree = { statusViewModel.alternateShowAsTree() },
+                        onTreeDirectoryClicked = { statusViewModel.stagedTreeDirectoryClicked(it) },
+                        onTreeDirectoryAction = { statusViewModel.stageByDirectory(it) },
+                    )
+                }
 
-            if (swapUncommittedChanges) {
-                unstagedView()
-                stagedView()
-            } else {
-                stagedView()
-                unstagedView()
+                if (swapUncommittedChanges) {
+                    unstaged()
+                    staged()
+                } else {
+                    staged()
+                    unstaged()
+                }
             }
         }
 
-        Column(
+        CommitField(
+            canCommit,
+            isAmend,
+            canAmend,
+            doCommit,
+            commitMessage,
+            repositoryState,
+            isAmenableRebaseInteractive,
+            stageStateUi.hasUnstagedFiles,
+            rebaseInteractiveState,
+            stageStateUi.hasStagedFiles,
+            isAmendRebaseInteractive,
+            stageStateUi.haveConflictsBeenSolved,
+            setCommitMessage = {
+                setCommitMessage(it)
+                statusViewModel.updateCommitMessage(it)
+            },
+            onResetRepoState = {
+                statusViewModel.resetRepoState()
+                statusViewModel.updateCommitMessage("")
+            },
+            onAbortRebase = {
+                statusViewModel.abortRebase()
+                statusViewModel.updateCommitMessage("")
+            },
+            onAmendChecked = { statusViewModel.amend(it) },
+            onContinueRebase = { statusViewModel.continueRebase(commitMessage) },
+            onSkipRebase = { statusViewModel.skipRebase() },
+        )
+    }
+}
+
+@Composable
+private fun CommitField(
+    canCommit: Boolean,
+    isAmend: Boolean,
+    canAmend: Boolean,
+    doCommit: () -> Unit,
+    commitMessage: String,
+    repositoryState: RepositoryState,
+    isAmenableRebaseInteractive: Boolean,
+    hasUnstagedFiles: Boolean,
+    rebaseInteractiveState: RebaseInteractiveState,
+    hasStagedFiles: Boolean,
+    isAmendRebaseInteractive: Boolean,
+    haveConflictsBeenSolved: Boolean,
+    setCommitMessage: (String) -> Unit,
+    onResetRepoState: () -> Unit,
+    onAbortRebase: () -> Unit,
+    onContinueRebase: () -> Unit,
+    onSkipRebase: () -> Unit,
+    onAmendChecked: (Boolean) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .height(192.dp)
+            .fillMaxWidth()
+    ) {
+        TextField(
             modifier = Modifier
-                .height(192.dp)
                 .fillMaxWidth()
-        ) {
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(weight = 1f, fill = true)
-                    .onPreviewKeyEvent { keyEvent ->
-                        if (keyEvent.matchesBinding(KeybindingOption.TEXT_ACCEPT) && (canCommit || isAmend && canAmend)) {
-                            doCommit()
-                            true
-                        } else
-                            false
-                    },
-                value = commitMessage,
-                onValueChange = {
-                    commitMessage = it
-
-                    statusViewModel.updateCommitMessage(it)
+                .weight(weight = 1f, fill = true)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.matchesBinding(KeybindingOption.TEXT_ACCEPT) && (canCommit || isAmend && canAmend)) {
+                        doCommit()
+                        true
+                    } else
+                        false
                 },
-                enabled = !repositoryState.isRebasing || isAmenableRebaseInteractive,
-                label = {
-                    val text = if (repositoryState.isRebasing && !isAmenableRebaseInteractive) {
-                        "Commit message (read-only)"
-                    } else {
-                        "Write your commit message here"
-                    }
+            value = commitMessage,
+            onValueChange = setCommitMessage,
+            enabled = !repositoryState.isRebasing || isAmenableRebaseInteractive,
+            label = {
+                val text = if (repositoryState.isRebasing && !isAmenableRebaseInteractive) {
+                    "Commit message (read-only)"
+                } else {
+                    "Write your commit message here"
+                }
 
-                    Text(
-                        text = text,
-                        style = MaterialTheme.typography.body2,
-                        color = MaterialTheme.colors.primaryVariant,
-                    )
-                },
-                colors = textFieldColors(),
-                textStyle = MaterialTheme.typography.body1,
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.primaryVariant,
+                )
+            },
+            colors = textFieldColors(),
+            textStyle = MaterialTheme.typography.body1,
+        )
+
+        when {
+            repositoryState.isMerging -> MergeButtons(
+                haveConflictsBeenSolved = !hasUnstagedFiles,
+                onAbort = onResetRepoState,
+                onMerge = { doCommit() }
             )
 
-            when {
-                repositoryState.isMerging -> MergeButtons(
-                    haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = {
-                        statusViewModel.resetRepoState()
-                        statusViewModel.updateCommitMessage("")
-                    },
-                    onMerge = { doCommit() }
-                )
+            repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits -> RebasingButtons(
+                canContinue = hasStagedFiles || hasUnstagedFiles || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.isNotEmpty()),
+                haveConflictsBeenSolved = !hasUnstagedFiles,
+                onAbort = onAbortRebase,
+                onContinue = onContinueRebase,
+                onSkip = onSkipRebase,
+                isAmendable = rebaseInteractiveState.isCurrentStepAmenable,
+                isAmend = isAmendRebaseInteractive,
+                onAmendChecked = onAmendChecked,
+            )
 
-                repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits -> RebasingButtons(
-                    canContinue = staged.isNotEmpty() || unstaged.isNotEmpty() || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.isNotEmpty()),
-                    haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = {
-                        statusViewModel.abortRebase()
-                        statusViewModel.updateCommitMessage("")
-                    },
-                    onContinue = { statusViewModel.continueRebase(commitMessage) },
-                    onSkip = { statusViewModel.skipRebase() },
-                    isAmendable = rebaseInteractiveState.isCurrentStepAmenable,
-                    isAmend = isAmendRebaseInteractive,
-                    onAmendChecked = { isAmend ->
-                        statusViewModel.amendRebaseInteractive(isAmend)
-                    }
-                )
+            repositoryState.isCherryPicking -> CherryPickingButtons(
+                haveConflictsBeenSolved = !hasUnstagedFiles,
+                onAbort = onResetRepoState,
+                onCommit = {
+                    doCommit()
+                }
+            )
 
-                repositoryState.isCherryPicking -> CherryPickingButtons(
-                    haveConflictsBeenSolved = unstaged.isEmpty(),
-                    onAbort = {
-                        statusViewModel.resetRepoState()
-                        statusViewModel.updateCommitMessage("")
-                    },
-                    onCommit = {
-                        doCommit()
-                    }
-                )
+            repositoryState.isReverting -> RevertingButtons(
+                haveConflictsBeenSolved = haveConflictsBeenSolved,
+                canCommit = commitMessage.isNotBlank(),
+                onAbort = onResetRepoState,
+                onCommit = {
+                    doCommit()
+                }
+            )
 
-                repositoryState.isReverting -> RevertingButtons(
-                    haveConflictsBeenSolved = unstaged.none { it.statusType == StatusType.CONFLICTING },
-                    canCommit = commitMessage.isNotBlank(),
-                    onAbort = {
-                        statusViewModel.resetRepoState()
-                        statusViewModel.updateCommitMessage("")
-                    },
-                    onCommit = {
-                        doCommit()
-                    }
-                )
-
-                else -> UncommittedChangesButtons(
-                    canCommit = canCommit,
-                    canAmend = canAmend,
-                    isAmend = isAmend,
-                    onAmendChecked = { isAmend ->
-                        statusViewModel.amend(isAmend)
-                    },
-                    onCommit = doCommit,
-                )
-            }
+            else -> UncommittedChangesButtons(
+                canCommit = canCommit,
+                canAmend = canAmend,
+                isAmend = isAmend,
+                onAmendChecked = onAmendChecked,
+                onCommit = doCommit,
+            )
         }
     }
+}
 
+@Composable
+fun ColumnScope.StagedView(
+    stageStateUi: StageStateUi.Loaded,
+    showSearchUnstaged: Boolean,
+    searchFilterUnstaged: TextFieldValue,
+    stagedListState: LazyListState,
+    selectedEntryType: DiffEntryType?,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onDiffEntryOptionSelected: (StatusEntry) -> Unit,
+    onDiffEntrySelected: (StatusEntry) -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
+    onBlameFile: (String) -> Unit,
+    onHistoryFile: (String) -> Unit,
+    onReset: (StatusEntry) -> Unit,
+    onDelete: (StatusEntry) -> Unit,
+    onAllAction: () -> Unit,
+    onAlternateShowAsTree: () -> Unit,
+    onTreeDirectoryClicked: (String) -> Unit,
+    onTreeDirectoryAction: (String) -> Unit,
+) {
+    val title = "Staged"
+    val actionTitle = "Untage"
+    val allActionTitle = "Unstage all"
+    val actionColor = MaterialTheme.colors.error
+    val actionTextColor = MaterialTheme.colors.onError
+    val actionIcon = AppIcons.REMOVE_DONE
+
+    this.NeutralView(
+        title = title,
+        actionTitle = actionTitle,
+        allActionTitle = allActionTitle,
+        actionColor = actionColor,
+        actionTextColor = actionTextColor,
+        actionIcon = actionIcon,
+        entryType = EntryType.STAGED,
+        stageStateUi = stageStateUi,
+        showSearchUnstaged = showSearchUnstaged,
+        searchFilterUnstaged = searchFilterUnstaged,
+        listState = stagedListState,
+        selectedEntryType = selectedEntryType,
+        onSearchFilterToggled = onSearchFilterToggled,
+        onDiffEntryOptionSelected = onDiffEntryOptionSelected,
+        onDiffEntrySelected = onDiffEntrySelected,
+        onSearchFilterChanged = onSearchFilterChanged,
+        onBlameFile = onBlameFile,
+        onHistoryFile = onHistoryFile,
+        onReset = onReset,
+        onDelete = onDelete,
+        onAllAction = onAllAction,
+        onAlternateShowAsTree = onAlternateShowAsTree,
+        onTreeDirectoryClicked = onTreeDirectoryClicked,
+        onTreeDirectoryAction = onTreeDirectoryAction,
+        onTreeEntries = { it.staged },
+        onListEntries = { it.staged },
+        onGetSelectedEntry = { if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null }
+    )
+}
+
+@Composable
+fun ColumnScope.UnstagedView(
+    stageStateUi: StageStateUi.Loaded,
+    showSearchUnstaged: Boolean,
+    searchFilterUnstaged: TextFieldValue,
+    unstagedListState: LazyListState,
+    selectedEntryType: DiffEntryType?,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onDiffEntryOptionSelected: (StatusEntry) -> Unit,
+    onDiffEntrySelected: (StatusEntry) -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
+    onBlameFile: (String) -> Unit,
+    onHistoryFile: (String) -> Unit,
+    onReset: (StatusEntry) -> Unit,
+    onDelete: (StatusEntry) -> Unit,
+    onAllAction: () -> Unit,
+    onAlternateShowAsTree: () -> Unit,
+    onTreeDirectoryClicked: (String) -> Unit,
+    onTreeDirectoryAction: (String) -> Unit,
+) {
+    val title = "Unstaged"
+    val actionTitle = "Stage"
+    val allActionTitle = "Stage all"
+    val actionColor = MaterialTheme.colors.primary
+    val actionTextColor = MaterialTheme.colors.onPrimary
+    val actionIcon = AppIcons.DONE
+
+    this.NeutralView(
+        title = title,
+        actionTitle = actionTitle,
+        allActionTitle = allActionTitle,
+        actionColor = actionColor,
+        actionTextColor = actionTextColor,
+        actionIcon = actionIcon,
+        entryType = EntryType.UNSTAGED,
+        stageStateUi = stageStateUi,
+        showSearchUnstaged = showSearchUnstaged,
+        searchFilterUnstaged = searchFilterUnstaged,
+        listState = unstagedListState,
+        selectedEntryType = selectedEntryType,
+        onSearchFilterToggled = onSearchFilterToggled,
+        onDiffEntryOptionSelected = onDiffEntryOptionSelected,
+        onDiffEntrySelected = onDiffEntrySelected,
+        onSearchFilterChanged = onSearchFilterChanged,
+        onBlameFile = onBlameFile,
+        onHistoryFile = onHistoryFile,
+        onReset = onReset,
+        onDelete = onDelete,
+        onAllAction = onAllAction,
+        onAlternateShowAsTree = onAlternateShowAsTree,
+        onTreeDirectoryClicked = onTreeDirectoryClicked,
+        onTreeDirectoryAction = onTreeDirectoryAction,
+        onTreeEntries = { it.unstaged },
+        onListEntries = { it.unstaged },
+        onGetSelectedEntry = { if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null }
+    )
+}
+
+@Composable
+fun ColumnScope.NeutralView(
+    title: String,
+    actionTitle: String,
+    allActionTitle: String,
+    actionColor: Color,
+    actionTextColor: Color,
+    actionIcon: String,
+    entryType: EntryType,
+    stageStateUi: StageStateUi.Loaded,
+    showSearchUnstaged: Boolean,
+    searchFilterUnstaged: TextFieldValue,
+    listState: LazyListState,
+    selectedEntryType: DiffEntryType?,
+    onTreeEntries: (StageStateUi.TreeLoaded) -> List<TreeItem<StatusEntry>>,
+    onListEntries: (StageStateUi.ListLoaded) -> List<StatusEntry>,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onDiffEntryOptionSelected: (StatusEntry) -> Unit,
+    onDiffEntrySelected: (StatusEntry) -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
+    onBlameFile: (String) -> Unit,
+    onHistoryFile: (String) -> Unit,
+    onReset: (StatusEntry) -> Unit,
+    onDelete: (StatusEntry) -> Unit,
+    onAllAction: () -> Unit,
+    onAlternateShowAsTree: () -> Unit,
+    onTreeDirectoryClicked: (String) -> Unit,
+    onTreeDirectoryAction: (String) -> Unit,
+    onGetSelectedEntry: () -> DiffEntryType?,
+) {
+    val modifier = Modifier
+        .weight(5f)
+        .padding(bottom = 4.dp)
+        .fillMaxWidth()
+
+    if (stageStateUi is StageStateUi.TreeLoaded) {
+        TreeEntriesList(
+            modifier = modifier,
+            title = title,
+            actionTitle = actionTitle,
+            actionColor = actionColor,
+            actionTextColor = actionTextColor,
+            actionIcon = actionIcon,
+            showSearch = showSearchUnstaged,
+            searchFilter = searchFilterUnstaged,
+            onSearchFilterToggled = onSearchFilterToggled,
+            onSearchFilterChanged = onSearchFilterChanged,
+            statusEntries = onTreeEntries(stageStateUi),
+            lazyListState = listState,
+            onDiffEntrySelected = onDiffEntrySelected,
+            onDiffEntryOptionSelected = onDiffEntryOptionSelected,
+            onGenerateContextMenu = { statusEntry ->
+                statusEntriesContextMenuItems(
+                    statusEntry = statusEntry,
+                    entryType = entryType,
+                    onBlame = { onBlameFile(statusEntry.filePath) },
+                    onHistory = { onHistoryFile(statusEntry.filePath) },
+                    onReset = { onReset(statusEntry) },
+                    onDelete = { onDelete(statusEntry) },
+                )
+            },
+            onAllAction = onAllAction,
+            onTreeDirectoryClicked = { onTreeDirectoryClicked(it.fullPath) },
+            allActionTitle = allActionTitle,
+            selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
+            onAlternateShowAsTree = onAlternateShowAsTree,
+            onGenerateDirectoryContextMenu = { dir ->
+                statusDirEntriesContextMenuItems(
+                    entryType = entryType,
+                    onStageChanges = { onTreeDirectoryAction(dir.fullPath) },
+                    onDiscardDirectoryChanges = {},
+                )
+            }
+        )
+    } else if (stageStateUi is StageStateUi.ListLoaded) {
+        EntriesList(
+            modifier = modifier,
+            title = title,
+            actionTitle = actionTitle,
+            actionColor = actionColor,
+            actionTextColor = actionTextColor,
+            actionIcon = actionIcon,
+            showSearch = showSearchUnstaged,
+            searchFilter = searchFilterUnstaged,
+            onSearchFilterToggled = onSearchFilterToggled,
+            onSearchFilterChanged = onSearchFilterChanged,
+            statusEntries = onListEntries(stageStateUi),
+            lazyListState = listState,
+            onDiffEntrySelected = onDiffEntrySelected,
+            onDiffEntryOptionSelected = onDiffEntryOptionSelected,
+            onGenerateContextMenu = { statusEntry ->
+                statusEntriesContextMenuItems(
+                    statusEntry = statusEntry,
+                    entryType = entryType,
+                    onBlame = { onBlameFile(statusEntry.filePath) },
+                    onHistory = { onHistoryFile(statusEntry.filePath) },
+                    onReset = { onReset(statusEntry) },
+                    onDelete = { onDelete(statusEntry) },
+                )
+            },
+            onAllAction = onAllAction,
+            allActionTitle = allActionTitle,
+            selectedEntryType = onGetSelectedEntry(),
+            onAlternateShowAsTree = onAlternateShowAsTree,
+        )
+    }
 }
 
 @Composable
@@ -591,21 +794,163 @@ private fun EntriesList(
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
     onAllAction: () -> Unit,
+    onAlternateShowAsTree: () -> Unit,
     allActionTitle: String,
     selectedEntryType: DiffEntryType?,
 ) {
+    Column(
+        modifier = modifier
+    ) {
+        EntriesHeader(
+            title = title,
+            actionColor = actionColor,
+            allActionTitle = allActionTitle,
+            actionTextColor = actionTextColor,
+            actionIcon = actionIcon,
+            onAllAction = onAllAction,
+            onAlternateShowAsTree = onAlternateShowAsTree,
+            searchFilter = searchFilter,
+            onSearchFilterChanged = onSearchFilterChanged,
+            onSearchFilterToggled = onSearchFilterToggled,
+            showAsTree = false,
+            showSearch = showSearch,
+        )
+
+
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background),
+            state = lazyListState,
+        ) {
+            items(statusEntries, key = { it.filePath }) { statusEntry ->
+                val isEntrySelected = selectedEntryType != null &&
+                        selectedEntryType is DiffEntryType.UncommittedDiff && // Added for smartcast
+                        selectedEntryType.statusEntry == statusEntry
+                UncommittedFileEntry(
+                    statusEntry = statusEntry,
+                    isSelected = isEntrySelected,
+                    actionTitle = actionTitle,
+                    actionColor = actionColor,
+                    showDirectory = true,
+                    onClick = {
+                        onDiffEntrySelected(statusEntry)
+                    },
+                    onButtonClick = {
+                        onDiffEntryOptionSelected(statusEntry)
+                    },
+                    onGenerateContextMenu = onGenerateContextMenu,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TreeEntriesList(
+    modifier: Modifier,
+    title: String,
+    actionTitle: String,
+    actionColor: Color,
+    actionTextColor: Color,
+    actionIcon: String,
+    showSearch: Boolean,
+    searchFilter: TextFieldValue,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
+    statusEntries: List<TreeItem<StatusEntry>>,
+    lazyListState: LazyListState,
+    onDiffEntrySelected: (StatusEntry) -> Unit,
+    onDiffEntryOptionSelected: (StatusEntry) -> Unit,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
+    onGenerateDirectoryContextMenu: (TreeItem.Dir) -> List<ContextMenuElement>,
+    onAllAction: () -> Unit,
+    onAlternateShowAsTree: () -> Unit,
+    onTreeDirectoryClicked: (TreeItem.Dir) -> Unit,
+    allActionTitle: String,
+    selectedEntryType: DiffEntryType?,
+) {
+    Column(
+        modifier = modifier
+    ) {
+        EntriesHeader(
+            title = title,
+            actionColor = actionColor,
+            allActionTitle = allActionTitle,
+            actionTextColor = actionTextColor,
+            actionIcon = actionIcon,
+            onAllAction = onAllAction,
+            onAlternateShowAsTree = onAlternateShowAsTree,
+            searchFilter = searchFilter,
+            onSearchFilterChanged = onSearchFilterChanged,
+            onSearchFilterToggled = onSearchFilterToggled,
+            showAsTree = true,
+            showSearch = showSearch,
+        )
+
+        ScrollableLazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.background),
+            state = lazyListState,
+        ) {
+            items(statusEntries, key = { it.fullPath }) { treeEntry ->
+                val isEntrySelected = treeEntry is TreeItem.File<StatusEntry> &&
+                        selectedEntryType != null &&
+                        selectedEntryType is DiffEntryType.UncommittedDiff && // Added for smartcast
+                        selectedEntryType.statusEntry == treeEntry.data
+
+                UncommittedTreeItemEntry(
+                    treeEntry,
+                    isSelected = isEntrySelected,
+                    actionTitle = actionTitle,
+                    actionColor = actionColor,
+                    onClick = {
+                        if (treeEntry is TreeItem.File<StatusEntry>) {
+                            onDiffEntrySelected(treeEntry.data)
+                        } else if (treeEntry is TreeItem.Dir) {
+                            onTreeDirectoryClicked(treeEntry)
+                        }
+                    },
+                    onButtonClick = {
+                        if (treeEntry is TreeItem.File<StatusEntry>) {
+                            onDiffEntryOptionSelected(treeEntry.data)
+                        }
+                    },
+                    onGenerateContextMenu = onGenerateContextMenu,
+                    onGenerateDirectoryContextMenu = onGenerateDirectoryContextMenu,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun EntriesHeader(
+    title: String,
+    showAsTree: Boolean,
+    showSearch: Boolean,
+    allActionTitle: String,
+    actionIcon: String,
+    actionColor: Color,
+    actionTextColor: Color,
+    onAllAction: () -> Unit,
+    onAlternateShowAsTree: () -> Unit,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    searchFilter: TextFieldValue,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
+) {
+
     val searchFocusRequester = remember { FocusRequester() }
-    val headerHoverInteraction = remember { MutableInteractionSource() }
-    val isHeaderHovered by headerHoverInteraction.collectIsHoveredAsState()
 
     /**
      * State used to prevent the text field from getting the focus when returning from another tab
      */
     var requestFocus by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier
-    ) {
+    val headerHoverInteraction = remember { MutableInteractionSource() }
+    val isHeaderHovered by headerHoverInteraction.collectIsHoveredAsState()
+    Column {
         Row(
             modifier = Modifier
                 .height(34.dp)
@@ -625,6 +970,20 @@ private fun EntriesList(
                 style = MaterialTheme.typography.body2,
                 maxLines = 1,
             )
+
+            IconButton(
+                onClick = {
+                    onAlternateShowAsTree()
+                },
+                modifier = Modifier.handOnHover()
+            ) {
+                Icon(
+                    painter = painterResource(if (showAsTree) AppIcons.LIST else AppIcons.TREE),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colors.onBackground,
+                )
+            }
 
             IconButton(
                 onClick = {
@@ -654,6 +1013,8 @@ private fun EntriesList(
             )
         }
 
+
+
         if (showSearch) {
             SearchTextField(
                 searchFilter = searchFilter,
@@ -670,123 +1031,134 @@ private fun EntriesList(
             }
         }
 
-        ScrollableLazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.background),
-            state = lazyListState,
-        ) {
-            items(statusEntries, key = { it.filePath }) { statusEntry ->
-                val isEntrySelected = selectedEntryType != null &&
-                        selectedEntryType is DiffEntryType.UncommittedDiff && // Added for smartcast
-                        selectedEntryType.statusEntry == statusEntry
-                FileEntry(
-                    statusEntry = statusEntry,
-                    isSelected = isEntrySelected,
-                    actionTitle = actionTitle,
-                    actionColor = actionColor,
-                    onClick = {
-                        onDiffEntrySelected(statusEntry)
-                    },
-                    onButtonClick = {
-                        onDiffEntryOptionSelected(statusEntry)
-                    },
-                    onGenerateContextMenu = onGenerateContextMenu,
-                )
-            }
-        }
     }
 }
 
 @Composable
-private fun FileEntry(
+private fun UncommittedFileEntry(
     statusEntry: StatusEntry,
+    isSelected: Boolean,
+    showDirectory: Boolean,
+    actionTitle: String,
+    actionColor: Color,
+    onClick: () -> Unit,
+    onButtonClick: () -> Unit,
+    depth: Int = 0,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
+) {
+    FileEntry(
+        icon = statusEntry.icon,
+        depth = depth,
+        iconColor = statusEntry.iconColor,
+        parentDirectoryPath = if (showDirectory) statusEntry.parentDirectoryPath else "",
+        fileName = statusEntry.fileName,
+        isSelected = isSelected,
+        onClick = onClick,
+        onDoubleClick = onButtonClick,
+        onGenerateContextMenu = { onGenerateContextMenu(statusEntry) },
+        trailingAction = { isHovered ->
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd),
+                visible = isHovered,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                SecondaryButton(
+                    onClick = onButtonClick,
+                    text = actionTitle,
+                    backgroundButton = actionColor,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp),
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun TreeFileEntry(
+    fileEntry: TreeItem.File<StatusEntry>,
+    isSelected: Boolean,
+    actionTitle: String,
+    actionColor: Color,
+    onClick: () -> Unit,
+    onDoubleClick: () -> Unit,
+    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
+) {
+    UncommittedFileEntry(
+        statusEntry = fileEntry.data,
+        isSelected = isSelected,
+        showDirectory = false,
+        actionTitle = actionTitle,
+        actionColor = actionColor,
+        onClick = onClick,
+        onButtonClick = onDoubleClick,
+        depth = fileEntry.depth,
+        onGenerateContextMenu = onGenerateContextMenu,
+    )
+}
+
+@Composable
+private fun UncommittedTreeItemEntry(
+    entry: TreeItem<StatusEntry>,
     isSelected: Boolean,
     actionTitle: String,
     actionColor: Color,
     onClick: () -> Unit,
     onButtonClick: () -> Unit,
     onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
+    onGenerateDirectoryContextMenu: (TreeItem.Dir) -> List<ContextMenuElement>,
 ) {
-    val hoverInteraction = remember { MutableInteractionSource() }
-    val isHovered by hoverInteraction.collectIsHoveredAsState()
+    when (entry) {
+        is TreeItem.File -> TreeFileEntry(
+            entry,
+            isSelected,
+            actionTitle,
+            actionColor,
+            onClick,
+            onButtonClick,
+            onGenerateContextMenu,
+        )
 
-    Box(
-        modifier = Modifier
-            .handMouseClickable { onClick() }
-            .onDoubleClick(onButtonClick)
-            .fillMaxWidth()
-            .hoverable(hoverInteraction)
-    ) {
-        ContextMenu(
-            items = {
-                onGenerateContextMenu(statusEntry)
-            },
-        ) {
-            Row(
-                modifier = Modifier
-                    .height(40.dp)
-                    .fillMaxWidth()
-                    .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-
-                Icon(
-                    imageVector = statusEntry.icon,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .size(16.dp),
-                    tint = statusEntry.iconColor,
-                )
-
-                if (statusEntry.parentDirectoryPath.isNotEmpty()) {
-                    Text(
-                        text = statusEntry.parentDirectoryPath.removeSuffix("/"),
-                        modifier = Modifier.weight(1f, fill = false),
-                        maxLines = 1,
-                        softWrap = false,
-                        style = MaterialTheme.typography.body2,
-                        overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colors.onBackgroundSecondary,
-                    )
-
-                    Text(
-                        text = "/",
-                        maxLines = 1,
-                        softWrap = false,
-                        style = MaterialTheme.typography.body2,
-                        overflow = TextOverflow.Visible,
-                        color = MaterialTheme.colors.onBackgroundSecondary,
-                    )
-                }
-                Text(
-                    text = statusEntry.fileName,
-                    maxLines = 1,
-                    softWrap = false,
-                    modifier = Modifier.padding(end = 16.dp),
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.onBackground,
-                )
-            }
-        }
-        AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.CenterEnd),
-            visible = isHovered,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            SecondaryButton(
-                onClick = onButtonClick,
-                text = actionTitle,
-                backgroundButton = actionColor,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp),
-            )
-        }
+        is TreeItem.Dir -> DirectoryEntry(
+            entry.displayName,
+            onClick,
+            depth = entry.depth,
+            onGenerateContextMenu = { onGenerateDirectoryContextMenu(entry) },
+        )
     }
 }
+
+//@Composable
+//private fun TreeItemEntry(
+//    entry: TreeItem<StatusEntry>,
+//    isSelected: Boolean,
+//    actionTitle: String,
+//    actionColor: Color,
+//    onClick: () -> Unit,
+//    onButtonClick: () -> Unit,
+//    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
+//    onGenerateDirectoryContextMenu: (TreeItem.Dir) -> List<ContextMenuElement>,
+//) {
+//    when (entry) {
+//        is TreeItem.File -> TreeFileEntry(
+//            entry,
+//            isSelected,
+//            actionTitle,
+//            actionColor,
+//            onClick,
+//            onButtonClick,
+//            onGenerateContextMenu,
+//        )
+//
+//        is TreeItem.Dir -> TreeDirEntry(
+//            entry,
+//            onClick,
+//            onGenerateDirectoryContextMenu,
+//        )
+//    }
+//}
 
 internal fun placeRightOrBottom(
     totalSize: Int,

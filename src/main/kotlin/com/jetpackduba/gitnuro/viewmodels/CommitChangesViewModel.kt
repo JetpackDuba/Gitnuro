@@ -10,6 +10,9 @@ import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.GetCommitDiffEntriesUseCase
+import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
+import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.diff.DiffEntry
@@ -21,6 +24,7 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 300L
 class CommitChangesViewModel @Inject constructor(
     private val tabState: TabState,
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
+    private val appSettings: AppSettings,
     tabScope: CoroutineScope,
 ) {
     private val _showSearch = MutableStateFlow(false)
@@ -33,26 +37,48 @@ class CommitChangesViewModel @Inject constructor(
         LazyListState(firstVisibleItemIndex = 0, firstVisibleItemScrollOffset = 0)
     )
 
-    val textScroll = MutableStateFlow(
-        ScrollState(0)
-    )
+    val textScroll = MutableStateFlow(ScrollState(0))
+
+    val showAsTree = appSettings.showChangesAsTreeFlow
+    private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
 
     private val _commitChangesState = MutableStateFlow<CommitChangesState>(CommitChangesState.Loading)
-    val commitChangesState: StateFlow<CommitChangesState> =
+
+    private val commitChangesFiltered =
         combine(_commitChangesState, _showSearch, _searchFilter) { state, showSearch, filter ->
-            if (state is CommitChangesState.Loaded) {
-                if (showSearch && filter.text.isNotBlank()) {
-                    state.copy(changesFiltered = state.changes.filter { it.filePath.lowercaseContains(filter.text) })
-                } else {
-                    state
-                }
+            if (state is CommitChangesState.Loaded && showSearch && filter.text.isNotBlank()) {
+                state.copy(changes = state.changes.filter { it.filePath.lowercaseContains(filter.text) })
             } else {
                 state
             }
-        }.stateIn(
+        }
+
+    val commitChangesStateUi: StateFlow<CommitChangesStateUi> = combine(
+        commitChangesFiltered,
+        showAsTree,
+        treeContractedDirectories,
+    ) { commitState, showAsTree, contractedDirs ->
+        when (commitState) {
+            CommitChangesState.Loading -> CommitChangesStateUi.Loading
+            is CommitChangesState.Loaded -> {
+                if (showAsTree) {
+                    CommitChangesStateUi.TreeLoaded(
+                        commit = commitState.commit,
+                        changes = entriesToTreeEntry(commitState.changes, contractedDirs) { it.filePath }
+                    )
+                } else {
+                    CommitChangesStateUi.ListLoaded(
+                        commit = commitState.commit,
+                        changes = commitState.changes
+                    )
+                }
+            }
+        }
+    }
+        .stateIn(
             tabScope,
             SharingStarted.Lazily,
-            CommitChangesState.Loading
+            CommitChangesStateUi.Loading
         )
 
 
@@ -92,7 +118,7 @@ class CommitChangesViewModel @Inject constructor(
                         }
                     }
 
-                    _commitChangesState.value = CommitChangesState.Loaded(commit, changes, changes)
+                    _commitChangesState.value = CommitChangesState.Loaded(commit, changes)
                 }
             }
 
@@ -106,6 +132,20 @@ class CommitChangesViewModel @Inject constructor(
         }
     }
 
+    fun alternateShowAsTree() {
+        appSettings.showChangesAsTree = !appSettings.showChangesAsTree
+    }
+
+    fun onDirectoryClicked(directoryPath: String) {
+        val contractedDirectories = treeContractedDirectories.value
+
+        if (contractedDirectories.contains(directoryPath)) {
+            treeContractedDirectories.value -= directoryPath
+        } else {
+            treeContractedDirectories.value += directoryPath
+        }
+    }
+
     fun onSearchFilterToggled(visible: Boolean) {
         _showSearch.value = visible
     }
@@ -115,9 +155,22 @@ class CommitChangesViewModel @Inject constructor(
     }
 }
 
-sealed interface CommitChangesState {
+private sealed interface CommitChangesState {
     data object Loading : CommitChangesState
-    data class Loaded(val commit: RevCommit, val changes: List<DiffEntry>, val changesFiltered: List<DiffEntry>) :
+    data class Loaded(val commit: RevCommit, val changes: List<DiffEntry>) :
         CommitChangesState
+}
+
+sealed interface CommitChangesStateUi {
+    data object Loading : CommitChangesStateUi
+
+    sealed interface Loaded : CommitChangesStateUi {
+        val commit: RevCommit
+    }
+    data class ListLoaded(override val commit: RevCommit, val changes: List<DiffEntry>) :
+        Loaded
+
+    data class TreeLoaded(override val commit: RevCommit, val changes: List<TreeItem<DiffEntry>>) :
+        Loaded
 }
 

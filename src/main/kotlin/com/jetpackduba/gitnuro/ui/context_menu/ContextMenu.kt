@@ -220,7 +220,7 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
 fun Separator() {
     Box(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .fillMaxWidth()
             .height(1.dp)
             .background(MaterialTheme.colors.onBackground.copy(alpha = 0.4f))

@@ -21,6 +21,8 @@ import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
 import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
+import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -38,6 +40,8 @@ class StatusViewModel @Inject constructor(
     private val tabState: TabState,
     private val stageEntryUseCase: StageEntryUseCase,
     private val unstageEntryUseCase: UnstageEntryUseCase,
+    private val stageByDirectoryUseCase: StageByDirectoryUseCase,
+    private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,
     private val resetEntryUseCase: DiscardEntryUseCase,
     private val stageAllUseCase: StageAllUseCase,
     private val unstageAllUseCase: UnstageAllUseCase,
@@ -55,8 +59,8 @@ class StatusViewModel @Inject constructor(
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageUseCase: GetSpecificCommitMessageUseCase,
+    private val appSettings: AppSettings,
     tabScope: CoroutineScope,
-    appSettings: AppSettings,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
@@ -73,9 +77,11 @@ class StatusViewModel @Inject constructor(
     val swapUncommittedChanges = appSettings.swapUncommittedChangesFlow
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
+    private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
+    private val showAsTree = appSettings.showChangesAsTreeFlow
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 
-    val stageState: StateFlow<StageState> = combine(
+    private val stageStateFiltered: StateFlow<StageState> = combine(
         _stageState,
         _showSearchStaged,
         _searchFilterStaged,
@@ -83,7 +89,6 @@ class StatusViewModel @Inject constructor(
         _searchFilterUnstaged,
     ) { state, showSearchStaged, filterStaged, showSearchUnstaged, filterUnstaged ->
         if (state is StageState.Loaded) {
-
             val unstaged = if (showSearchUnstaged && filterUnstaged.text.isNotBlank()) {
                 state.unstaged.filter { it.filePath.lowercaseContains(filterUnstaged.text) }
             } else {
@@ -96,31 +101,49 @@ class StatusViewModel @Inject constructor(
                 state.staged
             }.prioritizeConflicts()
 
-            state.copy(stagedFiltered = staged, unstagedFiltered = unstaged)
+            state.copy(staged = staged, unstaged = unstaged)
 
         } else {
             state
         }
-    }.stateIn(
-        tabScope,
-        SharingStarted.Lazily,
-        StageState.Loading
-    )
+    }
+        .stateIn(
+            tabScope,
+            SharingStarted.Lazily,
+            StageState.Loading
+        )
 
-    fun List<StatusEntry>.prioritizeConflicts(): List<StatusEntry> {
-        return this.groupBy { it.filePath }
-            .map {
-                val statusEntries = it.value
-                return@map if (statusEntries.count() == 1) {
-                    statusEntries.first()
+
+    val stageStateUi: StateFlow<StageStateUi> = combine(
+        stageStateFiltered,
+        showAsTree,
+        treeContractedDirectories,
+    ) { stageStateFiltered, showAsTree, contractedDirectories ->
+        when (stageStateFiltered) {
+            is StageState.Loaded -> {
+                if (showAsTree) {
+                    StageStateUi.TreeLoaded(
+                        staged = entriesToTreeEntry(stageStateFiltered.staged, contractedDirectories) { it.filePath },
+                        unstaged = entriesToTreeEntry(stageStateFiltered.unstaged, contractedDirectories) { it.filePath },
+                        isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
+                    )
                 } else {
-                    val conflictingEntry =
-                        statusEntries.firstOrNull { entry -> entry.statusType == StatusType.CONFLICTING }
-
-                    conflictingEntry ?: statusEntries.first()
+                    StageStateUi.ListLoaded(
+                        staged = stageStateFiltered.staged,
+                        unstaged = stageStateFiltered.unstaged,
+                        isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
+                    )
                 }
             }
+
+            StageState.Loading -> StageStateUi.Loading
+        }
     }
+        .stateIn(
+            tabScope,
+            SharingStarted.Lazily,
+            StageStateUi.Loading
+        )
 
     var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
 
@@ -248,15 +271,29 @@ class StatusViewModel @Inject constructor(
 
                 _stageState.value = StageState.Loaded(
                     staged = staged,
-                    stagedFiltered = staged,
                     unstaged = unstaged,
-                    unstagedFiltered = unstaged, isPartiallyReloading = false
+                    isPartiallyReloading = false,
                 )
             }
         } catch (ex: Exception) {
             _stageState.value = previousStatus
             throw ex
         }
+    }
+
+    private fun List<StatusEntry>.prioritizeConflicts(): List<StatusEntry> {
+        return this.groupBy { it.filePath }
+            .map {
+                val statusEntries = it.value
+                return@map if (statusEntries.count() == 1) {
+                    statusEntries.first()
+                } else {
+                    val conflictingEntry =
+                        statusEntries.firstOrNull { entry -> entry.statusType == StatusType.CONFLICTING }
+
+                    conflictingEntry ?: statusEntries.first()
+                }
+            }
     }
 
     private fun messageByRepoState(git: Git): String {
@@ -449,17 +486,89 @@ class StatusViewModel @Inject constructor(
     fun onSearchFilterChangedUnstaged(filter: TextFieldValue) {
         _searchFilterUnstaged.value = filter
     }
+
+    fun stagedTreeDirectoryClicked(directoryPath: String) {
+        val contractedDirectories = treeContractedDirectories.value
+
+        if (contractedDirectories.contains(directoryPath)) {
+            treeContractedDirectories.value -= directoryPath
+        } else {
+            treeContractedDirectories.value += directoryPath
+        }
+    }
+
+    fun alternateShowAsTree() {
+        appSettings.showChangesAsTree = !appSettings.showChangesAsTree
+    }
+
+    fun stageByDirectory(dir: String) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
+        showError = true,
+    ) { git ->
+        stageByDirectoryUseCase(git, dir)
+    }
+
+    fun unstageByDirectory(dir: String) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
+        showError = true,
+    ) { git ->
+        unstageByDirectoryUseCase(git, dir)
+    }
 }
 
 sealed interface StageState {
     data object Loading : StageState
     data class Loaded(
         val staged: List<StatusEntry>,
-        val stagedFiltered: List<StatusEntry>,
         val unstaged: List<StatusEntry>,
-        val unstagedFiltered: List<StatusEntry>,
-        val isPartiallyReloading: Boolean
+        val isPartiallyReloading: Boolean,
     ) : StageState
+}
+
+
+sealed interface StageStateUi {
+    val hasStagedFiles: Boolean
+    val hasUnstagedFiles: Boolean
+    val isLoading: Boolean
+    val haveConflictsBeenSolved: Boolean
+
+    data object Loading : StageStateUi {
+        override val hasStagedFiles: Boolean
+            get() = false
+        override val hasUnstagedFiles: Boolean
+            get() = false
+        override val isLoading: Boolean
+            get() = true
+        override val haveConflictsBeenSolved: Boolean
+            get() = false
+    }
+
+    sealed interface Loaded : StageStateUi
+
+    data class TreeLoaded(
+        val staged: List<TreeItem<StatusEntry>>,
+        val unstaged: List<TreeItem<StatusEntry>>,
+        val isPartiallyReloading: Boolean,
+    ) : Loaded {
+
+        override val hasStagedFiles: Boolean = staged.isNotEmpty()
+        override val hasUnstagedFiles: Boolean = unstaged.isNotEmpty()
+        override val isLoading: Boolean = isPartiallyReloading
+        override val haveConflictsBeenSolved: Boolean = unstaged.none {
+            it is TreeItem.File && it.data.statusType == StatusType.CONFLICTING
+        }
+    }
+
+    data class ListLoaded(
+        val staged: List<StatusEntry>,
+        val unstaged: List<StatusEntry>,
+        val isPartiallyReloading: Boolean,
+    ) : Loaded {
+        override val hasStagedFiles: Boolean = staged.isNotEmpty()
+        override val hasUnstagedFiles: Boolean = unstaged.isNotEmpty()
+        override val isLoading: Boolean = isPartiallyReloading
+        override val haveConflictsBeenSolved: Boolean = unstaged.none { it.statusType == StatusType.CONFLICTING }
+    }
 }
 
 data class CommitMessage(val message: String, val messageType: MessageType)
@@ -470,7 +579,7 @@ enum class MessageType {
 }
 
 sealed interface CommitterDataRequestState {
-    object None : CommitterDataRequestState
+    data object None : CommitterDataRequestState
     data class WaitingInput(val authorInfo: AuthorInfo) : CommitterDataRequestState
     data class Accepted(val authorInfo: AuthorInfo, val persist: Boolean) : CommitterDataRequestState
     object Reject : CommitterDataRequestState

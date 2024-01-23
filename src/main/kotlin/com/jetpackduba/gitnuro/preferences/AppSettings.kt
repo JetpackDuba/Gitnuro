@@ -31,6 +31,7 @@ private const val PREF_DIFF_TYPE = "diffType"
 private const val PREF_DIFF_FULL_FILE = "diffFullFile"
 private const val PREF_SWAP_UNCOMMITTED_CHANGES = "inverseUncommittedChanges"
 private const val PREF_TERMINAL_PATH = "terminalPath"
+private const val PREF_SHOW_CHANGES_AS_TREE = "showChangesAsTree"
 private const val PREF_USE_PROXY = "useProxy"
 private const val PREF_PROXY_TYPE = "proxyType"
 private const val PREF_PROXY_HOST_NAME = "proxyHostName"
@@ -50,6 +51,7 @@ private const val PREF_VERIFY_SSL = "verifySsl"
 private const val DEFAULT_COMMITS_LIMIT = 1000
 private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
 private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
+private const val DEFAULT_SHOW_CHANGES_AS_TREE = false
 private const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
 private const val DEFAULT_VERIFY_SSL = true
 const val DEFAULT_UI_SCALE = -1f
@@ -66,6 +68,9 @@ class AppSettings @Inject constructor() {
 
     private val _swapUncommittedChangesFlow = MutableStateFlow(swapUncommittedChanges)
     val swapUncommittedChangesFlow = _swapUncommittedChangesFlow.asStateFlow()
+
+    private val _showChangesAsTreeFlow = MutableStateFlow(showChangesAsTree)
+    val showChangesAsTreeFlow = _showChangesAsTreeFlow.asStateFlow()
 
     private val _cacheCredentialsInMemoryFlow = MutableStateFlow(cacheCredentialsInMemory)
     val cacheCredentialsInMemoryFlow = _cacheCredentialsInMemoryFlow.asStateFlow()
@@ -163,6 +168,15 @@ class AppSettings @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_SWAP_UNCOMMITTED_CHANGES, value)
             _swapUncommittedChangesFlow.value = value
+        }
+
+    var showChangesAsTree: Boolean
+        get() {
+            return preferences.getBoolean(PREF_SHOW_CHANGES_AS_TREE, DEFAULT_SHOW_CHANGES_AS_TREE)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_SHOW_CHANGES_AS_TREE, value)
+            _showChangesAsTreeFlow.value = value
         }
 
     var cacheCredentialsInMemory: Boolean
@@ -346,18 +360,6 @@ class AppSettings @Inject constructor() {
         if (themeJson != null) {
             _customThemeFlow.value = Json.decodeFromString<ColorsScheme>(themeJson)
         }
-    }
-
-    private fun loadProxySettings() {
-        _proxyFlow.value = ProxySettings(
-            useProxy,
-            proxyType,
-            proxyHostName,
-            proxyPortNumber,
-            proxyUseAuth,
-            proxyHostUser,
-            proxyHostPassword,
-        )
     }
 }
 
