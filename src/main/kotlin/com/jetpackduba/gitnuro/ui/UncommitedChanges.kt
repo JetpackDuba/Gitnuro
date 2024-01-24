@@ -206,6 +206,7 @@ fun UncommittedChanges(
             onAmendChecked = { statusViewModel.amend(it) },
             onContinueRebase = { statusViewModel.continueRebase(commitMessage) },
             onSkipRebase = { statusViewModel.skipRebase() },
+            onAmendRebaseInteractiveChecked = { statusViewModel.amendRebaseInteractive(it) }
         )
     }
 }
@@ -230,6 +231,7 @@ private fun CommitField(
     onContinueRebase: () -> Unit,
     onSkipRebase: () -> Unit,
     onAmendChecked: (Boolean) -> Unit,
+    onAmendRebaseInteractiveChecked: (Boolean) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -282,7 +284,7 @@ private fun CommitField(
                 onSkip = onSkipRebase,
                 isAmendable = rebaseInteractiveState.isCurrentStepAmenable,
                 isAmend = isAmendRebaseInteractive,
-                onAmendChecked = onAmendChecked,
+                onAmendChecked = onAmendRebaseInteractiveChecked,
             )
 
             repositoryState.isCherryPicking -> CherryPickingButtons(
