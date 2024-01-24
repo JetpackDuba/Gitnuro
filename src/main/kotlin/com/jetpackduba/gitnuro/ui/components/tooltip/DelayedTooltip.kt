@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.ui.components
+package com.jetpackduba.gitnuro.ui.components.tooltip
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -15,7 +15,7 @@ import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Tooltip(text: String?, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+fun DelayedTooltip(text: String?, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     TooltipArea(
         modifier = modifier,
         tooltip = {

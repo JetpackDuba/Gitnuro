@@ -46,6 +46,8 @@ import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
+import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog

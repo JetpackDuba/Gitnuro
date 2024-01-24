@@ -57,7 +57,7 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
-import com.jetpackduba.gitnuro.ui.components.Tooltip
+import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.CustomTextContextMenu
@@ -945,7 +945,7 @@ fun StateIcon(
     isToggled: Boolean,
     onClick: () -> Unit,
 ) {
-    Tooltip(tooltip) {
+    DelayedTooltip(tooltip) {
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(4.dp))

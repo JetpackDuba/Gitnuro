@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.ui.components
+package com.jetpackduba.gitnuro.ui.components.tooltip
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -6,7 +6,6 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -104,7 +103,6 @@ fun InstantTooltip(
                     modifier = Modifier.padding(8.dp)
                 )
             }
-
         }
     }
 }

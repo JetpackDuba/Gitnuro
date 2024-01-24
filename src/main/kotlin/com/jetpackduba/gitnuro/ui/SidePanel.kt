@@ -19,6 +19,7 @@ import com.jetpackduba.gitnuro.extensions.isValid
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
 import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
@@ -597,7 +598,7 @@ private fun Submodule(
             },
         ) {
             val stateName = submodule.second.type.toString()
-            Tooltip(stateName) {
+            DelayedTooltip(stateName) {
                 Text(
                     text = stateName.first().toString(),
                     color = MaterialTheme.colors.onBackgroundSecondary,

@@ -31,6 +31,8 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.onMiddleMouseButtonClick
 import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
+import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.drag_sorting.HorizontalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.horizontalDragContainer
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberHorizontalDragDropState
@@ -80,7 +82,7 @@ fun RepositoriesTabPanel(
 
     Column {
         if (canBeScrolled) {
-            Tooltip(
+            DelayedTooltip(
                 "\"Shift + Mouse wheel\" to scroll"
             ) {
                 HorizontalScrollbar(

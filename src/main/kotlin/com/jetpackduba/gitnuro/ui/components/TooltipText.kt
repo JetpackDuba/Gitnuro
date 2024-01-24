@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,7 +38,7 @@ fun TooltipText(
     style: TextStyle = LocalTextStyle.current,
     tooltipTitle: String,
 ) {
-    Tooltip(
+    DelayedTooltip(
         text = tooltipTitle,
     ) {
         Text(
