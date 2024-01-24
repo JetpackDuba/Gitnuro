@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.backgroundIf
@@ -26,6 +27,7 @@ const val ENTRY_HEIGHT = 36
 @Composable
 fun SideMenuSubentry(
     text: String,
+    fontWeight: FontWeight = FontWeight.Normal,
     iconResourcePath: String,
     isSelected: Boolean,
     extraPadding: Dp = 0.dp,
@@ -59,6 +61,7 @@ fun SideMenuSubentry(
 
         Text(
             text = text,
+            fontWeight = fontWeight,
             modifier = Modifier.weight(1f, fill = true),
             maxLines = 1,
             style = MaterialTheme.typography.body2,

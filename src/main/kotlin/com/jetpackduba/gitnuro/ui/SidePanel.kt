@@ -437,6 +437,7 @@ private fun Branch(
     ) {
         SideMenuSubentry(
             text = branch.simpleName,
+            fontWeight = if (isCurrentBranch) FontWeight.Bold else FontWeight.Normal,
             iconResourcePath = AppIcons.BRANCH,
             isSelected = isSelectedItem,
             onClick = onBranchClicked,
