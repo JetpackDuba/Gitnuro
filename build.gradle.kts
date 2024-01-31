@@ -101,7 +101,7 @@ kotlin {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.allWarningsAsErrors = true
+    kotlinOptions.allWarningsAsErrors = false
     kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
 }
 

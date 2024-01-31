@@ -39,7 +39,9 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
+import com.jetpackduba.gitnuro.git.graph.GraphCommitList2
 import com.jetpackduba.gitnuro.git.graph.GraphNode
+import com.jetpackduba.gitnuro.git.graph.GraphNode2
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -145,18 +147,18 @@ private fun LogLoaded(
         null
     }
 
-    LaunchedEffect(verticalScrollState, commitList) {
-        launch {
-            logViewModel.focusCommit.collect { commit ->
-                scrollToCommit(verticalScrollState, commitList, commit)
-            }
-        }
-        launch {
-            logViewModel.scrollToUncommittedChanges.collect {
-                scrollToUncommittedChanges(verticalScrollState, commitList)
-            }
-        }
-    }
+//    LaunchedEffect(verticalScrollState, commitList) {
+//        launch {
+//            logViewModel.focusCommit.collect { commit ->
+//                scrollToCommit(verticalScrollState, commitList, commit)
+//            }
+//        }
+//        launch {
+//            logViewModel.scrollToUncommittedChanges.collect {
+//                scrollToUncommittedChanges(verticalScrollState, commitList)
+//            }
+//        }
+//    }
 
     LogDialogs(
         logViewModel,
@@ -429,12 +431,12 @@ fun SearchFilter(
 fun CommitsList(
     scrollState: LazyListState,
     hasUncommittedChanges: Boolean,
-    searchFilter: List<GraphNode>?,
+    searchFilter: List<GraphNode2>?,
     selectedCommit: RevCommit?,
     logStatus: LogStatus.Loaded,
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
-    commitList: GraphCommitList,
+    commitList: GraphCommitList2,
     logViewModel: LogViewModel,
     commitsLimit: Int,
     onMerge: (Ref) -> Unit,
@@ -485,19 +487,19 @@ fun CommitsList(
                 graphNode = graphNode,
                 isSelected = selectedCommit?.name == graphNode.name,
                 currentBranch = logStatus.currentBranch,
-                matchesSearchFilter = searchFilter?.contains(graphNode),
+                matchesSearchFilter = false, //searchFilter?.contains(graphNode),
                 horizontalScrollState = horizontalScrollState,
                 showCreateNewBranch = { onShowLogDialog(LogDialog.NewBranch(graphNode)) },
                 showCreateNewTag = { onShowLogDialog(LogDialog.NewTag(graphNode)) },
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
                 onMergeBranch = onMerge,
                 onRebaseBranch = onRebase,
-                onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
+                onRebaseInteractive = { /*logViewModel.rebaseInteractive(graphNode)*/ },
                 onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
                 onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) },
-                onDeleteStash = { logViewModel.deleteStash(graphNode) },
-                onApplyStash = { logViewModel.applyStash(graphNode) },
-                onPopStash = { logViewModel.popStash(graphNode) },
+                onDeleteStash = { /*logViewModel.deleteStash(graphNode)*/ },
+                onApplyStash = { /*logViewModel.applyStash(graphNode)*/ },
+                onPopStash = { /*logViewModel.popStash(graphNode)*/ },
             )
         }
 
@@ -732,7 +734,7 @@ fun SummaryEntry(
 private fun CommitLine(
     graphWidth: Dp,
     logViewModel: LogViewModel,
-    graphNode: GraphNode,
+    graphNode: GraphNode2,
     isSelected: Boolean,
     currentBranch: Ref?,
     matchesSearchFilter: Boolean?,
@@ -749,7 +751,7 @@ private fun CommitLine(
     onChangeDefaultUpstreamBranch: (Ref) -> Unit,
     horizontalScrollState: ScrollState,
 ) {
-    val isLastCommitOfCurrentBranch = currentBranch?.objectId?.name == graphNode.id.name
+    val isLastCommitOfCurrentBranch = currentBranch?.objectId?.name == graphNode.name
 
     ContextMenu(
         items = {
@@ -777,7 +779,7 @@ private fun CommitLine(
             modifier = Modifier
                 .clickable { onRevCommitSelected() }
         ) {
-            val nodeColor = colors[graphNode.lane.position % colors.size]
+            val nodeColor = colors[graphNode.lane/*.position*/ % colors.size]
 
             Box {
                 Row(
@@ -843,7 +845,7 @@ private fun CommitLine(
 
 @Composable
 fun CommitMessage(
-    commit: GraphNode,
+    commit: GraphNode2,
     currentBranch: Ref?,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
@@ -869,43 +871,43 @@ fun CommitMessage(
             modifier = Modifier.padding(start = 16.dp)
         ) {
             if (!commit.isStash) {
-                commit.refs.sortedWith { ref1, ref2 ->
-                    if (ref1.isSameBranch(currentBranch)) {
-                        -1
-                    } else {
-                        ref1.name.compareTo(ref2.name)
-                    }
-                }.forEach { ref ->
-                    if (ref.isTag) {
-                        TagChip(
-                            ref = ref,
-                            color = nodeColor,
-                            onCheckoutTag = { onCheckoutRef(ref) },
-                            onDeleteTag = { onDeleteTag(ref) },
-                        )
-                    } else if (ref.isBranch) {
-                        BranchChip(
-                            ref = ref,
-                            color = nodeColor,
-                            currentBranch = currentBranch,
-                            isCurrentBranch = ref.isSameBranch(currentBranch),
-                            onCheckoutBranch = { onCheckoutRef(ref) },
-                            onMergeBranch = { onMergeBranch(ref) },
-                            onDeleteBranch = { onDeleteBranch(ref) },
-                            onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
-                            onRebaseBranch = { onRebaseBranch(ref) },
-                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
-                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
-                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
-                        )
-                    }
-                }
+//                commit.refs.sortedWith { ref1, ref2 ->
+//                    if (ref1.isSameBranch(currentBranch)) {
+//                        -1
+//                    } else {
+//                        ref1.name.compareTo(ref2.name)
+//                    }
+//                }.forEach { ref ->
+//                    if (ref.isTag) {
+//                        TagChip(
+//                            ref = ref,
+//                            color = nodeColor,
+//                            onCheckoutTag = { onCheckoutRef(ref) },
+//                            onDeleteTag = { onDeleteTag(ref) },
+//                        )
+//                    } else if (ref.isBranch) {
+//                        BranchChip(
+//                            ref = ref,
+//                            color = nodeColor,
+//                            currentBranch = currentBranch,
+//                            isCurrentBranch = ref.isSameBranch(currentBranch),
+//                            onCheckoutBranch = { onCheckoutRef(ref) },
+//                            onMergeBranch = { onMergeBranch(ref) },
+//                            onDeleteBranch = { onDeleteBranch(ref) },
+//                            onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
+//                            onRebaseBranch = { onRebaseBranch(ref) },
+//                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
+//                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
+//                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
+//                        )
+//                    }
+//                }
             }
         }
 
-        val message = remember(commit.id.name) {
+        val message = commit.message /*remember(commit.id.name) {
             commit.getShortMessageTrimmed()
-        }
+        }*/
 
         Text(
             text = message,
@@ -957,12 +959,12 @@ fun SimpleDividerLog(modifier: Modifier) {
 @Composable
 fun CommitsGraph(
     modifier: Modifier = Modifier,
-    plotCommit: GraphNode,
+    plotCommit: GraphNode2,
     nodeColor: Color,
     isSelected: Boolean,
 ) {
     val passingLanes = plotCommit.passingLanes
-    val forkingOffLanes = plotCommit.forkingOffLanes
+    val forkingOffLanes = plotCommit.forkingLanes
     val mergingLanes = plotCommit.mergingLanes
     val density = LocalDensity.current.density
     val laneWidthWithDensity = remember(density) {
@@ -976,34 +978,34 @@ fun CommitsGraph(
         contentAlignment = Alignment.CenterStart,
     ) {
 
-        val itemPosition = plotCommit.lane.position
+        val itemPosition = plotCommit.lane
 
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
             clipRect {
-                if (plotCommit.childCount > 0) {
-                    drawLine(
-                        color = colors[itemPosition % colors.size],
-                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        end = Offset(laneWidthWithDensity * (itemPosition + 1), 0f),
-                        strokeWidth = 2f,
-                    )
-                }
+//                if (plotCommit.childCount > 0) {
+//                    drawLine(
+//                        color = colors[itemPosition % colors.size],
+//                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
+//                        end = Offset(laneWidthWithDensity * (itemPosition + 1), 0f),
+//                        strokeWidth = 2f,
+//                    )
+//                }
 
                 forkingOffLanes.forEach { plotLane ->
                     drawLine(
-                        color = colors[plotLane.position % colors.size],
+                        color = colors[plotLane % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
+                        end = Offset(laneWidthWithDensity * (plotLane + 1), 0f),
                         strokeWidth = 2f,
                     )
                 }
 
                 mergingLanes.forEach { plotLane ->
                     drawLine(
-                        color = colors[plotLane.position % colors.size],
-                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        color = colors[plotLane % colors.size],
+                        start = Offset(laneWidthWithDensity * (plotLane + 1), this.size.height),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         strokeWidth = 2f,
                     )
@@ -1020,9 +1022,9 @@ fun CommitsGraph(
 
                 passingLanes.forEach { plotLane ->
                     drawLine(
-                        color = colors[plotLane.position % colors.size],
-                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
-                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        color = colors[plotLane % colors.size],
+                        start = Offset(laneWidthWithDensity * (plotLane + 1), 0f),
+                        end = Offset(laneWidthWithDensity * (plotLane + 1), this.size.height),
                         strokeWidth = 2f,
                     )
                 }
@@ -1042,7 +1044,7 @@ fun CommitsGraph(
 @Composable
 fun CommitNode(
     modifier: Modifier = Modifier,
-    plotCommit: GraphNode,
+    plotCommit: GraphNode2,
     color: Color,
 ) {
     val author = plotCommit.authorIdent

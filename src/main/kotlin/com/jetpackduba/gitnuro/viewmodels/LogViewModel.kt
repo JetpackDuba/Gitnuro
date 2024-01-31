@@ -10,7 +10,9 @@ import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.TaskEvent
 import com.jetpackduba.gitnuro.git.branches.*
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
+import com.jetpackduba.gitnuro.git.graph.GraphCommitList2
 import com.jetpackduba.gitnuro.git.graph.GraphNode
+import com.jetpackduba.gitnuro.git.graph.GraphNode2
 import com.jetpackduba.gitnuro.git.log.*
 import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
@@ -189,29 +192,29 @@ class LogViewModel @Inject constructor(
         )
     }
 
-    fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun checkoutCommit(revCommit: GraphNode2) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit checkout",
         subtitle = "Checking out commit ${revCommit.name}",
     ) { git ->
-        checkoutCommitUseCase(git, revCommit)
+//        checkoutCommitUseCase(git, revCommit)
     }
 
-    fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun revertCommit(revCommit: GraphNode2) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit revert",
         subtitle = "Reverting commit ${revCommit.name}",
         refreshEvenIfCrashes = true,
     ) { git ->
-        revertCommitUseCase(git, revCommit)
+//        revertCommitUseCase(git, revCommit)
     }
 
-    fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = tabState.safeProcessing(
+    fun resetToCommit(revCommit: GraphNode2, resetType: ResetType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch reset",
-        subtitle = "Reseting branch to commit ${revCommit.shortName}",
+//        subtitle = "Reseting branch to commit ${revCommit.shortName}",
     ) { git ->
-        resetToCommitUseCase(git, revCommit, resetType = resetType)
+//        resetToCommitUseCase(git, revCommit, resetType = resetType)
     }
 
     fun checkoutRef(ref: Ref) = tabState.safeProcessing(
@@ -222,29 +225,29 @@ class LogViewModel @Inject constructor(
         checkoutRefUseCase(git, ref)
     }
 
-    fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun cherrypickCommit(revCommit: GraphNode2) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         title = "Cherry-pick",
-        subtitle = "Cherry-picking commit ${revCommit.shortName}",
+//        subtitle = "Cherry-picking commit ${revCommit.shortName}",
     ) { git ->
-        cherryPickCommitUseCase(git, revCommit)
+//        cherryPickCommitUseCase(git, revCommit)
     }
 
-    fun createBranchOnCommit(branch: String, revCommit: RevCommit) = tabState.safeProcessing(
+    fun createBranchOnCommit(branch: String, revCommit: GraphNode2) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "New branch",
-        subtitle = "Creating new branch \"$branch\" on commit ${revCommit.shortName}",
+//        subtitle = "Creating new branch \"$branch\" on commit ${revCommit.shortName}",
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
     ) { git ->
-        createBranchOnCommitUseCase(git, branch, revCommit)
+//        createBranchOnCommitUseCase(git, branch, revCommit)
     }
 
-    fun createTagOnCommit(tag: String, revCommit: RevCommit) = tabState.safeProcessing(
+    fun createTagOnCommit(tag: String, revCommit: GraphNode2) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "New tag",
-        subtitle = "Creating new tag \"$tag\" on commit ${revCommit.shortName}",
+//        subtitle = "Creating new tag \"$tag\" on commit ${revCommit.shortName}",
     ) { git ->
-        createTagOnCommitUseCase(git, tag, revCommit)
+//        createTagOnCommitUseCase(git, tag, revCommit)
     }
 
     fun mergeBranch(ref: Ref) = tabState.safeProcessing(
@@ -331,10 +334,12 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectLogLine(commit: GraphNode) = tabState.runOperation(
+    fun selectLogLine(commit: GraphNode2) = tabState.runOperation(
         refreshType = RefreshType.NONE,
-    ) {
-        tabState.newSelectedCommit(commit)
+    ) { git ->
+        val oid = ObjectId.fromString(commit.name)
+        tabState.newSelectedCommit(git.repository.parseCommit(oid))
+        println("Commit SHA: ${commit.name}")
 
         val searchValue = _logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {
@@ -371,7 +376,7 @@ class LogViewModel @Inject constructor(
             var startingUiIndex = NONE_MATCHING_INDEX
 
             if (matchingCommits.isNotEmpty()) {
-                _focusCommit.emit(matchingCommits.first())
+                // TODO _focusCommit.emit(matchingCommits.first())
                 startingUiIndex = FIRST_INDEX
             }
 
@@ -397,7 +402,7 @@ class LogViewModel @Inject constructor(
         val newCommitToSelect = commits[newIndex - 1]
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
-        _focusCommit.emit(newCommitToSelect)
+        //TODO _focusCommit.emit(newCommitToSelect)
     }
 
     suspend fun selectNextFilterCommit() {
@@ -419,7 +424,7 @@ class LogViewModel @Inject constructor(
         val newCommitToSelect = commits[index]
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
-        _focusCommit.emit(newCommitToSelect)
+// TODO       _focusCommit.emit(newCommitToSelect)
     }
 
     fun showDialog(dialog: LogDialog) {
@@ -449,7 +454,7 @@ sealed interface LogStatus {
     data object Loading : LogStatus
     class Loaded(
         val hasUncommittedChanges: Boolean,
-        val plotCommitList: GraphCommitList,
+        val plotCommitList: GraphCommitList2,
         val currentBranch: Ref?,
         val statusSummary: StatusSummary,
         val commitsLimit: Int,
@@ -459,7 +464,7 @@ sealed interface LogStatus {
 sealed interface LogSearch {
     data object NotSearching : LogSearch
     data class SearchResults(
-        val commits: List<GraphNode>,
+        val commits: List<GraphNode2>,
         val index: Int,
         val totalCount: Int = commits.count(),
     ) : LogSearch

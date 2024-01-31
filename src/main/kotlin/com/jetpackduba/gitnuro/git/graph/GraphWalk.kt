@@ -45,13 +45,19 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         return GraphNode(id)
     }
 
+    fun createCommitFromStash(id: AnyObjectId): RevCommit {
+        return GraphNode(id).apply {
+            isStash = true
+        }
+    }
+
     override fun next(): RevCommit? {
-        val graphNode = super.next() as GraphNode?
+        val c = super.next()
+        val graphNode = c as GraphNode?
 
         if (graphNode != null) {
             val refs = getRefs(graphNode)
 
-            graphNode.isStash = refs.count() == 1 && refs.firstOrNull()?.name == "refs/stash"
             graphNode.refs = refs
         }
 
@@ -107,10 +113,23 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         }
     }
 
+    fun markStartFromStashes(stashes: List<RevObject>) {
+        for (stash in stashes) {
+            markStartRevObject(createCommitFromStash(stash))
+        }
+    }
+
     private fun markStartRef(ref: Ref) {
         try {
             val refTarget = parseAny(ref.leaf.objectId)
+            markStartRevObject(refTarget)
+        } catch (e: MissingObjectException) {
+            // Ignore missing Refs
+        }
+    }
 
+    private fun markStartRevObject(refTarget: RevObject) {
+        try {
             when (refTarget) {
                 is RevCommit -> markStart(refTarget)
                 // RevTag case handles commits without branches but only tags.
