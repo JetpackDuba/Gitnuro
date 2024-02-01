@@ -3,15 +3,12 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.extensions.shortName
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.TaskEvent
 import com.jetpackduba.gitnuro.git.branches.*
-import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList2
-import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.graph.GraphNode2
 import com.jetpackduba.gitnuro.git.log.*
 import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
@@ -150,14 +147,14 @@ class LogViewModel @Inject constructor(
         val commitsLimit = if (appSettings.commitsLimitEnabled) {
             appSettings.commitsLimit
         } else
-            Int.MAX_VALUE
+            null
 
         val commitsLimitDisplayed = if (appSettings.commitsLimitEnabled) {
             appSettings.commitsLimit
         } else
             -1
 
-        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, commitsLimit)
+        val log = getLogUseCase(git, hasUncommittedChanges, commitsLimit)
 
         _logStatus.value =
             LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary, commitsLimitDisplayed)

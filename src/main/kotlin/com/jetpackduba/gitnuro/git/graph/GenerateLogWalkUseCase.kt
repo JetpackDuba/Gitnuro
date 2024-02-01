@@ -1,15 +1,10 @@
 package com.jetpackduba.gitnuro.git.graph
 
-import com.jetpackduba.gitnuro.extensions.isTag
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.revwalk.filter.RevFilter
 import javax.inject.Inject
 
 
@@ -19,9 +14,12 @@ class GenerateLogWalkUseCase @Inject constructor() {
         firstCommit: RevCommit,
         allRefs: List<Ref>,
         stashes: List<RevCommit>,
+        hasUncommittedChanges: Boolean,
+        commitsLimit: Int?,
     ): GraphCommitList2 = withContext(Dispatchers.IO) {
         val reservedLanes = mutableMapOf<Int, String>()
         val graphNodes = mutableListOf<GraphNode2>()
+        var maxLane = 0
 
         val availableCommitsToAdd = mutableMapOf<String, RevCommit>()
 
@@ -42,21 +40,21 @@ class GenerateLogWalkUseCase @Inject constructor() {
         availableCommitsToAdd.putAll(commitsOfStashes)
 
         var currentCommit = getNextCommit(availableCommitsToAdd.values.toList())
+
+        if (hasUncommittedChanges) {
+            reservedLanes[0] = firstCommit.name
+        }
+
         availableCommitsToAdd.remove(currentCommit?.name)
 
-        while (currentCommit != null) {
+        while (currentCommit != null && (commitsLimit == null || graphNodes.count() <= commitsLimit)) {
             val lanes = getReservedLanes(reservedLanes, currentCommit.name)
             val lane = lanes.first()
             val forkingLanes = lanes - lane
             val isStash = stashes.any { it == currentCommit }
 
-            val parents = sortParentsByPriority(git, currentCommit).run {
-                if(isStash) {
-                    filterNot { it.shortMessage.startsWith("index on") }
-                } else {
-                    this
-                }
-            }
+            val parents = sortParentsByPriority(git, currentCommit)
+                .filterStashParentsIfRequired(isStash)
 
             val parentsCount = parents.count()
             val mergingLanes = mutableListOf<Int>()
@@ -72,23 +70,21 @@ class GenerateLogWalkUseCase @Inject constructor() {
                 }
             }
 
-            val currentCommitName = currentCommit.name
             val refs = refsByCommit(refsWithCommits, currentCommit)
 
-            val graphNode = GraphNode2(
-                currentCommitName,
-                currentCommit.shortMessage,
-                currentCommit.fullMessage,
-                currentCommit.authorIdent,
-                currentCommit.committerIdent,
-                currentCommit.parentCount,
+            val graphNode = createGraphNode(
+                currentCommit = currentCommit,
                 isStash = isStash,
                 lane = lane,
                 forkingLanes = forkingLanes,
-                passingLanes = reservedLanes.keys.toList() - mergingLanes.toSet() - forkingLanes.toSet(),
+                reservedLanes = reservedLanes,
                 mergingLanes = mergingLanes,
-                refs = refs,
+                refs = refs
             )
+
+            if (lane > maxLane) {
+                maxLane = lane
+            }
 
             graphNodes.add(graphNode)
             removeFromAllLanes(reservedLanes, graphNode.name)
@@ -99,8 +95,31 @@ class GenerateLogWalkUseCase @Inject constructor() {
             availableCommitsToAdd.remove(currentCommit?.name)
         }
 
-        GraphCommitList2(graphNodes)
+        GraphCommitList2(graphNodes, maxLane)
     }
+
+    private fun createGraphNode(
+        currentCommit: RevCommit,
+        isStash: Boolean,
+        lane: Int,
+        forkingLanes: List<Int>,
+        reservedLanes: MutableMap<Int, String>,
+        mergingLanes: MutableList<Int>,
+        refs: List<Ref>
+    ) = GraphNode2(
+        currentCommit.name,
+        currentCommit.shortMessage,
+        currentCommit.fullMessage,
+        currentCommit.authorIdent,
+        currentCommit.committerIdent,
+        currentCommit.parentCount,
+        isStash = isStash,
+        lane = lane,
+        forkingLanes = forkingLanes,
+        passingLanes = reservedLanes.keys.toList() - mergingLanes.toSet() - forkingLanes.toSet(),
+        mergingLanes = mergingLanes,
+        refs = refs,
+    )
 
     private fun refsByCommit(
         refsWithCommits: List<Pair<RevCommit, Ref>>,
@@ -128,47 +147,18 @@ class GenerateLogWalkUseCase @Inject constructor() {
         } else {
             parents.sortedBy { it.committerIdent.`when` }
         }
-
-//        parents.sortedWith { o1, o2 ->
-//            TODO("Not yet implemented")
-//        }
-//        val parentsWithPriority = mapOf<RevCommit, Int>()
-//
-//
-//
-//        if (currentCommit.name.startsWith("Merge")) {
-//            val originMergeParent = parents.firstOrNull {
-//                currentCommit.fullMessage.contains(it.shortMessage)
-//            }
-//
-//            if (originMergeParent != null) {
-//                (parents - currentCommit) + currentCommit // this will remove the currentItem and re-add it to the end
-//            } else
-//        }
-
     }
 
-
-    fun t(commit1: RevCommit, commit2: RevCommit, repository: Repository): RevCommit? {
-        return RevWalk(repository).use { walk ->
-            walk.setRevFilter(RevFilter.MERGE_BASE)
-            walk.markStart(commit1)
-            walk.markStart(commit2)
-
-            walk.next()
+    fun List<RevCommit>.filterStashParentsIfRequired(isStash: Boolean): List<RevCommit> {
+        return if (isStash) {
+            filterNot {
+                it.shortMessage.startsWith("index on") ||
+                        it.shortMessage.startsWith("untracked files on")
+            }
+        } else {
+            this
         }
     }
-//    fun getShortestParent(parent1: RevCommit, parent2: RevCommit) {
-//        val logParent1 = mutableListOf<String>(parent1.name)
-//        val logParent2 = mutableListOf<String>(parent2.name)
-//
-//        var newParent1: RevCommit? = parent1
-//        var newParent2: RevCommit? = parent2
-//
-//        while (newParent1 != null && newParent2 != null) {
-//            newParent1.pa
-//        }
-//    }
 
     fun getNextCommit(availableCommits: List<RevCommit>): RevCommit? {
         return availableCommits.sortedByDescending { it.committerIdent.`when` }.firstOrNull()
@@ -222,4 +212,11 @@ class GenerateLogWalkUseCase @Inject constructor() {
                 .firstOrNull() ?: (sortedKeys.max() + 1)
         }
     }
+}
+
+sealed interface ReservationType {
+    val hash: String
+
+    class ParentInSameLane(override val hash: String): ReservationType
+    class ParentInVariableLane(override val hash: String): ReservationType
 }

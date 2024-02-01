@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.log
 
-import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.graph.GraphNode2
 import org.eclipse.jgit.lib.Ref
 

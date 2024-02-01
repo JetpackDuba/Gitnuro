@@ -2,77 +2,37 @@ package com.jetpackduba.gitnuro.git.log
 
 
 import com.jetpackduba.gitnuro.git.graph.GenerateLogWalkUseCase
-import com.jetpackduba.gitnuro.git.graph.GraphCommitList
-import com.jetpackduba.gitnuro.git.graph.GraphWalk
+import com.jetpackduba.gitnuro.git.graph.GraphCommitList2
 import com.jetpackduba.gitnuro.git.stash.GetStashListUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.lib.Repository
 import javax.inject.Inject
-import kotlin.math.log
 
 class GetLogUseCase @Inject constructor(
     private val getStashListUseCase: GetStashListUseCase,
     private val generateLogWalkUseCase: GenerateLogWalkUseCase,
 ) {
-    private var graphWalkCached: GraphWalk? = null
-
-    suspend operator fun invoke(git: Git, currentBranch: Ref?, hasUncommittedChanges: Boolean, commitsLimit: Int) =
+    suspend operator fun invoke(git: Git, hasUncommittedChanges: Boolean, commitsLimit: Int?) =
         withContext(Dispatchers.IO) {
             val logList = git.log().setMaxCount(1).call().toList()
-            val allRefs = git.repository.refDatabase.refs.filterNot { it.name.startsWith(Constants.R_STASH) } // remove stash as it only returns the latest, we get all afterward
+            val firstCommit = logList.firstOrNull()
+            val allRefs =
+                git.repository.refDatabase.refs.filterNot { it.name.startsWith(Constants.R_STASH) } // remove stash as it only returns the latest, we get all afterward
             val stashes = getStashListUseCase(git)
-            return@withContext generateLogWalkUseCase(git, logList.first(), allRefs, stashes)
-//            val commitList = GraphCommitList()
-//            val repositoryState = git.repository.repositoryState
-//
-//            if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
-//                val logList = git.log().setMaxCount(1).call().toList()
-//
-//                val walk = GraphWalk(git.repository)
-//
-//                walk.use {
-//                    // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
-//                    // by the rebase)
-//                    walk.markStart(walk.lookupCommit(logList.first()))
-//
-//                    walk.markStartAllRefs(Constants.R_HEADS)
-//                    walk.markStartAllRefs(Constants.R_REMOTES)
-//                    walk.markStartAllRefs(Constants.R_TAGS)
-////                    walk.markStartAllRefs(Constants.R_STASH)
-//
 
-//
-//                    if (hasUncommittedChanges)
-//                        commitList.addUncommittedChangesGraphCommit(logList.first())
-//
-//                    commitList.source(walk)
-//                    commitList.fillTo(commitsLimit)
-//                }
-//
-//                ensureActive()
-//
-//            }
-//
-//            commitList.calcMaxLine()
-//
-//            return@withContext commitList
+            return@withContext if (firstCommit == null) {
+                GraphCommitList2(emptyList(), 0)
+            } else {
+                generateLogWalkUseCase.invoke(
+                    git,
+                    firstCommit,
+                    allRefs,
+                    stashes,
+                    hasUncommittedChanges,
+                    commitsLimit
+                )
+            }
         }
-
-    private fun cachedGraphWalk(repository: Repository): GraphWalk {
-        val graphWalkCached = this.graphWalkCached
-
-        return if (graphWalkCached != null) {
-            graphWalkCached
-        } else {
-            val newGraphWalk = GraphWalk(repository)
-            this.graphWalkCached = newGraphWalk
-
-            newGraphWalk
-        }
-    }
 }
