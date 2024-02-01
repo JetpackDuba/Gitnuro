@@ -1,13 +1,15 @@
 package com.jetpackduba.gitnuro.git.graph
 
+import com.jetpackduba.gitnuro.extensions.isTag
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Constants
+import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevWalk
 import org.eclipse.jgit.revwalk.filter.RevFilter
-import java.util.*
 import javax.inject.Inject
 
 
@@ -15,22 +17,46 @@ class GenerateLogWalkUseCase @Inject constructor() {
     suspend operator fun invoke(
         git: Git,
         firstCommit: RevCommit,
+        allRefs: List<Ref>,
+        stashes: List<RevCommit>,
     ): GraphCommitList2 = withContext(Dispatchers.IO) {
         val reservedLanes = mutableMapOf<Int, String>()
         val graphNodes = mutableListOf<GraphNode2>()
 
         val availableCommitsToAdd = mutableMapOf<String, RevCommit>()
 
-        var currentCommit: RevCommit? = firstCommit
+        val refsWithCommits = allRefs.map {
+            val commit = git.repository.parseCommit(it.objectId)
 
-        do {
-            if (currentCommit == null) continue
+            commit to it
+        }
 
+        val commitsOfRefs = refsWithCommits.map {
+            it.first.name to it.first
+        }
+
+        val commitsOfStashes = stashes.map { it.name to it }
+
+        availableCommitsToAdd[firstCommit.name] = firstCommit
+        availableCommitsToAdd.putAll(commitsOfRefs)
+        availableCommitsToAdd.putAll(commitsOfStashes)
+
+        var currentCommit = getNextCommit(availableCommitsToAdd.values.toList())
+        availableCommitsToAdd.remove(currentCommit?.name)
+
+        while (currentCommit != null) {
             val lanes = getReservedLanes(reservedLanes, currentCommit.name)
             val lane = lanes.first()
             val forkingLanes = lanes - lane
+            val isStash = stashes.any { it == currentCommit }
 
-            val parents = sortParentsByPriority(git, currentCommit)
+            val parents = sortParentsByPriority(git, currentCommit).run {
+                if(isStash) {
+                    filterNot { it.shortMessage.startsWith("index on") }
+                } else {
+                    this
+                }
+            }
 
             val parentsCount = parents.count()
             val mergingLanes = mutableListOf<Int>()
@@ -46,18 +72,22 @@ class GenerateLogWalkUseCase @Inject constructor() {
                 }
             }
 
+            val currentCommitName = currentCommit.name
+            val refs = refsByCommit(refsWithCommits, currentCommit)
+
             val graphNode = GraphNode2(
-                currentCommit.name,
+                currentCommitName,
                 currentCommit.shortMessage,
                 currentCommit.fullMessage,
                 currentCommit.authorIdent,
                 currentCommit.committerIdent,
                 currentCommit.parentCount,
-                isStash = false,
+                isStash = isStash,
                 lane = lane,
                 forkingLanes = forkingLanes,
                 passingLanes = reservedLanes.keys.toList() - mergingLanes.toSet() - forkingLanes.toSet(),
                 mergingLanes = mergingLanes,
+                refs = refs,
             )
 
             graphNodes.add(graphNode)
@@ -67,10 +97,17 @@ class GenerateLogWalkUseCase @Inject constructor() {
 
             currentCommit = getNextCommit(availableCommitsToAdd.values.toList())
             availableCommitsToAdd.remove(currentCommit?.name)
-        } while (currentCommit != null)
+        }
 
         GraphCommitList2(graphNodes)
     }
+
+    private fun refsByCommit(
+        refsWithCommits: List<Pair<RevCommit, Ref>>,
+        commit: RevCommit
+    ): List<Ref> = refsWithCommits
+        .filter { it.first == commit }
+        .map { it.second }
 
     private fun sortParentsByPriority(git: Git, currentCommit: RevCommit): List<RevCommit> {
         val parents = currentCommit
@@ -80,8 +117,7 @@ class GenerateLogWalkUseCase @Inject constructor() {
 
         return if (parents.count() <= 1) {
             parents
-        }
-        else if (parents.count() == 2) {
+        } else if (parents.count() == 2) {
             if (parents[0].parents.any { it.name == parents[1].name }) {
                 listOf(parents[1], parents[0])
             } else if (parents[1].parents.any { it.name == parents[0].name }) {

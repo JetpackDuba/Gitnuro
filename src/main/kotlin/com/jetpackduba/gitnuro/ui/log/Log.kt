@@ -871,37 +871,37 @@ fun CommitMessage(
             modifier = Modifier.padding(start = 16.dp)
         ) {
             if (!commit.isStash) {
-//                commit.refs.sortedWith { ref1, ref2 ->
-//                    if (ref1.isSameBranch(currentBranch)) {
-//                        -1
-//                    } else {
-//                        ref1.name.compareTo(ref2.name)
-//                    }
-//                }.forEach { ref ->
-//                    if (ref.isTag) {
-//                        TagChip(
-//                            ref = ref,
-//                            color = nodeColor,
-//                            onCheckoutTag = { onCheckoutRef(ref) },
-//                            onDeleteTag = { onDeleteTag(ref) },
-//                        )
-//                    } else if (ref.isBranch) {
-//                        BranchChip(
-//                            ref = ref,
-//                            color = nodeColor,
-//                            currentBranch = currentBranch,
-//                            isCurrentBranch = ref.isSameBranch(currentBranch),
-//                            onCheckoutBranch = { onCheckoutRef(ref) },
-//                            onMergeBranch = { onMergeBranch(ref) },
-//                            onDeleteBranch = { onDeleteBranch(ref) },
-//                            onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
-//                            onRebaseBranch = { onRebaseBranch(ref) },
-//                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
-//                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
-//                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
-//                        )
-//                    }
-//                }
+                commit.refs.sortedWith { ref1, ref2 ->
+                    if (ref1.isSameBranch(currentBranch)) {
+                        -1
+                    } else {
+                        ref1.name.compareTo(ref2.name)
+                    }
+                }.forEach { ref ->
+                    if (ref.isTag) {
+                        TagChip(
+                            ref = ref,
+                            color = nodeColor,
+                            onCheckoutTag = { onCheckoutRef(ref) },
+                            onDeleteTag = { onDeleteTag(ref) },
+                        )
+                    } else if (ref.isBranch) {
+                        BranchChip(
+                            ref = ref,
+                            color = nodeColor,
+                            currentBranch = currentBranch,
+                            isCurrentBranch = ref.isSameBranch(currentBranch),
+                            onCheckoutBranch = { onCheckoutRef(ref) },
+                            onMergeBranch = { onMergeBranch(ref) },
+                            onDeleteBranch = { onDeleteBranch(ref) },
+                            onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
+                            onRebaseBranch = { onRebaseBranch(ref) },
+                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
+                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
+                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
+                        )
+                    }
+                }
             }
         }
 

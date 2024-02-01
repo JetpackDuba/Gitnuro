@@ -61,7 +61,7 @@ val Ref.remoteName: String
 
 val Ref.isBranch: Boolean
     get() {
-        return this is ObjectIdRef.PeeledNonTag
+        return this.name.startsWith(Constants.R_HEADS) || this.name.startsWith(Constants.R_REMOTES)
     }
 
 val Ref.isHead: Boolean

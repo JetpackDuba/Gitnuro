@@ -24,7 +24,9 @@ class GetLogUseCase @Inject constructor(
     suspend operator fun invoke(git: Git, currentBranch: Ref?, hasUncommittedChanges: Boolean, commitsLimit: Int) =
         withContext(Dispatchers.IO) {
             val logList = git.log().setMaxCount(1).call().toList()
-            return@withContext generateLogWalkUseCase(git, logList.first())
+            val allRefs = git.repository.refDatabase.refs.filterNot { it.name.startsWith(Constants.R_STASH) } // remove stash as it only returns the latest, we get all afterward
+            val stashes = getStashListUseCase(git)
+            return@withContext generateLogWalkUseCase(git, logList.first(), allRefs, stashes)
 //            val commitList = GraphCommitList()
 //            val repositoryState = git.repository.repositoryState
 //
@@ -43,8 +45,7 @@ class GetLogUseCase @Inject constructor(
 //                    walk.markStartAllRefs(Constants.R_TAGS)
 ////                    walk.markStartAllRefs(Constants.R_STASH)
 //
-//                    val stashes = getStashListUseCase(git)
-//                    walk.markStartFromStashes(stashes)
+
 //
 //                    if (hasUncommittedChanges)
 //                        commitList.addUncommittedChangesGraphCommit(logList.first())

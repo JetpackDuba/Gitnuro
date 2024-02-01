@@ -18,4 +18,5 @@ data class GraphNode2(
     val passingLanes: List<Int>,
     val forkingLanes: List<Int>,
     val mergingLanes: List<Int>,
+    val refs: List<Ref>,
 )

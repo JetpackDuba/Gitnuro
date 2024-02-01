@@ -1124,55 +1124,12 @@ private fun UncommittedTreeItemEntry(
         )
 
         is TreeItem.Dir -> DirectoryEntry(
-            entry.displayName,
-            onClick,
+            dirName = entry.displayName,
+            isExpanded = entry.isExpanded,
+            onClick = onClick,
             depth = entry.depth,
             onGenerateContextMenu = { onGenerateDirectoryContextMenu(entry) },
         )
-    }
-}
-
-//@Composable
-//private fun TreeItemEntry(
-//    entry: TreeItem<StatusEntry>,
-//    isSelected: Boolean,
-//    actionTitle: String,
-//    actionColor: Color,
-//    onClick: () -> Unit,
-//    onButtonClick: () -> Unit,
-//    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
-//    onGenerateDirectoryContextMenu: (TreeItem.Dir) -> List<ContextMenuElement>,
-//) {
-//    when (entry) {
-//        is TreeItem.File -> TreeFileEntry(
-//            entry,
-//            isSelected,
-//            actionTitle,
-//            actionColor,
-//            onClick,
-//            onButtonClick,
-//            onGenerateContextMenu,
-//        )
-//
-//        is TreeItem.Dir -> TreeDirEntry(
-//            entry,
-//            onClick,
-//            onGenerateDirectoryContextMenu,
-//        )
-//    }
-//}
-
-internal fun placeRightOrBottom(
-    totalSize: Int,
-    size: IntArray,
-    outPosition: IntArray,
-    reverseInput: Boolean
-) {
-    val consumedSize = size.fold(0) { a, b -> a + b }
-    var current = totalSize - consumedSize
-    size.forEachIndexed(reverseInput) { index, it ->
-        outPosition[index] = current
-        current += it
     }
 }
 

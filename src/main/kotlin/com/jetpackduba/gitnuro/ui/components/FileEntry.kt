@@ -141,13 +141,14 @@ fun FileEntry(
 @Composable
 fun DirectoryEntry(
     dirName: String,
+    isExpanded: Boolean,
     onClick: () -> Unit,
     depth: Int = 0,
     onGenerateContextMenu: () -> List<ContextMenuElement>,
 ) {
 
     FileEntry(
-        icon = painterResource(AppIcons.FOLDER),
+        icon = painterResource(if (isExpanded) AppIcons.FOLDER_OPEN else AppIcons.FOLDER),
         iconColor = MaterialTheme.colors.onBackground,
         isSelected = false,
         onClick = onClick,
