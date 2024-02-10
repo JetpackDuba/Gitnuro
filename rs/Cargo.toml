@@ -8,13 +8,13 @@ crate-type = ["cdylib"]
 name = "gitnuro_rs"
 
 [dependencies]
-uniffi = { version = "0.25.0" }
-notify = "6.0.1"
-thiserror = "1.0.43"
+uniffi = { version = "0.26.0" }
+notify = "6.1.1"
+thiserror = "1.0.56"
 libssh-rs = { version = "0.2.2", features = ["vendored", "vendored-openssl"] }
 
 [build-dependencies]
-uniffi = { version = "0.25.0", features = ["build"] }
+uniffi = { version = "0.26.0", features = ["build"] }
 
 [[bin]]
 name = "uniffi-bindgen"
