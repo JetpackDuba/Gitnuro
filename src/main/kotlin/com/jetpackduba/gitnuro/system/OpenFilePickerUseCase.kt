@@ -40,7 +40,7 @@ class OpenFilePickerUseCase @Inject constructor(
 
         if (isZenityInstalled) {
             val command = when (pickerType) {
-                PickerType.FILES, PickerType.FILES_AND_DIRECTORIES -> listOf(
+                PickerType.FILES -> listOf(
                     "zenity",
                     "--file-selection",
                     "--title=Open"
@@ -70,15 +70,21 @@ class OpenFilePickerUseCase @Inject constructor(
         }
 
         if (isMac) {
-            System.setProperty("apple.awt.fileDialogForDirectories", "true")
-            val fileChooser = if (basePath.isNullOrEmpty())
+            if (pickerType == PickerType.DIRECTORIES) {
+                System.setProperty("apple.awt.fileDialogForDirectories", "true")
+            }
+
+            val fileChooser = if (basePath.isNullOrEmpty()) {
                 FileDialog(null as java.awt.Frame?, "Open", FileDialog.LOAD)
-            else
+            } else {
                 FileDialog(null as java.awt.Frame?, "Open", FileDialog.LOAD).apply {
                     directory = basePath
                 }
+            }
+
             fileChooser.isMultipleMode = false
             fileChooser.isVisible = true
+
             System.setProperty("apple.awt.fileDialogForDirectories", "false")
 
             if (fileChooser.file != null && fileChooser.directory != null) {
@@ -103,6 +109,5 @@ class OpenFilePickerUseCase @Inject constructor(
 
 enum class PickerType(val value: Int) {
     FILES(JFileChooser.FILES_ONLY),
-    DIRECTORIES(JFileChooser.DIRECTORIES_ONLY),
-    FILES_AND_DIRECTORIES(JFileChooser.FILES_AND_DIRECTORIES);
+    DIRECTORIES(JFileChooser.DIRECTORIES_ONLY);
 }
