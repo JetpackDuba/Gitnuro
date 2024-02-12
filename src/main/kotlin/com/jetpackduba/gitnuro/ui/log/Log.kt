@@ -6,6 +6,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
@@ -29,6 +30,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -45,7 +48,10 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
-import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.components.AvatarImage
+import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
+import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
@@ -74,6 +80,8 @@ private val colors = listOf(
 private const val CANVAS_MIN_WIDTH = 100
 private const val CANVAS_DEFAULT_WIDTH = 120
 private const val MIN_GRAPH_LANES = 2
+
+private const val HORIZONTAL_SCROLL_PIXELS_MULTIPLIER = 10
 
 /**
  * Additional number of lanes to simulate to create a margin at the end of the graph.
@@ -425,6 +433,7 @@ fun SearchFilter(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun CommitsList(
     scrollState: LazyListState,
@@ -443,9 +452,22 @@ fun CommitsList(
     graphWidth: Dp,
     horizontalScrollState: ScrollState,
 ) {
+    val scope = rememberCoroutineScope()
+
     ScrollableLazyColumn(
         state = scrollState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            // The underlying composable assigned to the horizontal scroll bar won't be receiving the scroll events
+            // because the commits list will consume the events, so this code tries to scroll manually when it detects
+            // horizontal scrolling
+            .onPointerEvent(PointerEventType.Scroll) { pointerEvent ->
+                scope.launch {
+                    val xScroll = pointerEvent.changes.map { it.scrollDelta.x }.sum()
+                    horizontalScrollState.scrollBy(xScroll * HORIZONTAL_SCROLL_PIXELS_MULTIPLIER)
+                }
+                println(pointerEvent)
+            },
     ) {
         if (
             hasUncommittedChanges ||
