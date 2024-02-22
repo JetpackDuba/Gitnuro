@@ -236,7 +236,7 @@ fun buildRust() {
             binary, "build", "--release", "--features=uniffi/cli",
         )
 
-        if (currentOs() == OS.LINUX) {
+        if (currentOs() == OS.LINUX && useCross) {
             if (isLinuxAarch64) {
                 params.add("--target=$linuxArmTarget")
             } else {
@@ -252,7 +252,7 @@ fun buildRust() {
 fun copyRustBuild() {
     val outputDir = "${buildDir}/classes/kotlin/main"
 
-    val workingDirPath = if (currentOs() == OS.LINUX) {
+    val workingDirPath = if (currentOs() == OS.LINUX && useCross) {
         if (isLinuxAarch64) {
             "rs/target/$linuxArmTarget/release"
         } else {

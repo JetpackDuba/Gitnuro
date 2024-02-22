@@ -466,7 +466,6 @@ fun CommitsList(
                     val xScroll = pointerEvent.changes.map { it.scrollDelta.x }.sum()
                     horizontalScrollState.scrollBy(xScroll * HORIZONTAL_SCROLL_PIXELS_MULTIPLIER)
                 }
-                println(pointerEvent)
             },
     ) {
         if (
