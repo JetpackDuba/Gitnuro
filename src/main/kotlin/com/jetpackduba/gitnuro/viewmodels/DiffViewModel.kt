@@ -1,4 +1,3 @@
-//asdasd
 package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
