@@ -23,8 +23,8 @@ val lightTheme = ColorsScheme(
     dialogOverlay = Color(0xAA000000),
     normalScrollbar = Color(0xFFCCCCCC),
     hoverScrollbar = Color(0xFF0070D8),
-    diffLineAdded = Color(0xFFd7ebd0),
-    diffLineRemoved = Color(0xFFf0d4d4),
+    diffLineAdded = Color(0xAAd7ebd0),
+    diffLineRemoved = Color(0xAAf0d4d4),
     isLight = true,
 )
 
@@ -50,8 +50,8 @@ val darkBlueTheme = ColorsScheme(
     dialogOverlay = Color(0xAA000000),
     normalScrollbar = Color(0xFF888888),
     hoverScrollbar = Color(0xFFCCCCCC),
-    diffLineAdded = Color(0xFF566f5a),
-    diffLineRemoved = Color(0xFF6f585e),
+    diffLineAdded = Color(0xAA566f5a),
+    diffLineRemoved = Color(0xAA6f585e),
     isLight = false,
 )
 
@@ -76,7 +76,7 @@ val darkGrayTheme = ColorsScheme(
     dialogOverlay = Color(0xAA000000),
     normalScrollbar = Color(0xFF888888),
     hoverScrollbar = Color(0xFFCCCCCC),
-    diffLineAdded = Color(0xFF5b7059),
-    diffLineRemoved = Color(0xFF74595c),
+    diffLineAdded = Color(0xAA5b7059),
+    diffLineRemoved = Color(0xAA74595c),
     isLight = false,
 )
