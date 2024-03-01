@@ -453,6 +453,7 @@ private fun CommitTreeItemEntry(
 
         is TreeItem.Dir -> DirectoryEntry(
             dirName = entry.displayName,
+            isExpanded = entry.isExpanded,
             onClick = { onDirectoryClick(entry) },
             depth = entry.depth,
             onGenerateContextMenu = { onGenerateDirectoryContextMenu(entry) },

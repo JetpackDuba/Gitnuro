@@ -1124,8 +1124,9 @@ private fun UncommittedTreeItemEntry(
         )
 
         is TreeItem.Dir -> DirectoryEntry(
-            entry.displayName,
-            onClick,
+            dirName = entry.displayName,
+            isExpanded = entry.isExpanded,
+            onClick = onClick,
             depth = entry.depth,
             onGenerateContextMenu = { onGenerateDirectoryContextMenu(entry) },
         )
