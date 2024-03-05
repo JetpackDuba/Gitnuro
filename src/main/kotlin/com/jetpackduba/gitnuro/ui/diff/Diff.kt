@@ -71,11 +71,18 @@ import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.jetbrains.compose.animatedimage.Blank
 import org.jetbrains.compose.animatedimage.animate
 import org.jetbrains.compose.animatedimage.loadAnimatedImage
-import org.jetbrains.compose.resources.loadOrNull
 import java.io.FileInputStream
 import kotlin.math.max
 
 private const val MAX_MOVES_COUNT = 5
+@Composable
+private fun <T> loadOrNull(key: Any, action: suspend () -> T?): T? {
+    var result: T? by remember(key) { mutableStateOf(null) }
+    LaunchedEffect(Unit) {
+        result = action()
+    }
+    return result
+}
 
 @Composable
 fun Diff(
