@@ -5,7 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -21,12 +22,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.backgroundIf
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
+import com.jetpackduba.gitnuro.ui.drag_sorting.VerticalDraggableItem
+import com.jetpackduba.gitnuro.ui.drag_sorting.rememberVerticalDragDropState
+import com.jetpackduba.gitnuro.ui.drag_sorting.verticalDragContainer
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
@@ -67,6 +72,9 @@ fun RebaseInteractive(
                     onCancel = {
                         rebaseInteractiveViewModel.cancel()
                     },
+                    onMoveCommit = { from, to ->
+                        rebaseInteractiveViewModel.moveCommit(from, to)
+                    }
                 )
             }
 
@@ -85,6 +93,7 @@ fun RebaseStateLoaded(
     selectedItem: SelectedItem,
     onFocusLine: (RebaseLine) -> Unit,
     onCancel: () -> Unit,
+    onMoveCommit: (from: Int, to: Int) -> Unit,
 ) {
     val stepsList = rebaseState.stepsList
 
@@ -100,26 +109,41 @@ fun RebaseStateLoaded(
             fontSize = 20.sp,
         )
 
+        val listState = rememberLazyListState()
+        val state = rememberVerticalDragDropState(listState) { fromIndex, toIndex ->
+            println("P0: $fromIndex\nP1: $toIndex")
+            onMoveCommit(fromIndex, toIndex)
+        }
+
         ScrollableLazyColumn(
             modifier = Modifier
                 .weight(1f)
+                .verticalDragContainer(state, onDraggedItem = {
+                    println("OnDragItem $it")
+                }),
+            state = listState,
         ) {
-            items(stepsList, key = { it.commit }) { rebaseTodoLine ->
-                RebaseCommit(
-                    rebaseLine = rebaseTodoLine,
-                    message = rebaseState.messages[rebaseTodoLine.commit.name()],
-                    isSelected = selectedItem is SelectedItem.Commit && selectedItem.revCommit.id.startsWith(
-                        rebaseTodoLine.commit
-                    ),
-                    isFirst = stepsList.first() == rebaseTodoLine,
-                    onFocusLine = { onFocusLine(rebaseTodoLine) },
-                    onActionChanged = { newAction ->
-                        rebaseInteractiveViewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
-                    },
-                    onMessageChanged = { newMessage ->
-                        rebaseInteractiveViewModel.onCommitMessageChanged(rebaseTodoLine.commit, newMessage)
-                    },
-                )
+            itemsIndexed(
+                stepsList,
+                key = { _, line -> line.commit },
+            ) { index, rebaseTodoLine ->
+                VerticalDraggableItem(state, index) {
+                    RebaseCommit(
+                        rebaseLine = rebaseTodoLine,
+                        message = rebaseState.messages[rebaseTodoLine.commit.name()],
+                        isSelected = selectedItem is SelectedItem.Commit && selectedItem.revCommit.id.startsWith(
+                            rebaseTodoLine.commit
+                        ),
+                        isFirst = stepsList.first() == rebaseTodoLine,
+                        onFocusLine = { onFocusLine(rebaseTodoLine) },
+                        onActionChanged = { newAction ->
+                            rebaseInteractiveViewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
+                        },
+                        onMessageChanged = { newMessage ->
+                            rebaseInteractiveViewModel.onCommitMessageChanged(rebaseTodoLine.commit, newMessage)
+                        },
+                    )
+                }
             }
         }
 
@@ -137,7 +161,7 @@ fun RebaseStateLoaded(
             )
             PrimaryButton(
                 modifier = Modifier.padding(end = 16.dp),
-                enabled = stepsList.any { it.rebaseAction != RebaseAction.PICK },
+                enabled = true, // TODO Moving commits may also affect stepsList.any { it.rebaseAction != RebaseAction.PICK },
                 onClick = {
                     rebaseInteractiveViewModel.continueRebaseInteractive()
                 },
@@ -184,6 +208,14 @@ fun RebaseCommit(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            painterResource(AppIcons.DRAG),
+            contentDescription = "Drag commit",
+            tint = MaterialTheme.colors.onBackground,
+            modifier = Modifier.size(24.dp)
+                .handOnHover(),
+        )
+
         ActionDropdown(
             action,
             isFirst = isFirst,

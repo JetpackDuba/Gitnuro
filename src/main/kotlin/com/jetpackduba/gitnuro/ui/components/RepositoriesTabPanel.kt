@@ -105,7 +105,7 @@ fun RepositoriesTabPanel(
                     .weight(1f, false)
                     .horizontalDragContainer(
                         dragDropState = dragDropState,
-                        onDraggedTab = {
+                        onDraggedItem = {
                             val tab = tabs.getOrNull(it)
 
                             if (tab != null) {

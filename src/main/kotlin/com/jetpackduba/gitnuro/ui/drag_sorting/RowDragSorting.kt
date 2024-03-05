@@ -10,7 +10,6 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.*
@@ -289,7 +288,7 @@ class VerticalDragDropState internal constructor(
 }
 
 @Composable
-fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onDraggedTab: (Int) -> Unit): Modifier {
+fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onDraggedItem: (Int) -> Unit): Modifier {
     val state = rememberDraggableState {
         dragDropState.onDrag(Offset(it, 0f))
     }
@@ -303,7 +302,7 @@ fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onD
             val index = dragDropState.draggingItemIndex
 
             if (index != null) {
-                onDraggedTab(index)
+                onDraggedItem(index)
             }
         },
         onDragStopped = {
@@ -313,7 +312,7 @@ fun Modifier.horizontalDragContainer(dragDropState: HorizontalDragDropState, onD
 }
 
 @Composable
-fun Modifier.verticalDragContainer(dragDropState: VerticalDragDropState): Modifier {
+fun Modifier.verticalDragContainer(dragDropState: VerticalDragDropState, onDraggedItem: (Int) -> Unit): Modifier {
     val state = rememberDraggableState {
         println("Dragging vertically $it")
         dragDropState.onDrag(Offset(0f, it))
@@ -325,6 +324,12 @@ fun Modifier.verticalDragContainer(dragDropState: VerticalDragDropState): Modifi
         startDragImmediately = false,
         onDragStarted = {
             dragDropState.onDragStart(it)
+
+            val index = dragDropState.draggingItemIndex
+
+            if (index != null) {
+                onDraggedItem(index)
+            }
         },
         onDragStopped = {
             println("On drag stopped")
@@ -335,7 +340,7 @@ fun Modifier.verticalDragContainer(dragDropState: VerticalDragDropState): Modifi
 
 @ExperimentalFoundationApi
 @Composable
-fun LazyItemScope.HorizontalDraggableItem(
+fun HorizontalDraggableItem(
     dragDropState: HorizontalDragDropState,
     index: Int,
     modifier: Modifier = Modifier,
@@ -365,14 +370,14 @@ fun LazyItemScope.HorizontalDraggableItem(
 
 @ExperimentalFoundationApi
 @Composable
-fun LazyItemScope.VerticalDraggableItem(
+fun VerticalDraggableItem(
     dragDropState: VerticalDragDropState,
     index: Int,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.(isDragging: Boolean) -> Unit
 ) {
     val dragging = index == dragDropState.draggingItemIndex
-
+//    println("Dragging=$dragging")
     val draggingModifier = if (dragging) {
         Modifier
             .zIndex(1f)

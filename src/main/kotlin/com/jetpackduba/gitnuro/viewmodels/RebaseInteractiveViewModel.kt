@@ -177,6 +177,19 @@ class RebaseInteractiveViewModel @Inject constructor(
         val fullCommit = getCommitFromRebaseLineUseCase(git, line.commit, line.shortMessage)
         tabState.newSelectedCommit(fullCommit)
     }
+
+    fun moveCommit(from: Int, to: Int) {
+        val state = _rebaseState.value
+
+        if (state is RebaseInteractiveViewState.Loaded) {
+
+            val newStepsList = state.stepsList.toMutableList().apply {
+                add(to, removeAt(from))
+            }
+
+            _rebaseState.value = state.copy(stepsList = newStepsList)
+        }
+    }
 }
 
 
