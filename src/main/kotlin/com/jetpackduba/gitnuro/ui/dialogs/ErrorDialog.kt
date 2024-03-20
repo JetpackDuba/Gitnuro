@@ -6,6 +6,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -107,6 +108,7 @@ fun ErrorDialog(
                         modifier = Modifier
                             .size(24.dp)
                             .handOnHover()
+                            .background(MaterialTheme.colors.background.copy(alpha = 0.8f))
                     ) {
                         Icon(
                             painter = painterResource(AppIcons.COPY),
