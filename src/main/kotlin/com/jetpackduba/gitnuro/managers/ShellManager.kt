@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.managers
 
+import com.jetpackduba.gitnuro.exceptions.CommandExecutionFailed
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import java.io.File
@@ -79,7 +80,12 @@ class ShellManager @Inject constructor() : IShellManager {
 
     override fun runCommandProcess(command: List<String>): Process {
         printLog(TAG, "runCommandProcess: " + command.joinToString(" "))
-        return ProcessBuilder(command).start()
+        try {
+            return ProcessBuilder(command).start()
+//            return ProcessBuilder(command).start()
+        } catch (ex: IOException) {
+            throw CommandExecutionFailed(ex.message.orEmpty(), ex)
+        }
     }
 }
 

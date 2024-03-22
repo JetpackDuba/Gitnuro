@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git
 
 import com.jetpackduba.gitnuro.di.TabScope
+import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.git.log.FindCommitUseCase
 import com.jetpackduba.gitnuro.logging.printError
@@ -143,8 +144,11 @@ class TabState @Inject constructor(
 
                 val containsCancellation = exceptionContainsCancellation(ex)
 
-                if (!containsCancellation)
-                    errorsManager.addError(newErrorNow(ex, null, ex.message.orEmpty()))
+                if (!containsCancellation) {
+                    val innerException = getInnerException(ex)
+
+                    errorsManager.addError(newErrorNow(innerException, null, innerException.message.orEmpty()))
+                }
 
                 printError(TAG, ex.message.orEmpty(), ex)
             } finally {
@@ -161,6 +165,20 @@ class TabState @Inject constructor(
         this.currentJob = job
 
         return job
+    }
+
+    private fun getInnerException(ex: Exception): Exception {
+        return if (ex is GitnuroException) {
+            ex
+        } else {
+            val cause = ex.cause
+
+            if (cause != null && cause is Exception) {
+                getInnerException(cause)
+            } else {
+                ex
+            }
+        }
     }
 
     private fun exceptionContainsCancellation(ex: Throwable?): Boolean {
