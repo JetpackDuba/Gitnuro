@@ -20,6 +20,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 private const val TIMEOUT_MIN = 1L
 private const val TAG = "HttpCredentialsProvider"
+private const val GH_CLI_ARGS = "auth git-credential"
 
 class HttpCredentialsProvider @AssistedInject constructor(
     private val credentialsStateManager: CredentialsStateManager,
@@ -132,7 +133,8 @@ class HttpCredentialsProvider @AssistedInject constructor(
         externalCredentialsHelper: ExternalCredentialsHelper,
         credentials: CredentialsAccepted.HttpCredentialsAccepted
     ) {
-        val process = shellManager.runCommandProcess(listOf(externalCredentialsHelper.path, "store"))
+        val arguments = listOf("store")
+        val process = shellManager.runCommandProcess(externalCredentialsHelper.sanitizedCommand() + arguments)
 
         val output = process.outputStream // write to the input stream of the helper
         val bufferedWriter = BufferedWriter(OutputStreamWriter(output))
@@ -164,11 +166,11 @@ class HttpCredentialsProvider @AssistedInject constructor(
     }
 
     private fun handleExternalCredentialHelper(
-        externalCredentialsHelper: ExternalCredentialsHelper,
-        uri: URIish,
-        items: Array<out CredentialItem>
+        externalCredentialsHelper: ExternalCredentialsHelper, uri: URIish, items: Array<out CredentialItem>
     ): ExternalCredentialsRequestResult {
-        val process = shellManager.runCommandProcess(listOf(externalCredentialsHelper.path, "get"))
+        // auth git-credential
+        val arguments = listOf("get")
+        val process = shellManager.runCommandProcess(externalCredentialsHelper.sanitizedCommand() + arguments)
 
         val output = process.outputStream // write to the input stream of the helper
         val input = process.inputStream // reads from the output stream of the helper
@@ -284,7 +286,22 @@ class HttpCredentialsProvider @AssistedInject constructor(
 data class ExternalCredentialsHelper(
     val path: String,
     val useHttpPath: Boolean,
-)
+) {
+    /**
+     * Sometimes the git credentials manager path also includes these arguments (detected on Linux), they should be
+     * treated as arguments instead of part of the binary path
+     */
+    fun sanitizedCommand(): List<String> {
+        return if (path.endsWith(GH_CLI_ARGS)) {
+            val path = path.removeSuffix(GH_CLI_ARGS).trim()
+            val arguments = GH_CLI_ARGS.split(" ")
+
+            listOf(path) + arguments
+        } else {
+            listOf(path)
+        }
+    }
+}
 
 enum class ExternalCredentialsRequestResult {
     SUCCESS,
