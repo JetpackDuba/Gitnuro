@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.exceptions.RebaseCancelledException
 import com.jetpackduba.gitnuro.git.RefreshType
@@ -65,6 +66,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     fun loadRebaseInteractiveData() = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
+        taskType = TaskType.REBASE_INTERACTIVE,// TODO Perhaps this should be more specific such as TaskType.LOAD_ABORT_REBASE
     ) { git ->
         val state = getRepositoryStateUseCase(git)
 
@@ -122,6 +124,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     fun continueRebaseInteractive() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.REBASE_INTERACTIVE, // TODO Perhaps be more precise with the task type
     ) { git ->
         resumeRebaseInteractiveUseCase(git, interactiveHandlerContinue)
         _rebaseState.value = RebaseInteractiveViewState.Loading
@@ -173,7 +176,10 @@ class RebaseInteractiveViewModel @Inject constructor(
         _rebaseState.value = RebaseInteractiveViewState.Loading
     }
 
-    fun selectLine(line: RebaseLine) = tabState.safeProcessing(refreshType = RefreshType.NONE) { git ->
+    fun selectLine(line: RebaseLine) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+        taskType = TaskType.ABORT_REBASE, // TODO Perhaps be more precise with the task type
+    ) { git ->
         val fullCommit = getCommitFromRebaseLineUseCase(git, line.commit, line.shortMessage)
         tabState.newSelectedCommit(fullCommit)
     }

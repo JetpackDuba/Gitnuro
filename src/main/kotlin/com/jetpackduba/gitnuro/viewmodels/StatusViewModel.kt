@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.isMerging
 import com.jetpackduba.gitnuro.extensions.isReverting
@@ -214,12 +215,14 @@ class StatusViewModel @Inject constructor(
 
     fun unstageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,
+        taskType = TaskType.UNSTAGE_ALL_FILES,
     ) { git ->
         unstageAllUseCase(git)
     }
 
     fun stageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,
+        taskType = TaskType.STAGE_ALL_FILES,
     ) { git ->
         stageAllUseCase(git)
     }
@@ -333,6 +336,7 @@ class StatusViewModel @Inject constructor(
 
     fun commit(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.DO_COMMIT,
     ) { git ->
         val amend = isAmend.value
 
@@ -386,6 +390,7 @@ class StatusViewModel @Inject constructor(
 
     fun continueRebase(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.CONTINUE_REBASE,
     ) { git ->
         val repositoryState = sharedRepositoryStateManager.repositoryState.value
         val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState.value
@@ -408,18 +413,21 @@ class StatusViewModel @Inject constructor(
 
     fun abortRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.ABORT_REBASE,
     ) { git ->
         abortRebaseUseCase(git)
     }
 
     fun skipRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.SKIP_REBASE,
     ) { git ->
         skipRebaseUseCase(git)
     }
 
     fun resetRepoState() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.RESET_REPO_STATE,
     ) { git ->
         resetRepositoryStateUseCase(git)
     }

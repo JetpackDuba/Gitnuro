@@ -206,8 +206,6 @@ fun LazyListScope.localBranches(
                 onMergeBranch = { branchesViewModel.mergeBranch(branch) },
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
-                onPushToRemoteBranch = { branchesViewModel.pushToRemoteBranch(branch) },
-                onPullFromRemoteBranch = { branchesViewModel.pullFromRemoteBranch(branch) }
             ) { onChangeDefaultUpstreamBranch(branch) }
         }
     }
@@ -304,7 +302,7 @@ fun LazyListScope.tags(
                 tag,
                 isSelected = selectedItem is SelectedItem.Ref && selectedItem.ref == tag,
                 onTagClicked = { tagsViewModel.selectTag(tag) },
-                onCheckoutTag = { tagsViewModel.checkoutRef(tag) },
+                onCheckoutTag = { tagsViewModel.checkoutTagCommit(tag) },
                 onDeleteTag = { tagsViewModel.deleteTag(tag) }
             )
         }
@@ -413,8 +411,6 @@ private fun Branch(
     onMergeBranch: () -> Unit,
     onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
-    onPushToRemoteBranch: () -> Unit,
-    onPullFromRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
 ) {
     val isCurrentBranch = currentBranch?.name == branch.name
@@ -430,8 +426,8 @@ private fun Branch(
                 onMergeBranch = onMergeBranch,
                 onDeleteBranch = onDeleteBranch,
                 onRebaseBranch = onRebaseBranch,
-                onPushToRemoteBranch = onPushToRemoteBranch,
-                onPullFromRemoteBranch = onPullFromRemoteBranch,
+                onPushToRemoteBranch = {},
+                onPullFromRemoteBranch = {},
                 onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch
             )
         }

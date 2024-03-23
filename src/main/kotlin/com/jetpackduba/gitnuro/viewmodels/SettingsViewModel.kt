@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.Logging
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.logging.printError
@@ -148,9 +149,10 @@ class SettingsViewModel @Inject constructor(
         } catch (ex: Exception) {
             ex.printStackTrace()
             newErrorNow(
-                ex,
-                "Saving theme failed",
-                "Failed to parse selected theme JSON. Please check if it's valid and try again."
+                TaskType.SAVE_CUSTOM_THEME,
+                ex, // TODO Pass a proper exception with the commented strings
+//                "Saving theme failed",
+//                "Failed to parse selected theme JSON. Please check if it's valid and try again.",
             )
         }
     }

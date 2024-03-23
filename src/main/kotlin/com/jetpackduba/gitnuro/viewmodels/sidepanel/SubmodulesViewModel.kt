@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -59,6 +60,7 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     fun initializeSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
+        taskType = TaskType.INIT_SUBMODULE,
     ) { git ->
         initializeSubmoduleUseCase(git, path)
         updateSubmoduleUseCase(git, path)
@@ -75,6 +77,7 @@ class SubmodulesViewModel @AssistedInject constructor(
     fun onDeinitializeSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
         title = "Deinitializing submodule $path",
+        taskType = TaskType.DEINIT_SUBMODULE,
     ) { git ->
         deInitializeSubmoduleUseCase(git, path)
     }
@@ -83,6 +86,7 @@ class SubmodulesViewModel @AssistedInject constructor(
         refreshType = RefreshType.SUBMODULES,
         title = "Syncing submodule $path",
         subtitle = "Please wait until synchronization has finished",
+        taskType = TaskType.SYNC_SUBMODULE,
     ) { git ->
         syncSubmoduleUseCase(git, path)
     }
@@ -91,12 +95,14 @@ class SubmodulesViewModel @AssistedInject constructor(
         refreshType = RefreshType.SUBMODULES,
         title = "Updating submodule $path",
         subtitle = "Please wait until update has finished",
+        taskType = TaskType.UPDATE_SUBMODULE,
     ) { git ->
         updateSubmoduleUseCase(git, path)
     }
 
     fun onCreateSubmodule(repository: String, directory: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.ADD_SUBMODULE,
     ) { git ->
         addSubmoduleUseCase(
             git = git,
@@ -108,6 +114,7 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     fun onDeleteSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.DELETE_SUBMODULE,
     ) { git ->
         deleteSubmoduleUseCase(git, path)
     }

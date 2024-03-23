@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.extensions.filePath
 import com.jetpackduba.gitnuro.git.DiffEntryType
@@ -78,6 +79,7 @@ class HistoryViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
         title = "History",
         subtitle = "Loading file history",
+        taskType = TaskType.HISTORY_FILE,
     ) { git ->
         this@HistoryViewModel.filePath = filePath
         _historyState.value = HistoryState.Loading(filePath)

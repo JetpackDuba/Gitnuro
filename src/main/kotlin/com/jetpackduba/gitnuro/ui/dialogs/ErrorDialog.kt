@@ -38,7 +38,7 @@ fun ErrorDialog(
         ) {
             Row {
                 Text(
-                    text = error.title ?: "Error",
+                    text = "Error", // TODO error.title ?: "Error",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colors.onBackground,
@@ -55,7 +55,7 @@ fun ErrorDialog(
             }
 
             Text(
-                text = error.message,
+                text = error.exception.message.orEmpty(), // TODO
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
                     .padding(top = 16.dp)

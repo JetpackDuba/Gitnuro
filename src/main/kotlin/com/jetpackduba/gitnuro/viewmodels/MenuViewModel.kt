@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.FetchAllBranchesUseCase
@@ -30,7 +31,8 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Pulling",
         subtitle = "Pulling changes from the remote branch to the current branch",
-        refreshEvenIfCrashes = true
+        refreshEvenIfCrashes = true,
+        taskType = TaskType.PULL,
     ) { git ->
         pullBranchUseCase(git, pullType)
     }
@@ -40,7 +42,8 @@ class MenuViewModel @Inject constructor(
         title = "Fetching",
         subtitle = "Updating references from the remote repositories...",
         isCancellable = false,
-        refreshEvenIfCrashes = true
+        refreshEvenIfCrashes = true,
+        taskType = TaskType.FETCH,
     ) { git ->
         fetchAllBranchesUseCase(git)
     }
@@ -51,12 +54,14 @@ class MenuViewModel @Inject constructor(
         subtitle = "Pushing current branch to the remote repository",
         isCancellable = false,
         refreshEvenIfCrashes = true,
+        taskType = TaskType.PUSH,
     ) { git ->
         pushBranchUseCase(git, force, pushTags)
     }
 
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
+        taskType = TaskType.STASH,
     ) { git ->
         stashChangesUseCase(git, null)
     }
@@ -64,6 +69,7 @@ class MenuViewModel @Inject constructor(
     fun popStash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
+        taskType = TaskType.POP_STASH,
     ) { git ->
         popLastStashUseCase(git)
     }

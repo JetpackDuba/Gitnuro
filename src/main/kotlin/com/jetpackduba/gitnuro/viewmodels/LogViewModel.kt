@@ -2,21 +2,18 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.shortName
-import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.TaskEvent
-import com.jetpackduba.gitnuro.git.branches.*
+import com.jetpackduba.gitnuro.git.branches.CreateBranchOnCommitUseCase
+import com.jetpackduba.gitnuro.git.branches.GetCurrentBranchUseCase
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.log.*
-import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
-import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
-import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
-import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommittedChangesUseCase
@@ -52,26 +49,25 @@ class LogViewModel @Inject constructor(
     private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
     private val checkHasUncommittedChangesUseCase: CheckHasUncommittedChangesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
-    private val checkoutRefUseCase: CheckoutRefUseCase,
     private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
-    private val deleteBranchUseCase: DeleteBranchUseCase,
-    private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
-    private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
-    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val checkoutCommitUseCase: CheckoutCommitUseCase,
     private val revertCommitUseCase: RevertCommitUseCase,
     private val resetToCommitUseCase: ResetToCommitUseCase,
     private val cherryPickCommitUseCase: CherryPickCommitUseCase,
-    private val mergeBranchUseCase: MergeBranchUseCase,
     private val createTagOnCommitUseCase: CreateTagOnCommitUseCase,
-    private val deleteTagUseCase: DeleteTagUseCase,
-    private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
     private val tabState: TabState,
     private val appSettings: AppSettings,
-    private val tabScope: CoroutineScope,
-    private val sharedStashViewModel: SharedStashViewModel,
-) : ViewModel, ISharedStashViewModel by sharedStashViewModel {
+    tabScope: CoroutineScope,
+    sharedStashViewModel: SharedStashViewModel,
+    sharedBranchesViewModel: SharedBranchesViewModel,
+    sharedRemotesViewModel: SharedRemotesViewModel,
+    sharedTagsViewModel: SharedTagsViewModel,
+) : ViewModel,
+    ISharedStashViewModel by sharedStashViewModel,
+    ISharedBranchesViewModel by sharedBranchesViewModel,
+    ISharedRemotesViewModel by sharedRemotesViewModel,
+    ISharedTagsViewModel by sharedTagsViewModel {
     private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
     val logStatus: StateFlow<LogStatus>
@@ -163,36 +159,11 @@ class LogViewModel @Inject constructor(
         _logSearchFilterResults.value = LogSearch.NotSearching
     }
 
-
-    fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Push",
-        subtitle = "Pushing current branch to ${branch.simpleName}",
-    ) { git ->
-        pushToSpecificBranchUseCase(
-            git = git,
-            force = false,
-            pushTags = false,
-            remoteBranch = branch,
-        )
-    }
-
-    fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Pull",
-        subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
-    ) { git ->
-        pullFromSpecificBranchUseCase(
-            git = git,
-            rebase = false,
-            remoteBranch = branch,
-        )
-    }
-
     fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit checkout",
         subtitle = "Checking out commit ${revCommit.name}",
+        taskType = TaskType.CHECKOUT_COMMIT,
     ) { git ->
         checkoutCommitUseCase(git, revCommit)
     }
@@ -202,6 +173,7 @@ class LogViewModel @Inject constructor(
         title = "Commit revert",
         subtitle = "Reverting commit ${revCommit.name}",
         refreshEvenIfCrashes = true,
+        taskType = TaskType.REVERT_COMMIT,
     ) { git ->
         revertCommitUseCase(git, revCommit)
     }
@@ -210,22 +182,16 @@ class LogViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch reset",
         subtitle = "Reseting branch to commit ${revCommit.shortName}",
+        taskType = TaskType.RESET_TO_COMMIT,
     ) { git ->
         resetToCommitUseCase(git, revCommit, resetType = resetType)
-    }
-
-    fun checkoutRef(ref: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Branch checkout",
-        subtitle = "Checking out branch ${ref.simpleName}",
-    ) { git ->
-        checkoutRefUseCase(git, ref)
     }
 
     fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         title = "Cherry-pick",
         subtitle = "Cherry-picking commit ${revCommit.shortName}",
+        taskType = TaskType.CHERRY_PICK_COMMIT,
     ) { git ->
         cherryPickCommitUseCase(git, revCommit)
     }
@@ -235,6 +201,7 @@ class LogViewModel @Inject constructor(
         title = "New branch",
         subtitle = "Creating new branch \"$branch\" on commit ${revCommit.shortName}",
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
+        taskType = TaskType.CREATE_BRANCH,
     ) { git ->
         createBranchOnCommitUseCase(git, branch, revCommit)
     }
@@ -243,32 +210,9 @@ class LogViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "New tag",
         subtitle = "Creating new tag \"$tag\" on commit ${revCommit.shortName}",
+        taskType = TaskType.CREATE_TAG,
     ) { git ->
         createTagOnCommitUseCase(git, tag, revCommit)
-    }
-
-    fun mergeBranch(ref: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Branch merge",
-        subtitle = "Merging branch ${ref.simpleName}",
-    ) { git ->
-        mergeBranchUseCase(git, ref, appSettings.ffMerge)
-    }
-
-    fun deleteBranch(branch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Branch delete",
-        subtitle = "Deleting branch ${branch.simpleName}",
-    ) { git ->
-        deleteBranchUseCase(git, branch)
-    }
-
-    fun deleteTag(tag: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Tag delete",
-        subtitle = "Deleting tag ${tag.simpleName}",
-    ) { git ->
-        deleteTagUseCase(git, tag)
     }
 
     private suspend fun uncommittedChangesLoadLog(git: Git) {
@@ -299,14 +243,6 @@ class LogViewModel @Inject constructor(
 
     suspend fun refresh(git: Git) {
         loadLog(git)
-    }
-
-    fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Branch rebase",
-        subtitle = "Rebasing branch ${ref.simpleName}",
-    ) { git ->
-        rebaseBranchUseCase(git, ref)
     }
 
     fun selectUncommittedChanges() = tabState.runOperation(
@@ -432,16 +368,9 @@ class LogViewModel @Inject constructor(
 
     fun rebaseInteractive(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.REBASE_INTERACTIVE_STATE,
+        taskType = TaskType.REBASE_INTERACTIVE,
     ) { git ->
         startRebaseInteractiveUseCase(git, revCommit)
-    }
-
-    fun deleteRemoteBranch(branch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Deleting remote branch",
-        subtitle = "Remote branch ${branch.simpleName} will be deleted from the remote",
-    ) { git ->
-        deleteRemoteBranchUseCase(git, branch)
     }
 }
 

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.git
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
@@ -17,11 +18,6 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 private const val TAG = "TabState"
-
-interface ProcessingInfo {
-    fun changeSubtitle(newSubtitle: String)
-    fun changeIsCancellable(newIsCancellable: Boolean)
-}
 
 sealed interface ProcessingState {
     data object None : ProcessingState
@@ -80,46 +76,18 @@ class TabState @Inject constructor(
         //  migrate the code that uses this function
         title: String = "",
         subtitle: String = "",
+        taskType: TaskType,
         // TODO For now have it always as false because the data refresh is cancelled even when the git process couldn't be cancelled
         isCancellable: Boolean = false,
         refreshEvenIfCrashes: Boolean = false,
         refreshEvenIfCrashesInteractive: ((Exception) -> Boolean)? = null,
-        callback: suspend ProcessingInfo.(git: Git) -> Unit
+        callback: suspend (git: Git) -> Unit
     ): Job {
         val job = scope.launch(Dispatchers.IO) {
             var hasProcessFailed = false
             var refreshEvenIfCrashesInteractiveResult = false
             operationRunning = true
 
-            val processingInfo: ProcessingInfo = object : ProcessingInfo {
-                override fun changeSubtitle(newSubtitle: String) {
-                    _processing.update { processingState ->
-                        if (processingState is ProcessingState.Processing) {
-                            processingState.copy(subtitle = newSubtitle)
-                        } else {
-                            ProcessingState.Processing(
-                                title = title,
-                                isCancellable = isCancellable,
-                                subtitle = newSubtitle
-                            )
-                        }
-                    }
-                }
-
-                override fun changeIsCancellable(newIsCancellable: Boolean) {
-                    _processing.update { processingState ->
-                        if (processingState is ProcessingState.Processing) {
-                            processingState.copy(isCancellable = newIsCancellable)
-                        } else {
-                            ProcessingState.Processing(
-                                title = title,
-                                isCancellable = newIsCancellable,
-                                subtitle = subtitle
-                            )
-                        }
-                    }
-                }
-            }
 
             try {
                 delayedStateChange(
@@ -134,7 +102,7 @@ class TabState @Inject constructor(
                         }
                     }
                 ) {
-                    processingInfo.callback(git)
+                    callback(git)
                 }
             } catch (ex: Exception) {
                 hasProcessFailed = true
@@ -147,7 +115,7 @@ class TabState @Inject constructor(
                 if (!containsCancellation) {
                     val innerException = getInnerException(ex)
 
-                    errorsManager.addError(newErrorNow(innerException, null, innerException.message.orEmpty()))
+                    errorsManager.addError(newErrorNow(taskType, innerException))
                 }
 
                 printError(TAG, ex.message.orEmpty(), ex)
@@ -210,7 +178,11 @@ class TabState @Inject constructor(
                 val containsCancellation = exceptionContainsCancellation(ex)
 
                 if (!containsCancellation)
-                    errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
+                    errorsManager.addError(
+                        newErrorNow(
+                            taskType = TaskType.UNSPECIFIED, ex
+                        )
+                    )
 
                 printError(TAG, ex.message.orEmpty(), ex)
             } finally {
@@ -242,7 +214,11 @@ class TabState @Inject constructor(
             hasProcessFailed = true
 
             if (showError)
-                errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
+                errorsManager.addError(
+                    newErrorNow(
+                        taskType = TaskType.UNSPECIFIED, ex
+                    )
+                )
 
             printError(TAG, ex.message.orEmpty(), ex)
         } finally {
@@ -317,7 +293,11 @@ class TabState @Inject constructor(
                     callback(it)
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                    errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
+                    errorsManager.addError(
+                        newErrorNow(
+                            taskType = TaskType.UNSPECIFIED, ex
+                        )
+                    )
                 }
             }
     }

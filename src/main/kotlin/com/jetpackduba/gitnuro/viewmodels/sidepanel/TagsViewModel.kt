@@ -1,12 +1,15 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
+import com.jetpackduba.gitnuro.git.log.CheckoutCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.tags.GetTagsUseCase
+import com.jetpackduba.gitnuro.viewmodels.ISharedTagsViewModel
+import com.jetpackduba.gitnuro.viewmodels.SharedTagsViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -20,12 +23,12 @@ import org.eclipse.jgit.lib.Ref
 class TagsViewModel @AssistedInject constructor(
     private val tabState: TabState,
     private val getTagsUseCase: GetTagsUseCase,
-    private val deleteTagUseCase: DeleteTagUseCase,
-    private val checkoutRefUseCase: CheckoutRefUseCase,
-    private val tabScope: CoroutineScope,
+    private val checkoutCommitUseCase: CheckoutCommitUseCase,
+    tabScope: CoroutineScope,
+    sharedTagsViewModel: SharedTagsViewModel,
     @Assisted
     private val filter: StateFlow<String>
-) : SidePanelChildViewModel(false) {
+) : SidePanelChildViewModel(false), ISharedTagsViewModel by sharedTagsViewModel {
     private val tags = MutableStateFlow<List<Ref>>(listOf())
 
     val tagsState: StateFlow<TagsState> = combine(tags, isExpanded, filter) { tags, isExpanded, filter ->
@@ -54,16 +57,11 @@ class TagsViewModel @AssistedInject constructor(
         tags.value = tagsList
     }
 
-    fun checkoutRef(ref: Ref) = tabState.safeProcessing(
+    fun checkoutTagCommit(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.INIT_SUBMODULE,
     ) { git ->
-        checkoutRefUseCase(git, ref)
-    }
-
-    fun deleteTag(tag: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-    ) { git ->
-        deleteTagUseCase(git, tag)
+        checkoutCommitUseCase(git, ref.objectId.name)
     }
 
     fun selectTag(tag: Ref) {

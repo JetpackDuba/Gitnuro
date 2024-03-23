@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
@@ -179,7 +180,13 @@ class TabViewModel @Inject constructor(
         } catch (ex: Exception) {
             onRepositoryChanged(null)
             ex.printStackTrace()
-            errorsManager.addError(newErrorNow(ex, null, ex.localizedMessage))
+
+            errorsManager.addError(
+                newErrorNow(
+                    taskType = TaskType.REPOSITORY_OPEN,
+                    exception = ex
+                )
+            )
             _repositorySelectionStatus.value = RepositorySelectionStatus.None
         }
     }
@@ -259,8 +266,9 @@ class TabViewModel @Inject constructor(
                 errorsManager.addError(
                     newErrorNow(
                         exception = ex,
-                        title = "Repository changes detection has stopped working",
-                        message = message,
+                        taskType = TaskType.CHANGES_DETECTION,
+//                        title = "Repository changes detection has stopped working",
+//                        message = message,
                     ),
                 )
             }
@@ -342,6 +350,7 @@ class TabViewModel @Inject constructor(
 
     fun blameFile(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
+        taskType = TaskType.BLAME_FILE,
     ) { git ->
         _blameState.value = BlameState.Loading(filePath)
         try {
@@ -405,12 +414,14 @@ class TabViewModel @Inject constructor(
     fun createBranch(branchName: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
+        taskType = TaskType.CREATE_BRANCH,
     ) { git ->
         createBranchUseCase(git, branchName)
     }
 
     fun stashWithMessage(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
+        taskType = TaskType.STASH,
     ) { git ->
         stageUntrackedFileUseCase(git)
         stashChangesUseCase(git, message)

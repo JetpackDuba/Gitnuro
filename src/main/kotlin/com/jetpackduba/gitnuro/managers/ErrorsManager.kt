@@ -1,6 +1,8 @@
 package com.jetpackduba.gitnuro.managers
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.TabScope
+import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,21 +37,20 @@ class ErrorsManager @Inject constructor() {
 
 
 data class Error(
+    val taskType: TaskType,
     val date: Long,
     val exception: Exception,
-    val title: String?,
-    val message: String
+    val isUnhandled: Boolean,
 )
 
 fun newErrorNow(
+    taskType: TaskType,
     exception: Exception,
-    title: String?,
-    message: String,
 ): Error {
     return Error(
+        taskType = taskType,
         date = System.currentTimeMillis(),
         exception = exception,
-        title = title,
-        message = message
+        isUnhandled = exception !is GitnuroException
     )
 }

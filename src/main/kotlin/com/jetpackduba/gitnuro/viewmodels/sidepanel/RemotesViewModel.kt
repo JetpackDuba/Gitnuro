@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.exceptions.InvalidRemoteUrlException
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.extensions.simpleName
@@ -14,6 +15,8 @@ import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCa
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.ui.dialogs.RemoteWrapper
+import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
+import com.jetpackduba.gitnuro.viewmodels.SharedRemotesViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +30,6 @@ import org.eclipse.jgit.lib.Ref
 
 class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabState,
-    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
     private val getRemotesUseCase: GetRemotesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
@@ -35,13 +37,11 @@ class RemotesViewModel @AssistedInject constructor(
     private val addRemoteUseCase: AddRemoteUseCase,
     private val updateRemoteUseCase: UpdateRemoteUseCase,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
-    private val checkoutRefUseCase: CheckoutRefUseCase,
-    private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
-    private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
-    private val tabScope: CoroutineScope,
+    tabScope: CoroutineScope,
+    sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
     private val filter: StateFlow<String>
-) : SidePanelChildViewModel(false) {
+) : SidePanelChildViewModel(false), ISharedRemotesViewModel by sharedRemotesViewModel {
     private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
     private val currentBranch = MutableStateFlow<Ref?>(null)
 
@@ -92,14 +92,6 @@ class RemotesViewModel @AssistedInject constructor(
         this@RemotesViewModel.currentBranch.value = currentBranch
     }
 
-    fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Deleting remote branch",
-        subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
-    ) { git ->
-        deleteRemoteBranchUseCase(git, ref)
-    }
-
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
         loadRemotes(git)
     }
@@ -125,6 +117,7 @@ class RemotesViewModel @AssistedInject constructor(
 
     fun deleteRemote(remoteName: String, isNew: Boolean) = tabState.safeProcessing(
         refreshType = if (isNew) RefreshType.REMOTES else RefreshType.ALL_DATA,
+        taskType = TaskType.DELETE_REMOTE,
     ) { git ->
         deleteRemoteUseCase(git, remoteName)
 
@@ -181,34 +174,6 @@ class RemotesViewModel @AssistedInject constructor(
             remoteName = selectedRemoteConfig.remoteName,
             uri = selectedRemoteConfig.pushUri,
             uriType = RemoteSetUrlCommand.UriType.PUSH
-        )
-    }
-
-    fun checkoutRemoteBranch(remoteBranch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-    ) { git ->
-        checkoutRefUseCase(git, remoteBranch)
-    }
-
-
-    fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-    ) { git ->
-        pushToSpecificBranchUseCase(
-            git = git,
-            force = false,
-            pushTags = false,
-            remoteBranch = branch,
-        )
-    }
-
-    fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-    ) { git ->
-        pullFromSpecificBranchUseCase(
-            git = git,
-            rebase = false,
-            remoteBranch = branch,
         )
     }
 }

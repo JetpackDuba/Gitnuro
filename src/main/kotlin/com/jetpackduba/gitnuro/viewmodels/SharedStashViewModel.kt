@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.stash.ApplyStashUseCase
@@ -27,6 +28,7 @@ class SharedStashViewModel @Inject constructor(
     override fun applyStash(stashInfo: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
+        taskType = TaskType.APPLY_STASH,
     ) { git ->
         applyStashUseCase(git, stashInfo)
     }
@@ -34,6 +36,7 @@ class SharedStashViewModel @Inject constructor(
     override fun popStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
+        taskType = TaskType.POP_STASH,
     ) { git ->
         popStashUseCase(git, stash)
 
@@ -42,6 +45,7 @@ class SharedStashViewModel @Inject constructor(
 
     override fun deleteStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.STASHES,
+        taskType = TaskType.DELETE_STASH,
     ) { git ->
         deleteStashUseCase(git, stash)
 

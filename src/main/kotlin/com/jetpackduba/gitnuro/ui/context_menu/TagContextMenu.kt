@@ -9,7 +9,7 @@ fun tagContextMenuItems(
 ): List<ContextMenuElement> {
     return mutableListOf(
         ContextMenuElement.ContextTextEntry(
-            label = "Checkout tag",
+            label = "Checkout tag's commit",
             icon = { painterResource(AppIcons.START) },
             onClick = onCheckoutTag
         ),

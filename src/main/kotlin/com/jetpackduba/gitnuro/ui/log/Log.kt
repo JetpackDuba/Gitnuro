@@ -846,7 +846,13 @@ private fun CommitLine(
                         nodeColor = nodeColor,
                         matchesSearchFilter = matchesSearchFilter,
                         currentBranch = currentBranch,
-                        onCheckoutRef = { ref -> logViewModel.checkoutRef(ref) },
+                        onCheckoutRef = { ref ->
+                            if (ref.isRemote && ref.isBranch) {
+                                logViewModel.checkoutRemoteBranch(ref)
+                            } else {
+                                logViewModel.checkoutRef(ref)
+                            }
+                        },
                         onMergeBranch = { ref -> onMergeBranch(ref) },
                         onDeleteBranch = { ref -> logViewModel.deleteBranch(ref) },
                         onDeleteRemoteBranch = { ref -> logViewModel.deleteRemoteBranch(ref) },
