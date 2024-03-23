@@ -52,6 +52,7 @@ val settings = listOf(
 
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(AppIcons.TERMINAL, "Terminal") { Terminal(it) },
+    SettingsEntry.Entry(AppIcons.INFO, "Logs") { Logs(it) },
 )
 
 @Composable
@@ -380,6 +381,18 @@ fun Terminal(settingsViewModel: SettingsViewModel) {
         onValueChanged = { value ->
             commitsLimit = value
             settingsViewModel.terminalPath = value
+        }
+    )
+}
+
+@Composable
+fun Logs(settingsViewModel: SettingsViewModel) {
+    SettingButton(
+        title = "Logs",
+        subtitle = "View the logs folder",
+        buttonText = "Open folder",
+        onClick = {
+            settingsViewModel.openLogsFolderInFileExplorer()
         }
     )
 }

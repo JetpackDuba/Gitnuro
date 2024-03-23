@@ -1,6 +1,9 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.Logging
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
+import com.jetpackduba.gitnuro.git.RefreshType
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.preferences.AppSettings
@@ -10,13 +13,17 @@ import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.awt.Desktop
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private const val TAG = "SettingsViewModel"
 
 @Singleton
 class SettingsViewModel @Inject constructor(
     private val appSettings: AppSettings,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val logging: Logging,
     @AppCoroutineScope private val appScope: CoroutineScope,
 ) {
     // Temporary values to detect changed variables
@@ -162,5 +169,14 @@ class SettingsViewModel @Inject constructor(
 
     fun openFileDialog(): String? {
         return openFilePickerUseCase(PickerType.FILES, null)
+    }
+
+    fun openLogsFolderInFileExplorer() {
+        try {
+            Desktop.getDesktop().open(logging.logsDirectory)
+        } catch (ex: Exception) {
+            printError(TAG, ex.message.orEmpty(), ex)
+        }
+
     }
 }

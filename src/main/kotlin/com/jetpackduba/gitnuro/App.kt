@@ -75,6 +75,9 @@ class App {
     @Inject
     lateinit var tempFilesManager: TempFilesManager
 
+    @Inject
+    lateinit var logging: Logging
+
     init {
         appComponent.inject(this)
     }
@@ -83,6 +86,7 @@ class App {
     fun start(args: Array<String>) {
         tabsManager.appComponent = this.appComponent
 
+        logging.initLogging()
         initProxySettings()
 
         val windowPlacement = appSettings.windowPlacement.toWindowPlacement
