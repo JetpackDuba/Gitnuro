@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.ui.dialogs
+package com.jetpackduba.gitnuro.ui.dialogs.errors
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -6,7 +6,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
@@ -20,7 +19,7 @@ import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
-import kotlinx.coroutines.delay
+import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 
 @Composable
 fun ErrorDialog(
@@ -38,7 +37,7 @@ fun ErrorDialog(
         ) {
             Row {
                 Text(
-                    text = "Error", // TODO error.title ?: "Error",
+                    text = error.errorTitle(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colors.onBackground,

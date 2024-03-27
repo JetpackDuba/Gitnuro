@@ -20,6 +20,7 @@ import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.git.ProcessingState
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.*
+import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel

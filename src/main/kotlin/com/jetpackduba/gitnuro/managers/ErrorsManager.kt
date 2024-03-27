@@ -41,7 +41,68 @@ data class Error(
     val date: Long,
     val exception: Exception,
     val isUnhandled: Boolean,
-)
+) {
+    fun errorTitle(): String {
+        return when (taskType) {
+            TaskType.UNSPECIFIED -> "Error"
+            TaskType.STAGE_ALL_FILES -> "Staging all the files failed"
+            TaskType.UNSTAGE_ALL_FILES -> "Unstaging all the files failed"
+            TaskType.STAGE_FILE -> "File stage failed"
+            TaskType.UNSTAGE_FILE -> "File unstage failed"
+            TaskType.STAGE_HUNK -> "File stage failed"
+            TaskType.UNSTAGE_HUNK -> "Hunk unstage failed"
+            TaskType.STAGE_LINE -> "File line stage failed"
+            TaskType.UNSTAGE_LINE -> "File line unstage failed"
+            TaskType.DISCARD_FILE -> "Discard file failed"
+            TaskType.DELETE_FILE -> "Delete file failed"
+            TaskType.BLAME_FILE -> "File blaming failed"
+            TaskType.HISTORY_FILE -> "Could not load file history"
+            TaskType.DO_COMMIT -> "Commit failed"
+            TaskType.AMEND_COMMIT -> "Commit amend failed"
+            TaskType.REVERT_COMMIT -> "Commit revert failed"
+            TaskType.CHERRY_PICK_COMMIT -> "Commit cherry-pick failed"
+            TaskType.CHECKOUT_COMMIT -> "Checkout commit failed"
+            TaskType.RESET_TO_COMMIT -> "Reset to commit failed"
+            TaskType.CHECKOUT_BRANCH -> "Branch checkout failed"
+            TaskType.CHECKOUT_REMOTE_BRANCH -> "Remote branch checkout failed"
+            TaskType.CREATE_BRANCH -> "Could not create the new branch"
+            TaskType.DELETE_BRANCH -> "Could not delete the branch"
+            TaskType.MERGE_BRANCH -> "Merge failed"
+            TaskType.REBASE_BRANCH -> "Rebase failed"
+            TaskType.REBASE_INTERACTIVE -> "Rebase interactive failed"
+            TaskType.CONTINUE_REBASE -> "Could not continue rebase"
+            TaskType.ABORT_REBASE -> "Could not abort rebase"
+            TaskType.SKIP_REBASE -> "Could not skip rebase step"
+            TaskType.CHANGE_BRANCH_UPSTREAM -> "Upstream branch change failed"
+            TaskType.PULL_FROM_BRANCH -> "Pull from branch failed"
+            TaskType.PUSH_TO_BRANCH -> "Push to branch failed"
+            TaskType.DELETE_REMOTE_BRANCH -> "Deleting remote branch failed"
+            TaskType.PULL -> "Pull failed"
+            TaskType.PUSH -> "Push failed"
+            TaskType.FETCH -> "Fetch failed"
+            TaskType.STASH -> "Stash failed"
+            TaskType.APPLY_STASH -> "Apply stash failed"
+            TaskType.POP_STASH -> "Pop stash failed"
+            TaskType.DELETE_STASH -> "Delete stash failed"
+            TaskType.CREATE_TAG -> "Create tag failed"
+            TaskType.CHECKOUT_TAG -> "Could not checkout tag's commit"
+            TaskType.DELETE_TAG -> "Could not delete tag"
+            TaskType.ADD_SUBMODULE -> "Add submodule failed"
+            TaskType.DELETE_SUBMODULE -> "Delete submodule failed"
+            TaskType.INIT_SUBMODULE -> "Init submodule failed"
+            TaskType.DEINIT_SUBMODULE -> "Deinit submodule failed"
+            TaskType.SYNC_SUBMODULE -> "Sync submodule failed"
+            TaskType.UPDATE_SUBMODULE -> "Update submodule failed"
+            TaskType.SAVE_CUSTOM_THEME -> "Failed trying to save the custom theme"
+            TaskType.RESET_REPO_STATE -> "Could not reset repository state"
+            TaskType.CHANGES_DETECTION -> "Repository changes detection has stopped working"
+            TaskType.REPOSITORY_OPEN -> "Could not open the repository"
+            TaskType.REPOSITORY_CLONE -> "Could not clone the repository"
+            TaskType.ADD_REMOTE -> "Adding remote failed"
+            TaskType.DELETE_REMOTE -> "Deleting remote failed"
+        }
+    }
+}
 
 fun newErrorNow(
     taskType: TaskType,

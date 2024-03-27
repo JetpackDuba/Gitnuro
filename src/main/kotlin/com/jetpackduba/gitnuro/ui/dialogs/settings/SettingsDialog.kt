@@ -21,7 +21,7 @@ import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.preferences.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
-import com.jetpackduba.gitnuro.ui.dialogs.ErrorDialog
+import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
