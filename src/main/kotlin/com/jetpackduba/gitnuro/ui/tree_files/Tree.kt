@@ -1,6 +1,8 @@
 package com.jetpackduba.gitnuro.ui.tree_files
 
+import arrow.core.compareTo
 import com.jetpackduba.gitnuro.system.systemSeparator
+import kotlin.math.max
 
 fun <T> entriesToTreeEntry(
     entries: List<T>,
@@ -9,20 +11,26 @@ fun <T> entriesToTreeEntry(
 ): List<TreeItem<T>> {
     return entries
         .asSequence()
+        .sortedWith { entry1, entry2 ->
+            val path1 = onGetEntryPath(entry1)
+            val path2 = onGetEntryPath(entry2)
+
+            PathsComparator().compare(path1, path2)
+        }
         .map { entry ->
             val filePath = onGetEntryPath(entry)
             val parts = filePath.split(systemSeparator)
 
             parts.mapIndexed { index, partName ->
                 if (index == parts.lastIndex) {
-                    val isParentContracted = treeContractedDirs.none { contractedDir ->
+                    val isParentDirectoryContracted = treeContractedDirs.any { contractedDir ->
                         filePath.startsWith(contractedDir + systemSeparator)
                     }
 
-                    if (isParentContracted) {
-                        TreeItem.File(entry, partName, filePath, index)
-                    } else {
+                    if (isParentDirectoryContracted) {
                         null
+                    } else {
+                        TreeItem.File(entry, partName, filePath, index)
                     }
                 } else {
                     val dirPath = parts.slice(0..index).joinToString(systemSeparator)
@@ -45,8 +53,32 @@ fun <T> entriesToTreeEntry(
         .flatten()
         .filterNotNull()
         .distinct()
-        .sortedBy { it.fullPath }
         .toList()
+}
+
+private class PathsComparator : Comparator<String> {
+    override fun compare(path1: String, path2: String): Int {
+        val path1Parts = path1.split(systemSeparator)
+        val path2Parts = path2.split(systemSeparator)
+
+        path1Parts.compareTo(path2Parts)
+
+        val maxIndex = max(path1Parts.count(), path2Parts.count())
+
+        for (i in 0 until maxIndex) {
+            val part1 = path1Parts.getOrNull(i) ?: return -1
+            val part2 = path2Parts.getOrNull(i) ?: return 1
+
+            val comparison = part1.compareTo(part2)
+
+            if (comparison != 0) {
+                return comparison
+            }
+        }
+
+        return 0
+    }
+
 }
 
 sealed interface TreeItem<out T> {
