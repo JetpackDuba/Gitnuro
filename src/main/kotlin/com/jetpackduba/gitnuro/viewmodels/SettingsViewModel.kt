@@ -3,11 +3,10 @@ package com.jetpackduba.gitnuro.viewmodels
 import com.jetpackduba.gitnuro.Logging
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
-import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.managers.newErrorNow
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.theme.Theme
@@ -22,7 +21,7 @@ private const val TAG = "SettingsViewModel"
 
 @Singleton
 class SettingsViewModel @Inject constructor(
-    private val appSettings: AppSettings,
+    private val appSettingsRepository: AppSettingsRepository,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val logging: Logging,
     @AppCoroutineScope private val appScope: CoroutineScope,
@@ -30,121 +29,121 @@ class SettingsViewModel @Inject constructor(
     // Temporary values to detect changed variables
     var commitsLimit: Int = -1
 
-    val themeState = appSettings.themeState
-    val ffMergeFlow = appSettings.ffMergeFlow
-    val pullRebaseFlow = appSettings.pullRebaseFlow
-    val pushWithLeaseFlow = appSettings.pushWithLeaseFlow
-    val commitsLimitEnabledFlow = appSettings.commitsLimitEnabledFlow
-    val swapUncommittedChangesFlow = appSettings.swapUncommittedChangesFlow
-    val cacheCredentialsInMemoryFlow = appSettings.cacheCredentialsInMemoryFlow
-    val verifySslFlow = appSettings.verifySslFlow
-    val terminalPathFlow = appSettings.terminalPathFlow
+    val themeState = appSettingsRepository.themeState
+    val ffMergeFlow = appSettingsRepository.ffMergeFlow
+    val pullRebaseFlow = appSettingsRepository.pullRebaseFlow
+    val pushWithLeaseFlow = appSettingsRepository.pushWithLeaseFlow
+    val commitsLimitEnabledFlow = appSettingsRepository.commitsLimitEnabledFlow
+    val swapUncommittedChangesFlow = appSettingsRepository.swapUncommittedChangesFlow
+    val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow
+    val verifySslFlow = appSettingsRepository.verifySslFlow
+    val terminalPathFlow = appSettingsRepository.terminalPathFlow
 
     var scaleUi: Float
-        get() = appSettings.scaleUi
+        get() = appSettingsRepository.scaleUi
         set(value) {
-            appSettings.scaleUi = value
+            appSettingsRepository.scaleUi = value
         }
 
     var commitsLimitEnabled: Boolean
-        get() = appSettings.commitsLimitEnabled
+        get() = appSettingsRepository.commitsLimitEnabled
         set(value) {
-            appSettings.commitsLimitEnabled = value
+            appSettingsRepository.commitsLimitEnabled = value
         }
 
     var swapUncommittedChanges: Boolean
-        get() = appSettings.swapUncommittedChanges
+        get() = appSettingsRepository.swapUncommittedChanges
         set(value) {
-            appSettings.swapUncommittedChanges = value
+            appSettingsRepository.swapUncommittedChanges = value
         }
 
     var ffMerge: Boolean
-        get() = appSettings.ffMerge
+        get() = appSettingsRepository.ffMerge
         set(value) {
-            appSettings.ffMerge = value
+            appSettingsRepository.ffMerge = value
         }
 
     var cacheCredentialsInMemory: Boolean
-        get() = appSettings.cacheCredentialsInMemory
+        get() = appSettingsRepository.cacheCredentialsInMemory
         set(value) {
-            appSettings.cacheCredentialsInMemory = value
+            appSettingsRepository.cacheCredentialsInMemory = value
         }
 
     var verifySsl: Boolean
-        get() = appSettings.verifySsl
+        get() = appSettingsRepository.verifySsl
         set(value) {
-            appSettings.verifySsl = value
+            appSettingsRepository.verifySsl = value
         }
 
     var pullRebase: Boolean
-        get() = appSettings.pullRebase
+        get() = appSettingsRepository.pullRebase
         set(value) {
-            appSettings.pullRebase = value
+            appSettingsRepository.pullRebase = value
         }
 
     var pushWithLease: Boolean
-        get() = appSettings.pushWithLease
+        get() = appSettingsRepository.pushWithLease
         set(value) {
-            appSettings.pushWithLease = value
+            appSettingsRepository.pushWithLease = value
         }
 
     var theme: Theme
-        get() = appSettings.theme
+        get() = appSettingsRepository.theme
         set(value) {
-            appSettings.theme = value
+            appSettingsRepository.theme = value
         }
 
     var terminalPath: String
-        get() = appSettings.terminalPath
+        get() = appSettingsRepository.terminalPath
         set(value) {
-            appSettings.terminalPath = value
+            appSettingsRepository.terminalPath = value
         }
 
     var useProxy: Boolean
-        get() = appSettings.useProxy
+        get() = appSettingsRepository.useProxy
         set(value) {
-            appSettings.useProxy = value
+            appSettingsRepository.useProxy = value
         }
 
     var proxyType: ProxyType
-        get() = appSettings.proxyType
+        get() = appSettingsRepository.proxyType
         set(value) {
-            appSettings.proxyType = value
+            appSettingsRepository.proxyType = value
         }
 
     var proxyHostName: String
-        get() = appSettings.proxyHostName
+        get() = appSettingsRepository.proxyHostName
         set(value) {
-            appSettings.proxyHostName = value
+            appSettingsRepository.proxyHostName = value
         }
 
     var proxyPortNumber: Int
-        get() = appSettings.proxyPortNumber
+        get() = appSettingsRepository.proxyPortNumber
         set(value) {
-            appSettings.proxyPortNumber = value
+            appSettingsRepository.proxyPortNumber = value
         }
 
     var proxyUseAuth: Boolean
-        get() = appSettings.proxyUseAuth
+        get() = appSettingsRepository.proxyUseAuth
         set(value) {
-            appSettings.proxyUseAuth = value
+            appSettingsRepository.proxyUseAuth = value
         }
 
     var proxyHostUser: String
-        get() = appSettings.proxyHostUser
+        get() = appSettingsRepository.proxyHostUser
         set(value) {
-            appSettings.proxyHostUser = value
+            appSettingsRepository.proxyHostUser = value
         }
 
     var proxyHostPassword: String
-        get() = appSettings.proxyHostPassword
+        get() = appSettingsRepository.proxyHostPassword
         set(value) {
-            appSettings.proxyHostPassword = value
+            appSettingsRepository.proxyHostPassword = value
         }
 
     fun saveCustomTheme(filePath: String): Error? {
         return try {
-            appSettings.saveCustomTheme(filePath)
+            appSettingsRepository.saveCustomTheme(filePath)
             null
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -158,14 +157,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun resetInfo() {
-        commitsLimit = appSettings.commitsLimit
+        commitsLimit = appSettingsRepository.commitsLimit
     }
 
     fun savePendingChanges() = appScope.launch {
         val commitsLimit = this@SettingsViewModel.commitsLimit
 
-        if (appSettings.commitsLimit != commitsLimit) {
-            appSettings.setCommitsLimit(commitsLimit)
+        if (appSettingsRepository.commitsLimit != commitsLimit) {
+            appSettingsRepository.setCommitsLimit(commitsLimit)
         }
     }
 

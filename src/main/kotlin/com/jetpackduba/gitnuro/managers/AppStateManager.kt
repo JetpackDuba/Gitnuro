@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.managers
 
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppStateManager @Inject constructor(
-    private val appSettings: AppSettings,
+    private val appSettingsRepository: AppSettingsRepository,
     @AppCoroutineScope val appScope: CoroutineScope,
 ) {
     private val mutex = Mutex()
@@ -39,14 +39,14 @@ class AppStateManager @Inject constructor(
             if (_latestOpenedRepositoriesPaths.count() > 10)
                 _latestOpenedRepositoriesPaths.removeLast()
 
-            appSettings.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
+            appSettingsRepository.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
         } finally {
             mutex.unlock()
         }
     }
 
     fun loadRepositoriesTabs() {
-        val repositoriesPathsSaved = appSettings.latestOpenedRepositoriesPath
+        val repositoriesPathsSaved = appSettingsRepository.latestOpenedRepositoriesPath
         if (repositoriesPathsSaved.isNotEmpty()) {
             val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)
             _latestOpenedRepositoriesPaths.addAll(repositories)

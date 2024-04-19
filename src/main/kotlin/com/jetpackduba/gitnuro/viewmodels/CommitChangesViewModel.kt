@@ -10,7 +10,7 @@ import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.GetCommitDiffEntriesUseCase
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
@@ -24,7 +24,7 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 300L
 class CommitChangesViewModel @Inject constructor(
     private val tabState: TabState,
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
-    private val appSettings: AppSettings,
+    private val appSettingsRepository: AppSettingsRepository,
     tabScope: CoroutineScope,
 ) {
     private val _showSearch = MutableStateFlow(false)
@@ -39,7 +39,7 @@ class CommitChangesViewModel @Inject constructor(
 
     val textScroll = MutableStateFlow(ScrollState(0))
 
-    val showAsTree = appSettings.showChangesAsTreeFlow
+    val showAsTree = appSettingsRepository.showChangesAsTreeFlow
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
 
     private val _commitChangesState = MutableStateFlow<CommitChangesState>(CommitChangesState.Loading)
@@ -133,7 +133,7 @@ class CommitChangesViewModel @Inject constructor(
     }
 
     fun alternateShowAsTree() {
-        appSettings.showChangesAsTree = !appSettings.showChangesAsTree
+        appSettingsRepository.showChangesAsTree = !appSettingsRepository.showChangesAsTree
     }
 
     fun onDirectoryClicked(directoryPath: String) {

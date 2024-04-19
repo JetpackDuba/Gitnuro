@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro
 
-import com.jetpackduba.gitnuro.managers.ShellManager
-import com.jetpackduba.gitnuro.preferences.initPreferencesPath
+import com.jetpackduba.gitnuro.repositories.initPreferencesPath
 
 fun main(args: Array<String>) {
     initPreferencesPath()

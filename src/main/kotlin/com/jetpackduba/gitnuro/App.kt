@@ -28,8 +28,8 @@ import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
-import com.jetpackduba.gitnuro.preferences.AppSettings
-import com.jetpackduba.gitnuro.preferences.ProxySettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.repositories.ProxySettings
 import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
@@ -42,6 +42,10 @@ import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.internal.diffmergetool.DiffToolConfig
+import org.eclipse.jgit.internal.diffmergetool.DiffTools
+import org.eclipse.jgit.internal.diffmergetool.MergeToolConfig
+import org.eclipse.jgit.internal.diffmergetool.MergeTools
 import org.eclipse.jgit.lib.GpgSigner
 import java.io.File
 import java.net.Authenticator
@@ -61,7 +65,7 @@ class App {
     lateinit var appStateManager: AppStateManager
 
     @Inject
-    lateinit var appSettings: AppSettings
+    lateinit var appSettingsRepository: AppSettingsRepository
 
     @Inject
     lateinit var appGpgSigner: AppGpgSigner
@@ -89,15 +93,15 @@ class App {
         logging.initLogging()
         initProxySettings()
 
-        val windowPlacement = appSettings.windowPlacement.toWindowPlacement
+        val windowPlacement = appSettingsRepository.windowPlacement.toWindowPlacement
         val dirToOpen = getDirToOpen(args)
 
         appEnvInfo.isFlatpak = args.contains("--flatpak")
         appStateManager.loadRepositoriesTabs()
 
         try {
-            if (appSettings.theme == Theme.CUSTOM) {
-                appSettings.loadCustomTheme()
+            if (appSettingsRepository.theme == Theme.CUSTOM) {
+                appSettingsRepository.loadCustomTheme()
             }
         } catch (ex: Exception) {
             printError(TAG, "Failed to load custom theme")
@@ -113,9 +117,9 @@ class App {
 
         application {
             var isOpen by remember { mutableStateOf(true) }
-            val theme by appSettings.themeState.collectAsState()
-            val customTheme by appSettings.customThemeFlow.collectAsState()
-            val scale by appSettings.scaleUiFlow.collectAsState()
+            val theme by appSettingsRepository.themeState.collectAsState()
+            val customTheme by appSettingsRepository.customThemeFlow.collectAsState()
+            val scale by appSettingsRepository.scaleUiFlow.collectAsState()
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -123,7 +127,7 @@ class App {
             )
 
             // Save window state for next time the Window is started
-            appSettings.windowPlacement = windowState.placement.preferenceValue
+            appSettingsRepository.windowPlacement = windowState.placement.preferenceValue
 
             if (isOpen) {
                 Window(
@@ -165,7 +169,7 @@ class App {
 
     private fun initProxySettings() {
         appStateManager.appScope.launch {
-            appSettings.proxyFlow.collect { proxySettings ->
+            appSettingsRepository.proxyFlow.collect { proxySettings ->
                 if (proxySettings.useProxy) {
                     when (proxySettings.proxyType) {
                         ProxyType.HTTP -> setHttpProxy(proxySettings)

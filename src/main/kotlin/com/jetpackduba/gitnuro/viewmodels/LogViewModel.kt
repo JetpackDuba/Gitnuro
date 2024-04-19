@@ -15,11 +15,10 @@ import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.log.*
 import com.jetpackduba.gitnuro.git.rebase.StartRebaseInteractiveUseCase
 import com.jetpackduba.gitnuro.git.tags.CreateTagOnCommitUseCase
-import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.workspace.CheckHasUncommittedChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.GetStatusSummaryUseCase
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
@@ -57,7 +56,7 @@ class LogViewModel @Inject constructor(
     private val createTagOnCommitUseCase: CreateTagOnCommitUseCase,
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
     private val tabState: TabState,
-    private val appSettings: AppSettings,
+    private val appSettingsRepository: AppSettingsRepository,
     tabScope: CoroutineScope,
     sharedStashViewModel: SharedStashViewModel,
     sharedBranchesViewModel: SharedBranchesViewModel,
@@ -101,12 +100,12 @@ class LogViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            appSettings.commitsLimitEnabledFlow.drop(1).collectLatest {
+            appSettingsRepository.commitsLimitEnabledFlow.drop(1).collectLatest {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
         tabScope.launch {
-            appSettings.commitsLimitFlow.collectLatest {
+            appSettingsRepository.commitsLimitFlow.collectLatest {
                 tabState.refreshData(RefreshType.ONLY_LOG)
             }
         }
@@ -140,13 +139,13 @@ class LogViewModel @Inject constructor(
         )
 
         val hasUncommittedChanges = statusSummary.total > 0
-        val commitsLimit = if (appSettings.commitsLimitEnabled) {
-            appSettings.commitsLimit
+        val commitsLimit = if (appSettingsRepository.commitsLimitEnabled) {
+            appSettingsRepository.commitsLimit
         } else
             Int.MAX_VALUE
 
-        val commitsLimitDisplayed = if (appSettings.commitsLimitEnabled) {
-            appSettings.commitsLimit
+        val commitsLimitDisplayed = if (appSettingsRepository.commitsLimitEnabled) {
+            appSettingsRepository.commitsLimit
         } else
             -1
 
