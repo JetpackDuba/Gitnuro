@@ -4,7 +4,7 @@ import com.jetpackduba.gitnuro.git.branches.GetTrackingBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.TrackingBranch
 import com.jetpackduba.gitnuro.git.isRejected
 import com.jetpackduba.gitnuro.git.statusMessage
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class PushBranchUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
     private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettings,
 ) {
     // TODO This use case should also set the tracking branch to the new remote branch
     suspend operator fun invoke(git: Git, force: Boolean, pushTags: Boolean) = withContext(Dispatchers.IO) {
@@ -53,7 +53,7 @@ class PushBranchUseCase @Inject constructor(
             }
             .setForce(force)
             .run {
-                if (force && appSettingsRepository.pushWithLease) {
+                if (force && appSettings.pushWithLease) {
 
                     if (tracking != null) {
                         val remoteBranchName = "${Constants.R_REMOTES}$remote/${tracking.branch}"

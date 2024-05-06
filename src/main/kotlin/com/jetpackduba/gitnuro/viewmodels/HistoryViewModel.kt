@@ -11,7 +11,7 @@ import com.jetpackduba.gitnuro.git.diff.DiffResult
 import com.jetpackduba.gitnuro.git.diff.FormatDiffUseCase
 import com.jetpackduba.gitnuro.git.diff.GenerateSplitHunkFromDiffResultUseCase
 import com.jetpackduba.gitnuro.git.diff.GetCommitDiffEntriesUseCase
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +23,7 @@ class HistoryViewModel @Inject constructor(
     private val tabState: TabState,
     private val formatDiffUseCase: FormatDiffUseCase,
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
-    private val settings: AppSettingsRepository,
+    private val settings: AppSettings,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
     private val tabScope: CoroutineScope,
 ) {

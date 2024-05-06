@@ -4,7 +4,7 @@ import com.jetpackduba.gitnuro.exceptions.NotSupportedHelper
 import com.jetpackduba.gitnuro.git.remote_operations.CredentialsCache
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.IShellManager
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import org.eclipse.jgit.api.Git
@@ -25,7 +25,7 @@ private const val GH_CLI_ARGS = "auth git-credential"
 class HttpCredentialsProvider @AssistedInject constructor(
     private val credentialsStateManager: CredentialsStateManager,
     private val shellManager: IShellManager,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettings,
     private val credentialsCacheRepository: CredentialsCacheRepository,
     @Assisted val git: Git?,
 ) : CredentialsProvider(), CredentialsCache {
@@ -71,7 +71,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
         }
 
         if (sslTrustNowItem != null) {
-            sslTrustNowItem.value = appSettingsRepository.verifySsl
+            sslTrustNowItem.value = appSettings.verifySsl
         }
 
         val externalCredentialsHelper = getExternalCredentialsHelper(uri, git)
@@ -86,7 +86,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                     userItem.value = credentials.user
                     passwordItem.value = credentials.password.toCharArray()
 
-                    if (appSettingsRepository.cacheCredentialsInMemory) {
+                    if (appSettings.cacheCredentialsInMemory) {
                         credentialsCached = CredentialsType.HttpCredentials(
                             url = uri.toString(),
                             userName = credentials.user,

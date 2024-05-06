@@ -10,7 +10,7 @@ import com.jetpackduba.gitnuro.di.modules.ShellModule
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.terminal.ITerminalProvider
 import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
@@ -32,7 +32,7 @@ interface AppComponent {
     fun settingsViewModel(): SettingsViewModel
     fun credentialsStateManager(): CredentialsStateManager
 
-    fun appPreferences(): AppSettingsRepository
+    fun appPreferences(): AppSettings
 
     fun appEnvInfo(): AppEnvInfo
 

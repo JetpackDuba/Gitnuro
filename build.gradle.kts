@@ -61,14 +61,14 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.9.0"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
     testImplementation("io.mockk:mockk:1.13.4")
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
     implementation("net.java.dev.jna:jna:5.13.0")
     implementation("io.github.oshai:kotlin-logging-jvm:5.0.1")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
-    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation("io.arrow-kt:arrow-core:1.2.0")
 }
 
 fun currentOs(): OS {

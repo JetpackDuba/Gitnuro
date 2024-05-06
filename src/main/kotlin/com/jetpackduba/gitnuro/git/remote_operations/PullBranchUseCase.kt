@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -10,13 +10,13 @@ import javax.inject.Inject
 
 class PullBranchUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettings,
 ) {
     suspend operator fun invoke(git: Git, pullType: PullType) = withContext(Dispatchers.IO) {
         val pullWithRebase = when (pullType) {
             PullType.REBASE -> true
             PullType.MERGE -> false
-            PullType.DEFAULT -> appSettingsRepository.pullRebase
+            PullType.DEFAULT -> appSettings.pullRebase
         }
 
         handleTransportUseCase(git) {

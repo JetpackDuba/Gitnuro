@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.jetpackduba.gitnuro.di.AppComponent
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 
 @Singleton
 class TabsManager @Inject constructor(
-    private val appSettingsRepository: AppSettingsRepository
+    private val appSettings: AppSettings
 ) {
     lateinit var appComponent: AppComponent
 
@@ -27,7 +27,7 @@ class TabsManager @Inject constructor(
     val currentTab: StateFlow<TabInformation?> = _currentTab
 
     fun loadPersistedTabs() {
-        val repositoriesSaved = appSettingsRepository.latestTabsOpened
+        val repositoriesSaved = appSettings.latestTabsOpened
 
         val repositoriesList = if (repositoriesSaved.isNotEmpty())
             Json.decodeFromString<List<String>>(repositoriesSaved).map { path ->
@@ -40,7 +40,7 @@ class TabsManager @Inject constructor(
 
         _tabsFlow.value = repositoriesList.ifEmpty { listOf(newAppTab()) }
 
-        val latestSelectedTabPath = appSettingsRepository.latestRepositoryTabSelected
+        val latestSelectedTabPath = appSettings.latestRepositoryTabSelected
 
         val latestSelectedTab = repositoriesList.firstOrNull { it.path == latestSelectedTabPath }
 
@@ -78,7 +78,7 @@ class TabsManager @Inject constructor(
     }
 
     private fun persistTabSelected(tab: TabInformation) {
-        appSettingsRepository.latestRepositoryTabSelected = tab.path.orEmpty()
+        appSettings.latestRepositoryTabSelected = tab.path.orEmpty()
     }
 
     fun closeTab(tab: TabInformation) {
@@ -118,7 +118,7 @@ class TabsManager @Inject constructor(
         val tabsPaths = tabsFlow.value
             .mapNotNull { it.path }
 
-        appSettingsRepository.latestTabsOpened = Json.encodeToString(tabsPaths)
+        appSettings.latestTabsOpened = Json.encodeToString(tabsPaths)
     }
 
     fun addNewEmptyTab() {

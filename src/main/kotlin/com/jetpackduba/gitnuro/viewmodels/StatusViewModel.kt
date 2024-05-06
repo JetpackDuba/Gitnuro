@@ -21,7 +21,7 @@ import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.preferences.AppSettings
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
@@ -30,8 +30,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.internal.diffmergetool.DiffTools
-import org.eclipse.jgit.internal.diffmergetool.ExternalDiffTool
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
@@ -62,7 +60,7 @@ class StatusViewModel @Inject constructor(
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageUseCase: GetSpecificCommitMessageUseCase,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettings,
     tabScope: CoroutineScope,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
@@ -77,11 +75,11 @@ class StatusViewModel @Inject constructor(
     private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
 
-    val swapUncommittedChanges = appSettingsRepository.swapUncommittedChangesFlow
+    val swapUncommittedChanges = appSettings.swapUncommittedChangesFlow
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
-    private val showAsTree = appSettingsRepository.showChangesAsTreeFlow
+    private val showAsTree = appSettings.showChangesAsTreeFlow
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 
     private val stageStateFiltered: StateFlow<StageState> = combine(
@@ -508,7 +506,7 @@ class StatusViewModel @Inject constructor(
     }
 
     fun alternateShowAsTree() {
-        appSettingsRepository.showChangesAsTree = !appSettingsRepository.showChangesAsTree
+        appSettings.showChangesAsTree = !appSettings.showChangesAsTree
     }
 
     fun stageByDirectory(dir: String) = tabState.runOperation(
