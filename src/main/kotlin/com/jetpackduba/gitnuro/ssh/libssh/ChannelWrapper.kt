@@ -26,6 +26,6 @@ class ChannelWrapper internal constructor(sshSession: Session) {
     }
 
     fun close() {
-        channel.close()
+        channel.closeChannel()
     }
 }

@@ -87,7 +87,7 @@ impl Channel {
         channel.is_open()
     }
 
-    pub fn close(&self) {
+    pub fn close_channel(&self) {
         let channel = self.channel.write().unwrap();
         channel.close().unwrap();
     }

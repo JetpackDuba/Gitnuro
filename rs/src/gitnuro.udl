@@ -40,7 +40,7 @@ interface Channel {
     constructor(Session session);
     void open_session();
     boolean is_open();
-    void close();
+    void close_channel();
     void request_exec(string command);
     boolean poll_has_bytes(boolean is_stderr);
     ReadResult read(boolean is_stderr, u64 len);
