@@ -1,13 +1,13 @@
 package com.jetpackduba.gitnuro.terminal
 
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import javax.inject.Inject
 
 // For flatpak: https://github.com/flathub/com.visualstudio.code#use-host-shell-in-the-integrated-terminal
 
 class OpenRepositoryInTerminalUseCase @Inject constructor(
     private val terminalProvider: ITerminalProvider,
-    private val settings: AppSettings,
+    private val settings: AppSettingsRepository,
 ) {
     operator fun invoke(path: String) {
         val terminalEmulators = terminalProvider.getTerminalEmulators()

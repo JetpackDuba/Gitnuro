@@ -8,7 +8,7 @@ import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.*
 import com.jetpackduba.gitnuro.git.workspace.*
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppUseCase
 import com.jetpackduba.gitnuro.ui.TabsManager
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +33,7 @@ class DiffViewModel @Inject constructor(
     private val stageEntryUseCase: StageEntryUseCase,
     private val unstageEntryUseCase: UnstageEntryUseCase,
     private val openFileInExternalAppUseCase: OpenFileInExternalAppUseCase,
-    private val settings: AppSettings,
+    private val settings: AppSettingsRepository,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
     private val discardUnstagedHunkLineUseCase: DiscardUnstagedHunkLineUseCase,
     private val tabsManager: TabsManager,

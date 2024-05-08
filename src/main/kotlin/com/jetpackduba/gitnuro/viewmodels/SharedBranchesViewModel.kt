@@ -8,7 +8,7 @@ import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
 import com.jetpackduba.gitnuro.git.branches.DeleteBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.MergeBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
@@ -23,7 +23,7 @@ interface ISharedBranchesViewModel {
 class SharedBranchesViewModel @Inject constructor(
     private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val tabState: TabState,
-    private val appSettings: AppSettings,
+    private val appSettingsRepository: AppSettingsRepository,
     private val mergeBranchUseCase: MergeBranchUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
@@ -35,7 +35,7 @@ class SharedBranchesViewModel @Inject constructor(
         subtitle = "Merging branch ${ref.simpleName}",
         taskType = TaskType.MERGE_BRANCH,
     ) { git ->
-        mergeBranchUseCase(git, ref, appSettings.ffMerge)
+        mergeBranchUseCase(git, ref, appSettingsRepository.ffMerge)
     }
 
     override fun deleteBranch(branch: Ref) = tabState.safeProcessing(

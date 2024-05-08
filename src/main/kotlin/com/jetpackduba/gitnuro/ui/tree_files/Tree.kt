@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.tree_files
 
-import arrow.core.compareTo
 import com.jetpackduba.gitnuro.system.systemSeparator
 import kotlin.math.max
 
@@ -60,9 +59,7 @@ private class PathsComparator : Comparator<String> {
     override fun compare(path1: String, path2: String): Int {
         val path1Parts = path1.split(systemSeparator)
         val path2Parts = path2.split(systemSeparator)
-
-        path1Parts.compareTo(path2Parts)
-
+        
         val maxIndex = max(path1Parts.count(), path2Parts.count())
 
         for (i in 0 until maxIndex) {

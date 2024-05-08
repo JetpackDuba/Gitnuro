@@ -21,7 +21,7 @@ import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
-import com.jetpackduba.gitnuro.preferences.AppSettings
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +60,7 @@ class StatusViewModel @Inject constructor(
     private val saveAuthorUseCase: SaveAuthorUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageUseCase: GetSpecificCommitMessageUseCase,
-    private val appSettings: AppSettings,
+    private val appSettingsRepository: AppSettingsRepository,
     tabScope: CoroutineScope,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
@@ -75,11 +75,11 @@ class StatusViewModel @Inject constructor(
     private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
 
-    val swapUncommittedChanges = appSettings.swapUncommittedChangesFlow
+    val swapUncommittedChanges = appSettingsRepository.swapUncommittedChangesFlow
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
-    private val showAsTree = appSettings.showChangesAsTreeFlow
+    private val showAsTree = appSettingsRepository.showChangesAsTreeFlow
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 
     private val stageStateFiltered: StateFlow<StageState> = combine(
@@ -506,7 +506,7 @@ class StatusViewModel @Inject constructor(
     }
 
     fun alternateShowAsTree() {
-        appSettings.showChangesAsTree = !appSettings.showChangesAsTree
+        appSettingsRepository.showChangesAsTree = !appSettingsRepository.showChangesAsTree
     }
 
     fun stageByDirectory(dir: String) = tabState.runOperation(

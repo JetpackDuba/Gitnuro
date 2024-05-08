@@ -1,6 +1,7 @@
-package com.jetpackduba.gitnuro.preferences
+package com.jetpackduba.gitnuro.repositories
 
 import com.jetpackduba.gitnuro.extensions.defaultWindowPlacement
+import com.jetpackduba.gitnuro.preferences.WindowsPlacementPreference
 import com.jetpackduba.gitnuro.system.OS
 import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.theme.ColorsScheme
@@ -57,7 +58,7 @@ private const val DEFAULT_VERIFY_SSL = true
 const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
-class AppSettings @Inject constructor() {
+class AppSettingsRepository @Inject constructor() {
     private val preferences: Preferences = Preferences.userRoot().node(PREFERENCES_NAME)
 
     private val _themeState = MutableStateFlow(theme)
@@ -373,8 +374,6 @@ data class ProxySettings(
     val hostPassword: String,
 )
 
-
-// TODO migrate old prefs path to new one?
 fun initPreferencesPath() {
     if (currentOs == OS.LINUX) {
         val xdgConfigHome: String? = System.getenv("XDG_CONFIG_HOME")
