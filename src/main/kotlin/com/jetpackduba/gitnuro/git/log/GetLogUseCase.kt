@@ -33,7 +33,7 @@ class GetLogUseCase @Inject constructor() {
                     walk.markStartAllRefs(Constants.R_HEADS)
                     walk.markStartAllRefs(Constants.R_REMOTES)
                     walk.markStartAllRefs(Constants.R_TAGS)
-                    walk.markStartAllRefs(Constants.R_STASH)
+//                    walk.markStartAllRefs(Constants.R_STASH)
 
                     if (hasUncommittedChanges)
                         commitList.addUncommittedChangesGraphCommit(logList.first())
