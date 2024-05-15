@@ -54,6 +54,7 @@ private const val TAG = "App"
 
 val LocalTabScope = compositionLocalOf { emptyTabInformation() }
 
+
 class App {
     private val appComponent = DaggerAppComponent.create()
 
@@ -116,6 +117,7 @@ class App {
             val theme by appSettingsRepository.themeState.collectAsState()
             val customTheme by appSettingsRepository.customThemeFlow.collectAsState()
             val scale by appSettingsRepository.scaleUiFlow.collectAsState()
+            val linesHeightType by appSettingsRepository.linesHeightTypeState.collectAsState()
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -147,6 +149,7 @@ class App {
                         AppTheme(
                             selectedTheme = theme,
                             customTheme = customTheme,
+                            linesHeightType = linesHeightType,
                         ) {
                             Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
                                 AppTabs()

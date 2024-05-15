@@ -90,7 +90,6 @@ private const val MARGIN_GRAPH_LANES = 2
 private const val LANE_WIDTH = 30f
 private const val DIVIDER_WIDTH = 8
 
-private const val LINE_HEIGHT = 36
 private const val LOG_BOTTOM_PADDING = 80
 
 // TODO Min size for message column
@@ -476,7 +475,7 @@ fun CommitsList(
         ) {
             item {
                 Box(
-                    modifier = Modifier.height(LINE_HEIGHT.dp)
+                    modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
                         .clipToBounds()
                         .fillMaxWidth()
                         .clickable { logViewModel.selectUncommittedChanges() }
@@ -527,7 +526,7 @@ fun CommitsList(
                 Box(
                     modifier = Modifier
                         .padding(start = graphWidth + 24.dp)
-                        .height(LINE_HEIGHT.dp),
+                        .height(MaterialTheme.linesHeight.logCommitHeight),
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Text(
@@ -658,7 +657,7 @@ fun UncommittedChangesLine(
 ) {
     Row(
         modifier = Modifier
-            .height(LINE_HEIGHT.dp)
+            .height(MaterialTheme.linesHeight.logCommitHeight)
             .padding(start = graphWidth)
             .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
             .padding(DIVIDER_WIDTH.dp),
@@ -796,6 +795,7 @@ private fun CommitLine(
     ) {
         Box(
             modifier = Modifier
+                .height(MaterialTheme.linesHeight.logCommitHeight)
                 .clickable { onRevCommitSelected() }
         ) {
             val nodeColor = colors[graphNode.lane.position % colors.size]
@@ -804,7 +804,7 @@ private fun CommitLine(
                 Row(
                     modifier = Modifier
                         .clipToBounds()
-                        .height(LINE_HEIGHT.dp)
+                        .fillMaxHeight()
                         .fillMaxWidth()
                         .offset(-horizontalScrollState.value.dp)
                 ) {
@@ -821,7 +821,7 @@ private fun CommitLine(
             Box(
                 modifier = Modifier
                     .padding(start = graphWidth)
-                    .height(LINE_HEIGHT.dp)
+                    .fillMaxHeight()
                     .background(MaterialTheme.colors.background)
                     .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
             ) {

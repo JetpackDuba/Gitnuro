@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.PickerType
+import com.jetpackduba.gitnuro.theme.LinesHeightType
 import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +30,9 @@ class SettingsViewModel @Inject constructor(
     // Temporary values to detect changed variables
     var commitsLimit: Int = -1
 
+
     val themeState = appSettingsRepository.themeState
+    val linesHeightTypeState = appSettingsRepository.linesHeightTypeState
     val ffMergeFlow = appSettingsRepository.ffMergeFlow
     val pullRebaseFlow = appSettingsRepository.pullRebaseFlow
     val pushWithLeaseFlow = appSettingsRepository.pushWithLeaseFlow
@@ -91,6 +94,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettingsRepository.theme
         set(value) {
             appSettingsRepository.theme = value
+        }
+
+    var linesHeightType: LinesHeightType
+        get() = appSettingsRepository.linesHeightType
+        set(value) {
+            appSettingsRepository.linesHeightType = value
         }
 
     var terminalPath: String

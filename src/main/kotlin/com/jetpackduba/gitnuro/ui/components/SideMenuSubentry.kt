@@ -19,9 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.onDoubleClick
 import com.jetpackduba.gitnuro.theme.backgroundSelected
+import com.jetpackduba.gitnuro.theme.linesHeight
 
-
-const val ENTRY_HEIGHT = 36
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -37,7 +36,7 @@ fun SideMenuSubentry(
 ) {
     Row(
         modifier = Modifier
-            .height(ENTRY_HEIGHT.dp)
+            .height(MaterialTheme.linesHeight.sidePanelItemHeight)
             .fillMaxWidth()
             .clickable { onClick() }
             .run {

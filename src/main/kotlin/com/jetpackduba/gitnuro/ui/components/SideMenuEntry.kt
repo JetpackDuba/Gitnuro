@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.theme.linesHeight
 
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 
@@ -36,7 +37,7 @@ fun SideMenuHeader(
 
     Row(
         modifier = Modifier
-            .height(36.dp)
+            .height(MaterialTheme.linesHeight.sidePanelItemHeight)
             .fillMaxWidth()
             .hoverable(hoverInteraction)
             .handMouseClickable { onExpand() },

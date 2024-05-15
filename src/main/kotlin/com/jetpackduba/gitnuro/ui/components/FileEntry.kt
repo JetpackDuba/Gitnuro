@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.onDoubleClick
 import com.jetpackduba.gitnuro.theme.backgroundSelected
+import com.jetpackduba.gitnuro.theme.linesHeight
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
@@ -87,7 +88,7 @@ fun FileEntry(
         ) {
             Row(
                 modifier = Modifier
-                    .height(40.dp)
+                    .height(MaterialTheme.linesHeight.fileHeight)
                     .fillMaxWidth()
                     .backgroundIf(isSelected, MaterialTheme.colors.backgroundSelected)
                     .padding(start = (TREE_START_PADDING * depth).dp),

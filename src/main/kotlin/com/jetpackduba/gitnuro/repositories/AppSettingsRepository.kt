@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.preferences.WindowsPlacementPreference
 import com.jetpackduba.gitnuro.system.OS
 import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.theme.ColorsScheme
+import com.jetpackduba.gitnuro.theme.LinesHeightType
 import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
@@ -23,6 +24,7 @@ private const val PREF_LATEST_REPOSITORIES_TABS_OPENED = "latestRepositoriesTabs
 private const val PREF_LATEST_REPOSITORY_TAB_SELECTED = "latestRepositoryTabSelected"
 private const val PREF_LAST_OPENED_REPOSITORIES_PATH = "lastOpenedRepositoriesList"
 private const val PREF_THEME = "theme"
+private const val PREF_LINE_HEIGHT_TYPE = "linesHeight"
 private const val PREF_COMMITS_LIMIT = "commitsLimit"
 private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
 private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
@@ -63,6 +65,9 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _themeState = MutableStateFlow(theme)
     val themeState = _themeState.asStateFlow()
+
+    private val _linesHeightTypeState = MutableStateFlow(linesHeightType)
+    val linesHeightTypeState = _linesHeightTypeState.asStateFlow()
 
     private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
     val commitsLimitEnabledFlow = _commitsLimitEnabledFlow.asStateFlow()
@@ -151,6 +156,21 @@ class AppSettingsRepository @Inject constructor() {
         set(value) {
             preferences.put(PREF_THEME, value.toString())
             _themeState.value = value
+        }
+
+    var linesHeightType: LinesHeightType
+        get() {
+            val lineHeightTypeValue = preferences.getInt(PREF_LINE_HEIGHT_TYPE, LinesHeightType.NORMAL.value)
+            return try {
+                LinesHeightType.fromInt(lineHeightTypeValue)
+            } catch (ex: Exception) {
+                ex.printStackTrace()
+                LinesHeightType.NORMAL
+            }
+        }
+        set(value) {
+            preferences.putInt(PREF_LINE_HEIGHT_TYPE, value.value)
+            _linesHeightTypeState.value = value
         }
 
     var commitsLimitEnabled: Boolean

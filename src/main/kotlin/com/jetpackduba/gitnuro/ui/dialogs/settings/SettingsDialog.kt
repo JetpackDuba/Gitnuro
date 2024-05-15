@@ -426,9 +426,15 @@ private fun Layout(settingsViewModel: SettingsViewModel) {
     )
 }
 
+val linesHeightTypesList = listOf(
+    DropDownOption(LinesHeightType.NORMAL, "Normal"),
+    DropDownOption(LinesHeightType.COMPACT, "Compact"),
+)
+
 @Composable
 private fun Appearance(settingsViewModel: SettingsViewModel) {
     val currentTheme by settingsViewModel.themeState.collectAsState()
+    val currentLinesHeightType by settingsViewModel.linesHeightTypeState.collectAsState()
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
     SettingDropDown(
@@ -461,6 +467,16 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
             }
         )
     }
+
+    SettingDropDown(
+        title = "Lists spacing",
+        subtitle = "Spacing around lists items",
+        dropDownOptions = linesHeightTypesList,
+        currentOption = linesHeightTypesList.first { it.value == currentLinesHeightType },
+        onOptionSelected = { dropDown ->
+            settingsViewModel.linesHeightType = dropDown.value
+        }
+    )
 
     val density = LocalDensity.current.density
     var options by remember {
