@@ -75,6 +75,7 @@ import java.io.FileInputStream
 import kotlin.math.max
 
 private const val MAX_MOVES_COUNT = 5
+
 @Composable
 private fun <T> loadOrNull(key: Any, action: suspend () -> T?): T? {
     var result: T? by remember(key) { mutableStateOf(null) }
@@ -805,8 +806,7 @@ fun HunkHeader(
         // Hunks options are only visible when repository is a normal state (not during merge/rebase)
         if (
             (diffEntryType is DiffEntryType.SafeStagedDiff || diffEntryType is DiffEntryType.SafeUnstagedDiff) &&
-            (diffEntryType is DiffEntryType.UncommittedDiff && // Added just to make smartcast work
-                    diffEntryType.statusEntry.statusType == StatusType.MODIFIED)
+            diffEntryType.statusType == StatusType.MODIFIED
         ) {
             val buttonText: String
             val color: Color

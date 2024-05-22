@@ -10,10 +10,11 @@ val linuxX64Target = "x86_64-unknown-linux-gnu"
 
 plugins {
     // Kotlin version must match compose version
-    kotlin("jvm") version "1.9.20"
-    kotlin("plugin.serialization") version "1.9.20"
-    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
-    id("org.jetbrains.compose") version "1.6.1"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
+    id("com.google.devtools.ksp") version "2.0.0-1.0.21"
+    id("org.jetbrains.compose") version "1.6.10"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
