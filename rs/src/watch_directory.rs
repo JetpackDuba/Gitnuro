@@ -49,14 +49,17 @@ pub fn watch_directory(
             last_update = 0;
 
             if paths_cached.len() == 1 {
-                let first_path = paths_cached.first().unwrap();
+                let first_path = paths_cached.first().expect("First path not found!");
                 let is_dir = PathBuf::from(first_path).is_dir();
 
                 if !is_dir {
                     notifier.detected_change(paths_cached.to_vec());
                 }
             } else if !paths_cached.is_empty() {
-                println!("Sending batched events to Kotlin side");
+                paths_cached.sort();
+                paths_cached.dedup();
+
+                println!("Sending {} batched events to Kotlin side", paths_cached.len());
                 notifier.detected_change(paths_cached.to_vec());
             }
 
