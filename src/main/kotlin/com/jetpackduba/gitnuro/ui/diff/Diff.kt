@@ -102,10 +102,6 @@ fun Diff(
             .fillMaxSize()
             .focusable()
             .focusRequester(focusRequester)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {}
             .onPreviewKeyEvent { keyEvent ->
                 if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
                     onCloseDiffView()
