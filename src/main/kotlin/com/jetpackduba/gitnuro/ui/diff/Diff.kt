@@ -28,10 +28,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.platform.LocalLocalization
-import androidx.compose.ui.platform.PlatformLocalization
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
@@ -60,7 +56,7 @@ import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
-import com.jetpackduba.gitnuro.ui.context_menu.CustomTextContextMenu
+import com.jetpackduba.gitnuro.ui.context_menu.SelectionAwareTextContextMenu
 import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
@@ -442,11 +438,9 @@ fun HunkUnifiedTextDiff(
 ) {
     val hunks = diffResult.hunks
     var selectedText by remember { mutableStateOf(AnnotatedString("")) }
-    val localClipboardManager = LocalClipboardManager.current
-    val localization = LocalLocalization.current
 
     CompositionLocalProvider(
-        LocalTextContextMenu provides CustomTextContextMenu {
+        LocalTextContextMenu provides SelectionAwareTextContextMenu {
             selectedText = it
         }
     ) {
@@ -477,8 +471,6 @@ fun HunkUnifiedTextDiff(
                     items(hunk.lines) { line ->
                         DiffContextMenu(
                             selectedText = selectedText,
-                            localization = localization,
-                            localClipboardManager = localClipboardManager,
                             diffEntryType = diffEntryType,
                             onDiscardLine = { onDiscardLine(diffResult.diffEntry, hunk, line) },
                             line = line,
@@ -525,7 +517,7 @@ fun HunkSplitTextDiff(
     var selectedText by remember { mutableStateOf(AnnotatedString("")) }
 
     CompositionLocalProvider(
-        LocalTextContextMenu provides CustomTextContextMenu {
+        LocalTextContextMenu provides SelectionAwareTextContextMenu {
             selectedText = it
         }
     ) {
@@ -663,10 +655,6 @@ fun SplitDiffLineSide(
     var pressedAndMoved by remember(line) { mutableStateOf(Pair(false, false)) }
     var movesCount by remember(line) { mutableStateOf(0) }
 
-    val localClipboardManager = LocalClipboardManager.current
-    val localization = LocalLocalization.current
-
-
     Box(
         modifier = modifier
             .onPointerEvent(PointerEventType.Press) {
@@ -703,8 +691,6 @@ fun SplitDiffLineSide(
             ) {
                 DiffContextMenu(
                     selectedText,
-                    localization,
-                    localClipboardManager,
                     line,
                     diffEntryType,
                     onDiscardLine = { onDiscardLine(line) },
@@ -725,45 +711,30 @@ fun SplitDiffLineSide(
 @Composable
 fun DiffContextMenu(
     selectedText: AnnotatedString,
-    localization: PlatformLocalization,
-    localClipboardManager: ClipboardManager,
     line: Line,
     diffEntryType: DiffEntryType,
     onDiscardLine: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     ContextMenu(
+        enabled = selectedText.isEmpty(),
         items = {
-            val isTextSelected = selectedText.isNotEmpty()
-
-            if (isTextSelected) {
+            if (
+                line.lineType != LineType.CONTEXT &&
+                diffEntryType is DiffEntryType.UnstagedDiff &&
+                diffEntryType.statusType == StatusType.MODIFIED
+            ) {
                 listOf(
                     ContextMenuElement.ContextTextEntry(
-                        label = localization.copy,
-                        icon = { painterResource(AppIcons.COPY) },
+                        label = "Discard line",
+                        icon = { painterResource(AppIcons.UNDO) },
                         onClick = {
-                            localClipboardManager.setText(selectedText)
+                            onDiscardLine()
                         }
                     )
                 )
-            } else {
-                if (
-                    line.lineType != LineType.CONTEXT &&
-                    diffEntryType is DiffEntryType.UnstagedDiff &&
-                    diffEntryType.statusType == StatusType.MODIFIED
-                ) {
-                    listOf(
-                        ContextMenuElement.ContextTextEntry(
-                            label = "Discard line",
-                            icon = { painterResource(AppIcons.UNDO) },
-                            onClick = {
-                                onDiscardLine()
-                            }
-                        )
-                    )
-                } else
-                    emptyList()
-            }
+            } else
+                emptyList()
         },
     ) {
         content()
@@ -869,7 +840,7 @@ private fun DiffHeader(
                 .weight(1f, true)
         ) {
             SelectionContainer {
-                Row() {
+                Row {
                     if (dirPath.isNotEmpty()) {
                         Text(
                             text = dirPath.removeSuffix("/"),

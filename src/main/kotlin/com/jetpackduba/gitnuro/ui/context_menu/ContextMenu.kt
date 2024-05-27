@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.Icon
@@ -24,7 +23,9 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.isSecondary
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
@@ -51,8 +52,8 @@ private var lastCheck: Long = 0
 private const val MIN_TIME_BETWEEN_POPUPS_IN_MS = 20
 
 @Composable
-fun ContextMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
-    Box(modifier = Modifier.contextMenu(items), propagateMinConstraints = true) {
+fun ContextMenu(enabled: Boolean = true,items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+    Box(modifier = Modifier.contextMenu(enabled, items), propagateMinConstraints = true) {
         function()
     }
 }
@@ -64,21 +65,23 @@ fun DropdownMenu(items: () -> List<ContextMenuElement>, function: @Composable ()
     }
 }
 
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifier {
-    val (lastMouseEventState, setLastMouseEventState) = remember { mutableStateOf<MouseEvent?>(null) }
+private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenuElement>): Modifier {
+    val (contentMenuData, setContentMenuData) = remember { mutableStateOf<ContextMenuData?>(null) }
 
-    val modifier = this.pointerInput(Unit) {
+    val modifier = this.pointerInput(enabled) {
         awaitPointerEventScope {
             while (true) {
                 val lastMouseEvent = awaitFirstDownEvent()
                 val mouseEvent = lastMouseEvent.awtEventOrNull
 
-                if (mouseEvent != null) {
-
+                if (mouseEvent != null && enabled) {
                     if (lastMouseEvent.button.isSecondary) {
-                        lastMouseEvent.changes.forEach { it.consume() }
+                        lastMouseEvent.changes.forEach {
+                            it.consume()
+                        }
 
                         val currentCheck = System.currentTimeMillis()
                         if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {
@@ -86,7 +89,7 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
                         } else {
                             lastCheck = currentCheck
 
-                            setLastMouseEventState(mouseEvent)
+                            setContentMenuData(ContextMenuData(items(), mouseEvent))
                         }
                     }
                 }
@@ -94,19 +97,24 @@ private fun Modifier.contextMenu(items: () -> List<ContextMenuElement>): Modifie
         }
     }
 
-    if (lastMouseEventState != null) {
+    if (contentMenuData != null && contentMenuData.items.isNotEmpty()) {
         DisableSelection {
             showPopup(
-                lastMouseEventState.x,
-                lastMouseEventState.y,
-                items(),
-                onDismissRequest = { setLastMouseEventState(null) }
+                contentMenuData.mouseEvent.x,
+                contentMenuData.mouseEvent.y,
+                contentMenuData.items,
+                onDismissRequest = { setContentMenuData(null) }
             )
         }
     }
 
     return modifier
 }
+
+class ContextMenuData(
+    val items: List<ContextMenuElement>,
+    val mouseEvent: MouseEvent,
+)
 
 @Composable
 private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifier {
@@ -237,6 +245,7 @@ fun TextEntry(contextTextEntry: ContextMenuElement.ContextTextEntry, onDismissRe
                 onDismissRequest()
                 contextTextEntry.onClick()
             }
+            .pointerHoverIcon(PointerIcon.Default)
             .padding(horizontal = 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
