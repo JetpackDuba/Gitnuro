@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.onDoubleClick
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -29,6 +30,7 @@ fun ErrorDialog(
     val horizontalScroll = rememberScrollState()
     val verticalScroll = rememberScrollState()
     val clipboard = LocalClipboardManager.current
+    var showStackTrace by remember { mutableStateOf(false) }
 
     MaterialDialog {
         Column(
@@ -50,6 +52,9 @@ fun ErrorDialog(
                     contentDescription = null,
                     tint = MaterialTheme.colors.error,
                     modifier = Modifier.size(24.dp)
+                        .onDoubleClick {
+                            showStackTrace = !showStackTrace
+                        }
                 )
             }
 
@@ -62,58 +67,60 @@ fun ErrorDialog(
                 style = MaterialTheme.typography.body2,
             )
 
-            Box(
-                modifier = Modifier
-                    .padding(top = 24.dp)
-                    .height(400.dp)
-                    .fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = error.exception.stackTraceToString(),
-                    onValueChange = {},
-                    readOnly = true,
-                    colors = TextFieldDefaults.outlinedTextFieldColors(backgroundColor = MaterialTheme.colors.secondarySurface),
-                    textStyle = MaterialTheme.typography.body2,
+            if (showStackTrace) {
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .horizontalScroll(horizontalScroll)
-                        .verticalScroll(verticalScroll),
-                )
-
-                HorizontalScrollbar(
-                    rememberScrollbarAdapter(horizontalScroll),
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
+                        .padding(top = 24.dp)
+                        .height(400.dp)
                         .fillMaxWidth()
-                )
-
-                VerticalScrollbar(
-                    rememberScrollbarAdapter(verticalScroll),
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                )
-
-                InstantTooltip(
-                    "Copy error",
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 16.dp, bottom = 16.dp)
                 ) {
-                    IconButton(
-                        onClick = {
-                            copyMessageError(clipboard, error.exception)
-                        },
+                    OutlinedTextField(
+                        value = error.exception.stackTraceToString(),
+                        onValueChange = {},
+                        readOnly = true,
+                        colors = TextFieldDefaults.outlinedTextFieldColors(backgroundColor = MaterialTheme.colors.secondarySurface),
+                        textStyle = MaterialTheme.typography.body2,
                         modifier = Modifier
-                            .size(24.dp)
-                            .handOnHover()
-                            .background(MaterialTheme.colors.background.copy(alpha = 0.8f))
+                            .fillMaxSize()
+                            .horizontalScroll(horizontalScroll)
+                            .verticalScroll(verticalScroll),
+                    )
+
+                    HorizontalScrollbar(
+                        rememberScrollbarAdapter(horizontalScroll),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                    )
+
+                    VerticalScrollbar(
+                        rememberScrollbarAdapter(verticalScroll),
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight()
+                    )
+
+                    InstantTooltip(
+                        "Copy error",
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 16.dp, bottom = 16.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(AppIcons.COPY),
-                            contentDescription = "Copy stacktrace",
-                            tint = MaterialTheme.colors.onSurface,
-                        )
+                        IconButton(
+                            onClick = {
+                                copyMessageError(clipboard, error.exception)
+                            },
+                            modifier = Modifier
+                                .size(24.dp)
+                                .handOnHover()
+                                .background(MaterialTheme.colors.background.copy(alpha = 0.8f))
+                        ) {
+                            Icon(
+                                painter = painterResource(AppIcons.COPY),
+                                contentDescription = "Copy stacktrace",
+                                tint = MaterialTheme.colors.onSurface,
+                            )
+                        }
                     }
                 }
             }
