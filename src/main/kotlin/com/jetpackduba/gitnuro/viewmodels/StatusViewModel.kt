@@ -4,10 +4,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TaskType
-import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.extensions.isMerging
-import com.jetpackduba.gitnuro.extensions.isReverting
-import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
@@ -125,7 +122,10 @@ class StatusViewModel @Inject constructor(
                 if (showAsTree) {
                     StageStateUi.TreeLoaded(
                         staged = entriesToTreeEntry(stageStateFiltered.staged, contractedDirectories) { it.filePath },
-                        unstaged = entriesToTreeEntry(stageStateFiltered.unstaged, contractedDirectories) { it.filePath },
+                        unstaged = entriesToTreeEntry(
+                            stageStateFiltered.unstaged,
+                            contractedDirectories
+                        ) { it.filePath },
                         isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
                     )
                 } else {
@@ -241,19 +241,19 @@ class StatusViewModel @Inject constructor(
 
     private suspend fun loadStatus(git: Git) {
         val previousStatus = _stageState.value
-
-        val requiredMessageType = if (git.repository.repositoryState == RepositoryState.MERGING) {
+        val type = if (
+            git.repository.repositoryState.isRebasing ||
+            git.repository.repositoryState.isMerging ||
+            git.repository.repositoryState.isReverting ||
+            git.repository.repositoryState.isCherryPicking
+        ) {
             MessageType.MERGE
         } else {
             MessageType.NORMAL
         }
 
-        if (requiredMessageType != savedCommitMessage.messageType) {
-            savedCommitMessage = CommitMessage(messageByRepoState(git), requiredMessageType)
-            _commitMessageChangesFlow.emit(savedCommitMessage.message)
-
-        } else if (savedCommitMessage.message.isEmpty()) {
-            savedCommitMessage = savedCommitMessage.copy(message = messageByRepoState(git))
+        if (type != savedCommitMessage.type) {
+            savedCommitMessage = CommitMessage(messageByRepoState(git), type)
             _commitMessageChangesFlow.emit(savedCommitMessage.message)
         }
 
@@ -300,15 +300,17 @@ class StatusViewModel @Inject constructor(
     }
 
     private fun messageByRepoState(git: Git): String {
-        val message: String? = if (
-            git.repository.repositoryState.isMerging ||
-            git.repository.repositoryState.isRebasing ||
-            git.repository.repositoryState.isReverting
-        ) {
-            git.repository.readMergeCommitMsg()
-        } else {
-            git.repository.readCommitEditMsg()
-        }
+        val message: String? =
+            if (
+                git.repository.repositoryState.isMerging ||
+                git.repository.repositoryState.isRebasing ||
+                git.repository.repositoryState.isReverting ||
+                git.repository.repositoryState.isCherryPicking
+            ) {
+                git.repository.readMergeCommitMsg()
+            } else {
+                git.repository.readCommitEditMsg()
+            }
 
         //TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
         return message.orEmpty().replace("\t", "    ")
@@ -579,7 +581,7 @@ sealed interface StageStateUi {
     }
 }
 
-data class CommitMessage(val message: String, val messageType: MessageType)
+data class CommitMessage(val message: String, val type: MessageType)
 
 enum class MessageType {
     NORMAL,

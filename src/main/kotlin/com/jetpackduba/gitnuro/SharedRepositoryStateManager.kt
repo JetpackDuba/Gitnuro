@@ -38,7 +38,12 @@ class SharedRepositoryStateManager @Inject constructor(
                 }
             }
             launch {
-                tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REPO_STATE) {
+                tabState.refreshFlowFiltered(
+                    RefreshType.ALL_DATA,
+                    RefreshType.REPO_STATE,
+                    RefreshType.UNCOMMITTED_CHANGES,
+                    RefreshType.UNCOMMITTED_CHANGES_AND_LOG
+                ) {
                     updateRepositoryState(tabState.git)
                 }
             }

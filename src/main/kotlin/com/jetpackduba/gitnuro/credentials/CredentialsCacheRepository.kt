@@ -8,6 +8,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.random.Random
 
 private const val KEY_LENGTH = 16
 
@@ -60,9 +61,8 @@ class CredentialsCacheRepository @Inject constructor() {
     }
 
     private fun String.cipherEncrypt(): String {
-        val secretKeySpec = SecretKeySpec(encryptionKey.toByteArray(), "AES")
-        val iv = encryptionKey.toByteArray()
-        val ivParameterSpec = IvParameterSpec(iv)
+        val secretKeySpec = SecretKeySpec(encryptionKey, "AES")
+        val ivParameterSpec = IvParameterSpec(encryptionKey)
 
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec)
@@ -72,9 +72,8 @@ class CredentialsCacheRepository @Inject constructor() {
     }
 
     private fun String.cipherDecrypt(): String {
-        val secretKeySpec = SecretKeySpec(encryptionKey.toByteArray(), "AES")
-        val iv = encryptionKey.toByteArray()
-        val ivParameterSpec = IvParameterSpec(iv)
+        val secretKeySpec = SecretKeySpec(encryptionKey, "AES")
+        val ivParameterSpec = IvParameterSpec(encryptionKey)
 
         val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec)
@@ -84,11 +83,11 @@ class CredentialsCacheRepository @Inject constructor() {
         return String(decryptedValue)
     }
 
-    private fun getRandomKey(): String {
-        val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9') + "#!$%=?-_.,@µ*:;+~".toList()
-        return (1..KEY_LENGTH)
-            .map { allowedChars.random() }
-            .joinToString("")
+    private fun getRandomKey(): ByteArray {
+        val byteArray = ByteArray(KEY_LENGTH)
+        Random.Default.nextBytes(byteArray)
+
+        return byteArray
     }
 }
 

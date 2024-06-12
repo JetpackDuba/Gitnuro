@@ -67,6 +67,7 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import kotlin.math.log
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -233,18 +234,27 @@ private fun LogLoaded(
                 repositoryState = repositoryState,
                 selectedItem = selectedItem,
                 commitList = commitList,
-                logViewModel = logViewModel,
                 graphWidth = graphWidth,
                 commitsLimit = logStatus.commitsLimit,
-                onMerge = { ref ->
-                    logViewModel.mergeBranch(ref)
-                },
-                onRebase = { ref ->
-                    logViewModel.rebaseBranch(ref)
-                },
-                onShowLogDialog = { dialog ->
-                    logViewModel.showDialog(dialog)
-                }
+                onMerge = { ref -> logViewModel.mergeBranch(ref) },
+                onRebase = { ref -> logViewModel.rebaseBranch(ref) },
+                onShowLogDialog = { dialog -> logViewModel.showDialog(dialog) },
+                onCheckoutCommit = { logViewModel.checkoutCommit(it) },
+                onRevertCommit = { logViewModel.revertCommit(it) },
+                onCherryPickCommit = { logViewModel.cherryPickCommit(it) },
+                onCheckoutRemoteBranch = { logViewModel.checkoutRemoteBranch(it) },
+                onCheckoutRef = { logViewModel.checkoutRef(it) },
+                onRebaseInteractive = { logViewModel.rebaseInteractive(it) },
+                onCommitSelected = { logViewModel.selectCommit(it) },
+                onUncommittedChangesSelected = { logViewModel.selectUncommittedChanges() },
+                onDeleteStash = { logViewModel.deleteStash(it) },
+                onApplyStash = { logViewModel.applyStash(it) },
+                onPopStash = { logViewModel.popStash(it) },
+                onDeleteBranch = { logViewModel.deleteBranch(it) },
+                onDeleteRemoteBranch = { logViewModel.deleteRemoteBranch(it) },
+                onDeleteTag = { logViewModel.deleteTag(it) },
+                onPushToRemoteBranch = { logViewModel.pushToRemoteBranch(it) },
+                onPullFromRemoteBranch = { logViewModel.pullFromRemoteBranch(it) },
             )
 
             val density = LocalDensity.current.density
@@ -443,10 +453,25 @@ fun CommitsList(
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
     commitList: GraphCommitList,
-    logViewModel: LogViewModel,
     commitsLimit: Int,
+    onCheckoutCommit: (GraphNode) -> Unit,
+    onRevertCommit: (GraphNode) -> Unit,
+    onCherryPickCommit: (GraphNode) -> Unit,
+    onCheckoutRemoteBranch: (Ref) -> Unit,
+    onCheckoutRef: (Ref) -> Unit,
     onMerge: (Ref) -> Unit,
     onRebase: (Ref) -> Unit,
+    onRebaseInteractive: (GraphNode) -> Unit,
+    onCommitSelected: (GraphNode) -> Unit,
+    onUncommittedChangesSelected: () -> Unit,
+    onDeleteStash: (GraphNode) -> Unit,
+    onApplyStash: (GraphNode) -> Unit,
+    onPopStash: (GraphNode) -> Unit,
+    onDeleteBranch: (Ref) -> Unit,
+    onDeleteRemoteBranch: (Ref) -> Unit,
+    onDeleteTag: (Ref) -> Unit,
+    onPushToRemoteBranch: (Ref) -> Unit,
+    onPullFromRemoteBranch: (Ref) -> Unit,
     onShowLogDialog: (LogDialog) -> Unit,
     graphWidth: Dp,
     horizontalScrollState: ScrollState,
@@ -478,7 +503,7 @@ fun CommitsList(
                     modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
                         .clipToBounds()
                         .fillMaxWidth()
-                        .clickable { logViewModel.selectUncommittedChanges() }
+                        .clickable { onUncommittedChangesSelected() }
                 ) {
                     UncommittedChangesGraphNode(
                         hasPreviousCommits = commitList.isNotEmpty(),
@@ -501,7 +526,6 @@ fun CommitsList(
         items(items = commitList) { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
-                logViewModel = logViewModel,
                 graphNode = graphNode,
                 isSelected = selectedCommit?.name == graphNode.name,
                 currentBranch = logStatus.currentBranch,
@@ -511,13 +535,23 @@ fun CommitsList(
                 showCreateNewTag = { onShowLogDialog(LogDialog.NewTag(graphNode)) },
                 resetBranch = { onShowLogDialog(LogDialog.ResetBranch(graphNode)) },
                 onMergeBranch = onMerge,
+                onDeleteBranch = onDeleteBranch,
+                onDeleteRemoteBranch = onDeleteRemoteBranch,
+                onDeleteTag = onDeleteTag,
+                onPushToRemoteBranch = onPushToRemoteBranch,
+                onPullFromRemoteBranch = onPullFromRemoteBranch,
                 onRebaseBranch = onRebase,
-                onRebaseInteractive = { logViewModel.rebaseInteractive(graphNode) },
-                onRevCommitSelected = { logViewModel.selectLogLine(graphNode) },
+                onRebaseInteractive = { onRebaseInteractive(graphNode) },
+                onRevCommitSelected = { onCommitSelected(graphNode) },
                 onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) },
-                onDeleteStash = { logViewModel.deleteStash(graphNode) },
-                onApplyStash = { logViewModel.applyStash(graphNode) },
-                onPopStash = { logViewModel.popStash(graphNode) },
+                onDeleteStash = { onDeleteStash(graphNode) },
+                onApplyStash = { onApplyStash(graphNode) },
+                onPopStash = { onPopStash(graphNode) },
+                onCheckoutCommit = { onCheckoutCommit(graphNode) },
+                onRevertCommit = { onRevertCommit(graphNode) },
+                onCherryPickCommit = { onCherryPickCommit(graphNode) },
+                onCheckoutRemoteBranch = onCheckoutRemoteBranch,
+                onCheckoutRef = onCheckoutRef,
             )
         }
 
@@ -751,7 +785,6 @@ fun SummaryEntry(
 @Composable
 private fun CommitLine(
     graphWidth: Dp,
-    logViewModel: LogViewModel,
     graphNode: GraphNode,
     isSelected: Boolean,
     currentBranch: Ref?,
@@ -763,9 +796,19 @@ private fun CommitLine(
     onPopStash: () -> Unit,
     onDeleteStash: () -> Unit,
     onMergeBranch: (Ref) -> Unit,
+    onDeleteBranch: (Ref) -> Unit,
+    onDeleteRemoteBranch: (Ref) -> Unit,
+    onDeleteTag: (Ref) -> Unit,
+    onPushToRemoteBranch: (Ref) -> Unit,
+    onPullFromRemoteBranch: (Ref) -> Unit,
     onRebaseBranch: (Ref) -> Unit,
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
+    onCheckoutCommit: () -> Unit,
+    onRevertCommit: () -> Unit,
+    onCherryPickCommit: () -> Unit,
+    onCheckoutRemoteBranch: (Ref) -> Unit,
+    onCheckoutRef: (Ref) -> Unit,
     onChangeDefaultUpstreamBranch: (Ref) -> Unit,
     horizontalScrollState: ScrollState,
 ) {
@@ -781,11 +824,11 @@ private fun CommitLine(
                 )
             } else {
                 logContextMenu(
-                    onCheckoutCommit = { logViewModel.checkoutCommit(graphNode) },
+                    onCheckoutCommit = onCheckoutCommit,//{ logViewModel.checkoutCommit(graphNode) },
                     onCreateNewBranch = showCreateNewBranch,
                     onCreateNewTag = showCreateNewTag,
-                    onRevertCommit = { logViewModel.revertCommit(graphNode) },
-                    onCherryPickCommit = { logViewModel.cherrypickCommit(graphNode) },
+                    onRevertCommit = onRevertCommit,//{ logViewModel.revertCommit(graphNode) },
+                    onCherryPickCommit = onCherryPickCommit, //{ logViewModel.cherryPickCommit(graphNode) },
                     onRebaseInteractive = onRebaseInteractive,
                     onResetBranch = { resetBranch() },
                     isLastCommit = isLastCommitOfCurrentBranch
@@ -848,18 +891,18 @@ private fun CommitLine(
                         currentBranch = currentBranch,
                         onCheckoutRef = { ref ->
                             if (ref.isRemote && ref.isBranch) {
-                                logViewModel.checkoutRemoteBranch(ref)
+                                onCheckoutRemoteBranch(ref)
                             } else {
-                                logViewModel.checkoutRef(ref)
+                                onCheckoutRef(ref)
                             }
                         },
                         onMergeBranch = { ref -> onMergeBranch(ref) },
-                        onDeleteBranch = { ref -> logViewModel.deleteBranch(ref) },
-                        onDeleteRemoteBranch = { ref -> logViewModel.deleteRemoteBranch(ref) },
-                        onDeleteTag = { ref -> logViewModel.deleteTag(ref) },
+                        onDeleteBranch = { ref -> onDeleteBranch(ref) },
+                        onDeleteRemoteBranch = { ref -> onDeleteRemoteBranch(ref) },
+                        onDeleteTag = { ref -> onDeleteTag(ref) },
                         onRebaseBranch = { ref -> onRebaseBranch(ref) },
-                        onPushRemoteBranch = { ref -> logViewModel.pushToRemoteBranch(ref) },
-                        onPullRemoteBranch = { ref -> logViewModel.pullFromRemoteBranch(ref) },
+                        onPushRemoteBranch = { ref -> onPushToRemoteBranch(ref) },
+                        onPullRemoteBranch = { ref -> onPullFromRemoteBranch(ref) },
                         onChangeDefaultUpstreamBranch = { ref -> onChangeDefaultUpstreamBranch(ref) },
                     )
                 }

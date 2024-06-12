@@ -180,17 +180,18 @@ class LogViewModel @Inject constructor(
     fun resetToCommit(revCommit: RevCommit, resetType: ResetType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch reset",
-        subtitle = "Reseting branch to commit ${revCommit.shortName}",
+        subtitle = "Resetting branch to commit ${revCommit.shortName}",
         taskType = TaskType.RESET_TO_COMMIT,
     ) { git ->
         resetToCommitUseCase(git, revCommit, resetType = resetType)
     }
 
-    fun cherrypickCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun cherryPickCommit(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         title = "Cherry-pick",
         subtitle = "Cherry-picking commit ${revCommit.shortName}",
         taskType = TaskType.CHERRY_PICK_COMMIT,
+        refreshEvenIfCrashes = true,
     ) { git ->
         cherryPickCommitUseCase(git, revCommit)
     }
@@ -266,7 +267,7 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectLogLine(commit: GraphNode) = tabState.runOperation(
+    fun selectCommit(commit: GraphNode) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         tabState.newSelectedCommit(commit)
