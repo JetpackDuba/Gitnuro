@@ -301,9 +301,17 @@ class StatusViewModel @Inject constructor(
 
     private fun messageByRepoState(git: Git): String {
         val message: String? =
-            if (
+            if (git.repository.repositoryState.isRebasing) {
+                val rebaseMergeDir = File(git.repository.directory, "rebase-merge")
+                val messageFile = File(rebaseMergeDir, "message")
+
+                if (messageFile.exists()) {
+                    runCatching { messageFile.readText() }.getOrNull() ?: ""
+                } else {
+                    ""
+                }
+            } else if (
                 git.repository.repositoryState.isMerging ||
-                git.repository.repositoryState.isRebasing ||
                 git.repository.repositoryState.isReverting ||
                 git.repository.repositoryState.isCherryPicking
             ) {
