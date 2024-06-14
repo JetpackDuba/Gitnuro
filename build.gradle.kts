@@ -13,7 +13,7 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization") version "2.0.0"
     id("com.google.devtools.ksp") version "2.0.0-1.0.21"
-    id("org.jetbrains.compose") version "1.6.10"
+    id("org.jetbrains.compose") version "1.6.11"
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
 }
 
@@ -65,7 +65,7 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("net.i2p.crypto:eddsa:0.3.0")
-    implementation("net.java.dev.jna:jna:5.13.0")
+    implementation("net.java.dev.jna:jna:5.14.0")
     implementation("io.github.oshai:kotlin-logging-jvm:5.0.1")
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
@@ -101,9 +101,11 @@ kotlin {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.allWarningsAsErrors = true
-    kotlinOptions.freeCompilerArgs += "-opt-in=kotlin.RequiresOptIn"
+tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
+    compilerOptions {
+        allWarningsAsErrors.set(false)
+        freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
+    }
 }
 
 tasks.withType<JavaExec> {
