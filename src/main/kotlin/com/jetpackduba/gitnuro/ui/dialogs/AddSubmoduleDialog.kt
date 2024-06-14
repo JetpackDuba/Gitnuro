@@ -29,12 +29,11 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
 
 @Composable
 fun AddSubmodulesDialog(
-    viewModel: SubmoduleDialogViewModel = gitnuroDynamicViewModel(),
+    viewModel: SubmoduleDialogViewModel,
     onCancel: () -> Unit,
     onAccept: (repository: String, directory: String) -> Unit,
 ) {

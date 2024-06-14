@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
-import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
@@ -37,7 +36,6 @@ import com.jetpackduba.gitnuro.ui.drag_sorting.HorizontalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.horizontalDragContainer
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberHorizontalDragDropState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
-import com.jetpackduba.gitnuro.viewmodels.TabViewModelsHolder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -259,9 +257,6 @@ class TabInformation(
     @Inject
     lateinit var appStateManager: AppStateManager
 
-    @Inject
-    lateinit var tabViewModelsHolder: TabViewModelsHolder
-
     var path = initialPath
         private set
 
@@ -299,21 +294,3 @@ class TabInformation(
 }
 
 fun emptyTabInformation() = TabInformation(mutableStateOf(""), "", {}, null)
-
-@Composable
-inline fun <reified T> gitnuroViewModel(): T {
-    val tab = LocalTabScope.current
-
-    return remember(tab) {
-        tab.tabViewModelsHolder.viewModels[T::class] as T
-    }
-}
-
-@Composable
-inline fun <reified T> gitnuroDynamicViewModel(): T {
-    val tab = LocalTabScope.current
-
-    return remember(tab) {
-        tab.tabViewModelsHolder.dynamicViewModel(T::class) as T
-    }
-}

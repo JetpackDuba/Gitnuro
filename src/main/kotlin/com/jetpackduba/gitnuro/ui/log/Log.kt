@@ -50,8 +50,6 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
@@ -60,6 +58,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
+import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
 import com.jetpackduba.gitnuro.viewmodels.LogSearch
 import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
@@ -67,7 +66,6 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import kotlin.math.log
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -99,16 +97,24 @@ private const val LOG_BOTTOM_PADDING = 80
 )
 @Composable
 fun Log(
-    logViewModel: LogViewModel = gitnuroViewModel(),
+    logViewModel: LogViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
+    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
 ) {
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
     val showLogDialog by logViewModel.logDialog.collectAsState()
 
     when (logStatus) {
-        is LogStatus.Loaded -> LogLoaded(logViewModel, logStatus, showLogDialog, selectedItem, repositoryState)
+        is LogStatus.Loaded -> LogLoaded(
+            logViewModel = logViewModel,
+            logStatus = logStatus,
+            showLogDialog = showLogDialog,
+            selectedItem = selectedItem,
+            repositoryState = repositoryState,
+            changeDefaultUpstreamBranchViewModel = changeDefaultUpstreamBranchViewModel,
+        )
         LogStatus.Loading -> LogLoading()
     }
 }
@@ -137,7 +143,8 @@ private fun LogLoaded(
     logStatus: LogStatus.Loaded,
     showLogDialog: LogDialog,
     selectedItem: SelectedItem,
-    repositoryState: RepositoryState
+    repositoryState: RepositoryState,
+    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
 ) {
     val scope = rememberCoroutineScope()
     val hasUncommittedChanges = logStatus.hasUncommittedChanges
@@ -170,6 +177,7 @@ private fun LogLoaded(
         logViewModel,
         onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
         showLogDialog = showLogDialog,
+        changeDefaultUpstreamBranchViewModel = changeDefaultUpstreamBranchViewModel,
     )
 
     Column(
@@ -584,6 +592,7 @@ fun CommitsList(
 fun LogDialogs(
     logViewModel: LogViewModel,
     onResetShowLogDialog: () -> Unit,
+    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
     showLogDialog: LogDialog,
 ) {
     when (showLogDialog) {
@@ -611,7 +620,7 @@ fun LogDialogs(
 
         is LogDialog.ChangeDefaultBranch -> {
             SetDefaultUpstreamBranchDialog(
-                viewModel = gitnuroDynamicViewModel(),
+                viewModel = changeDefaultUpstreamBranchViewModel(),
                 branch = showLogDialog.ref,
                 onClose = { onResetShowLogDialog() },
             )

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -156,7 +157,7 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
 
 @Composable
 fun SettingsDialog(
-    settingsViewModel: SettingsViewModel = gitnuroViewModel(),
+    settingsViewModel: SettingsViewModel,
     onDismiss: () -> Unit,
 ) {
 
@@ -560,6 +561,7 @@ fun <T> SettingDropDown(
                 onClick = { showThemeDropdown = true },
                 colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.background),
                 modifier = Modifier.width(180.dp)
+                    .handOnHover()
             ) {
                 Text(
                     text = currentOption.optionName,
@@ -591,7 +593,6 @@ fun <T> SettingDropDown(
                     }
                 }
             }
-
         }
     }
 }

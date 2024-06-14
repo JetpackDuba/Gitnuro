@@ -28,7 +28,6 @@ import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.drag_sorting.VerticalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberVerticalDragDropState
 import com.jetpackduba.gitnuro.ui.drag_sorting.verticalDragContainer
@@ -39,7 +38,7 @@ import com.jetpackduba.gitnuro.viewmodels.RebaseLine
 
 @Composable
 fun RebaseInteractive(
-    rebaseInteractiveViewModel: RebaseInteractiveViewModel = gitnuroViewModel(),
+    rebaseInteractiveViewModel: RebaseInteractiveViewModel,
 ) {
     val rebaseState = rebaseInteractiveViewModel.rebaseState.collectAsState()
     val rebaseStateValue = rebaseState.value

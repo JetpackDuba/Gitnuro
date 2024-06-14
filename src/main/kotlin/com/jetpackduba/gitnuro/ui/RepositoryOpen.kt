@@ -16,7 +16,6 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
-import com.jetpackduba.gitnuro.LocalTabScope
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
@@ -24,7 +23,6 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
-import com.jetpackduba.gitnuro.ui.components.gitnuroDynamicViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
@@ -97,7 +95,7 @@ fun RepositoryOpenPage(
         )
     } else if (showSignOffDialog) {
         SignOffDialog(
-            viewModel = gitnuroDynamicViewModel(),
+            viewModel = tabViewModel.tabViewModelsProvider.signOffDialogViewModel,
             onClose = { showSignOffDialog = false },
         )
     }
@@ -122,9 +120,9 @@ fun RepositoryOpenPage(
                         }
                     }
             ) {
-                val currentTabInformation = LocalTabScope.current
                 Column(modifier = Modifier.weight(1f)) {
                     Menu(
+                        menuViewModel = tabViewModel.tabViewModelsProvider.menuViewModel,
                         modifier = Modifier
                             .padding(
                                 vertical = 4.dp
@@ -133,10 +131,10 @@ fun RepositoryOpenPage(
                         onCreateBranch = { showNewBranchDialog = true },
                         onStashWithMessage = { showStashWithMessageDialog = true },
                         onOpenAnotherRepository = {
-                            val repo = tabViewModel.openDirectoryPicker()
+                            val repoToOpen = tabViewModel.openDirectoryPicker()
 
-                            if (repo != null) {
-                                tabViewModel.openAnotherRepository(repo, currentTabInformation)
+                            if (repoToOpen != null) {
+                                tabViewModel.openAnotherRepository(repoToOpen)
                             }
                         },
                         onQuickActions = { showQuickActionsDialog = true },
@@ -257,10 +255,14 @@ fun MainContentView(
 
     TripleVerticalSplitPanel(
         modifier = Modifier.fillMaxSize(),
-        firstWidth = if(rebaseInteractiveState is RebaseInteractiveState.AwaitingInteraction) 0f else firstWidth,
+        firstWidth = if (rebaseInteractiveState is RebaseInteractiveState.AwaitingInteraction) 0f else firstWidth,
         thirdWidth = thirdWidth,
         first = {
-            SidePanel()
+            SidePanel(
+                tabViewModel.tabViewModelsProvider.sidePanelViewModel,
+                changeDefaultUpstreamBranchViewModel = { tabViewModel.tabViewModelsProvider.changeDefaultUpstreamBranchViewModel },
+                submoduleDialogViewModel = { tabViewModel.tabViewModelsProvider.submoduleDialogViewModel },
+            )
         },
         second = {
             Box(
@@ -268,7 +270,7 @@ fun MainContentView(
                     .fillMaxSize()
             ) {
                 if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction && diffSelected == null) {
-                    RebaseInteractive()
+                    RebaseInteractive(tabViewModel.tabViewModelsProvider.rebaseInteractiveViewModel)
                 } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                     Blame(
                         filePath = blameState.filePath,
@@ -282,8 +284,10 @@ fun MainContentView(
                             when (diffSelected) {
                                 null -> {
                                     Log(
+                                        logViewModel = tabViewModel.tabViewModelsProvider.logViewModel,
                                         selectedItem = selectedItem,
                                         repositoryState = repositoryState,
+                                        changeDefaultUpstreamBranchViewModel = { tabViewModel.tabViewModelsProvider.changeDefaultUpstreamBranchViewModel },
                                     )
                                 }
 
@@ -321,6 +325,7 @@ fun MainContentView(
                 when (selectedItem) {
                     SelectedItem.UncommittedChanges -> {
                         UncommittedChanges(
+                            statusViewModel = tabViewModel.tabViewModelsProvider.statusViewModel,
                             selectedEntryType = diffSelected,
                             repositoryState = repositoryState,
                             onStagedDiffEntrySelected = { diffEntry ->
@@ -350,6 +355,7 @@ fun MainContentView(
 
                     is SelectedItem.CommitBasedItem -> {
                         CommitChanges(
+                            commitChangesViewModel = tabViewModel.tabViewModelsProvider.commitChangesViewModel,
                             selectedItem = selectedItem,
                             diffSelected = diffSelected,
                             onDiffSelected = { diffEntry ->

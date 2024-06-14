@@ -47,7 +47,8 @@ class TabsManager @Inject constructor(
         _currentTab.value = latestSelectedTab ?: _tabsFlow.value.first()
     }
 
-    fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplaced: TabInformation? = null) {
+    fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplacedPath: String? = null) {
+        val tabToBeReplaced = tabsFlow.value.firstOrNull { it.path == tabToBeReplacedPath }
         val newTab = newAppTab(
             tabName = mutableStateOf(""),
             path = path,

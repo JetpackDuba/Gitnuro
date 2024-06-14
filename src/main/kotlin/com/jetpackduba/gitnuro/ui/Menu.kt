@@ -29,7 +29,6 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
-import com.jetpackduba.gitnuro.ui.components.gitnuroViewModel
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
 
@@ -37,7 +36,7 @@ import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
 @Composable
 fun Menu(
     modifier: Modifier,
-    menuViewModel: MenuViewModel = gitnuroViewModel(),
+    menuViewModel: MenuViewModel,
     onCreateBranch: () -> Unit,
     onOpenAnotherRepository: () -> Unit,
     onStashWithMessage: () -> Unit,

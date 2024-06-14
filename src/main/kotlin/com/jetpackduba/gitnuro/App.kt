@@ -38,7 +38,6 @@ import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
-import com.jetpackduba.gitnuro.ui.components.emptyTabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
@@ -51,8 +50,6 @@ import javax.inject.Inject
 
 
 private const val TAG = "App"
-
-val LocalTabScope = compositionLocalOf { emptyTabInformation() }
 
 
 class App {
@@ -260,7 +257,7 @@ class App {
                     }
                 )
 
-                TabContent(currentTab)
+                TabContent(tabs, currentTab)
             }
         }
     }
@@ -314,18 +311,19 @@ class App {
 }
 
 @Composable
-private fun TabContent(currentTab: TabInformation?) {
+private fun TabContent(tabs: List<TabInformation>, currentTab: TabInformation?) {
     Box(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize(),
     ) {
         if (currentTab != null) {
-            val tabScope = arrayOf(LocalTabScope provides currentTab)
-
-            CompositionLocalProvider(values = tabScope) {
-                AppTab(currentTab.tabViewModel)
+            for (tab in tabs) {
+                if (tab == currentTab) {
+                    AppTab(currentTab.tabViewModel)
+                }
             }
+
         }
     }
 }

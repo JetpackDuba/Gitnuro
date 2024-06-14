@@ -53,7 +53,7 @@ import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
 fun UncommittedChanges(
-    statusViewModel: StatusViewModel = gitnuroViewModel(),
+    statusViewModel: StatusViewModel,
     selectedEntryType: DiffEntryType?,
     repositoryState: RepositoryState,
     onStagedDiffEntrySelected: (StatusEntry?) -> Unit,

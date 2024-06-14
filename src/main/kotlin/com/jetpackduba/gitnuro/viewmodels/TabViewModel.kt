@@ -24,7 +24,6 @@ import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.TabsManager
-import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.*
@@ -54,6 +53,7 @@ class TabViewModel @Inject constructor(
     private val initLocalRepositoryUseCase: InitLocalRepositoryUseCase,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val openSubmoduleRepositoryUseCase: OpenSubmoduleRepositoryUseCase,
+    private val getWorkspacePathUseCase: GetWorkspacePathUseCase,
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
@@ -70,6 +70,7 @@ class TabViewModel @Inject constructor(
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
+    val tabViewModelsProvider: TabViewModelsProvider,
 ) {
     var firstPaneWidth = 220f
     var thirdPaneWidth = 360f
@@ -141,8 +142,11 @@ class TabViewModel @Inject constructor(
      * instead of opening the repo in the same ViewModel we simply create a new tab with a new TabViewModel
      * replacing the current tab
      */
-    fun openAnotherRepository(directory: String, current: TabInformation) {
-        tabsManager.addNewTabFromPath(directory, true, current)
+    fun openAnotherRepository(directory: String) = tabState.runOperation(
+        showError = true,
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        tabsManager.addNewTabFromPath(directory, true, getWorkspacePathUseCase(git))
     }
 
     fun openRepository(directory: String) {

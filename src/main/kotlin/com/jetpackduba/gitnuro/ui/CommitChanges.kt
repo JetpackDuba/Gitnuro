@@ -42,7 +42,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun CommitChanges(
-    commitChangesViewModel: CommitChangesViewModel = gitnuroViewModel(),
+    commitChangesViewModel: CommitChangesViewModel,
     selectedItem: SelectedItem.CommitBasedItem,
     onDiffSelected: (DiffEntry) -> Unit,
     diffSelected: DiffEntryType?,

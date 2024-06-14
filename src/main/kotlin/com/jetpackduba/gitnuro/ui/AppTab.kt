@@ -60,6 +60,7 @@ fun AppTab(
             var showSettingsDialog by remember { mutableStateOf(false) }
             if (showSettingsDialog) {
                 SettingsDialog(
+                    settingsViewModel = tabViewModel.tabViewModelsProvider.settingsViewModel,
                     onDismiss = { showSettingsDialog = false }
                 )
             }
@@ -68,6 +69,7 @@ fun AppTab(
 
             if (showCloneDialog) {
                 CloneDialog(
+                    cloneViewModel = tabViewModel.tabViewModelsProvider.cloneViewModel,
                     onClose = {
                         showCloneDialog = false
                     },
