@@ -21,11 +21,13 @@ import com.jetpackduba.gitnuro.git.DiffEntryType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff
 import com.jetpackduba.gitnuro.ui.log.Log
+import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.BlameState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import org.eclipse.jgit.lib.RepositoryState
@@ -160,14 +162,26 @@ fun RepositoryOpenPage(
                 .background(MaterialTheme.colors.primaryVariant.copy(alpha = 0.2f))
         )
 
-        BottomInfoBar(tabViewModel)
+
+        val userInfo by tabViewModel.authorInfoSimple.collectAsState()
+        val newUpdate = tabViewModel.update.collectAsState().value
+
+        BottomInfoBar(
+            userInfo,
+            newUpdate,
+            onOpenUrlInBrowser = { tabViewModel.openUrlInBrowser(it) },
+            onShowAuthorInfoDialog = { tabViewModel.showAuthorInfoDialog() },
+        )
     }
 }
 
 @Composable
-private fun BottomInfoBar(tabViewModel: TabViewModel) {
-    val userInfo by tabViewModel.authorInfoSimple.collectAsState()
-    val newUpdate = tabViewModel.hasUpdates.collectAsState().value
+private fun BottomInfoBar(
+    userInfo: AuthorInfoSimple,
+    newUpdate: Update?,
+    onOpenUrlInBrowser: (String) -> Unit,
+    onShowAuthorInfoDialog: () -> Unit,
+) {
 
     Row(
         modifier = Modifier
@@ -180,7 +194,7 @@ private fun BottomInfoBar(tabViewModel: TabViewModel) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .handMouseClickable { tabViewModel.showAuthorInfoDialog() },
+                .handMouseClickable { onShowAuthorInfoDialog() },
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -194,7 +208,7 @@ private fun BottomInfoBar(tabViewModel: TabViewModel) {
         if (newUpdate != null) {
             SecondaryButton(
                 text = "Update ${newUpdate.appVersion} available",
-                onClick = { tabViewModel.openUrlInBrowser(newUpdate.downloadUrl) },
+                onClick = { onOpenUrlInBrowser(newUpdate.downloadUrl) },
                 backgroundButton = MaterialTheme.colors.primary,
                 modifier = Modifier.padding(end = 16.dp)
             )

@@ -348,7 +348,7 @@ class TabViewModel @Inject constructor(
         openRepository(repoDir)
     }
 
-    val hasUpdates: StateFlow<Update?> = updatesRepository.hasUpdatesFlow()
+    val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow()
         .flowOn(Dispatchers.IO)
         .stateIn(tabScope, started = SharingStarted.Eagerly, null)
 
@@ -448,6 +448,10 @@ class TabViewModel @Inject constructor(
 
     fun openUrlInBrowser(url: String) {
         openUrlInBrowserUseCase(url)
+    }
+
+    fun removeRepositoryFromRecent(repository: String) {
+        appStateManager.removeRepositoryFromRecent(repository)
     }
 }
 

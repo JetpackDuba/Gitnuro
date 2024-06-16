@@ -5,6 +5,8 @@ import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.decodeFromString
@@ -20,26 +22,25 @@ class AppStateManager @Inject constructor(
 ) {
     private val mutex = Mutex()
 
-    private val _latestOpenedRepositoriesPaths = mutableListOf<String>()
-    val latestOpenedRepositoriesPaths: List<String>
-        get() = _latestOpenedRepositoriesPaths
+    private val _latestOpenedRepositoriesPaths = MutableStateFlow<List<String>>(emptyList())
+    val latestOpenedRepositoriesPaths = _latestOpenedRepositoriesPaths.asStateFlow()
 
     val latestOpenedRepositoryPath: String
-        get() = _latestOpenedRepositoriesPaths.firstOrNull() ?: ""
+        get() = _latestOpenedRepositoriesPaths.value.firstOrNull() ?: ""
 
     fun repositoryTabChanged(path: String) = appScope.launch(Dispatchers.IO) {
         mutex.lock()
         try {
+            val repoPaths = _latestOpenedRepositoriesPaths.value.toMutableList()
+
             // Remove any previously existing path
-            _latestOpenedRepositoriesPaths.removeIf { it == path }
+            repoPaths.removeIf { it == path }
 
             // Add the latest one to the beginning
-            _latestOpenedRepositoriesPaths.add(0, path)
+            repoPaths.add(0, path)
 
-            if (_latestOpenedRepositoriesPaths.count() > 10)
-                _latestOpenedRepositoriesPaths.removeLast()
-
-            appSettingsRepository.latestOpenedRepositoriesPath = Json.encodeToString(_latestOpenedRepositoriesPaths)
+            appSettingsRepository.latestOpenedRepositoriesPath = Json.encodeToString(repoPaths)
+            _latestOpenedRepositoriesPaths.value = repoPaths
         } finally {
             mutex.unlock()
         }
@@ -49,11 +50,28 @@ class AppStateManager @Inject constructor(
         val repositoriesPathsSaved = appSettingsRepository.latestOpenedRepositoriesPath
         if (repositoriesPathsSaved.isNotEmpty()) {
             val repositories = Json.decodeFromString<List<String>>(repositoriesPathsSaved)
-            _latestOpenedRepositoriesPaths.addAll(repositories)
+            val repoPaths = _latestOpenedRepositoriesPaths.value.toMutableList()
+
+            repoPaths.addAll(repositories)
+
+            _latestOpenedRepositoriesPaths.value = repoPaths
         }
     }
 
     fun cancelCoroutines() {
         appScope.cancel("Closing app")
+    }
+
+    fun removeRepositoryFromRecent(path: String) = appScope.launch {
+        mutex.lock()
+        try {
+            val repoPaths = _latestOpenedRepositoriesPaths.value.toMutableList()
+            repoPaths.removeIf { it == path }
+
+            appSettingsRepository.latestOpenedRepositoriesPath = Json.encodeToString(repoPaths)
+            _latestOpenedRepositoriesPaths.value = repoPaths
+        } finally {
+            mutex.unlock()
+        }
     }
 }

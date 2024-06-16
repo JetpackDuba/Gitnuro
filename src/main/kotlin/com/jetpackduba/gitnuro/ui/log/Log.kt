@@ -442,7 +442,7 @@ fun SearchFilter(
                             .padding(end = 4.dp),
                         onClick = { logViewModel.closeSearch() }
                     ) {
-                        Icon(Icons.Default.Clear, contentDescription = null)
+                        Icon(painterResource(AppIcons.CLOSE), contentDescription = null)
                     }
                 }
             }
