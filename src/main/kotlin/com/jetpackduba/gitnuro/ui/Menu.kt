@@ -5,29 +5,36 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.*
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
+import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
@@ -38,12 +45,17 @@ fun Menu(
     modifier: Modifier,
     menuViewModel: MenuViewModel,
     onCreateBranch: () -> Unit,
-    onOpenAnotherRepository: () -> Unit,
+    onOpenAnotherRepository: (String) -> Unit,
+    onOpenAnotherRepositoryFromPicker: () -> Unit,
     onStashWithMessage: () -> Unit,
     onQuickActions: () -> Unit,
     onShowSettingsDialog: () -> Unit,
 ) {
     val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState()
+    val lastLoadedTabs by menuViewModel.lastLoadedTabs.collectAsState()
+    val (position, setPosition) = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    var showOpenPopup by remember { mutableStateOf(false) }
+
 
     Row(
         modifier = modifier,
@@ -51,14 +63,16 @@ fun Menu(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         InstantTooltip(
-            text = "Open a different repository"
+            text = "Open a different repository",
+            enabled = !showOpenPopup,
         ) {
             MenuButton(
                 modifier = Modifier
-                    .padding(start = 16.dp),
+                    .padding(start = 16.dp)
+                    .onGloballyPositioned { setPosition(it) },
                 title = "Open",
                 icon = painterResource(AppIcons.OPEN),
-                onClick = onOpenAnotherRepository,
+                onClick = { showOpenPopup = true },
             )
         }
 
@@ -175,6 +189,64 @@ fun Menu(
                 icon = painterResource(AppIcons.SETTINGS),
                 onClick = onShowSettingsDialog,
             )
+        }
+    }
+
+    if (showOpenPopup && position != null) {
+        val boundsInRoot = position.boundsInRoot()
+
+        Popup(
+            popupPositionProvider =
+            object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize
+                ): IntOffset {
+                    return IntOffset(boundsInRoot.left.toInt(), boundsInRoot.bottom.toInt())
+                }
+            },
+            onDismissRequest = { showOpenPopup = false },
+            properties = PopupProperties(focusable = true),
+        ) {
+            val searchFocusRequester = remember { FocusRequester() }
+
+            Column(
+                modifier = Modifier
+                    .width(600.dp)
+                    .heightIn(max = 600.dp)
+                    .background(MaterialTheme.colors.surface)
+                    .border(2.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                    .padding(16.dp)
+            ) {
+                PrimaryButton(
+                    text = "Open a repository",
+                    onClick = {
+                        showOpenPopup = false
+                        onOpenAnotherRepositoryFromPicker()
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                )
+
+                Box(modifier = Modifier.weight(1f)) {
+                    RecentRepositoriesList(
+                        recentlyOpenedRepositories = lastLoadedTabs,
+                        canRepositoriesBeRemoved = false,
+                        searchFieldFocusRequester = searchFocusRequester,
+                        onRemoveRepositoryFromRecent = {},
+                        onOpenKnownRepository = {
+                            showOpenPopup = false
+                            onOpenAnotherRepository(it)
+                        },
+                    )
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                searchFocusRequester.requestFocus()
+            }
         }
     }
 }

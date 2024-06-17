@@ -10,6 +10,7 @@ import com.jetpackduba.gitnuro.git.remote_operations.PushBranchUseCase
 import com.jetpackduba.gitnuro.git.stash.PopLastStashUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
+import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalUseCase
 import javax.inject.Inject
@@ -24,8 +25,10 @@ class MenuViewModel @Inject constructor(
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
     private val openRepositoryInTerminalUseCase: OpenRepositoryInTerminalUseCase,
     private val settings: AppSettingsRepository,
+    private val appStateManager: AppStateManager,
 ) {
     val isPullWithRebaseDefault = settings.pullRebaseFlow
+    val lastLoadedTabs = appStateManager.latestOpenedRepositoriesPaths
 
     fun pull(pullType: PullType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

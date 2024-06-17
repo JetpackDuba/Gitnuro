@@ -19,6 +19,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
@@ -286,10 +288,6 @@ fun RecentRepositories(
             .width(600.dp)
             .height(400.dp),
     ) {
-        var filter by remember {
-            mutableStateOf("")
-        }
-
         if (recentlyOpenedRepositories.isEmpty()) {
             Text(
                 "Nothing to see here, open a repository first!",
@@ -298,114 +296,142 @@ fun RecentRepositories(
                 modifier = Modifier.padding(top = 16.dp)
             )
         } else {
-            AdjustableOutlinedTextField(
-                value = filter,
-                onValueChange = { filter = it },
-                hint = "Search for recent repositories",
-                trailingIcon = {
-                    if (filter.isNotEmpty()) {
+            RecentRepositoriesList(
+                recentlyOpenedRepositories = recentlyOpenedRepositories,
+                canRepositoriesBeRemoved = canRepositoriesBeRemoved,
+                onRemoveRepositoryFromRecent = onRemoveRepositoryFromRecent,
+                onOpenKnownRepository = onOpenKnownRepository,
+            )
+        }
+    }
+}
+
+@Composable
+fun RecentRepositoriesList(
+    recentlyOpenedRepositories: List<String>,
+    canRepositoriesBeRemoved: Boolean,
+    searchFieldFocusRequester: FocusRequester? = null,
+    onRemoveRepositoryFromRecent: (String) -> Unit,
+    onOpenKnownRepository: (String) -> Unit,
+) {
+    var filter by remember {
+        mutableStateOf("")
+    }
+    Column {
+        AdjustableOutlinedTextField(
+            modifier = Modifier.run {
+                if (searchFieldFocusRequester != null) {
+                    focusRequester(searchFieldFocusRequester)
+                } else {
+                    this
+                }
+            },
+            value = filter,
+            onValueChange = { filter = it },
+            hint = "Search for recent repositories",
+            trailingIcon = {
+                if (filter.isNotEmpty()) {
+                    IconButton(
+                        onClick = { filter = "" },
+                        modifier = Modifier
+                            .size(16.dp)
+                            .handOnHover(),
+                    ) {
+                        Icon(
+                            painterResource(AppIcons.CLOSE),
+                            contentDescription = null,
+                            tint = if (filter.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
+                        )
+                    }
+                }
+            }
+        )
+
+        val filteredRepositories = remember(filter, recentlyOpenedRepositories) {
+            if (filter.isBlank()) {
+                recentlyOpenedRepositories
+            } else {
+                recentlyOpenedRepositories.filter { repository ->
+                    repository.lowercaseContains(filter)
+                }
+            }
+        }
+
+        val listState = rememberLazyListState()
+
+        Box(modifier = Modifier.padding(top = 4.dp)) {
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                items(items = filteredRepositories) { repo ->
+                    val repoDirName = repo.dirName
+                    val repoDirPath = repo.dirPath
+                    val hoverInteraction = remember { MutableInteractionSource() }
+                    val isHovered by hoverInteraction.collectIsHoveredAsState()
+
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .fillMaxWidth()
+                            .hoverable(hoverInteraction)
+                            .handMouseClickable { onOpenKnownRepository(repo) }
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text(
+                                text = repoDirName,
+                                style = MaterialTheme.typography.body2,
+                                maxLines = 1,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colors.primaryVariant,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+
+                            Text(
+                                text = repoDirPath,
+                                style = MaterialTheme.typography.body2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier,
+                                maxLines = 1,
+                                color = MaterialTheme.colors.onBackgroundSecondary
+                            )
+                        }
+
+
+                        val buttonAlpha = if (canRepositoriesBeRemoved && isHovered) {
+                            1f
+                        } else {
+                            0f
+                        }
+
                         IconButton(
-                            onClick = { filter = "" },
-                            modifier = Modifier
-                                .size(16.dp)
+                            onClick = { onRemoveRepositoryFromRecent(repo) },
+                            enabled = canRepositoriesBeRemoved && isHovered,
+                            modifier = Modifier.alpha(buttonAlpha)
+                                .size(24.dp)
                                 .handOnHover(),
                         ) {
                             Icon(
                                 painterResource(AppIcons.CLOSE),
-                                contentDescription = null,
-                                tint = if (filter.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
+                                contentDescription = "Remove repository from recent",
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colors.onBackgroundSecondary
                             )
                         }
                     }
                 }
+            }
+
+            VerticalScrollbar(
+                rememberScrollbarAdapter(listState),
+                modifier = Modifier.align(Alignment.CenterEnd)
+                    .fillMaxHeight(),
             )
-
-            val filteredRepositories = remember(filter, recentlyOpenedRepositories) {
-                if (filter.isBlank()) {
-                    recentlyOpenedRepositories
-                } else {
-                    recentlyOpenedRepositories.filter { repository ->
-                        repository.lowercaseContains(filter)
-                    }
-                }
-            }
-
-            val listState = rememberLazyListState()
-
-            Box (modifier = Modifier.padding(top = 4.dp)) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    items(items = filteredRepositories) { repo ->
-                        val repoDirName = repo.dirName
-                        val repoDirPath = repo.dirPath
-                        val hoverInteraction = remember { MutableInteractionSource() }
-                        val isHovered by hoverInteraction.collectIsHoveredAsState()
-
-                        Row(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .fillMaxWidth()
-                                .hoverable(hoverInteraction)
-                                .handMouseClickable { onOpenKnownRepository(repo) }
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
-                                modifier = Modifier.weight(1f),
-                            ) {
-                                Text(
-                                    text = repoDirName,
-                                    style = MaterialTheme.typography.body2,
-                                    maxLines = 1,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colors.primaryVariant,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-
-                                Text(
-                                    text = repoDirPath,
-                                    style = MaterialTheme.typography.body2,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier,
-                                    maxLines = 1,
-                                    color = MaterialTheme.colors.onBackgroundSecondary
-                                )
-                            }
-
-
-                            val buttonAlpha = if (canRepositoriesBeRemoved && isHovered) {
-                                1f
-                            } else {
-                                0f
-                            }
-
-                            IconButton(
-                                onClick = { onRemoveRepositoryFromRecent(repo) },
-                                enabled = canRepositoriesBeRemoved && isHovered,
-                                modifier = Modifier.alpha(buttonAlpha)
-                                    .size(24.dp)
-                                    .handOnHover(),
-                            ) {
-                                Icon(
-                                    painterResource(AppIcons.CLOSE),
-                                    contentDescription = "Remove repository from recent",
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colors.onBackgroundSecondary
-                                )
-                            }
-                        }
-                    }
-                }
-
-                VerticalScrollbar(
-                    rememberScrollbarAdapter(listState),
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                        .fillMaxHeight(),
-                )
-            }
         }
     }
 }

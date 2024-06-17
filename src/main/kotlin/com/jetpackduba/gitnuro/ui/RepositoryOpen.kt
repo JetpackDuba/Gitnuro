@@ -132,7 +132,8 @@ fun RepositoryOpenPage(
                             .fillMaxWidth(),
                         onCreateBranch = { showNewBranchDialog = true },
                         onStashWithMessage = { showStashWithMessageDialog = true },
-                        onOpenAnotherRepository = {
+                        onOpenAnotherRepository = { tabViewModel.openAnotherRepository(it) },
+                        onOpenAnotherRepositoryFromPicker = {
                             val repoToOpen = tabViewModel.openDirectoryPicker()
 
                             if (repoToOpen != null) {

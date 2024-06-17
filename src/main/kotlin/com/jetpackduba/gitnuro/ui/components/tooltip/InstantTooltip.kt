@@ -30,6 +30,7 @@ fun InstantTooltip(
     text: String?,
     modifier: Modifier = Modifier,
     position: InstantTooltipPosition = InstantTooltipPosition.BOTTOM,
+    enabled: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     val hoverInteractionSource = remember { MutableInteractionSource() }
@@ -46,7 +47,7 @@ fun InstantTooltip(
         content()
     }
 
-    if (isHovered && coordinates != null && text != null) {
+    if (isHovered && coordinates != null && text != null && enabled) {
         Popup(
             properties = PopupProperties(
                 focusable = false,
