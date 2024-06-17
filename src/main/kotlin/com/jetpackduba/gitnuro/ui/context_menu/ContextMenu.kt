@@ -246,10 +246,14 @@ fun TextEntry(contextTextEntry: ContextMenuElement.ContextTextEntry, onDismissRe
                 contextTextEntry.onClick()
             }
             .pointerHoverIcon(PointerIcon.Default)
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(modifier = Modifier.size(24.dp).padding(end = 8.dp)) {
+        Box(
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .size(16.dp)
+        ) {
             if (icon != null) {
                 Icon(
                     painter = icon(),
