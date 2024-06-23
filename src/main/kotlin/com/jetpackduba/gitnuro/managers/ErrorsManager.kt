@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -19,6 +20,15 @@ class ErrorsManager @Inject constructor() {
 
     private val _error = MutableSharedFlow<Error?>()
     val error: SharedFlow<Error?> = _error
+
+    private val _notification = MutableStateFlow<String?>(null)
+    val notification: StateFlow<String?> = _notification
+
+    suspend fun emitPositiveNotification(text: String) {
+        _notification.emit(text)
+        delay(2000)
+        _notification.emit(null)
+    }
 
     suspend fun addError(error: Error) = withContext(Dispatchers.IO) {
         _errorsList.value = _errorsList.value.toMutableList().apply {

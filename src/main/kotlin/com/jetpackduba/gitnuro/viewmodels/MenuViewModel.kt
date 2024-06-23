@@ -34,6 +34,7 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Pulling",
         subtitle = "Pulling changes from the remote branch to the current branch",
+        positiveFeedbackText = "Pull completed successfully",
         refreshEvenIfCrashes = true,
         taskType = TaskType.PULL,
     ) { git ->
@@ -65,6 +66,7 @@ class MenuViewModel @Inject constructor(
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.STASH,
+        positiveFeedbackText = "Changes have been stashed",
     ) { git ->
         stashChangesUseCase(git, null)
     }

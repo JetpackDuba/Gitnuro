@@ -1,25 +1,29 @@
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.animation.Crossfade
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LoadingRepository
+import com.jetpackduba.gitnuro.ProcessingScreen
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsRequested
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.git.ProcessingState
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
-import com.jetpackduba.gitnuro.ui.dialogs.*
+import com.jetpackduba.gitnuro.ui.dialogs.CloneDialog
+import com.jetpackduba.gitnuro.ui.dialogs.GpgPasswordDialog
+import com.jetpackduba.gitnuro.ui.dialogs.SshPasswordDialog
+import com.jetpackduba.gitnuro.ui.dialogs.UserPasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
@@ -32,10 +36,19 @@ fun AppTab(
     val errorManager = tabViewModel.errorsManager
     val lastError by errorManager.error.collectAsState(null)
     val showError by tabViewModel.showError.collectAsState()
+    val notification = errorManager.notification.collectAsState().value
+    var visibleNotification by remember { mutableStateOf("") }
+//    val (tabPosition, setTabPosition) = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     val repositorySelectionStatus = tabViewModel.repositorySelectionStatus.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val processingState = tabViewModel.processing.collectAsState().value
+
+    LaunchedEffect(notification) {
+        if (notification != null) {
+            visibleNotification = notification
+        }
+    }
 
     LaunchedEffect(tabViewModel) {
         // Init the tab content when the tab is selected and also remove the "initialPath" to avoid opening the
@@ -107,53 +120,10 @@ fun AppTab(
         }
 
         if (processingState is ProcessingState.Processing) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colors.surface)
-                    .onPreviewKeyEvent { true } // Disable all keyboard events
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {},
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    if (processingState.title.isNotEmpty()) {
-                        Text(
-                            processingState.title,
-                            style = MaterialTheme.typography.h3,
-                            color = MaterialTheme.colors.onBackground,
-                            modifier = Modifier.padding(bottom = 8.dp),
-                        )
-                    }
-
-                    if (processingState.subtitle.isNotEmpty()) {
-                        Text(
-                            processingState.subtitle,
-                            style = MaterialTheme.typography.body1,
-                            color = MaterialTheme.colors.onBackground,
-                            modifier = Modifier.padding(bottom = 32.dp),
-                        )
-                    }
-
-                    LinearProgressIndicator(
-                        modifier = Modifier.width(280.dp)
-                            .padding(bottom = 32.dp),
-                        color = MaterialTheme.colors.secondary,
-                    )
-
-                    if (processingState.isCancellable) {
-                        PrimaryButton(
-                            text = "Cancel",
-                            onClick = { tabViewModel.cancelOngoingTask() }
-                        )
-                    }
-                }
-            }
+            ProcessingScreen(
+                processingState,
+                onCancelOnGoingTask = { tabViewModel.cancelOngoingTask() }
+            )
         }
 
 
@@ -162,6 +132,24 @@ fun AppTab(
             ErrorDialog(
                 error = safeLastError,
                 onAccept = { tabViewModel.showError.value = false }
+            )
+        }
+
+        AnimatedVisibility(
+            visible = notification != null,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = fadeIn() + slideInVertically { it * 2 },
+            exit = fadeOut() + slideOutVertically { it * 2 },
+        ) {
+            Text(
+                text = visibleNotification,
+                modifier = Modifier
+                    .padding(bottom = 48.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colors.primary)
+                    .padding(8.dp),
+                color = MaterialTheme.colors.onPrimary,
+                style = MaterialTheme.typography.body1,
             )
         }
     }
