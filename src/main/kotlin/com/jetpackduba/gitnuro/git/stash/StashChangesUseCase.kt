@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class StashChangesUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, message: String?): Unit = withContext(Dispatchers.IO) {
-        git
+        val commit = git
             .stashCreate()
             .setIncludeUntracked(true)
             .apply {
@@ -15,5 +15,9 @@ class StashChangesUseCase @Inject constructor() {
                     setWorkingDirectoryMessage(message)
             }
             .call()
+
+        if (commit == null) {
+            throw Exception("No changes to stash")
+        }
     }
 }
