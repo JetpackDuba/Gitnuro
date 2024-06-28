@@ -5,6 +5,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
+import com.jetpackduba.gitnuro.logging.printError
+
+private const val TAG = "CustomContextMenu"
 
 /**
  * This TextContextMenu will update the parent composable via @param onIsTextSelected when the text selection has changed.
@@ -42,11 +45,17 @@ class SelectionAwareTextContextMenu(val onIsTextSelected: (AnnotatedString) -> U
 
         }
 
-        val textManagerToUse = if (textManager.selectedText.isNotEmpty()) {
-            textManager
-        } else {
-            emptyTextManager
-        }
+        val textManagerToUse =
+            try {
+                if (textManager.selectedText.isNotEmpty()) {
+                    textManager
+                } else {
+                    emptyTextManager
+                }
+            } catch (ex: Exception) {
+                printError(TAG, "Failed to check text manager to use, using empty text manager", ex)
+                emptyTextManager
+            }
 
         AppPopupMenu().Area(textManagerToUse, state, content)
     }
