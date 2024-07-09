@@ -3,17 +3,16 @@ package com.jetpackduba.gitnuro.managers
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.exceptions.GitnuroException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.withContext
+import com.jetpackduba.gitnuro.extensions.lockUse
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 
 @TabScope
-class ErrorsManager @Inject constructor() {
+class ErrorsManager @Inject constructor(
+    private val coroutineScope: CoroutineScope
+) {
     private val _errorsList = MutableStateFlow(listOf<Error>())
     val errorsList: StateFlow<List<Error>>
         get() = _errorsList
@@ -21,13 +20,32 @@ class ErrorsManager @Inject constructor() {
     private val _error = MutableSharedFlow<Error?>()
     val error: SharedFlow<Error?> = _error
 
-    private val _notification = MutableStateFlow<String?>(null)
-    val notification: StateFlow<String?> = _notification
+    private val _notification = MutableStateFlow<Map<Long, String>>(hashMapOf())
+    val notification: StateFlow<Map<Long, String>> = _notification
 
-    suspend fun emitPositiveNotification(text: String) {
-        _notification.emit(text)
-        delay(2000)
-        _notification.emit(null)
+    private val notificationsMutex = Mutex()
+
+    suspend fun emitPositiveNotification(text: String) = coroutineScope.launch {
+        val time = System.currentTimeMillis()
+        notificationsMutex.lockUse {
+            _notification.update { notifications ->
+                notifications
+                    .toMutableMap()
+                    .apply { put(time, text) }
+            }
+        }
+
+        launch {
+            delay(2000)
+
+            notificationsMutex.lockUse {
+                _notification.update { notifications ->
+                    notifications
+                        .toMutableMap()
+                        .apply { remove(time) }
+                }
+            }
+        }
     }
 
     suspend fun addError(error: Error) = withContext(Dispatchers.IO) {

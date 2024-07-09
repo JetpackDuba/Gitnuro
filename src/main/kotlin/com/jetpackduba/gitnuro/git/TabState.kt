@@ -107,9 +107,7 @@ class TabState @Inject constructor(
                 }
 
                 if (positiveFeedbackText != null) {
-                    launch {
-                        errorsManager.emitPositiveNotification(positiveFeedbackText)
-                    }
+                    errorsManager.emitPositiveNotification(positiveFeedbackText)
                 }
             } catch (ex: Exception) {
                 hasProcessFailed = true

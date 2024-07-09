@@ -1,11 +1,8 @@
 package com.jetpackduba.gitnuro.ui
 
-import androidx.compose.animation.*
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -36,19 +33,14 @@ fun AppTab(
     val errorManager = tabViewModel.errorsManager
     val lastError by errorManager.error.collectAsState(null)
     val showError by tabViewModel.showError.collectAsState()
-    val notification = errorManager.notification.collectAsState().value
-    var visibleNotification by remember { mutableStateOf("") }
-//    val (tabPosition, setTabPosition) = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val notifications = errorManager.notification.collectAsState().value
+        .toList()
+        .sortedBy { it.first }
+        .map { it.second }
 
     val repositorySelectionStatus = tabViewModel.repositorySelectionStatus.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val processingState = tabViewModel.processing.collectAsState().value
-
-    LaunchedEffect(notification) {
-        if (notification != null) {
-            visibleNotification = notification
-        }
-    }
 
     LaunchedEffect(tabViewModel) {
         // Init the tab content when the tab is selected and also remove the "initialPath" to avoid opening the
@@ -135,22 +127,24 @@ fun AppTab(
             )
         }
 
-        AnimatedVisibility(
-            visible = notification != null,
-            modifier = Modifier.align(Alignment.BottomCenter),
-            enter = fadeIn() + slideInVertically { it * 2 },
-            exit = fadeOut() + slideOutVertically { it * 2 },
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 48.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = visibleNotification,
-                modifier = Modifier
-                    .padding(bottom = 48.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colors.primary)
-                    .padding(8.dp),
-                color = MaterialTheme.colors.onPrimary,
-                style = MaterialTheme.typography.body1,
-            )
+            for (notification in notifications)
+                Text(
+                    text = notification,
+                    modifier = Modifier
+                        .padding(bottom = 12.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colors.primary)
+                        .padding(8.dp),
+                    color = MaterialTheme.colors.onPrimary,
+                    style = MaterialTheme.typography.body1,
+                )
         }
     }
 }

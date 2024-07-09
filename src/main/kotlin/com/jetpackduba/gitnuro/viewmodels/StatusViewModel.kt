@@ -349,7 +349,7 @@ class StatusViewModel @Inject constructor(
     fun commit(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DO_COMMIT,
-        positiveFeedbackText = "New commit added",
+        positiveFeedbackText = if (isAmend.value) "Commit amended" else "New commit created",
     ) { git ->
         val amend = isAmend.value
 
