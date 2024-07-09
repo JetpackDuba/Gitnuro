@@ -34,7 +34,7 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Pulling",
         subtitle = "Pulling changes from the remote branch to the current branch",
-        positiveFeedbackText = "Pull completed successfully",
+        positiveFeedbackText = "Pull completed",
         refreshEvenIfCrashes = true,
         taskType = TaskType.PULL,
     ) { git ->
@@ -48,6 +48,7 @@ class MenuViewModel @Inject constructor(
         isCancellable = false,
         refreshEvenIfCrashes = true,
         taskType = TaskType.FETCH,
+        positiveFeedbackText = "Fetch all completed",
     ) { git ->
         fetchAllBranchesUseCase(git)
     }
@@ -59,6 +60,7 @@ class MenuViewModel @Inject constructor(
         isCancellable = false,
         refreshEvenIfCrashes = true,
         taskType = TaskType.PUSH,
+        positiveFeedbackText = "Push completed",
     ) { git ->
         pushBranchUseCase(git, force, pushTags)
     }
@@ -66,7 +68,7 @@ class MenuViewModel @Inject constructor(
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.STASH,
-        positiveFeedbackText = "Changes have been stashed",
+        positiveFeedbackText = "Changes stashed",
     ) { git ->
         stashChangesUseCase(git, null)
     }
@@ -75,6 +77,7 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.POP_STASH,
+        positiveFeedbackText = "Stash popped",
     ) { git ->
         popLastStashUseCase(git)
     }

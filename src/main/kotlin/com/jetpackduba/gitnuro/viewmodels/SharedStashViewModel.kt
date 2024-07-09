@@ -29,6 +29,7 @@ class SharedStashViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.APPLY_STASH,
+        positiveFeedbackText = "Stash applied",
     ) { git ->
         applyStashUseCase(git, stashInfo)
     }
@@ -37,6 +38,7 @@ class SharedStashViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.POP_STASH,
+        positiveFeedbackText = "Stash popped",
     ) { git ->
         popStashUseCase(git, stash)
 
@@ -46,6 +48,7 @@ class SharedStashViewModel @Inject constructor(
     override fun deleteStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.STASHES,
         taskType = TaskType.DELETE_STASH,
+        positiveFeedbackText = "Stash deleted",
     ) { git ->
         deleteStashUseCase(git, stash)
 

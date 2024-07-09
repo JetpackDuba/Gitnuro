@@ -22,6 +22,7 @@ class SharedTagsViewModel @Inject constructor(
         title = "Tag delete",
         subtitle = "Deleting tag ${tag.simpleName}",
         taskType = TaskType.DELETE_TAG,
+        positiveFeedbackText = "Tag \"${tag.simpleName}\" deleted",
     ) { git ->
         deleteTagUseCase(git, tag)
     }

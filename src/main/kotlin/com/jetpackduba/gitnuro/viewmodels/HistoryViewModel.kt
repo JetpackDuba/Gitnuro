@@ -80,6 +80,7 @@ class HistoryViewModel @Inject constructor(
         title = "History",
         subtitle = "Loading file history",
         taskType = TaskType.HISTORY_FILE,
+        positiveFeedbackText = null,
     ) { git ->
         this@HistoryViewModel.filePath = filePath
         _historyState.value = HistoryState.Loading(filePath)

@@ -118,6 +118,7 @@ class RemotesViewModel @AssistedInject constructor(
     fun deleteRemote(remoteName: String, isNew: Boolean) = tabState.safeProcessing(
         refreshType = if (isNew) RefreshType.REMOTES else RefreshType.ALL_DATA,
         taskType = TaskType.DELETE_REMOTE,
+        positiveFeedbackText = "Remote $remoteName deleted",
     ) { git ->
         deleteRemoteUseCase(git, remoteName)
 

@@ -34,7 +34,6 @@ import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import uniffi.gitnuro.WatcherInitException
 import java.awt.Desktop
 import java.io.File
 import javax.inject.Inject
@@ -252,31 +251,31 @@ class TabViewModel @Inject constructor(
             }
         }
 
-        try {
+//        try {
             fileChangesWatcher.watchDirectoryPath(
                 repository = git.repository,
             )
-        } catch (ex: WatcherInitException) {
-            val message = when (ex) {
-                is WatcherInitException.Generic -> ex.error
-                is WatcherInitException.InvalidConfig -> "Invalid configuration"
-                is WatcherInitException.Io -> ex.error
-                is WatcherInitException.MaxFilesWatch -> "Reached the limit of files that can be watched. Please increase the system inotify limit to be able to detect the changes on this repository."
-                is WatcherInitException.PathNotFound -> "Path not found, check if your repository still exists"
-                is WatcherInitException.WatchNotFound -> null // This should never trigger as we don't unwatch files
-            }
-
-            if (message != null) {
-                errorsManager.addError(
-                    newErrorNow(
-                        exception = ex,
-                        taskType = TaskType.CHANGES_DETECTION,
-//                        title = "Repository changes detection has stopped working",
-//                        message = message,
-                    ),
-                )
-            }
-        }
+//        } catch (ex: WatcherInitException) {
+//            val message = when (ex) {
+//                is WatcherInitException.Generic -> ex.error
+//                is WatcherInitException.InvalidConfig -> "Invalid configuration"
+//                is WatcherInitException.Io -> ex.error
+//                is WatcherInitException.MaxFilesWatch -> "Reached the limit of files that can be watched. Please increase the system inotify limit to be able to detect the changes on this repository."
+//                is WatcherInitException.PathNotFound -> "Path not found, check if your repository still exists"
+//                is WatcherInitException.WatchNotFound -> null // This should never trigger as we don't unwatch files
+//            }
+//
+//            if (message != null) {
+//                errorsManager.addError(
+//                    newErrorNow(
+//                        exception = ex,
+//                        taskType = TaskType.CHANGES_DETECTION,
+////                        title = "Repository changes detection has stopped working",
+////                        message = message,
+//                    ),
+//                )
+//            }
+//        }
     }
 
     private suspend fun updateApp(hasGitDirChanged: Boolean) {
@@ -355,6 +354,7 @@ class TabViewModel @Inject constructor(
     fun blameFile(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.BLAME_FILE,
+        positiveFeedbackText = null,
     ) { git ->
         _blameState.value = BlameState.Loading(filePath)
         try {
@@ -419,6 +419,7 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
         taskType = TaskType.CREATE_BRANCH,
+        positiveFeedbackText = "Branch \"${branchName}\" created",
     ) { git ->
         createBranchUseCase(git, branchName)
     }
@@ -426,6 +427,7 @@ class TabViewModel @Inject constructor(
     fun stashWithMessage(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.STASH,
+        positiveFeedbackText = "Changes stashed",
     ) { git ->
         stageUntrackedFileUseCase(git)
         stashChangesUseCase(git, message)

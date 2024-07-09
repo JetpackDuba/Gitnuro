@@ -60,6 +60,7 @@ class TagsViewModel @AssistedInject constructor(
     fun checkoutTagCommit(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.INIT_SUBMODULE,
+        positiveFeedbackText = "Commit checked out",
     ) { git ->
         checkoutCommitUseCase(git, ref.objectId.name)
     }

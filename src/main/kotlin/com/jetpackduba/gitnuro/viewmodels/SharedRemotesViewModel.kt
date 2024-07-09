@@ -31,6 +31,7 @@ class SharedRemotesViewModel @Inject constructor(
         title = "Deleting remote branch",
         subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
        taskType = TaskType.DELETE_REMOTE_BRANCH,
+       positiveFeedbackText = "Remote branch \"${ref.simpleName}\" deleted",
     ) { git ->
         deleteRemoteBranchUseCase(git, ref)
     }
@@ -38,6 +39,7 @@ class SharedRemotesViewModel @Inject constructor(
     override fun checkoutRemoteBranch(remoteBranch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.CHECKOUT_REMOTE_BRANCH,
+        positiveFeedbackText = "\"${remoteBranch.simpleName}\" checked out",
     ) { git ->
         checkoutRefUseCase(git, remoteBranch)
     }
@@ -47,6 +49,7 @@ class SharedRemotesViewModel @Inject constructor(
         title = "Push",
         subtitle = "Pushing current branch to ${branch.simpleName}",
         taskType = TaskType.PUSH_TO_BRANCH,
+        positiveFeedbackText = "Pushed to \"${branch.simpleName}\"",
     ) { git ->
         pushToSpecificBranchUseCase(
             git = git,
@@ -61,6 +64,7 @@ class SharedRemotesViewModel @Inject constructor(
         title = "Pull",
         subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
         taskType = TaskType.PULL_FROM_BRANCH,
+        positiveFeedbackText = "Pulled from \"${branch.simpleName}\"",
     ) { git ->
         pullFromSpecificBranchUseCase(
             git = git,

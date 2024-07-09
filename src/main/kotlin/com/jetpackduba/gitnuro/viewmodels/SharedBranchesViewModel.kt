@@ -34,6 +34,7 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch merge",
         subtitle = "Merging branch ${ref.simpleName}",
         taskType = TaskType.MERGE_BRANCH,
+        positiveFeedbackText = "Merged from \"${ref.simpleName}\"",
     ) { git ->
         mergeBranchUseCase(git, ref, appSettingsRepository.ffMerge)
     }
@@ -43,6 +44,7 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch delete",
         subtitle = "Deleting branch ${branch.simpleName}",
         taskType = TaskType.DELETE_BRANCH,
+        positiveFeedbackText = "\"${branch.simpleName}\" deleted",
     ) { git ->
         deleteBranchUseCase(git, branch)
     }
@@ -52,6 +54,7 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch checkout",
         subtitle = "Checking out branch ${ref.simpleName}",
         taskType = TaskType.CHECKOUT_BRANCH,
+        positiveFeedbackText = "\"${ref.simpleName}\" checked out",
     ) { git ->
         checkoutRefUseCase(git, ref)
     }
@@ -61,6 +64,7 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch rebase",
         subtitle = "Rebasing branch ${ref.simpleName}",
         taskType = TaskType.REBASE_BRANCH,
+        positiveFeedbackText = "\"${ref.simpleName}\" rebased",
     ) { git ->
         rebaseBranchUseCase(git, ref)
     }

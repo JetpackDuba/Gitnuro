@@ -216,6 +216,7 @@ class StatusViewModel @Inject constructor(
     fun unstageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,
         taskType = TaskType.UNSTAGE_ALL_FILES,
+        positiveFeedbackText = null,
     ) { git ->
         unstageAllUseCase(git)
     }
@@ -223,6 +224,7 @@ class StatusViewModel @Inject constructor(
     fun stageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,
         taskType = TaskType.STAGE_ALL_FILES,
+        positiveFeedbackText = null,
     ) { git ->
         stageAllUseCase(git)
     }
@@ -347,6 +349,7 @@ class StatusViewModel @Inject constructor(
     fun commit(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DO_COMMIT,
+        positiveFeedbackText = "New commit added",
     ) { git ->
         val amend = isAmend.value
 
@@ -401,6 +404,7 @@ class StatusViewModel @Inject constructor(
     fun continueRebase(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.CONTINUE_REBASE,
+        positiveFeedbackText = null,
     ) { git ->
         val repositoryState = sharedRepositoryStateManager.repositoryState.value
         val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState.value
@@ -424,6 +428,7 @@ class StatusViewModel @Inject constructor(
     fun abortRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.ABORT_REBASE,
+        positiveFeedbackText = "Rebase aborted",
     ) { git ->
         abortRebaseUseCase(git)
     }
@@ -431,6 +436,7 @@ class StatusViewModel @Inject constructor(
     fun skipRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.SKIP_REBASE,
+        positiveFeedbackText = null,
     ) { git ->
         skipRebaseUseCase(git)
     }
@@ -438,6 +444,7 @@ class StatusViewModel @Inject constructor(
     fun resetRepoState() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.RESET_REPO_STATE,
+        positiveFeedbackText = "Repository state has been reset",
     ) { git ->
         resetRepositoryStateUseCase(git)
     }

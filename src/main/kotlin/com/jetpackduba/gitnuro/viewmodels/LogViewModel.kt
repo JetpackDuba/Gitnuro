@@ -163,6 +163,7 @@ class LogViewModel @Inject constructor(
         title = "Commit checkout",
         subtitle = "Checking out commit ${revCommit.name}",
         taskType = TaskType.CHECKOUT_COMMIT,
+        positiveFeedbackText = "Commit checked out",
     ) { git ->
         checkoutCommitUseCase(git, revCommit)
     }
@@ -173,6 +174,7 @@ class LogViewModel @Inject constructor(
         subtitle = "Reverting commit ${revCommit.name}",
         refreshEvenIfCrashes = true,
         taskType = TaskType.REVERT_COMMIT,
+        positiveFeedbackText = "Commit reverted",
     ) { git ->
         revertCommitUseCase(git, revCommit)
     }
@@ -182,6 +184,7 @@ class LogViewModel @Inject constructor(
         title = "Branch reset",
         subtitle = "Resetting branch to commit ${revCommit.shortName}",
         taskType = TaskType.RESET_TO_COMMIT,
+        positiveFeedbackText = "Reset completed",
     ) { git ->
         resetToCommitUseCase(git, revCommit, resetType = resetType)
     }
@@ -192,6 +195,7 @@ class LogViewModel @Inject constructor(
         subtitle = "Cherry-picking commit ${revCommit.shortName}",
         taskType = TaskType.CHERRY_PICK_COMMIT,
         refreshEvenIfCrashes = true,
+        positiveFeedbackText = "Commit cherry-picked"
     ) { git ->
         cherryPickCommitUseCase(git, revCommit)
     }
@@ -202,6 +206,7 @@ class LogViewModel @Inject constructor(
         subtitle = "Creating new branch \"$branch\" on commit ${revCommit.shortName}",
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
         taskType = TaskType.CREATE_BRANCH,
+        positiveFeedbackText = "Branch \"$branch\" created",
     ) { git ->
         createBranchOnCommitUseCase(git, branch, revCommit)
     }
@@ -211,6 +216,7 @@ class LogViewModel @Inject constructor(
         title = "New tag",
         subtitle = "Creating new tag \"$tag\" on commit ${revCommit.shortName}",
         taskType = TaskType.CREATE_TAG,
+        positiveFeedbackText = "Tag created",
     ) { git ->
         createTagOnCommitUseCase(git, tag, revCommit)
     }
@@ -369,6 +375,7 @@ class LogViewModel @Inject constructor(
     fun rebaseInteractive(revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.REBASE_INTERACTIVE_STATE,
         taskType = TaskType.REBASE_INTERACTIVE,
+        positiveFeedbackText = null,
     ) { git ->
         startRebaseInteractiveUseCase(git, revCommit)
     }

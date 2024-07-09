@@ -77,7 +77,7 @@ class TabState @Inject constructor(
         title: String = "",
         subtitle: String = "",
         taskType: TaskType,
-        positiveFeedbackText: String? = null,
+        positiveFeedbackText: String?,
         // TODO For now have it always as false because the data refresh is cancelled even when the git process couldn't be cancelled
         isCancellable: Boolean = false,
         refreshEvenIfCrashes: Boolean = false,
