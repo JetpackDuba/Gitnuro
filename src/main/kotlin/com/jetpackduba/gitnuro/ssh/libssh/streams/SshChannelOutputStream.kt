@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import uniffi.gitnuro.Channel
+import Channel
 import java.io.OutputStream
 
 class SshChannelOutputStream(private val sshChannel: Channel) : OutputStream() {

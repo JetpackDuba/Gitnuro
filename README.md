@@ -164,3 +164,9 @@ Example for windows (you may want to edit `C:\Program Files\Git\etc\gitconfig`):
 [credential]
    helper = C:/Program Files/Git/mingw64/bin/git-credential-manager-core.exe
 ```
+
+
+## Sponsors
+
+Thank you to all the sponsors for helping improve Gitnuro and JetBrains for providing the necessary tooling.
+

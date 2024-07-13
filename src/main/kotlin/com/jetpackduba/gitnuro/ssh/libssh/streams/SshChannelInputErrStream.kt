@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import uniffi.gitnuro.Channel
+import Channel
 import java.io.InputStream
 
 class SshChannelInputErrStream(private val sshChannel: Channel) : InputStream() {
@@ -8,7 +8,7 @@ class SshChannelInputErrStream(private val sshChannel: Channel) : InputStream() 
 
     override fun read(): Int {
         return if (sshChannel.pollHasBytes(true)) {
-            val read = sshChannel.read(true, 1u)
+            val read = sshChannel.read(true, 1L) // TODO it was a long
             val byteArray = read.data
 
             val first = byteArray.first()

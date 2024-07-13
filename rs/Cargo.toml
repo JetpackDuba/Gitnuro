@@ -8,14 +8,8 @@ crate-type = ["cdylib"]
 name = "gitnuro_rs"
 
 [dependencies]
-uniffi = { version = "0.27.1" }
 notify = "6.1.1"
 thiserror = "1.0.56"
-libssh-rs = { version = "0.2.2", features = ["vendored", "vendored-openssl"] }
-
-[build-dependencies]
-uniffi = { version = "0.27.1", features = ["build"] }
-
-[[bin]]
-name = "uniffi-bindgen"
-path = "uniffi-bindgen.rs"
+libssh-rs = { version = "0.3.3", features = ["vendored", "vendored-openssl"] }
+kotars = { path = "/home/abde/Projects/Rust/kotars/kotars" } #{ git = "https://github.com/JetpackDuba/kotars.git" }
+jni = "0.21.1"

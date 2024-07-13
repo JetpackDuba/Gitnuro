@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.credentials
 
+import Session
 import com.jetpackduba.gitnuro.ssh.libssh.ChannelWrapper
-import uniffi.gitnuro.Session
 import java.io.InputStream
 import java.io.OutputStream
 

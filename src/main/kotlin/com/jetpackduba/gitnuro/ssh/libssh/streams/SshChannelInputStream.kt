@@ -1,11 +1,11 @@
 package com.jetpackduba.gitnuro.ssh.libssh.streams
 
-import uniffi.gitnuro.Channel
+import Channel
 import java.io.InputStream
 
 class SshChannelInputStream(private val sshChannel: Channel) : InputStream() {
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        val result = sshChannel.read(false, len.toULong())
+        val result = sshChannel.read(false, len.toLong())//.toULong())
         val byteArray = result.data
         val read = result.readCount
 
@@ -18,7 +18,7 @@ class SshChannelInputStream(private val sshChannel: Channel) : InputStream() {
 
     override fun read(): Int {
 
-        val result = sshChannel.read(false, 1u)
+        val result = sshChannel.read(false, 1L)//1u)
 
         val first = result.data.first()
 

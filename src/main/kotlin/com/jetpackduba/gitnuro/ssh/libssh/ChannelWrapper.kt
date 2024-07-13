@@ -1,13 +1,13 @@
 package com.jetpackduba.gitnuro.ssh.libssh
 
+import Channel
+import Session
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelInputErrStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelInputStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelOutputStream
-import uniffi.gitnuro.Channel
-import uniffi.gitnuro.Session
 
 class ChannelWrapper internal constructor(sshSession: Session) {
-    private var channel = Channel(sshSession)
+    private val channel = Channel.new(sshSession)
 
     val outputStream = SshChannelOutputStream(channel)
     val inputStream = SshChannelInputStream(channel)
@@ -27,5 +27,6 @@ class ChannelWrapper internal constructor(sshSession: Session) {
 
     fun close() {
         channel.closeChannel()
+        channel.close()
     }
 }

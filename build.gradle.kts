@@ -1,6 +1,5 @@
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.compose.compose
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.FileOutputStream
 import java.nio.file.Files
 
@@ -172,11 +171,11 @@ task("fatJarLinux", type = Jar::class) {
     with(tasks.jar.get() as CopySpec)
 }
 
-
-task("rust_generateKotlinFromUdl") {
-    println("Generate Kotlin")
-    generateKotlinFromUdl()
-}
+//
+//task("rust_generateKotlinFromUdl") {
+//    println("Generate Kotlin")
+//    generateKotlinFromUdl()
+//}
 
 task("rust_build") {
     buildRust()
@@ -186,14 +185,14 @@ tasks.getByName("compileKotlin").doLast {
     println("compileKotlin called")
     buildRust()
     copyRustBuild()
-    generateKotlinFromUdl()
+    generateKotlinFromRs()
 }
 
 tasks.getByName("compileTestKotlin").doLast {
     println("compileTestKotlin called")
     buildRust()
     copyRustBuild()
-    generateKotlinFromUdl()
+    generateKotlinFromRs()
 }
 
 
@@ -207,23 +206,15 @@ task("tasksList") {
 task("rustTasks") {
     buildRust()
     copyRustBuild()
-    generateKotlinFromUdl()
+//    generateKotlinFromUdl()
 }
 
 task("rust_copyBuild") {
     copyRustBuild()
 }
 
-fun generateKotlinFromUdl() {
-    exec {
-        workingDir = File(project.projectDir, "rs")
-        commandLine = listOf(
-            "cargo", "run", "--features=uniffi/cli",
-            "--bin", "uniffi-bindgen", "generate", "src/gitnuro.udl",
-            "--language", "kotlin",
-            "--out-dir", rustGeneratedSource
-        )
-    }
+fun generateKotlinFromRs() {
+
 }
 
 fun buildRust() {
@@ -236,7 +227,7 @@ fun buildRust() {
         }
 
         val params = mutableListOf(
-            binary, "build", "--release", "--features=uniffi/cli",
+            binary, "build", "--release",
         )
 
         if (currentOs() == OS.LINUX && useCross) {
@@ -270,23 +261,16 @@ fun copyRustBuild() {
     val directory = File(outputDir)
     directory.mkdirs()
 
-    val originLib = when (currentOs()) {
+    val lib = when (currentOs()) {
         OS.LINUX -> "libgitnuro_rs.so"
         OS.WINDOWS -> "gitnuro_rs.dll"
         OS.MAC -> "libgitnuro_rs.dylib"
     }
 
-    val destinyLib = when (currentOs()) {
-        OS.LINUX -> "libuniffi_gitnuro.so"
-        OS.WINDOWS -> "uniffi_gitnuro.dll"
-        OS.MAC -> "libuniffi_gitnuro.dylib"
-    }
-
-    val originFile = File(workingDir, originLib)
-    val destinyFile = File(directory, destinyLib)
+    val originFile = File(workingDir, lib)
+    val destinyFile = File(directory, lib)
 
     Files.copy(originFile.toPath(), FileOutputStream(destinyFile))
-//    com.google.common.io.Files.copy(originFile, destinyFile)
 
     println("Copy rs build completed")
 }

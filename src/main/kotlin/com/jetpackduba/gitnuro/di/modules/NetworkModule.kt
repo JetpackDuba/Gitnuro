@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.updates.UpdatesService
 import dagger.Provides
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
+import javax.inject.Inject
 
 @dagger.Module
 class NetworkModule {
