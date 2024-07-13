@@ -52,7 +52,7 @@ private var lastCheck: Long = 0
 private const val MIN_TIME_BETWEEN_POPUPS_IN_MS = 20
 
 @Composable
-fun ContextMenu(enabled: Boolean = true,items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+fun ContextMenu(enabled: Boolean = true, items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
     Box(modifier = Modifier.contextMenu(enabled, items), propagateMinConstraints = true) {
         function()
     }
@@ -69,17 +69,17 @@ fun DropdownMenu(items: () -> List<ContextMenuElement>, function: @Composable ()
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenuElement>): Modifier {
-    val (contentMenuData, setContentMenuData) = remember { mutableStateOf<ContextMenuData?>(null) }
+    val (mouseEvent, setMouseEvent) = remember { mutableStateOf<MouseEvent?>(null) }
 
     val modifier = this.pointerInput(enabled) {
         awaitPointerEventScope {
             while (true) {
-                val lastMouseEvent = awaitFirstDownEvent()
-                val mouseEvent = lastMouseEvent.awtEventOrNull
+                val lastPointerEvent = awaitFirstDownEvent()
+                val lastMouseEvent = lastPointerEvent.awtEventOrNull
 
-                if (mouseEvent != null && enabled) {
-                    if (lastMouseEvent.button.isSecondary) {
-                        lastMouseEvent.changes.forEach {
+                if (lastMouseEvent != null && enabled) {
+                    if (lastPointerEvent.button.isSecondary) {
+                        lastPointerEvent.changes.forEach {
                             it.consume()
                         }
 
@@ -89,7 +89,7 @@ private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenu
                         } else {
                             lastCheck = currentCheck
 
-                            setContentMenuData(ContextMenuData(items(), mouseEvent))
+                            setMouseEvent(lastMouseEvent)
                         }
                     }
                 }
@@ -97,24 +97,22 @@ private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenu
         }
     }
 
-    if (contentMenuData != null && contentMenuData.items.isNotEmpty()) {
-        DisableSelection {
-            showPopup(
-                contentMenuData.mouseEvent.x,
-                contentMenuData.mouseEvent.y,
-                contentMenuData.items,
-                onDismissRequest = { setContentMenuData(null) }
-            )
+    if (mouseEvent != null) {
+        val contextMenuElements = items()
+        if (contextMenuElements.isNotEmpty()) {
+            DisableSelection {
+                showPopup(
+                    mouseEvent.x,
+                    mouseEvent.y,
+                    contextMenuElements,
+                    onDismissRequest = { setMouseEvent(null) }
+                )
+            }
         }
     }
 
     return modifier
 }
-
-class ContextMenuData(
-    val items: List<ContextMenuElement>,
-    val mouseEvent: MouseEvent,
-)
 
 @Composable
 private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifier {
