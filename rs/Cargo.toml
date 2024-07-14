@@ -11,5 +11,8 @@ name = "gitnuro_rs"
 notify = "6.1.1"
 thiserror = "1.0.56"
 libssh-rs = { version = "0.3.3", features = ["vendored", "vendored-openssl"] }
-kotars = { path = "/home/abde/Projects/Rust/kotars/kotars" } #{ git = "https://github.com/JetpackDuba/kotars.git" }
+kotars = { git = "https://github.com/JetpackDuba/kotars.git" }
 jni = "0.21.1"
+
+[profile.release]
+strip = true

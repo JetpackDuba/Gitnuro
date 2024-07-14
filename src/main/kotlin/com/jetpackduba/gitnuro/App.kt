@@ -175,7 +175,7 @@ class App {
             else -> throw Exception("OS not supported")
         }
 
-        val gitnuroRsInputStream = javaClass.getResourceAsStream(gitnuroRsName)
+        val gitnuroRsInputStream = javaClass.getResourceAsStream("/$gitnuroRsName")
 
         gitnuroRsInputStream?.use { inputStream ->
             val tempDir = tempFilesManager.tempDir()
