@@ -1,17 +1,15 @@
 package com.jetpackduba.gitnuro.git.diff
 
 import com.jetpackduba.gitnuro.extensions.filePath
-import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.submodules.GetSubmodulesUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
-import java.io.ByteArrayOutputStream
 import java.io.InvalidObjectException
 import javax.inject.Inject
 
@@ -19,41 +17,18 @@ class FormatDiffUseCase @Inject constructor(
     private val formatHunksUseCase: FormatHunksUseCase,
     private val getDiffContentUseCase: GetDiffContentUseCase,
     private val canGenerateTextDiffUseCase: CanGenerateTextDiffUseCase,
-    private val getDiffEntryForUncommittedDiffUseCase: GetDiffEntryForUncommittedDiffUseCase,
+    private val getDiffEntryFromDiffTypeUseCase: GetDiffEntryFromDiffTypeUseCase,
     private val getSubmodulesUseCase: GetSubmodulesUseCase,
 ) {
     suspend operator fun invoke(
         git: Git,
-        diffEntryType: DiffEntryType,
+        diffType: DiffType,
         isDisplayFullFile: Boolean
     ): DiffResult = withContext(Dispatchers.IO) {
-        val byteArrayOutputStream = ByteArrayOutputStream()
         val repository = git.repository
-        val diffEntry: DiffEntry
         val submodules = getSubmodulesUseCase(git)
 
-        DiffFormatter(byteArrayOutputStream).use { formatter ->
-            formatter.setRepository(repository)
-
-            val oldTree = DirCacheIterator(repository.readDirCache())
-            val newTree = FileTreeIterator(repository)
-
-            if (diffEntryType is DiffEntryType.UnstagedDiff)
-                formatter.scan(oldTree, newTree)
-
-            diffEntry = when (diffEntryType) {
-                is DiffEntryType.CommitDiff -> {
-                    diffEntryType.diffEntry
-                }
-
-                is DiffEntryType.UncommittedDiff -> {
-                    getDiffEntryForUncommittedDiffUseCase(git, diffEntryType)
-                }
-            }
-
-            formatter.format(diffEntry)
-            formatter.flush()
-        }
+        val diffEntry = getDiffEntryFromDiffTypeUseCase(git, diffType)
 
         var diffResult: DiffResult
         val submoduleStatus = submodules[diffEntry.filePath]
@@ -64,7 +39,7 @@ class FormatDiffUseCase @Inject constructor(
             val oldTree: DirCacheIterator?
             val newTree: FileTreeIterator?
 
-            if (diffEntryType is DiffEntryType.UnstagedDiff) {
+            if (diffType is DiffType.UnstagedDiff) {
                 oldTree = DirCacheIterator(repository.readDirCache())
                 newTree = FileTreeIterator(repository)
             } else {

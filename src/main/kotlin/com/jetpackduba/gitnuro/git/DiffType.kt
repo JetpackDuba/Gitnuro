@@ -6,8 +6,8 @@ import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 import org.eclipse.jgit.diff.DiffEntry
 
-sealed interface DiffEntryType {
-    class CommitDiff(val diffEntry: DiffEntry) : DiffEntryType {
+sealed interface DiffType {
+    class CommitDiff(val diffEntry: DiffEntry) : DiffType {
         override val filePath: String
             get() = diffEntry.filePath
 
@@ -15,7 +15,7 @@ sealed interface DiffEntryType {
             get() = diffEntry.toStatusType()
     }
 
-    sealed class UncommittedDiff(val statusEntry: StatusEntry) : DiffEntryType {
+    sealed class UncommittedDiff(val statusEntry: StatusEntry) : DiffType {
         override val filePath: String
             get() = statusEntry.filePath
 

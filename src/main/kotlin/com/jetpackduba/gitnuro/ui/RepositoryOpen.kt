@@ -17,7 +17,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -226,7 +226,7 @@ private fun BottomInfoBar(
 @Composable
 fun RepoContent(
     tabViewModel: TabViewModel,
-    diffSelected: DiffEntryType?,
+    diffSelected: DiffType?,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
@@ -257,7 +257,7 @@ fun RepoContent(
 @Composable
 fun MainContentView(
     tabViewModel: TabViewModel,
-    diffSelected: DiffEntryType?,
+    diffSelected: DiffType?,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
@@ -348,9 +348,9 @@ fun MainContentView(
 
                                 tabViewModel.newDiffSelected = if (diffEntry != null) {
                                     if (repositoryState == RepositoryState.SAFE)
-                                        DiffEntryType.SafeStagedDiff(diffEntry)
+                                        DiffType.SafeStagedDiff(diffEntry)
                                     else
-                                        DiffEntryType.UnsafeStagedDiff(diffEntry)
+                                        DiffType.UnsafeStagedDiff(diffEntry)
                                 } else {
                                     null
                                 }
@@ -359,9 +359,9 @@ fun MainContentView(
                                 tabViewModel.minimizeBlame()
 
                                 if (repositoryState == RepositoryState.SAFE)
-                                    tabViewModel.newDiffSelected = DiffEntryType.SafeUnstagedDiff(diffEntry)
+                                    tabViewModel.newDiffSelected = DiffType.SafeUnstagedDiff(diffEntry)
                                 else
-                                    tabViewModel.newDiffSelected = DiffEntryType.UnsafeUnstagedDiff(diffEntry)
+                                    tabViewModel.newDiffSelected = DiffType.UnsafeUnstagedDiff(diffEntry)
                             },
                             onBlameFile = { tabViewModel.blameFile(it) },
                             onHistoryFile = { tabViewModel.fileHistory(it) }
@@ -375,7 +375,7 @@ fun MainContentView(
                             diffSelected = diffSelected,
                             onDiffSelected = { diffEntry ->
                                 tabViewModel.minimizeBlame()
-                                tabViewModel.newDiffSelected = DiffEntryType.CommitDiff(diffEntry)
+                                tabViewModel.newDiffSelected = DiffType.CommitDiff(diffEntry)
                             },
                             onBlame = { tabViewModel.blameFile(it) },
                             onHistory = { tabViewModel.fileHistory(it) },

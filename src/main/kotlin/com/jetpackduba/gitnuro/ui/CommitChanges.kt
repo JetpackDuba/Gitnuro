@@ -23,9 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.git.DiffEntryType
-import com.jetpackduba.gitnuro.theme.backgroundSelected
-import com.jetpackduba.gitnuro.theme.linesHeight
+import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.ui.components.*
@@ -45,7 +43,7 @@ fun CommitChanges(
     commitChangesViewModel: CommitChangesViewModel,
     selectedItem: SelectedItem.CommitBasedItem,
     onDiffSelected: (DiffEntry) -> Unit,
-    diffSelected: DiffEntryType?,
+    diffSelected: DiffType?,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
 ) {
@@ -97,7 +95,7 @@ fun CommitChanges(
 @Composable
 private fun CommitChangesView(
     commitChangesStatus: CommitChangesStateUi.Loaded,
-    diffSelected: DiffEntryType?,
+    diffSelected: DiffType?,
     changesListScroll: LazyListState,
     textScroll: ScrollState,
     showSearch: Boolean,
@@ -380,7 +378,7 @@ fun Author(
 @Composable
 fun ListCommitLogChanges(
     diffEntries: List<DiffEntry>,
-    diffSelected: DiffEntryType?,
+    diffSelected: DiffType?,
     changesListScroll: LazyListState,
     onDiffSelected: (DiffEntry) -> Unit,
     onGenerateContextMenu: (DiffEntry) -> List<ContextMenuElement>,
@@ -396,7 +394,7 @@ fun ListCommitLogChanges(
                 iconColor = diffEntry.iconColor,
                 parentDirectoryPath = diffEntry.parentDirectoryPath,
                 fileName = diffEntry.fileName,
-                isSelected = diffSelected is DiffEntryType.CommitDiff && diffSelected.diffEntry == diffEntry,
+                isSelected = diffSelected is DiffType.CommitDiff && diffSelected.diffEntry == diffEntry,
                 onClick = { onDiffSelected(diffEntry) },
                 onDoubleClick = {},
                 onGenerateContextMenu = { onGenerateContextMenu(diffEntry) },
@@ -409,7 +407,7 @@ fun ListCommitLogChanges(
 @Composable
 fun TreeCommitLogChanges(
     treeItems: List<TreeItem<DiffEntry>>,
-    diffSelected: DiffEntryType?,
+    diffSelected: DiffType?,
     changesListScroll: LazyListState,
     onDiffSelected: (DiffEntry) -> Unit,
     onDirectoryClicked: (TreeItem.Dir) -> Unit,
@@ -424,7 +422,7 @@ fun TreeCommitLogChanges(
             CommitTreeItemEntry(
                 entry = entry,
                 isSelected = entry is TreeItem.File &&
-                        diffSelected is DiffEntryType.CommitDiff &&
+                        diffSelected is DiffType.CommitDiff &&
                         diffSelected.diffEntry == entry.data,
                 onFileClick = { onDiffSelected(it) },
                 onDirectoryClick = { onDirectoryClicked(it) },

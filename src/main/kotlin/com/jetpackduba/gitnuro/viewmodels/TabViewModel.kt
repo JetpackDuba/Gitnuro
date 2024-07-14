@@ -89,10 +89,10 @@ class TabViewModel @Inject constructor(
 
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
 
-    private val _diffSelected = MutableStateFlow<DiffEntryType?>(null)
-    val diffSelected: StateFlow<DiffEntryType?> = _diffSelected
+    private val _diffSelected = MutableStateFlow<DiffType?>(null)
+    val diffSelected: StateFlow<DiffType?> = _diffSelected
 
-    var newDiffSelected: DiffEntryType?
+    var newDiffSelected: DiffType?
         get() = diffSelected.value
         set(value) {
             _diffSelected.value = value

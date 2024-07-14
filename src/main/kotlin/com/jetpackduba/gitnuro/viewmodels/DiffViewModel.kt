@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.*
@@ -45,7 +45,7 @@ class DiffViewModel @Inject constructor(
     val diffTypeFlow = settings.textDiffTypeFlow
     val isDisplayFullFile = settings.diffDisplayFullFileFlow
 
-    private var diffEntryType: DiffEntryType? = null
+    private var diffType: DiffType? = null
     private var diffJob: Job? = null
 
     init {
@@ -53,7 +53,7 @@ class DiffViewModel @Inject constructor(
             diffTypeFlow
                 .drop(1) // Ignore the first time the flow triggers, we only care about updates
                 .collect {
-                    val diffEntryType = this@DiffViewModel.diffEntryType
+                    val diffEntryType = this@DiffViewModel.diffType
                     if (diffEntryType != null) {
                         updateDiff(diffEntryType)
                     }
@@ -64,7 +64,7 @@ class DiffViewModel @Inject constructor(
             isDisplayFullFile
                 .drop(1) // Ignore the first time the flow triggers, we only care about updates
                 .collect {
-                    val diffEntryType = this@DiffViewModel.diffEntryType
+                    val diffEntryType = this@DiffViewModel.diffType
                     if (diffEntryType != null) {
                         updateDiff(diffEntryType)
                     }
@@ -78,7 +78,7 @@ class DiffViewModel @Inject constructor(
             ) {
                 val diffResultValue = diffResult.value
                 if (diffResultValue is ViewDiffResult.Loaded) {
-                    updateDiff(diffResultValue.diffEntryType)
+                    updateDiff(diffResultValue.diffType)
                 }
             }
         }
@@ -91,24 +91,24 @@ class DiffViewModel @Inject constructor(
         )
     )
 
-    fun updateDiff(diffEntryType: DiffEntryType) {
+    fun updateDiff(diffType: DiffType) {
         diffJob = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
-            this.diffEntryType = diffEntryType
+            this.diffType = diffType
 
-            var oldDiffEntryType: DiffEntryType? = null
+            var oldDiffType: DiffType? = null
             val oldDiffResult = _diffResult.value
 
             if (oldDiffResult is ViewDiffResult.Loaded) {
-                oldDiffEntryType = oldDiffResult.diffEntryType
+                oldDiffType = oldDiffResult.diffType
             }
 
             // If it's a different file or different state (index or workdir), reset the scroll state
             if (
-                oldDiffEntryType?.filePath != diffEntryType.filePath ||
-                oldDiffEntryType is DiffEntryType.UncommittedDiff &&
-                diffEntryType is DiffEntryType.UncommittedDiff &&
-                oldDiffEntryType.statusEntry.filePath == diffEntryType.statusEntry.filePath &&
-                oldDiffEntryType::class != diffEntryType::class
+                oldDiffType?.filePath != diffType.filePath ||
+                oldDiffType is DiffType.UncommittedDiff &&
+                diffType is DiffType.UncommittedDiff &&
+                oldDiffType.statusEntry.filePath == diffType.statusEntry.filePath &&
+                oldDiffType::class != diffType::class
             ) {
                 lazyListState.value = LazyListState(
                     0,
@@ -121,9 +121,9 @@ class DiffViewModel @Inject constructor(
             try {
                 delayedStateChange(
                     delayMs = if (isFirstLoad) 0 else DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD,
-                    onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading(diffEntryType.filePath) }
+                    onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading(diffType.filePath) }
                 ) {
-                    val diffFormat = formatDiffUseCase(git, diffEntryType, isDisplayFullFile.value)
+                    val diffFormat = formatDiffUseCase(git, diffType, isDisplayFullFile.value)
                     val diffEntry = diffFormat.diffEntry
                     if (
                         diffTypeFlow.value == TextDiffType.SPLIT &&
@@ -133,11 +133,11 @@ class DiffViewModel @Inject constructor(
                     ) {
                         val splitHunkList = generateSplitHunkFromDiffResultUseCase(diffFormat)
                         _diffResult.value = ViewDiffResult.Loaded(
-                            diffEntryType,
+                            diffType,
                             DiffResult.TextSplit(diffEntry, splitHunkList)
                         )
                     } else {
-                        _diffResult.value = ViewDiffResult.Loaded(diffEntryType, diffFormat)
+                        _diffResult.value = ViewDiffResult.Loaded(diffType, diffFormat)
                     }
                 }
             } catch (ex: Exception) {

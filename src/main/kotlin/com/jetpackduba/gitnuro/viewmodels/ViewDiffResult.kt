@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.diff.DiffResult
 
 sealed interface ViewDiffResult {
@@ -10,5 +10,5 @@ sealed interface ViewDiffResult {
 
     object DiffNotFound : ViewDiffResult
 
-    data class Loaded(val diffEntryType: DiffEntryType, val diffResult: DiffResult) : ViewDiffResult
+    data class Loaded(val diffType: DiffType, val diffResult: DiffResult) : ViewDiffResult
 }

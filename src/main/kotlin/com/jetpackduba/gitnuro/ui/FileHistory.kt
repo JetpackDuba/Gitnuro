@@ -170,7 +170,7 @@ fun HistoryContentLoaded(
                 when (val diffResult = viewDiffResult.diffResult) {
                     is DiffResult.Text -> {
                         HunkUnifiedTextDiff(
-                            diffEntryType = viewDiffResult.diffEntryType,
+                            diffType = viewDiffResult.diffType,
                             scrollState = scrollState,
                             diffResult = diffResult,
                             onUnstageHunk = { _, _ -> },
@@ -183,7 +183,7 @@ fun HistoryContentLoaded(
 
                     is DiffResult.TextSplit -> {
                         HunkSplitTextDiff(
-                            diffEntryType = viewDiffResult.diffEntryType,
+                            diffType = viewDiffResult.diffType,
                             scrollState = scrollState,
                             diffResult = diffResult,
                             onUnstageHunk = { _, _ -> },

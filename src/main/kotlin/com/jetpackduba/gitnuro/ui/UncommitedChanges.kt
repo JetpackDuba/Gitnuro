@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
-import com.jetpackduba.gitnuro.git.DiffEntryType
+import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -54,7 +54,7 @@ import org.eclipse.jgit.lib.RepositoryState
 @Composable
 fun UncommittedChanges(
     statusViewModel: StatusViewModel,
-    selectedEntryType: DiffEntryType?,
+    selectedEntryType: DiffType?,
     repositoryState: RepositoryState,
     onStagedDiffEntrySelected: (StatusEntry?) -> Unit,
     onUnstagedDiffEntrySelected: (StatusEntry) -> Unit,
@@ -321,7 +321,7 @@ fun ColumnScope.StagedView(
     showSearchUnstaged: Boolean,
     searchFilterUnstaged: TextFieldValue,
     stagedListState: LazyListState,
-    selectedEntryType: DiffEntryType?,
+    selectedEntryType: DiffType?,
     onSearchFilterToggled: (Boolean) -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onDiffEntrySelected: (StatusEntry) -> Unit,
@@ -369,7 +369,7 @@ fun ColumnScope.StagedView(
         onTreeDirectoryAction = onTreeDirectoryAction,
         onTreeEntries = { it.staged },
         onListEntries = { it.staged },
-        onGetSelectedEntry = { if (selectedEntryType is DiffEntryType.StagedDiff) selectedEntryType else null }
+        onGetSelectedEntry = { if (selectedEntryType is DiffType.StagedDiff) selectedEntryType else null },
     )
 }
 
@@ -379,7 +379,7 @@ fun ColumnScope.UnstagedView(
     showSearchUnstaged: Boolean,
     searchFilterUnstaged: TextFieldValue,
     unstagedListState: LazyListState,
-    selectedEntryType: DiffEntryType?,
+    selectedEntryType: DiffType?,
     onSearchFilterToggled: (Boolean) -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onDiffEntrySelected: (StatusEntry) -> Unit,
@@ -427,7 +427,7 @@ fun ColumnScope.UnstagedView(
         onTreeDirectoryAction = onTreeDirectoryAction,
         onTreeEntries = { it.unstaged },
         onListEntries = { it.unstaged },
-        onGetSelectedEntry = { if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null }
+        onGetSelectedEntry = { if (selectedEntryType is DiffType.UnstagedDiff) selectedEntryType else null },
     )
 }
 
@@ -444,7 +444,7 @@ fun ColumnScope.NeutralView(
     showSearchUnstaged: Boolean,
     searchFilterUnstaged: TextFieldValue,
     listState: LazyListState,
-    selectedEntryType: DiffEntryType?,
+    selectedEntryType: DiffType?,
     onTreeEntries: (StageStateUi.TreeLoaded) -> List<TreeItem<StatusEntry>>,
     onListEntries: (StageStateUi.ListLoaded) -> List<StatusEntry>,
     onSearchFilterToggled: (Boolean) -> Unit,
@@ -459,7 +459,7 @@ fun ColumnScope.NeutralView(
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (String) -> Unit,
     onTreeDirectoryAction: (String) -> Unit,
-    onGetSelectedEntry: () -> DiffEntryType?,
+    onGetSelectedEntry: () -> DiffType?,
 ) {
     val modifier = Modifier
         .weight(5f)
@@ -495,7 +495,7 @@ fun ColumnScope.NeutralView(
             onAllAction = onAllAction,
             onTreeDirectoryClicked = { onTreeDirectoryClicked(it.fullPath) },
             allActionTitle = allActionTitle,
-            selectedEntryType = if (selectedEntryType is DiffEntryType.UnstagedDiff) selectedEntryType else null,
+            selectedEntryType = if (selectedEntryType is DiffType.UnstagedDiff) selectedEntryType else null,
             onAlternateShowAsTree = onAlternateShowAsTree,
             onGenerateDirectoryContextMenu = { dir ->
                 statusDirEntriesContextMenuItems(
@@ -798,7 +798,7 @@ private fun EntriesList(
     onAllAction: () -> Unit,
     onAlternateShowAsTree: () -> Unit,
     allActionTitle: String,
-    selectedEntryType: DiffEntryType?,
+    selectedEntryType: DiffType?,
 ) {
     Column(
         modifier = modifier
@@ -827,7 +827,7 @@ private fun EntriesList(
         ) {
             items(statusEntries, key = { it.filePath }) { statusEntry ->
                 val isEntrySelected = selectedEntryType != null &&
-                        selectedEntryType is DiffEntryType.UncommittedDiff && // Added for smartcast
+                        selectedEntryType is DiffType.UncommittedDiff && // Added for smartcast
                         selectedEntryType.statusEntry == statusEntry
                 UncommittedFileEntry(
                     statusEntry = statusEntry,
@@ -870,7 +870,7 @@ private fun TreeEntriesList(
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (TreeItem.Dir) -> Unit,
     allActionTitle: String,
-    selectedEntryType: DiffEntryType?,
+    selectedEntryType: DiffType?,
 ) {
     Column(
         modifier = modifier
@@ -899,7 +899,7 @@ private fun TreeEntriesList(
             items(statusEntries, key = { it.fullPath }) { treeEntry ->
                 val isEntrySelected = treeEntry is TreeItem.File<StatusEntry> &&
                         selectedEntryType != null &&
-                        selectedEntryType is DiffEntryType.UncommittedDiff && // Added for smartcast
+                        selectedEntryType is DiffType.UncommittedDiff && // Added for smartcast
                         selectedEntryType.statusEntry == treeEntry.data
 
                 UncommittedTreeItemEntry(
