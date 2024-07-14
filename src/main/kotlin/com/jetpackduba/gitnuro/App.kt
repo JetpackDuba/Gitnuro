@@ -30,6 +30,8 @@ import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.repositories.ProxySettings
+import com.jetpackduba.gitnuro.system.OS
+import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.system.systemSeparator
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.Theme
@@ -43,6 +45,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.GpgSigner
 import java.io.File
+import java.io.FileOutputStream
 import java.net.Authenticator
 import java.net.PasswordAuthentication
 import java.nio.file.Paths
@@ -84,6 +87,7 @@ class App {
     fun start(args: Array<String>) {
         tabsManager.appComponent = this.appComponent
 
+        initNativeDependencies()
         logging.initLogging()
         initProxySettings()
 
@@ -161,6 +165,29 @@ class App {
             }
 
         }
+    }
+
+    private fun initNativeDependencies() {
+        val gitnuroRsName = when (currentOs) {
+            OS.LINUX -> "libgitnuro_rs.so"
+            OS.WINDOWS -> "gitnuro_rs.dll"
+            OS.MAC -> "libgitnuro_rs.dylib"
+            else -> throw Exception("OS not supported")
+        }
+
+        val gitnuroRsInputStream = javaClass.getResourceAsStream(gitnuroRsName)
+
+        gitnuroRsInputStream?.use { inputStream ->
+            val tempDir = tempFilesManager.tempDir()
+            val gitnuroRsFile = File(tempDir, gitnuroRsName)
+            val outputStream = FileOutputStream(gitnuroRsFile)
+
+            inputStream.copyTo(outputStream)
+            outputStream.flush()
+            outputStream.close()
+
+            System.load(gitnuroRsFile.absolutePath)
+        } ?: throw Exception("GitnuroRs native dependency not found")
     }
 
     private fun initProxySettings() {

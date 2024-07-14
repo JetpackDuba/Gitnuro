@@ -244,7 +244,7 @@ fun buildRust() {
 }
 
 fun copyRustBuild() {
-    val outputDir = "${buildDir}/classes/kotlin/main"
+    val outputDir = "${project.projectDir}/src/main/resources"
 
     val workingDirPath = if (currentOs() == OS.LINUX && useCross) {
         if (isLinuxAarch64) {
