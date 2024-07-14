@@ -131,10 +131,10 @@ class AppSettingsRepository @Inject constructor() {
             preferences.put(PREF_LATEST_REPOSITORIES_TABS_OPENED, value)
         }
 
-    var latestRepositoryTabSelected: String
-        get() = preferences.get(PREF_LATEST_REPOSITORY_TAB_SELECTED, "")
+    var latestRepositoryTabSelected: Int
+        get() = preferences.getInt(PREF_LATEST_REPOSITORY_TAB_SELECTED, -1)
         set(value) {
-            preferences.put(PREF_LATEST_REPOSITORY_TAB_SELECTED, value)
+            preferences.putInt(PREF_LATEST_REPOSITORY_TAB_SELECTED, value)
         }
 
     var latestOpenedRepositoriesPath: String

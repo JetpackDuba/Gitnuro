@@ -40,11 +40,12 @@ class TabsManager @Inject constructor(
 
         _tabsFlow.value = repositoriesList.ifEmpty { listOf(newAppTab()) }
 
-        val latestSelectedTabPath = appSettingsRepository.latestRepositoryTabSelected
+        val latestSelectedTabIndex = appSettingsRepository.latestRepositoryTabSelected
 
-        val latestSelectedTab = repositoriesList.firstOrNull { it.path == latestSelectedTabPath }
-
-        _currentTab.value = latestSelectedTab ?: _tabsFlow.value.first()
+        _currentTab.value = when(latestSelectedTabIndex < 0) {
+            true -> _tabsFlow.value.first()
+            false -> tabsFlow.value[latestSelectedTabIndex]
+        }
     }
 
     fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplacedPath: String? = null) {
@@ -79,7 +80,7 @@ class TabsManager @Inject constructor(
     }
 
     private fun persistTabSelected(tab: TabInformation) {
-        appSettingsRepository.latestRepositoryTabSelected = tab.path.orEmpty()
+        appSettingsRepository.latestRepositoryTabSelected = tabsFlow.value.indexOf(tab)
     }
 
     fun closeTab(tab: TabInformation) {
@@ -116,10 +117,10 @@ class TabsManager @Inject constructor(
     }
 
     private fun updatePersistedTabs() {
-        val tabsPaths = tabsFlow.value
-            .mapNotNull { it.path }
+        val tabs = tabsFlow.value.filter { it.path != null }
 
-        appSettingsRepository.latestTabsOpened = Json.encodeToString(tabsPaths)
+        appSettingsRepository.latestTabsOpened = Json.encodeToString(tabs.map { it.path })
+        appSettingsRepository.latestRepositoryTabSelected = tabs.indexOf(currentTab.value)
     }
 
     fun addNewEmptyTab() {
