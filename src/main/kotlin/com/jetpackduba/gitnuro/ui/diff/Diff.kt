@@ -57,6 +57,7 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.SelectionAwareTextContextMenu
+import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
@@ -1137,6 +1138,8 @@ fun SplitDiffLine(
 @Composable
 fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) {
     val fileExtension = diffType.filePath.split(".").lastOrNull()
+    val syntaxHighlighter = getSyntaxHighlighterFromExtension(fileExtension)
+
     val text = line.text
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
@@ -1171,7 +1174,7 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
 
         Row {
             Text(
-                text = syntaxHighlight(fileExtension, text),
+                text = syntaxHighlighter.syntaxHighlight(text),
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .fillMaxSize(),
@@ -1196,140 +1199,6 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
         }
     }
 }
-
-
-fun syntaxHighlight(fileExtension: String?, text: String): AnnotatedString {
-    val cleanText = text.replace(
-        "\t",
-        "    "
-    ).removeLineDelimiters()
-
-    return if (cleanText.trimStart().startsWith("//")) {
-        AnnotatedString(cleanText, spanStyle = SpanStyle(color = Color(0xFF70C290)))
-    } else {
-        val words = cleanText.split(" ")
-
-        val builder = AnnotatedString.Builder()
-        val keywords = listOf(
-            "as",
-            "as?",
-            "break",
-            "by",
-            "catch",
-            "class",
-            "constructor",
-            "continue",
-            "do",
-            "dynamic",
-            "else",
-            "false",
-            "finally",
-            "for",
-            "fun",
-            "if",
-            "import",
-            "in",
-            "!in",
-            "interface",
-            "is",
-            "!is",
-            "null",
-            "object",
-            "package",
-            "return",
-            "super",
-            "this",
-            "throw",
-            "true",
-            "try",
-            "val",
-            "var",
-            "when",
-            "where",
-            "while",
-
-            // Modifiers
-            "actual",
-            "abstract",
-            "annotation",
-            "companion",
-            "const",
-            "crossinline",
-            "data",
-            "enum",
-            "expect",
-            "external",
-            "final",
-            "infix",
-            "inline",
-            "inner",
-            "internal",
-            "lateinit",
-            "noinline",
-            "open",
-            "operator",
-            "out",
-            "override",
-            "private",
-            "protected",
-            "public",
-            "reified",
-            "sealed",
-            "suspend",
-            "tailrec",
-            "vararg",
-        )
-
-        fun isAnnotation(word: String): Boolean = word.startsWith("@")
-
-        words.forEachIndexed { index, word ->
-            if (keywords.contains(word)) {
-                builder.append(
-                    AnnotatedString(
-                        word,
-                        spanStyle = SpanStyle(
-//                            color = Color(0xFF669ACD)
-                            color = Color(0xFF90c0f0)
-                        )
-                    )
-                )
-            } else if (isAnnotation(word)) {
-                builder.append(
-                    AnnotatedString(
-                        word,
-                        spanStyle = SpanStyle(
-                            color = Color(0xFFB3AE5F)
-                        )
-                    )
-                )
-            } else {
-                builder.append(word)
-            }
-
-            if (index < words.lastIndex) {
-                builder.append(" ")
-            }
-        }
-
-        builder.toAnnotatedString()
-    }
-}
-
-class Testtt {
-    companion object {
-        @JvmStatic
-        external fun test1()
-    }
-}
-//
-//class Pancakes private constructor(val pointer: Long) {
-//    constructor(message: String, num: Int) : this(initialize(message, num))
-//    companion object {
-//        fun initialize(message: String, num: Int): Long {
-//            return 0L
-//        }
-//    }
-//}
 
 @Composable
 fun LineNumber(text: String, remarked: Boolean) {

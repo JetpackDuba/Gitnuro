@@ -25,6 +25,9 @@ val lightTheme = ColorsScheme(
     hoverScrollbar = Color(0xFF0070D8),
     diffLineAdded = Color(0xAAd7ebd0),
     diffLineRemoved = Color(0xAAf0d4d4),
+    diffKeyword =  Color(0xff3b83cf),
+    diffAnnotation = Color(0xff9f9927),
+    diffComment = Color(0xff0d9141),
     isLight = true,
 )
 
@@ -52,6 +55,9 @@ val darkBlueTheme = ColorsScheme(
     hoverScrollbar = Color(0xFFCCCCCC),
     diffLineAdded = Color(0xAA566f5a),
     diffLineRemoved = Color(0xAA6f585e),
+    diffKeyword =  Color(0xFF90c0f0),
+    diffAnnotation = Color(0xFFB3AE5F),
+    diffComment = Color(0xFF70C290),
     isLight = false,
 )
 
@@ -78,5 +84,8 @@ val darkGrayTheme = ColorsScheme(
     hoverScrollbar = Color(0xFFCCCCCC),
     diffLineAdded = Color(0xAA5b7059),
     diffLineRemoved = Color(0xAA74595c),
+    diffKeyword =  Color(0xFF90c0f0),
+    diffAnnotation = Color(0xFFB3AE5F),
+    diffComment = Color(0xFF70C290),
     isLight = false,
 )

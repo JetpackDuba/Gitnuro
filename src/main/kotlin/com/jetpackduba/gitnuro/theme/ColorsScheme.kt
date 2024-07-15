@@ -38,6 +38,9 @@ data class ColorsScheme(
     val hoverScrollbar: Color,
     val diffLineAdded: Color,
     val diffLineRemoved: Color,
+    val diffKeyword: Color,
+    val diffAnnotation: Color,
+    val diffComment: Color,
     val isLight: Boolean,
 ) {
     fun toComposeColors(): Colors {

@@ -123,6 +123,15 @@ val Colors.diffLineAdded: Color
 val Colors.diffLineRemoved: Color
     get() = appTheme.diffLineRemoved
 
+val Colors.diffKeyword: Color
+    get() = appTheme.diffKeyword
+
+val Colors.diffAnnotation: Color
+    get() = appTheme.diffAnnotation
+
+val Colors.diffComment: Color
+    get() = appTheme.diffComment
+
 val Colors.isDark: Boolean
     get() = !this.isLight
 
