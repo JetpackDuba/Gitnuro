@@ -77,4 +77,5 @@ private enum class HighlightLanguagesSupported(val extensions: List<String>, val
     Kotlin(listOf("kt", "kts"), { KotlinSyntaxHighlighter() }),
     Rust(listOf("rs"), { RustSyntaxHighlighter() }),
     TypeScript(listOf("js", "jsx", "ts", "tsx", "vue", "astro"), { TypeScriptSyntaxHighlighter() }),
+    Python(listOf("py"), { PythonSyntaxHighlighter() }),
 }
