@@ -25,7 +25,7 @@ jobs:
         name: Rust build
         with:
           command: build
-          args: --manifest-path=./rs/Cargo.toml --release --features=uniffi/cli
+          args: --manifest-path=./rs/Cargo.toml --release
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
