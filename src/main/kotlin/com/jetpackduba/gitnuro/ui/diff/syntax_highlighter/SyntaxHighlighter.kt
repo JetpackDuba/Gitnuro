@@ -76,6 +76,19 @@ fun getSyntaxHighlighterFromExtension(extension: String?): SyntaxHighlighter {
 private enum class HighlightLanguagesSupported(val extensions: List<String>, val highlighter: () -> SyntaxHighlighter) {
     Kotlin(listOf("kt", "kts"), { KotlinSyntaxHighlighter() }),
     Rust(listOf("rs"), { RustSyntaxHighlighter() }),
-    TypeScript(listOf("js", "jsx", "ts", "tsx", "vue", "astro"), { TypeScriptSyntaxHighlighter() }),
+    TypeScript(listOf("js", "jsx", "ts", "tsx", "vue", "astro"), { TypeScriptSyntaxHighlighter() }), // JS & various frameworks files also included
     Python(listOf("py"), { PythonSyntaxHighlighter() }),
+    Java(listOf("java"), { JavaSyntaxHighlighter() }),
+    CSharp(listOf("cs"), { CSharpSyntaxHighlighter() }),
+    Cpp(listOf("c", "cpp", "c", "h", "hh", "hpp"), { CppSyntaxHighlighter() }), // C files also included
+    PHP(listOf("php"), { PhpSyntaxHighlighter() }),
+    SQL(listOf("sql"), { SQLSyntaxHighlighter() }),
+    Ruby(listOf("rb"), { RubySyntaxHighlighter() }),
+    Go(listOf("go"), { GoSyntaxHighlighter() }),
+    Dart(listOf("dart"), { DartSyntaxHighlighter() }),
+    Swift(listOf("swift"), { SwiftSyntaxHighlighter() }),
+    Scala(listOf("scala", "sc"), { ScalaSyntaxHighlighter() }),
+    Lua(listOf("lua"), { LuaSyntaxHighlighter() }),
+    ObjectiveC(listOf("m", "mm"), { ObjectiveCSyntaxHighlighter() }),
+    Bash(listOf("sh", "bash", "zsh"), { BashSyntaxHighlighter() }),
 }

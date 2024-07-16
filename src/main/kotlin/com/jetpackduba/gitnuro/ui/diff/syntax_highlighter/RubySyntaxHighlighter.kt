@@ -1,0 +1,50 @@
+package com.jetpackduba.gitnuro.ui.diff.syntax_highlighter
+
+class   RubySyntaxHighlighter : SyntaxHighlighter() {
+    override fun loadKeywords(): List<String> = listOf(
+        "BEGIN",
+        "END",
+        "alias",
+        "and",
+        "begin",
+        "break",
+        "case",
+        "class",
+        "def",
+        "defined",
+        "do",
+        "else",
+        "elsif",
+        "end",
+        "false",
+        "ensure",
+        "for",
+        "if",
+        "in",
+        "module",
+        "next",
+        "nil",
+        "not",
+        "or",
+        "redo",
+        "rescue",
+        "retry",
+        "return",
+        "self",
+        "super",
+        "then",
+        "true",
+        "undef",
+        "unless",
+        "until",
+        "when",
+        "while",
+        "yield",
+        "_ENCODING_",
+        "_LINE_",
+        "_FILE_",
+    )
+
+    override fun isAnnotation(word: String): Boolean = false
+    override fun isComment(line: String): Boolean = line.startsWith("#")
+}
