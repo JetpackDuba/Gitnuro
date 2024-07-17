@@ -76,7 +76,7 @@ fun getSyntaxHighlighterFromExtension(extension: String?): SyntaxHighlighter {
 private enum class HighlightLanguagesSupported(val extensions: List<String>, val highlighter: () -> SyntaxHighlighter) {
     Kotlin(listOf("kt", "kts"), { KotlinSyntaxHighlighter() }),
     Rust(listOf("rs"), { RustSyntaxHighlighter() }),
-    TypeScript(listOf("js", "jsx", "ts", "tsx", "vue", "astro"), { TypeScriptSyntaxHighlighter() }), // JS & various frameworks files also included
+    TypeScript(listOf("js", "jsx", "ts", "tsx", "vue", "astro", "svelte"), { TypeScriptSyntaxHighlighter() }), // JS & various frameworks files also included
     Python(listOf("py"), { PythonSyntaxHighlighter() }),
     Java(listOf("java"), { JavaSyntaxHighlighter() }),
     CSharp(listOf("cs"), { CSharpSyntaxHighlighter() }),
