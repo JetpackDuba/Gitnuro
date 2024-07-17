@@ -42,17 +42,15 @@ class SshProcess : Process() {
         check(!isRunning())
         println("exitValue called")
 
-        channel.close()
-
         return 0
     }
 
     override fun destroy() {
-        if (channel.isOpen()) {
-            channel.close()
-        }
+        closeChannel()
+    }
 
-        println("Destroy called")
+    fun closeChannel() {
+        channel.close()
     }
 
     private fun isRunning(): Boolean {

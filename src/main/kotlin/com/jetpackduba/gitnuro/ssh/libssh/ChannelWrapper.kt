@@ -5,10 +5,13 @@ import Session
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelInputErrStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelInputStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelOutputStream
+import java.util.concurrent.Semaphore
 
 class ChannelWrapper internal constructor(sshSession: Session) {
     private val channel = Channel.new(sshSession)
 
+    private var isClosed = false
+    private var closeMutex = Semaphore(1)
     val outputStream = SshChannelOutputStream(channel)
     val inputStream = SshChannelInputStream(channel)
     val errorOutputStream = SshChannelInputErrStream(channel)
@@ -26,7 +29,15 @@ class ChannelWrapper internal constructor(sshSession: Session) {
     }
 
     fun close() {
-        channel.closeChannel()
-        channel.close()
+        closeMutex.acquire()
+        try {
+            if (!isClosed) {
+                channel.closeChannel()
+                channel.close()
+                isClosed = true
+            }
+        } finally {
+            closeMutex.release()
+        }
     }
 }

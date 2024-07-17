@@ -12,20 +12,20 @@ private const val NOT_EXPLICIT_PORT = -1
 class SshRemoteSession @Inject constructor(
     private val credentialsStateManager: CredentialsStateManager,
 ) : RemoteSession {
-    private var session: Session? = null
-
+    private lateinit var session: Session
+    private lateinit var process: SshProcess
     override fun exec(commandName: String, timeout: Int): Process {
         println("Running command $commandName")
 
-        val session = this.session ?: throw Exception("Session is null")
-        val process = SshProcess()
+        process = SshProcess()
 
         process.setup(session, commandName)
         return process
     }
 
     override fun disconnect() {
-        session?.disconnect()
+        process.closeChannel()
+        session.disconnect()
     }
 
     fun setup(uri: URIish) {
