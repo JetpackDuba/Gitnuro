@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.remote_operations.FetchAllBranchesUseCase
+import com.jetpackduba.gitnuro.git.remote_operations.FetchAllRemotesUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.git.remote_operations.PushBranchUseCase
@@ -19,7 +19,7 @@ class MenuViewModel @Inject constructor(
     private val tabState: TabState,
     private val pullBranchUseCase: PullBranchUseCase,
     private val pushBranchUseCase: PushBranchUseCase,
-    private val fetchAllBranchesUseCase: FetchAllBranchesUseCase,
+    private val fetchAllRemotesUseCase: FetchAllRemotesUseCase,
     private val popLastStashUseCase: PopLastStashUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
@@ -50,7 +50,7 @@ class MenuViewModel @Inject constructor(
         taskType = TaskType.FETCH,
         positiveFeedbackText = "Fetch all completed",
     ) { git ->
-        fetchAllBranchesUseCase(git)
+        fetchAllRemotesUseCase(git)
     }
 
     fun push(force: Boolean = false, pushTags: Boolean = false) = tabState.safeProcessing(

@@ -17,12 +17,18 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.isLocal
 import com.jetpackduba.gitnuro.extensions.isValid
 import com.jetpackduba.gitnuro.extensions.simpleName
+import com.jetpackduba.gitnuro.models.RemoteWrapper
+import com.jetpackduba.gitnuro.models.newRemoteWrapper
+import com.jetpackduba.gitnuro.models.toRemoteWrapper
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
-import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
+import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.components.SideMenuHeader
+import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
+import com.jetpackduba.gitnuro.ui.dialogs.AddEditRemoteDialog
 import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
-import com.jetpackduba.gitnuro.ui.dialogs.EditRemotesDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
@@ -50,7 +56,7 @@ fun SidePanel(
     val stashesState by stashesViewModel.stashesState.collectAsState()
     val submodulesState by submodulesViewModel.submodules.collectAsState()
 
-    var showEditRemotesDialog by remember { mutableStateOf(false) }
+    val (showAddEditRemote, setShowAddEditRemote) = remember { mutableStateOf<RemoteWrapper?>(null) }
     val (branchToChangeUpstream, setBranchToChangeUpstream) = remember { mutableStateOf<Ref?>(null) }
     var showEditSubmodulesDialog by remember { mutableStateOf(false) }
 
@@ -80,7 +86,7 @@ fun SidePanel(
             remotes(
                 remotesState = remotesState,
                 remotesViewModel = remotesViewModel,
-                onShowEditRemotesDialog = { showEditRemotesDialog = true },
+                onShowAddEditRemoteDialog = { setShowAddEditRemote(it) },
             )
 
             tags(
@@ -103,11 +109,12 @@ fun SidePanel(
         }
     }
 
-    if (showEditRemotesDialog) {
-        EditRemotesDialog(
+    if (showAddEditRemote != null) {
+        AddEditRemoteDialog(
             remotesViewModel = remotesViewModel,
+            remoteWrapper = showAddEditRemote,
             onDismiss = {
-                showEditRemotesDialog = false
+                setShowAddEditRemote(null)
             },
         )
     }
@@ -218,7 +225,7 @@ fun LazyListScope.localBranches(
 fun LazyListScope.remotes(
     remotesState: RemotesState,
     remotesViewModel: RemotesViewModel,
-    onShowEditRemotesDialog: () -> Unit,
+    onShowAddEditRemoteDialog: (RemoteWrapper) -> Unit,
 ) {
     val isExpanded = remotesState.isExpanded
     val remotes = remotesState.remotes
@@ -230,14 +237,14 @@ fun LazyListScope.remotes(
             itemsCount = remotes.count(),
             hoverIcon = {
                 IconButton(
-                    onClick = onShowEditRemotesDialog,
+                    onClick = { onShowAddEditRemoteDialog(newRemoteWrapper()) },
                     modifier = Modifier
                         .padding(end = 16.dp)
                         .size(16.dp)
                         .handOnHover(),
                 ) {
                     Icon(
-                        painter = painterResource(AppIcons.SETTINGS),
+                        painter = painterResource(AppIcons.ADD),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize(),
@@ -255,7 +262,12 @@ fun LazyListScope.remotes(
             item {
                 Remote(
                     remote = remote,
-                    onRemoteClicked = { remotesViewModel.onRemoteClicked(remote) }
+                    onEditRemote = {
+                        val wrapper = remote.remoteInfo.remoteConfig.toRemoteWrapper()
+                        onShowAddEditRemoteDialog(wrapper)
+                   },
+                    onDeleteRemote = { remotesViewModel.deleteRemote(remote.remoteInfo.remoteConfig.name) },
+                    onRemoteClicked = { remotesViewModel.onRemoteClicked(remote) },
                 )
             }
 
@@ -461,14 +473,25 @@ private fun Branch(
 @Composable
 private fun Remote(
     remote: RemoteView,
+    onEditRemote: () -> Unit,
+    onDeleteRemote: () -> Unit,
     onRemoteClicked: () -> Unit,
 ) {
-    SideMenuSubentry(
-        text = remote.remoteInfo.remoteConfig.name,
-        iconResourcePath = AppIcons.CLOUD,
-        onClick = onRemoteClicked,
-        isSelected = false,
-    )
+    ContextMenu(
+        items = {
+            remoteContextMenu(
+                onEdit = onEditRemote,
+                onDelete = onDeleteRemote,
+            )
+        }
+    ) {
+        SideMenuSubentry(
+            text = remote.remoteInfo.remoteConfig.name,
+            iconResourcePath = AppIcons.CLOUD,
+            onClick = onRemoteClicked,
+            isSelected = false,
+        )
+    }
 }
 
 

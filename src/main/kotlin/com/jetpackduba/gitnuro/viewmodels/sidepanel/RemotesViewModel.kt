@@ -6,15 +6,11 @@ import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
 import com.jetpackduba.gitnuro.git.branches.DeleteLocallyRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.branches.GetCurrentBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
-import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
-import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
-import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
-import com.jetpackduba.gitnuro.ui.dialogs.RemoteWrapper
+import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedRemotesViewModel
 import dagger.assisted.Assisted
@@ -44,6 +40,9 @@ class RemotesViewModel @AssistedInject constructor(
 ) : SidePanelChildViewModel(false), ISharedRemotesViewModel by sharedRemotesViewModel {
     private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
     private val currentBranch = MutableStateFlow<Ref?>(null)
+
+    private val _remoteUpdated = MutableSharedFlow<Unit>()
+    val remoteUpdated = _remoteUpdated.asSharedFlow()
 
     val remoteState: StateFlow<RemotesState> =
         combine(remotes, isExpanded, filter, currentBranch) { remotes, isExpanded, filter, currentBranch ->
@@ -115,8 +114,8 @@ class RemotesViewModel @AssistedInject constructor(
         tabState.newSelectedRef(ref, ref.objectId)
     }
 
-    fun deleteRemote(remoteName: String, isNew: Boolean) = tabState.safeProcessing(
-        refreshType = if (isNew) RefreshType.REMOTES else RefreshType.ALL_DATA,
+    fun deleteRemote(remoteName: String) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DELETE_REMOTE,
         positiveFeedbackText = "Remote $remoteName deleted",
     ) { git ->
@@ -176,6 +175,8 @@ class RemotesViewModel @AssistedInject constructor(
             uri = selectedRemoteConfig.pushUri,
             uriType = RemoteSetUrlCommand.UriType.PUSH
         )
+
+        _remoteUpdated.emit(Unit)
     }
 }
 

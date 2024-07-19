@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 private const val TAG = "FetchAllBranchesUseCase"
 
-class FetchAllBranchesUseCase @Inject constructor(
+class FetchAllRemotesUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
 ) {
     suspend operator fun invoke(git: Git) = withContext(Dispatchers.IO) {
