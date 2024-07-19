@@ -469,15 +469,16 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         )
     }
 
-    SettingDropDown(
-        title = "Lists spacing",
-        subtitle = "Spacing around lists items",
-        dropDownOptions = linesHeightTypesList,
-        currentOption = linesHeightTypesList.first { it.value == currentLinesHeightType },
-        onOptionSelected = { dropDown ->
-            settingsViewModel.linesHeightType = dropDown.value
-        }
-    )
+    // TODO Uncomment this once UI/UX has been implemented properly
+//    SettingDropDown(
+//        title = "Lists spacing (Beta)",
+//        subtitle = "Spacing around lists items",
+//        dropDownOptions = linesHeightTypesList,
+//        currentOption = linesHeightTypesList.first { it.value == currentLinesHeightType },
+//        onOptionSelected = { dropDown ->
+//            settingsViewModel.linesHeightType = dropDown.value
+//        }
+//    )
 
     val density = LocalDensity.current.density
     var options by remember {
