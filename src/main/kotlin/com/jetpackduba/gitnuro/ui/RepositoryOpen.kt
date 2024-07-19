@@ -30,6 +30,8 @@ import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.BlameState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
@@ -264,9 +266,19 @@ fun MainContentView(
 ) {
     val rebaseInteractiveState by tabViewModel.rebaseInteractiveState.collectAsState()
     val density = LocalDensity.current.density
+    val scope = rememberCoroutineScope()
 
-    var firstWidth by remember(tabViewModel) { mutableStateOf(tabViewModel.firstPaneWidth) }
-    var thirdWidth by remember(tabViewModel) { mutableStateOf(tabViewModel.thirdPaneWidth) }
+    // We create 2 mutableStates here because using directly the flow makes compose lose some drag events for some reason
+    var firstWidth by remember(tabViewModel) { mutableStateOf(tabViewModel.firstPaneWidth.value) }
+    var thirdWidth by remember(tabViewModel) { mutableStateOf(tabViewModel.thirdPaneWidth.value) }
+
+    LaunchedEffect(Unit) {
+        // Update the pane widths if they have been changed in a different tab
+        tabViewModel.onPanelsWidthPersisted.collectLatest {
+            firstWidth = tabViewModel.firstPaneWidth.value
+            thirdWidth = tabViewModel.thirdPaneWidth.value
+        }
+    }
 
     TripleVerticalSplitPanel(
         modifier = Modifier.fillMaxSize(),
@@ -391,7 +403,12 @@ fun MainContentView(
 
             if (newWidth > 150 && rebaseInteractiveState !is RebaseInteractiveState.AwaitingInteraction) {
                 firstWidth = newWidth
-                tabViewModel.firstPaneWidth = firstWidth
+                tabViewModel.setFirstPaneWidth(newWidth)
+            }
+        },
+        onFirstSizeDragStopped = {
+            scope.launch {
+                tabViewModel.persistFirstPaneWidth()
             }
         },
         onThirdSizeDrag = {
@@ -399,7 +416,12 @@ fun MainContentView(
 
             if (newWidth > 150) {
                 thirdWidth = newWidth
-                tabViewModel.thirdPaneWidth = thirdWidth
+                tabViewModel.setThirdPaneWidth(newWidth)
+            }
+        },
+        onThirdSizeDragStopped = {
+            scope.launch {
+                tabViewModel.persistThirdPaneWidth()
             }
         },
     )

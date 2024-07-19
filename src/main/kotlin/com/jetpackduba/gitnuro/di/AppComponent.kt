@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.managers.TempFilesManager
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.terminal.ITerminalProvider
 import com.jetpackduba.gitnuro.ui.TabsManager
+import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import dagger.Component
@@ -33,6 +34,8 @@ interface AppComponent {
     fun credentialsStateManager(): CredentialsStateManager
 
     fun appPreferences(): AppSettingsRepository
+
+    fun verticalSplitPaneConfig(): VerticalSplitPaneConfig
 
     fun appEnvInfo(): AppEnvInfo
 

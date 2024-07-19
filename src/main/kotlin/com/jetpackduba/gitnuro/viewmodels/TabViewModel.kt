@@ -22,8 +22,10 @@ import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
+import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.TabsManager
+import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.*
@@ -69,10 +71,9 @@ class TabViewModel @Inject constructor(
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
+    private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     val tabViewModelsProvider: TabViewModelsProvider,
-) {
-    var firstPaneWidth = 220f
-    var thirdPaneWidth = 360f
+) : IVerticalSplitPaneConfig by verticalSplitPaneConfig {
     var initialPath: String? = null // Stores the path that should be opened when the tab is selected
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem

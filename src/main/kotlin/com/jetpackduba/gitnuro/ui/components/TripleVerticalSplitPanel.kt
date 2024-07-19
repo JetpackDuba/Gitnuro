@@ -3,10 +3,7 @@ package com.jetpackduba.gitnuro.ui.components
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerHoverIcon
@@ -22,13 +19,18 @@ fun TripleVerticalSplitPanel(
     firstWidth: Float,
     thirdWidth: Float,
     onFirstSizeDrag: (Float) -> Unit,
+    onFirstSizeDragStopped: (Float) -> Unit,
     onThirdSizeDrag: (Float) -> Unit,
+    onThirdSizeDragStopped: (Float) -> Unit,
 ) {
     Row(
         modifier = modifier
     ) {
         if (firstWidth > 0) {
-            Box(modifier = Modifier.width(firstWidth.dp)) {
+            Box(
+                modifier = Modifier
+                    .width(firstWidth.dp)
+            ) {
                 first()
             }
             Box(
@@ -39,13 +41,19 @@ fun TripleVerticalSplitPanel(
                         state = rememberDraggableState {
                             onFirstSizeDrag(it)
                         },
-                        orientation = Orientation.Horizontal
+                        orientation = Orientation.Horizontal,
+                        onDragStopped = {
+                            onFirstSizeDragStopped(it)
+                        },
                     )
                     .pointerHoverIcon(resizePointerIconEast)
             )
         }
 
-        Box(Modifier.weight(1f, true)) {
+        Box(
+            Modifier
+                .weight(1f, true)
+        ) {
             second()
         }
 
@@ -54,14 +62,21 @@ fun TripleVerticalSplitPanel(
                 .fillMaxHeight()
                 .width(8.dp)
                 .draggable(
-                    rememberDraggableState {
+                    state = rememberDraggableState {
                         onThirdSizeDrag(it)
-                    }, Orientation.Horizontal
+                    },
+                    orientation = Orientation.Horizontal,
+                    onDragStopped = {
+                        onThirdSizeDragStopped(it)
+                    },
                 )
                 .pointerHoverIcon(resizePointerIconEast)
         )
 
-        Box(modifier = Modifier.width(thirdWidth.dp)) {
+        Box(
+            modifier = Modifier
+                .width(thirdWidth.dp)
+        ) {
             third()
         }
     }

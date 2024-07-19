@@ -43,6 +43,8 @@ private const val PREF_PROXY_USE_AUTH = "proxyUseAuth"
 private const val PREF_PROXY_USER = "proxyHostUser"
 private const val PREF_PROXY_PASSWORD = "proxyHostPassword"
 private const val PREF_CACHE_CREDENTIALS_IN_MEMORY = "credentialsInMemory"
+private const val PREF_FIRST_PANE_WIDTH = "firstPaneWidth"
+private const val PREF_THIRD_PANE_WIDTH = "thirdPaneWidth"
 
 
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
@@ -57,6 +59,8 @@ private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
 private const val DEFAULT_SHOW_CHANGES_AS_TREE = false
 private const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
 private const val DEFAULT_VERIFY_SSL = true
+private const val DEFAULT_FIRST_PANE_WIDTH = 220f
+private const val DEFAULT_THIRD_PANE_WIDTH = 330f
 const val DEFAULT_UI_SCALE = -1f
 
 @Singleton
@@ -207,6 +211,22 @@ class AppSettingsRepository @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_CACHE_CREDENTIALS_IN_MEMORY, value)
             _cacheCredentialsInMemoryFlow.value = value
+        }
+
+    var firstPaneWidth: Float
+        get() {
+            return preferences.getFloat(PREF_FIRST_PANE_WIDTH, DEFAULT_FIRST_PANE_WIDTH)
+        }
+        set(value) {
+            preferences.putFloat(PREF_FIRST_PANE_WIDTH, value)
+        }
+
+    var thirdPaneWidth: Float
+        get() {
+            return preferences.getFloat(PREF_THIRD_PANE_WIDTH, DEFAULT_THIRD_PANE_WIDTH)
+        }
+        set(value) {
+            preferences.putFloat(PREF_THIRD_PANE_WIDTH, value)
         }
 
     var verifySsl: Boolean
