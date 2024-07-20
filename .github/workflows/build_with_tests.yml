@@ -28,8 +28,11 @@ jobs:
           java-version: '17'
           distribution: 'corretto'
           architecture: x64
+      - name: Tests
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: test
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
           arguments: build
-# TODO Add tests
