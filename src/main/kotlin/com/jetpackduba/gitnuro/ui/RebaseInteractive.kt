@@ -207,14 +207,6 @@ fun RebaseCommit(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            painterResource(AppIcons.DRAG),
-            contentDescription = "Drag commit",
-            tint = MaterialTheme.colors.onBackground,
-            modifier = Modifier.size(24.dp)
-                .handOnHover(),
-        )
-
         ActionDropdown(
             action,
             isFirst = isFirst,
