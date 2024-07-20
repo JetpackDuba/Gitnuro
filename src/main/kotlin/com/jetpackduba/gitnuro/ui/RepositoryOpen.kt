@@ -398,7 +398,11 @@ fun MainContentView(
                 }
             }
         },
-        onFirstSizeDrag = {
+        onFirstSizeDragStarted = { currentWidth ->
+            firstWidth = currentWidth
+            tabViewModel.setFirstPaneWidth(currentWidth)
+        },
+        onFirstSizeChange = {
             val newWidth = firstWidth + it / density
 
             if (newWidth > 150 && rebaseInteractiveState !is RebaseInteractiveState.AwaitingInteraction) {
@@ -411,13 +415,17 @@ fun MainContentView(
                 tabViewModel.persistFirstPaneWidth()
             }
         },
-        onThirdSizeDrag = {
+        onThirdSizeChange = {
             val newWidth = thirdWidth - it / density
 
             if (newWidth > 150) {
                 thirdWidth = newWidth
                 tabViewModel.setThirdPaneWidth(newWidth)
             }
+        },
+        onThirdSizeDragStarted = { currentWidth ->
+            thirdWidth = currentWidth
+            tabViewModel.setThirdPaneWidth(currentWidth)
         },
         onThirdSizeDragStopped = {
             scope.launch {
