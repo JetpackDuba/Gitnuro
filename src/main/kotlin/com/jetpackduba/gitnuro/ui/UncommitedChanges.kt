@@ -336,7 +336,7 @@ fun ColumnScope.StagedView(
     onTreeDirectoryAction: (String) -> Unit,
 ) {
     val title = "Staged"
-    val actionTitle = "Untage"
+    val actionTitle = "Unstage"
     val allActionTitle = "Unstage all"
     val actionColor = MaterialTheme.colors.error
     val actionTextColor = MaterialTheme.colors.onError
