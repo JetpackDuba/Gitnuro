@@ -8,7 +8,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -21,9 +21,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,6 +34,7 @@ import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.AppTheme
+import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -39,6 +42,7 @@ import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -310,24 +314,73 @@ fun RecentRepositories(
 fun RecentRepositoriesList(
     recentlyOpenedRepositories: List<String>,
     canRepositoriesBeRemoved: Boolean,
-    searchFieldFocusRequester: FocusRequester? = null,
+    searchFieldFocusRequester: FocusRequester = remember { FocusRequester() },
     onRemoveRepositoryFromRecent: (String) -> Unit,
     onOpenKnownRepository: (String) -> Unit,
 ) {
+    val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     var filter by remember {
         mutableStateOf("")
     }
-    Column {
-        AdjustableOutlinedTextField(
-            modifier = Modifier.run {
-                if (searchFieldFocusRequester != null) {
-                    focusRequester(searchFieldFocusRequester)
-                } else {
-                    this
+
+    var focusedItemIndex by remember { mutableStateOf(0) }
+
+    var isSearchFocused by remember { mutableStateOf(false) }
+
+    val filteredRepositories = remember(filter, recentlyOpenedRepositories) {
+        if (filter.isBlank()) {
+            recentlyOpenedRepositories
+        } else {
+            recentlyOpenedRepositories.filter { repository ->
+                repository.lowercaseContains(filter)
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier.onPreviewKeyEvent {
+            if (it.type != KeyEventType.KeyDown) {
+                return@onPreviewKeyEvent false
+            }
+            when (it.key) {
+                Key.DirectionDown -> {
+                    if (focusedItemIndex < filteredRepositories.lastIndex) {
+                        focusedItemIndex += 1
+                        scope.launch { listState.animateScrollToItem(focusedItemIndex) }
+                    }
+                    true
                 }
-            },
+
+                Key.DirectionUp -> {
+                    if (focusedItemIndex > 0) {
+                        focusedItemIndex -= 1
+                        scope.launch { listState.animateScrollToItem(focusedItemIndex) }
+                    }
+                    true
+                }
+
+                Key.Enter -> {
+                    val repo = filteredRepositories.getOrNull(focusedItemIndex)
+                    if (repo != null && isSearchFocused) {
+                        onOpenKnownRepository(repo)
+                    }
+                    true
+                }
+
+                else -> {
+                    false
+                }
+            }
+        }
+    ) {
+        AdjustableOutlinedTextField(
+            modifier = Modifier
+                .focusRequester(searchFieldFocusRequester)
+                .onFocusChanged { isSearchFocused = it.isFocused },
             value = filter,
             onValueChange = { filter = it },
+            singleLine = true,
             hint = "Search for recent repositories",
             trailingIcon = {
                 if (filter.isNotEmpty()) {
@@ -347,28 +400,28 @@ fun RecentRepositoriesList(
             }
         )
 
-        val filteredRepositories = remember(filter, recentlyOpenedRepositories) {
-            if (filter.isBlank()) {
-                recentlyOpenedRepositories
-            } else {
-                recentlyOpenedRepositories.filter { repository ->
-                    repository.lowercaseContains(filter)
-                }
+        LaunchedEffect(filteredRepositories) {
+            if (filter.isNotEmpty() && filteredRepositories.isNotEmpty()) {
+                focusedItemIndex = 0
             }
         }
-
-        val listState = rememberLazyListState()
 
         Box(modifier = Modifier.padding(top = 4.dp)) {
             LazyColumn(
                 state = listState,
                 modifier = Modifier.fillMaxSize(),
             ) {
-                items(items = filteredRepositories) { repo ->
+                itemsIndexed(items = filteredRepositories) { index, repo ->
                     val repoDirName = repo.dirName
                     val repoDirPath = repo.dirPath
                     val hoverInteraction = remember { MutableInteractionSource() }
                     val isHovered by hoverInteraction.collectIsHoveredAsState()
+
+                    LaunchedEffect(isHovered) {
+                        if (isHovered) {
+                            focusedItemIndex = index
+                        }
+                    }
 
                     Row(
                         modifier = Modifier
@@ -376,6 +429,10 @@ fun RecentRepositoriesList(
                             .fillMaxWidth()
                             .hoverable(hoverInteraction)
                             .handMouseClickable { onOpenKnownRepository(repo) }
+                            .backgroundIf(
+                                isSearchFocused && index == focusedItemIndex,
+                                MaterialTheme.colors.backgroundSelected
+                            )
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
