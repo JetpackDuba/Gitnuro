@@ -86,6 +86,7 @@ class TabsManager @Inject constructor(
     fun closeTab(tab: TabInformation) {
         val tabsList = _tabsFlow.value.toMutableList()
         var newCurrentTab: TabInformation? = null
+        tab.tabViewModel.dispose()
 
         if (currentTab.value == tab) {
             val index = tabsList.indexOf(tab)

@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.exceptions.WatcherInitException
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
@@ -227,12 +228,17 @@ class TabViewModel @Inject constructor(
 
         launch {
             fileChangesWatcher.changesNotifier.collect { latestUpdateChangedGitDir ->
-                if (!tabState.operationRunning) { // Only update if there isn't any process running
+                val isOperationRunning = tabState.operationRunning
+
+                if (!isOperationRunning) { // Only update if there isn't any process running
                     printDebug(TAG, "Detected changes in the repository's directory")
 
                     val currentTimeMillis = System.currentTimeMillis()
 
-                    if (currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION) {
+                    if (
+                        latestUpdateChangedGitDir &&
+                        currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION
+                    ) {
                         printDebug(TAG, "Git operation was executed recently, ignoring file system change")
                         return@collect
                     }
@@ -252,31 +258,22 @@ class TabViewModel @Inject constructor(
             }
         }
 
-//        try {
+        try {
             fileChangesWatcher.watchDirectoryPath(
                 repository = git.repository,
             )
-//        } catch (ex: WatcherInitException) {
-//            val message = when (ex) {
-//                is WatcherInitException.Generic -> ex.error
-//                is WatcherInitException.InvalidConfig -> "Invalid configuration"
-//                is WatcherInitException.Io -> ex.error
-//                is WatcherInitException.MaxFilesWatch -> "Reached the limit of files that can be watched. Please increase the system inotify limit to be able to detect the changes on this repository."
-//                is WatcherInitException.PathNotFound -> "Path not found, check if your repository still exists"
-//                is WatcherInitException.WatchNotFound -> null // This should never trigger as we don't unwatch files
-//            }
-//
-//            if (message != null) {
-//                errorsManager.addError(
-//                    newErrorNow(
-//                        exception = ex,
-//                        taskType = TaskType.CHANGES_DETECTION,
-////                        title = "Repository changes detection has stopped working",
-////                        message = message,
-//                    ),
-//                )
-//            }
-//        }
+        } catch (ex: WatcherInitException) {
+            val message = ex.message
+            if (message != null) {
+                errorsManager.addError(
+                    newErrorNow(
+                        exception = ex,
+                        taskType = TaskType.CHANGES_DETECTION,
+//                        message = message,
+                    ),
+                )
+            }
+        }
     }
 
     private suspend fun updateApp(hasGitDirChanged: Boolean) {
@@ -317,6 +314,7 @@ class TabViewModel @Inject constructor(
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
     fun dispose() {
+        fileChangesWatcher.close()
         tabScope.cancel()
     }
 
