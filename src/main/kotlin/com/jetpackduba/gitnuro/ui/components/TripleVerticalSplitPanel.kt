@@ -3,9 +3,6 @@ package com.jetpackduba.gitnuro.ui.components
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -36,27 +33,28 @@ fun TripleVerticalSplitPanel(
     onThirdSizeDragStopped: () -> Unit,
 ) {
     val density = LocalDensity.current.density
-    var screenWidth by remember { mutableStateOf(0) }
-    val screenWidthInDp = remember(screenWidth) { (screenWidth / density) }
 
-    val firstWidthLimited = remember(firstWidth, screenWidthInDp) {
-        calcLimitedWidth(screenWidthInDp, firstWidth)
-    }
+    // The panes width used to be calculated in the remember lambda, but as it required the view to compose once to get
+    // the composable width, it was flickering, so we only update them when size of the parent component changes
+    var firstWidthLimited by remember(firstWidth) { mutableStateOf(firstWidth)}
+    var thirdWidthLimited by remember(thirdWidth) { mutableStateOf(thirdWidth) }
 
-    val thirdWidthLimited = remember(thirdWidth, screenWidthInDp) {
-        calcLimitedWidth(screenWidthInDp, thirdWidth)
+    fun updateMaxPaneWidthToComponentWidth(screenWidth: Int) {
+        val screenWidthInDp = screenWidth /density
+        firstWidthLimited = calcLimitedWidth(screenWidthInDp, firstWidth)
+        thirdWidthLimited = calcLimitedWidth(screenWidthInDp, thirdWidth)
     }
 
     Row(
         modifier = modifier
             .onSizeChanged {
-                screenWidth = it.width
+                updateMaxPaneWidthToComponentWidth(it.width)
             }
     ) {
         if (firstWidth > 0) {
             Box(
                 modifier = Modifier
-                    .width(firstWidthLimited.dp)
+                    .width(firstWidth.dp)
             ) {
                 first()
             }
@@ -108,7 +106,7 @@ fun TripleVerticalSplitPanel(
 
         Box(
             modifier = Modifier
-                .width(thirdWidthLimited.dp)
+                .width(thirdWidth.dp)
         ) {
             third()
         }
