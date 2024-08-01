@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,6 +25,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.theme.tertiarySurface
+
+@Preview
+@Composable
+fun SecondaryButtonPreview() {
+    SecondaryButton(
+        text = "Click me!",
+        onClick = {},
+    )
+}
 
 @Composable
 fun SecondaryButton(

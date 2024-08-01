@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.ui.components
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -15,6 +16,14 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 
+@Preview
+@Composable
+fun PrimaryButtonPreview() {
+    PrimaryButton(
+        text = "Primary button",
+        onClick = {},
+    )
+}
 
 @Composable
 fun PrimaryButton(
