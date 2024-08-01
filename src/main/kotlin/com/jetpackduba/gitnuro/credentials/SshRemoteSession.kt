@@ -1,6 +1,9 @@
 package com.jetpackduba.gitnuro.credentials
 
 import Session
+import com.jetpackduba.gitnuro.exceptions.GitnuroException
+import com.jetpackduba.gitnuro.exceptions.SshException
+import com.jetpackduba.gitnuro.extensions.throwIfSshMessage
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
 import java.util.concurrent.CancellationException
@@ -20,6 +23,7 @@ class SshRemoteSession @Inject constructor(
         process = SshProcess()
 
         process.setup(session, commandName)
+
         return process
     }
 
@@ -29,14 +33,14 @@ class SshRemoteSession @Inject constructor(
     }
 
     fun setup(uri: URIish) {
-        val session = Session.new()
+        val session = Session.new() ?: throw SshException("Could not obtain the session, this is likely a bug. Please file a report.")
 
         val port = if (uri.port == NOT_EXPLICIT_PORT) {
             null
         } else
             uri.port
 
-        session.setup(uri.host, uri.user ?: "", port)//?.toUShort())
+        session.setup(uri.host, uri.user ?: "", port).throwIfSshMessage()
 
         var result = session.publicKeyAuth("")
 

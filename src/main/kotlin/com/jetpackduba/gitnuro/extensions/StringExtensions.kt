@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.extensions
 
+import com.jetpackduba.gitnuro.exceptions.SshException
 import com.jetpackduba.gitnuro.system.systemSeparator
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -51,4 +52,10 @@ val String.nullIfEmpty: String?
 
 fun String.lowercaseContains(other: String): Boolean {
     return this.lowercase().contains(other.lowercase().trim())
+}
+
+fun String.throwIfSshMessage() {
+    if (this.isNotEmpty()) {
+        throw SshException(this)
+    }
 }

@@ -229,52 +229,111 @@ pub struct Session {
 
 #[jni_struct_impl]
 impl Session {
-    pub fn new() -> Session {
-        let session = libssh_rs::Session::new().unwrap();
+    pub fn new() -> Option<Session> {
+        let session = libssh_rs::Session::new().ok()?;
 
-        Session {
-            session: RwLock::new(session)
-        }
+        Some(
+            Session {
+                session: RwLock::new(session)
+            }
+        )
     }
 
-    pub fn setup(&self, host: String, user: String, port: Option<i32>) {
-        let session = self.session.write().unwrap();
-        session.set_option(SshOption::Hostname(host)).unwrap();
+    pub fn setup(&self, host: String, user: String, port: Option<i32>) -> String {
+        let session = match self.session.write() {
+            Ok(s) => s,
+            Err(e) => {
+                return format!("Something failed obtaining write session: {e:?}");
+            }
+        };
+
+        if let Err(e) = session.set_option(SshOption::Hostname(host)) {
+            let message = libssh_error_to_message(&e);
+            return format!("SSH Hostname option failed: {message}");
+        }
 
         if !user.is_empty() {
-            session.set_option(SshOption::User(Some(user))).unwrap();
+            if let Err(e) = session.set_option(SshOption::User(Some(user))) {
+                let message = libssh_error_to_message(&e);
+                return format!("SSH User option failed: {message}");
+            }
         }
 
         if let Some(port) = port {
-            session.set_option(SshOption::Port(port as u16)).unwrap();
+            if let Err(e) = session.set_option(SshOption::Port(port as u16)) {
+                let message = libssh_error_to_message(&e);
+                return format!("SSH Port option failed: {message}");
+            }
         }
 
-        session.set_option(SshOption::PublicKeyAcceptedTypes(ACCEPTED_SSH_TYPES.to_string())).unwrap();
-        session.options_parse_config(None).unwrap();
-        session.connect().unwrap();
+        if let Err(e) = session.set_option(SshOption::PublicKeyAcceptedTypes(ACCEPTED_SSH_TYPES.to_string())) {
+            let message = libssh_error_to_message(&e);
+            return format!("SSH Public keys option failed: {message}");
+        }
+
+        if let Err(e) = session.options_parse_config(None) {
+            let message = libssh_error_to_message(&e);
+            return format!("SSH Configuration parsing failed: {message}");
+        }
+
+        if let Err(e) = session.connect() {
+            let message = libssh_error_to_message(&e);
+            return format!("Server connection failed: {message}");
+        }
+
+        String::new()
     }
-    //
+
     pub fn public_key_auth(&self, password: String) -> i32 { //AuthStatus {
         println!("Public key auth");
 
-        let session = self.session.write().unwrap();
+        let session = match self.session.write() {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Something failed obtaining write session: {e:?}");
+                return -1;
+            }
+        };
 
-        let status = session.userauth_public_key_auto(None, Some(&password)).unwrap();
+        let status = match session.userauth_public_key_auto(None, Some(&password)) {
+            Ok(s) => s,
+            Err(e) => {
+                let message = libssh_error_to_message(&e);
+                println!("Something failed when using public key auto auth: {message}");
+                return -2;
+            }
+        };
 
         println!("Status is {status:?}");
 
         to_int(status) // TODO remove this cast
     }
-    //
+
     pub fn password_auth(&self, password: String) -> i32 { //AuthStatus {
-        let session = self.session.write().unwrap();
-        let status = session.userauth_password(None, Some(&password)).unwrap();
+        let session = match self.session.write() {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Something failed obtaining write session: {e:?}");
+                return -1;
+            }
+        };
+
+        let status = match session.userauth_password(None, Some(&password)) {
+            Ok(s) => s,
+            Err(e) => {
+                let message = libssh_error_to_message(&e);
+                println!("An error occurred when using user auth with password: {message}");
+                return -2;
+            }
+        };
         to_int(status) // TODO remove this cast
     }
 
     pub fn disconnect(&self) {
-        let session = self.session.write().unwrap();
-        session.disconnect()
+        match self.session.write() {
+            Ok(session) => session.disconnect(),
+            Err(e) => println!("Session disconnection failed due to: {e:#?}"),
+        };
     }
 }
 
@@ -285,38 +344,95 @@ pub struct Channel {
 
 #[jni_struct_impl]
 impl Channel {
-    pub fn new(session: &mut Session) -> Channel {
-        let session = session.session.write().unwrap();
-        let channel = session.new_channel().unwrap();
+    pub fn new(session: &mut Session) -> Option<Channel> {
+        let session = session.session.write().ok()?;
+        let channel = session.new_channel().ok()?;
 
-        Channel {
-            channel: RwLock::new(channel)
-        }
+        Some(
+            Channel {
+                channel: RwLock::new(channel)
+            }
+        )
     }
 
-    pub fn open_session(&self) {
-        let channel = self.channel.write().unwrap();
-        channel.open_session().unwrap();
+    pub fn open_session(&self) -> String {
+        let channel = match self.channel.write() {
+            Ok(c) => c,
+            Err(e) => return format!("{e:#}")
+        };
+
+        if let Err(e) = channel.open_session() {
+            let message = libssh_error_to_message(&e);
+            return format!("Channel open session failed: {message}");
+        };
+
+        String::new()
     }
 
     pub fn is_open(&self) -> bool {
-        let channel = self.channel.write().unwrap();
+        let channel = match self.channel.write() {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Something failed obtaining write channel: {e:?}");
+                return false;
+            }
+        };
+
         channel.is_open()
     }
 
-    pub fn close_channel(&self) {
-        let channel = self.channel.write().unwrap();
-        channel.close().unwrap();
+    pub fn close_channel(&self) -> String {
+        let channel = match self.channel.write() {
+            Ok(s) => s,
+            Err(e) => {
+                return format!("Something failed obtaining write channel: {e:?}");
+            }
+        };
+
+
+        match channel.close() {
+            Ok(_) => String::new(),
+            Err(e) => {
+                let message = libssh_error_to_message(&e);
+                format!("Channel closing failed: {message}")
+            }
+        }
     }
 
-    pub fn request_exec(&self, command: String) {
-        let channel = self.channel.write().unwrap();
-        channel.request_exec(&command).unwrap();
+    pub fn request_exec(&self, command: String) -> String {
+        let channel = match self.channel.write() {
+            Ok(s) => s,
+            Err(e) => {
+                return format!("Something failed obtaining write channel: {e:?}");
+            }
+        };
+
+        match channel.request_exec(&command) {
+            Ok(_) => String::new(),
+            Err(e) => {
+                let message = libssh_error_to_message(&e);
+                format!("Channel request exec failed: {message}")
+            }
+        }
     }
 
     pub fn poll_has_bytes(&self, is_stderr: bool) -> bool {
-        let channel = self.channel.write().unwrap();
-        let poll_timeout = channel.poll_timeout(is_stderr, None).unwrap();
+        let channel = match self.channel.write() {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Something failed obtaining write channel: {e:?}");
+                return false;
+            }
+        };
+
+        let poll_timeout = match channel.poll_timeout(is_stderr, None) {
+            Ok(timeout) => timeout,
+            Err(e) => {
+                let message = libssh_error_to_message(&e);
+                println!("{message}");
+                return false;
+            }
+        };
 
         match poll_timeout {
             PollStatus::AvailableBytes(count) => count > 0,
@@ -324,30 +440,69 @@ impl Channel {
         }
     }
 
-    pub fn read(&self, is_stderr: bool, len: u64) -> ReadResult {
+    pub fn read(&self, is_stderr: bool, len: u64) -> Option<ReadResult> {
         let ulen = len as usize;
 
-        let channel = self.channel.write().unwrap();
+        let channel = match self.channel.write() {
+            Ok(s) => s,
+            Err(e) => {
+                println!("Something failed obtaining write channel: {e:?}");
+                return None;
+            }
+        };
 
         let mut buffer = vec![0; ulen];
-        let read = channel.read_timeout(&mut buffer, is_stderr, None).unwrap();
+        let read = match channel.read_timeout(&mut buffer, is_stderr, None) {
+            Ok(s) => s,
+            Err(e) => {
+                let message = libssh_error_to_message(&e);
+                println!("Something failed reading SSH channel: {message}");
+                return None;
+            }
+        };
 
-        ReadResult {
-            read_count: read as u64,
-            data: buffer,
+        Some(
+            ReadResult {
+                read_count: read as u64,
+                data: buffer,
+            }
+        )
+    }
+
+    pub fn write_byte(&self, byte: i32) -> String {
+        let channel = match self.channel.write() {
+            Ok(c) => c,
+            Err(e) => {
+                return format!("Something failed obtaining write channel: {e:?}");
+            }
+        };
+
+        let res = channel.stdin().write_all(&byte.to_ne_bytes());
+
+        match res {
+            Ok(_) => String::new(),
+            Err(e) => {
+                format!("Something failed writing to channel STDIN: {e:?}")
+            }
         }
     }
 
-    pub fn write_byte(&self, byte: i32) {
-        println!("Byte is {byte}");
+    pub fn write_bytes(&self, data: &Vec<u8>) -> String {
+        let channel = match self.channel.write() {
+            Ok(c) => c,
+            Err(e) => {
+                return format!("Something failed obtaining write channel: {e:?}");
+            }
+        };
 
-        let channel = self.channel.write().unwrap();
-        channel.stdin().write_all(&byte.to_ne_bytes()).unwrap();
-    }
+        let res = channel.stdin().write_all(data);
 
-    pub fn write_bytes(&self, data: &Vec<u8>) {
-        let channel = self.channel.write().unwrap();
-        channel.stdin().write_all(data).unwrap();
+        match res {
+            Ok(_) => String::new(),
+            Err(e) => {
+                format!("Something failed writing to channel STDIN: {e:?}")
+            }
+        }
     }
 }
 
@@ -358,6 +513,15 @@ fn to_int(auth_status: AuthStatus) -> i32 {
         AuthStatus::Partial => 3,
         AuthStatus::Info => 4,
         AuthStatus::Again => 5,
+    }
+}
+
+fn libssh_error_to_message(err: &libssh_rs::Error) -> String {
+    match err {
+        libssh_rs::Error::RequestDenied(message) => message.clone(),
+        libssh_rs::Error::Fatal(message) => message.clone(),
+        libssh_rs::Error::TryAgain => "Something went wrong, please try again".to_string(),
+        libssh_rs::Error::Sftp(_) => "Sftp not supported".to_string(),
     }
 }
 

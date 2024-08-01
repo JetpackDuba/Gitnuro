@@ -2,13 +2,15 @@ package com.jetpackduba.gitnuro.ssh.libssh
 
 import Channel
 import Session
+import com.jetpackduba.gitnuro.exceptions.SshException
+import com.jetpackduba.gitnuro.extensions.throwIfSshMessage
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelInputErrStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelInputStream
 import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelOutputStream
 import java.util.concurrent.Semaphore
 
 class ChannelWrapper internal constructor(sshSession: Session) {
-    private val channel = Channel.new(sshSession)
+    private val channel = Channel.new(sshSession)  ?: throw SshException("Could not obtain the channel, this is likely a bug. Please file a report.")
 
     private var isClosed = false
     private var closeMutex = Semaphore(1)
@@ -21,7 +23,7 @@ class ChannelWrapper internal constructor(sshSession: Session) {
     }
 
     fun requestExec(commandName: String) {
-        channel.requestExec(commandName)
+        channel.requestExec(commandName).throwIfSshMessage()
     }
 
     fun isOpen(): Boolean {
@@ -32,7 +34,7 @@ class ChannelWrapper internal constructor(sshSession: Session) {
         closeMutex.acquire()
         try {
             if (!isClosed) {
-                channel.closeChannel()
+                channel.closeChannel().throwIfSshMessage()
                 channel.close()
                 isClosed = true
             }
