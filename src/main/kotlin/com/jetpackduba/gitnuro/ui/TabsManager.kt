@@ -43,8 +43,8 @@ class TabsManager @Inject constructor(
         val latestSelectedTabIndex = appSettingsRepository.latestRepositoryTabSelected
 
         _currentTab.value = when(latestSelectedTabIndex < 0) {
-            true -> _tabsFlow.value.first()
-            false -> tabsFlow.value[latestSelectedTabIndex]
+            true -> tabsFlow.value.first()
+            false -> tabsFlow.value.getOrNull(latestSelectedTabIndex) ?: tabsFlow.value.first()
         }
     }
 
