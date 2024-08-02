@@ -10,16 +10,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
-val openSansFontFamily = FontFamily(
-    Font("fonts/OpenSans/OpenSans-Regular.ttf", FontWeight.Normal, FontStyle.Normal),
-    Font("fonts/OpenSans/OpenSans-Italic.ttf", FontWeight.Normal, FontStyle.Italic),
-    Font("fonts/OpenSans/OpenSans-Medium.ttf", FontWeight.Medium, FontStyle.Normal),
-    Font("fonts/OpenSans/OpenSans-MediumItalic.ttf", FontWeight.Medium, FontStyle.Italic),
-    Font("fonts/OpenSans/OpenSans-SemiBold.ttf", FontWeight.SemiBold, FontStyle.Normal),
-    Font("fonts/OpenSans/OpenSans-SemiBoldItalic.ttf", FontWeight.SemiBold, FontStyle.Italic),
-    Font("fonts/OpenSans/OpenSans-Bold.ttf", FontWeight.Bold, FontStyle.Normal),
-    Font("fonts/OpenSans/OpenSans-BoldItalic.ttf", FontWeight.Bold, FontStyle.Italic),
+val interFontFamily = FontFamily(
+    Font("fonts/Inter/Inter_18pt-Regular.ttf", FontWeight.Normal, FontStyle.Normal),
+    Font("fonts/Inter/Inter_18pt-Italic.ttf", FontWeight.Normal, FontStyle.Italic),
+    Font("fonts/Inter/Inter_18pt-Medium.ttf", FontWeight.Medium, FontStyle.Normal),
+    Font("fonts/Inter/Inter_18pt-MediumItalic.ttf", FontWeight.Medium, FontStyle.Italic),
+    Font("fonts/Inter/Inter_18pt-SemiBold.ttf", FontWeight.SemiBold, FontStyle.Normal),
+    Font("fonts/Inter/Inter_18pt-SemiBoldItalic.ttf", FontWeight.SemiBold, FontStyle.Italic),
+    Font("fonts/Inter/Inter_18pt-Bold.ttf", FontWeight.Bold, FontStyle.Normal),
+    Font("fonts/Inter/Inter_18pt-BoldItalic.ttf", FontWeight.Bold, FontStyle.Italic),
 )
 
 val notoSansMonoFontFamily = FontFamily(
@@ -37,7 +36,7 @@ const val LETTER_SPACING = 0.5
 
 @Composable
 fun typography(composeColors: Colors) = Typography(
-    defaultFontFamily = openSansFontFamily,
+    defaultFontFamily = interFontFamily,
     h1 = TextStyle(
         fontSize = 32.sp,
         color = composeColors.onBackground,
