@@ -735,7 +735,7 @@ fun RevertingButtons(
 fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
     Box(
         modifier = modifier
-            .clickable { onClick() }
+            .handMouseClickable { onClick() }
             .focusable(false)
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colors.abortButton),
@@ -765,7 +765,7 @@ fun ConfirmationButton(
 
     Box(
         modifier = modifier
-            .clickable { if (enabled) onClick() }
+            .handMouseClickable { if (enabled) onClick() }
             .focusable(false) // TODO this and the abort button should be focusable (show some kind of border when focused?)
             .clip(shape)
             .background(backgroundColor),

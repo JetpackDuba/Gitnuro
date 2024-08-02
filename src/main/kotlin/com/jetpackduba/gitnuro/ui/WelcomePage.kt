@@ -540,7 +540,9 @@ fun IconTextButton(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = modifier.size(width = 280.dp, height = 40.dp),
+        modifier = modifier
+            .size(width = 280.dp, height = 40.dp)
+            .handOnHover(),
         colors = textButtonColors(),
     ) {
         Row(

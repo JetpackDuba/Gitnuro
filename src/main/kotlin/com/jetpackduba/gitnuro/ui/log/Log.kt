@@ -511,7 +511,7 @@ fun CommitsList(
                     modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
                         .clipToBounds()
                         .fillMaxWidth()
-                        .clickable { onUncommittedChangesSelected() }
+                        .handMouseClickable { onUncommittedChangesSelected() }
                 ) {
                     UncommittedChangesGraphNode(
                         hasPreviousCommits = commitList.isNotEmpty(),
@@ -848,7 +848,7 @@ private fun CommitLine(
         Box(
             modifier = Modifier
                 .height(MaterialTheme.linesHeight.logCommitHeight)
-                .clickable { onRevCommitSelected() }
+                .handMouseClickable { onRevCommitSelected() }
         ) {
             val nodeColor = colors[graphNode.lane.position % colors.size]
 
