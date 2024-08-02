@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
+import com.jetpackduba.gitnuro.models.positiveNotification
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
@@ -31,17 +32,19 @@ class SharedRemotesViewModel @Inject constructor(
         title = "Deleting remote branch",
         subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
        taskType = TaskType.DELETE_REMOTE_BRANCH,
-       positiveFeedbackText = "Remote branch \"${ref.simpleName}\" deleted",
     ) { git ->
         deleteRemoteBranchUseCase(git, ref)
+
+       positiveNotification("Remote branch \"${ref.simpleName}\" deleted",)
     }
 
     override fun checkoutRemoteBranch(remoteBranch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.CHECKOUT_REMOTE_BRANCH,
-        positiveFeedbackText = "\"${remoteBranch.simpleName}\" checked out",
     ) { git ->
         checkoutRefUseCase(git, remoteBranch)
+
+        positiveNotification("\"${remoteBranch.simpleName}\" checked out")
     }
 
     override fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
@@ -49,7 +52,6 @@ class SharedRemotesViewModel @Inject constructor(
         title = "Push",
         subtitle = "Pushing current branch to ${branch.simpleName}",
         taskType = TaskType.PUSH_TO_BRANCH,
-        positiveFeedbackText = "Pushed to \"${branch.simpleName}\"",
     ) { git ->
         pushToSpecificBranchUseCase(
             git = git,
@@ -57,6 +59,8 @@ class SharedRemotesViewModel @Inject constructor(
             pushTags = false,
             remoteBranch = branch,
         )
+
+        positiveNotification("Pushed to \"${branch.simpleName}\"")
     }
 
     override fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
@@ -64,12 +68,13 @@ class SharedRemotesViewModel @Inject constructor(
         title = "Pull",
         subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
         taskType = TaskType.PULL_FROM_BRANCH,
-        positiveFeedbackText = "Pulled from \"${branch.simpleName}\"",
     ) { git ->
         pullFromSpecificBranchUseCase(
             git = git,
             rebase = false,
             remoteBranch = branch,
         )
+
+        positiveNotification("Pulled from \"${branch.simpleName}\"")
     }
 }

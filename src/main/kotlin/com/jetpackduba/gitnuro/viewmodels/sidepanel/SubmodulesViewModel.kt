@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.submodules.*
+import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.ui.TabsManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -61,10 +62,11 @@ class SubmodulesViewModel @AssistedInject constructor(
     fun initializeSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
         taskType = TaskType.INIT_SUBMODULE,
-        positiveFeedbackText = null,
     ) { git ->
         initializeSubmoduleUseCase(git, path)
         updateSubmoduleUseCase(git, path)
+
+        null
     }
 
     suspend fun refresh(git: Git) {
@@ -79,9 +81,10 @@ class SubmodulesViewModel @AssistedInject constructor(
         refreshType = RefreshType.SUBMODULES,
         title = "Deinitializing submodule $path",
         taskType = TaskType.DEINIT_SUBMODULE,
-        positiveFeedbackText = null,
     ) { git ->
         deInitializeSubmoduleUseCase(git, path)
+
+        null
     }
 
     fun onSyncSubmodule(path: String) = tabState.safeProcessing(
@@ -89,9 +92,10 @@ class SubmodulesViewModel @AssistedInject constructor(
         title = "Syncing submodule $path",
         subtitle = "Please wait until synchronization has finished",
         taskType = TaskType.SYNC_SUBMODULE,
-        positiveFeedbackText = "Submodule synced",
     ) { git ->
         syncSubmoduleUseCase(git, path)
+
+        positiveNotification("Submodule synced")
     }
 
     fun onUpdateSubmodule(path: String) = tabState.safeProcessing(
@@ -99,15 +103,15 @@ class SubmodulesViewModel @AssistedInject constructor(
         title = "Updating submodule $path",
         subtitle = "Please wait until update has finished",
         taskType = TaskType.UPDATE_SUBMODULE,
-        positiveFeedbackText = "Submodule updated",
     ) { git ->
         updateSubmoduleUseCase(git, path)
+
+        positiveNotification("Submodule updated")
     }
 
     fun onCreateSubmodule(repository: String, directory: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.ADD_SUBMODULE,
-        positiveFeedbackText = "Submodule created",
     ) { git ->
         addSubmoduleUseCase(
             git = git,
@@ -115,14 +119,17 @@ class SubmodulesViewModel @AssistedInject constructor(
             path = directory,
             uri = repository,
         )
+
+        positiveNotification("Submodule created")
     }
 
     fun onDeleteSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DELETE_SUBMODULE,
-        positiveFeedbackText = "Submodule deleted",
     ) { git ->
         deleteSubmoduleUseCase(git, path)
+
+        positiveNotification("Submodule deleted")
     }
 }
 

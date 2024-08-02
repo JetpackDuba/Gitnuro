@@ -4,10 +4,14 @@ import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.extensions.lockUse
+import com.jetpackduba.gitnuro.models.Notification
+import com.jetpackduba.gitnuro.models.NotificationType
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
+
+const val NOTIFICATION_DURATION = 2_500L
 
 @TabScope
 class ErrorsManager @Inject constructor(
@@ -20,23 +24,23 @@ class ErrorsManager @Inject constructor(
     private val _error = MutableSharedFlow<Error?>()
     val error: SharedFlow<Error?> = _error
 
-    private val _notification = MutableStateFlow<Map<Long, String>>(hashMapOf())
-    val notification: StateFlow<Map<Long, String>> = _notification
+    private val _notification = MutableStateFlow<Map<Long, Notification>>(hashMapOf())
+    val notification: StateFlow<Map<Long, Notification>> = _notification
 
     private val notificationsMutex = Mutex()
 
-    suspend fun emitPositiveNotification(text: String) = coroutineScope.launch {
+    suspend fun emitNotification(notification: Notification) = coroutineScope.launch {
         val time = System.currentTimeMillis()
         notificationsMutex.lockUse {
             _notification.update { notifications ->
                 notifications
                     .toMutableMap()
-                    .apply { put(time, text) }
+                    .apply { put(time, notification) }
             }
         }
 
         launch {
-            delay(2000)
+            delay(NOTIFICATION_DURATION)
 
             notificationsMutex.lockUse {
                 _notification.update { notifications ->

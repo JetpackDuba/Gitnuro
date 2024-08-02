@@ -67,13 +67,12 @@ class RebaseInteractiveViewModel @Inject constructor(
     fun loadRebaseInteractiveData() = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.REBASE_INTERACTIVE,// TODO Perhaps this should be more specific such as TaskType.LOAD_ABORT_REBASE
-        positiveFeedbackText = null,
     ) { git ->
         val state = getRepositoryStateUseCase(git)
 
         if (!state.isRebasing) {
             _rebaseState.value = RebaseInteractiveViewState.Loading
-            return@safeProcessing
+            return@safeProcessing null
         }
 
         try {
@@ -107,6 +106,8 @@ class RebaseInteractiveViewModel @Inject constructor(
                 throw ex
             }
         }
+
+        null
     }
 
     private fun isSameRebase(rebaseLines: List<RebaseLine>, state: RebaseInteractiveViewState): Boolean {
@@ -126,10 +127,11 @@ class RebaseInteractiveViewModel @Inject constructor(
     fun continueRebaseInteractive() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.REBASE_INTERACTIVE, // TODO Perhaps be more precise with the task type
-        positiveFeedbackText = null,
     ) { git ->
         resumeRebaseInteractiveUseCase(git, interactiveHandlerContinue)
         _rebaseState.value = RebaseInteractiveViewState.Loading
+
+        null
     }
 
     fun onCommitMessageChanged(commit: AbbreviatedObjectId, message: String) {
@@ -181,10 +183,11 @@ class RebaseInteractiveViewModel @Inject constructor(
     fun selectLine(line: RebaseLine) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.ABORT_REBASE, // TODO Perhaps be more precise with the task type
-        positiveFeedbackText = null,
     ) { git ->
         val fullCommit = getCommitFromRebaseLineUseCase(git, line.commit, line.shortMessage)
         tabState.newSelectedCommit(fullCommit)
+
+        null
     }
 
     fun moveCommit(from: Int, to: Int) {

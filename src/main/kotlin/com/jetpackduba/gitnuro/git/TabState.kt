@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.git.log.FindCommitUseCase
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.managers.newErrorNow
+import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -77,12 +78,11 @@ class TabState @Inject constructor(
         title: String = "",
         subtitle: String = "",
         taskType: TaskType,
-        positiveFeedbackText: String?,
         // TODO For now have it always as false because the data refresh is cancelled even when the git process couldn't be cancelled
         isCancellable: Boolean = false,
         refreshEvenIfCrashes: Boolean = false,
         refreshEvenIfCrashesInteractive: ((Exception) -> Boolean)? = null,
-        callback: suspend (git: Git) -> Unit
+        callback: suspend (git: Git) -> Notification?,
     ): Job {
         val job = scope.launch(Dispatchers.IO) {
             var hasProcessFailed = false
@@ -91,7 +91,7 @@ class TabState @Inject constructor(
 
 
             try {
-                delayedStateChange(
+                val notification = delayedStateChange(
                     delayMs = 300,
                     onDelayTriggered = {
                         _processing.update { processingState ->
@@ -106,8 +106,8 @@ class TabState @Inject constructor(
                     callback(git)
                 }
 
-                if (positiveFeedbackText != null) {
-                    errorsManager.emitPositiveNotification(positiveFeedbackText)
+                if (notification != null) {
+                    errorsManager.emitNotification(notification)
                 }
             } catch (ex: Exception) {
                 hasProcessFailed = true

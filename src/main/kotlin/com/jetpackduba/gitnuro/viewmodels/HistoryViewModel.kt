@@ -80,7 +80,6 @@ class HistoryViewModel @Inject constructor(
         title = "History",
         subtitle = "Loading file history",
         taskType = TaskType.HISTORY_FILE,
-        positiveFeedbackText = null,
     ) { git ->
         this@HistoryViewModel.filePath = filePath
         _historyState.value = HistoryState.Loading(filePath)
@@ -91,6 +90,8 @@ class HistoryViewModel @Inject constructor(
             .toList()
 
         _historyState.value = HistoryState.Loaded(filePath, log)
+
+        null
     }
 
     fun selectCommit(commit: RevCommit) = tabState.runOperation(

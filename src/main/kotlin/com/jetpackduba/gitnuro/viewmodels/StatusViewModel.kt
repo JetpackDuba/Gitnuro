@@ -18,6 +18,7 @@ import com.jetpackduba.gitnuro.git.rebase.SkipRebaseUseCase
 import com.jetpackduba.gitnuro.git.repository.ResetRepositoryStateUseCase
 import com.jetpackduba.gitnuro.git.workspace.*
 import com.jetpackduba.gitnuro.models.AuthorInfo
+import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
@@ -216,17 +217,19 @@ class StatusViewModel @Inject constructor(
     fun unstageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,
         taskType = TaskType.UNSTAGE_ALL_FILES,
-        positiveFeedbackText = null,
     ) { git ->
         unstageAllUseCase(git)
+
+        null
     }
 
     fun stageAll() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,
         taskType = TaskType.STAGE_ALL_FILES,
-        positiveFeedbackText = null,
     ) { git ->
         stageAllUseCase(git)
+
+        null
     }
 
     fun resetStaged(statusEntry: StatusEntry) = tabState.runOperation(
@@ -349,7 +352,6 @@ class StatusViewModel @Inject constructor(
     fun commit(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DO_COMMIT,
-        positiveFeedbackText = if (isAmend.value) "Commit amended" else "New commit created",
     ) { git ->
         val amend = isAmend.value
 
@@ -364,6 +366,8 @@ class StatusViewModel @Inject constructor(
         doCommitUseCase(git, commitMessage, amend, personIdent)
         updateCommitMessage("")
         _isAmend.value = false
+
+        positiveNotification(if (isAmend.value) "Commit amended" else "New commit created")
     }
 
     private suspend fun getPersonIdent(git: Git): PersonIdent? {
@@ -404,7 +408,6 @@ class StatusViewModel @Inject constructor(
     fun continueRebase(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.CONTINUE_REBASE,
-        positiveFeedbackText = null,
     ) { git ->
         val repositoryState = sharedRepositoryStateManager.repositoryState.value
         val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState.value
@@ -423,30 +426,35 @@ class StatusViewModel @Inject constructor(
         }
 
         continueRebaseUseCase(git)
+
+        null
     }
 
     fun abortRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.ABORT_REBASE,
-        positiveFeedbackText = "Rebase aborted",
     ) { git ->
         abortRebaseUseCase(git)
+
+        positiveNotification("Rebase aborted")
     }
 
     fun skipRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.SKIP_REBASE,
-        positiveFeedbackText = null,
     ) { git ->
         skipRebaseUseCase(git)
+
+        null
     }
 
     fun resetRepoState() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.RESET_REPO_STATE,
-        positiveFeedbackText = "Repository state has been reset",
     ) { git ->
         resetRepositoryStateUseCase(git)
+
+        positiveNotification("Repository state has been reset")
     }
 
     fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(

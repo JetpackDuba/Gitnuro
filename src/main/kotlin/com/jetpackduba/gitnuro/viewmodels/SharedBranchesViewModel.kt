@@ -8,6 +8,8 @@ import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
 import com.jetpackduba.gitnuro.git.branches.DeleteBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.MergeBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
+import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.models.warningNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
@@ -34,9 +36,13 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch merge",
         subtitle = "Merging branch ${ref.simpleName}",
         taskType = TaskType.MERGE_BRANCH,
-        positiveFeedbackText = "Merged from \"${ref.simpleName}\"",
+        refreshEvenIfCrashes = true,
     ) { git ->
-        mergeBranchUseCase(git, ref, appSettingsRepository.ffMerge)
+        if (mergeBranchUseCase(git, ref, appSettingsRepository.ffMerge)) {
+            warningNotification("Merge produced conflicts, please fix them to continue.")
+        } else {
+            positiveNotification("Merged from \"${ref.simpleName}\"")
+        }
     }
 
     override fun deleteBranch(branch: Ref) = tabState.safeProcessing(
@@ -44,9 +50,10 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch delete",
         subtitle = "Deleting branch ${branch.simpleName}",
         taskType = TaskType.DELETE_BRANCH,
-        positiveFeedbackText = "\"${branch.simpleName}\" deleted",
     ) { git ->
         deleteBranchUseCase(git, branch)
+
+        positiveNotification("\"${branch.simpleName}\" deleted")
     }
 
     override fun checkoutRef(ref: Ref) = tabState.safeProcessing(
@@ -54,9 +61,10 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch checkout",
         subtitle = "Checking out branch ${ref.simpleName}",
         taskType = TaskType.CHECKOUT_BRANCH,
-        positiveFeedbackText = "\"${ref.simpleName}\" checked out",
     ) { git ->
         checkoutRefUseCase(git, ref)
+
+        positiveNotification("\"${ref.simpleName}\" checked out")
     }
 
     override fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
@@ -64,8 +72,10 @@ class SharedBranchesViewModel @Inject constructor(
         title = "Branch rebase",
         subtitle = "Rebasing branch ${ref.simpleName}",
         taskType = TaskType.REBASE_BRANCH,
-        positiveFeedbackText = "\"${ref.simpleName}\" rebased",
+        refreshEvenIfCrashes = true,
     ) { git ->
         rebaseBranchUseCase(git, ref)
+
+        positiveNotification("\"${ref.simpleName}\" rebased")
     }
 }

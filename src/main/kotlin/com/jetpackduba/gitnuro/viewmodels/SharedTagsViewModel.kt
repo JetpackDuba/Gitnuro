@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.CheckoutRefUseCase
+import com.jetpackduba.gitnuro.models.positiveNotification
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
@@ -22,8 +23,9 @@ class SharedTagsViewModel @Inject constructor(
         title = "Tag delete",
         subtitle = "Deleting tag ${tag.simpleName}",
         taskType = TaskType.DELETE_TAG,
-        positiveFeedbackText = "Tag \"${tag.simpleName}\" deleted",
     ) { git ->
         deleteTagUseCase(git, tag)
+
+        positiveNotification("Tag \"${tag.simpleName}\" deleted")
     }
 }

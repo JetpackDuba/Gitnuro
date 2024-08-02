@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.git.branches.GetCurrentBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.models.RemoteWrapper
+import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedRemotesViewModel
 import dagger.assisted.Assisted
@@ -117,7 +118,6 @@ class RemotesViewModel @AssistedInject constructor(
     fun deleteRemote(remoteName: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DELETE_REMOTE,
-        positiveFeedbackText = "Remote $remoteName deleted",
     ) { git ->
         deleteRemoteUseCase(git, remoteName)
 
@@ -129,6 +129,8 @@ class RemotesViewModel @AssistedInject constructor(
         }
 
         deleteLocallyRemoteBranchesUseCase(git, remoteToDeleteBranchesNames)
+
+        positiveNotification("Remote $remoteName deleted")
     }
 
 

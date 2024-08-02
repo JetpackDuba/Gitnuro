@@ -11,6 +11,9 @@ import com.jetpackduba.gitnuro.git.stash.PopLastStashUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
 import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.models.errorNotification
+import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.models.warningNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalUseCase
 import javax.inject.Inject
@@ -22,10 +25,9 @@ class MenuViewModel @Inject constructor(
     private val fetchAllRemotesUseCase: FetchAllRemotesUseCase,
     private val popLastStashUseCase: PopLastStashUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
-    private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
     private val openRepositoryInTerminalUseCase: OpenRepositoryInTerminalUseCase,
-    private val settings: AppSettingsRepository,
-    private val appStateManager: AppStateManager,
+    settings: AppSettingsRepository,
+    appStateManager: AppStateManager,
 ) {
     val isPullWithRebaseDefault = settings.pullRebaseFlow
     val lastLoadedTabs = appStateManager.latestOpenedRepositoriesPaths
@@ -34,11 +36,12 @@ class MenuViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Pulling",
         subtitle = "Pulling changes from the remote branch to the current branch",
-        positiveFeedbackText = "Pull completed",
         refreshEvenIfCrashes = true,
         taskType = TaskType.PULL,
     ) { git ->
         pullBranchUseCase(git, pullType)
+
+        positiveNotification("Pull completed")
     }
 
     fun fetchAll() = tabState.safeProcessing(
@@ -48,9 +51,10 @@ class MenuViewModel @Inject constructor(
         isCancellable = false,
         refreshEvenIfCrashes = true,
         taskType = TaskType.FETCH,
-        positiveFeedbackText = "Fetch all completed",
     ) { git ->
         fetchAllRemotesUseCase(git)
+
+        positiveNotification("Fetch all completed")
     }
 
     fun push(force: Boolean = false, pushTags: Boolean = false) = tabState.safeProcessing(
@@ -60,26 +64,31 @@ class MenuViewModel @Inject constructor(
         isCancellable = false,
         refreshEvenIfCrashes = true,
         taskType = TaskType.PUSH,
-        positiveFeedbackText = "Push completed",
     ) { git ->
         pushBranchUseCase(git, force, pushTags)
+
+        positiveNotification("Push completed")
     }
 
     fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.STASH,
-        positiveFeedbackText = "Changes stashed",
     ) { git ->
-        stashChangesUseCase(git, null)
+        if (stashChangesUseCase(git, null)) {
+            positiveNotification("Changes stashed")
+        } else {
+            errorNotification("There are no changes to stash")
+        }
     }
 
     fun popStash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.POP_STASH,
-        positiveFeedbackText = "Stash popped",
     ) { git ->
         popLastStashUseCase(git)
+
+        positiveNotification("Stash popped")
     }
 
     fun openTerminal() = tabState.runOperation(

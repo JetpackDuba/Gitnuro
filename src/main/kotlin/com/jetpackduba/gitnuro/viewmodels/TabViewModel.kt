@@ -20,6 +20,9 @@ import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
+import com.jetpackduba.gitnuro.models.errorNotification
+import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.models.warningNotification
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
@@ -353,7 +356,6 @@ class TabViewModel @Inject constructor(
     fun blameFile(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.BLAME_FILE,
-        positiveFeedbackText = null,
     ) { git ->
         _blameState.value = BlameState.Loading(filePath)
         try {
@@ -368,6 +370,8 @@ class TabViewModel @Inject constructor(
 
             throw ex
         }
+
+        null
     }
 
     fun resetBlameState() {
@@ -418,18 +422,23 @@ class TabViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
         taskType = TaskType.CREATE_BRANCH,
-        positiveFeedbackText = "Branch \"${branchName}\" created",
     ) { git ->
         createBranchUseCase(git, branchName)
+
+        positiveNotification("Branch \"${branchName}\" created")
     }
 
     fun stashWithMessage(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.STASH,
-        positiveFeedbackText = "Changes stashed",
     ) { git ->
         stageUntrackedFileUseCase(git)
-        stashChangesUseCase(git, message)
+
+        if (stashChangesUseCase(git, message)) {
+            positiveNotification("Changes stashed")
+        } else {
+            errorNotification("There are no changes to stash")
+        }
     }
 
     fun openFolderInFileExplorer() = tabState.runOperation(

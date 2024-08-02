@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.log.CheckoutCommitUseCase
 import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
 import com.jetpackduba.gitnuro.git.tags.GetTagsUseCase
+import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.viewmodels.ISharedTagsViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedTagsViewModel
 import dagger.assisted.Assisted
@@ -60,9 +61,10 @@ class TagsViewModel @AssistedInject constructor(
     fun checkoutTagCommit(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.INIT_SUBMODULE,
-        positiveFeedbackText = "Commit checked out",
     ) { git ->
         checkoutCommitUseCase(git, ref.objectId.name)
+
+        positiveNotification("Commit checked out")
     }
 
     fun selectTag(tag: Ref) {

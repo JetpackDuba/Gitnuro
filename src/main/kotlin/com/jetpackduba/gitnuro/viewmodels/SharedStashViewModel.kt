@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.stash.ApplyStashUseCase
 import com.jetpackduba.gitnuro.git.stash.DeleteStashUseCase
 import com.jetpackduba.gitnuro.git.stash.PopStashUseCase
+import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.revwalk.RevCommit
@@ -29,30 +30,33 @@ class SharedStashViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.APPLY_STASH,
-        positiveFeedbackText = "Stash applied",
     ) { git ->
         applyStashUseCase(git, stashInfo)
+
+        positiveNotification("Stash applied")
     }
 
     override fun popStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.POP_STASH,
-        positiveFeedbackText = "Stash popped",
     ) { git ->
         popStashUseCase(git, stash)
 
         stashDropped(stash)
+
+        positiveNotification("Stash popped")
     }
 
     override fun deleteStash(stash: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.STASHES,
         taskType = TaskType.DELETE_STASH,
-        positiveFeedbackText = "Stash deleted",
     ) { git ->
         deleteStashUseCase(git, stash)
 
         stashDropped(stash)
+
+        positiveNotification("Stash deleted")
     }
 
     override fun selectStash(stash: RevCommit) = tabState.runOperation(
