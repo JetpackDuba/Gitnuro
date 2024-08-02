@@ -309,7 +309,6 @@ class App {
                 },
                 onTabClosed = onCloseTab,
                 onAddNewTab = onAddedTab,
-                tabsHeight = 36.dp,
                 onMoveTab = { fromIndex, toIndex ->
                     tabsManager.onMoveTab(fromIndex, toIndex)
                 },
@@ -345,12 +344,7 @@ private fun TabContent(tabs: List<TabInformation>, currentTab: TabInformation?) 
             .fillMaxSize(),
     ) {
         if (currentTab != null) {
-            for (tab in tabs) {
-                if (tab == currentTab) {
-                    AppTab(currentTab.tabViewModel)
-                }
-            }
-
+            AppTab(currentTab.tabViewModel)
         }
     }
 }

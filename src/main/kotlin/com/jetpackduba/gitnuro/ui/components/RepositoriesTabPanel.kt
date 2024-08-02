@@ -47,7 +47,6 @@ import kotlin.io.path.name
 fun RepositoriesTabPanel(
     tabs: List<TabInformation>,
     currentTab: TabInformation?,
-    tabsHeight: Dp,
     onTabSelected: (TabInformation) -> Unit,
     onTabClosed: (TabInformation) -> Unit,
     onMoveTab: (Int, Int) -> Unit,
@@ -99,7 +98,7 @@ fun RepositoriesTabPanel(
         Row {
             LazyRow(
                 modifier = Modifier
-                    .height(tabsHeight)
+                    .height(36.dp)
                     .weight(1f, false)
                     .horizontalDragContainer(
                         dragDropState = dragDropState,
