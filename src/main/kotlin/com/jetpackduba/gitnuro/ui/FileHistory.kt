@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalComposeUiApi::class, ExperimentalSplitPaneApi::class)
+@file:OptIn(ExperimentalComposeUiApi::class)
 
 package com.jetpackduba.gitnuro.ui
 
@@ -42,7 +42,6 @@ import com.jetpackduba.gitnuro.viewmodels.HistoryState
 import com.jetpackduba.gitnuro.viewmodels.HistoryViewModel
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
 import org.eclipse.jgit.revwalk.RevCommit
-import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 
 @Composable
 fun FileHistory(

@@ -50,7 +50,6 @@ dependencies {
     }
 
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-    implementation(compose.desktop.components.splitPane)
     implementation(compose("org.jetbrains.compose.ui:ui-util"))
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")

@@ -195,7 +195,6 @@ fun Notification(notification: Notification) {
                 .clip(RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp))
                 .background(backgroundColor)
                 .fillMaxHeight()
-//                .padding(start = 2.dp, top = 2.dp, bottom = 2.dp)
         ) {
             Icon(
                 painterResource(icon),

@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalSplitPaneApi::class)
-
 package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.background
@@ -34,7 +32,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
-import org.jetbrains.compose.splitpane.ExperimentalSplitPaneApi
 
 @Composable
 fun RepositoryOpenPage(
