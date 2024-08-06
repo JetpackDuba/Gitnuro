@@ -63,10 +63,10 @@ fun typography(composeColors: Colors) = Typography(
         letterSpacing = LETTER_SPACING.sp,
     ),
     body2 = TextStyle(
-        fontSize = 12.sp,
+        fontSize = 13.sp,
         color = composeColors.onBackground,
         fontWeight = FontWeight.Normal,
-        letterSpacing = LETTER_SPACING.sp,
+        letterSpacing = 0.1.sp,
     ),
     caption = TextStyle(
         fontSize = 11.sp,

@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -207,6 +208,7 @@ fun Tab(
                     .widthIn(max = 720.dp),
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.body2,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colors.onBackground,
                 maxLines = 1,
                 softWrap = false,
