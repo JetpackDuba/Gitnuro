@@ -26,6 +26,7 @@ version = projectVersion
 
 val isLinuxAarch64 = (properties.getOrDefault("isLinuxAarch64", "false") as String).toBoolean()
 val useCross = (properties.getOrDefault("useCross", "false") as String).toBoolean()
+val isRustRelease = (properties.getOrDefault("isRustRelease", "true") as String).toBoolean()
 
 
 sourceSets.getByName("main") {
@@ -242,8 +243,12 @@ fun buildRust() {
         }
 
         val params = mutableListOf(
-            binary, "build", "--release",
+            binary, "build",
         )
+
+        if (isRustRelease) {
+            params.add("--release")
+        }
 
         if (currentOs() == OS.LINUX && useCross) {
             if (isLinuxAarch64) {
@@ -261,14 +266,20 @@ fun buildRust() {
 fun copyRustBuild() {
     val outputDir = "${project.projectDir}/src/main/resources"
 
+    val buildTypeDirectory = if (isRustRelease) {
+        "release"
+    } else {
+        "debug"
+    }
+
     val workingDirPath = if (currentOs() == OS.LINUX && useCross) {
         if (isLinuxAarch64) {
-            "rs/target/$linuxArmTarget/release"
+            "rs/target/$linuxArmTarget/$buildTypeDirectory"
         } else {
-            "rs/target/$linuxX64Target/release"
+            "rs/target/$linuxX64Target/$buildTypeDirectory"
         }
     } else {
-        "rs/target/release"
+        "rs/target/$buildTypeDirectory"
     }
 
     val workingDir = File(project.projectDir, workingDirPath)
