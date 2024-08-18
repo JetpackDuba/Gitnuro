@@ -13,8 +13,6 @@ use libssh_rs::{PollStatus, SshOption};
 use libssh_rs::AuthStatus;
 use notify::{Config, Error, ErrorKind, Event, RecommendedWatcher, RecursiveMode, Watcher};
 
-mod t;
-
 jni_init!("");
 
 #[jni_class]
