@@ -67,41 +67,20 @@ class FormatHunksUseCase @Inject constructor() {
 
             while (oldCurrentLine < oldEndLine || newCurrentLine < newEndLine) {
                 if (oldCurrentLine < curEdit.beginA || endIdx + 1 < curIdx) {
-                    var lineText = oldRawText.lineAt(oldCurrentLine)
-
-                    if (
-                        oldCurrentLine < oldRawText.size() - 1 || // If it's not the last
-                        (oldCurrentLine == oldRawText.size() - 1 && !oldRawText.isMissingNewlineAtEnd) // Or is the last and contains new line at the end
-                    ) {
-                        lineText += oldRawText.lineDelimiter.orEmpty()
-                    }
+                    val lineText = oldRawText.lineAt(oldCurrentLine)
 
                     lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.CONTEXT))
 
                     oldCurrentLine++
                     newCurrentLine++
                 } else if (oldCurrentLine < curEdit.endA) {
-                    var lineText = oldRawText.lineAt(oldCurrentLine)
-
-                    if (
-                        oldCurrentLine < oldRawText.size() - 1 || // If it's not the last
-                        (oldCurrentLine == oldRawText.size() - 1 && !oldRawText.isMissingNewlineAtEnd) // Or is the last and contains new line at the end
-                    ) {
-                        lineText += oldRawText.lineDelimiter.orEmpty()
-                    }
+                    val lineText = oldRawText.lineAt(oldCurrentLine)
 
                     lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.REMOVED))
 
                     oldCurrentLine++
                 } else if (newCurrentLine < curEdit.endB) {
-                    var lineText = newRawText.lineAt(newCurrentLine)
-
-                    if (
-                        newCurrentLine < newRawText.size() - 1 || // If it's not the last
-                        (newCurrentLine == newRawText.size() - 1 && !newRawText.isMissingNewlineAtEnd) // Or is the last and contains new line at the end
-                    ) {
-                        lineText += newRawText.lineDelimiter.orEmpty()
-                    }
+                    val lineText = newRawText.lineAt(newCurrentLine)
 
                     lines.add(Line(lineText, oldCurrentLine, newCurrentLine, LineType.ADDED))
 
