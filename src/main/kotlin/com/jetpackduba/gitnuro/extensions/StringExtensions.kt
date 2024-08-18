@@ -33,8 +33,10 @@ val String.dirPath: String
     }
 
 fun String.removeLineDelimiters(): String {
-    return this.removeSuffix("\n")
+    return this
         .removeSuffix("\r\n")
+        .removeSuffix("\n")
+
 }
 
 val String.lineDelimiter: String?
