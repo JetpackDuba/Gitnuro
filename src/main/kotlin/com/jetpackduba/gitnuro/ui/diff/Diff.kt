@@ -1145,7 +1145,12 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
     Box(modifier = Modifier.hoverable(hoverInteraction)) {
-        if (isHovered && diffType is DiffType.UncommittedDiff && line.lineType != LineType.CONTEXT) {
+        if (
+            isHovered &&
+            diffType is DiffType.UncommittedDiff &&
+            line.lineType != LineType.CONTEXT &&
+            diffType.statusType == StatusType.MODIFIED
+        ) {
             val color: Color = if (diffType is DiffType.StagedDiff) {
                 MaterialTheme.colors.error
             } else {
