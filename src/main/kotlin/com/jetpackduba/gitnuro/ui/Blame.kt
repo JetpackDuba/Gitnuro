@@ -37,6 +37,7 @@ import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.revwalk.RevCommit
 
@@ -48,6 +49,8 @@ fun Blame(
     onClose: () -> Unit,
 ) {
 
+    val fileExtension = filePath.split(".").lastOrNull()
+    val syntaxHighlighter = getSyntaxHighlighterFromExtension(fileExtension)
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
@@ -118,7 +121,7 @@ fun Blame(
                         }
 
                         Text(
-                            text = line + blameResult.resultContents.lineDelimiter,
+                            text = syntaxHighlighter.syntaxHighlight(line + blameResult.resultContents.lineDelimiter),
                             color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                             fontFamily = notoSansMonoFontFamily,
