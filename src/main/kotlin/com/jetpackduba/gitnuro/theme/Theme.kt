@@ -22,7 +22,7 @@ class LinesHeight internal constructor(
 
 val normalLineHeight = LinesHeight(
     fileHeight = 40.dp,
-    logCommitHeight = 38.dp,
+    logCommitHeight = 36.dp,
     sidePanelItemHeight = 36.dp
 )
 
