@@ -164,12 +164,12 @@ class AppSettingsRepository @Inject constructor() {
 
     var linesHeightType: LinesHeightType
         get() {
-            val lineHeightTypeValue = preferences.getInt(PREF_LINE_HEIGHT_TYPE, LinesHeightType.NORMAL.value)
+            val lineHeightTypeValue = preferences.getInt(PREF_LINE_HEIGHT_TYPE, LinesHeightType.SPACED.value)
             return try {
                 LinesHeightType.fromInt(lineHeightTypeValue)
             } catch (ex: Exception) {
                 ex.printStackTrace()
-                LinesHeightType.NORMAL
+                LinesHeightType.SPACED
             }
         }
         set(value) {

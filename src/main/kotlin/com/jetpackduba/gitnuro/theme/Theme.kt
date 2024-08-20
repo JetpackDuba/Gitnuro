@@ -12,7 +12,7 @@ import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 
 private val defaultAppTheme: ColorsScheme = darkBlueTheme
 private var appTheme: ColorsScheme = defaultAppTheme
-internal val LocalLinesHeight = compositionLocalOf { normalLineHeight }
+internal val LocalLinesHeight = compositionLocalOf { spacedLineHeight }
 
 class LinesHeight internal constructor(
     val fileHeight: Dp,
@@ -20,9 +20,9 @@ class LinesHeight internal constructor(
     val sidePanelItemHeight: Dp,
 )
 
-val normalLineHeight = LinesHeight(
-    fileHeight = 40.dp,
-    logCommitHeight = 36.dp,
+val spacedLineHeight = LinesHeight(
+    fileHeight = 38.dp,
+    logCommitHeight = 38.dp,
     sidePanelItemHeight = 36.dp
 )
 
@@ -33,7 +33,7 @@ val compactLineHeight = LinesHeight(
 )
 
 enum class LinesHeightType(val value: Int) {
-    NORMAL(0),
+    SPACED(0),
     COMPACT(1);
 
     companion object {
@@ -44,9 +44,9 @@ enum class LinesHeightType(val value: Int) {
 @Composable
 fun AppTheme(
     selectedTheme: Theme = Theme.DARK,
-    linesHeightType: LinesHeightType = LinesHeightType.NORMAL,
+    linesHeightType: LinesHeightType = LinesHeightType.COMPACT,
     customTheme: ColorsScheme?,
-    content: @Composable() () -> Unit
+    content: @Composable () -> Unit
 ) {
     val theme = when (selectedTheme) {
         Theme.LIGHT -> lightTheme
@@ -56,7 +56,7 @@ fun AppTheme(
     }
 
     val lineHeight = when (linesHeightType) {
-        LinesHeightType.NORMAL -> normalLineHeight
+        LinesHeightType.SPACED -> spacedLineHeight
         LinesHeightType.COMPACT -> compactLineHeight
     }
 
