@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.keybindings.KeybindingOption
+import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -343,8 +345,9 @@ fun RecentRepositoriesList(
             if (it.type != KeyEventType.KeyDown) {
                 return@onPreviewKeyEvent false
             }
-            when (it.key) {
-                Key.DirectionDown -> {
+
+            when  {
+                it.matchesBinding(KeybindingOption.DOWN) -> {
                     if (focusedItemIndex < filteredRepositories.lastIndex) {
                         focusedItemIndex += 1
                         scope.launch { listState.animateScrollToItem(focusedItemIndex) }
@@ -352,7 +355,7 @@ fun RecentRepositoriesList(
                     true
                 }
 
-                Key.DirectionUp -> {
+                it.matchesBinding(KeybindingOption.UP) -> {
                     if (focusedItemIndex > 0) {
                         focusedItemIndex -= 1
                         scope.launch { listState.animateScrollToItem(focusedItemIndex) }
@@ -360,7 +363,7 @@ fun RecentRepositoriesList(
                     true
                 }
 
-                Key.Enter -> {
+                it.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) -> {
                     val repo = filteredRepositories.getOrNull(focusedItemIndex)
                     if (repo != null && isSearchFocused) {
                         onOpenKnownRepository(repo)

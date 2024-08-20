@@ -11,12 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
+import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
@@ -106,7 +108,31 @@ fun RepositoryOpenPage(
     LaunchedEffect(selectedItem) {
         focusRequester.requestFocus()
     }
-    Column {
+    Column (
+        modifier = Modifier.onPreviewKeyEvent {
+            println("Key event $it")
+            when {
+                it.matchesBinding(KeybindingOption.PULL) -> {
+                    tabViewModel.pull(PullType.DEFAULT)
+                    true
+                }
+                it.matchesBinding(KeybindingOption.PUSH) -> {
+                    tabViewModel.push()
+                    true
+                }
+                it.matchesBinding(KeybindingOption.BRANCH_CREATE) -> {
+                    if (!showNewBranchDialog) {
+                        showNewBranchDialog = true
+                        true
+                    } else {
+                        false
+                    }
+                }
+                else -> false
+            }
+
+        }
+    ) {
         Row(modifier = Modifier.weight(1f)) {
             Column(
                 modifier = Modifier

@@ -42,6 +42,21 @@ enum class KeybindingOption {
      * Used to go down in lists
      */
     DOWN,
+
+    /**
+     * Used to pull in current repository
+     */
+    PULL,
+
+    /**
+     * Used to push in current repository
+     */
+    PUSH,
+
+    /**
+     * Used to show branch creation dialog
+     */
+    BRANCH_CREATE,
 }
 
 
@@ -65,6 +80,15 @@ private fun baseKeybindings() = mapOf(
     ),
     KeybindingOption.DOWN to listOf(
         Keybinding(key = Key.DirectionDown),
+    ),
+    KeybindingOption.PULL to listOf(
+        Keybinding(key = Key.U, control = true),
+    ),
+    KeybindingOption.PUSH to listOf(
+        Keybinding(key = Key.P, control = true),
+    ),
+    KeybindingOption.BRANCH_CREATE to listOf(
+        Keybinding(key = Key.B, control = true),
     ),
 )
 

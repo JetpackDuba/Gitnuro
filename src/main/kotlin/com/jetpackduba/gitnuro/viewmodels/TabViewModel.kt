@@ -22,7 +22,6 @@ import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.models.errorNotification
 import com.jetpackduba.gitnuro.models.positiveNotification
-import com.jetpackduba.gitnuro.models.warningNotification
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
@@ -77,7 +76,9 @@ class TabViewModel @Inject constructor(
     private val tabScope: CoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     val tabViewModelsProvider: TabViewModelsProvider,
-) : IVerticalSplitPaneConfig by verticalSplitPaneConfig {
+    private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
+) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
+    IGlobalMenuActionsViewModel by globalMenuActionsViewModel {
     var initialPath: String? = null // Stores the path that should be opened when the tab is selected
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem

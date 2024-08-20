@@ -209,10 +209,6 @@ fun Diff(
 
             ViewDiffResult.None -> throw NotImplementedError("None should be a possible state in the diff")
         }
-
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
     }
 }
 
