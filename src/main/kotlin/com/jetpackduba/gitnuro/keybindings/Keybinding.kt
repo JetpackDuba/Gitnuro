@@ -57,6 +57,16 @@ enum class KeybindingOption {
      * Used to show branch creation dialog
      */
     BRANCH_CREATE,
+
+    /**
+     * Used to stash workspace changes
+     */
+    STASH,
+
+    /**
+     * Used to pop stash changes to workspace
+     */
+    STASH_POP,
 }
 
 
@@ -89,6 +99,12 @@ private fun baseKeybindings() = mapOf(
     ),
     KeybindingOption.BRANCH_CREATE to listOf(
         Keybinding(key = Key.B, control = true),
+    ),
+    KeybindingOption.STASH to listOf(
+        Keybinding(key = Key.S, control = true),
+    ),
+    KeybindingOption.STASH_POP to listOf(
+        Keybinding(key = Key.S, control = true, shift = true),
     ),
 )
 

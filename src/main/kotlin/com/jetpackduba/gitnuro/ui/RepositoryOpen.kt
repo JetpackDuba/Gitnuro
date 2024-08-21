@@ -128,6 +128,14 @@ fun RepositoryOpenPage(
                         false
                     }
                 }
+                it.matchesBinding(KeybindingOption.STASH) -> {
+                    tabViewModel.stash()
+                    true
+                }
+                it.matchesBinding(KeybindingOption.STASH_POP) -> {
+                    tabViewModel.popStash()
+                    true
+                }
                 else -> false
             }
 
