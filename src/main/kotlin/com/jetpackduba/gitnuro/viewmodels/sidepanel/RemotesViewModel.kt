@@ -12,7 +12,9 @@ import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
+import com.jetpackduba.gitnuro.viewmodels.SharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedRemotesViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -34,11 +36,14 @@ class RemotesViewModel @AssistedInject constructor(
     private val addRemoteUseCase: AddRemoteUseCase,
     private val updateRemoteUseCase: UpdateRemoteUseCase,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
+    private val sharedBranchesViewModel: SharedBranchesViewModel,
     tabScope: CoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
     private val filter: StateFlow<String>
-) : SidePanelChildViewModel(false), ISharedRemotesViewModel by sharedRemotesViewModel {
+) : SidePanelChildViewModel(false), ISharedRemotesViewModel by sharedRemotesViewModel,
+    ISharedBranchesViewModel by sharedBranchesViewModel {
+
     private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
     private val currentBranch = MutableStateFlow<Ref?>(null)
 

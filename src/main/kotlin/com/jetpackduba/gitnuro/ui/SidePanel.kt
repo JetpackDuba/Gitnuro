@@ -281,6 +281,8 @@ fun LazyListScope.remotes(
                         onDeleteBranch = { remotesViewModel.deleteRemoteBranch(remoteBranch) },
                         onPushRemoteBranch = { remotesViewModel.pushToRemoteBranch(remoteBranch) },
                         onPullRemoteBranch = { remotesViewModel.pullFromRemoteBranch(remoteBranch) },
+                        onRebaseRemoteBranch = { remotesViewModel.rebaseBranch(remoteBranch) },
+                        onMergeRemoteBranch = { remotesViewModel.mergeBranch(remoteBranch) },
                     )
                 }
             }
@@ -504,6 +506,8 @@ private fun RemoteBranches(
     onDeleteBranch: () -> Unit,
     onPushRemoteBranch: () -> Unit,
     onPullRemoteBranch: () -> Unit,
+    onRebaseRemoteBranch: () -> Unit,
+    onMergeRemoteBranch: () -> Unit,
 ) {
     ContextMenu(
         items = {
@@ -513,10 +517,10 @@ private fun RemoteBranches(
                 isCurrentBranch = false,
                 isLocal = false,
                 onCheckoutBranch = onCheckoutBranch,
-                onMergeBranch = {},
+                onMergeBranch = onMergeRemoteBranch,
                 onDeleteBranch = {},
                 onDeleteRemoteBranch = onDeleteBranch,
-                onRebaseBranch = {},
+                onRebaseBranch = onRebaseRemoteBranch,
                 onPushToRemoteBranch = onPushRemoteBranch,
                 onPullFromRemoteBranch = onPullRemoteBranch,
                 onChangeDefaultUpstreamBranch = {},
