@@ -4,6 +4,7 @@ import androidx.compose.foundation.ContextMenuState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.AnnotatedString
 import com.jetpackduba.gitnuro.logging.printError
 
@@ -43,6 +44,7 @@ class SelectionAwareTextContextMenu(val onIsTextSelected: (AnnotatedString) -> U
             override val selectedText: AnnotatedString
                 get() = AnnotatedString("")
 
+            override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) {}
         }
 
         val textManagerToUse =
