@@ -33,7 +33,7 @@ jobs:
         with:
           body: "Beta release"
           prerelease: true
-          repository: JetpackDuba/GitnuroTests
+          repository: JetpackDuba/Gitnuro
           with:
           files: |
             build/libs/Gitnuro-linux-x86_64-*.jar
@@ -77,7 +77,7 @@ jobs:
         with:
           body: "Beta release"
           prerelease: true
-          repository: JetpackDuba/GitnuroTests
+          repository: JetpackDuba/Gitnuro
           with:
           files: |
             Output/Gitnuro*.exe
@@ -117,7 +117,7 @@ jobs:
         with:
           body: "Beta release"
           prerelease: true
-          repository: JetpackDuba/GitnuroTests
+          repository: JetpackDuba/Gitnuro
           with:
           files: |
             Output/Gitnuro*.zip
