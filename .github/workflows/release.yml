@@ -35,9 +35,9 @@ jobs:
           prerelease: true
           repository: JetpackDuba/GitnuroTests
           with:
-            files: |
-              build/libs/Gitnuro-linux-x86_64-*.jar
-              build/libs/Gitnuro-linux-x86_64-*.jar.sum
+          files: |
+            build/libs/Gitnuro-linux-x86_64-*.jar
+            build/libs/Gitnuro-linux-x86_64-*.jar.sum
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
   
   build_windows:
@@ -79,10 +79,10 @@ jobs:
           prerelease: true
           repository: JetpackDuba/GitnuroTests
           with:
-            files: |
-              Output/Gitnuro*.exe
-              Output/Gitnuro*.sum
-              Output/Gitnuro*.zip
+          files: |
+            Output/Gitnuro*.exe
+            Output/Gitnuro*.sum
+            Output/Gitnuro*.zip
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
   build_macos:
@@ -119,7 +119,7 @@ jobs:
           prerelease: true
           repository: JetpackDuba/GitnuroTests
           with:
-            files: |
-              Output/Gitnuro*.zip
-              Output/Gitnuro*.sum
+          files: |
+            Output/Gitnuro*.zip
+            Output/Gitnuro*.sum
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
