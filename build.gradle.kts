@@ -18,7 +18,12 @@ plugins {
 
 // Remember to update Constants.APP_VERSION when changing this version
 val projectVersion = "1.4.0-beta01"
+
 val projectName = "Gitnuro"
+
+// Required for JPackage, as it doesn't accept additional suffixes after the version.
+val projectVersionSimplified = "1.4.0"
+
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
 group = "com.jetpackduba"
@@ -127,7 +132,7 @@ compose.desktop {
         nativeDistributions {
             includeAllModules = true
             packageName = projectName
-            version = projectVersion
+            version = projectVersionSimplified
             description = "Multiplatform Git client"
 
             windows {
