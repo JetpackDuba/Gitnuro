@@ -6,7 +6,7 @@ on:
       - '**'
 
 jobs:
-  build_linux:
+  build_linux_x86_64:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -14,6 +14,7 @@ jobs:
         with:
           toolchain: nightly
       - run: cargo install cargo-kotars --git https://github.com/JetpackDuba/kotars
+      - run: cargo install cross
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -23,7 +24,43 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
         with:
-          arguments: fatJarLinux
+          arguments: fatJarLinux -PuseCross=true -PisLinuxAarch64=false
+      - name: Generate SHA256 Checksum
+        working-directory: ./build/libs
+        run: find . -type f -exec bash -c "sha256sum {}  > {}.sum " \;
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          body: "Beta release"
+          prerelease: true
+          draft: true
+          repository: JetpackDuba/Gitnuro
+          with:
+          files: |
+            build/libs/Gitnuro-linux-x86_64-*.jar
+            build/libs/Gitnuro-linux-x86_64-*.jar.sum
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+
+  build_linux_aarch64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: nightly
+      - run: cargo install cargo-kotars --git https://github.com/JetpackDuba/kotars
+      - run: cargo install cross
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          architecture: x64
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: fatJarLinux -PuseCross=true -PisLinuxAarch64=true
       - name: Generate SHA256 Checksum
         working-directory: ./build/libs
         run: find . -type f -exec bash -c "sha256sum {}  > {}.sum " \;
