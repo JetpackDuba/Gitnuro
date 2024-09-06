@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.git.workspace
 
-import com.jetpackduba.gitnuro.system.systemSeparator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git

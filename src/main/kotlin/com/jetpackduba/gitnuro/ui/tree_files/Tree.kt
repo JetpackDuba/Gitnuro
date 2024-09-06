@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.tree_files
 
-import com.jetpackduba.gitnuro.system.systemSeparator
 import kotlin.math.max
 
 fun <T> entriesToTreeEntry(
@@ -18,12 +17,12 @@ fun <T> entriesToTreeEntry(
         }
         .map { entry ->
             val filePath = onGetEntryPath(entry)
-            val parts = filePath.split(systemSeparator)
+            val parts = filePath.split("/")
 
             parts.mapIndexed { index, partName ->
                 if (index == parts.lastIndex) {
                     val isParentDirectoryContracted = treeContractedDirs.any { contractedDir ->
-                        filePath.startsWith(contractedDir + systemSeparator)
+                        filePath.startsWith(contractedDir + "/")
                     }
 
                     if (isParentDirectoryContracted) {
@@ -32,9 +31,9 @@ fun <T> entriesToTreeEntry(
                         TreeItem.File(entry, partName, filePath, index)
                     }
                 } else {
-                    val dirPath = parts.slice(0..index).joinToString(systemSeparator)
+                    val dirPath = parts.slice(0..index).joinToString("/")
                     val isParentDirectoryContracted = treeContractedDirs.any { contractedDir ->
-                        dirPath.startsWith(contractedDir + systemSeparator) &&
+                        dirPath.startsWith(contractedDir + "/") &&
                                 dirPath != contractedDir
                     }
                     val isExactDirectoryContracted = treeContractedDirs.any { contractedDir ->
@@ -57,8 +56,8 @@ fun <T> entriesToTreeEntry(
 
 private class PathsComparator : Comparator<String> {
     override fun compare(path1: String, path2: String): Int {
-        val path1Parts = path1.split(systemSeparator)
-        val path2Parts = path2.split(systemSeparator)
+        val path1Parts = path1.split("/")
+        val path2Parts = path2.split("/")
         
         val maxIndex = max(path1Parts.count(), path2Parts.count())
 
