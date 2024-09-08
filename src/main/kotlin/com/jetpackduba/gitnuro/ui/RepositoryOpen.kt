@@ -10,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -145,56 +144,46 @@ fun RepositoryOpenPage(
                         true
                     }
 
+                    it.matchesBinding(KeybindingOption.REFRESH) -> {
+                        repositoryOpenViewModel.refreshAll()
+                        true
+                    }
+
                     else -> false
                 }
 
             }
     ) {
-        Row(modifier = Modifier.weight(1f)) {
-            Column(
+        Column(modifier = Modifier.weight(1f)) {
+            Menu(
+                menuViewModel = repositoryOpenViewModel.tabViewModelsProvider.menuViewModel,
                 modifier = Modifier
-                    .focusable()
-                    .onKeyEvent { keyEvent ->
-                        if (keyEvent.matchesBinding(KeybindingOption.REFRESH)) {
-                            repositoryOpenViewModel.refreshAll()
-                            true
-                        } else {
-                            false
-                        }
+                    .padding(
+                        vertical = 4.dp
+                    )
+                    .fillMaxWidth(),
+                onCreateBranch = { showNewBranchDialog = true },
+                onStashWithMessage = { showStashWithMessageDialog = true },
+                onOpenAnotherRepository = { repositoryOpenViewModel.openAnotherRepository(it) },
+                onOpenAnotherRepositoryFromPicker = {
+                    val repoToOpen = repositoryOpenViewModel.openDirectoryPicker()
+
+                    if (repoToOpen != null) {
+                        repositoryOpenViewModel.openAnotherRepository(repoToOpen)
                     }
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Menu(
-                        menuViewModel = repositoryOpenViewModel.tabViewModelsProvider.menuViewModel,
-                        modifier = Modifier
-                            .padding(
-                                vertical = 4.dp
-                            )
-                            .fillMaxWidth(),
-                        onCreateBranch = { showNewBranchDialog = true },
-                        onStashWithMessage = { showStashWithMessageDialog = true },
-                        onOpenAnotherRepository = { repositoryOpenViewModel.openAnotherRepository(it) },
-                        onOpenAnotherRepositoryFromPicker = {
-                            val repoToOpen = repositoryOpenViewModel.openDirectoryPicker()
+                },
+                onQuickActions = { showQuickActionsDialog = true },
+                onShowSettingsDialog = onShowSettingsDialog
+            )
 
-                            if (repoToOpen != null) {
-                                repositoryOpenViewModel.openAnotherRepository(repoToOpen)
-                            }
-                        },
-                        onQuickActions = { showQuickActionsDialog = true },
-                        onShowSettingsDialog = onShowSettingsDialog
-                    )
-
-                    RepoContent(
-                        repositoryOpenViewModel = repositoryOpenViewModel,
-                        diffSelected = diffSelected,
-                        selectedItem = selectedItem,
-                        repositoryState = repositoryState,
-                        blameState = blameState,
-                        showHistory = showHistory,
-                    )
-                }
-            }
+            RepoContent(
+                repositoryOpenViewModel = repositoryOpenViewModel,
+                diffSelected = diffSelected,
+                selectedItem = selectedItem,
+                repositoryState = repositoryState,
+                blameState = blameState,
+                showHistory = showHistory,
+            )
         }
 
         Spacer(
