@@ -39,6 +39,7 @@ class TabState @Inject constructor(
     val selectedItem: StateFlow<SelectedItem> = _selectedItem
     private val _taskEvent = MutableSharedFlow<TaskEvent>()
     val taskEvent: SharedFlow<TaskEvent> = _taskEvent
+
     var lastOperation: Long = 0
         private set
 
@@ -52,8 +53,11 @@ class TabState @Inject constructor(
                 return unsafeGit
         }
 
-    private val _refreshData = MutableSharedFlow<RefreshType>()
-    val refreshData: SharedFlow<RefreshType> = _refreshData
+    private val refreshData = MutableSharedFlow<RefreshType>()
+    private val closeableViews = ArrayDeque<Int>()
+
+    private val _closeView = MutableSharedFlow<Int>()
+    val closeViewFlow = _closeView.asSharedFlow()
 
     /**
      * Property that indicates if a git operation is running
@@ -130,7 +134,7 @@ class TabState @Inject constructor(
                 lastOperation = System.currentTimeMillis()
 
                 if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes || refreshEvenIfCrashesInteractiveResult)) {
-                    _refreshData.emit(refreshType)
+                    refreshData.emit(refreshType)
                 }
             }
         }
@@ -228,7 +232,7 @@ class TabState @Inject constructor(
             printError(TAG, ex.message.orEmpty(), ex)
         } finally {
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
-                _refreshData.emit(refreshType)
+                refreshData.emit(refreshType)
 
             operationRunning = false
             lastOperation = System.currentTimeMillis()
@@ -236,7 +240,7 @@ class TabState @Inject constructor(
     }
 
     suspend fun refreshData(refreshType: RefreshType) {
-        _refreshData.emit(refreshType)
+        refreshData.emit(refreshType)
     }
 
     suspend fun newSelectedStash(stash: RevCommit) {
@@ -305,6 +309,22 @@ class TabState @Inject constructor(
                     )
                 }
             }
+    }
+
+    fun addCloseableView(id: Int) {
+        closeableViews.add(id)
+    }
+
+    fun removeCloseableView(id: Int) {
+        closeableViews.remove(id)
+    }
+
+    suspend fun closeLastView() {
+        val last = closeableViews.removeLastOrNull()
+
+        if (last != null) {
+            _closeView.emit(last)
+        }
     }
 
     fun cancelCurrentTask() {
