@@ -38,7 +38,7 @@ class DiffViewModel @Inject constructor(
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
     private val discardUnstagedHunkLineUseCase: DiscardUnstagedHunkLineUseCase,
     private val tabsManager: TabsManager,
-    tabScope: CoroutineScope,
+    private val tabScope: CoroutineScope,
 ) : AutoCloseable {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading(""))
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
@@ -229,11 +229,11 @@ class DiffViewModel @Inject constructor(
         tabsManager.addNewTabFromPath("${git.repository.workTree}/$path", true)
     }
 
-    fun addToCloseables() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+    fun addToCloseables() = tabScope.launch {
         tabState.addCloseableView(CloseableView.DIFF)
     }
 
-    private fun removeFromCloseables() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+    private fun removeFromCloseables() = tabScope.launch {
         tabState.removeCloseableView(CloseableView.DIFF)
     }
 

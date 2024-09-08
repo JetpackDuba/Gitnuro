@@ -24,9 +24,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
@@ -49,8 +46,6 @@ import com.jetpackduba.gitnuro.git.diff.Line
 import com.jetpackduba.gitnuro.git.diff.LineType
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
-import com.jetpackduba.gitnuro.keybindings.KeybindingOption
-import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
@@ -112,13 +107,6 @@ fun Diff(
                 if (it.isFocused) {
                     diffViewModel.addToCloseables()
                 }
-            }
-            .onPreviewKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
-                    onCloseDiffView()
-                    true
-                } else
-                    false
             }
     ) {
         when (viewDiffResult) {

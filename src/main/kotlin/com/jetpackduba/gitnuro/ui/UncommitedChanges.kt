@@ -6,7 +6,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
@@ -20,6 +23,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
@@ -49,6 +53,8 @@ import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.viewmodels.CommitterDataRequestState
 import com.jetpackduba.gitnuro.viewmodels.StageStateUi
 import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 
 @Composable
@@ -88,10 +94,29 @@ fun UncommittedChanges(
 
     val canCommit = commitMessage.isNotEmpty() && stageStateUi.hasStagedFiles
     val canAmend = commitMessage.isNotEmpty() && statusViewModel.hasPreviousCommits
+    val tabFocusRequester = LocalTabFocusRequester.current
 
     LaunchedEffect(statusViewModel) {
-        statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
-            setCommitMessage(newCommitMessage)
+        launch {
+            statusViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
+                setCommitMessage(newCommitMessage)
+            }
+        }
+
+        launch {
+            statusViewModel.showSearchUnstaged.collectLatest { show ->
+                if (!show) {
+                    tabFocusRequester.requestFocus()
+                }
+            }
+        }
+
+        launch {
+            statusViewModel.showSearchStaged.collectLatest { show ->
+                if (!show) {
+                    tabFocusRequester.requestFocus()
+                }
+            }
         }
     }
 
@@ -131,6 +156,7 @@ fun UncommittedChanges(
                         stagedListState,
                         selectedEntryType,
                         onSearchFilterToggled = { statusViewModel.onSearchFilterToggledStaged(it) },
+                        onSearchFocused = { statusViewModel.addStagedSearchToCloseableView() },
                         onDiffEntryOptionSelected = { statusViewModel.unstage(it) },
                         onDiffEntrySelected = onStagedDiffEntrySelected,
                         onSearchFilterChanged = { statusViewModel.onSearchFilterChangedStaged(it) },
@@ -154,6 +180,7 @@ fun UncommittedChanges(
                         unstagedListState,
                         selectedEntryType,
                         onSearchFilterToggled = { statusViewModel.onSearchFilterToggledUnstaged(it) },
+                        onSearchFocused = { statusViewModel.addUnstagedSearchToCloseableView() },
                         onDiffEntryOptionSelected = { statusViewModel.stage(it) },
                         onDiffEntrySelected = onUnstagedDiffEntrySelected,
                         onSearchFilterChanged = { statusViewModel.onSearchFilterChangedUnstaged(it) },
@@ -323,6 +350,7 @@ fun ColumnScope.StagedView(
     stagedListState: LazyListState,
     selectedEntryType: DiffType?,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onDiffEntrySelected: (StatusEntry) -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
@@ -356,6 +384,7 @@ fun ColumnScope.StagedView(
         listState = stagedListState,
         selectedEntryType = selectedEntryType,
         onSearchFilterToggled = onSearchFilterToggled,
+        onSearchFocused = onSearchFocused,
         onDiffEntryOptionSelected = onDiffEntryOptionSelected,
         onDiffEntrySelected = onDiffEntrySelected,
         onSearchFilterChanged = onSearchFilterChanged,
@@ -381,6 +410,7 @@ fun ColumnScope.UnstagedView(
     unstagedListState: LazyListState,
     selectedEntryType: DiffType?,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onDiffEntrySelected: (StatusEntry) -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
@@ -414,6 +444,7 @@ fun ColumnScope.UnstagedView(
         listState = unstagedListState,
         selectedEntryType = selectedEntryType,
         onSearchFilterToggled = onSearchFilterToggled,
+        onSearchFocused = onSearchFocused,
         onDiffEntryOptionSelected = onDiffEntryOptionSelected,
         onDiffEntrySelected = onDiffEntrySelected,
         onSearchFilterChanged = onSearchFilterChanged,
@@ -448,6 +479,7 @@ fun ColumnScope.NeutralView(
     onTreeEntries: (StageStateUi.TreeLoaded) -> List<TreeItem<StatusEntry>>,
     onListEntries: (StageStateUi.ListLoaded) -> List<StatusEntry>,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     onDiffEntryOptionSelected: (StatusEntry) -> Unit,
     onDiffEntrySelected: (StatusEntry) -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
@@ -477,6 +509,7 @@ fun ColumnScope.NeutralView(
             showSearch = showSearchUnstaged,
             searchFilter = searchFilterUnstaged,
             onSearchFilterToggled = onSearchFilterToggled,
+            onSearchFocused = onSearchFocused,
             onSearchFilterChanged = onSearchFilterChanged,
             statusEntries = onTreeEntries(stageStateUi),
             lazyListState = listState,
@@ -516,6 +549,7 @@ fun ColumnScope.NeutralView(
             showSearch = showSearchUnstaged,
             searchFilter = searchFilterUnstaged,
             onSearchFilterToggled = onSearchFilterToggled,
+            onSearchFocused = onSearchFocused,
             onSearchFilterChanged = onSearchFilterChanged,
             statusEntries = onListEntries(stageStateUi),
             lazyListState = listState,
@@ -789,6 +823,7 @@ private fun EntriesList(
     showSearch: Boolean,
     searchFilter: TextFieldValue,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
     statusEntries: List<StatusEntry>,
     lazyListState: LazyListState,
@@ -816,6 +851,7 @@ private fun EntriesList(
             onSearchFilterToggled = onSearchFilterToggled,
             showAsTree = false,
             showSearch = showSearch,
+            onSearchFocused = onSearchFocused,
         )
 
 
@@ -859,6 +895,7 @@ private fun TreeEntriesList(
     showSearch: Boolean,
     searchFilter: TextFieldValue,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
     statusEntries: List<TreeItem<StatusEntry>>,
     lazyListState: LazyListState,
@@ -886,6 +923,7 @@ private fun TreeEntriesList(
             searchFilter = searchFilter,
             onSearchFilterChanged = onSearchFilterChanged,
             onSearchFilterToggled = onSearchFilterToggled,
+            onSearchFocused = onSearchFocused,
             showAsTree = true,
             showSearch = showSearch,
         )
@@ -939,6 +977,7 @@ fun EntriesHeader(
     onAllAction: () -> Unit,
     onAlternateShowAsTree: () -> Unit,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     searchFilter: TextFieldValue,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
 ) {
@@ -1022,6 +1061,7 @@ fun EntriesHeader(
                 searchFilter = searchFilter,
                 onSearchFilterChanged = onSearchFilterChanged,
                 searchFocusRequester = searchFocusRequester,
+                onSearchFocused = onSearchFocused,
                 onClose = { onSearchFilterToggled(false) },
             )
         }

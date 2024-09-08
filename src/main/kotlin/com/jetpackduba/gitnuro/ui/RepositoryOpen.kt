@@ -10,8 +10,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -33,6 +35,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+
+val LocalTabFocusRequester = compositionLocalOf { FocusRequester() }
+
 
 @Composable
 fun RepositoryOpenPage(
@@ -109,6 +114,7 @@ fun RepositoryOpenPage(
             .focusRequester(focusRequester)
             .focusable(true)
             .onPreviewKeyEvent {
+                println("onPreviewKeyEvent: $it")
                 when {
                     it.matchesBinding(KeybindingOption.PULL) -> {
                         repositoryOpenViewModel.pull(PullType.DEFAULT)
@@ -154,36 +160,40 @@ fun RepositoryOpenPage(
 
             }
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Menu(
-                menuViewModel = repositoryOpenViewModel.tabViewModelsProvider.menuViewModel,
-                modifier = Modifier
-                    .padding(
-                        vertical = 4.dp
-                    )
-                    .fillMaxWidth(),
-                onCreateBranch = { showNewBranchDialog = true },
-                onStashWithMessage = { showStashWithMessageDialog = true },
-                onOpenAnotherRepository = { repositoryOpenViewModel.openAnotherRepository(it) },
-                onOpenAnotherRepositoryFromPicker = {
-                    val repoToOpen = repositoryOpenViewModel.openDirectoryPicker()
+        CompositionLocalProvider(
+            LocalTabFocusRequester provides focusRequester
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Menu(
+                    menuViewModel = repositoryOpenViewModel.tabViewModelsProvider.menuViewModel,
+                    modifier = Modifier
+                        .padding(
+                            vertical = 4.dp
+                        )
+                        .fillMaxWidth(),
+                    onCreateBranch = { showNewBranchDialog = true },
+                    onStashWithMessage = { showStashWithMessageDialog = true },
+                    onOpenAnotherRepository = { repositoryOpenViewModel.openAnotherRepository(it) },
+                    onOpenAnotherRepositoryFromPicker = {
+                        val repoToOpen = repositoryOpenViewModel.openDirectoryPicker()
 
-                    if (repoToOpen != null) {
-                        repositoryOpenViewModel.openAnotherRepository(repoToOpen)
-                    }
-                },
-                onQuickActions = { showQuickActionsDialog = true },
-                onShowSettingsDialog = onShowSettingsDialog
-            )
+                        if (repoToOpen != null) {
+                            repositoryOpenViewModel.openAnotherRepository(repoToOpen)
+                        }
+                    },
+                    onQuickActions = { showQuickActionsDialog = true },
+                    onShowSettingsDialog = onShowSettingsDialog
+                )
 
-            RepoContent(
-                repositoryOpenViewModel = repositoryOpenViewModel,
-                diffSelected = diffSelected,
-                selectedItem = selectedItem,
-                repositoryState = repositoryState,
-                blameState = blameState,
-                showHistory = showHistory,
-            )
+                RepoContent(
+                    repositoryOpenViewModel = repositoryOpenViewModel,
+                    diffSelected = diffSelected,
+                    selectedItem = selectedItem,
+                    repositoryState = repositoryState,
+                    blameState = blameState,
+                    showHistory = showHistory,
+                )
+            }
         }
 
         Spacer(
@@ -354,10 +364,12 @@ fun MainContentView(
                                     val diffViewModel = repositoryOpenViewModel.diffViewModel
 
                                     if (diffViewModel != null) {
+                                        val tabFocusRequester = LocalTabFocusRequester.current
                                         Diff(
                                             diffViewModel = diffViewModel,
                                             onCloseDiffView = {
                                                 repositoryOpenViewModel.newDiffSelected = null
+                                                tabFocusRequester.requestFocus()
                                             }
                                         )
                                     }

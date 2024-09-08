@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
@@ -28,20 +29,14 @@ import com.jetpackduba.gitnuro.keybindings.matchesBinding
 fun SearchTextField(
     searchFilter: TextFieldValue,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
+    onSearchFocused: () -> Unit,
     searchFocusRequester: FocusRequester,
     onClose: () -> Unit,
 ) {
     Box(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
-            .padding(horizontal = 4.dp, vertical = 4.dp)
-            .onPreviewKeyEvent { keyEvent ->
-                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
-                    onClose()
-                    true
-                } else
-                    false
-            },
+            .padding(horizontal = 4.dp, vertical = 4.dp),
     ) {
         AdjustableOutlinedTextField(
             value = searchFilter,
@@ -51,7 +46,8 @@ fun SearchTextField(
             hint = "Search files by name or path",
             modifier = Modifier.fillMaxWidth()
                 .focusable()
-                .focusRequester(searchFocusRequester),
+                .focusRequester(searchFocusRequester)
+                .onFocusChanged { if (it.isFocused) onSearchFocused() },
             trailingIcon = {
                 IconButton(
                     onClick = onClose,

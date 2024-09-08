@@ -403,11 +403,6 @@ fun SearchFilter(
                             true
                         }
 
-                        keyEvent.matchesBinding(KeybindingOption.EXIT) -> {
-                            logViewModel.closeSearch()
-                            true
-                        }
-
                         else -> false
                     }
                 },

@@ -59,7 +59,7 @@ class LogViewModel @Inject constructor(
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
     private val tabState: TabState,
     private val appSettingsRepository: AppSettingsRepository,
-    tabScope: CoroutineScope,
+    private val tabScope: CoroutineScope,
     sharedStashViewModel: SharedStashViewModel,
     sharedBranchesViewModel: SharedBranchesViewModel,
     sharedRemotesViewModel: SharedRemotesViewModel,
@@ -130,6 +130,15 @@ class LogViewModel @Inject constructor(
             tabState.closeViewFlow.collectLatest {
                 if (it == CloseableView.LOG_SEARCH) {
                     _logSearchFilterResults.value = LogSearch.NotSearching
+                }
+            }
+        }
+
+        tabScope.launch {
+            _logSearchFilterResults.collectLatest {
+                when (it) {
+                    LogSearch.NotSearching -> removeSearchFromCloseableView()
+                    is LogSearch.SearchResults -> addSearchToCloseableView()
                 }
             }
         }
@@ -334,10 +343,8 @@ class LogViewModel @Inject constructor(
             }
 
             _logSearchFilterResults.value = LogSearch.SearchResults(matchingCommits, startingUiIndex)
-            addSearchToCloseableView()
         } else {
             _logSearchFilterResults.value = LogSearch.SearchResults(emptyList(), NONE_MATCHING_INDEX)
-            addSearchToCloseableView()
         }
     }
 
@@ -359,7 +366,6 @@ class LogViewModel @Inject constructor(
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
         _focusCommit.emit(newCommitToSelect)
-        addSearchToCloseableView()
     }
 
     suspend fun selectNextFilterCommit() {
@@ -382,7 +388,6 @@ class LogViewModel @Inject constructor(
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
         _focusCommit.emit(newCommitToSelect)
-        addSearchToCloseableView()
     }
 
     fun showDialog(dialog: LogDialog) {
@@ -391,14 +396,13 @@ class LogViewModel @Inject constructor(
 
     fun closeSearch() {
         _logSearchFilterResults.value = LogSearch.NotSearching
-        removeSearchFromCloseableView()
     }
 
-    fun addSearchToCloseableView() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+    fun addSearchToCloseableView() = tabScope.launch {
         tabState.addCloseableView(CloseableView.LOG_SEARCH)
     }
 
-    private fun removeSearchFromCloseableView() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+    private fun removeSearchFromCloseableView() = tabScope.launch {
         tabState.removeCloseableView(CloseableView.LOG_SEARCH)
     }
 

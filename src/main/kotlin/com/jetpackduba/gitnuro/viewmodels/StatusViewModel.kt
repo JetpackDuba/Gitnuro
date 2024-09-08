@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
@@ -59,7 +60,7 @@ class StatusViewModel @Inject constructor(
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageUseCase: GetSpecificCommitMessageUseCase,
     private val appSettingsRepository: AppSettingsRepository,
-    tabScope: CoroutineScope,
+    private val tabScope: CoroutineScope,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
@@ -180,6 +181,36 @@ class StatusViewModel @Inject constructor(
                 RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
             ) {
                 refresh(tabState.git)
+            }
+        }
+
+        tabScope.launch {
+            showSearchStaged.collectLatest {
+                if (it) {
+                    addStagedSearchToCloseableView()
+                } else {
+                    removeStagedSearchToCloseableView()
+                }
+            }
+        }
+
+        tabScope.launch {
+            showSearchUnstaged.collectLatest {
+                if (it) {
+                    addUnstagedSearchToCloseableView()
+                } else {
+                    removeUnstagedSearchToCloseableView()
+                }
+            }
+        }
+
+        tabScope.launch {
+            tabState.closeViewFlow.collectLatest {
+                if (it == CloseableView.STAGED_CHANGES_SEARCH) {
+                    onSearchFilterToggledStaged(false)
+                } else if (it == CloseableView.UNSTAGED_CHANGES_SEARCH) {
+                    onSearchFilterToggledUnstaged(false)
+                }
             }
         }
     }
@@ -546,6 +577,30 @@ class StatusViewModel @Inject constructor(
         showError = true,
     ) { git ->
         unstageByDirectoryUseCase(git, dir)
+    }
+
+    fun addStagedSearchToCloseableView() {
+        addSearchToCloseView(CloseableView.STAGED_CHANGES_SEARCH)
+    }
+
+    private fun removeStagedSearchToCloseableView() {
+        removeSearchFromCloseView(CloseableView.STAGED_CHANGES_SEARCH)
+    }
+
+    fun addUnstagedSearchToCloseableView() {
+        addSearchToCloseView(CloseableView.UNSTAGED_CHANGES_SEARCH)
+    }
+
+    private fun removeUnstagedSearchToCloseableView() {
+        removeSearchFromCloseView(CloseableView.UNSTAGED_CHANGES_SEARCH)
+    }
+
+    private fun addSearchToCloseView(view: CloseableView) = tabScope.launch {
+        tabState.addCloseableView(view)
+    }
+
+    private fun removeSearchFromCloseView(view: CloseableView) = tabScope.launch {
+        tabState.removeCloseableView(view)
     }
 }
 

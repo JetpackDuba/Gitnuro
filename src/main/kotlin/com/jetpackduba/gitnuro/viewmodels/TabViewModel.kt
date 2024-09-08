@@ -75,9 +75,8 @@ class TabViewModel @Inject constructor(
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
-    val repositoryOpenViewModel: RepositoryOpenViewModel by lazy {
-        repositoryOpenViewModelProvider.get()
-    }
+    val repositoryOpenViewModel: RepositoryOpenViewModel = repositoryOpenViewModelProvider.get()
+
     private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
         get() = _repositorySelectionStatus

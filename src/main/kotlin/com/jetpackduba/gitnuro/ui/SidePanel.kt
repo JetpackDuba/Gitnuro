@@ -9,6 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,6 +35,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
+import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.submodule.SubmoduleStatus
@@ -47,7 +51,7 @@ fun SidePanel(
     stashesViewModel: StashesViewModel = sidePanelViewModel.stashesViewModel,
     submodulesViewModel: SubmodulesViewModel = sidePanelViewModel.submodulesViewModel,
 ) {
-    var filter by remember(sidePanelViewModel) { mutableStateOf(sidePanelViewModel.filter.value) }
+    val filter by sidePanelViewModel.filter.collectAsState()
     val selectedItem by sidePanelViewModel.selectedItem.collectAsState()
 
     val branchesState by branchesViewModel.branchesState.collectAsState()
@@ -59,16 +63,31 @@ fun SidePanel(
     val (showAddEditRemote, setShowAddEditRemote) = remember { mutableStateOf<RemoteWrapper?>(null) }
     val (branchToChangeUpstream, setBranchToChangeUpstream) = remember { mutableStateOf<Ref?>(null) }
     var showEditSubmodulesDialog by remember { mutableStateOf(false) }
+    val searchFocusRequester = remember { FocusRequester() }
+    val tabFocusRequester = LocalTabFocusRequester.current
+
+    LaunchedEffect(sidePanelViewModel) {
+        sidePanelViewModel.freeSearchFocusFlow.collectLatest {
+            tabFocusRequester.requestFocus()
+        }
+    }
 
     Column {
         FilterTextField(
             value = filter,
             onValueChange = { newValue ->
-                filter = newValue
                 sidePanelViewModel.newFilter(newValue)
             },
             modifier = Modifier
                 .padding(start = 8.dp)
+                .focusRequester(searchFocusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        sidePanelViewModel.addSidePanelSearchToCloseables()
+                    } else {
+                        sidePanelViewModel.removeSidePanelSearchFromCloseables()
+                    }
+                }
         )
 
         ScrollableLazyColumn(
@@ -142,7 +161,11 @@ fun SidePanel(
 }
 
 @Composable
-fun FilterTextField(value: String, onValueChange: (String) -> Unit, modifier: Modifier) {
+fun FilterTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier
+) {
     AdjustableOutlinedTextField(
         value = value,
         hint = "Search for branches, tags & more",

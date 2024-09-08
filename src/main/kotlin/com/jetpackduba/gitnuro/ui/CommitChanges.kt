@@ -81,6 +81,9 @@ fun CommitChanges(
                 onSearchFilterToggled = { visible ->
                     commitChangesViewModel.onSearchFilterToggled(visible)
                 },
+                onSearchFocused = {
+                    commitChangesViewModel.addSearchToCloseableView()
+                },
                 onSearchFilterChanged = { filter ->
                     searchFilter = filter
                     commitChangesViewModel.onSearchFilterChanged(filter)
@@ -105,6 +108,7 @@ private fun CommitChangesView(
     onHistory: (String) -> Unit,
     onDiffSelected: (DiffEntry) -> Unit,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
     onDirectoryClicked: (TreeItem.Dir) -> Unit,
     onAlternateShowAsTree: () -> Unit,
@@ -129,6 +133,7 @@ private fun CommitChangesView(
                 searchFilter,
                 onSearchFilterChanged,
                 onSearchFilterToggled,
+                onSearchFocused,
                 showAsTree = showAsTree,
                 onAlternateShowAsTree = onAlternateShowAsTree,
             )
@@ -182,6 +187,7 @@ private fun Header(
     searchFilter: TextFieldValue,
     onSearchFilterChanged: (TextFieldValue) -> Unit,
     onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
     showAsTree: Boolean,
     onAlternateShowAsTree: () -> Unit,
 ) {
@@ -250,6 +256,7 @@ private fun Header(
             onSearchFilterChanged = onSearchFilterChanged,
             searchFocusRequester = searchFocusRequester,
             onClose = { onSearchFilterToggled(false) },
+            onSearchFocused = onSearchFocused,
         )
     }
 

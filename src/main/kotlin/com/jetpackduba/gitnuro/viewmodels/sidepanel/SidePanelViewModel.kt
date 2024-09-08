@@ -1,10 +1,13 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import androidx.compose.runtime.collectAsState
 import com.jetpackduba.gitnuro.di.factories.*
+import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.ui.SelectedItem
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class SidePanelViewModel @Inject constructor(
@@ -13,7 +16,8 @@ class SidePanelViewModel @Inject constructor(
     tagsViewModelFactory: TagsViewModelFactory,
     stashesViewModelFactory: StashesViewModelFactory,
     submodulesViewModelFactory: SubmodulesViewModelFactory,
-    tabState: TabState,
+    private val tabState: TabState,
+    private val tabScope: CoroutineScope,
 ) {
     private val _filter = MutableStateFlow("")
     val filter: StateFlow<String> = _filter
@@ -25,7 +29,29 @@ class SidePanelViewModel @Inject constructor(
     val stashesViewModel: StashesViewModel = stashesViewModelFactory.create(filter)
     val submodulesViewModel: SubmodulesViewModel = submodulesViewModelFactory.create(filter)
 
+    private val _freeSearchFocusFlow = MutableSharedFlow<Unit>()
+    val freeSearchFocusFlow = _freeSearchFocusFlow.asSharedFlow()
+
+    init {
+        tabScope.launch {
+            tabState.closeViewFlow.collectLatest {
+                if (it == CloseableView.SIDE_PANEL_SEARCH) {
+                    newFilter("")
+                    _freeSearchFocusFlow.emit(Unit)
+                }
+            }
+        }
+    }
+
     fun newFilter(newValue: String) {
         _filter.value = newValue
+    }
+
+    fun addSidePanelSearchToCloseables() = tabScope.launch {
+        tabState.addCloseableView(CloseableView.SIDE_PANEL_SEARCH)
+    }
+
+    fun removeSidePanelSearchFromCloseables() = tabScope.launch {
+        tabState.removeCloseableView(CloseableView.SIDE_PANEL_SEARCH)
     }
 }

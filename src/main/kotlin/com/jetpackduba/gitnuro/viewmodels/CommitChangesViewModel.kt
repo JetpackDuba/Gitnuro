@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.filePath
 import com.jetpackduba.gitnuro.extensions.fullData
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.GetCommitDiffEntriesUseCase
@@ -15,6 +16,7 @@ import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
@@ -25,7 +27,7 @@ class CommitChangesViewModel @Inject constructor(
     private val tabState: TabState,
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     private val appSettingsRepository: AppSettingsRepository,
-    tabScope: CoroutineScope,
+    private val tabScope: CoroutineScope,
 ) {
     private val _showSearch = MutableStateFlow(false)
     val showSearch: StateFlow<Boolean> = _showSearch
@@ -81,6 +83,26 @@ class CommitChangesViewModel @Inject constructor(
             CommitChangesStateUi.Loading
         )
 
+
+    init {
+        tabScope.launch {
+            _showSearch.collectLatest {
+                if (it) {
+                    addSearchToCloseableView()
+                } else {
+                    removeSearchFromCloseableView()
+                }
+            }
+        }
+
+        tabScope.launch {
+            tabState.closeViewFlow.collectLatest {
+                if (it == CloseableView.COMMIT_CHANGES_SEARCH) {
+                    onSearchFilterToggled(false)
+                }
+            }
+        }
+    }
 
     fun loadChanges(commit: RevCommit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
@@ -153,6 +175,14 @@ class CommitChangesViewModel @Inject constructor(
     fun onSearchFilterChanged(filter: TextFieldValue) {
         _searchFilter.value = filter
     }
+
+    fun addSearchToCloseableView() = tabScope.launch {
+        tabState.addCloseableView(CloseableView.COMMIT_CHANGES_SEARCH)
+    }
+
+    private fun removeSearchFromCloseableView() = tabScope.launch {
+        tabState.removeCloseableView(CloseableView.COMMIT_CHANGES_SEARCH)
+    }
 }
 
 private sealed interface CommitChangesState {
@@ -167,6 +197,7 @@ sealed interface CommitChangesStateUi {
     sealed interface Loaded : CommitChangesStateUi {
         val commit: RevCommit
     }
+
     data class ListLoaded(override val commit: RevCommit, val changes: List<DiffEntry>) :
         Loaded
 
