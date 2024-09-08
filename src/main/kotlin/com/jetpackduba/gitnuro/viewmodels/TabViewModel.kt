@@ -117,8 +117,6 @@ class TabViewModel @Inject constructor(
 
             repository.workTree // test if repository is valid
             _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
-            val git = Git(repository)
-            tabState.initGit(git)
 
             val path = if (directory.name == ".git") {
                 directory.parent
@@ -126,7 +124,10 @@ class TabViewModel @Inject constructor(
                 directory.absolutePath
 
             onRepositoryChanged(path)
-            tabState.newSelectedItem(selectedItem = SelectedItem.UncommittedChanges)
+
+            val git = Git(repository)
+            tabState.initGit(git)
+            tabState.refreshData(RefreshType.ALL_DATA)
         } catch (ex: Exception) {
             onRepositoryChanged(null)
             ex.printStackTrace()
