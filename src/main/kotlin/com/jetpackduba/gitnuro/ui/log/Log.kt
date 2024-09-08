@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -115,6 +116,7 @@ fun Log(
             repositoryState = repositoryState,
             changeDefaultUpstreamBranchViewModel = changeDefaultUpstreamBranchViewModel,
         )
+
         LogStatus.Loading -> LogLoading()
     }
 }
@@ -204,8 +206,13 @@ private fun LogLoaded(
 
 
         if (searchFilterValue is LogSearch.SearchResults) {
-            SearchFilter(logViewModel, searchFilterValue)
+            SearchFilter(
+                logViewModel = logViewModel,
+                searchFilterResults = searchFilterValue,
+                searchFocused = { logViewModel.addSearchToCloseableView() },
+            )
         }
+
         GraphHeader(
             graphWidth = graphWidth,
             onPaddingChange = {
@@ -353,7 +360,8 @@ suspend fun scrollToUncommittedChanges(
 @Composable
 fun SearchFilter(
     logViewModel: LogViewModel,
-    searchFilterResults: LogSearch.SearchResults
+    searchFilterResults: LogSearch.SearchResults,
+    searchFocused: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     var searchFilterText by remember { mutableStateOf(logViewModel.savedSearchFilter) }
@@ -381,6 +389,11 @@ fun SearchFilter(
             modifier = Modifier
                 .fillMaxSize()
                 .focusRequester(textFieldFocusRequester)
+                .onFocusChanged {
+                    if (it.isFocused) {
+                        searchFocused()
+                    }
+                }
                 .onPreviewKeyEvent { keyEvent ->
                     when {
                         keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) -> {

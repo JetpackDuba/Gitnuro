@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -38,9 +39,11 @@ class DiffViewModel @Inject constructor(
     private val discardUnstagedHunkLineUseCase: DiscardUnstagedHunkLineUseCase,
     private val tabsManager: TabsManager,
     tabScope: CoroutineScope,
-) {
+) : AutoCloseable {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.Loading(""))
     val diffResult: StateFlow<ViewDiffResult?> = _diffResult
+
+    val closeViewFlow = tabState.closeViewFlow
 
     val diffTypeFlow = settings.textDiffTypeFlow
     val isDisplayFullFile = settings.diffDisplayFullFileFlow
@@ -92,6 +95,8 @@ class DiffViewModel @Inject constructor(
     )
 
     fun updateDiff(diffType: DiffType) {
+        addToCloseables()
+
         diffJob = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
             this.diffType = diffType
 
@@ -222,6 +227,19 @@ class DiffViewModel @Inject constructor(
 
     fun openSubmodule(path: String) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
         tabsManager.addNewTabFromPath("${git.repository.workTree}/$path", true)
+    }
+
+    fun addToCloseables() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+        tabState.addCloseableView(CloseableView.DIFF)
+    }
+
+    private fun removeFromCloseables() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+        tabState.removeCloseableView(CloseableView.DIFF)
+    }
+
+    override fun close() {
+        cancelRunningJobs()
+        removeFromCloseables()
     }
 }
 

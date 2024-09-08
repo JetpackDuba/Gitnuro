@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.animatedImages
@@ -62,6 +64,7 @@ import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.submodule.SubmoduleStatusType
@@ -93,12 +96,23 @@ fun Diff(
     val viewDiffResult = diffResultState.value ?: return
     val focusRequester = remember { FocusRequester() }
 
+    LaunchedEffect(Unit) {
+        diffViewModel.closeViewFlow.collectLatest {
+            if (it == CloseableView.DIFF) onCloseDiffView()
+        }
+    }
+
     Column(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
-            .focusable()
+            .focusable(true)
             .focusRequester(focusRequester)
+            .onFocusChanged {
+                if (it.isFocused) {
+                    diffViewModel.addToCloseables()
+                }
+            }
             .onPreviewKeyEvent { keyEvent ->
                 if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
                     onCloseDiffView()

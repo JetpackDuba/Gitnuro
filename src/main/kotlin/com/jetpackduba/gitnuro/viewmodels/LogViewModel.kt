@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.extensions.shortName
+import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.TaskEvent
@@ -122,6 +123,14 @@ class LogViewModel @Inject constructor(
                     uncommittedChangesLoadLog(tabState.git)
                 } else
                     refresh(tabState.git)
+            }
+        }
+
+        tabScope.launch {
+            tabState.closeViewFlow.collectLatest {
+                if (it == CloseableView.LOG_SEARCH) {
+                    _logSearchFilterResults.value = LogSearch.NotSearching
+                }
             }
         }
     }
@@ -325,8 +334,11 @@ class LogViewModel @Inject constructor(
             }
 
             _logSearchFilterResults.value = LogSearch.SearchResults(matchingCommits, startingUiIndex)
-        } else
+            addSearchToCloseableView()
+        } else {
             _logSearchFilterResults.value = LogSearch.SearchResults(emptyList(), NONE_MATCHING_INDEX)
+            addSearchToCloseableView()
+        }
     }
 
     suspend fun selectPreviousFilterCommit() {
@@ -347,6 +359,7 @@ class LogViewModel @Inject constructor(
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
         _focusCommit.emit(newCommitToSelect)
+        addSearchToCloseableView()
     }
 
     suspend fun selectNextFilterCommit() {
@@ -369,6 +382,7 @@ class LogViewModel @Inject constructor(
 
         _logSearchFilterResults.value = logSearchFilterResultsValue.copy(index = newIndex)
         _focusCommit.emit(newCommitToSelect)
+        addSearchToCloseableView()
     }
 
     fun showDialog(dialog: LogDialog) {
@@ -377,6 +391,15 @@ class LogViewModel @Inject constructor(
 
     fun closeSearch() {
         _logSearchFilterResults.value = LogSearch.NotSearching
+        removeSearchFromCloseableView()
+    }
+
+    fun addSearchToCloseableView() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+        tabState.addCloseableView(CloseableView.LOG_SEARCH)
+    }
+
+    private fun removeSearchFromCloseableView() = tabState.runOperation(refreshType = RefreshType.NONE) { _ ->
+        tabState.removeCloseableView(CloseableView.LOG_SEARCH)
     }
 
     fun rebaseInteractive(revCommit: RevCommit) = tabState.safeProcessing(

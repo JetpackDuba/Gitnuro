@@ -12,6 +12,8 @@ import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
@@ -54,9 +56,10 @@ class TabState @Inject constructor(
         }
 
     private val refreshData = MutableSharedFlow<RefreshType>()
-    private val closeableViews = ArrayDeque<Int>()
+    private val closeableViews = ArrayDeque<CloseableView>()
+    private val closeableViewsMutex = Mutex()
 
-    private val _closeView = MutableSharedFlow<Int>()
+    private val _closeView = MutableSharedFlow<CloseableView>()
     val closeViewFlow = _closeView.asSharedFlow()
 
     /**
@@ -311,15 +314,16 @@ class TabState @Inject constructor(
             }
     }
 
-    fun addCloseableView(id: Int) {
-        closeableViews.add(id)
+    suspend fun addCloseableView(view: CloseableView): Unit = closeableViewsMutex.withLock {
+        closeableViews.remove(view) // Remove any previous elements if present
+        closeableViews.add(view)
     }
 
-    fun removeCloseableView(id: Int) {
-        closeableViews.remove(id)
+    suspend fun removeCloseableView(view: CloseableView): Unit = closeableViewsMutex.withLock {
+        closeableViews.remove(view)
     }
 
-    suspend fun closeLastView() {
+    suspend fun closeLastView(): Unit = closeableViewsMutex.withLock {
         val last = closeableViews.removeLastOrNull()
 
         if (last != null) {
@@ -343,4 +347,9 @@ enum class RefreshType {
     UNCOMMITTED_CHANGES_AND_LOG,
     REMOTES,
     REBASE_INTERACTIVE_STATE,
+}
+
+enum class CloseableView {
+    DIFF,
+    LOG_SEARCH,
 }

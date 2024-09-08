@@ -122,8 +122,6 @@ class RepositoryOpenViewModel @Inject constructor(
             launch {
                 watchRepositoryChanges(tabState.git)
             }
-
-            launch { tabState.refreshData(RefreshType.ALL_DATA) }
         }
     }
 
@@ -252,7 +250,7 @@ class RepositoryOpenViewModel @Inject constructor(
             diffViewModel?.cancelRunningJobs()
             diffViewModel?.updateDiff(diffSelected)
         } else {
-            diffViewModel?.cancelRunningJobs()
+            diffViewModel?.close()
             diffViewModel = null // Free the view model from the memory if not being used.
         }
     }

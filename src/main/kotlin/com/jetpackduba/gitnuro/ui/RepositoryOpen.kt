@@ -105,50 +105,54 @@ fun RepositoryOpenPage(
 
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(selectedItem) {
-        focusRequester.requestFocus()
-    }
-    Column (
-        modifier = Modifier.onPreviewKeyEvent {
-            println("Key event $it")
-            when {
-                it.matchesBinding(KeybindingOption.PULL) -> {
-                    repositoryOpenViewModel.pull(PullType.DEFAULT)
-                    true
-                }
-                it.matchesBinding(KeybindingOption.PUSH) -> {
-                    repositoryOpenViewModel.push()
-                    true
-                }
-                it.matchesBinding(KeybindingOption.BRANCH_CREATE) -> {
-                    if (!showNewBranchDialog) {
-                        showNewBranchDialog = true
+    Column(
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusable(true)
+            .onPreviewKeyEvent {
+                when {
+                    it.matchesBinding(KeybindingOption.PULL) -> {
+                        repositoryOpenViewModel.pull(PullType.DEFAULT)
                         true
-                    } else {
-                        false
                     }
-                }
-                it.matchesBinding(KeybindingOption.STASH) -> {
-                    repositoryOpenViewModel.stash()
-                    true
-                }
-                it.matchesBinding(KeybindingOption.STASH_POP) -> {
-                    repositoryOpenViewModel.popStash()
-                    true
-                }
-                it.matchesBinding(KeybindingOption.EXIT) -> {
-                    repositoryOpenViewModel.closeLastView()
-                    true
-                }
-                else -> false
-            }
 
-        }
+                    it.matchesBinding(KeybindingOption.PUSH) -> {
+                        repositoryOpenViewModel.push()
+                        true
+                    }
+
+                    it.matchesBinding(KeybindingOption.BRANCH_CREATE) -> {
+                        if (!showNewBranchDialog) {
+                            showNewBranchDialog = true
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
+                    it.matchesBinding(KeybindingOption.STASH) -> {
+                        repositoryOpenViewModel.stash()
+                        true
+                    }
+
+                    it.matchesBinding(KeybindingOption.STASH_POP) -> {
+                        repositoryOpenViewModel.popStash()
+                        true
+                    }
+
+                    it.matchesBinding(KeybindingOption.EXIT) -> {
+                        repositoryOpenViewModel.closeLastView()
+                        true
+                    }
+
+                    else -> false
+                }
+
+            }
     ) {
         Row(modifier = Modifier.weight(1f)) {
             Column(
                 modifier = Modifier
-                    .focusRequester(focusRequester)
                     .focusable()
                     .onKeyEvent { keyEvent ->
                         if (keyEvent.matchesBinding(KeybindingOption.REFRESH)) {
@@ -210,6 +214,10 @@ fun RepositoryOpenPage(
             onOpenUrlInBrowser = { repositoryOpenViewModel.openUrlInBrowser(it) },
             onShowAuthorInfoDialog = { repositoryOpenViewModel.showAuthorInfoDialog() },
         )
+    }
+
+    LaunchedEffect(repositoryOpenViewModel) {
+        focusRequester.requestFocus()
     }
 }
 
