@@ -66,7 +66,7 @@ fun Modifier.handOnHover(): Modifier {
 fun Modifier.onDoubleClick(
     onDoubleClick: () -> Unit,
 ): Modifier {
-    return this.pointerInput(Unit) {
+    return this.pointerInput(onDoubleClick) {
         coroutineScope {
             awaitEachGesture {
                 // Detect first click without consuming it (other, independent handlers want it).
@@ -83,7 +83,9 @@ fun Modifier.onDoubleClick(
                     } while (change.uptimeMillis < minUptime)
                     change
                 } ?: return@awaitEachGesture
+
                 secondDown.consume()
+
                 val secondUp = waitForUpOrCancellation() ?: return@awaitEachGesture
                 secondUp.consume()
 
