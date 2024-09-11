@@ -33,6 +33,7 @@ import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesStateUi
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.PersonIdent
@@ -47,8 +48,18 @@ fun CommitChanges(
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
 ) {
+    val tabFocusRequester = LocalTabFocusRequester.current
+
     LaunchedEffect(selectedItem) {
         commitChangesViewModel.loadChanges(selectedItem.revCommit)
+    }
+
+    LaunchedEffect(commitChangesViewModel) {
+        commitChangesViewModel.showSearch.collectLatest { show ->
+            if (!show) {
+                tabFocusRequester.requestFocus()
+            }
+        }
     }
 
     val commitChangesStatus = commitChangesViewModel.commitChangesStateUi.collectAsState().value
