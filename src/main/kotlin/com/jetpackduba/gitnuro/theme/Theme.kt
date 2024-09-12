@@ -9,9 +9,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
+import kotlinx.coroutines.flow.MutableStateFlow
 
 private val defaultAppTheme: ColorsScheme = darkBlueTheme
-private var appTheme: ColorsScheme = defaultAppTheme
+private var appTheme: MutableStateFlow<ColorsScheme> = MutableStateFlow(defaultAppTheme)
 internal val LocalLinesHeight = compositionLocalOf { spacedLineHeight }
 
 class LinesHeight internal constructor(
@@ -60,7 +61,7 @@ fun AppTheme(
         LinesHeightType.COMPACT -> compactLineHeight
     }
 
-    appTheme = theme
+    appTheme.value = theme
 
     val composeColors = theme.toComposeColors()
     val compositionValues = arrayOf(LocalLinesHeight provides lineHeight)
@@ -80,57 +81,78 @@ val MaterialTheme.linesHeight: LinesHeight
     @ReadOnlyComposable
     get() = LocalLinesHeight.current
 
+
+private val theme: ColorsScheme
+    @Composable
+    get() = appTheme.collectAsState().value
+
 val Colors.backgroundSelected: Color
-    get() = appTheme.backgroundSelected
+    @Composable
+    get() = theme.backgroundSelected
 
 val Colors.onBackgroundSecondary: Color
-    get() = appTheme.onBackgroundSecondary
+    @Composable
+    get() = theme.onBackgroundSecondary
 
 val Colors.secondarySurface: Color
-    get() = appTheme.secondarySurface
+    @Composable
+    get() = theme.secondarySurface
 
 val Colors.tertiarySurface: Color
-    get() = appTheme.tertiarySurface
-
+    @Composable
+    get() = theme.tertiarySurface
 
 val Colors.addFile: Color
-    get() = appTheme.addFile
+    @Composable
+    get() = theme.addFile
 
 val Colors.deleteFile: Color
-    get() = appTheme.deletedFile
+    @Composable
+    get() = theme.deletedFile
 
 val Colors.modifyFile: Color
-    get() = appTheme.modifiedFile
+    @Composable
+    get() = theme.modifiedFile
 
 val Colors.conflictFile: Color
-    get() = appTheme.conflictingFile
+    @Composable
+    get() = theme.conflictingFile
 
 val Colors.abortButton: Color
-    get() = appTheme.error
+    @Composable
+    get() = theme.error
 
 val Colors.scrollbarNormal: Color
-    get() = appTheme.normalScrollbar
+    @Composable
+    get() = theme.normalScrollbar
 
 val Colors.scrollbarHover: Color
-    get() = appTheme.hoverScrollbar
+    @Composable
+    get() = theme.hoverScrollbar
 
 val Colors.dialogOverlay: Color
-    get() = appTheme.dialogOverlay
+    @Composable
+    get() = theme.dialogOverlay
 
 val Colors.diffLineAdded: Color
-    get() = appTheme.diffLineAdded
+    @Composable
+    get() = theme.diffLineAdded
 
 val Colors.diffLineRemoved: Color
-    get() = appTheme.diffLineRemoved
+    @Composable
+    get() = theme.diffLineRemoved
 
 val Colors.diffKeyword: Color
-    get() = appTheme.diffKeyword
+    @Composable
+    get() = theme.diffKeyword
 
 val Colors.diffAnnotation: Color
-    get() = appTheme.diffAnnotation
+    @Composable
+    get() = theme.diffAnnotation
 
 val Colors.diffComment: Color
-    get() = appTheme.diffComment
+    @Composable
+    get() = theme.diffComment
 
 val Colors.isDark: Boolean
     get() = !this.isLight
