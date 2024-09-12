@@ -67,6 +67,11 @@ enum class KeybindingOption {
      * Used to pop stash changes to workspace
      */
     STASH_POP,
+
+    /**
+     * Used to pop stash changes to workspace
+     */
+    OPEN_ANOTHER_REPOSITORY,
 }
 
 
@@ -105,6 +110,9 @@ private fun baseKeybindings() = mapOf(
     ),
     KeybindingOption.STASH_POP to listOf(
         Keybinding(key = Key.S, control = true, shift = true),
+    ),
+    KeybindingOption.OPEN_ANOTHER_REPOSITORY to listOf(
+        Keybinding(key = Key.O, control = true),
     ),
 )
 

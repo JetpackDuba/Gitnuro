@@ -10,10 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -108,13 +106,13 @@ fun RepositoryOpenPage(
     }
 
     val focusRequester = remember { FocusRequester() }
+    var showOpenPopup by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusable(true)
             .onPreviewKeyEvent {
-                println("onPreviewKeyEvent: $it")
                 when {
                     it.matchesBinding(KeybindingOption.PULL) -> {
                         repositoryOpenViewModel.pull(PullType.DEFAULT)
@@ -155,6 +153,11 @@ fun RepositoryOpenPage(
                         true
                     }
 
+                    it.matchesBinding(KeybindingOption.OPEN_ANOTHER_REPOSITORY) -> {
+                        showOpenPopup = true
+                        true
+                    }
+
                     else -> false
                 }
 
@@ -182,7 +185,9 @@ fun RepositoryOpenPage(
                         }
                     },
                     onQuickActions = { showQuickActionsDialog = true },
-                    onShowSettingsDialog = onShowSettingsDialog
+                    onShowSettingsDialog = onShowSettingsDialog,
+                    showOpenPopup = showOpenPopup,
+                    onShowOpenPopupChange = { showOpenPopup = it }
                 )
 
                 RepoContent(

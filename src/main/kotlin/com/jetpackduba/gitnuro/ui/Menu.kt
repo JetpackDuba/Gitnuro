@@ -50,12 +50,12 @@ fun Menu(
     onStashWithMessage: () -> Unit,
     onQuickActions: () -> Unit,
     onShowSettingsDialog: () -> Unit,
+    showOpenPopup: Boolean,
+    onShowOpenPopupChange: (Boolean) -> Unit,
 ) {
     val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState()
     val lastLoadedTabs by menuViewModel.lastLoadedTabs.collectAsState()
     val (position, setPosition) = remember { mutableStateOf<LayoutCoordinates?>(null) }
-    var showOpenPopup by remember { mutableStateOf(false) }
-
 
     Row(
         modifier = modifier,
@@ -72,7 +72,7 @@ fun Menu(
                     .onGloballyPositioned { setPosition(it) },
                 title = "Open",
                 icon = painterResource(AppIcons.OPEN),
-                onClick = { showOpenPopup = true },
+                onClick = { onShowOpenPopupChange(true) },
             )
         }
 
@@ -207,7 +207,7 @@ fun Menu(
                     return IntOffset(boundsInRoot.left.toInt(), boundsInRoot.bottom.toInt())
                 }
             },
-            onDismissRequest = { showOpenPopup = false },
+            onDismissRequest = { onShowOpenPopupChange(false) },
             properties = PopupProperties(focusable = true),
         ) {
             val searchFocusRequester = remember { FocusRequester() }
@@ -223,7 +223,7 @@ fun Menu(
                 PrimaryButton(
                     text = "Open a repository",
                     onClick = {
-                        showOpenPopup = false
+                        onShowOpenPopupChange(false)
                         onOpenAnotherRepositoryFromPicker()
                     },
                     modifier = Modifier
@@ -237,7 +237,7 @@ fun Menu(
                         searchFieldFocusRequester = searchFocusRequester,
                         onRemoveRepositoryFromRecent = {},
                         onOpenKnownRepository = {
-                            showOpenPopup = false
+                            onShowOpenPopupChange(false)
                             onOpenAnotherRepository(it)
                         },
                     )
