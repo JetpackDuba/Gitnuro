@@ -12,7 +12,7 @@ class HandleTransportUseCase @Inject constructor(
     private val sessionManager: GSessionManager,
     private val httpCredentialsProvider: HttpCredentialsFactory,
 ) {
-    suspend operator fun invoke(git: Git?, block: suspend CredentialsHandler.() -> Unit) {
+    suspend operator fun <R> invoke(git: Git?, block: suspend CredentialsHandler.() -> R): R {
         var cache: CredentialsCache? = null
 
         val credentialsHandler = object : CredentialsHandler {
@@ -37,8 +37,10 @@ class HandleTransportUseCase @Inject constructor(
             }
         }
 
-        credentialsHandler.block()
+        val result = credentialsHandler.block()
         cache?.cacheCredentialsIfNeeded()
+
+        return result
     }
 }
 

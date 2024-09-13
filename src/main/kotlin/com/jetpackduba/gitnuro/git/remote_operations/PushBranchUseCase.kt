@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.git.branches.GetTrackingBranchUseCase
+import com.jetpackduba.gitnuro.git.branches.SetTrackingBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.TrackingBranch
 import com.jetpackduba.gitnuro.git.isRejected
 import com.jetpackduba.gitnuro.git.statusMessage
@@ -14,23 +15,36 @@ import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.transport.RefLeaseSpec
 import org.eclipse.jgit.transport.RefSpec
 import javax.inject.Inject
+import kotlin.math.max
 
 class PushBranchUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
     private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
+    private val setTrackingBranchUseCase: SetTrackingBranchUseCase,
     private val appSettingsRepository: AppSettingsRepository,
 ) {
-    // TODO This use case should also set the tracking branch to the new remote branch
     suspend operator fun invoke(git: Git, force: Boolean, pushTags: Boolean) = withContext(Dispatchers.IO) {
-        val currentBranch = git.repository.fullBranch
-        val tracking = getTrackingBranchUseCase(git, git.repository.branch)
+        val currentBranch = git.repository.branch
+        val fullCurrentBranch = git.repository.fullBranch
+
+        val tracking = getTrackingBranchUseCase(git, currentBranch)
         val refSpecStr = if (tracking != null) {
-            "$currentBranch:${Constants.R_HEADS}${tracking.branch}"
+            "$fullCurrentBranch:${Constants.R_HEADS}${tracking.branch}"
         } else {
-            currentBranch
+            fullCurrentBranch
         }
-        handleTransportUseCase(git) {
+
+        val remoteRefUpdate = handleTransportUseCase(git) {
             push(git, tracking, refSpecStr, force, pushTags)
+        }
+
+
+        if (tracking == null && remoteRefUpdate != null) {
+            // [remoteRefUpdate.trackingRefUpdate.localName] should have the following format: refs/remotes/REMOTE_NAME/BRANCH_NAME
+            val remoteBranchPathSplit = remoteRefUpdate.trackingRefUpdate.localName.split("/")
+            val remoteName = remoteBranchPathSplit.getOrNull(2)
+            val remoteBranchName = remoteBranchPathSplit.takeLast(max(0, remoteBranchPathSplit.count() - 3)).joinToString("/")
+            setTrackingBranchUseCase(git, currentBranch, remoteName, remoteBranchName)
         }
     }
 
@@ -117,5 +131,7 @@ class PushBranchUseCase @Inject constructor(
 
             throw Exception(error.toString())
         }
+
+        return@withContext pushResult.firstOrNull()?.remoteUpdates?.firstOrNull()
     }
 }
