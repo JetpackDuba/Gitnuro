@@ -124,42 +124,42 @@ jobs:
             Output/Gitnuro*.zip
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
-  build_macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: nightly
-      - run: cargo install cargo-kotars --git https://github.com/JetpackDuba/kotars
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'corretto'
-          architecture: x64
-      - name: Build with Gradle
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-        with:
-          arguments: createDistributable
-      - name: Create output directory
-        run: mkdir Output
-      - name: MacOS DMG
-        working-directory: build/compose/binaries/main/app/
-        run: zip -r ../../../../../Output/Gitnuro_macos_${{github.ref_name}}.zip .
-      - name: Generate SHA256 Checksum
-        working-directory: ./Output/
-        run: find . -type f -exec bash -c "shasum -a 256 {}  > {}.sum " \;
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          body: "Beta release"
-          prerelease: true
-          draft: true
-          repository: JetpackDuba/Gitnuro
-          with:
-          files: |
-            Output/Gitnuro*.zip
-            Output/Gitnuro*.sum
-          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+#  build_macos:
+#    runs-on: macos-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: dtolnay/rust-toolchain@stable
+#        with:
+#          toolchain: nightly
+#      - run: cargo install cargo-kotars --git https://github.com/JetpackDuba/kotars
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v3
+#        with:
+#          java-version: '17'
+#          distribution: 'corretto'
+#          architecture: x64
+#      - name: Build with Gradle
+#        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+#        with:
+#          arguments: createDistributable
+#      - name: Create output directory
+#        run: mkdir Output
+#      - name: MacOS DMG
+#        working-directory: build/compose/binaries/main/app/
+#        run: zip -r ../../../../../Output/Gitnuro_macos_${{github.ref_name}}.zip .
+#      - name: Generate SHA256 Checksum
+#        working-directory: ./Output/
+#        run: find . -type f -exec bash -c "shasum -a 256 {}  > {}.sum " \;
+#      - name: Release
+#        uses: softprops/action-gh-release@v2
+#        if: startsWith(github.ref, 'refs/tags/')
+#        with:
+#          body: "Beta release"
+#          prerelease: true
+#          draft: true
+#          repository: JetpackDuba/Gitnuro
+#          with:
+#          files: |
+#            Output/Gitnuro*.zip
+#            Output/Gitnuro*.sum
+#          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
