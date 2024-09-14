@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
+import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.diff.Diff

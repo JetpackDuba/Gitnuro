@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Density
@@ -25,6 +26,8 @@ import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
+import com.jetpackduba.gitnuro.keybindings.KeybindingOption
+import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
@@ -271,7 +274,38 @@ class App {
 
         if (currentTab != null) {
             Column(
-                modifier = Modifier.background(MaterialTheme.colors.background)
+                modifier = Modifier
+                    .background(MaterialTheme.colors.background)
+                    .onPreviewKeyEvent {
+                        when {
+                            it.matchesBinding(KeybindingOption.OPEN_NEW_TAB) -> {
+                                tabsManager.addNewEmptyTab()
+                                true
+                            }
+
+                            it.matchesBinding(KeybindingOption.CLOSE_CURRENT_TAB) -> {
+                                tabsManager.closeTab(currentTab)
+                                true
+                            }
+
+                            it.matchesBinding(KeybindingOption.CHANGE_CURRENT_TAB_LEFT) -> {
+                                val tabToSelect = tabs.getOrNull(tabs.indexOf(currentTab) - 1)
+                                if (tabToSelect != null) {
+                                    tabsManager.selectTab(tabToSelect)
+                                }
+                                true
+                            }
+
+                            it.matchesBinding(KeybindingOption.CHANGE_CURRENT_TAB_RIGHT) -> {
+                                val tabToSelect = tabs.getOrNull(tabs.indexOf(currentTab) + 1)
+                                if (tabToSelect != null) {
+                                    tabsManager.selectTab(tabToSelect)
+                                }
+                                true
+                            }
+                            else -> false
+                        }
+                    }
             ) {
                 Tabs(
                     tabsInformationList = tabs,

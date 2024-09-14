@@ -72,6 +72,26 @@ enum class KeybindingOption {
      * Used to pop stash changes to workspace
      */
     OPEN_ANOTHER_REPOSITORY,
+
+    /**
+     * Used to open a new tab
+     */
+    OPEN_NEW_TAB,
+
+    /**
+     * Used to close current tab
+     */
+    CLOSE_CURRENT_TAB,
+
+    /**
+     * Used to change current tab to the one in the left
+     */
+    CHANGE_CURRENT_TAB_LEFT,
+
+    /**
+     * Used to change current tab to the one in the right
+     */
+    CHANGE_CURRENT_TAB_RIGHT,
 }
 
 
@@ -113,6 +133,18 @@ private fun baseKeybindings() = mapOf(
     ),
     KeybindingOption.OPEN_ANOTHER_REPOSITORY to listOf(
         Keybinding(key = Key.O, control = true),
+    ),
+    KeybindingOption.OPEN_NEW_TAB to listOf(
+        Keybinding(key = Key.T, control = true),
+    ),
+    KeybindingOption.CLOSE_CURRENT_TAB to listOf(
+        Keybinding(key = Key.W, control = true),
+    ),
+    KeybindingOption.CHANGE_CURRENT_TAB_LEFT to listOf(
+        Keybinding(key = Key.DirectionLeft, alt = true),
+    ),
+    KeybindingOption.CHANGE_CURRENT_TAB_RIGHT to listOf(
+        Keybinding(key = Key.DirectionRight, alt = true),
     ),
 )
 

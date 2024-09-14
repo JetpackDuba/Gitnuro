@@ -25,7 +25,9 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -119,10 +121,12 @@ fun WelcomeView(
 ) {
 
     var showAdditionalInfo by remember { mutableStateOf(false) }
+    val searchFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .focusable(true)
             .background(MaterialTheme.colors.surface),
     ) {
 
@@ -156,6 +160,7 @@ fun WelcomeView(
                     canRepositoriesBeRemoved = true,
                     onOpenKnownRepository = onOpenKnownRepository,
                     onRemoveRepositoryFromRecent = onRemoveRepositoryFromRecent,
+                    searchFieldFocusRequester = searchFocusRequester,
                 )
             }
         }
@@ -171,6 +176,10 @@ fun WelcomeView(
             newUpdate = newUpdate,
             onOpenUrlInBrowser = onOpenUrlInBrowser,
         )
+    }
+
+    LaunchedEffect(Unit) {
+        searchFocusRequester.requestFocus()
     }
 
     if (showAdditionalInfo) {
@@ -287,6 +296,7 @@ fun RecentRepositories(
     canRepositoriesBeRemoved: Boolean,
     onRemoveRepositoryFromRecent: (String) -> Unit,
     onOpenKnownRepository: (String) -> Unit,
+    searchFieldFocusRequester: FocusRequester,
 ) {
     Column(
         modifier = Modifier
@@ -307,6 +317,7 @@ fun RecentRepositories(
                 canRepositoriesBeRemoved = canRepositoriesBeRemoved,
                 onRemoveRepositoryFromRecent = onRemoveRepositoryFromRecent,
                 onOpenKnownRepository = onOpenKnownRepository,
+                searchFieldFocusRequester = searchFieldFocusRequester,
             )
         }
     }
@@ -316,7 +327,7 @@ fun RecentRepositories(
 fun RecentRepositoriesList(
     recentlyOpenedRepositories: List<String>,
     canRepositoriesBeRemoved: Boolean,
-    searchFieldFocusRequester: FocusRequester = remember { FocusRequester() },
+    searchFieldFocusRequester: FocusRequester,
     onRemoveRepositoryFromRecent: (String) -> Unit,
     onOpenKnownRepository: (String) -> Unit,
 ) {
@@ -346,7 +357,7 @@ fun RecentRepositoriesList(
                 return@onPreviewKeyEvent false
             }
 
-            when  {
+            when {
                 it.matchesBinding(KeybindingOption.DOWN) -> {
                     if (focusedItemIndex < filteredRepositories.lastIndex) {
                         focusedItemIndex += 1
