@@ -2,16 +2,10 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TaskType
-import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
-import com.jetpackduba.gitnuro.credentials.CredentialsState
-import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.exceptions.WatcherInitException
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.git.repository.InitLocalRepositoryUseCase
-import com.jetpackduba.gitnuro.git.repository.OpenRepositoryUseCase
-import com.jetpackduba.gitnuro.git.repository.OpenSubmoduleRepositoryUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
 import com.jetpackduba.gitnuro.git.workspace.StageUntrackedFileUseCase
 import com.jetpackduba.gitnuro.logging.printDebug
@@ -31,16 +25,20 @@ import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.blame.BlameResult
-import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import java.awt.Desktop
-import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -61,6 +59,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val tabState: TabState,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: FileChangesWatcher,
+    private val getAuthorInfoUseCase: GetAuthorInfoUseCase,
     private val createBranchUseCase: CreateBranchUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
@@ -138,13 +137,8 @@ class RepositoryOpenViewModel @Inject constructor(
         tabsManager.addNewTabFromPath(directory, true, getWorkspacePathUseCase(git))
     }
 
-    private fun loadAuthorInfo(git: Git) {
-        val config = git.repository.config
-        config.load()
-        val userName = config.getString("user", null, "name")
-        val email = config.getString("user", null, "email")
-
-        _authorInfoSimple.value = AuthorInfoSimple(userName, email)
+    private suspend fun loadAuthorInfo(git: Git) {
+        _authorInfoSimple.value = getAuthorInfoUseCase(git)
     }
 
     fun showAuthorInfoDialog() {
