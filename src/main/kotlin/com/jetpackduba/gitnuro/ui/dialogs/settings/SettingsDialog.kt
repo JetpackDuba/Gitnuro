@@ -390,7 +390,7 @@ fun Terminal(settingsViewModel: SettingsViewModel) {
 fun Logs(settingsViewModel: SettingsViewModel) {
     SettingButton(
         title = "Logs",
-        subtitle = "View the logs folder",
+        subtitle = "Open the logs folder",
         buttonText = "Open folder",
         onClick = {
             settingsViewModel.openLogsFolderInFileExplorer()
