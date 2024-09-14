@@ -75,8 +75,6 @@ class TabViewModel @Inject constructor(
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
-    val repositoryOpenViewModel: RepositoryOpenViewModel = repositoryOpenViewModelProvider.get()
-
     private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
         get() = _repositorySelectionStatus
@@ -115,7 +113,6 @@ class TabViewModel @Inject constructor(
             }
 
             repository.workTree // test if repository is valid
-            _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repository)
 
             val path = if (directory.name == ".git") {
                 directory.parent
@@ -126,6 +123,9 @@ class TabViewModel @Inject constructor(
 
             val git = Git(repository)
             tabState.initGit(git)
+
+            _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repositoryOpenViewModelProvider.get())
+
             tabState.refreshData(RefreshType.ALL_DATA)
         } catch (ex: Exception) {
             onRepositoryChanged(null)
@@ -196,5 +196,5 @@ class TabViewModel @Inject constructor(
 sealed class RepositorySelectionStatus {
     data object None : RepositorySelectionStatus()
     data class Opening(val path: String) : RepositorySelectionStatus()
-    data class Open(val repository: Repository) : RepositorySelectionStatus()
+    data class Open(val viewModel: RepositoryOpenViewModel) : RepositorySelectionStatus()
 }

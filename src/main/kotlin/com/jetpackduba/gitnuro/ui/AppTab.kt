@@ -94,7 +94,7 @@ fun AppTab(
 
                         is RepositorySelectionStatus.Open -> {
                             RepositoryOpenPage(
-                                repositoryOpenViewModel = tabViewModel.repositoryOpenViewModel,
+                                repositoryOpenViewModel = repositorySelectionStatusValue.viewModel,
                                 onShowSettingsDialog = { showSettingsDialog = true },
                                 onShowCloneDialog = { showCloneDialog = true },
                             )
