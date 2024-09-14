@@ -69,9 +69,9 @@ enum class KeybindingOption {
     STASH_POP,
 
     /**
-     * Used to pop stash changes to workspace
+     * Used to open a repository
      */
-    OPEN_ANOTHER_REPOSITORY,
+    OPEN_REPOSITORY,
 
     /**
      * Used to open a new tab
@@ -131,7 +131,7 @@ private fun baseKeybindings() = mapOf(
     KeybindingOption.STASH_POP to listOf(
         Keybinding(key = Key.S, control = true, shift = true),
     ),
-    KeybindingOption.OPEN_ANOTHER_REPOSITORY to listOf(
+    KeybindingOption.OPEN_REPOSITORY to listOf(
         Keybinding(key = Key.O, control = true),
     ),
     KeybindingOption.OPEN_NEW_TAB to listOf(

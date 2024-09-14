@@ -130,6 +130,15 @@ fun WelcomeView(
             .focusable(true)
             .focusRequester(welcomeViewFocusRequester)
             .background(MaterialTheme.colors.surface)
+            .onPreviewKeyEvent {
+                when {
+                    it.matchesBinding(KeybindingOption.OPEN_REPOSITORY) -> {
+                        onOpenRepository()
+                        true
+                    }
+                    else -> false
+                }
+            },
     ) {
 
         Column(
