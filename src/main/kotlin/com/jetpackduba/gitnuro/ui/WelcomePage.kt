@@ -122,12 +122,14 @@ fun WelcomeView(
 
     var showAdditionalInfo by remember { mutableStateOf(false) }
     val searchFocusRequester = remember { FocusRequester() }
+    val welcomeViewFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .focusable(true)
-            .background(MaterialTheme.colors.surface),
+            .focusRequester(welcomeViewFocusRequester)
+            .background(MaterialTheme.colors.surface)
     ) {
 
         Column(
@@ -178,8 +180,12 @@ fun WelcomeView(
         )
     }
 
-    LaunchedEffect(Unit) {
-        searchFocusRequester.requestFocus()
+    LaunchedEffect(recentlyOpenedRepositories.isEmpty()) {
+        if (recentlyOpenedRepositories.isEmpty()) {
+            welcomeViewFocusRequester.requestFocus()
+        } else {
+            searchFocusRequester.requestFocus()
+        }
     }
 
     if (showAdditionalInfo) {
