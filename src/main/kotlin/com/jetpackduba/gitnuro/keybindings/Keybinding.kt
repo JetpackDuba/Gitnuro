@@ -142,9 +142,11 @@ private fun baseKeybindings() = mapOf(
     ),
     KeybindingOption.CHANGE_CURRENT_TAB_LEFT to listOf(
         Keybinding(key = Key.DirectionLeft, alt = true),
+        Keybinding(key = Key.Tab, control = true, shift = true),
     ),
     KeybindingOption.CHANGE_CURRENT_TAB_RIGHT to listOf(
         Keybinding(key = Key.DirectionRight, alt = true),
+        Keybinding(key = Key.Tab, control = true),
     ),
 )
 
@@ -155,10 +157,26 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
     val macBindings = baseKeybindings().toMutableMap()
 
     macBindings.apply {
-        this[KeybindingOption.REFRESH] = listOf(
-            Keybinding(key = Key.F5),
-            Keybinding(meta = true, key = Key.R),
+        val keysToReplaceControlWithCommand = listOf(
+            KeybindingOption.REFRESH,
+            KeybindingOption.PULL,
+            KeybindingOption.PUSH,
+            KeybindingOption.BRANCH_CREATE,
+            KeybindingOption.STASH,
+            KeybindingOption.STASH_POP,
+            KeybindingOption.OPEN_REPOSITORY,
+            KeybindingOption.OPEN_NEW_TAB,
+            KeybindingOption.CLOSE_CURRENT_TAB,
         )
+
+        for (key in keysToReplaceControlWithCommand) {
+            val originalKeybindings = this[key] ?: emptyList()
+            val newKeybindings = originalKeybindings.map {
+                it.copy(meta = it.control, control = false)
+            }
+
+            this[key] = newKeybindings
+        }
     }
 
     return macBindings
@@ -186,3 +204,6 @@ fun KeyEvent.matchesBinding(keybindingOption: KeybindingOption): Boolean {
                 keybinding.key == this.key
     } && this.type == KeyEventType.KeyDown
 }
+
+val KeybindingOption.keyBinding
+    get() = keybindings[this]?.firstOrNull()

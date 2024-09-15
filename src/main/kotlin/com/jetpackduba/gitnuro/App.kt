@@ -287,6 +287,7 @@ class App {
                 modifier = Modifier
                     .background(MaterialTheme.colors.background)
                     .onPreviewKeyEvent {
+                        println(it.toString())
                         when {
                             it.matchesBinding(KeybindingOption.OPEN_NEW_TAB) -> {
                                 tabsManager.addNewEmptyTab()

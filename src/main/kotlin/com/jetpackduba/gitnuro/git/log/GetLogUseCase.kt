@@ -42,7 +42,8 @@ class GetLogUseCase @Inject constructor() {
 
                     if (hasUncommittedChanges)
                         commitList.addUncommittedChangesGraphCommit(logList.first())
-
+//                    val count = walk.count()
+//                    println("Commits list count is $count")
                     commitList.source(walk)
                 }
                 commitList.fillTo(commitsLimit)

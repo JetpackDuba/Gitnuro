@@ -2,6 +2,7 @@
 
 package com.jetpackduba.gitnuro.ui
 
+import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,10 +21,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
@@ -34,6 +37,11 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
+import com.jetpackduba.gitnuro.keybindings.Keybinding
+import com.jetpackduba.gitnuro.keybindings.KeybindingOption
+import com.jetpackduba.gitnuro.keybindings.keyBinding
+import com.jetpackduba.gitnuro.theme.notoSansMonoFontFamily
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
@@ -62,19 +70,17 @@ fun Menu(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        InstantTooltip(
-            text = "Open a different repository",
-            enabled = !showOpenPopup,
-        ) {
-            MenuButton(
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .onGloballyPositioned { setPosition(it) },
-                title = "Open",
-                icon = painterResource(AppIcons.OPEN),
-                onClick = { onShowOpenPopupChange(true) },
-            )
-        }
+        MenuButton(
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .onGloballyPositioned { setPosition(it) },
+            title = "Open",
+            icon = painterResource(AppIcons.OPEN),
+            keybinding = KeybindingOption.OPEN_REPOSITORY.keyBinding,
+            tooltip = "Open a different repository",
+            tooltipEnabled = !showOpenPopup,
+            onClick = { onShowOpenPopupChange(true) },
+        )
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -126,16 +132,15 @@ fun Menu(
 
         Spacer(modifier = Modifier.width(32.dp))
 
-        InstantTooltip(
-            text = "Create a new branch",
-        ) {
-            MenuButton(
-                title = "Branch",
-                icon = painterResource(AppIcons.BRANCH),
-            ) {
+        MenuButton(
+            title = "Branch",
+            icon = painterResource(AppIcons.BRANCH),
+            onClick = {
                 onCreateBranch()
-            }
-        }
+            },
+            tooltip = "Create a new branch",
+            keybinding = KeybindingOption.BRANCH_CREATE.keyBinding,
+        )
 
 
         Spacer(modifier = Modifier.width(32.dp))
@@ -151,43 +156,42 @@ fun Menu(
             )
         )
 
-        InstantTooltip(
-            text = "Pop the last stash"
-        ) {
-            MenuButton(
-                title = "Pop",
-                icon = painterResource(AppIcons.APPLY_STASH),
-            ) { menuViewModel.popStash() }
-        }
+        MenuButton(
+            title = "Pop",
+            icon = painterResource(AppIcons.APPLY_STASH),
+            keybinding = KeybindingOption.STASH_POP.keyBinding,
+            tooltip = "Pop the last stash",
+        ) { menuViewModel.popStash() }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        InstantTooltip(
-            text = "Open a terminal in the repository's path"
-        ) {
-            MenuButton(
-                modifier = Modifier.padding(end = 4.dp),
-                title = "Terminal",
-                icon = painterResource(AppIcons.TERMINAL),
-                onClick = { menuViewModel.openTerminal() },
-            )
-        }
+        MenuButton(
+            modifier = Modifier.padding(end = 4.dp),
+            title = "Terminal",
+            icon = painterResource(AppIcons.TERMINAL),
+            onClick = { menuViewModel.openTerminal() },
+            tooltip = "Open a terminal in the repository's path",
+            keybinding = null,
+        )
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
             title = "Actions",
             icon = painterResource(AppIcons.BOLT),
             onClick = onQuickActions,
+            tooltip = "Additional actions",
+            keybinding = null,
         )
 
-        InstantTooltip(
-            text = "Gitnuro's settings",
+        Box(
             modifier = Modifier.padding(end = 16.dp)
         ) {
             MenuButton(
                 title = "Settings",
                 icon = painterResource(AppIcons.SETTINGS),
                 onClick = onShowSettingsDialog,
+                tooltip = "Gitnuro's settings",
+                keybinding = KeybindingOption.STASH_POP.keyBinding,
             )
         }
     }
@@ -257,33 +261,135 @@ fun MenuButton(
     enabled: Boolean = true,
     title: String,
     icon: Painter,
-    onClick: () -> Unit
+    keybinding: Keybinding?,
+    tooltip: String,
+    tooltipEnabled: Boolean = true,
+    onClick: () -> Unit,
 ) {
-    Column(
-        modifier = modifier
-            .ignoreKeyEvents()
-            .clip(RoundedCornerShape(4.dp))
-            .background(MaterialTheme.colors.surface)
-            .handMouseClickable { if (enabled) onClick() }
-            .size(56.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    InstantTooltip(
+        text = tooltip,
+        enabled = tooltipEnabled,
+        trailingContent = if (keybinding != null) {
+            { KeybindingHint(keybinding) }
+        } else {
+            null
+        }
     ) {
-        Icon(
-            painter = icon,
-            contentDescription = title,
-            modifier = Modifier
-                .size(24.dp),
-            tint = MaterialTheme.colors.onBackground,
-        )
-        Text(
-            text = title,
-            style = MaterialTheme.typography.caption,
-            maxLines = 1,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colors.onBackground,
-        )
+        Column(
+            modifier = modifier
+                .ignoreKeyEvents()
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colors.surface)
+                .handMouseClickable { if (enabled) onClick() }
+                .size(56.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                painter = icon,
+                contentDescription = title,
+                modifier = Modifier
+                    .size(24.dp),
+                tint = MaterialTheme.colors.onBackground,
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.caption,
+                maxLines = 1,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.onBackground,
+            )
+        }
     }
+}
+
+@Composable
+fun KeybindingHint(keybinding: Keybinding) {
+    val parts = remember(keybinding) { getParts(keybinding) }.joinToString("+")
+
+    Text(
+        parts,
+        fontFamily = notoSansMonoFontFamily,
+        fontSize = MaterialTheme.typography.caption.fontSize,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colors.onBackgroundSecondary,
+    )
+}
+
+@Preview
+@Composable
+fun KeybindingHintPartPreview() {
+    KeybindingHintPart("CTRL")
+}
+
+@Composable
+fun KeybindingHintPart(part: String) {
+    Text(
+        text = part,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colors.primary,
+        modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .border(2.dp, MaterialTheme.colors.primary, RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.primary.copy(alpha = 0.05f))
+            .padding(horizontal = 4.dp, vertical = 4.dp)
+
+    )
+}
+
+fun getParts(keybinding: Keybinding): List<String> {
+    val parts = mutableListOf<String>()
+
+    if (keybinding.control) {
+        parts.add("Ctrl")
+    }
+
+    if (keybinding.meta) {
+        parts.add("⌘")
+    }
+
+    if (keybinding.alt) {
+        parts.add("Alt")
+    }
+
+    if (keybinding.shift) {
+        parts.add("Shift")
+    }
+
+    val key = when (keybinding.key) {
+        Key.A -> "A"
+        Key.B -> "B"
+        Key.C -> "C"
+        Key.D -> "D"
+        Key.E -> "E"
+        Key.F -> "F"
+        Key.G -> "G"
+        Key.H -> "H"
+        Key.I -> "I"
+        Key.J -> "J"
+        Key.K -> "K"
+        Key.L -> "L"
+        Key.M -> "M"
+        Key.N -> "N"
+        Key.O -> "O"
+        Key.P -> "P"
+        Key.Q -> "Q"
+        Key.R -> "R"
+        Key.S -> "S"
+        Key.T -> "T"
+        Key.U -> "U"
+        Key.V -> "V"
+        Key.W -> "W"
+        Key.X -> "X"
+        Key.Y -> "Y"
+        Key.Z -> "Z"
+        Key.Tab -> "Tab"
+        else -> throw NotImplementedError("Key not implemented")
+    }
+
+    parts.add(key)
+
+    return parts
 }
 
 @Composable

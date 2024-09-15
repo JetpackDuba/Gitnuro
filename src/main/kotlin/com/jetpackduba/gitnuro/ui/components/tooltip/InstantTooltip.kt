@@ -28,6 +28,7 @@ import com.jetpackduba.gitnuro.theme.isDark
 @Composable
 fun InstantTooltip(
     text: String?,
+    trailingContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier,
     position: InstantTooltipPosition = InstantTooltipPosition.BOTTOM,
     enabled: Boolean = true,
@@ -71,14 +72,14 @@ fun InstantTooltip(
             onDismissRequest = {}
         ) {
 
-            val padding = when(position) {
+            val padding = when (position) {
                 InstantTooltipPosition.TOP -> PaddingValues(bottom = 4.dp)
                 InstantTooltipPosition.BOTTOM -> PaddingValues(top = 4.dp)
                 InstantTooltipPosition.LEFT -> PaddingValues(end = 4.dp)
                 InstantTooltipPosition.RIGHT -> PaddingValues(start = 4.dp)
             }
 
-            Box(
+            Row(
                 modifier = Modifier
                     .padding(padding)
                     .shadow(8.dp)
@@ -94,15 +95,21 @@ fun InstantTooltip(
                             )
                         } else
                             this
-                    },
+                    }
+                    .padding(8.dp),
             ) {
                 Text(
                     text = text,
                     fontSize = 12.sp,
                     maxLines = 1,
-                    color = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.padding(8.dp)
+                    color = MaterialTheme.colors.onBackground
                 )
+
+                if (trailingContent != null) {
+                    Spacer(Modifier.width(8.dp))
+
+                    trailingContent()
+                }
             }
         }
     }
