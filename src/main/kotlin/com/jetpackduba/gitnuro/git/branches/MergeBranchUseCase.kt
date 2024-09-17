@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.git.branches
 
-import com.jetpackduba.gitnuro.exceptions.ConflictsException
 import com.jetpackduba.gitnuro.exceptions.UncommittedChangesDetectedException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

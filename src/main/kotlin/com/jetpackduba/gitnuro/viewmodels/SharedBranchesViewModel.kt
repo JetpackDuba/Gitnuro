@@ -74,8 +74,10 @@ class SharedBranchesViewModel @Inject constructor(
         taskType = TaskType.REBASE_BRANCH,
         refreshEvenIfCrashes = true,
     ) { git ->
-        rebaseBranchUseCase(git, ref)
-
-        positiveNotification("\"${ref.simpleName}\" rebased")
+        if (rebaseBranchUseCase(git, ref)) {
+            warningNotification("Rebase produced conflicts, please fix them to continue.")
+        } else {
+            positiveNotification("\"${ref.simpleName}\" rebased")
+        }
     }
 }
