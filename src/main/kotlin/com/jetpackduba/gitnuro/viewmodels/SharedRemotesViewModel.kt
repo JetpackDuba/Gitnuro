@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.git.remote_operations.DeleteRemoteBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCase
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.models.warningNotification
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
@@ -69,12 +70,10 @@ class SharedRemotesViewModel @Inject constructor(
         subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
         taskType = TaskType.PULL_FROM_BRANCH,
     ) { git ->
-        pullFromSpecificBranchUseCase(
-            git = git,
-            rebase = false,
-            remoteBranch = branch,
-        )
-
-        positiveNotification("Pulled from \"${branch.simpleName}\"")
+        if (pullFromSpecificBranchUseCase(git = git, remoteBranch = branch)) {
+            warningNotification("Pull produced conflicts, fix them to continue")
+        } else {
+            positiveNotification("Pulled from \"${branch.simpleName}\"")
+        }
     }
 }

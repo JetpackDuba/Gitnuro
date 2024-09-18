@@ -2,42 +2,34 @@ package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.extensions.remoteName
 import com.jetpackduba.gitnuro.extensions.simpleName
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
 
 class PullFromSpecificBranchUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
+    private val hasPullResultConflictsUseCase: HasPullResultConflictsUseCase,
+    private val appSettingsRepository: AppSettingsRepository,
 ) {
-    suspend operator fun invoke(git: Git, rebase: Boolean, remoteBranch: Ref) = withContext(Dispatchers.IO) {
-        handleTransportUseCase(git) {
-            val pullResult = git
-                .pull()
-                .setTransportConfigCallback { handleTransport(it) }
-                .setRemote(remoteBranch.remoteName)
-                .setRemoteBranchName(remoteBranch.simpleName)
-                .setRebase(rebase)
-                .setCredentialsProvider(CredentialsProvider.getDefault())
-                .call()
+    suspend operator fun invoke(git: Git, remoteBranch: Ref): PullHasConflicts =
+        withContext(Dispatchers.IO) {
+            val pullWithRebase = appSettingsRepository.pullRebase
 
-            if (!pullResult.isSuccessful) {
-                var message =
-                    "Pull failed" // TODO Remove messages from here and pass the result to a custom exception type
+            handleTransportUseCase(git) {
+                val pullResult = git
+                    .pull()
+                    .setTransportConfigCallback { handleTransport(it) }
+                    .setRemote(remoteBranch.remoteName)
+                    .setRemoteBranchName(remoteBranch.simpleName)
+                    .setRebase(pullWithRebase)
+                    .setCredentialsProvider(CredentialsProvider.getDefault())
+                    .call()
 
-                if (rebase) {
-                    message = when (pullResult.rebaseResult.status) {
-                        RebaseResult.Status.UNCOMMITTED_CHANGES -> "The pull with rebase has failed because you have got uncommitted changes"
-                        RebaseResult.Status.CONFLICTS -> "Pull with rebase has conflicts, fix them to continue"
-                        else -> message
-                    }
-                }
-
-                throw Exception(message)
+                return@handleTransportUseCase hasPullResultConflictsUseCase(pullWithRebase, pullResult)
             }
         }
-    }
 }

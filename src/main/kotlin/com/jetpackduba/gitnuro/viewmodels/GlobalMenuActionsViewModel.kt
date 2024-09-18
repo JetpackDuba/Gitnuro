@@ -9,10 +9,9 @@ import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.git.remote_operations.PushBranchUseCase
 import com.jetpackduba.gitnuro.git.stash.PopLastStashUseCase
 import com.jetpackduba.gitnuro.git.stash.StashChangesUseCase
-import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.models.errorNotification
 import com.jetpackduba.gitnuro.models.positiveNotification
-import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.models.warningNotification
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalUseCase
 import kotlinx.coroutines.Job
 import javax.inject.Inject
@@ -26,7 +25,7 @@ interface IGlobalMenuActionsViewModel {
     fun openTerminal(): Job
 }
 
-class GlobalMenuActionsViewModel  @Inject constructor(
+class GlobalMenuActionsViewModel @Inject constructor(
     private val tabState: TabState,
     private val pullBranchUseCase: PullBranchUseCase,
     private val pushBranchUseCase: PushBranchUseCase,
@@ -34,8 +33,6 @@ class GlobalMenuActionsViewModel  @Inject constructor(
     private val popLastStashUseCase: PopLastStashUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val openRepositoryInTerminalUseCase: OpenRepositoryInTerminalUseCase,
-    settings: AppSettingsRepository,
-    appStateManager: AppStateManager,
 ) : IGlobalMenuActionsViewModel {
     override fun pull(pullType: PullType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
@@ -44,9 +41,11 @@ class GlobalMenuActionsViewModel  @Inject constructor(
         refreshEvenIfCrashes = true,
         taskType = TaskType.PULL,
     ) { git ->
-        pullBranchUseCase(git, pullType)
-
-        positiveNotification("Pull completed")
+        if (pullBranchUseCase(git, pullType)) {
+            warningNotification("Pull produced conflicts, fix them to continue")
+        } else {
+            positiveNotification("Pull completed")
+        }
     }
 
     override fun fetchAll() = tabState.safeProcessing(
