@@ -2,7 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TaskType
-import com.jetpackduba.gitnuro.exceptions.WatcherInitException
+import com.jetpackduba.gitnuro.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
@@ -110,6 +110,8 @@ class RepositoryOpenViewModel @Inject constructor(
     var authorViewModel: AuthorViewModel? = null
         private set
 
+    private var hasGitDirChanged = false
+
     init {
         tabScope.run {
             launch {
@@ -119,7 +121,7 @@ class RepositoryOpenViewModel @Inject constructor(
             }
 
             launch {
-                watchRepositoryChanges(tabState.git)
+                watchRepositoryChanges()
             }
         }
     }
@@ -158,55 +160,53 @@ class RepositoryOpenViewModel @Inject constructor(
      * the app by constantly running "git status" or even full refreshes.
      *
      */
-    private suspend fun watchRepositoryChanges(git: Git) = tabScope.launch(Dispatchers.IO) {
-        var hasGitDirChanged = false
-
+    private suspend fun watchRepositoryChanges() = tabScope.launch(Dispatchers.IO) {
         launch {
-            fileChangesWatcher.changesNotifier.collect { latestUpdateChangedGitDir ->
-                val isOperationRunning = tabState.operationRunning
+            fileChangesWatcher.changesNotifier.collect { watcherEvent ->
+                when (watcherEvent) {
+                    is WatcherEvent.RepositoryChanged -> repositoryChanged(watcherEvent.hasGitDirChanged)
+                    is WatcherEvent.WatchInitError -> {
+                        val message = codeToMessage(watcherEvent.code)
+                        errorsManager.addError(
+                            newErrorNow(
+                                exception = Exception(message),
+                                taskType = TaskType.CHANGES_DETECTION,
+                            ),
+                        )
 
-                if (!isOperationRunning) { // Only update if there isn't any process running
-                    printDebug(TAG, "Detected changes in the repository's directory")
-
-                    val currentTimeMillis = System.currentTimeMillis()
-
-                    if (
-                        latestUpdateChangedGitDir &&
-                        currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION
-                    ) {
-                        printDebug(TAG, "Git operation was executed recently, ignoring file system change")
-                        return@collect
                     }
-
-                    if (latestUpdateChangedGitDir) {
-                        hasGitDirChanged = true
-                    }
-
-                    if (isActive) {
-                        updateApp(hasGitDirChanged)
-                    }
-
-                    hasGitDirChanged = false
-                } else {
-                    printDebug(TAG, "Ignored file events during operation")
                 }
             }
         }
+    }
 
-        try {
-            fileChangesWatcher.watchDirectoryPath(
-                repository = git.repository,
-            )
-        } catch (ex: WatcherInitException) {
-            val message = ex.message
-            if (message != null) {
-                errorsManager.addError(
-                    newErrorNow(
-                        exception = ex,
-                        taskType = TaskType.CHANGES_DETECTION,
-                    ),
-                )
+    private suspend fun CoroutineScope.repositoryChanged(hasGitDirChanged: Boolean) {
+        val isOperationRunning = tabState.operationRunning
+
+        if (!isOperationRunning) { // Only update if there isn't any process running
+            printDebug(TAG, "Detected changes in the repository's directory")
+
+            val currentTimeMillis = System.currentTimeMillis()
+
+            if (
+                hasGitDirChanged &&
+                currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION
+            ) {
+                printDebug(TAG, "Git operation was executed recently, ignoring file system change")
+                return
             }
+
+            if (hasGitDirChanged) {
+                this@RepositoryOpenViewModel.hasGitDirChanged = true
+            }
+
+            if (isActive) {
+                updateApp(hasGitDirChanged)
+            }
+
+            this@RepositoryOpenViewModel.hasGitDirChanged = false
+        } else {
+            printDebug(TAG, "Ignored file events during operation")
         }
     }
 

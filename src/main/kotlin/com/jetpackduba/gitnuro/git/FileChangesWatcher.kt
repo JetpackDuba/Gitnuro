@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.git
 import FileWatcher
 import WatchDirectoryNotifier
 import com.jetpackduba.gitnuro.di.TabScope
-import com.jetpackduba.gitnuro.exceptions.WatcherInitException
 import com.jetpackduba.gitnuro.git.workspace.GetIgnoreRulesUseCase
 import com.jetpackduba.gitnuro.system.systemSeparator
 import kotlinx.coroutines.CoroutineScope
@@ -25,8 +24,8 @@ class FileChangesWatcher @Inject constructor(
     private val getIgnoreRulesUseCase: GetIgnoreRulesUseCase,
     private val tabScope: CoroutineScope,
 ) : AutoCloseable {
-    private val _changesNotifier = MutableSharedFlow<Boolean>()
-    val changesNotifier: SharedFlow<Boolean> = _changesNotifier
+    private val _changesNotifier = MutableSharedFlow<WatcherEvent>()
+    val changesNotifier: SharedFlow<WatcherEvent> = _changesNotifier
     private val fileWatcher = FileWatcher.new()
     private var shouldKeepLooping = true
 
@@ -71,14 +70,16 @@ class FileChangesWatcher @Inject constructor(
 
                     if (!areAllPathsIgnored) {
                         println("Emitting changes $hasGitIgnoreChanged")
-                        _changesNotifier.emit(hasGitDirChanged)
+                        _changesNotifier.emit(WatcherEvent.RepositoryChanged(hasGitDirChanged))
                     }
 
                 }
             }
 
             override fun onError(code: Int) {
-                throw WatcherInitException(code)
+                tabScope.launch {
+                    _changesNotifier.emit(WatcherEvent.WatchInitError(code))
+                }
             }
         }
 
@@ -90,4 +91,9 @@ class FileChangesWatcher @Inject constructor(
         fileWatcher.close()
     }
 
+}
+
+sealed interface WatcherEvent {
+    data class RepositoryChanged(val hasGitDirChanged: Boolean) : WatcherEvent
+    data class WatchInitError(val code: Int) : WatcherEvent
 }
