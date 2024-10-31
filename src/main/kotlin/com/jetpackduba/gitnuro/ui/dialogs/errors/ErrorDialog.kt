@@ -32,7 +32,9 @@ fun ErrorDialog(
     val clipboard = LocalClipboardManager.current
     var showStackTrace by remember { mutableStateOf(false) }
 
-    MaterialDialog {
+    MaterialDialog (
+        onCloseRequested = onAccept,
+    ) {
         Column(
             modifier = Modifier
                 .width(580.dp)
