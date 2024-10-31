@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.credentials
 
 import com.jetpackduba.gitnuro.exceptions.NotSupportedHelper
 import com.jetpackduba.gitnuro.git.remote_operations.CredentialsCache
+import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
@@ -259,7 +260,8 @@ class HttpCredentialsProvider @AssistedInject constructor(
         val credentialHelperPath = uriSpecificCredentialHelper ?: genericCredentialHelper ?: return null
 
         if (credentialHelperPath == "cache" || credentialHelperPath == "store") {
-            throw NotSupportedHelper("Invalid credentials helper: \"$credentialHelperPath\" is not yet supported")
+            printError(TAG, "Invalid credentials helper: \"$credentialHelperPath\" is not yet supported")
+            return null
         }
 
         // TODO Try to use "git-credential-manager-core" when "manager-core" is detected. Works for linux but requires testing for mac/windows
