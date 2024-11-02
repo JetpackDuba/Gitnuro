@@ -89,7 +89,6 @@ fun UncommittedChanges(
     val doCommit = {
         statusViewModel.commit(commitMessage)
         onStagedDiffEntrySelected(null)
-        setCommitMessage("")
     }
 
     val canCommit = commitMessage.isNotEmpty() && stageStateUi.hasStagedFiles

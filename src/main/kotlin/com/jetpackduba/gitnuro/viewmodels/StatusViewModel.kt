@@ -395,7 +395,9 @@ class StatusViewModel @Inject constructor(
         val personIdent = getPersonIdent(git)
 
         doCommitUseCase(git, commitMessage, amend, personIdent)
+
         updateCommitMessage("")
+        _commitMessageChangesFlow.emit("")
         _isAmend.value = false
 
         positiveNotification(if (isAmend.value) "Commit amended" else "New commit created")
