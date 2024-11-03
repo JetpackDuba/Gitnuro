@@ -12,17 +12,17 @@ plugins {
     kotlin("jvm") version "2.0.0"
     kotlin("plugin.serialization") version "2.0.20"
     id("com.google.devtools.ksp") version "2.0.20-1.0.24"
-    id("org.jetbrains.compose") version "1.7.0-beta02"
+    id("org.jetbrains.compose") version "1.7.0"
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.20"
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "1.4.0"
+val projectVersion = "1.4.1"
 
 val projectName = "Gitnuro"
 
 // Required for JPackage, as it doesn't accept additional suffixes after the version.
-val projectVersionSimplified = "1.4.0"
+val projectVersionSimplified = "1.4.1"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
