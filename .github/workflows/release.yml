@@ -74,8 +74,8 @@ jobs:
           repository: JetpackDuba/Gitnuro
           with:
           files: |
-            build/libs/Gitnuro-linux-x86_64-*.jar
-            build/libs/Gitnuro-linux-x86_64-*.jar.sum
+            build/libs/Gitnuro-linux-arm_aarch64-*.jar
+            build/libs/Gitnuro-linux-arm_aarch64-*.jar.sum
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
   
   build_windows:
