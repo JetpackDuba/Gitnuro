@@ -121,7 +121,7 @@ class RepositoryOpenViewModel @Inject constructor(
             }
 
             launch {
-                watchRepositoryChanges()
+                watchRepositoryChanges(tabState.git)
             }
         }
     }
@@ -160,7 +160,7 @@ class RepositoryOpenViewModel @Inject constructor(
      * the app by constantly running "git status" or even full refreshes.
      *
      */
-    private suspend fun watchRepositoryChanges() = tabScope.launch(Dispatchers.IO) {
+    private suspend fun watchRepositoryChanges(git: Git) = tabScope.launch(Dispatchers.IO) {
         launch {
             fileChangesWatcher.changesNotifier.collect { watcherEvent ->
                 when (watcherEvent) {
@@ -178,6 +178,8 @@ class RepositoryOpenViewModel @Inject constructor(
                 }
             }
         }
+
+        fileChangesWatcher.watchDirectoryPath(git.repository)
     }
 
     private suspend fun CoroutineScope.repositoryChanged(hasGitDirChanged: Boolean) {

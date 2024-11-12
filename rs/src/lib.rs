@@ -102,7 +102,7 @@ impl FileWatcher {
                             last_update = current_time_as_millis();
                         }
 
-                        println!("Event: {e:?}");
+//                         println!("Event: {e:?}");
                     }
                 }
                 Err(e) => {
