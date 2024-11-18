@@ -46,7 +46,10 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.lib.GpgSigner
+import org.eclipse.jgit.lib.GpgConfig
+import org.eclipse.jgit.lib.Signer
+import org.eclipse.jgit.lib.SignerFactory
+import org.eclipse.jgit.lib.Signers
 import java.io.File
 import java.io.FileOutputStream
 import java.net.Authenticator
@@ -68,9 +71,6 @@ class App {
     lateinit var appSettingsRepository: AppSettingsRepository
 
     @Inject
-    lateinit var appGpgSigner: AppGpgSigner
-
-    @Inject
     lateinit var appEnvInfo: AppEnvInfo
 
     @Inject
@@ -81,6 +81,9 @@ class App {
 
     @Inject
     lateinit var logging: Logging
+
+    @Inject
+    lateinit var signer: AppGpgSigner
 
     init {
         appComponent.inject(this)
@@ -93,6 +96,8 @@ class App {
         initNativeDependencies()
         logging.initLogging()
         initProxySettings()
+
+        Signers.set(GpgConfig.GpgFormat.OPENPGP, signer)
 
         val windowPlacement = appSettingsRepository.windowPlacement.toWindowPlacement
         val dirToOpen = getDirToOpen(args)
@@ -110,8 +115,6 @@ class App {
         }
 
         tabsManager.loadPersistedTabs()
-
-        GpgSigner.setDefault(appGpgSigner)
 
         if (dirToOpen != null)
             addDirTab(dirToOpen)

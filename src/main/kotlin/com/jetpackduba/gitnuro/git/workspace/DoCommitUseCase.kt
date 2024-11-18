@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.git.workspace
 
 import com.jetpackduba.gitnuro.extensions.isMerging
+import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
 import com.jetpackduba.gitnuro.git.config.LoadSignOffConfigUseCase
 import com.jetpackduba.gitnuro.git.config.LocalConfigConstants
@@ -15,7 +16,8 @@ import javax.inject.Inject
 class DoCommitUseCase @Inject constructor(
     private val loadSignOffConfigUseCase: LoadSignOffConfigUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
-    private val getRepositoryStateUseCase: GetRepositoryStateUseCase
+    private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
+    private val appGpgSigner: AppGpgSigner,
 ) {
     suspend operator fun invoke(
         git: Git,
@@ -23,6 +25,7 @@ class DoCommitUseCase @Inject constructor(
         amend: Boolean,
         author: PersonIdent?,
     ): RevCommit = withContext(Dispatchers.IO) {
+
         val signOffConfig = loadSignOffConfigUseCase(git.repository)
 
         val finalMessage = if (signOffConfig.isEnabled) {

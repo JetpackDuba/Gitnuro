@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-    val jgit = "6.9.0.202403050737-r"
+    val jgit = "7.0.0.202409031743-r"
 
     when {
         currentOs() == OS.LINUX && isLinuxAarch64 -> implementation(compose.desktop.linux_arm64)
@@ -74,6 +74,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.7")
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
+    implementation("org.bouncycastle:bcpg-jdk18on:1.78.1")
 }
 
 fun currentOs(): OS {

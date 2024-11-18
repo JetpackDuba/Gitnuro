@@ -4,10 +4,7 @@ import com.jetpackduba.gitnuro.credentials.GpgCredentialsProvider
 import org.bouncycastle.openpgp.PGPException
 import org.eclipse.jgit.api.errors.CanceledException
 import org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSigner
-import org.eclipse.jgit.lib.CommitBuilder
-import org.eclipse.jgit.lib.GpgConfig
-import org.eclipse.jgit.lib.ObjectBuilder
-import org.eclipse.jgit.lib.PersonIdent
+import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
 import javax.inject.Provider
@@ -15,47 +12,57 @@ import javax.inject.Provider
 private const val INVALID_PASSWORD_MESSAGE = "Is the entered passphrase correct?"
 
 class AppGpgSigner @Inject constructor(
-    private val gpgCredentialsProvider: Provider<GpgCredentialsProvider>,
+    private val gpgCredentials: GpgCredentialsProvider,
 ) : BouncyCastleGpgSigner() {
+
     override fun sign(
-        commit: CommitBuilder,
-        gpgSigningKey: String,
-        committer: PersonIdent,
+        repository: Repository?,
+        config: GpgConfig?,
+        data: ByteArray?,
+        committer: PersonIdent?,
+        signingKey: String?,
         credentialsProvider: CredentialsProvider?
-    ) {
-        super.sign(commit, gpgSigningKey, committer, gpgCredentialsProvider.get())
+    ): GpgSignature {
+        return try {
+            var gpgSignature: GpgSignature? = null
+            retryIfWrongPassphrase { isRetry ->
+                gpgCredentials.isRetry = isRetry
+                gpgSignature = super.sign(repository, config, data, committer, signingKey, gpgCredentials)
+                gpgCredentials.savePasswordInMemory()
+            }
+
+            gpgSignature!!
+        } catch (ex: CanceledException) {
+            println("Signing cancelled")
+            throw ex
+        }
+
     }
 
     override fun canLocateSigningKey(
-        gpgSigningKey: String,
-        committer: PersonIdent,
+        repository: Repository?,
+        config: GpgConfig?,
+        committer: PersonIdent?,
+        signingKey: String?,
         credentialsProvider: CredentialsProvider?
     ): Boolean {
-        return super.canLocateSigningKey(gpgSigningKey, committer, gpgCredentialsProvider.get())
-    }
-
-    override fun canLocateSigningKey(
-        gpgSigningKey: String,
-        committer: PersonIdent,
-        credentialsProvider: CredentialsProvider?,
-        config: GpgConfig?
-    ): Boolean {
-        return super.canLocateSigningKey(gpgSigningKey, committer, gpgCredentialsProvider.get(), config)
+        return super.canLocateSigningKey(repository, config, committer, signingKey, gpgCredentials)
     }
 
     override fun signObject(
-        `object`: ObjectBuilder,
-        gpgSigningKey: String?,
-        committer: PersonIdent,
-        credentialsProvider: CredentialsProvider?,
-        config: GpgConfig?
+        repository: Repository?,
+        config: GpgConfig?,
+        `object`: ObjectBuilder?,
+        committer: PersonIdent?,
+        signingKey: String?,
+        credentialsProvider: CredentialsProvider?
     ) {
-        val gpgCredentialsProvider = gpgCredentialsProvider.get()
+        val gpgCredentialsProvider = gpgCredentials
 
         try {
             retryIfWrongPassphrase { isRetry ->
                 gpgCredentialsProvider.isRetry = isRetry
-                super.signObject(`object`, gpgSigningKey, committer, gpgCredentialsProvider, config)
+                super.signObject(repository, config, `object`, committer, signingKey, credentialsProvider)
                 gpgCredentialsProvider.savePasswordInMemory()
             }
         } catch (ex: CanceledException) {
