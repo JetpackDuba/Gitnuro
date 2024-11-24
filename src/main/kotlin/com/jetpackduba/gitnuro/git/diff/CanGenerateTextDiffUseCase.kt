@@ -5,7 +5,7 @@ import org.eclipse.jgit.diff.RawText
 import javax.inject.Inject
 
 class CanGenerateTextDiffUseCase @Inject constructor() {
-    operator fun invoke(
+    inline operator fun invoke(
         rawOld: EntryContent,
         rawNew: EntryContent,
         onText: (oldRawText: RawText, newRawText: RawText) -> Unit

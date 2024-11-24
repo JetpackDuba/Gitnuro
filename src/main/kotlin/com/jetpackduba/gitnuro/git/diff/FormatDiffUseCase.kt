@@ -5,9 +5,10 @@ import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.submodules.GetSubmodulesUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import java.io.InvalidObjectException
@@ -19,6 +20,7 @@ class FormatDiffUseCase @Inject constructor(
     private val canGenerateTextDiffUseCase: CanGenerateTextDiffUseCase,
     private val getDiffEntryFromDiffTypeUseCase: GetDiffEntryFromDiffTypeUseCase,
     private val getSubmodulesUseCase: GetSubmodulesUseCase,
+    private val textDiffFromDiffLinesUseCase: TextDiffFromDiffLinesUseCase,
 ) {
     suspend operator fun invoke(
         git: Git,
@@ -62,10 +64,12 @@ class FormatDiffUseCase @Inject constructor(
 
                 // If we can, generate text diff (if one of the files has never been a binary file)
                 val hasGeneratedTextDiff = canGenerateTextDiffUseCase(rawOld, rawNew) { oldRawText, newRawText ->
+                    val hunks = formatHunksUseCase(fileHeader, oldRawText, newRawText, isDisplayFullFile)
+                    val hunksDiffed = diffHunksParts(hunks)
                     diffResult =
                         DiffResult.Text(
                             diffEntry,
-                            formatHunksUseCase(fileHeader, oldRawText, newRawText, isDisplayFullFile)
+                            hunksDiffed,
                         )
                 }
 
@@ -76,5 +80,21 @@ class FormatDiffUseCase @Inject constructor(
         }
 
         return@withContext diffResult
+    }
+
+    private suspend fun diffHunksParts(hunks: List<Hunk>): List<Hunk> = withContext(Dispatchers.Default) {
+        val newHunksList = MutableList<Hunk>(hunks.count(), { Hunk("", emptyList()) })
+
+        hunks.mapIndexed { index, hunk ->
+            launch {
+                val newHunk = textDiffFromDiffLinesUseCase(hunk.lines)
+
+                synchronized(newHunksList) {
+                    newHunksList[index] = hunk.copy(lines = newHunk)
+                }
+            }
+        }.joinAll()
+
+        newHunksList
     }
 }

@@ -40,10 +40,7 @@ import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.animatedImages
-import com.jetpackduba.gitnuro.git.diff.DiffResult
-import com.jetpackduba.gitnuro.git.diff.Hunk
-import com.jetpackduba.gitnuro.git.diff.Line
-import com.jetpackduba.gitnuro.git.diff.LineType
+import com.jetpackduba.gitnuro.git.diff.*
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 import com.jetpackduba.gitnuro.theme.*
@@ -54,6 +51,7 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenu
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.SelectionAwareTextContextMenu
+import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.SyntaxHighlighter
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import com.jetpackduba.gitnuro.viewmodels.DiffViewModel
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
@@ -1139,6 +1137,7 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
     val syntaxHighlighter = getSyntaxHighlighterFromExtension(fileExtension)
 
     val text = line.text
+    val matchLine = line.textDiffed
     val hoverInteraction = remember { MutableInteractionSource() }
     val isHovered by hoverInteraction.collectIsHoveredAsState()
 
@@ -1175,30 +1174,57 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
             )
         }
 
-        Row {
-            Text(
-                text = syntaxHighlighter.syntaxHighlight(text),
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .fillMaxSize(),
-                fontFamily = notoSansMonoFontFamily,
-                style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.onBackground,
-                overflow = TextOverflow.Visible,
-            )
+        DiffText(text, matchLine, syntaxHighlighter)
+    }
+}
 
-            val lineDelimiter = text.lineDelimiter
+@Composable
+fun DiffText(text: String, matchLine: MatchLine?, syntaxHighlighter: SyntaxHighlighter) {
+    val line = matchLine ?: MatchLine(listOf(DiffMatchPatch.Diff(DiffMatchPatch.Operation.EQUAL, text)))
 
-            // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
-            // where copying a line didn't contain the line ending & also fix the issue where the text line would
-            // display multiple lines even if there is only a single line with a line delimiter at the end
-            if (lineDelimiter != null) {
+    Row {
+        Row(
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .fillMaxSize()
+        ) {
+            val isAllSameType = line.diffs.map { it.operation }.count() == 1
+
+            for (i in line.diffs) {
+
+                val color = if (isAllSameType) {
+                    Color.Transparent
+                } else {
+                    when (i.operation) {
+                        DiffMatchPatch.Operation.DELETE -> MaterialTheme.colors.diffContentRemoved
+                        DiffMatchPatch.Operation.INSERT -> MaterialTheme.colors.diffContentAdded
+                        else -> Color.Transparent
+                    }
+                }
+
                 Text(
-                    text = lineDelimiter,
-                    maxLines = 1,
+                    text = syntaxHighlighter.syntaxHighlight(i.text.orEmpty()),
+                    modifier = Modifier
+                        .background(color),
+                    fontFamily = notoSansMonoFontFamily,
+                    style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackground,
+                    overflow = TextOverflow.Visible,
                 )
             }
+        }
+
+        val lineDelimiter = text.lineDelimiter
+
+        // Display line delimiter in its own text with a maxLines = 1. This will fix the issue
+        // where copying a line didn't contain the line ending & also fix the issue where the text line would
+        // display multiple lines even if there is only a single line with a line delimiter at the end
+        if (lineDelimiter != null) {
+            Text(
+                text = lineDelimiter,
+                maxLines = 1,
+                color = MaterialTheme.colors.onBackground,
+            )
         }
     }
 }

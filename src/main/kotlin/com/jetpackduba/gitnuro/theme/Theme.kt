@@ -138,9 +138,18 @@ val Colors.diffLineAdded: Color
     @Composable
     get() = theme.diffLineAdded
 
+
+val Colors.diffContentAdded: Color
+    @Composable
+    get() = theme.diffContentAdded
+
 val Colors.diffLineRemoved: Color
     @Composable
     get() = theme.diffLineRemoved
+
+val Colors.diffContentRemoved: Color
+    @Composable
+    get() = theme.diffContentRemoved
 
 val Colors.diffKeyword: Color
     @Composable
