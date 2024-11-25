@@ -36,7 +36,13 @@ fun String.removeLineDelimiters(): String {
     return this
         .removeSuffix("\r\n")
         .removeSuffix("\n")
+}
 
+fun String.replaceTabs(): String {
+    return this.replace(
+        "\t",
+        "    "
+    )
 }
 
 val String.lineDelimiter: String?

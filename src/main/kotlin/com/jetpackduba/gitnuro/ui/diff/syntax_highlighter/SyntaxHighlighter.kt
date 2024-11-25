@@ -2,9 +2,13 @@ package com.jetpackduba.gitnuro.ui.diff.syntax_highlighter
 
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import com.jetpackduba.gitnuro.extensions.removeLineDelimiters
+import com.jetpackduba.gitnuro.extensions.replaceTabs
+import com.jetpackduba.gitnuro.git.diff.DiffMatchPatch
+import com.jetpackduba.gitnuro.git.diff.MatchLine
 import com.jetpackduba.gitnuro.theme.diffAnnotation
 import com.jetpackduba.gitnuro.theme.diffComment
 import com.jetpackduba.gitnuro.theme.diffKeyword
@@ -12,6 +16,64 @@ import com.jetpackduba.gitnuro.theme.diffKeyword
 abstract class SyntaxHighlighter {
     private val keywords: List<String> by lazy {
         loadKeywords()
+    }
+
+    fun syntaxHighlight(
+        annotatedString: AnnotatedString,
+        commentColor: Color,
+        keywordColor: Color,
+        annotationColor: Color,
+    ): AnnotatedString {
+        val cleanText = annotatedString.text
+
+        var iteratedCharsCount = 0
+        val builder = AnnotatedString.Builder()
+        builder.append(cleanText)
+
+        for (spanStyleRange in annotatedString.spanStyles) {
+            builder.addStyle(spanStyleRange.item, spanStyleRange.start, spanStyleRange.end)
+        }
+
+        if (isComment(cleanText.trimStart())) {
+            builder.addStyle(
+                style = SpanStyle(color = commentColor),
+                start = 0,
+                end = cleanText.count(),
+            )
+        } else {
+            val words = cleanText.split(" ")
+
+            words.forEachIndexed { index, word ->
+                val start = iteratedCharsCount
+                val end = iteratedCharsCount + word.count()
+
+                if (keywords.contains(word)) {
+                    builder.addStyle(
+                        style = SpanStyle(
+                            color = keywordColor,
+                        ),
+                        start = start,
+                        end = end,
+                    )
+                } else if (isAnnotation(word)) {
+                    builder.addStyle(
+                        style = SpanStyle(
+                            color = annotationColor,
+                        ),
+                        start = start,
+                        end = end,
+                    )
+                }
+
+                iteratedCharsCount += word.count() + 1
+
+                if (index == words.lastIndex) {
+                    iteratedCharsCount--
+                }
+            }
+        }
+
+        return builder.toAnnotatedString()
     }
 
     @Composable

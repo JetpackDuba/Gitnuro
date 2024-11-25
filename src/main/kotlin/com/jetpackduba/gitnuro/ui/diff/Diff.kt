@@ -28,8 +28,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -1183,36 +1182,35 @@ fun DiffText(text: String, matchLine: MatchLine?, syntaxHighlighter: SyntaxHighl
     val line = matchLine ?: MatchLine(listOf(DiffMatchPatch.Diff(DiffMatchPatch.Operation.EQUAL, text)))
 
     Row {
-        Row(
+        val diffContentRemoved = MaterialTheme.colors.diffContentRemoved
+        val diffComment = MaterialTheme.colors.diffComment
+        val diffKeyword = MaterialTheme.colors.diffKeyword
+        val diffAnnotation = MaterialTheme.colors.diffAnnotation
+        val diffContentAdded = MaterialTheme.colors.diffContentAdded
+
+        val annotatedString = remember(line) {
+            formatDiff(
+                line = line,
+                commentColor = diffComment,
+                keywordColor = diffKeyword,
+                annotationColor = diffAnnotation,
+                contentAddedColor = diffContentAdded,
+                contentRemovedColor = diffContentRemoved,
+                syntaxHighlighter = syntaxHighlighter,
+            )
+        }
+
+        Text(
+            text = annotatedString,
             modifier = Modifier
                 .padding(start = 16.dp)
-                .fillMaxSize()
-        ) {
-            val isAllSameType = line.diffs.map { it.operation }.count() == 1
-
-            for (i in line.diffs) {
-
-                val color = if (isAllSameType) {
-                    Color.Transparent
-                } else {
-                    when (i.operation) {
-                        DiffMatchPatch.Operation.DELETE -> MaterialTheme.colors.diffContentRemoved
-                        DiffMatchPatch.Operation.INSERT -> MaterialTheme.colors.diffContentAdded
-                        else -> Color.Transparent
-                    }
-                }
-
-                Text(
-                    text = syntaxHighlighter.syntaxHighlight(i.text.orEmpty()),
-                    modifier = Modifier
-                        .background(color),
-                    fontFamily = notoSansMonoFontFamily,
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.onBackground,
-                    overflow = TextOverflow.Visible,
-                )
-            }
-        }
+                .fillMaxWidth(),
+            fontFamily = notoSansMonoFontFamily,
+            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackground,
+            overflow = TextOverflow.Visible,
+            softWrap = true,
+        )
 
         val lineDelimiter = text.lineDelimiter
 
@@ -1249,4 +1247,53 @@ fun emptyLineNumber(charactersCount: Int): String {
     }
 
     return numberBuilder.toString()
+}
+
+fun formatDiff(
+    line: MatchLine,
+    commentColor: Color,
+    keywordColor: Color,
+    annotationColor: Color,
+    contentAddedColor: Color,
+    contentRemovedColor: Color,
+    syntaxHighlighter: SyntaxHighlighter,
+): AnnotatedString {
+    val isAllSameType = line.diffs
+        .filter { it.text != "\n" }
+        .map { it.operation }
+        .count() == 1
+
+    val diffBuilder = AnnotatedString.Builder()
+    val diffs = line.diffs
+
+    diffs
+        .forEach { diff ->
+            val color = if (isAllSameType) {
+                Color.Transparent
+            } else {
+                when (diff.operation) {
+                    DiffMatchPatch.Operation.DELETE -> contentRemovedColor
+                    DiffMatchPatch.Operation.INSERT -> contentAddedColor
+                    else -> Color.Transparent
+                }
+            }
+
+            val newAnnotatedString = AnnotatedString(
+                text = diff.text
+                    .replaceTabs()
+                    .removeLineDelimiters(),
+                spanStyle = SpanStyle(background = color),
+            )
+
+            diffBuilder.append(newAnnotatedString)
+        }
+
+    val annotatedString = diffBuilder.toAnnotatedString()
+
+    return syntaxHighlighter.syntaxHighlight(
+        annotatedString = annotatedString,
+        commentColor = commentColor,
+        keywordColor = keywordColor,
+        annotationColor = annotationColor,
+    )
 }
