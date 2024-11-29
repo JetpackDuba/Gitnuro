@@ -47,26 +47,29 @@ class FileChangesWatcher @Inject constructor(
 
             override fun detectedChange(paths: Array<String>) {
                 tabScope.launch {
-                    val hasGitIgnoreChanged = paths.any { it == "$workspacePath$systemSeparator.gitignore" }
+                    val normalizedPaths = paths.map {
+                        it.removePrefix(workspacePath)
+                    }
+                    val hasGitIgnoreChanged = normalizedPaths.any { it == "$systemSeparator.gitignore" }
 
                     if (hasGitIgnoreChanged) {
                         ignoreRules = getIgnoreRulesUseCase(repository)
                     }
 
-                    val areAllPathsIgnored = paths.all { path ->
+                    val areAllPathsIgnored = normalizedPaths.all { path ->
                         val matchesAnyIgnoreRule = ignoreRules.any { rule ->
                             rule.isMatch(path, Files.isDirectory(Paths.get(path)))
                         }
 
                         val isGitIgnoredFile = gitDirIgnoredFiles.any { ignoredFile ->
-                            "$workspacePath$systemSeparator.git$systemSeparator$ignoredFile" == path
+                            "$systemSeparator.git$systemSeparator$ignoredFile" == path
                         }
 
                         matchesAnyIgnoreRule || isGitIgnoredFile
                     }
 
                     val hasGitDirChanged =
-                        paths.any { it.startsWith("$workspacePath$systemSeparator.git$systemSeparator") }
+                        normalizedPaths.any { it.startsWith("$systemSeparator.git$systemSeparator") }
 
                     if (!areAllPathsIgnored) {
                         println("Emitting changes $hasGitIgnoreChanged")
