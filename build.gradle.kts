@@ -49,10 +49,10 @@ repositories {
 dependencies {
     val jgit = "6.9.0.202403050737-r"
 
-    if (currentOs() == OS.LINUX && isLinuxAarch64) {
-        implementation(compose.desktop.linux_arm64)
-    } else {
-        implementation(compose.desktop.currentOs)
+    when {
+        currentOs() == OS.LINUX && isLinuxAarch64 -> implementation(compose.desktop.linux_arm64)
+        currentOs() == OS.MAC -> implementation(compose.desktop.macos_x64)
+        else -> implementation(compose.desktop.currentOs)
     }
 
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
@@ -261,6 +261,8 @@ fun buildRust() {
             } else {
                 params.add("--target=$linuxX64Target")
             }
+        } else if (currentOs() == OS.MAC) {
+            params.add("--target=x86_64-apple-darwin")
         }
 
         workingDir = File(project.projectDir, "rs")
@@ -283,6 +285,8 @@ fun copyRustBuild() {
         } else {
             "rs/target/$linuxX64Target/$buildTypeDirectory"
         }
+    } else if (currentOs() == OS.MAC) {
+        "rs/target/x86_64-apple-darwin/$buildTypeDirectory"
     } else {
         "rs/target/$buildTypeDirectory"
     }
