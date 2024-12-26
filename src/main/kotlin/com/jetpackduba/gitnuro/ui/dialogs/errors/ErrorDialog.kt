@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.dialogs.errors
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +33,7 @@ fun ErrorDialog(
     val clipboard = LocalClipboardManager.current
     var showStackTrace by remember { mutableStateOf(false) }
 
-    MaterialDialog (
+    MaterialDialog(
         onCloseRequested = onAccept,
     ) {
         Column(
@@ -60,14 +61,16 @@ fun ErrorDialog(
                 )
             }
 
-            Text(
-                text = error.exception.message.orEmpty(), // TODO
-                color = MaterialTheme.colors.onBackground,
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .widthIn(max = 600.dp),
-                style = MaterialTheme.typography.body2,
-            )
+            SelectionContainer {
+                Text(
+                    text = error.exception.message.orEmpty(), // TODO
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier
+                        .padding(top = 16.dp)
+                        .widthIn(max = 600.dp),
+                    style = MaterialTheme.typography.body2,
+                )
+            }
 
             if (showStackTrace) {
                 Box(
