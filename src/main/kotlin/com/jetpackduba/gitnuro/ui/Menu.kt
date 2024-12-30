@@ -52,6 +52,7 @@ fun Menu(
     onShowSettingsDialog: () -> Unit,
     showOpenPopup: Boolean,
     onShowOpenPopupChange: (Boolean) -> Unit,
+    onOpenInFileExplorer: () -> Unit,
 ) {
     val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState()
     val lastLoadedTabs by menuViewModel.lastLoadedTabs.collectAsState()
@@ -165,13 +166,23 @@ fun Menu(
         InstantTooltip(
             text = "Open a terminal in the repository's path"
         ) {
-            MenuButton(
+            ExtendedMenuButton(
                 modifier = Modifier.padding(end = 4.dp),
                 title = "Terminal",
                 icon = painterResource(AppIcons.TERMINAL),
                 onClick = { menuViewModel.openTerminal() },
+                tooltipText = "Open a terminal in the repository's path",
+                extendedListItems = listOf(
+                    ContextMenuElement.ContextTextEntry(
+                        label = "Open in file manager",
+                        icon = { painterResource(AppIcons.FOLDER_OPEN) },
+                        onClick = onOpenInFileExplorer,
+                    )
+                )
             )
         }
+
+        Spacer(modifier = Modifier.width(16.dp))
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),

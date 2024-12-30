@@ -187,7 +187,8 @@ fun RepositoryOpenPage(
                     onQuickActions = { showQuickActionsDialog = true },
                     onShowSettingsDialog = onShowSettingsDialog,
                     showOpenPopup = showOpenPopup,
-                    onShowOpenPopupChange = { showOpenPopup = it }
+                    onShowOpenPopupChange = { showOpenPopup = it },
+                    onOpenInFileExplorer = { repositoryOpenViewModel.openFolderInFileExplorer() }
                 )
 
                 RepoContent(
