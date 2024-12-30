@@ -238,7 +238,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private fun updateDiffEntry() {
         val diffSelected = diffSelected.value
 
-        if (diffSelected != null) {
+        if (diffSelected != null && diffSelected is FileDiffType) {
             if (diffViewModel == null) { // Initialize the view model if required
                 diffViewModel = diffViewModelProvider.get()
             }

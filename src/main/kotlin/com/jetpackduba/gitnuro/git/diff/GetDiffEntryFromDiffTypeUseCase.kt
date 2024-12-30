@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.git.diff
 
-import com.jetpackduba.gitnuro.git.DiffType
+import com.jetpackduba.gitnuro.git.FileDiffType
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
@@ -12,7 +12,7 @@ import javax.inject.Inject
 class GetDiffEntryFromDiffTypeUseCase @Inject constructor(
     private val getDiffEntryFromStatusEntryUseCase: GetDiffEntryFromStatusEntryUseCase,
 ) {
-    suspend operator fun invoke(git: Git, diffType: DiffType): DiffEntry {
+    suspend operator fun invoke(git: Git, fileDiffType: FileDiffType): DiffEntry {
         val repository = git.repository
         val byteArrayOutputStream = ByteArrayOutputStream()
 
@@ -22,16 +22,16 @@ class GetDiffEntryFromDiffTypeUseCase @Inject constructor(
             val oldTree = DirCacheIterator(repository.readDirCache())
             val newTree = FileTreeIterator(repository)
 
-            if (diffType is DiffType.UnstagedDiff)
+            if (fileDiffType is FileDiffType.UnstagedFileDiff)
                 formatter.scan(oldTree, newTree)
 
-            val diffEntry = when (diffType) {
-                is DiffType.CommitDiff -> {
-                    diffType.diffEntry
+            val diffEntry = when (fileDiffType) {
+                is FileDiffType.CommitFileDiff -> {
+                    fileDiffType.diffEntry
                 }
 
-                is DiffType.UncommittedDiff -> {
-                    getDiffEntryFromStatusEntryUseCase(git, diffType is DiffType.StagedDiff, diffType.statusEntry)
+                is FileDiffType.UncommittedFileDiff -> {
+                    getDiffEntryFromStatusEntryUseCase(git, fileDiffType is FileDiffType.StagedFileDiff, fileDiffType.statusEntry)
                 }
             }
 

@@ -4,7 +4,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.extensions.filePath
-import com.jetpackduba.gitnuro.git.DiffType
+import com.jetpackduba.gitnuro.git.FileDiffType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.diff.DiffResult
@@ -61,14 +61,14 @@ class HistoryViewModel @Inject constructor(
             if (diffResult is DiffResult.Text && newDiffType == TextDiffType.SPLIT) { // Current is unified and new is split
                 val hunksList = generateSplitHunkFromDiffResultUseCase(diffResult)
                 _viewDiffResult.value = ViewDiffResult.Loaded(
-                    diffType = viewDiffResult.diffType,
+                    fileDiffType = viewDiffResult.fileDiffType,
                     diffResult = DiffResult.TextSplit(diffResult.diffEntry, hunksList)
                 )
             } else if (diffResult is DiffResult.TextSplit && newDiffType == TextDiffType.UNIFIED) { // Current is split and new is unified
                 val hunksList = diffResult.hunks.map { it.sourceHunk }
 
                 _viewDiffResult.value = ViewDiffResult.Loaded(
-                    diffType = viewDiffResult.diffType,
+                    fileDiffType = viewDiffResult.fileDiffType,
                     diffResult = DiffResult.Text(diffResult.diffEntry, hunksList)
                 )
             }
@@ -110,11 +110,11 @@ class HistoryViewModel @Inject constructor(
                 return@runOperation
             }
 
-            val diffType = DiffType.CommitDiff(diffEntry)
+            val fileDiffType = FileDiffType.CommitFileDiff(diffEntry)
 
             val diffResult = formatDiffUseCase(
                 git,
-                diffType,
+                fileDiffType,
                 false
             ) // TODO This hardcoded false should be changed when the UI is implemented
             val textDiffType = settings.textDiffType
@@ -124,7 +124,7 @@ class HistoryViewModel @Inject constructor(
             } else
                 diffResult
 
-            _viewDiffResult.value = ViewDiffResult.Loaded(diffType, formattedDiffResult)
+            _viewDiffResult.value = ViewDiffResult.Loaded(fileDiffType, formattedDiffResult)
         } catch (ex: Exception) {
             if (ex is MissingDiffEntryException) {
                 tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)

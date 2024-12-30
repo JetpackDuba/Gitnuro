@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.CloseableView
-import com.jetpackduba.gitnuro.git.DiffType
+import com.jetpackduba.gitnuro.git.FileDiffType
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.animatedImages
 import com.jetpackduba.gitnuro.git.diff.*
@@ -112,12 +112,12 @@ fun Diff(
             }
 
             is ViewDiffResult.Loaded -> {
-                val diffType = viewDiffResult.diffType
+                val diffType = viewDiffResult.fileDiffType
                 val diffEntry = viewDiffResult.diffResult.diffEntry
                 val diffResult = viewDiffResult.diffResult
 
                 DiffHeader(
-                    diffType = diffType,
+                    fileDiffType = diffType,
                     diffEntry = diffEntry,
                     onCloseDiffView = onCloseDiffView,
                     textDiffType = textDiffType,
@@ -133,7 +133,7 @@ fun Diff(
 
                 when (diffResult) {
                     is DiffResult.TextSplit -> HunkSplitTextDiff(
-                        diffType = diffType,
+                        fileDiffType = diffType,
                         scrollState = scrollState,
                         diffResult = diffResult,
                         onUnstageHunk = { entry, hunk ->
@@ -146,9 +146,9 @@ fun Diff(
                             diffViewModel.resetHunk(entry, hunk)
                         },
                         onUnStageLine = { entry, hunk, line ->
-                            if (diffType is DiffType.UnstagedDiff)
+                            if (diffType is FileDiffType.UnstagedFileDiff)
                                 diffViewModel.stageHunkLine(entry, hunk, line)
-                            else if (diffType is DiffType.StagedDiff)
+                            else if (diffType is FileDiffType.StagedFileDiff)
                                 diffViewModel.unstageHunkLine(entry, hunk, line)
                         },
                         onDiscardLine = { entry, hunk, line ->
@@ -157,7 +157,7 @@ fun Diff(
                     )
 
                     is DiffResult.Text -> HunkUnifiedTextDiff(
-                        diffType = diffType,
+                        fileDiffType = diffType,
                         scrollState = scrollState,
                         diffResult = diffResult,
                         onUnstageHunk = { entry, hunk ->
@@ -170,9 +170,9 @@ fun Diff(
                             diffViewModel.resetHunk(entry, hunk)
                         },
                         onUnStageLine = { entry, hunk, line ->
-                            if (diffType is DiffType.UnstagedDiff)
+                            if (diffType is FileDiffType.UnstagedFileDiff)
                                 diffViewModel.stageHunkLine(entry, hunk, line)
-                            else if (diffType is DiffType.StagedDiff)
+                            else if (diffType is FileDiffType.StagedFileDiff)
                                 diffViewModel.unstageHunkLine(entry, hunk, line)
                         },
                         onDiscardLine = { entry, hunk, line ->
@@ -423,7 +423,7 @@ fun BinaryDiff() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HunkUnifiedTextDiff(
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     scrollState: LazyListState,
     diffResult: DiffResult.Text,
     onUnstageHunk: (DiffEntry, Hunk) -> Unit,
@@ -451,7 +451,7 @@ fun HunkUnifiedTextDiff(
                         DisableSelection {
                             HunkHeader(
                                 header = hunk.header,
-                                diffType = diffType,
+                                fileDiffType = fileDiffType,
                                 onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, hunk) },
                                 onStageHunk = { onStageHunk(diffResult.diffEntry, hunk) },
                                 onResetHunk = { onResetHunk(diffResult.diffEntry, hunk) },
@@ -467,14 +467,14 @@ fun HunkUnifiedTextDiff(
                     items(hunk.lines) { line ->
                         DiffContextMenu(
                             selectedText = selectedText,
-                            diffType = diffType,
+                            fileDiffType = fileDiffType,
                             onDiscardLine = { onDiscardLine(diffResult.diffEntry, hunk, line) },
                             line = line,
                         ) {
                             DiffLine(
                                 highestLineNumberLength,
                                 line,
-                                diffType = diffType,
+                                fileDiffType = fileDiffType,
                                 onActionTriggered = {
                                     onUnStageLine(
                                         diffResult.diffEntry,
@@ -494,7 +494,7 @@ fun HunkUnifiedTextDiff(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HunkSplitTextDiff(
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     scrollState: LazyListState,
     diffResult: DiffResult.TextSplit,
     onUnstageHunk: (DiffEntry, Hunk) -> Unit,
@@ -528,7 +528,7 @@ fun HunkSplitTextDiff(
                         DisableSelection {
                             HunkHeader(
                                 header = splitHunk.sourceHunk.header,
-                                diffType = diffType,
+                                fileDiffType = fileDiffType,
                                 onUnstageHunk = { onUnstageHunk(diffResult.diffEntry, splitHunk.sourceHunk) },
                                 onStageHunk = { onStageHunk(diffResult.diffEntry, splitHunk.sourceHunk) },
                                 onResetHunk = { onResetHunk(diffResult.diffEntry, splitHunk.sourceHunk) },
@@ -547,7 +547,7 @@ fun HunkSplitTextDiff(
                             oldLine = linesPair.first,
                             newLine = linesPair.second,
                             selectableSide = selectableSide,
-                            diffType = diffType,
+                            fileDiffType = fileDiffType,
                             selectedText = selectedText,
                             onActionTriggered = { line ->
                                 onUnStageLine(diffResult.diffEntry, splitHunk.sourceHunk, line)
@@ -582,7 +582,7 @@ fun SplitDiffLine(
     oldLine: Line?,
     newLine: Line?,
     selectableSide: SelectableSide,
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     selectedText: AnnotatedString,
     onChangeSelectableSide: (SelectableSide) -> Unit,
     onActionTriggered: (Line) -> Unit,
@@ -602,7 +602,7 @@ fun SplitDiffLine(
             currentSelectableSide = selectableSide,
             lineSelectableSide = SelectableSide.OLD,
             onChangeSelectableSide = onChangeSelectableSide,
-            diffType = diffType,
+            fileDiffType = fileDiffType,
             onActionTriggered = { if (oldLine != null) onActionTriggered(oldLine) },
             selectedText = selectedText,
             onDiscardLine = onDiscardLine,
@@ -624,7 +624,7 @@ fun SplitDiffLine(
             currentSelectableSide = selectableSide,
             lineSelectableSide = SelectableSide.NEW,
             onChangeSelectableSide = onChangeSelectableSide,
-            diffType = diffType,
+            fileDiffType = fileDiffType,
             onActionTriggered = { if (newLine != null) onActionTriggered(newLine) },
             selectedText = selectedText,
             onDiscardLine = onDiscardLine,
@@ -642,7 +642,7 @@ fun SplitDiffLineSide(
     displayLineNumber: Int,
     currentSelectableSide: SelectableSide,
     lineSelectableSide: SelectableSide,
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     selectedText: AnnotatedString,
     onChangeSelectableSide: (SelectableSide) -> Unit,
     onActionTriggered: () -> Unit,
@@ -688,14 +688,14 @@ fun SplitDiffLineSide(
                 DiffContextMenu(
                     selectedText,
                     line,
-                    diffType,
+                    fileDiffType,
                     onDiscardLine = { onDiscardLine(line) },
                 ) {
                     SplitDiffLine(
                         highestLineNumberLength = highestLineNumberLength,
                         line = line,
                         lineNumber = displayLineNumber,
-                        diffType = diffType,
+                        fileDiffType = fileDiffType,
                         onActionTriggered = onActionTriggered,
                     )
                 }
@@ -708,7 +708,7 @@ fun SplitDiffLineSide(
 fun DiffContextMenu(
     selectedText: AnnotatedString,
     line: Line,
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     onDiscardLine: () -> Unit,
     content: @Composable () -> Unit,
 ) {
@@ -717,8 +717,8 @@ fun DiffContextMenu(
         items = {
             if (
                 line.lineType != LineType.CONTEXT &&
-                diffType is DiffType.UnstagedDiff &&
-                diffType.statusType == StatusType.MODIFIED
+                fileDiffType is FileDiffType.UnstagedFileDiff &&
+                fileDiffType.statusType == StatusType.MODIFIED
             ) {
                 listOf(
                     ContextMenuElement.ContextTextEntry(
@@ -746,7 +746,7 @@ enum class SelectableSide {
 @Composable
 fun HunkHeader(
     header: String,
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     onUnstageHunk: () -> Unit,
     onStageHunk: () -> Unit,
     onResetHunk: () -> Unit,
@@ -768,12 +768,12 @@ fun HunkHeader(
 
         // Hunks options are only visible when repository is a normal state (not during merge/rebase)
         if (
-            (diffType is DiffType.SafeStagedDiff || diffType is DiffType.SafeUnstagedDiff) &&
-            diffType.statusType == StatusType.MODIFIED
+            (fileDiffType is FileDiffType.SafeStagedFileDiff || fileDiffType is FileDiffType.SafeUnstagedFileDiff) &&
+            fileDiffType.statusType == StatusType.MODIFIED
         ) {
             val buttonText: String
             val color: Color
-            if (diffType is DiffType.StagedDiff) {
+            if (fileDiffType is FileDiffType.StagedFileDiff) {
                 buttonText = "Unstage hunk"
                 color = MaterialTheme.colors.error
             } else {
@@ -781,7 +781,7 @@ fun HunkHeader(
                 color = MaterialTheme.colors.primary
             }
 
-            if (diffType is DiffType.UnstagedDiff) {
+            if (fileDiffType is FileDiffType.UnstagedFileDiff) {
                 SecondaryButton(
                     text = "Discard hunk",
                     backgroundButton = MaterialTheme.colors.error,
@@ -796,7 +796,7 @@ fun HunkHeader(
                 backgroundButton = color,
                 modifier = Modifier.padding(horizontal = 16.dp),
                 onClick = {
-                    if (diffType is DiffType.StagedDiff) {
+                    if (fileDiffType is FileDiffType.StagedFileDiff) {
                         onUnstageHunk()
                     } else {
                         onStageHunk()
@@ -809,7 +809,7 @@ fun HunkHeader(
 
 @Composable
 private fun DiffHeader(
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     diffEntry: DiffEntry,
     textDiffType: TextDiffType,
     isDisplayFullFile: Boolean,
@@ -875,7 +875,7 @@ private fun DiffHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            if (diffType.statusType != StatusType.ADDED && diffType.statusType != StatusType.REMOVED && isTextDiff) {
+            if (fileDiffType.statusType != StatusType.ADDED && fileDiffType.statusType != StatusType.REMOVED && isTextDiff) {
                 DiffTypeButtons(
                     diffType = textDiffType,
                     isDisplayFullFile = isDisplayFullFile,
@@ -884,9 +884,9 @@ private fun DiffHeader(
                 )
             }
 
-            if (diffType is DiffType.UncommittedDiff) {
+            if (fileDiffType is FileDiffType.UncommittedFileDiff) {
                 UncommittedDiffFileHeaderButtons(
-                    diffType,
+                    fileDiffType,
                     onUnstageFile = onUnstageFile,
                     onStageFile = onStageFile
                 )
@@ -991,14 +991,14 @@ fun DiffTypeButtons(
 
 @Composable
 fun UncommittedDiffFileHeaderButtons(
-    diffType: DiffType.UncommittedDiff,
+    fileDiffType: FileDiffType.UncommittedFileDiff,
     onUnstageFile: (StatusEntry) -> Unit,
     onStageFile: (StatusEntry) -> Unit
 ) {
     val buttonText: String
     val color: Color
 
-    if (diffType is DiffType.StagedDiff) {
+    if (fileDiffType is FileDiffType.StagedFileDiff) {
         buttonText = "Unstage file"
         color = MaterialTheme.colors.error
     } else {
@@ -1010,10 +1010,10 @@ fun UncommittedDiffFileHeaderButtons(
         text = buttonText,
         backgroundButton = color,
         onClick = {
-            if (diffType is DiffType.StagedDiff) {
-                onUnstageFile(diffType.statusEntry)
+            if (fileDiffType is FileDiffType.StagedFileDiff) {
+                onUnstageFile(fileDiffType.statusEntry)
             } else {
-                onStageFile(diffType.statusEntry)
+                onStageFile(fileDiffType.statusEntry)
             }
         }
     )
@@ -1060,7 +1060,7 @@ private fun PathOnlyDiffHeader(
 fun DiffLine(
     highestLineNumberLength: Int,
     line: Line,
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     onActionTriggered: () -> Unit,
 ) {
     val backgroundColor = when (line.lineType) {
@@ -1096,7 +1096,7 @@ fun DiffLine(
             )
         }
 
-        DiffLineText(line, diffType, onActionTriggered = onActionTriggered)
+        DiffLineText(line, fileDiffType, onActionTriggered = onActionTriggered)
     }
 }
 
@@ -1105,7 +1105,7 @@ fun SplitDiffLine(
     highestLineNumberLength: Int,
     line: Line,
     lineNumber: Int,
-    diffType: DiffType,
+    fileDiffType: FileDiffType,
     onActionTriggered: () -> Unit,
 ) {
     val backgroundColor = when (line.lineType) {
@@ -1125,14 +1125,14 @@ fun SplitDiffLine(
             )
         }
 
-        DiffLineText(line, diffType, onActionTriggered = onActionTriggered)
+        DiffLineText(line, fileDiffType, onActionTriggered = onActionTriggered)
     }
 }
 
 
 @Composable
-fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) {
-    val fileExtension = diffType.filePath.split(".").lastOrNull()
+fun DiffLineText(line: Line, fileDiffType: FileDiffType, onActionTriggered: () -> Unit) {
+    val fileExtension = fileDiffType.filePath.split(".").lastOrNull()
     val syntaxHighlighter = getSyntaxHighlighterFromExtension(fileExtension)
 
     val text = line.text
@@ -1143,18 +1143,18 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
     Box(modifier = Modifier.hoverable(hoverInteraction)) {
         if (
             isHovered &&
-            diffType is DiffType.UncommittedDiff &&
+            fileDiffType is FileDiffType.UncommittedFileDiff &&
             line.lineType != LineType.CONTEXT &&
-            diffType.statusType == StatusType.MODIFIED
+            fileDiffType.statusType == StatusType.MODIFIED
         ) {
-            val color: Color = if (diffType is DiffType.StagedDiff) {
+            val color: Color = if (fileDiffType is FileDiffType.StagedFileDiff) {
                 MaterialTheme.colors.error
             } else {
                 MaterialTheme.colors.primary
             }
 
-            val iconName = remember(diffType) {
-                if (diffType is DiffType.StagedDiff) {
+            val iconName = remember(fileDiffType) {
+                if (fileDiffType is FileDiffType.StagedFileDiff) {
                     AppIcons.REMOVE
                 } else {
                     AppIcons.ADD

@@ -23,7 +23,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
@@ -36,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.DiffType
+import com.jetpackduba.gitnuro.git.FileDiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -397,7 +397,7 @@ fun ColumnScope.StagedView(
         onTreeDirectoryAction = onTreeDirectoryAction,
         onTreeEntries = { it.staged },
         onListEntries = { it.staged },
-        onGetSelectedEntry = { if (selectedEntryType is DiffType.StagedDiff) selectedEntryType else null },
+        selectedEntry = if (selectedEntryType is FileDiffType.StagedFileDiff) selectedEntryType else null,
     )
 }
 
@@ -457,7 +457,7 @@ fun ColumnScope.UnstagedView(
         onTreeDirectoryAction = onTreeDirectoryAction,
         onTreeEntries = { it.unstaged },
         onListEntries = { it.unstaged },
-        onGetSelectedEntry = { if (selectedEntryType is DiffType.UnstagedDiff) selectedEntryType else null },
+        selectedEntry = if (selectedEntryType is FileDiffType.UnstagedFileDiff) selectedEntryType else null,
     )
 }
 
@@ -490,7 +490,7 @@ fun ColumnScope.NeutralView(
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (String) -> Unit,
     onTreeDirectoryAction: (String) -> Unit,
-    onGetSelectedEntry: () -> DiffType?,
+    selectedEntry: DiffType?,
 ) {
     val modifier = Modifier
         .weight(5f)
@@ -527,7 +527,7 @@ fun ColumnScope.NeutralView(
             onAllAction = onAllAction,
             onTreeDirectoryClicked = { onTreeDirectoryClicked(it.fullPath) },
             allActionTitle = allActionTitle,
-            selectedEntryType = if (selectedEntryType is DiffType.UnstagedDiff) selectedEntryType else null,
+            selectedEntryType = if (selectedEntryType is FileDiffType.UnstagedFileDiff) selectedEntryType else null,
             onAlternateShowAsTree = onAlternateShowAsTree,
             onGenerateDirectoryContextMenu = { dir ->
                 statusDirEntriesContextMenuItems(
@@ -566,7 +566,7 @@ fun ColumnScope.NeutralView(
             },
             onAllAction = onAllAction,
             allActionTitle = allActionTitle,
-            selectedEntryType = onGetSelectedEntry(),
+            selectedEntryType = selectedEntry,
             onAlternateShowAsTree = onAlternateShowAsTree,
         )
     }
@@ -862,7 +862,7 @@ private fun EntriesList(
         ) {
             items(statusEntries, key = { it.filePath }) { statusEntry ->
                 val isEntrySelected = selectedEntryType != null &&
-                        selectedEntryType is DiffType.UncommittedDiff && // Added for smartcast
+                        selectedEntryType is FileDiffType.UncommittedFileDiff && // Added for smartcast
                         selectedEntryType.statusEntry == statusEntry
                 UncommittedFileEntry(
                     statusEntry = statusEntry,
@@ -906,7 +906,7 @@ private fun TreeEntriesList(
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (TreeItem.Dir) -> Unit,
     allActionTitle: String,
-    selectedEntryType: DiffType?,
+    selectedEntryType: FileDiffType?,
 ) {
     Column(
         modifier = modifier
@@ -936,7 +936,7 @@ private fun TreeEntriesList(
             items(statusEntries, key = { it.fullPath }) { treeEntry ->
                 val isEntrySelected = treeEntry is TreeItem.File<StatusEntry> &&
                         selectedEntryType != null &&
-                        selectedEntryType is DiffType.UncommittedDiff && // Added for smartcast
+                        selectedEntryType is FileDiffType.UncommittedFileDiff && // Added for smartcast
                         selectedEntryType.statusEntry == treeEntry.data
 
                 UncommittedTreeItemEntry(
@@ -946,6 +946,7 @@ private fun TreeEntriesList(
                     actionColor = actionColor,
                     onClick = {
                         if (treeEntry is TreeItem.File<StatusEntry>) {
+
                             onDiffEntrySelected(treeEntry.data)
                         } else if (treeEntry is TreeItem.Dir) {
                             onTreeDirectoryClicked(treeEntry)

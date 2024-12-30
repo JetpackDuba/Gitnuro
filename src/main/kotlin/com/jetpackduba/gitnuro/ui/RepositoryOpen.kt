@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.git.DiffType
+import com.jetpackduba.gitnuro.git.FileDiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -409,9 +410,9 @@ fun MainContentView(
 
                                 repositoryOpenViewModel.newDiffSelected = if (diffEntry != null) {
                                     if (repositoryState == RepositoryState.SAFE)
-                                        DiffType.SafeStagedDiff(diffEntry)
+                                        FileDiffType.SafeStagedFileDiff(diffEntry)
                                     else
-                                        DiffType.UnsafeStagedDiff(diffEntry)
+                                        FileDiffType.UnsafeStagedFileDiff(diffEntry)
                                 } else {
                                     null
                                 }
@@ -420,9 +421,9 @@ fun MainContentView(
                                 repositoryOpenViewModel.minimizeBlame()
 
                                 if (repositoryState == RepositoryState.SAFE)
-                                    repositoryOpenViewModel.newDiffSelected = DiffType.SafeUnstagedDiff(diffEntry)
+                                    repositoryOpenViewModel.newDiffSelected = FileDiffType.SafeUnstagedFileDiff(diffEntry)
                                 else
-                                    repositoryOpenViewModel.newDiffSelected = DiffType.UnsafeUnstagedDiff(diffEntry)
+                                    repositoryOpenViewModel.newDiffSelected = FileDiffType.UnsafeUnstagedFileDiff(diffEntry)
                             },
                             onBlameFile = { repositoryOpenViewModel.blameFile(it) },
                             onHistoryFile = { repositoryOpenViewModel.fileHistory(it) }
@@ -436,7 +437,7 @@ fun MainContentView(
                             diffSelected = diffSelected,
                             onDiffSelected = { diffEntry ->
                                 repositoryOpenViewModel.minimizeBlame()
-                                repositoryOpenViewModel.newDiffSelected = DiffType.CommitDiff(diffEntry)
+                                repositoryOpenViewModel.newDiffSelected = FileDiffType.CommitFileDiff(diffEntry)
                             },
                             onBlame = { repositoryOpenViewModel.blameFile(it) },
                             onHistory = { repositoryOpenViewModel.fileHistory(it) },

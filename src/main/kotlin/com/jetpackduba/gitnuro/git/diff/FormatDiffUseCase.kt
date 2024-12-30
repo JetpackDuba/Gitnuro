@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.git.diff
 
 import com.jetpackduba.gitnuro.extensions.filePath
-import com.jetpackduba.gitnuro.git.DiffType
+import com.jetpackduba.gitnuro.git.FileDiffType
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.submodules.GetSubmodulesUseCase
 import kotlinx.coroutines.Dispatchers
@@ -24,13 +24,13 @@ class FormatDiffUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         git: Git,
-        diffType: DiffType,
+        fileDiffType: FileDiffType,
         isDisplayFullFile: Boolean
     ): DiffResult = withContext(Dispatchers.IO) {
         val repository = git.repository
         val submodules = getSubmodulesUseCase(git)
 
-        val diffEntry = getDiffEntryFromDiffTypeUseCase(git, diffType)
+        val diffEntry = getDiffEntryFromDiffTypeUseCase(git, fileDiffType)
 
         var diffResult: DiffResult
         val submoduleStatus = submodules[diffEntry.filePath]
@@ -41,7 +41,7 @@ class FormatDiffUseCase @Inject constructor(
             val oldTree: DirCacheIterator?
             val newTree: FileTreeIterator?
 
-            if (diffType is DiffType.UnstagedDiff) {
+            if (fileDiffType is FileDiffType.UnstagedFileDiff) {
                 oldTree = DirCacheIterator(repository.readDirCache())
                 newTree = FileTreeIterator(repository)
             } else {
