@@ -48,6 +48,7 @@ repositories {
 
 dependencies {
     val jgit = "7.1.0.202411261347-r"
+    val ktorVersion = "3.0.3"
 
     when {
         currentOs() == OS.LINUX && isLinuxAarch64 -> implementation(compose.desktop.linux_arm64)
@@ -60,6 +61,7 @@ dependencies {
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")
     implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:$jgit")
+    implementation("org.eclipse.jgit:org.eclipse.jgit.lfs:$jgit")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation("com.google.dagger:dagger:2.48.1")
     ksp("com.google.dagger:dagger-compiler:2.48.1")
@@ -75,6 +77,11 @@ dependencies {
     implementation("org.slf4j:slf4j-reload4j:2.0.7")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("org.bouncycastle:bcpg-jdk18on:1.78.1")
+    implementation("io.ktor:ktor-client:$ktorVersion")
+    implementation("io.ktor:ktor-client-cio:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
 }
 
 fun currentOs(): OS {

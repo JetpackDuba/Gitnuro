@@ -3,50 +3,62 @@ package com.jetpackduba.gitnuro.ui.dialogs
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
-import com.jetpackduba.gitnuro.credentials.CredentialsRequested
+import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 
 @Composable
-fun CredentialsDialog(gitManager: TabViewModel) {
-    val credentialsState = gitManager.credentialsState.collectAsState()
+fun CredentialsDialog(tabViewModel: TabViewModel) {
+    val credentialsState = tabViewModel.credentialsState.collectAsState()
 
     when (val credentialsStateValue = credentialsState.value) {
-        CredentialsRequested.HttpCredentialsRequested -> {
+        CredentialsRequest.HttpCredentialsRequest -> {
             UserPasswordDialog(
                 onReject = {
-                    gitManager.credentialsDenied()
+                    tabViewModel.credentialsDenied()
                 },
                 onAccept = { user, password ->
-                    gitManager.httpCredentialsAccepted(user, password)
+                    tabViewModel.httpCredentialsAccepted(user, password)
                 }
             )
         }
 
-        CredentialsRequested.SshCredentialsRequested -> {
+        CredentialsRequest.SshCredentialsRequest -> {
             SshPasswordDialog(
                 onReject = {
-                    gitManager.credentialsDenied()
+                    tabViewModel.credentialsDenied()
                 },
                 onAccept = { password ->
-                    gitManager.sshCredentialsAccepted(password)
+                    tabViewModel.sshCredentialsAccepted(password)
                 }
             )
         }
 
-        is CredentialsRequested.GpgCredentialsRequested -> {
+        is CredentialsRequest.GpgCredentialsRequest -> {
             GpgPasswordDialog(
-                gpgCredentialsRequested = credentialsStateValue,
+                gpgCredentialsRequest = credentialsStateValue,
                 onReject = {
-                    gitManager.credentialsDenied()
+                    tabViewModel.credentialsDenied()
                 },
                 onAccept = { password ->
-                    gitManager.gpgCredentialsAccepted(password)
+                    tabViewModel.gpgCredentialsAccepted(password)
+                }
+            )
+        }
+
+        CredentialsRequest.LfsCredentialsRequest -> {
+            UserPasswordDialog(
+                onReject = {
+                    tabViewModel.credentialsDenied()
+                },
+                onAccept = { user, password ->
+                    tabViewModel.lfsCredentialsAccepted(user, password)
                 }
             )
         }
 
         is CredentialsAccepted, CredentialsState.None, CredentialsState.CredentialsDenied -> { /* Nothing to do */
         }
+
     }
 }

@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.credentials
 
 import Session
-import com.jetpackduba.gitnuro.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.exceptions.SshException
 import com.jetpackduba.gitnuro.extensions.throwIfSshMessage
 import org.eclipse.jgit.transport.RemoteSession
@@ -45,10 +44,10 @@ class SshRemoteSession @Inject constructor(
         var result = session.publicKeyAuth("")
 
         if (result == 2) {//AuthStatus.DENIED) {
-            credentialsStateManager.updateState(CredentialsRequested.SshCredentialsRequested)
+            credentialsStateManager.updateState(CredentialsRequest.SshCredentialsRequest)
 
             var credentials = credentialsStateManager.currentCredentialsState
-            while (credentials is CredentialsRequested) {
+            while (credentials is CredentialsRequest) {
                 credentials = credentialsStateManager.currentCredentialsState
             }
 

@@ -157,9 +157,9 @@ class HttpCredentialsProvider @AssistedInject constructor(
     }
 
     private fun askForCredentials(): CredentialsState {
-        credentialsStateManager.updateState(CredentialsRequested.HttpCredentialsRequested)
+        credentialsStateManager.updateState(CredentialsRequest.HttpCredentialsRequest)
         var credentials = credentialsStateManager.currentCredentialsState
-        while (credentials is CredentialsRequested) {
+        while (credentials is CredentialsRequest) {
             credentials = credentialsStateManager.currentCredentialsState
         }
 

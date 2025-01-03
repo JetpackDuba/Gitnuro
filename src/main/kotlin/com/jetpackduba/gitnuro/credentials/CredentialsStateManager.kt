@@ -18,22 +18,28 @@ class CredentialsStateManager @Inject constructor() {
     fun updateState(newCredentialsState: CredentialsState) {
         _credentialsState.value = newCredentialsState
     }
+
+    fun requestCredentials(credentialsRequest: CredentialsRequest) {
+        updateState(credentialsRequest)
+    }
 }
 
 sealed interface CredentialsState {
-    object None : CredentialsState
-    object CredentialsDenied : CredentialsState
+    data object None : CredentialsState
+    data object CredentialsDenied : CredentialsState
 }
 
 sealed interface CredentialsAccepted : CredentialsState {
     data class SshCredentialsAccepted(val password: String) : CredentialsAccepted
     data class GpgCredentialsAccepted(val password: String) : CredentialsAccepted
     data class HttpCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted
+    data class LfsCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted
 }
 
-sealed interface CredentialsRequested : CredentialsState {
-    object SshCredentialsRequested : CredentialsRequested
-    data class GpgCredentialsRequested(val isRetry: Boolean, val password: String) : CredentialsRequested
-    object HttpCredentialsRequested : CredentialsRequested
+sealed interface CredentialsRequest : CredentialsState {
+    data object SshCredentialsRequest : CredentialsRequest
+    data class GpgCredentialsRequest(val isRetry: Boolean, val password: String) : CredentialsRequest
+    data object HttpCredentialsRequest : CredentialsRequest
+    data object LfsCredentialsRequest : CredentialsRequest
 }
 

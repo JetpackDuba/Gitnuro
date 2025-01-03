@@ -28,6 +28,7 @@ import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.lfs.GLfsFactory
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
@@ -46,10 +47,12 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.lfs.BuiltinLFS
 import org.eclipse.jgit.lib.GpgConfig
 import org.eclipse.jgit.lib.Signer
 import org.eclipse.jgit.lib.SignerFactory
 import org.eclipse.jgit.lib.Signers
+import org.eclipse.jgit.util.LfsFactory
 import java.io.File
 import java.io.FileOutputStream
 import java.net.Authenticator
@@ -85,6 +88,9 @@ class App {
     @Inject
     lateinit var signer: AppGpgSigner
 
+    @Inject
+    lateinit var gLfsFactory: GLfsFactory
+
     init {
         appComponent.inject(this)
     }
@@ -115,6 +121,7 @@ class App {
         }
 
         tabsManager.loadPersistedTabs()
+        gLfsFactory.register()
 
         if (dirToOpen != null)
             addDirTab(dirToOpen)

@@ -145,6 +145,10 @@ class TabViewModel @Inject constructor(
         credentialsStateManager.updateState(CredentialsAccepted.SshCredentialsAccepted(password))
     }
 
+    fun lfsCredentialsAccepted(user: String, password: String) {
+        credentialsStateManager.updateState(CredentialsAccepted.LfsCredentialsAccepted(user, password))
+    }
+
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
     fun dispose() {

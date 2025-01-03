@@ -48,7 +48,7 @@ class GpgCredentialsProvider @Inject constructor(
 
             // Request passphrase
             credentialsStateManager.updateState(
-                CredentialsRequested.GpgCredentialsRequested(
+                CredentialsRequest.GpgCredentialsRequest(
                     isRetry = isRetry,
                     // Use previously set credentials for cases where this method is invoked again (like when the passphrase is not correct)
                     password = credentialsSet?.second ?: ""
@@ -57,7 +57,7 @@ class GpgCredentialsProvider @Inject constructor(
 
             var credentials = credentialsStateManager.currentCredentialsState
 
-            while (credentials is CredentialsRequested.GpgCredentialsRequested) {
+            while (credentials is CredentialsRequest.GpgCredentialsRequest) {
                 credentials = credentialsStateManager.currentCredentialsState
             }
 
