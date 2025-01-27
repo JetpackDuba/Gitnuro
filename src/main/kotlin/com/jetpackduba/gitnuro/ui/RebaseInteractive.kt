@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -194,12 +195,6 @@ fun RebaseCommit(
         modifier = Modifier
             .height(IntrinsicSize.Min)
             .fillMaxWidth()
-            .onFocusEvent {
-                if (it.hasFocus && !isSelected) {
-                    onFocusLine()
-                    focusRequester.requestFocus()
-                }
-            }
             .clickable {
                 onFocusLine()
             }
@@ -219,7 +214,12 @@ fun RebaseCommit(
                 .padding(start = 8.dp)
                 .weight(1f)
                 .heightIn(min = 40.dp)
-                .focusRequester(focusRequester),
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.hasFocus && !isSelected) {
+                        onFocusLine()
+                    }
+                },
             enabled = action == RebaseAction.REWORD,
             value = newMessage,
             onValueChange = {
