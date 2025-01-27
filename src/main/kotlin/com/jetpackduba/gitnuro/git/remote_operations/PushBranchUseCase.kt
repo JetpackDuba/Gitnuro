@@ -14,6 +14,7 @@ import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.transport.RefLeaseSpec
 import org.eclipse.jgit.transport.RefSpec
+import java.io.PrintStream
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -102,7 +103,11 @@ class PushBranchUseCase @Inject constructor(
                 override fun isCancelled() = !isActive
                 override fun showDuration(enabled: Boolean) {}
             })
+            .setHookOutputStream(System.out)
+            .setHookErrorStream(System.err)
             .call()
+
+
 
         val results = pushResult
             .map {

@@ -1,11 +1,13 @@
 package com.jetpackduba.gitnuro.lfs
 
+import com.jetpackduba.gitnuro.Result
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
+import com.jetpackduba.gitnuro.models.lfs.LfsObjects
 import com.jetpackduba.gitnuro.models.lfs.LfsPrepareUploadObjectBatch
-import com.jetpackduba.gitnuro.models.lfs.LfsRef
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -15,13 +17,9 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.cio.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.eclipse.jgit.annotations.Nullable
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.attributes.Attribute
-import org.eclipse.jgit.errors.IncorrectObjectTypeException
-import org.eclipse.jgit.errors.MissingObjectException
+import org.eclipse.jgit.attributes.FilterCommandRegistry
 import org.eclipse.jgit.hooks.PrePushHook
 import org.eclipse.jgit.lfs.*
 import org.eclipse.jgit.lib.*
@@ -32,23 +30,32 @@ import org.eclipse.jgit.util.LfsFactory
 import java.io.IOException
 import java.io.InputStream
 import java.io.PrintStream
-import java.security.cert.X509Certificate
 import java.util.*
 import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.net.ssl.X509TrustManager
-import javax.swing.text.AbstractDocument.Content
 
+private const val TAG = "GLfsFactory"
 
 @Singleton
 class GLfsFactory @Inject constructor(
     private val lfsRepository: LfsRepository,
     private val credentialsStateManager: CredentialsStateManager,
 ) : LfsFactory() {
+    init {
+        FilterCommandRegistry.register("jgit://builtin/lfs/smudge") { repository, input, out ->
+            LfsSmudgeFilter(lfsRepository, credentialsStateManager, input, out, repository)
+        }
+        FilterCommandRegistry.register("jgit://builtin/lfs/clean") { db, `in`, out ->
+            LfsCleanFilter(db, `in`, out)
+        }
+    }
+
+
     fun register() {
         setInstance(this)
     }
+
 
     override fun isAvailable(): Boolean {
         return true
@@ -65,7 +72,7 @@ class GLfsFactory @Inject constructor(
 
     @Throws(IOException::class)
     override fun applyCleanFilter(
-        db: Repository?,
+        db: Repository,
         input: InputStream?,
         length: Long,
         attribute: Attribute?
@@ -120,6 +127,18 @@ class GLfsFactory @Inject constructor(
         return InstallBuiltinLfsCommand()
     }
 }
+
+//class GSmudgeFilter(
+//    repository: Repository,
+//    input: InputStream?,
+//    output: OutputStream?,
+//) : SmudgeFilter(
+//    repository,
+//    input,
+//    output,
+//) {
+//
+//}
 
 class GLfsPrePushHook(
     repository: Repository,
@@ -212,70 +231,101 @@ class GLfsPrePushHook(
         return Constants.R_REMOTES + remoteName
     }
 
-    fun getLfsRepositoryUrl(repository: Repository): String {
-        // TODO Obtain proper url
-        return "https://localhost:8080"
-    }
-
     override fun call(): String = runBlocking {
         val toPush = findObjectsToPush()
         if (toPush.isEmpty()) {
             return@runBlocking ""
         }
 
-        val uploadBatch = LfsPrepareUploadObjectBatch(
-            operation = "upload",
-            objects = toPush.map {
-                LfsObjectBatch(it.oid.name(), it.size)
-            },
-            transfers = listOf(
-                "lfs-standalone-file",
-                "basic",
-                "ssh",
-            ),
-            ref = LfsRef(repository.fullBranch),
-            hashAlgo = "sha256",
-        )
-
         if (!isDryRun) {
-            val lfsServerUrl = getLfsRepositoryUrl(repository)
-            val requiresAuth = lfsRepository.requiresAuthForBatchObjects(lfsServerUrl)
+            val lfsServerUrl = lfsRepository.getLfsRepositoryUrl(repository)
 
-            var username: String? = null
-            var password: String? = null
+            val lfsPrepareUploadObjectBatch = createLfsPrepareUploadObjectBatch(
+                OperationType.UPLOAD,
+                branch = repository.fullBranch,
+                objects = toPush.map { LfsObjectBatch(it.oid.name(), it.size) },
+            )
 
-            if (requiresAuth) {
-                credentialsStateManager.requestCredentials(CredentialsRequest.LfsCredentialsRequest)
-
-                var credentials = credentialsStateManager.currentCredentialsState
-                while (credentials is CredentialsRequest) {
-                    credentials = credentialsStateManager.currentCredentialsState
+            when (val lfsObjects = getLfsObjects(lfsServerUrl, lfsPrepareUploadObjectBatch)) {
+                is Result.Err -> {
+                    throw Exception("LFS Error ${lfsObjects.error}")
                 }
 
-                if (credentials !is CredentialsAccepted.LfsCredentialsAccepted)
-                    throw CancellationException("Credentials cancelled")
-                else {
-                    username = credentials.user
-                    password = credentials.password
+                is Result.Ok -> for (p in toPush) {
+                    val lfs = Lfs(repository)
+
+                    printLog("LFS", "Requesting credentials for objects upload")
+                    val credentials = requestLfsCredentials()
+
+                    lfsObjects.value.objects.forEach { obj ->
+                        val uploadUrl = obj.actions.upload?.href
+
+                        if (uploadUrl != null) {
+                            lfsRepository.uploadObject(
+                                uploadUrl,
+                                p.oid.name(),
+                                lfs.getMediaFile(p.oid),
+                                p.size,
+                                credentials.user,
+                                credentials.password,
+                            )
+                        }
+                    }
                 }
-            }
-
-            lfsRepository.batchObjects(lfsServerUrl, uploadBatch, username, password)
-
-            for (p in toPush) {
-                val lfs = Lfs(repository)
-
-                lfsRepository.uploadObject(
-                    lfsServerUrl,
-                    p.oid.name(),
-                    lfs.getMediaFile(p.oid),
-                    p.size,
-                    username,
-                    password,
-                )
             }
         }
 
         return@runBlocking ""
+    }
+
+    private suspend fun getLfsObjects(
+        lfsServerUrl: String,
+        lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
+    ): Result<LfsObjects, LfsError> {
+
+        var lfsObjects: Result<LfsObjects, LfsError>
+        var requiresAuth: Boolean
+
+        var username: String? = null
+        var password: String? = null
+
+
+        do {
+            val newLfsObjects = lfsRepository.postBatchObjects(
+                lfsServerUrl,
+                lfsPrepareUploadObjectBatch,
+                username,
+                password,
+            )
+
+            requiresAuth = newLfsObjects is Result.Err &&
+                    newLfsObjects.error is LfsError.HttpError &&
+                    newLfsObjects.error.code == HttpStatusCode.Unauthorized
+
+            if (requiresAuth) {
+                val credentials = requestLfsCredentials()
+                username = credentials.user
+                password = credentials.password
+            }
+
+            lfsObjects = newLfsObjects
+        } while (requiresAuth)
+
+        return lfsObjects
+    }
+
+    private fun requestLfsCredentials(): CredentialsAccepted.LfsCredentialsAccepted {
+        credentialsStateManager.requestCredentials(CredentialsRequest.LfsCredentialsRequest)
+
+        var credentials = credentialsStateManager.currentCredentialsState
+        while (credentials is CredentialsRequest) {
+            credentials = credentialsStateManager.currentCredentialsState
+        }
+
+        if (credentials !is CredentialsAccepted.LfsCredentialsAccepted) {
+            throw CancellationException("Credentials cancelled") // TODO Improve this error
+        }
+
+        return credentials
     }
 }

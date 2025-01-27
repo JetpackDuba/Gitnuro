@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LfsPrepareUploadObjectBatch(
-    @SerialName("operation") val operation: String? = null,
+    @SerialName("operation") val operation: String,
     @SerialName("objects") val objects: List<LfsObjectBatch>,
     @SerialName("transfers") val transfers: List<String>,
     @SerialName("ref") val ref: LfsRef?,

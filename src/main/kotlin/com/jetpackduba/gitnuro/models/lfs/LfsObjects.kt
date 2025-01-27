@@ -18,8 +18,8 @@ data class LfsObject(
 
 @Serializable
 data class Actions(
-    @SerialName("download") var download: Download?,
-    @SerialName("upload") var upload: Upload?,
+    @SerialName("download") var download: Download? = null,
+    @SerialName("upload") var upload: Upload? = null,
 )
 
 @Serializable
@@ -31,7 +31,7 @@ data class Download(
 
 @Serializable
 data class Upload(
-    @SerialName("href") var href: String?,
+    @SerialName("href") var href: String,
     @SerialName("header") var header: Header?,
     @SerialName("expires_at") var expiresAt: String?,
 )
