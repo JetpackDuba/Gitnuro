@@ -26,22 +26,21 @@ class LfsSmudgeFilter(
     private val credentialsStateManager: CredentialsStateManager,
     input: InputStream,
     output: OutputStream,
-    db: Repository,
-) :
-    FilterCommand(
-        if (input.markSupported()) input else BufferedInputStream(input),
-        output,
-    ) {
+    repository: Repository,
+) : FilterCommand(
+    if (input.markSupported()) input else BufferedInputStream(input),
+    output,
+) {
     init {
         var from: InputStream? = input
         try {
             val res = LfsPointer.parseLfsPointer(from)
             if (res != null) {
                 val oid = res.oid
-                val lfs = Lfs(db)
+                val lfs = Lfs(repository)
                 val mediaFile = lfs.getMediaFile(oid)
                 if (!Files.exists(mediaFile)) {
-                    downloadLfsResource2(db, res)
+                    downloadLfsResource2(repository, res)
                 }
                 this.`in` = Files.newInputStream(mediaFile)
             } else {

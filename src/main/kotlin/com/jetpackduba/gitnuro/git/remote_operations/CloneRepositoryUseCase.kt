@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.git.CloneState
+import com.jetpackduba.gitnuro.git.submodules.InitializeAllSubmodulesUseCase
 import com.jetpackduba.gitnuro.logging.printDebug
+import com.jetpackduba.gitnuro.logging.printError
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.ensureActive
@@ -17,6 +19,7 @@ private const val TAG = "CloneRepositoryUseCase"
 
 class CloneRepositoryUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
+    private val initializeAllSubmodulesUseCase: InitializeAllSubmodulesUseCase,
 ) {
     operator fun invoke(directory: File, url: String, cloneSubmodules: Boolean): Flow<CloneState> = callbackFlow {
         var lastTitle: String = ""
@@ -25,11 +28,14 @@ class CloneRepositoryUseCase @Inject constructor(
 
         try {
             ensureActive()
+
             trySend(CloneState.Cloning("Starting...", progress, lastTotalWork))
+
             handleTransportUseCase(null) {
                 Git.cloneRepository()
                     .setDirectory(directory)
                     .setURI(url)
+                    .setNoCheckout(true)
                     .setProgressMonitor(
                         object : ProgressMonitor {
                             override fun start(totalTasks: Int) {
@@ -68,10 +74,23 @@ class CloneRepositoryUseCase @Inject constructor(
                     .call()
             }
 
+            val git = Git.open(directory)
+
+            useBuiltinLfs(git.repository) {
+                git.checkout()
+                    .setName(git.repository.fullBranch)
+                    .setForced(true)
+                    .call()
+            }
+
+            // TODO Test this
+            initializeAllSubmodulesUseCase(git)
+
             ensureActive()
             trySend(CloneState.Completed(directory))
             channel.close()
         } catch (ex: Exception) {
+            printError(TAG, ex.localizedMessage, ex)
             if (ex.cause?.cause is CancellationException) {
                 printDebug(TAG, "Clone cancelled")
             } else {

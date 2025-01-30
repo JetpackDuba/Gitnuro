@@ -38,7 +38,10 @@ fun CloneDialog(
 ) {
     val cloneStatus = cloneViewModel.cloneState.collectAsState()
     val cloneStatusValue = cloneStatus.value
-
+    var url by remember(cloneViewModel) { mutableStateOf(cloneViewModel.repositoryUrl.value) }
+    var directory by remember(cloneViewModel) { mutableStateOf(cloneViewModel.directoryPath.value) }
+    var folder by remember(cloneViewModel) { mutableStateOf(cloneViewModel.folder.value) }
+    var cloneSubmodules by remember { mutableStateOf(true) }
     MaterialDialog(
         onCloseRequested = onClose,
         background = MaterialTheme.colors.surface,
@@ -65,6 +68,14 @@ fun CloneDialog(
                 is CloneState.Fail, CloneState.None -> CloneDialogView(
                     cloneViewModel = cloneViewModel,
                     onClose = onClose,
+                    url,
+                    directory,
+                    folder,
+                    cloneSubmodules,
+                    onUrlChange = { url = it },
+                    onDirectoryChange = { directory = it },
+                    onFolderChange = { folder = it },
+                    onCloneSubmodulesChange = { cloneSubmodules = it },
                 )
             }
         }
@@ -75,12 +86,15 @@ fun CloneDialog(
 private fun CloneDialogView(
     cloneViewModel: CloneViewModel,
     onClose: () -> Unit,
+    url: TextFieldValue,
+    directory: TextFieldValue,
+    folder: TextFieldValue,
+    cloneSubmodules: Boolean,
+    onUrlChange: (TextFieldValue) -> Unit,
+    onDirectoryChange: (TextFieldValue) -> Unit,
+    onFolderChange: (TextFieldValue) -> Unit,
+    onCloneSubmodulesChange: (Boolean) -> Unit,
 ) {
-    var url by remember(cloneViewModel) { mutableStateOf(cloneViewModel.repositoryUrl.value) }
-    var directory by remember(cloneViewModel) { mutableStateOf(cloneViewModel.directoryPath.value) }
-    var folder by remember(cloneViewModel) { mutableStateOf(cloneViewModel.folder.value) }
-    var cloneSubmodules by remember { mutableStateOf(true) }
-
     val error by cloneViewModel.error.collectAsState()
 
     val urlFocusRequester = remember { FocusRequester() }
@@ -106,7 +120,7 @@ private fun CloneDialogView(
         TextInput(
             modifier = Modifier.padding(top = 8.dp).onFocusChanged {
                 if (!it.hasFocus) {
-                    folder = TextFieldValue(cloneViewModel.repoName(url.text))
+                    onFolderChange(TextFieldValue(cloneViewModel.repoName(url.text)))
                 }
             },
             title = "URL",
@@ -117,7 +131,7 @@ private fun CloneDialogView(
                 next = directoryFocusRequester
             },
             onValueChange = { repositoryUrl ->
-                url = repositoryUrl
+                onUrlChange(repositoryUrl)
                 cloneViewModel.onRepositoryUrlChanged(repositoryUrl)
                 cloneViewModel.resetStateIfError()
             }
@@ -133,7 +147,7 @@ private fun CloneDialogView(
                 next = directoryButtonFocusRequester
             },
             onValueChange = {
-                directory = it
+                onDirectoryChange(it)
                 cloneViewModel.onDirectoryPathChanged(directory)
                 cloneViewModel.resetStateIfError()
             },
@@ -143,7 +157,7 @@ private fun CloneDialogView(
                         cloneViewModel.resetStateIfError()
                         val newDirectory = cloneViewModel.openDirectoryPicker()
                         if (newDirectory != null) {
-                            directory = TextFieldValue(newDirectory, selection = TextRange(newDirectory.count()))
+                            onDirectoryChange(TextFieldValue(newDirectory, selection = TextRange(newDirectory.count())))
                             cloneViewModel.onDirectoryPathChanged(directory)
                             cloneViewModel.resetStateIfError()
                             directoryFocusRequester.requestFocus()
@@ -177,7 +191,7 @@ private fun CloneDialogView(
                 next = directoryFocusRequester
             },
             onValueChange = { folderName ->
-                folder = folderName
+                onFolderChange(folderName)
                 cloneViewModel.onFolderNameChanged(folderName)
                 cloneViewModel.resetStateIfError()
             }
@@ -189,7 +203,7 @@ private fun CloneDialogView(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) {
-                cloneSubmodules = !cloneSubmodules
+                onCloneSubmodulesChange(!cloneSubmodules)
             }
                 .fillMaxWidth()
                 .padding(top = 16.dp)
@@ -197,7 +211,7 @@ private fun CloneDialogView(
             Checkbox(
                 checked = cloneSubmodules,
                 onCheckedChange = {
-                    cloneSubmodules = it
+                    onCloneSubmodulesChange(it)
                 },
                 modifier = Modifier
                     .padding(all = 8.dp)
