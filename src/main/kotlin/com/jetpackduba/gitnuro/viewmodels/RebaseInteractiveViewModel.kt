@@ -52,7 +52,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
         override fun modifyCommitMessage(commit: String): String {
             // This can be called when there aren't any reword steps if squash is used.
-            val step = rewordSteps.removeLastOrNull() ?: return commit
+            val step = rewordSteps.removeFirstOrNull() ?: return commit
 
             val rebaseState = _rebaseState.value
             if (rebaseState !is RebaseInteractiveViewState.Loaded) {
