@@ -59,7 +59,7 @@ fun ContextMenu(enabled: Boolean = true, items: () -> List<ContextMenuElement>, 
 }
 
 @Composable
-fun DropdownMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+fun DropDownMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
     Box(modifier = Modifier.dropdownMenu(items), propagateMinConstraints = true) {
         function()
     }

@@ -1,12 +1,15 @@
 package com.jetpackduba.gitnuro.ui.dialogs.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +25,8 @@ import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
@@ -511,7 +516,6 @@ fun <T> SettingDropDown(
     onOptionSelected: (DropDownOption<T>) -> Unit,
     currentOption: DropDownOption<T>,
 ) {
-    var showThemeDropdown by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -521,40 +525,39 @@ fun <T> SettingDropDown(
         Spacer(modifier = Modifier.weight(1f))
 
         Box {
-            OutlinedButton(
-                onClick = { showThemeDropdown = true },
-                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.background),
-                modifier = Modifier.width(180.dp)
-                    .handOnHover()
-            ) {
-                Text(
-                    text = currentOption.optionName,
-                    style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1
-                )
-
-                Icon(
-                    painter = painterResource(AppIcons.DROPDOWN),
-                    contentDescription = null,
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
-
-            DropdownMenu(
-                expanded = showThemeDropdown,
-                onDismissRequest = { showThemeDropdown = false },
-            ) {
-                for (dropDownOption in dropDownOptions) {
-                    DropdownMenuItem(
-                        onClick = {
-                            showThemeDropdown = false
-                            onOptionSelected(dropDownOption)
-                        }
-                    ) {
-                        Text(dropDownOption.optionName)
+            DropDownMenu(
+                items = {
+                    dropDownOptions.map {
+                        ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
                     }
+                },
+            ) {
+                Row(
+                    modifier = Modifier.width(180.dp)
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.1F),
+                            shape = RoundedCornerShape(4.dp),
+                        )
+                        .clip(shape = RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colors.background)
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
+                        .handOnHover(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = currentOption.optionName,
+                        style = MaterialTheme.typography.body1,
+                        color = MaterialTheme.colors.onBackground,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
+                    )
+
+                    Icon(
+                        painter = painterResource(AppIcons.DROPDOWN),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onBackground,
+                    )
                 }
             }
         }

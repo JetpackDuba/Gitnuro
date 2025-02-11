@@ -332,7 +332,7 @@ fun ExtendedMenuButton(
             }
         }
 
-        DropdownMenu(
+        DropDownMenu(
             items = { extendedListItems }
         ) {
             Box(
