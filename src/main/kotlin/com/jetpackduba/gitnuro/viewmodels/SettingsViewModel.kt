@@ -36,7 +36,6 @@ class SettingsViewModel @Inject constructor(
     val ffMergeFlow = appSettingsRepository.ffMergeFlow
     val pullRebaseFlow = appSettingsRepository.pullRebaseFlow
     val pushWithLeaseFlow = appSettingsRepository.pushWithLeaseFlow
-    val commitsLimitEnabledFlow = appSettingsRepository.commitsLimitEnabledFlow
     val swapUncommittedChangesFlow = appSettingsRepository.swapUncommittedChangesFlow
     val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow
     val verifySslFlow = appSettingsRepository.verifySslFlow
@@ -46,12 +45,6 @@ class SettingsViewModel @Inject constructor(
         get() = appSettingsRepository.scaleUi
         set(value) {
             appSettingsRepository.scaleUi = value
-        }
-
-    var commitsLimitEnabled: Boolean
-        get() = appSettingsRepository.commitsLimitEnabled
-        set(value) {
-            appSettingsRepository.commitsLimitEnabled = value
         }
 
     var swapUncommittedChanges: Boolean
@@ -165,18 +158,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun resetInfo() {
-        commitsLimit = appSettingsRepository.commitsLimit
-    }
-
-    fun savePendingChanges() = appScope.launch {
-        val commitsLimit = this@SettingsViewModel.commitsLimit
-
-        if (appSettingsRepository.commitsLimit != commitsLimit) {
-            appSettingsRepository.setCommitsLimit(commitsLimit)
-        }
-    }
-
     fun openFileDialog(): String? {
         return openFilePickerUseCase(PickerType.FILES, null)
     }
@@ -187,6 +168,5 @@ class SettingsViewModel @Inject constructor(
         } catch (ex: Exception) {
             printError(TAG, ex.message.orEmpty(), ex)
         }
-
     }
 }

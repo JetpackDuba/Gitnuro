@@ -42,7 +42,6 @@ val settings = listOf(
     SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { Layout(it) },
 
     SettingsEntry.Section("GIT"),
-    SettingsEntry.Entry(AppIcons.LIST, "Commits history") { CommitsHistory(it) },
     SettingsEntry.Entry(AppIcons.BRANCH, "Branches") { Branches(it) },
     SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { RemoteActions(it) },
 
@@ -160,11 +159,6 @@ fun SettingsDialog(
     settingsViewModel: SettingsViewModel,
     onDismiss: () -> Unit,
 ) {
-
-    LaunchedEffect(Unit) {
-        settingsViewModel.resetInfo()
-    }
-
     var selectedCategory by remember {
         mutableStateOf<SettingsEntry.Entry>(
             settings.filterIsInstance(SettingsEntry.Entry::class.java).first()
@@ -174,8 +168,6 @@ fun SettingsDialog(
     MaterialDialog(
         background = MaterialTheme.colors.surface,
         onCloseRequested = {
-            settingsViewModel.savePendingChanges()
-
             onDismiss()
         },
         paddingHorizontal = 0.dp,
@@ -239,7 +231,6 @@ fun SettingsDialog(
                         .padding(end = 16.dp, bottom = 16.dp)
                         .align(Alignment.End),
                     onClick = {
-                        settingsViewModel.savePendingChanges()
                         onDismiss()
                     },
                 )
@@ -288,33 +279,6 @@ private fun Section(name: String) {
         style = MaterialTheme.typography.body2,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         fontWeight = FontWeight.Bold,
-    )
-}
-
-
-@Composable
-private fun CommitsHistory(settingsViewModel: SettingsViewModel) {
-    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
-    var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
-
-    SettingToggle(
-        title = "Limit log commits",
-        subtitle = "Turning off this may affect the performance",
-        value = commitsLimitEnabled,
-        onValueChanged = { value ->
-            settingsViewModel.commitsLimitEnabled = value
-        }
-    )
-
-    SettingIntInput(
-        title = "Max commits",
-        subtitle = "Increasing this value may affect the performance",
-        value = commitsLimit,
-        enabled = commitsLimitEnabled,
-        onValueChanged = { value ->
-            commitsLimit = value
-            settingsViewModel.commitsLimit = value
-        }
     )
 }
 

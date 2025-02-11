@@ -47,6 +47,7 @@ import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
@@ -93,9 +94,6 @@ private const val DIVIDER_WIDTH = 8
 private const val LOG_BOTTOM_PADDING = 80
 
 // TODO Min size for message column
-@OptIn(
-    ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class
-)
 @Composable
 fun Log(
     logViewModel: LogViewModel,
@@ -115,6 +113,7 @@ fun Log(
             selectedItem = selectedItem,
             repositoryState = repositoryState,
             changeDefaultUpstreamBranchViewModel = changeDefaultUpstreamBranchViewModel,
+            onRequestMoreLogItems = { logViewModel.loadMoreLogItems() }
         )
 
         LogStatus.Loading -> LogLoading()
@@ -147,6 +146,7 @@ private fun LogLoaded(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
+    onRequestMoreLogItems: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val hasUncommittedChanges = logStatus.hasUncommittedChanges
@@ -155,6 +155,24 @@ private fun LogLoaded(
     val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
     val searchFilter = logViewModel.logSearchFilterResults.collectAsState()
     val searchFilterValue = searchFilter.value
+
+    LaunchedEffect(verticalScrollState) {
+        snapshotFlow { verticalScrollState.firstVisibleItemIndex }
+//            .distinctUntilChanged()
+            .collect {
+                val commitsList = logStatus.plotCommitList
+
+                if (
+                    commitsList.isNotEmpty() &&
+                    commitsList.count() - it < 100 &&
+                    commitsList.last().parentCount > 0
+                ) {
+                    printLog("ABDE", "Should request more items!")
+                    onRequestMoreLogItems()
+                }
+                printLog("ABDE", "First visible item index is $it")
+            }
+    }
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
         selectedItem.revCommit
@@ -250,7 +268,6 @@ private fun LogLoaded(
                 selectedItem = selectedItem,
                 commitList = commitList,
                 graphWidth = graphWidth,
-                commitsLimit = logStatus.commitsLimit,
                 onMerge = { ref -> logViewModel.mergeBranch(ref) },
                 onRebase = { ref -> logViewModel.rebaseBranch(ref) },
                 onShowLogDialog = { dialog -> logViewModel.showDialog(dialog) },
@@ -469,7 +486,6 @@ fun CommitsList(
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
     commitList: GraphCommitList,
-    commitsLimit: Int,
     onCheckoutCommit: (GraphNode) -> Unit,
     onRevertCommit: (GraphNode) -> Unit,
     onCherryPickCommit: (GraphNode) -> Unit,
@@ -569,25 +585,6 @@ fun CommitsList(
                 onCheckoutRemoteBranch = onCheckoutRemoteBranch,
                 onCheckoutRef = onCheckoutRef,
             )
-        }
-
-        if (commitsLimit >= 0 && commitsLimit <= commitList.count()) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .padding(start = graphWidth + 24.dp)
-                        .height(MaterialTheme.linesHeight.logCommitHeight),
-                    contentAlignment = Alignment.CenterStart,
-                ) {
-                    Text(
-                        text = "The commits list has been limited to $commitsLimit. Access the settings to change it.",
-                        color = MaterialTheme.colors.onBackground,
-                        fontStyle = FontStyle.Italic,
-                        style = MaterialTheme.typography.body2,
-                        maxLines = 1,
-                    )
-                }
-            }
         }
 
         item {
