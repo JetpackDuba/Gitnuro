@@ -283,7 +283,7 @@ private fun Section(name: String) {
         color = MaterialTheme.colors.onBackgroundSecondary,
         style = MaterialTheme.typography.body2,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.SemiBold,
     )
 }
 
