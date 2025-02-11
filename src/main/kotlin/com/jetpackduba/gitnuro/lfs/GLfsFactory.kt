@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.Result
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
+import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.logging.printLog
@@ -41,10 +42,18 @@ private const val TAG = "GLfsFactory"
 class GLfsFactory @Inject constructor(
     private val lfsRepository: LfsRepository,
     private val credentialsStateManager: CredentialsStateManager,
+    private val credentialsCacheRepository: CredentialsCacheRepository,
 ) : LfsFactory() {
     init {
         FilterCommandRegistry.register("jgit://builtin/lfs/smudge") { repository, input, out ->
-            LfsSmudgeFilter(lfsRepository, credentialsStateManager, input, out, repository)
+            LfsSmudgeFilter(
+                lfsRepository = lfsRepository,
+                credentialsStateManager = credentialsStateManager,
+                credentialsCacheRepository = credentialsCacheRepository,
+                input = input,
+                output = out,
+                repository = repository
+            )
         }
         FilterCommandRegistry.register("jgit://builtin/lfs/clean") { db, `in`, out ->
             LfsCleanFilter(db, `in`, out)

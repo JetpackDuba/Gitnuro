@@ -78,7 +78,10 @@ class HttpCredentialsProvider @AssistedInject constructor(
         val externalCredentialsHelper = getExternalCredentialsHelper(uri, git)
 
         if (externalCredentialsHelper == null) {
-            val cachedCredentials = credentialsCacheRepository.getCachedHttpCredentials(uri.toString())
+            val cachedCredentials = credentialsCacheRepository.getCachedHttpCredentials(
+                url = uri.toString(),
+                isLfs = false,
+            )
 
             if (cachedCredentials == null) {
                 val credentials = askForCredentials()
@@ -92,6 +95,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                             url = uri.toString(),
                             userName = credentials.user,
                             password = credentials.password,
+                            isLfs = false,
                         )
                     }
 

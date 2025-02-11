@@ -20,19 +20,19 @@ class CredentialsCacheRepository @Inject constructor() {
     // having a random key to encrypt the password may help in case of a memory dump attack
     private val encryptionKey = getRandomKey()
 
-    fun getCachedHttpCredentials(url: String): CredentialsType.HttpCredentials? {
+    fun getCachedHttpCredentials(url: String, isLfs: Boolean): CredentialsType.HttpCredentials? {
         val credentials = credentialsCached.filterIsInstance<CredentialsType.HttpCredentials>().firstOrNull {
-            it.url == url
+            it.url == url && it.isLfs == isLfs
         }
 
         return credentials?.copy(password = credentials.password.cipherDecrypt())
     }
 
     suspend fun cacheHttpCredentials(credentials: CredentialsType.HttpCredentials) {
-        cacheHttpCredentials(credentials.url, credentials.userName, credentials.password)
+        cacheHttpCredentials(credentials.url, credentials.userName, credentials.password, credentials.isLfs)
     }
 
-    suspend fun cacheHttpCredentials(url: String, userName: String, password: String) {
+    suspend fun cacheHttpCredentials(url: String, userName: String, password: String, isLfs: Boolean) {
         val passwordEncrypted = password.cipherEncrypt()
 
         credentialsLock.lockUse {
@@ -41,7 +41,7 @@ class CredentialsCacheRepository @Inject constructor() {
             }
 
             if (!previouslyCached) {
-                val credentials = CredentialsType.HttpCredentials(url, userName, passwordEncrypted)
+                val credentials = CredentialsType.HttpCredentials(url, userName, passwordEncrypted, isLfs)
                 credentialsCached.add(credentials)
             }
         }
@@ -101,5 +101,6 @@ sealed interface CredentialsType {
         val url: String,
         val userName: String,
         val password: String,
+        val isLfs: Boolean,
     ) : CredentialsType
 }
