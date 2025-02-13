@@ -240,7 +240,9 @@ fun LazyListScope.localBranches(
                 onMergeBranch = { branchesViewModel.mergeBranch(branch) },
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
-            ) { onChangeDefaultUpstreamBranch(branch) }
+                onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
+                onCopyBranchNameToClipboard = { branchesViewModel.copyBranchNameToClipboard(branch) },
+            )
         }
     }
 }
@@ -288,7 +290,7 @@ fun LazyListScope.remotes(
                     onEditRemote = {
                         val wrapper = remote.remoteInfo.remoteConfig.toRemoteWrapper()
                         onShowAddEditRemoteDialog(wrapper)
-                   },
+                    },
                     onDeleteRemote = { remotesViewModel.deleteRemote(remote.remoteInfo.remoteConfig.name) },
                     onRemoteClicked = { remotesViewModel.onRemoteClicked(remote) },
                 )
@@ -306,6 +308,7 @@ fun LazyListScope.remotes(
                         onPullRemoteBranch = { remotesViewModel.pullFromRemoteBranch(remoteBranch) },
                         onRebaseRemoteBranch = { remotesViewModel.rebaseBranch(remoteBranch) },
                         onMergeRemoteBranch = { remotesViewModel.mergeBranch(remoteBranch) },
+                        onCopyBranchNameToClipboard = { remotesViewModel.copyBranchNameToClipboard(remoteBranch) }
                     )
                 }
             }
@@ -453,6 +456,7 @@ private fun Branch(
     onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
+    onCopyBranchNameToClipboard: () -> Unit,
 ) {
     val isCurrentBranch = currentBranch?.name == branch.name
 
@@ -469,7 +473,8 @@ private fun Branch(
                 onRebaseBranch = onRebaseBranch,
                 onPushToRemoteBranch = {},
                 onPullFromRemoteBranch = {},
-                onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch
+                onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
+                onCopyBranchNameToClipboard = onCopyBranchNameToClipboard
             )
         }
     ) {
@@ -531,6 +536,7 @@ private fun RemoteBranches(
     onPullRemoteBranch: () -> Unit,
     onRebaseRemoteBranch: () -> Unit,
     onMergeRemoteBranch: () -> Unit,
+    onCopyBranchNameToClipboard: () -> Unit
 ) {
     ContextMenu(
         items = {
@@ -547,6 +553,7 @@ private fun RemoteBranches(
                 onPushToRemoteBranch = onPushRemoteBranch,
                 onPullFromRemoteBranch = onPullRemoteBranch,
                 onChangeDefaultUpstreamBranch = {},
+                onCopyBranchNameToClipboard = onCopyBranchNameToClipboard
             )
         }
     ) {

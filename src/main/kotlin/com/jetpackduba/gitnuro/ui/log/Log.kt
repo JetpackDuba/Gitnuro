@@ -270,6 +270,7 @@ private fun LogLoaded(
                 onDeleteTag = { logViewModel.deleteTag(it) },
                 onPushToRemoteBranch = { logViewModel.pushToRemoteBranch(it) },
                 onPullFromRemoteBranch = { logViewModel.pullFromRemoteBranch(it) },
+                onCopyBranchNameToClipboard = { ref -> logViewModel.copyBranchNameToClipboard(ref) }
             )
 
             val density = LocalDensity.current.density
@@ -489,6 +490,7 @@ fun CommitsList(
     onPushToRemoteBranch: (Ref) -> Unit,
     onPullFromRemoteBranch: (Ref) -> Unit,
     onShowLogDialog: (LogDialog) -> Unit,
+    onCopyBranchNameToClipboard: (Ref) -> Unit,
     graphWidth: Dp,
     horizontalScrollState: ScrollState,
 ) {
@@ -568,6 +570,7 @@ fun CommitsList(
                 onCherryPickCommit = { onCherryPickCommit(graphNode) },
                 onCheckoutRemoteBranch = onCheckoutRemoteBranch,
                 onCheckoutRef = onCheckoutRef,
+                onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
             )
         }
 
@@ -827,6 +830,7 @@ private fun CommitLine(
     onCheckoutRemoteBranch: (Ref) -> Unit,
     onCheckoutRef: (Ref) -> Unit,
     onChangeDefaultUpstreamBranch: (Ref) -> Unit,
+    onCopyBranchNameToClipboard: (Ref) -> Unit,
     horizontalScrollState: ScrollState,
 ) {
     val isLastCommitOfCurrentBranch = currentBranch?.objectId?.name == graphNode.id.name
@@ -921,6 +925,7 @@ private fun CommitLine(
                         onPushRemoteBranch = { ref -> onPushToRemoteBranch(ref) },
                         onPullRemoteBranch = { ref -> onPullFromRemoteBranch(ref) },
                         onChangeDefaultUpstreamBranch = { ref -> onChangeDefaultUpstreamBranch(ref) },
+                        onCopyBranchNameToClipboard = { ref -> onCopyBranchNameToClipboard(ref) },
                     )
                 }
             }
@@ -943,6 +948,7 @@ fun CommitMessage(
     onPushRemoteBranch: (ref: Ref) -> Unit,
     onPullRemoteBranch: (ref: Ref) -> Unit,
     onChangeDefaultUpstreamBranch: (ref: Ref) -> Unit,
+    onCopyBranchNameToClipboard: (ref: Ref) -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxSize()
@@ -984,6 +990,7 @@ fun CommitMessage(
                             onPullRemoteBranch = { onPullRemoteBranch(ref) },
                             onPushRemoteBranch = { onPushRemoteBranch(ref) },
                             onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
+                            onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(ref) },
                         )
                     }
                 }
@@ -1206,7 +1213,6 @@ fun UncommittedChangesGraphNode(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BranchChip(
     modifier: Modifier = Modifier,
@@ -1221,6 +1227,7 @@ fun BranchChip(
     onPushRemoteBranch: () -> Unit,
     onPullRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
+    onCopyBranchNameToClipboard: () -> Unit,
     color: Color,
 ) {
     val contextMenuItemsList = {
@@ -1237,6 +1244,7 @@ fun BranchChip(
             onPushToRemoteBranch = onPushRemoteBranch,
             onPullFromRemoteBranch = onPullRemoteBranch,
             onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
+            onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
         )
     }
 

@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedBranchesViewModel
@@ -26,6 +27,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RemoteSetUrlCommand
 import org.eclipse.jgit.lib.Ref
+import org.jetbrains.skiko.ClipboardManager
 
 class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabState,
@@ -37,6 +39,7 @@ class RemotesViewModel @AssistedInject constructor(
     private val updateRemoteUseCase: UpdateRemoteUseCase,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
     private val sharedBranchesViewModel: SharedBranchesViewModel,
+    private val clipboardManager: ClipboardManager,
     tabScope: CoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
@@ -184,6 +187,16 @@ class RemotesViewModel @AssistedInject constructor(
         )
 
         _remoteUpdated.emit(Unit)
+    }
+
+    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+        taskType = TaskType.UNSPECIFIED
+    ) {
+        copyBranchNameToClipboardAndGetNotification(
+            branch,
+            clipboardManager
+        )
     }
 }
 

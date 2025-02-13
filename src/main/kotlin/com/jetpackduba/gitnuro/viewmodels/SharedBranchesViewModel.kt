@@ -11,8 +11,13 @@ import com.jetpackduba.gitnuro.git.rebase.RebaseBranchUseCase
 import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.models.warningNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
+import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 interface ISharedBranchesViewModel {
@@ -20,6 +25,7 @@ interface ISharedBranchesViewModel {
     fun deleteBranch(branch: Ref): Job
     fun checkoutRef(ref: Ref): Job
     fun rebaseBranch(ref: Ref): Job
+    fun copyBranchNameToClipboard(branch: Ref): Job
 }
 
 class SharedBranchesViewModel @Inject constructor(
@@ -29,6 +35,7 @@ class SharedBranchesViewModel @Inject constructor(
     private val mergeBranchUseCase: MergeBranchUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
+    private val clipboardManager: ClipboardManager
 ) : ISharedBranchesViewModel {
 
     override fun mergeBranch(ref: Ref) = tabState.safeProcessing(
@@ -79,5 +86,15 @@ class SharedBranchesViewModel @Inject constructor(
         } else {
             positiveNotification("\"${ref.simpleName}\" rebased")
         }
+    }
+
+    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+        taskType = TaskType.UNSPECIFIED
+    ) {
+        copyBranchNameToClipboardAndGetNotification(
+            branch,
+            clipboardManager
+        )
     }
 }

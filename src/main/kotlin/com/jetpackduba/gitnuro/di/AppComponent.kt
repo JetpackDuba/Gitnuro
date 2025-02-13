@@ -17,6 +17,7 @@ import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import dagger.Component
+import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Singleton
 
 @Singleton
@@ -50,4 +51,6 @@ interface AppComponent {
     fun updatesRepository(): UpdatesRepository
 
     fun credentialsCacheRepository(): CredentialsCacheRepository
+
+    fun clipboardManager(): ClipboardManager
 }

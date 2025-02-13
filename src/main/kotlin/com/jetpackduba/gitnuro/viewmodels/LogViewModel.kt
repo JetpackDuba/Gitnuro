@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.SelectedItem
+import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import com.jetpackduba.gitnuro.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
@@ -30,6 +31,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
+import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 /**
@@ -60,6 +62,7 @@ class LogViewModel @Inject constructor(
     private val tabState: TabState,
     private val appSettingsRepository: AppSettingsRepository,
     private val tabScope: CoroutineScope,
+    private val clipboardManager: ClipboardManager,
     sharedStashViewModel: SharedStashViewModel,
     sharedBranchesViewModel: SharedBranchesViewModel,
     sharedRemotesViewModel: SharedRemotesViewModel,
@@ -143,7 +146,6 @@ class LogViewModel @Inject constructor(
             }
         }
     }
-
 
     private suspend fun loadLog(git: Git) = delayedStateChange(
         delayMs = LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD,
@@ -413,6 +415,16 @@ class LogViewModel @Inject constructor(
         startRebaseInteractiveUseCase(git, revCommit)
 
         null
+    }
+
+    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+        taskType = TaskType.UNSPECIFIED
+    ) {
+        copyBranchNameToClipboardAndGetNotification(
+            branch,
+            clipboardManager
+        )
     }
 }
 

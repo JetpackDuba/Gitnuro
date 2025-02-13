@@ -5,6 +5,8 @@ import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
 import com.jetpackduba.gitnuro.extensions.simpleName
+import com.jetpackduba.gitnuro.models.Notification
+import com.jetpackduba.gitnuro.models.positiveNotification
 import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skiko.ClipboardManager
 
@@ -21,8 +23,8 @@ fun branchContextMenuItems(
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
+    onCopyBranchNameToClipboard: () -> Unit
 ): List<ContextMenuElement> {
-    val clipboard = ClipboardManager()
 
     return mutableListOf<ContextMenuElement>().apply {
         if (!isCurrentBranch) {
@@ -99,9 +101,18 @@ fun branchContextMenuItems(
                 label = "Copy branch name",
                 icon = { painterResource(AppIcons.COPY) },
                 onClick = {
-                    clipboard.setText(branch.simpleName)
+                    onCopyBranchNameToClipboard()
                 }
             )
         )
     }
+}
+
+internal fun copyBranchNameToClipboardAndGetNotification(
+    branch: Ref,
+    clipboardManager: ClipboardManager
+): Notification {
+    val branchName = branch.simpleName
+    clipboardManager.setText(branchName)
+    return positiveNotification("\"${branchName}\" copied to clipboard")
 }

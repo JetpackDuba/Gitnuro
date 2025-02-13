@@ -10,8 +10,10 @@ import com.jetpackduba.gitnuro.git.remote_operations.PullFromSpecificBranchUseCa
 import com.jetpackduba.gitnuro.git.remote_operations.PushToSpecificBranchUseCase
 import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.models.warningNotification
+import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
+import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 interface ISharedRemotesViewModel {
@@ -19,6 +21,7 @@ interface ISharedRemotesViewModel {
     fun checkoutRemoteBranch(remoteBranch: Ref): Job
     fun pushToRemoteBranch(branch: Ref): Job
     fun pullFromRemoteBranch(branch: Ref): Job
+    fun copyBranchNameToClipboard(branch: Ref): Job
 }
 
 class SharedRemotesViewModel @Inject constructor(
@@ -27,7 +30,9 @@ class SharedRemotesViewModel @Inject constructor(
     private val checkoutRefUseCase: CheckoutRefUseCase,
     private val pushToSpecificBranchUseCase: PushToSpecificBranchUseCase,
     private val pullFromSpecificBranchUseCase: PullFromSpecificBranchUseCase,
+    private val clipboardManager: ClipboardManager,
 ) : ISharedRemotesViewModel {
+
    override fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Deleting remote branch",
@@ -75,5 +80,15 @@ class SharedRemotesViewModel @Inject constructor(
         } else {
             positiveNotification("Pulled from \"${branch.simpleName}\"")
         }
+    }
+
+    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+        refreshType = RefreshType.NONE,
+        taskType = TaskType.UNSPECIFIED
+    ) {
+        copyBranchNameToClipboardAndGetNotification(
+            branch,
+            clipboardManager
+        )
     }
 }
