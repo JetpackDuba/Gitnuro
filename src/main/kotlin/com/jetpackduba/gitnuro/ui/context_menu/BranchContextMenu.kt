@@ -4,7 +4,9 @@ import androidx.compose.ui.res.painterResource
 import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
+import com.jetpackduba.gitnuro.extensions.simpleName
 import org.eclipse.jgit.lib.Ref
+import org.jetbrains.skiko.ClipboardManager
 
 fun branchContextMenuItems(
     branch: Ref,
@@ -20,6 +22,8 @@ fun branchContextMenuItems(
     onPullFromRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
 ): List<ContextMenuElement> {
+    val clipboard = ClipboardManager()
+
     return mutableListOf<ContextMenuElement>().apply {
         if (!isCurrentBranch) {
             add(
@@ -90,8 +94,14 @@ fun branchContextMenuItems(
             )
         }
 
-        if (lastOrNull() == ContextMenuElement.ContextSeparator) {
-            removeLast()
-        }
+        add(
+            ContextMenuElement.ContextTextEntry(
+                label = "Copy branch name",
+                icon = { painterResource(AppIcons.COPY) },
+                onClick = {
+                    clipboard.setText(branch.simpleName)
+                }
+            )
+        )
     }
 }
