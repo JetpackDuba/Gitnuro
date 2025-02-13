@@ -15,41 +15,46 @@ import javax.inject.Inject
 class GetLogUseCase @Inject constructor() {
     private var graphWalkCached: GraphWalk? = null
 
-    suspend operator fun invoke(git: Git, currentBranch: Ref?, hasUncommittedChanges: Boolean, commitsLimit: Int) =
-        withContext(Dispatchers.IO) {
-            val commitList = GraphCommitList()
-            val repositoryState = git.repository.repositoryState
+    suspend operator fun invoke(
+        git: Git,
+        currentBranch: Ref?,
+        hasUncommittedChanges: Boolean,
+        commitsLimit: Int,
+        cachedCommitList: GraphCommitList? = null,
+    ) = withContext(Dispatchers.IO) {
+        val repositoryState = git.repository.repositoryState
+        val commitList: GraphCommitList = cachedCommitList ?: GraphCommitList()
 
-            if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
-                val logList = git.log().setMaxCount(1).call().toList()
+        if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
+            val logList = git.log().setMaxCount(1).call().toList()
 
-                val walk = GraphWalk(git.repository)
+            val walk = GraphWalk(git.repository)
 
-                walk.use {
-                    // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
-                    // by the rebase)
+            walk.use {
+                // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
+                // by the rebase)
+                if (cachedCommitList == null) {
                     walk.markStart(walk.lookupCommit(logList.first()))
 
                     walk.markStartAllRefs(Constants.R_HEADS)
                     walk.markStartAllRefs(Constants.R_REMOTES)
                     walk.markStartAllRefs(Constants.R_TAGS)
-//                    walk.markStartAllRefs(Constants.R_STASH)
 
                     if (hasUncommittedChanges)
                         commitList.addUncommittedChangesGraphCommit(logList.first())
 
                     commitList.source(walk)
-                    commitList.fillTo(commitsLimit)
                 }
-
-                ensureActive()
-
+                commitList.fillTo(commitsLimit)
             }
 
-            commitList.calcMaxLine()
-
-            return@withContext commitList
+            ensureActive()
         }
+
+        commitList.calcMaxLine()
+
+        return@withContext commitList
+    }
 
     private fun cachedGraphWalk(repository: Repository): GraphWalk {
         val graphWalkCached = this.graphWalkCached

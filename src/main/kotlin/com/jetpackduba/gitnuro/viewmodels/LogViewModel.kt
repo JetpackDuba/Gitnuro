@@ -47,6 +47,9 @@ private const val FIRST_INDEX = 1
 
 private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 
+private const val INITIAL_COMMITS_LOAD = 4000
+private const val INCREMENTAL_COMMITS_LOAD = 1000
+
 class LogViewModel @Inject constructor(
     private val getLogUseCase: GetLogUseCase,
     private val getStatusSummaryUseCase: GetStatusSummaryUseCase,
@@ -105,17 +108,6 @@ class LogViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            appSettingsRepository.commitsLimitEnabledFlow.drop(1).collectLatest {
-                tabState.refreshData(RefreshType.ONLY_LOG)
-            }
-        }
-        tabScope.launch {
-            appSettingsRepository.commitsLimitFlow.collectLatest {
-                tabState.refreshData(RefreshType.ONLY_LOG)
-            }
-        }
-
-        tabScope.launch {
             tabState.refreshFlowFiltered(
                 RefreshType.ALL_DATA,
                 RefreshType.ONLY_LOG,
@@ -160,20 +152,11 @@ class LogViewModel @Inject constructor(
         )
 
         val hasUncommittedChanges = statusSummary.total > 0
-        val commitsLimit = if (appSettingsRepository.commitsLimitEnabled) {
-            appSettingsRepository.commitsLimit
-        } else
-            Int.MAX_VALUE
 
-        val commitsLimitDisplayed = if (appSettingsRepository.commitsLimitEnabled) {
-            appSettingsRepository.commitsLimit
-        } else
-            -1
-
-        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, commitsLimit)
+        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, INITIAL_COMMITS_LOAD)
 
         _logStatus.value =
-            LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary, commitsLimitDisplayed)
+            LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
 
         // Remove search filter if the log has been updated
         _logSearchFilterResults.value = LogSearch.NotSearching
@@ -267,7 +250,6 @@ class LogViewModel @Inject constructor(
                 plotCommitList = previousLogStatusValue.plotCommitList,
                 currentBranch = currentBranch,
                 statusSummary = statsSummary,
-                commitsLimit = previousLogStatusValue.commitsLimit,
             )
 
             _logStatus.value = newLogStatusValue
@@ -417,6 +399,28 @@ class LogViewModel @Inject constructor(
         null
     }
 
+    fun loadMoreLogItems() = tabState.runOperation (
+        refreshType = RefreshType.NONE,
+    ){ git ->
+        val logStatusValue = logStatus.value
+
+        if (logStatusValue !is LogStatus.Loaded)
+            return@runOperation
+
+        val currentBranch = getCurrentBranchUseCase(git)
+
+        val statusSummary = getStatusSummaryUseCase(
+            git = git,
+        )
+
+        val hasUncommittedChanges = statusSummary.total > 0
+
+        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD, logStatusValue.plotCommitList)
+
+        _logStatus.value =
+            LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
+    }
+
     override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.UNSPECIFIED
@@ -435,7 +439,6 @@ sealed interface LogStatus {
         val plotCommitList: GraphCommitList,
         val currentBranch: Ref?,
         val statusSummary: StatusSummary,
-        val commitsLimit: Int,
     ) : LogStatus
 }
 

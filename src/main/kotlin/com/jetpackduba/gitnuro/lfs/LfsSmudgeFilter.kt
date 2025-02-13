@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.Result
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
+import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.logging.printLog
@@ -16,6 +17,7 @@ import org.eclipse.jgit.lfs.LfsPointer
 import org.eclipse.jgit.lfs.lib.AnyLongObjectId
 import org.eclipse.jgit.lib.Repository
 import java.io.*
+import java.net.URI
 import java.nio.file.Files
 import java.util.concurrent.CancellationException
 
@@ -24,6 +26,7 @@ private const val MAX_COPY_BYTES = 1024 * 1024 * 256
 class LfsSmudgeFilter(
     private val lfsRepository: LfsRepository,
     private val credentialsStateManager: CredentialsStateManager,
+    private val credentialsCacheRepository: CredentialsCacheRepository,
     input: InputStream,
     output: OutputStream,
     repository: Repository,
@@ -57,6 +60,7 @@ class LfsSmudgeFilter(
         res: LfsPointer,
     ) = runBlocking {
         val lfsServerUrl = lfsRepository.getLfsRepositoryUrl(repository)
+
         val hash = res.oid.name()
         val size = res.size
 
@@ -67,17 +71,44 @@ class LfsSmudgeFilter(
         )
 
         var credentials: CredentialsAccepted.LfsCredentialsAccepted? = null
+        var cachedCredentialsAlreadyRequested = false
 
         val lfsObjects = getLfsObjects(lfsServerUrl, lfsPrepareUploadObjectBatch) {
+            if (!cachedCredentialsAlreadyRequested) {
+                val cachedCredentials = credentialsCacheRepository.getCachedHttpCredentials(lfsServerUrl, true)
+
+                if (cachedCredentials != null) {
+                    val newCredentials = CredentialsAccepted.LfsCredentialsAccepted(
+                        user = cachedCredentials.userName,
+                        password = cachedCredentials.password,
+                    )
+
+                    credentials = newCredentials
+
+                    cachedCredentialsAlreadyRequested = true
+
+                    return@getLfsObjects newCredentials
+                }
+            }
+
             val newCredentials = requestLfsCredentials()
             credentials = newCredentials
 
-            newCredentials
+            return@getLfsObjects newCredentials
         }
 
         when (lfsObjects) {
             is Result.Err -> throw Exception("LFS Error ${lfsObjects.error}")
             is Result.Ok -> {
+                credentials?.let { safeCredentials ->
+                    credentialsCacheRepository.cacheHttpCredentials(
+                        lfsServerUrl,
+                        safeCredentials.user,
+                        safeCredentials.password,
+                        isLfs = true,
+                    )
+                }
+
                 val lfs = Lfs(repository)
 
                 printLog("LFS", "Requesting credentials for objects upload")

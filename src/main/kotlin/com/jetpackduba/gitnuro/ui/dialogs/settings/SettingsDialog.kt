@@ -1,12 +1,15 @@
 package com.jetpackduba.gitnuro.ui.dialogs.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +25,8 @@ import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
@@ -42,7 +47,6 @@ val settings = listOf(
     SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { Layout(it) },
 
     SettingsEntry.Section("GIT"),
-    SettingsEntry.Entry(AppIcons.LIST, "Commits history") { CommitsHistory(it) },
     SettingsEntry.Entry(AppIcons.BRANCH, "Branches") { Branches(it) },
     SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { RemoteActions(it) },
 
@@ -160,11 +164,6 @@ fun SettingsDialog(
     settingsViewModel: SettingsViewModel,
     onDismiss: () -> Unit,
 ) {
-
-    LaunchedEffect(Unit) {
-        settingsViewModel.resetInfo()
-    }
-
     var selectedCategory by remember {
         mutableStateOf<SettingsEntry.Entry>(
             settings.filterIsInstance(SettingsEntry.Entry::class.java).first()
@@ -174,8 +173,6 @@ fun SettingsDialog(
     MaterialDialog(
         background = MaterialTheme.colors.surface,
         onCloseRequested = {
-            settingsViewModel.savePendingChanges()
-
             onDismiss()
         },
         paddingHorizontal = 0.dp,
@@ -239,7 +236,6 @@ fun SettingsDialog(
                         .padding(end = 16.dp, bottom = 16.dp)
                         .align(Alignment.End),
                     onClick = {
-                        settingsViewModel.savePendingChanges()
                         onDismiss()
                     },
                 )
@@ -287,34 +283,7 @@ private fun Section(name: String) {
         color = MaterialTheme.colors.onBackgroundSecondary,
         style = MaterialTheme.typography.body2,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-        fontWeight = FontWeight.Bold,
-    )
-}
-
-
-@Composable
-private fun CommitsHistory(settingsViewModel: SettingsViewModel) {
-    val commitsLimitEnabled by settingsViewModel.commitsLimitEnabledFlow.collectAsState()
-    var commitsLimit by remember { mutableStateOf(settingsViewModel.commitsLimit) }
-
-    SettingToggle(
-        title = "Limit log commits",
-        subtitle = "Turning off this may affect the performance",
-        value = commitsLimitEnabled,
-        onValueChanged = { value ->
-            settingsViewModel.commitsLimitEnabled = value
-        }
-    )
-
-    SettingIntInput(
-        title = "Max commits",
-        subtitle = "Increasing this value may affect the performance",
-        value = commitsLimit,
-        enabled = commitsLimitEnabled,
-        onValueChanged = { value ->
-            commitsLimit = value
-            settingsViewModel.commitsLimit = value
-        }
+        fontWeight = FontWeight.SemiBold,
     )
 }
 
@@ -547,7 +516,6 @@ fun <T> SettingDropDown(
     onOptionSelected: (DropDownOption<T>) -> Unit,
     currentOption: DropDownOption<T>,
 ) {
-    var showThemeDropdown by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -557,40 +525,39 @@ fun <T> SettingDropDown(
         Spacer(modifier = Modifier.weight(1f))
 
         Box {
-            OutlinedButton(
-                onClick = { showThemeDropdown = true },
-                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.background),
-                modifier = Modifier.width(180.dp)
-                    .handOnHover()
-            ) {
-                Text(
-                    text = currentOption.optionName,
-                    style = MaterialTheme.typography.body1,
-                    color = MaterialTheme.colors.onBackground,
-                    modifier = Modifier.weight(1f),
-                    maxLines = 1
-                )
-
-                Icon(
-                    painter = painterResource(AppIcons.DROPDOWN),
-                    contentDescription = null,
-                    tint = MaterialTheme.colors.onBackground,
-                )
-            }
-
-            DropdownMenu(
-                expanded = showThemeDropdown,
-                onDismissRequest = { showThemeDropdown = false },
-            ) {
-                for (dropDownOption in dropDownOptions) {
-                    DropdownMenuItem(
-                        onClick = {
-                            showThemeDropdown = false
-                            onOptionSelected(dropDownOption)
-                        }
-                    ) {
-                        Text(dropDownOption.optionName)
+            DropDownMenu(
+                items = {
+                    dropDownOptions.map {
+                        ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
                     }
+                },
+            ) {
+                Row(
+                    modifier = Modifier.width(180.dp)
+                        .border(
+                            width = 2.dp,
+                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.1F),
+                            shape = RoundedCornerShape(4.dp),
+                        )
+                        .clip(shape = RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colors.background)
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
+                        .handOnHover(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = currentOption.optionName,
+                        style = MaterialTheme.typography.body1,
+                        color = MaterialTheme.colors.onBackground,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1
+                    )
+
+                    Icon(
+                        painter = painterResource(AppIcons.DROPDOWN),
+                        contentDescription = null,
+                        tint = MaterialTheme.colors.onBackground,
+                    )
                 }
             }
         }

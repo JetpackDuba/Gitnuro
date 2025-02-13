@@ -25,8 +25,6 @@ private const val PREF_LATEST_REPOSITORY_TAB_SELECTED = "latestRepositoryTabSele
 private const val PREF_LAST_OPENED_REPOSITORIES_PATH = "lastOpenedRepositoriesList"
 private const val PREF_THEME = "theme"
 private const val PREF_LINE_HEIGHT_TYPE = "linesHeight"
-private const val PREF_COMMITS_LIMIT = "commitsLimit"
-private const val PREF_COMMITS_LIMIT_ENABLED = "commitsLimitEnabled"
 private const val PREF_WINDOW_PLACEMENT = "windowsPlacement"
 private const val PREF_CUSTOM_THEME = "customTheme"
 private const val PREF_UI_SCALE = "ui_scale"
@@ -46,15 +44,12 @@ private const val PREF_CACHE_CREDENTIALS_IN_MEMORY = "credentialsInMemory"
 private const val PREF_FIRST_PANE_WIDTH = "firstPaneWidth"
 private const val PREF_THIRD_PANE_WIDTH = "thirdPaneWidth"
 
-
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
 private const val PREF_GIT_PULL_REBASE = "gitPullRebase"
 private const val PREF_GIT_PUSH_WITH_LEASE = "gitPushWithLease"
 
 private const val PREF_VERIFY_SSL = "verifySsl"
 
-private const val DEFAULT_COMMITS_LIMIT = 1000
-private const val DEFAULT_COMMITS_LIMIT_ENABLED = true
 private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
 private const val DEFAULT_SHOW_CHANGES_AS_TREE = false
 private const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
@@ -72,9 +67,6 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _linesHeightTypeState = MutableStateFlow(linesHeightType)
     val linesHeightTypeState = _linesHeightTypeState.asStateFlow()
-
-    private val _commitsLimitEnabledFlow = MutableStateFlow(commitsLimitEnabled)
-    val commitsLimitEnabledFlow = _commitsLimitEnabledFlow.asStateFlow()
 
     private val _swapUncommittedChangesFlow = MutableStateFlow(swapUncommittedChanges)
     val swapUncommittedChangesFlow = _swapUncommittedChangesFlow.asStateFlow()
@@ -96,9 +88,6 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _pushWithLeaseFlow = MutableStateFlow(pushWithLease)
     val pushWithLeaseFlow: StateFlow<Boolean> = _pushWithLeaseFlow.asStateFlow()
-
-    private val _commitsLimitFlow = MutableSharedFlow<Int>()
-    val commitsLimitFlow = _commitsLimitFlow.asSharedFlow()
 
     private val _customThemeFlow = MutableStateFlow<ColorsScheme?>(null)
     val customThemeFlow = _customThemeFlow.asStateFlow()
@@ -175,15 +164,6 @@ class AppSettingsRepository @Inject constructor() {
         set(value) {
             preferences.putInt(PREF_LINE_HEIGHT_TYPE, value.value)
             _linesHeightTypeState.value = value
-        }
-
-    var commitsLimitEnabled: Boolean
-        get() {
-            return preferences.getBoolean(PREF_COMMITS_LIMIT_ENABLED, DEFAULT_COMMITS_LIMIT_ENABLED)
-        }
-        set(value) {
-            preferences.putBoolean(PREF_COMMITS_LIMIT_ENABLED, value)
-            _commitsLimitEnabledFlow.value = value
         }
 
     var swapUncommittedChanges: Boolean
@@ -279,16 +259,6 @@ class AppSettingsRepository @Inject constructor() {
             preferences.putBoolean(PREF_GIT_PUSH_WITH_LEASE, value)
             _pushWithLeaseFlow.value = value
         }
-
-    val commitsLimit: Int
-        get() {
-            return preferences.getInt(PREF_COMMITS_LIMIT, DEFAULT_COMMITS_LIMIT)
-        }
-
-    suspend fun setCommitsLimit(value: Int) {
-        preferences.putInt(PREF_COMMITS_LIMIT, value)
-        _commitsLimitFlow.emit(value)
-    }
 
     var windowPlacement: WindowsPlacementPreference
         get() {
