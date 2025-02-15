@@ -18,7 +18,7 @@ interface ITabViewModelsProvider {
     val diffViewModel: DiffViewModel
     val historyViewModel: HistoryViewModel
     val authorViewModel: AuthorViewModel
-    val changeDefaultUpstreamBranchViewModel: ChangeDefaultUpstreamBranchViewModel
+    val changeUpstreamBranchDialogViewModel: ChangeUpstreamBranchDialogViewModel
     val submoduleDialogViewModel: SubmoduleDialogViewModel
     val signOffDialogViewModel: SignOffDialogViewModel
 }
@@ -36,7 +36,7 @@ class TabViewModelsProvider @Inject constructor(
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
-    private val changeDefaultUpstreamBranchViewModelProvider: Provider<ChangeDefaultUpstreamBranchViewModel>,
+    private val changeUpstreamBranchDialogViewModelProvider: Provider<ChangeUpstreamBranchDialogViewModel>,
     private val submoduleDialogViewModelProvider: Provider<SubmoduleDialogViewModel>,
     private val signOffDialogViewModelProvider: Provider<SignOffDialogViewModel>,
 ) : ITabViewModelsProvider {
@@ -46,8 +46,8 @@ class TabViewModelsProvider @Inject constructor(
         get() = historyViewModelProvider.get()
     override val authorViewModel: AuthorViewModel
         get() = authorViewModelProvider.get()
-    override val changeDefaultUpstreamBranchViewModel: ChangeDefaultUpstreamBranchViewModel
-        get() = changeDefaultUpstreamBranchViewModelProvider.get()
+    override val changeUpstreamBranchDialogViewModel: ChangeUpstreamBranchDialogViewModel
+        get() = changeUpstreamBranchDialogViewModelProvider.get()
     override val submoduleDialogViewModel: SubmoduleDialogViewModel
         get() = submoduleDialogViewModelProvider.get()
     override val signOffDialogViewModel: SignOffDialogViewModel

@@ -22,7 +22,7 @@ import com.jetpackduba.gitnuro.git.remotes.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
-import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
+import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
 import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
@@ -47,7 +47,7 @@ fun SetDefaultUpstreamBranchDialogPreview() {
 
 @Composable
 fun SetDefaultUpstreamBranchDialog(
-    viewModel: ChangeDefaultUpstreamBranchViewModel,
+    viewModel: ChangeUpstreamBranchDialogViewModel,
     branch: Ref,
     onClose: () -> Unit,
 ) {

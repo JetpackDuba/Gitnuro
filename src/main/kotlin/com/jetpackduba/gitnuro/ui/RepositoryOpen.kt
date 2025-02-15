@@ -334,7 +334,7 @@ fun MainContentView(
         first = {
             SidePanel(
                 repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
-                changeDefaultUpstreamBranchViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeDefaultUpstreamBranchViewModel },
+                changeUpstreamBranchDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeUpstreamBranchDialogViewModel },
                 submoduleDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.submoduleDialogViewModel },
             )
         },
@@ -361,7 +361,7 @@ fun MainContentView(
                                         logViewModel = repositoryOpenViewModel.tabViewModelsProvider.logViewModel,
                                         selectedItem = selectedItem,
                                         repositoryState = repositoryState,
-                                        changeDefaultUpstreamBranchViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeDefaultUpstreamBranchViewModel },
+                                        changeUpstreamBranchDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeUpstreamBranchDialogViewModel },
                                     )
                                 }
 

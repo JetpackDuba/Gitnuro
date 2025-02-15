@@ -33,7 +33,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.AddEditRemoteDialog
 import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
-import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
+import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.lib.Ref
@@ -43,7 +43,7 @@ import org.eclipse.jgit.submodule.SubmoduleStatus
 @Composable
 fun SidePanel(
     sidePanelViewModel: SidePanelViewModel,
-    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
+    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
     submoduleDialogViewModel: () -> SubmoduleDialogViewModel,
     branchesViewModel: BranchesViewModel = sidePanelViewModel.branchesViewModel,
     remotesViewModel: RemotesViewModel = sidePanelViewModel.remotesViewModel,
@@ -140,7 +140,7 @@ fun SidePanel(
 
     if (branchToChangeUpstream != null) {
         SetDefaultUpstreamBranchDialog(
-            viewModel = changeDefaultUpstreamBranchViewModel(),
+            viewModel = changeUpstreamBranchDialogViewModel(),
             branch = branchToChangeUpstream,
             onClose = { setBranchToChangeUpstream(null) }
         )

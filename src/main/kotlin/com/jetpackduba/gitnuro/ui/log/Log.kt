@@ -60,7 +60,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
-import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
+import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.LogSearch
 import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
@@ -104,7 +104,7 @@ fun Log(
     logViewModel: LogViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
-    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
+    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
 ) {
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
@@ -117,7 +117,7 @@ fun Log(
             showLogDialog = showLogDialog,
             selectedItem = selectedItem,
             repositoryState = repositoryState,
-            changeDefaultUpstreamBranchViewModel = changeDefaultUpstreamBranchViewModel,
+            changeUpstreamBranchDialogViewModel = changeUpstreamBranchDialogViewModel,
             onRequestMoreLogItems = { logViewModel.loadMoreLogItems() }
         )
 
@@ -150,7 +150,7 @@ private fun LogLoaded(
     showLogDialog: LogDialog,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
-    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
+    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
     onRequestMoreLogItems: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -202,7 +202,7 @@ private fun LogLoaded(
         logViewModel,
         onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
         showLogDialog = showLogDialog,
-        changeDefaultUpstreamBranchViewModel = changeDefaultUpstreamBranchViewModel,
+        changeUpstreamBranchDialogViewModel = changeUpstreamBranchDialogViewModel,
     )
 
     Column(
@@ -605,7 +605,7 @@ fun CommitsList(
 fun LogDialogs(
     logViewModel: LogViewModel,
     onResetShowLogDialog: () -> Unit,
-    changeDefaultUpstreamBranchViewModel: () -> ChangeDefaultUpstreamBranchViewModel,
+    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
     showLogDialog: LogDialog,
 ) {
     when (showLogDialog) {
@@ -633,7 +633,7 @@ fun LogDialogs(
 
         is LogDialog.ChangeDefaultBranch -> {
             SetDefaultUpstreamBranchDialog(
-                viewModel = changeDefaultUpstreamBranchViewModel(),
+                viewModel = changeUpstreamBranchDialogViewModel(),
                 branch = showLogDialog.ref,
                 onClose = { onResetShowLogDialog() },
             )
