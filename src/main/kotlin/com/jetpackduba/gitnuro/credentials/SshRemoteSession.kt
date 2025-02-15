@@ -3,6 +3,8 @@ package com.jetpackduba.gitnuro.credentials
 import Session
 import com.jetpackduba.gitnuro.exceptions.SshException
 import com.jetpackduba.gitnuro.extensions.throwIfSshMessage
+import kotlinx.coroutines.runBlocking
+import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
 import java.util.concurrent.CancellationException
@@ -31,8 +33,9 @@ class SshRemoteSession @Inject constructor(
         session.disconnect()
     }
 
-    fun setup(uri: URIish) {
-        val session = Session.new() ?: throw SshException("Could not obtain the session, this is likely a bug. Please file a report.")
+    fun setup(uri: URIish, sshCredentialsProvider: SshCredentialsProvider) {
+        val session = Session.new()
+            ?: throw SshException("Could not obtain the session, this is likely a bug. Please file a report.")
 
         val port = if (uri.port == NOT_EXPLICIT_PORT) {
             null
@@ -44,17 +47,10 @@ class SshRemoteSession @Inject constructor(
         var result = session.publicKeyAuth("")
 
         if (result == 2) {//AuthStatus.DENIED) {
-            credentialsStateManager.updateState(CredentialsRequest.SshCredentialsRequest)
+            val passwordCredentialItem = CredentialItem.Password()
+            sshCredentialsProvider.get(uri, passwordCredentialItem)
 
-            var credentials = credentialsStateManager.currentCredentialsState
-            while (credentials is CredentialsRequest) {
-                credentials = credentialsStateManager.currentCredentialsState
-            }
-
-            val password = if (credentials !is CredentialsAccepted.SshCredentialsAccepted)
-                throw CancellationException("Credentials cancelled")
-            else
-                credentials.password
+            val password = passwordCredentialItem.value.toString()
 
             result = session.publicKeyAuth(password)
 

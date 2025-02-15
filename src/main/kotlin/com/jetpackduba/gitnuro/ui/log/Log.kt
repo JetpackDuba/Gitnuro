@@ -64,6 +64,7 @@ import com.jetpackduba.gitnuro.viewmodels.ChangeDefaultUpstreamBranchViewModel
 import com.jetpackduba.gitnuro.viewmodels.LogSearch
 import com.jetpackduba.gitnuro.viewmodels.LogStatus
 import com.jetpackduba.gitnuro.viewmodels.LogViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
@@ -92,6 +93,10 @@ private const val LANE_WIDTH = 30f
 private const val DIVIDER_WIDTH = 8
 
 private const val LOG_BOTTOM_PADDING = 80
+
+private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = 100
+
+private const val TAG = "LogView"
 
 // TODO Min size for message column
 @Composable
@@ -158,19 +163,19 @@ private fun LogLoaded(
 
     LaunchedEffect(verticalScrollState) {
         snapshotFlow { verticalScrollState.firstVisibleItemIndex }
-//            .distinctUntilChanged()
+            .distinctUntilChanged()
             .collect {
                 val commitsList = logStatus.plotCommitList
 
+                // TODO Check what would happen with a repo with multiple starting commits
                 if (
                     commitsList.isNotEmpty() &&
-                    commitsList.count() - it < 100 &&
+                    commitsList.count() - it < MIN_COMMITS_BEFORE_REQUESTING_MORE &&
                     commitsList.last().parentCount > 0
                 ) {
-                    printLog("ABDE", "Should request more items!")
+                    printLog(TAG, "Requesting more items")
                     onRequestMoreLogItems()
                 }
-                printLog("ABDE", "First visible item index is $it")
             }
     }
 

@@ -1,9 +1,7 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.Result
-import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
-import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
@@ -32,7 +30,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.PrintStream
 import java.util.*
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -264,7 +261,7 @@ class GLfsPrePushHook(
                     val lfs = Lfs(repository)
 
                     printLog("LFS", "Requesting credentials for objects upload")
-                    val credentials = requestLfsCredentials()
+                    val credentials = credentialsStateManager.requestLfsCredentials()
 
                     lfsObjects.value.objects.forEach { obj ->
                         val uploadUrl = obj.actions.upload?.href
@@ -298,7 +295,6 @@ class GLfsPrePushHook(
         var username: String? = null
         var password: String? = null
 
-
         do {
             val newLfsObjects = lfsRepository.postBatchObjects(
                 lfsServerUrl,
@@ -312,7 +308,7 @@ class GLfsPrePushHook(
                     newLfsObjects.error.code == HttpStatusCode.Unauthorized
 
             if (requiresAuth) {
-                val credentials = requestLfsCredentials()
+                val credentials = credentialsStateManager.requestLfsCredentials()
                 username = credentials.user
                 password = credentials.password
             }
@@ -321,20 +317,5 @@ class GLfsPrePushHook(
         } while (requiresAuth)
 
         return lfsObjects
-    }
-
-    private fun requestLfsCredentials(): CredentialsAccepted.LfsCredentialsAccepted {
-        credentialsStateManager.requestCredentials(CredentialsRequest.LfsCredentialsRequest)
-
-        var credentials = credentialsStateManager.currentCredentialsState
-        while (credentials is CredentialsRequest) {
-            credentials = credentialsStateManager.currentCredentialsState
-        }
-
-        if (credentials !is CredentialsAccepted.LfsCredentialsAccepted) {
-            throw CancellationException("Credentials cancelled") // TODO Improve this error
-        }
-
-        return credentials
     }
 }

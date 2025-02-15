@@ -134,19 +134,23 @@ class TabViewModel @Inject constructor(
     }
 
     fun credentialsDenied() {
-        credentialsStateManager.updateState(CredentialsState.CredentialsDenied)
+        credentialsStateManager.credentialsDenied()
     }
 
     fun httpCredentialsAccepted(user: String, password: String) {
-        credentialsStateManager.updateState(CredentialsAccepted.HttpCredentialsAccepted(user, password))
+        credentialsStateManager.httpCredentialsAccepted(user, password)
     }
 
     fun sshCredentialsAccepted(password: String) {
-        credentialsStateManager.updateState(CredentialsAccepted.SshCredentialsAccepted(password))
+        credentialsStateManager.sshCredentialsAccepted(password)
+    }
+
+    fun gpgCredentialsAccepted(password: String) {
+        credentialsStateManager.gpgCredentialsAccepted(password)
     }
 
     fun lfsCredentialsAccepted(user: String, password: String) {
-        credentialsStateManager.updateState(CredentialsAccepted.LfsCredentialsAccepted(user, password))
+        credentialsStateManager.lfsCredentialsAccepted(user, password)
     }
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
@@ -170,10 +174,6 @@ class TabViewModel @Inject constructor(
 
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
         .stateIn(tabScope, started = SharingStarted.Eagerly, null)
-
-    fun gpgCredentialsAccepted(password: String) {
-        credentialsStateManager.updateState(CredentialsAccepted.GpgCredentialsAccepted(password))
-    }
 
     fun cancelOngoingTask() {
         tabState.cancelCurrentTask()

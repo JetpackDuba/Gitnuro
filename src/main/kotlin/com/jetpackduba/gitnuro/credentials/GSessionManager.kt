@@ -10,33 +10,29 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class GSessionManager @Inject constructor(
-    private val mySessionFactory: MySessionFactory,
+    private val GSshSessionFactory: GSshSessionFactory,
 ) {
-    fun generateSshSessionFactory(): MySessionFactory {
-        return mySessionFactory
+    fun generateSshSessionFactory(): GSshSessionFactory {
+        return GSshSessionFactory
     }
 }
 
-class MySessionFactory @Inject constructor(
-    private val sessionProvider: Provider<SshRemoteSession>
-) : SshSessionFactory(), CredentialsCache {
+class GSshSessionFactory @Inject constructor(
+    private val sessionProvider: Provider<SshRemoteSession>,
+) : SshSessionFactory() {
     override fun getSession(
         uri: URIish,
-        credentialsProvider: CredentialsProvider?,
+        credentialsProvider: CredentialsProvider,
         fs: FS?,
-        tms: Int
+        tms: Int,
     ): RemoteSession {
         val remoteSession = sessionProvider.get()
-        remoteSession.setup(uri)
+        remoteSession.setup(uri, credentialsProvider as SshCredentialsProvider)
 
         return remoteSession
     }
 
     override fun getType(): String {
         return "ssh" //TODO What should be the value of this?
-    }
-
-    override suspend fun cacheCredentialsIfNeeded() {
-        // Nothing to do until we add some kind of password cache for SSHKeys
     }
 }

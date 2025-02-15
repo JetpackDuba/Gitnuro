@@ -3,12 +3,11 @@ package com.jetpackduba.gitnuro.managers
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.TabScope
 import com.jetpackduba.gitnuro.exceptions.GitnuroException
-import com.jetpackduba.gitnuro.extensions.lockUse
 import com.jetpackduba.gitnuro.models.Notification
-import com.jetpackduba.gitnuro.models.NotificationType
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 const val NOTIFICATION_DURATION = 2_500L
@@ -31,7 +30,7 @@ class ErrorsManager @Inject constructor(
 
     suspend fun emitNotification(notification: Notification) = coroutineScope.launch {
         val time = System.currentTimeMillis()
-        notificationsMutex.lockUse {
+        notificationsMutex.withLock {
             _notification.update { notifications ->
                 notifications
                     .toMutableMap()
@@ -42,7 +41,7 @@ class ErrorsManager @Inject constructor(
         launch {
             delay(NOTIFICATION_DURATION)
 
-            notificationsMutex.lockUse {
+            notificationsMutex.withLock {
                 _notification.update { notifications ->
                     notifications
                         .toMutableMap()

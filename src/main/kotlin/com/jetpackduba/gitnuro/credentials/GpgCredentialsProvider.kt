@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.credentials
 
+import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
@@ -47,28 +48,21 @@ class GpgCredentialsProvider @Inject constructor(
             }
 
             // Request passphrase
-            credentialsStateManager.updateState(
-                CredentialsRequest.GpgCredentialsRequest(
+            val credentials = runBlocking {
+                credentialsStateManager.requestGpgCredentials(
                     isRetry = isRetry,
                     // Use previously set credentials for cases where this method is invoked again (like when the passphrase is not correct)
                     password = credentialsSet?.second ?: ""
                 )
-            )
-
-            var credentials = credentialsStateManager.currentCredentialsState
-
-            while (credentials is CredentialsRequest.GpgCredentialsRequest) {
-                credentials = credentialsStateManager.currentCredentialsState
             }
 
-            if (credentials is CredentialsAccepted.GpgCredentialsAccepted) {
-                item.value = credentials.password.toCharArray()
 
-                if (promptText != null)
-                    credentialsSet = promptText to credentials.password
+            item.value = credentials.password.toCharArray()
 
-                return true
-            }
+            if (promptText != null)
+                credentialsSet = promptText to credentials.password
+
+            return true
         }
 
         return false

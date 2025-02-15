@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.internal.JGitText
 import org.eclipse.jgit.lib.Config
@@ -33,9 +34,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
 
     private var credentialsCached: CredentialsType.HttpCredentials? = null
 
-    override fun isInteractive(): Boolean {
-        return true
-    }
+    override fun isInteractive() = true
 
     override fun supports(vararg items: CredentialItem?): Boolean {
         val fields = items.map { credentialItem -> credentialItem?.promptText }
@@ -83,51 +82,40 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 isLfs = false,
             )
 
-            if (cachedCredentials == null) {
+            if (cachedCredentials == null || appSettingsRepository.cacheCredentialsInMemory) {
                 val credentials = askForCredentials()
 
-                if (credentials is CredentialsAccepted.HttpCredentialsAccepted) {
-                    userItem.value = credentials.user
-                    passwordItem.value = credentials.password.toCharArray()
+                userItem.value = credentials.user
+                passwordItem.value = credentials.password.toCharArray()
 
-                    if (appSettingsRepository.cacheCredentialsInMemory) {
-                        credentialsCached = CredentialsType.HttpCredentials(
-                            url = uri.toString(),
-                            userName = credentials.user,
-                            password = credentials.password,
-                            isLfs = false,
-                        )
-                    }
-
-                    return true
-                } else if (credentials is CredentialsState.CredentialsDenied) {
-                    throw CancellationException("Credentials denied")
+                if (appSettingsRepository.cacheCredentialsInMemory) {
+                    credentialsCached = CredentialsType.HttpCredentials(
+                        url = uri.toString(),
+                        userName = credentials.user,
+                        password = credentials.password,
+                        isLfs = false,
+                    )
                 }
+
+                return true
             } else {
                 userItem.value = cachedCredentials.userName
                 passwordItem.value = cachedCredentials.password.toCharArray()
 
                 return true
             }
-
-            return false
-
         } else {
             when (handleExternalCredentialHelper(externalCredentialsHelper, uri, items)) {
                 ExternalCredentialsRequestResult.SUCCESS -> return true
                 ExternalCredentialsRequestResult.FAIL -> return false
                 ExternalCredentialsRequestResult.CREDENTIALS_NOT_STORED -> {
                     val credentials = askForCredentials()
-                    if (credentials is CredentialsAccepted.HttpCredentialsAccepted) {
-                        userItem.value = credentials.user
-                        passwordItem.value = credentials.password.toCharArray()
+                    userItem.value = credentials.user
+                    passwordItem.value = credentials.password.toCharArray()
 
-                        saveCredentialsInExternalHelper(uri, externalCredentialsHelper, credentials)
+                    saveCredentialsInExternalHelper(uri, externalCredentialsHelper, credentials)
 
-                        return true
-                    }
-
-                    return false
+                    return true
                 }
             }
         }
@@ -136,7 +124,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
     private fun saveCredentialsInExternalHelper(
         uri: URIish,
         externalCredentialsHelper: ExternalCredentialsHelper,
-        credentials: CredentialsAccepted.HttpCredentialsAccepted
+        credentials: CredentialsAccepted.HttpCredentialsAccepted,
     ) {
         val arguments = listOf("store")
         val process = shellManager.runCommandProcess(externalCredentialsHelper.sanitizedCommand() + arguments)
@@ -160,18 +148,12 @@ class HttpCredentialsProvider @AssistedInject constructor(
         }
     }
 
-    private fun askForCredentials(): CredentialsState {
-        credentialsStateManager.updateState(CredentialsRequest.HttpCredentialsRequest)
-        var credentials = credentialsStateManager.currentCredentialsState
-        while (credentials is CredentialsRequest) {
-            credentials = credentialsStateManager.currentCredentialsState
-        }
-
-        return credentials
+    private fun askForCredentials(): CredentialsAccepted.HttpCredentialsAccepted = runBlocking {
+        credentialsStateManager.requestHttpCredentials()
     }
 
     private fun handleExternalCredentialHelper(
-        externalCredentialsHelper: ExternalCredentialsHelper, uri: URIish, items: Array<out CredentialItem>
+        externalCredentialsHelper: ExternalCredentialsHelper, uri: URIish, items: Array<out CredentialItem>,
     ): ExternalCredentialsRequestResult {
         // auth git-credential
         val arguments = listOf("get")

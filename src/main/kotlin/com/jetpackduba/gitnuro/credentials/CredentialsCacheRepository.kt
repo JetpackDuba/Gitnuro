@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.credentials
 
-import com.jetpackduba.gitnuro.extensions.lockUse
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
@@ -28,6 +28,14 @@ class CredentialsCacheRepository @Inject constructor() {
         return credentials?.copy(password = credentials.password.cipherDecrypt())
     }
 
+    fun getCachedSshCredentials(url: String): CredentialsType.SshCredentials? {
+        val credentials = credentialsCached.filterIsInstance<CredentialsType.SshCredentials>().firstOrNull {
+            it.url == url
+        }
+
+        return credentials?.copy(password = credentials.password.cipherDecrypt())
+    }
+
     suspend fun cacheHttpCredentials(credentials: CredentialsType.HttpCredentials) {
         cacheHttpCredentials(credentials.url, credentials.userName, credentials.password, credentials.isLfs)
     }
@@ -35,7 +43,7 @@ class CredentialsCacheRepository @Inject constructor() {
     suspend fun cacheHttpCredentials(url: String, userName: String, password: String, isLfs: Boolean) {
         val passwordEncrypted = password.cipherEncrypt()
 
-        credentialsLock.lockUse {
+        credentialsLock.withLock {
             val previouslyCached = credentialsCached.any {
                 it is CredentialsType.HttpCredentials && it.url == url
             }
@@ -47,14 +55,16 @@ class CredentialsCacheRepository @Inject constructor() {
         }
     }
 
-    suspend fun cacheSshCredentials(sshKey: String, password: String) {
-        credentialsLock.lockUse {
+    suspend fun cacheSshCredentials(url: String, password: String) {
+        val passwordEncrypted = password.cipherEncrypt()
+
+        credentialsLock.withLock {
             val previouslyCached = credentialsCached.any {
-                it is CredentialsType.SshCredentials && it.sshKey == sshKey
+                it is CredentialsType.SshCredentials && it.url == url
             }
 
             if (!previouslyCached) {
-                val credentials = CredentialsType.SshCredentials(sshKey, password)
+                val credentials = CredentialsType.SshCredentials(url, passwordEncrypted)
                 credentialsCached.add(credentials)
             }
         }
@@ -93,7 +103,7 @@ class CredentialsCacheRepository @Inject constructor() {
 
 sealed interface CredentialsType {
     data class SshCredentials(
-        val sshKey: String,
+        val url: String,
         val password: String,
     ) : CredentialsType
 

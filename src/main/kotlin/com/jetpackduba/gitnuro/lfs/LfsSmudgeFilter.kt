@@ -201,19 +201,8 @@ class LfsSmudgeFilter(
         return lfsObjects
     }
 
-    private fun requestLfsCredentials(): CredentialsAccepted.LfsCredentialsAccepted {
-        credentialsStateManager.requestCredentials(CredentialsRequest.LfsCredentialsRequest)
-
-        var credentials = credentialsStateManager.currentCredentialsState
-        while (credentials is CredentialsRequest) {
-            credentials = credentialsStateManager.currentCredentialsState
-        }
-
-        if (credentials !is CredentialsAccepted.LfsCredentialsAccepted) {
-            throw CancellationException("Credentials cancelled") // TODO Improve this error
-        }
-
-        return credentials
+    private fun requestLfsCredentials(): CredentialsAccepted.LfsCredentialsAccepted = runBlocking {
+        credentialsStateManager.requestLfsCredentials()
     }
 
     @Throws(IOException::class)
