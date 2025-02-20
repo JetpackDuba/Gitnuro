@@ -50,7 +50,7 @@ class SshRemoteSession @Inject constructor(
             val passwordCredentialItem = CredentialItem.Password()
             sshCredentialsProvider.get(uri, passwordCredentialItem)
 
-            val password = passwordCredentialItem.value.toString()
+            val password = passwordCredentialItem.value.joinToString("")
 
             result = session.publicKeyAuth(password)
 
