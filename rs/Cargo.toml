@@ -8,9 +8,9 @@ crate-type = ["cdylib"]
 name = "gitnuro_rs"
 
 [dependencies]
-notify = "6.1.1"
-thiserror = "1.0.56"
-libssh-rs = { version = "0.3.3", features = ["vendored", "vendored-openssl"] }
+notify = "8.0.0"
+thiserror = "2.0.11"
+libssh-rs = { version = "0.3.5", features = ["vendored", "vendored-openssl"] }
 kotars = { git = "https://github.com/JetpackDuba/kotars.git" }
 jni = "0.21.1"
 
