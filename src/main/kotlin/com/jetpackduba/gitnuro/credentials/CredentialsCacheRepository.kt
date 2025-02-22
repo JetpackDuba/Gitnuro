@@ -14,29 +14,29 @@ private const val KEY_LENGTH = 16
 
 @Singleton
 class CredentialsCacheRepository @Inject constructor() {
-    private val credentialsCached = mutableListOf<CredentialsType>()
+    private val credentialsCached = mutableListOf<CredentialsCacheType>()
     private val credentialsLock = Mutex(false)
 
     // having a random key to encrypt the password may help in case of a memory dump attack
     private val encryptionKey = getRandomKey()
 
-    fun getCachedHttpCredentials(url: String, isLfs: Boolean): CredentialsType.HttpCredentials? {
-        val credentials = credentialsCached.filterIsInstance<CredentialsType.HttpCredentials>().firstOrNull {
+    fun getCachedHttpCredentials(url: String, isLfs: Boolean): CredentialsCacheType.HttpCredentialsCache? {
+        val credentials = credentialsCached.filterIsInstance<CredentialsCacheType.HttpCredentialsCache>().firstOrNull {
             it.url == url && it.isLfs == isLfs
         }
 
         return credentials?.copy(password = credentials.password.cipherDecrypt())
     }
 
-    fun getCachedSshCredentials(url: String): CredentialsType.SshCredentials? {
-        val credentials = credentialsCached.filterIsInstance<CredentialsType.SshCredentials>().firstOrNull {
+    fun getCachedSshCredentials(url: String): CredentialsCacheType.SshCredentialsCache? {
+        val credentials = credentialsCached.filterIsInstance<CredentialsCacheType.SshCredentialsCache>().firstOrNull {
             it.url == url
         }
 
         return credentials?.copy(password = credentials.password.cipherDecrypt())
     }
 
-    suspend fun cacheHttpCredentials(credentials: CredentialsType.HttpCredentials) {
+    suspend fun cacheHttpCredentials(credentials: CredentialsCacheType.HttpCredentialsCache) {
         cacheHttpCredentials(credentials.url, credentials.userName, credentials.password, credentials.isLfs)
     }
 
@@ -45,11 +45,11 @@ class CredentialsCacheRepository @Inject constructor() {
 
         credentialsLock.withLock {
             val previouslyCached = credentialsCached.any {
-                it is CredentialsType.HttpCredentials && it.url == url
+                it is CredentialsCacheType.HttpCredentialsCache && it.url == url
             }
 
             if (!previouslyCached) {
-                val credentials = CredentialsType.HttpCredentials(url, userName, passwordEncrypted, isLfs)
+                val credentials = CredentialsCacheType.HttpCredentialsCache(url, userName, passwordEncrypted, isLfs)
                 credentialsCached.add(credentials)
             }
         }
@@ -60,11 +60,11 @@ class CredentialsCacheRepository @Inject constructor() {
 
         credentialsLock.withLock {
             val previouslyCached = credentialsCached.any {
-                it is CredentialsType.SshCredentials && it.url == url
+                it is CredentialsCacheType.SshCredentialsCache && it.url == url
             }
 
             if (!previouslyCached) {
-                val credentials = CredentialsType.SshCredentials(url, passwordEncrypted)
+                val credentials = CredentialsCacheType.SshCredentialsCache(url, passwordEncrypted)
                 credentialsCached.add(credentials)
             }
         }
@@ -101,16 +101,16 @@ class CredentialsCacheRepository @Inject constructor() {
     }
 }
 
-sealed interface CredentialsType {
-    data class SshCredentials(
+sealed interface CredentialsCacheType {
+    data class SshCredentialsCache(
         val url: String,
         val password: String,
-    ) : CredentialsType
+    ) : CredentialsCacheType
 
-    data class HttpCredentials(
+    data class HttpCredentialsCache(
         val url: String,
         val userName: String,
         val password: String,
         val isLfs: Boolean,
-    ) : CredentialsType
+    ) : CredentialsCacheType
 }

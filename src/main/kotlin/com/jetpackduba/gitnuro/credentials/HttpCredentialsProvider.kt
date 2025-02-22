@@ -18,7 +18,6 @@ import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
 import java.io.*
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.cancellation.CancellationException
 
 private const val TIMEOUT_MIN = 1L
 private const val TAG = "HttpCredentialsProvider"
@@ -32,7 +31,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
     @Assisted val git: Git?,
 ) : CredentialsProvider(), CredentialsCache {
 
-    private var credentialsCached: CredentialsType.HttpCredentials? = null
+    private var credentialsCached: CredentialsCacheType.HttpCredentialsCache? = null
 
     override fun isInteractive() = true
 
@@ -89,7 +88,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 passwordItem.value = credentials.password.toCharArray()
 
                 if (appSettingsRepository.cacheCredentialsInMemory) {
-                    credentialsCached = CredentialsType.HttpCredentials(
+                    credentialsCached = CredentialsCacheType.HttpCredentialsCache(
                         url = uri.toString(),
                         userName = credentials.user,
                         password = credentials.password,

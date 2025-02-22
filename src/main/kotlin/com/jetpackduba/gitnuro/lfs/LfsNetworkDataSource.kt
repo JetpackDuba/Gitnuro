@@ -165,7 +165,6 @@ class LfsNetworkDataSource @Inject constructor(
             while (!packet.exhausted()) {
                 val bytes = packet.readByteArray()
                 file.appendBytes(bytes)
-                println("Received ${file.length()} bytes from ${response.contentLength()}")
             }
         }
 

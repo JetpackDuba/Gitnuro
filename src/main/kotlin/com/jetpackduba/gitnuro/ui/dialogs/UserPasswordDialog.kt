@@ -12,6 +12,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -29,8 +30,11 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 
 @Composable
 fun UserPasswordDialog(
+    title: String = "Introduce your remote server credentials",
+    subtitle: String = "Your remote requires authentication with a\nusername and a password",
+    icon: Painter = painterResource(AppIcons.LOCK),
     onReject: () -> Unit,
-    onAccept: (user: String, password: String) -> Unit
+    onAccept: (user: String, password: String) -> Unit,
 ) {
     var userField by remember { mutableStateOf("") }
     var passwordField by remember { mutableStateOf("") }
@@ -49,7 +53,7 @@ fun UserPasswordDialog(
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                painterResource(AppIcons.LOCK),
+                icon,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(bottom = 16.dp)
@@ -58,7 +62,7 @@ fun UserPasswordDialog(
             )
 
             Text(
-                text = "Introduce your remote server credentials",
+                text = title,
                 modifier = Modifier
                     .padding(bottom = 8.dp),
                 color = MaterialTheme.colors.onBackground,
@@ -67,7 +71,7 @@ fun UserPasswordDialog(
             )
 
             Text(
-                text = "Your remote requires authentication with a\nusername and a password",
+                text = subtitle,
                 modifier = Modifier
                     .padding(bottom = 16.dp),
                 color = MaterialTheme.colors.onBackground,

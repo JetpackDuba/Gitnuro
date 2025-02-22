@@ -35,6 +35,7 @@ object AppIcons {
     const val KEY = "key.svg"
     const val LAYOUT = "layout.svg"
     const val LIST = "list.svg"
+    const val LFS = "lfs.svg"
     const val LOCATION = "location.svg"
     const val LOCK = "lock.svg"
     const val LOGO = "logo.svg"

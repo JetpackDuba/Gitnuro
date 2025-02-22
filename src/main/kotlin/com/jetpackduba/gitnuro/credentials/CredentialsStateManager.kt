@@ -85,7 +85,13 @@ sealed interface CredentialsAccepted : CredentialsState {
     data class SshCredentialsAccepted(val password: String) : CredentialsAccepted
     data class GpgCredentialsAccepted(val password: String) : CredentialsAccepted
     data class HttpCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted
-    data class LfsCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted
+    data class LfsCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted {
+        companion object {
+            fun fromCachedCredentials(credentials: CredentialsCacheType.HttpCredentialsCache): LfsCredentialsAccepted {
+                return LfsCredentialsAccepted(credentials.userName, credentials.password)
+            }
+        }
+    }
 }
 
 sealed interface CredentialsRequest : CredentialsState {

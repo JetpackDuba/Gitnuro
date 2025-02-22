@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.Result
+import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.logging.printLog
@@ -81,7 +82,7 @@ class GLfsFactory @Inject constructor(
         db: Repository,
         input: InputStream?,
         length: Long,
-        attribute: Attribute?
+        attribute: Attribute?,
     ): LfsInputStream {
         return if (this.isEnabled(db, attribute)) LfsInputStream(
             LfsBlobFilter.cleanLfsBlob(
@@ -98,7 +99,8 @@ class GLfsFactory @Inject constructor(
             outputStream,
             null,
             lfsRepository,
-            credentialsStateManager
+            credentialsStateManager,
+            credentialsCacheRepository,
         ) else null
     }
 
@@ -106,14 +108,15 @@ class GLfsFactory @Inject constructor(
     override fun getPrePushHook(
         repo: Repository,
         outputStream: PrintStream?,
-        errorStream: PrintStream?
+        errorStream: PrintStream?,
     ): PrePushHook? {
         return if (this.isEnabled(repo)) GLfsPrePushHook(
             repo,
             outputStream,
             errorStream,
             lfsRepository,
-            credentialsStateManager
+            credentialsStateManager,
+            credentialsCacheRepository,
         ) else null
     }
 
@@ -134,24 +137,13 @@ class GLfsFactory @Inject constructor(
     }
 }
 
-//class GSmudgeFilter(
-//    repository: Repository,
-//    input: InputStream?,
-//    output: OutputStream?,
-//) : SmudgeFilter(
-//    repository,
-//    input,
-//    output,
-//) {
-//
-//}
-
 class GLfsPrePushHook(
     repository: Repository,
     outputStream: PrintStream?,
     errorStream: PrintStream?,
     private val lfsRepository: LfsRepository,
     private val credentialsStateManager: CredentialsStateManager,
+    private val credentialsCacheRepository: CredentialsCacheRepository,
 ) : PrePushHook(repository, outputStream, errorStream) {
     private var refs: Collection<RemoteRefUpdate> = emptyList()
 
@@ -234,6 +226,7 @@ class GLfsPrePushHook(
             Constants.DEFAULT_REMOTE_NAME
         else
             remoteName
+
         return Constants.R_REMOTES + remoteName
     }
 
@@ -252,16 +245,55 @@ class GLfsPrePushHook(
                 objects = toPush.map { LfsObjectBatch(it.oid.name(), it.size) },
             )
 
-            when (val lfsObjects = getLfsObjects(lfsServerUrl, lfsPrepareUploadObjectBatch)) {
+            var credentials: CredentialsAccepted.LfsCredentialsAccepted? = null
+            var credentialsAlreadyRequested = false
+
+            val cachedCredentials = run {
+                val cacheHttpCredentials = credentialsCacheRepository.getCachedHttpCredentials(lfsServerUrl, isLfs = true)
+
+                if (cacheHttpCredentials != null) {
+                    CredentialsAccepted.LfsCredentialsAccepted.fromCachedCredentials(cacheHttpCredentials)
+                } else {
+                    null
+                }
+            }
+
+            val lfsObjects = getLfsObjects(lfsServerUrl, lfsPrepareUploadObjectBatch) {
+                if (!credentialsAlreadyRequested && cachedCredentials != null) {
+                    credentialsAlreadyRequested = true
+
+                    credentials = cachedCredentials
+
+                    cachedCredentials
+                } else {
+                    val newCredentials = credentialsStateManager.requestLfsCredentials()
+
+                    credentials = newCredentials
+
+                    newCredentials
+                }
+            }
+
+            when (lfsObjects) {
                 is Result.Err -> {
                     throw Exception("LFS Error ${lfsObjects.error}")
                 }
 
                 is Result.Ok -> for (p in toPush) {
+                    val safeCredentials = credentials
+                    if (cachedCredentials != safeCredentials && safeCredentials != null) {
+                        credentialsCacheRepository.cacheHttpCredentials(
+                            lfsServerUrl,
+                            safeCredentials.user,
+                            safeCredentials.password,
+                            isLfs = true,
+                        )
+                    }
                     val lfs = Lfs(repository)
 
                     printLog("LFS", "Requesting credentials for objects upload")
-                    val credentials = credentialsStateManager.requestLfsCredentials()
+                    // TODO Items upload could have their own credentials but it's not common
+//                    val credentials = credentialsStateManager.requestLfsCredentials()
 
                     lfsObjects.value.objects.forEach { obj ->
                         val uploadUrl = obj.actions.upload?.href
@@ -272,8 +304,8 @@ class GLfsPrePushHook(
                                 p.oid.name(),
                                 lfs.getMediaFile(p.oid),
                                 p.size,
-                                credentials.user,
-                                credentials.password,
+                                credentials?.user,
+                                credentials?.password,
                             )
                         }
                     }
@@ -287,6 +319,7 @@ class GLfsPrePushHook(
     private suspend fun getLfsObjects(
         lfsServerUrl: String,
         lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
+        onRequestCredentials: suspend () -> CredentialsAccepted.LfsCredentialsAccepted,
     ): Result<LfsObjects, LfsError> {
 
         var lfsObjects: Result<LfsObjects, LfsError>
@@ -308,7 +341,7 @@ class GLfsPrePushHook(
                     newLfsObjects.error.code == HttpStatusCode.Unauthorized
 
             if (requiresAuth) {
-                val credentials = credentialsStateManager.requestLfsCredentials()
+                val credentials = onRequestCredentials()
                 username = credentials.user
                 password = credentials.password
             }

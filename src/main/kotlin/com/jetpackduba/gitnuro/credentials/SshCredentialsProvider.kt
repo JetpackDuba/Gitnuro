@@ -14,7 +14,7 @@ class SshCredentialsProvider @Inject constructor(
     private val credentialsCacheRepository: CredentialsCacheRepository,
     private val appSettingsRepository: AppSettingsRepository,
 ) : CredentialsProvider(), CredentialsCache {
-    private var credentialsCached: CredentialsType.SshCredentials? = null
+    private var credentialsCached: CredentialsCacheType.SshCredentialsCache? = null
 
     override fun isInteractive() = true
 
@@ -39,7 +39,7 @@ class SshCredentialsProvider @Inject constructor(
             passwordItem.value = sshCredentials.password.toCharArray()
 
             if (cacheCredentialsInMemory) {
-                credentialsCached = CredentialsType.SshCredentials(
+                credentialsCached = CredentialsCacheType.SshCredentialsCache(
                     url = uri.toString(),
                     password = sshCredentials.password,
                 )
