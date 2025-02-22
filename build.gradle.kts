@@ -17,12 +17,12 @@ plugins {
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "1.4.3"
+val projectVersion = "1.5.0-beta01"
 
 val projectName = "Gitnuro"
 
 // Required for JPackage, as it doesn't accept additional suffixes after the version.
-val projectVersionSimplified = "1.4.3"
+val projectVersionSimplified = "1.5.0"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
