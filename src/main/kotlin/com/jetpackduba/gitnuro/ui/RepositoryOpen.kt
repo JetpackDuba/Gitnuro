@@ -158,6 +158,11 @@ fun RepositoryOpenPage(
                         true
                     }
 
+                    it.matchesBinding(KeybindingOption.SETTINGS) -> {
+                        onShowSettingsDialog()
+                        true
+                    }
+
                     else -> false
                 }
 

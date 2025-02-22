@@ -96,6 +96,7 @@ fun Menu(
             title = "Pull",
             tooltipText = pullTooltip,
             icon = painterResource(AppIcons.DOWNLOAD),
+            keybinding = KeybindingOption.PULL.keyBinding,
             onClick = { menuViewModel.pull(PullType.DEFAULT) },
             extendedListItems = pullContextMenuItems(
                 isPullWithRebaseDefault = isPullWithRebaseDefault,
@@ -120,6 +121,7 @@ fun Menu(
             tooltipText = "Push current branch changes",
             icon = painterResource(AppIcons.UPLOAD),
             onClick = { menuViewModel.push() },
+            keybinding = KeybindingOption.PUSH.keyBinding,
             extendedListItems = pushContextMenuItems(
                 onPushWithTags = {
                     menuViewModel.push(force = false, pushTags = true)
@@ -150,6 +152,7 @@ fun Menu(
             title = "Stash",
             tooltipText = "Stash uncommitted changes",
             icon = painterResource(AppIcons.STASH),
+            keybinding = KeybindingOption.STASH.keyBinding,
             onClick = { menuViewModel.stash() },
             extendedListItems = stashContextMenuItems(
                 onStashWithMessage = onStashWithMessage
@@ -191,7 +194,7 @@ fun Menu(
                 icon = painterResource(AppIcons.SETTINGS),
                 onClick = onShowSettingsDialog,
                 tooltip = "Gitnuro's settings",
-                keybinding = KeybindingOption.STASH_POP.keyBinding,
+                keybinding = KeybindingOption.SETTINGS.keyBinding,
             )
         }
     }
@@ -399,6 +402,7 @@ fun ExtendedMenuButton(
     title: String,
     tooltipText: String,
     icon: Painter,
+    keybinding: Keybinding?,
     onClick: () -> Unit,
     extendedListItems: List<ContextMenuElement>,
 ) {
@@ -415,6 +419,11 @@ fun ExtendedMenuButton(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f),
+            trailingContent = if (keybinding != null) {
+                { KeybindingHint(keybinding) }
+            } else {
+                null
+            }
         ) {
             Column(
                 modifier = Modifier

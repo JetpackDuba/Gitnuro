@@ -92,6 +92,11 @@ enum class KeybindingOption {
      * Used to change current tab to the one in the right
      */
     CHANGE_CURRENT_TAB_RIGHT,
+
+    /**
+     * Used to open the settings screen
+     */
+    SETTINGS,
 }
 
 
@@ -147,6 +152,9 @@ private fun baseKeybindings() = mapOf(
     KeybindingOption.CHANGE_CURRENT_TAB_RIGHT to listOf(
         Keybinding(key = Key.DirectionRight, alt = true),
         Keybinding(key = Key.Tab, control = true),
+    ),
+    KeybindingOption.SETTINGS to listOf(
+        Keybinding(key = Key.S, control = true, alt = true),
     ),
 )
 

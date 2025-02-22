@@ -136,6 +136,10 @@ fun WelcomeView(
                         onOpenRepository()
                         true
                     }
+                    it.matchesBinding(KeybindingOption.SETTINGS) -> {
+                        onShowSettings()
+                        true
+                    }
                     else -> false
                 }
             },
