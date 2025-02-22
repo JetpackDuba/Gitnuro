@@ -11,7 +11,7 @@ use kotars::jni_init;
 use libssh_rs::{PollStatus, SshOption};
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
-use notify::{Config, Error, ErrorKind, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
 jni_init!("");
 
@@ -102,7 +102,7 @@ impl FileWatcher {
                             last_update = current_time_as_millis();
                         }
 
-//                         println!("Event: {e:?}");
+                        println!("Event: {e:?}");
                     }
                 }
                 Err(e) => {
@@ -172,36 +172,17 @@ fn error_to_code(error_kind: ErrorKind) -> i32 {
 pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_path: &str) -> Option<Vec<String>> {
     match event_result {
         Ok(event) => {
-            let events: Vec<String> = event
-                .paths
-                .clone()
-                .into_iter()
-                .filter_map(|path| {
-                    // Directories are not tracked by Git so we don't care about them (just about their content)
-                    // We won't be able to check if it's a dir if it has been deleted but that's good enough
-                    // if path.is_dir() {
-                    //     println!("Ignoring directory {path:#?}");
-                    //     None
-                    // } else {
-                    let path_str = path.into_os_string()
-                        .into_string()
-                        .ok()?;
+            match event.kind {
+                EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) => {
+                    let events: Vec<String> = get_event_paths(event, git_dir_path);
 
-                    // JGit may create .probe-UUID files for its internal stuff, we don't care about it
-                    let probe_prefix = format!("{git_dir_path}.probe-");
-                    if path_str.starts_with(probe_prefix.as_str()) {
+                    if events.is_empty() {
                         None
                     } else {
-                        Some(path_str)
+                        Some(events)
                     }
-                    // }
-                })
-                .collect();
-
-            if events.is_empty() {
-                None
-            } else {
-                Some(events)
+                }
+                _ => { None }
             }
         }
         Err(err) => {
@@ -211,6 +192,33 @@ pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_
     }
 }
 
+fn get_event_paths(event: &Event, git_dir_path: &str) -> Vec<String> {
+    event
+        .paths
+        .clone()
+        .into_iter()
+        .filter_map(|path| {
+            // Directories are not tracked by Git so we don't care about them (just about their content)
+            // We won't be able to check if it's a dir if it has been deleted but that's good enough
+            // if path.is_dir() {
+            //     println!("Ignoring directory {path:#?}");
+            //     None
+            // } else {
+            let path_str = path.into_os_string()
+                .into_string()
+                .ok()?;
+
+            // JGit may create .probe-UUID files for its internal stuff, we don't care about it
+            let probe_prefix = format!("{git_dir_path}.probe-");
+            if path_str.starts_with(probe_prefix.as_str()) {
+                None
+            } else {
+                Some(path_str)
+            }
+            // }
+        })
+        .collect()
+}
 #[jni_interface]
 pub trait WatchDirectoryNotifier {
     fn should_keep_looping(&self) -> bool;
