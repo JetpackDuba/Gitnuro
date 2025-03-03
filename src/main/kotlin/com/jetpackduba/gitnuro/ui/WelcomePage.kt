@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.font.FontWeight
@@ -381,7 +382,14 @@ fun RecentRepositoriesList(
         AdjustableOutlinedTextField(
             modifier = Modifier
                 .focusRequester(searchFieldFocusRequester)
-                .onFocusChanged { isSearchFocused = it.isFocused },
+                .onFocusChanged { isSearchFocused = it.isFocused }
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
+                        filter = ""
+                        true
+                    } else
+                        false
+                },
             value = filter,
             onValueChange = { filter = it },
             singleLine = true,
