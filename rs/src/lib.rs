@@ -1,5 +1,6 @@
 extern crate notify;
 
+use std::collections::HashMap;
 use std::io::Write;
 use std::path::Path;
 use std::sync::mpsc::{channel, RecvTimeoutError};
@@ -12,6 +13,7 @@ use libssh_rs::{PollStatus, SshOption};
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
 use notify::{Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::event::CreateKind;
 
 jni_init!("");
 
@@ -81,36 +83,43 @@ impl FileWatcher {
             return;
         }
 
-        let mut paths_cached: Vec<String> = Vec::new();
+        let mut paths_cached = HashMap::<String, Vec<EventKind>>::new();
+
         let mut last_update: u128 = 0;
         while notifier.should_keep_looping() {
             match rx.recv_timeout(Duration::from_millis(WATCH_TIMEOUT)) {
                 Ok(e) => {
                     if let Some(paths) = get_paths_from_event_result(&e, &git_dir_path) {
-                        let mut paths_without_dirs: Vec<String> = paths
+                        let paths_without_dirs: Vec<FileChangeEvent> = paths
                             .into_iter()
                             .collect();
 
-                        paths_cached.append(&mut paths_without_dirs);
+                        for path in paths_without_dirs.into_iter() {
+                            match paths_cached.get_mut(&path.path) {
+                                Some(v) => {
+                                    v.push(path.event_kind)
+                                }
+                                None => {
+                                    paths_cached.insert(path.path, vec![path.event_kind]);
+                                }
+                            }
+                        }
 
                         let current_time = current_time_as_millis();
 
                         if last_update != 0 &&
-                            current_time - last_update > MIN_TIME_IN_MS_BETWEEN_REFRESHES &&
-                            !paths_cached.is_empty() {
-                            notify_paths_changed(&mut paths_cached, notifier);
+                            current_time - last_update > MIN_TIME_IN_MS_BETWEEN_REFRESHES {
+                            process_paths_cached(&mut paths_cached, notifier);
                             last_update = current_time_as_millis();
                         }
 
-                        println!("Event: {e:?}");
+                        // println!("Event: {e:?}");
                     }
                 }
                 Err(e) => {
                     match e {
                         RecvTimeoutError::Timeout => {
-                            if !paths_cached.is_empty() {
-                                notify_paths_changed(&mut paths_cached, notifier);
-                            }
+                            process_paths_cached(&mut paths_cached, notifier);
                             last_update = current_time_as_millis();
                         }
                         RecvTimeoutError::Disconnected => {
@@ -140,11 +149,35 @@ impl FileWatcher {
     }
 }
 
-fn notify_paths_changed(paths_cached: &mut Vec<String>, notifier: &impl WatchDirectoryNotifier) {
-    println!("Sending paths cached to Kotlin side");
-    let paths = paths_cached.clone();
-    paths_cached.clear(); // TODO Until this is executed, items are duplicated in memory, this can be easily optimized later on
-    notifier.detected_change(paths);
+fn remove_temporary_files(changes: &mut HashMap<String, Vec<EventKind>>) -> Vec<String> {
+    let paths: Vec<String> = changes
+        .iter()
+        .filter_map(|(key, value)| {
+            let is_created = value.iter().any(|v| matches!(v, EventKind::Create(_)));
+            let is_removed = value.iter().any(|v| matches!(v, EventKind::Remove(_)));
+
+            // If a file has been created and removed before passing it to kotlin,
+            // filter it out, we don't care about it as it's a temporary file
+            if is_created && is_removed {
+                println!("Removing entry {key} as it looks like a temporary file.");
+                None
+            } else {
+                Some(key.clone())
+            }
+        })
+        .collect();
+
+    paths
+}
+
+fn process_paths_cached(paths_cached: &mut HashMap<String, Vec<EventKind>>, notifier: &impl WatchDirectoryNotifier) {
+    let paths_to_send: Vec<String> = remove_temporary_files(paths_cached);
+    paths_cached.clear();
+
+    if !paths_to_send.is_empty() {
+        println!("Sending a total of {} paths cached to Kotlin side", paths_to_send.len());
+        notifier.detected_change(paths_to_send);
+    }
 }
 
 fn current_time_as_millis() -> u128 {
@@ -169,12 +202,12 @@ fn error_to_code(error_kind: ErrorKind) -> i32 {
     }
 }
 
-pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_path: &str) -> Option<Vec<String>> {
+pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_path: &str) -> Option<Vec<FileChangeEvent>> {
     match event_result {
         Ok(event) => {
             match event.kind {
                 EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) => {
-                    let events: Vec<String> = get_event_paths(event, git_dir_path);
+                    let events: Vec<FileChangeEvent> = get_event_paths(event, git_dir_path);
 
                     if events.is_empty() {
                         None
@@ -192,7 +225,7 @@ pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_
     }
 }
 
-fn get_event_paths(event: &Event, git_dir_path: &str) -> Vec<String> {
+fn get_event_paths(event: &Event, git_dir_path: &str) -> Vec<FileChangeEvent> {
     event
         .paths
         .clone()
@@ -213,12 +246,23 @@ fn get_event_paths(event: &Event, git_dir_path: &str) -> Vec<String> {
             if path_str.starts_with(probe_prefix.as_str()) {
                 None
             } else {
-                Some(path_str)
+                let file_change_event = FileChangeEvent {
+                    path: path_str,
+                    event_kind: event.kind,
+                };
+
+                Some(file_change_event)
             }
             // }
         })
         .collect()
 }
+
+pub struct FileChangeEvent {
+    pub path: String,
+    pub event_kind: EventKind,
+}
+
 #[jni_interface]
 pub trait WatchDirectoryNotifier {
     fn should_keep_looping(&self) -> bool;
