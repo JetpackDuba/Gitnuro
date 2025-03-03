@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.delete
+import com.jetpackduba.gitnuro.generated.resources.start
+import org.jetbrains.compose.resources.painterResource
 
 fun tagContextMenuItems(
     onCheckoutTag: () -> Unit,
@@ -10,12 +12,12 @@ fun tagContextMenuItems(
     return mutableListOf(
         ContextMenuElement.ContextTextEntry(
             label = "Checkout tag's commit",
-            icon = { painterResource(AppIcons.START) },
+            icon = { painterResource(Res.drawable.start) },
             onClick = onCheckoutTag
         ),
         ContextMenuElement.ContextTextEntry(
             label = "Delete tag",
-            icon = { painterResource(AppIcons.DELETE) },
+            icon = { painterResource(Res.drawable.delete) },
             onClick = onDeleteTag
         )
     )

@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.apply_stash
+import com.jetpackduba.gitnuro.generated.resources.delete
+import org.jetbrains.compose.resources.painterResource
 
 fun stashesContextMenuItems(
     onApply: () -> Unit,
@@ -11,17 +13,17 @@ fun stashesContextMenuItems(
     return listOf(
         ContextMenuElement.ContextTextEntry(
             label = "Apply stash",
-            icon = { painterResource(AppIcons.APPLY_STASH) },
+            icon = { painterResource(Res.drawable.apply_stash) },
             onClick = onApply
         ),
         ContextMenuElement.ContextTextEntry(
             label = "Pop stash",
-            icon = { painterResource(AppIcons.APPLY_STASH) },
+            icon = { painterResource(Res.drawable.apply_stash) },
             onClick = onPop
         ),
         ContextMenuElement.ContextTextEntry(
             label = "Drop stash",
-            icon = { painterResource(AppIcons.DELETE) },
+            icon = { painterResource(Res.drawable.delete) },
             onClick = onDelete
         ),
     )

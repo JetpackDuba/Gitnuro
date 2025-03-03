@@ -1,10 +1,13 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
 import com.jetpackduba.gitnuro.extensions.simpleName
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.copy
+import com.jetpackduba.gitnuro.generated.resources.delete
+import com.jetpackduba.gitnuro.generated.resources.start
 import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.models.positiveNotification
 import org.eclipse.jgit.lib.Ref
@@ -31,7 +34,7 @@ fun branchContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Checkout branch",
-                    icon = { painterResource(AppIcons.START) },
+                    icon = { painterResource(Res.drawable.start) },
                     onClick = onCheckoutBranch
                 )
             )
@@ -80,7 +83,7 @@ fun branchContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Delete remote branch",
-                    icon = { painterResource(AppIcons.DELETE) },
+                    icon = { painterResource(Res.drawable.delete) },
                     onClick = onDeleteRemoteBranch
                 ),
             )
@@ -90,7 +93,7 @@ fun branchContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Delete branch",
-                    icon = { painterResource(AppIcons.DELETE) },
+                    icon = { painterResource(Res.drawable.delete) },
                     onClick = onDeleteBranch
                 )
             )
@@ -99,7 +102,7 @@ fun branchContextMenuItems(
         add(
             ContextMenuElement.ContextTextEntry(
                 label = "Copy branch name",
-                icon = { painterResource(AppIcons.COPY) },
+                icon = { painterResource(Res.drawable.copy) },
                 onClick = {
                     onCopyBranchNameToClipboard()
                 }

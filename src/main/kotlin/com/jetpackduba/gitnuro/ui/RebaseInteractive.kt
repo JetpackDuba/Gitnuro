@@ -18,12 +18,16 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.generic_button_cancel
+import com.jetpackduba.gitnuro.generated.resources.rebase_interactive_view_button_complete_rebase
+import com.jetpackduba.gitnuro.generated.resources.rebase_interactive_view_title
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -36,6 +40,7 @@ import com.jetpackduba.gitnuro.viewmodels.RebaseAction
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.RebaseLine
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RebaseInteractive(
@@ -103,7 +108,7 @@ fun RebaseStateLoaded(
             .background(MaterialTheme.colors.background)
     ) {
         Text(
-            text = "Rebase interactive",
+            text = stringResource(Res.string.rebase_interactive_view_title),
             color = MaterialTheme.colors.onBackground,
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp),
             fontSize = 20.sp,
@@ -152,20 +157,22 @@ fun RebaseStateLoaded(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Spacer(modifier = Modifier.weight(1f))
+
             PrimaryButton(
-                text = "Cancel",
+                text = stringResource(Res.string.generic_button_cancel),
                 modifier = Modifier.padding(end = 8.dp),
                 onClick = onCancel,
                 backgroundColor = Color.Transparent,
                 textColor = MaterialTheme.colors.onBackground,
             )
+
             PrimaryButton(
                 modifier = Modifier.padding(end = 16.dp),
                 enabled = true, // TODO Moving commits may also affect stepsList.any { it.rebaseAction != RebaseAction.PICK },
                 onClick = {
                     rebaseInteractiveViewModel.continueRebaseInteractive()
                 },
-                text = "Complete rebase"
+                text = stringResource(Res.string.rebase_interactive_view_button_complete_rebase)
             )
         }
     }
@@ -232,7 +239,6 @@ fun RebaseCommit(
             } else
                 MaterialTheme.colors.surface
         )
-
     }
 }
 
@@ -270,7 +276,7 @@ fun ActionDropdown(
             )
 
             Icon(
-                painterResource(AppIcons.EXPAND_MORE),
+                painterResource(Res.drawable.expand_more),
                 contentDescription = null,
                 modifier = Modifier
                     .size(20.dp),

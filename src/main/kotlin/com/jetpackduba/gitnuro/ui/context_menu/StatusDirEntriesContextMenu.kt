@@ -1,7 +1,10 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.done
+import com.jetpackduba.gitnuro.generated.resources.remove_done
+import com.jetpackduba.gitnuro.generated.resources.undo
+import org.jetbrains.compose.resources.painterResource
 
 fun statusDirEntriesContextMenuItems(
     entryType: EntryType,
@@ -11,9 +14,9 @@ fun statusDirEntriesContextMenuItems(
     return mutableListOf<ContextMenuElement>().apply {
 
         val (text, icon) = if (entryType == EntryType.STAGED) {
-            "Unstage changes in the directory" to AppIcons.REMOVE_DONE
+            "Unstage changes in the directory" to Res.drawable.remove_done
         } else {
-            "Stage changes in the directory" to AppIcons.DONE
+            "Stage changes in the directory" to Res.drawable.done
         }
 
         add(
@@ -31,7 +34,7 @@ fun statusDirEntriesContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Discard changes in the directory",
-                    icon = { painterResource(AppIcons.UNDO) },
+                    icon = { painterResource(Res.drawable.undo) },
                     onClick = onDiscardDirectoryChanges,
                 )
             )

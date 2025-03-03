@@ -1,7 +1,11 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.blame
+import com.jetpackduba.gitnuro.generated.resources.history
+import com.jetpackduba.gitnuro.generated.resources.undo
+import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
 
@@ -18,7 +22,7 @@ fun statusEntriesContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Discard file changes",
-                    icon = { painterResource(AppIcons.UNDO) },
+                    icon = { painterResource(Res.drawable.undo) },
                     onClick = onReset,
                 )
             )
@@ -27,7 +31,7 @@ fun statusEntriesContextMenuItems(
                 add(
                     ContextMenuElement.ContextTextEntry(
                         label = "Blame file",
-                        icon = { painterResource(AppIcons.BLAME) },
+                        icon = { painterResource(Res.drawable.blame) },
                         onClick = onBlame,
                     )
                 )
@@ -35,7 +39,7 @@ fun statusEntriesContextMenuItems(
                 add(
                     ContextMenuElement.ContextTextEntry(
                         label = "File history",
-                        icon = { painterResource(AppIcons.HISTORY) },
+                        icon = { painterResource(Res.drawable.history) },
                         onClick = onHistory,
                     )
                 )
@@ -49,7 +53,7 @@ fun statusEntriesContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Delete file",
-                    icon = { painterResource(AppIcons.DELETE) },
+                    icon = { painterResource(Res.drawable.delete) },
                     onClick = onDelete,
                 )
             )

@@ -10,10 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.warning
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -85,7 +86,7 @@ fun AuthorDialog(
                 modifier = Modifier.alpha(visibilityAlpha)
             ) {
                 Icon(
-                    painterResource(AppIcons.WARNING),
+                    painterResource(Res.drawable.warning),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier.size(16.dp)

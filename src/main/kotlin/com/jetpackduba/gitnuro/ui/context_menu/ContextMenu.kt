@@ -31,15 +31,18 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLocalization
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.copy
+import com.jetpackduba.gitnuro.generated.resources.cut
+import com.jetpackduba.gitnuro.generated.resources.paste
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.isDark
@@ -298,21 +301,21 @@ class AppPopupMenu : TextContextMenu {
                 textManager.copy?.let {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.copy,
-                        icon = { painterResource(AppIcons.COPY) },
+                        icon = { painterResource(Res.drawable.copy) },
                         onClick = it
                     )
                 },
                 textManager.cut?.let {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.cut,
-                        icon = { painterResource(AppIcons.CUT) },
+                        icon = { painterResource(Res.drawable.cut) },
                         onClick = it
                     )
                 },
                 textManager.paste?.let {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.paste,
-                        icon = { painterResource(AppIcons.PASTE) },
+                        icon = { painterResource(Res.drawable.paste) },
                         onClick = it
                     )
                 },

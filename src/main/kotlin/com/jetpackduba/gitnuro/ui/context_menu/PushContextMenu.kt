@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.tag
+import org.jetbrains.compose.resources.painterResource
 
 fun pushContextMenuItems(
     onPushWithTags: () -> Unit,
@@ -10,7 +11,7 @@ fun pushContextMenuItems(
     return mutableListOf(
         ContextMenuElement.ContextTextEntry(
             label = "Push including tags",
-            icon = { painterResource(AppIcons.TAG) },
+            icon = { painterResource(Res.drawable.tag) },
             onClick = onPushWithTags,
         ),
         ContextMenuElement.ContextTextEntry(

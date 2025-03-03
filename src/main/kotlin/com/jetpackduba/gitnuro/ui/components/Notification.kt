@@ -12,9 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.error
+import com.jetpackduba.gitnuro.generated.resources.info
+import com.jetpackduba.gitnuro.generated.resources.warning
 import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.models.NotificationType
 import com.jetpackduba.gitnuro.theme.AppTheme
@@ -56,9 +59,9 @@ fun Notification(notification: Notification) {
         }
 
         val icon = when (notification.type) {
-            NotificationType.Positive -> AppIcons.INFO
-            NotificationType.Warning -> AppIcons.WARNING
-            NotificationType.Error -> AppIcons.ERROR
+            NotificationType.Positive -> Res.drawable.info
+            NotificationType.Warning -> Res.drawable.warning
+            NotificationType.Error -> Res.drawable.error
         }
 
         Box(

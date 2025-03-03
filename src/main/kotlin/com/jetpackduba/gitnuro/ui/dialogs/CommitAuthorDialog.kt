@@ -10,12 +10,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.person
 import com.jetpackduba.gitnuro.models.AuthorInfo
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -43,7 +44,7 @@ fun CommitAuthorDialog(
         ) {
 
             Icon(
-                painterResource(AppIcons.PERSON),
+                painterResource(Res.drawable.person),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(bottom = 16.dp)

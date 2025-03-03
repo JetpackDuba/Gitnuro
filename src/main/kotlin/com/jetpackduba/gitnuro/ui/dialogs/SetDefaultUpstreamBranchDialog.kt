@@ -12,12 +12,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.simpleName
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.branch
 import com.jetpackduba.gitnuro.git.remotes.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -87,7 +88,7 @@ private fun SetDefaultUpstreamBranchDialogView(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
-            painterResource(AppIcons.BRANCH),
+            painterResource(Res.drawable.branch),
             contentDescription = null,
             modifier = Modifier
                 .padding(bottom = 16.dp)

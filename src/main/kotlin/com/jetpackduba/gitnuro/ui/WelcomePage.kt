@@ -28,13 +28,12 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.AppTheme
@@ -42,11 +41,14 @@ import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
-import com.jetpackduba.gitnuro.ui.components.SecondaryButton
+import com.jetpackduba.gitnuro.ui.components.BottomInfoBar
+import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 
 @Composable
@@ -136,10 +138,12 @@ fun WelcomeView(
                         onOpenRepository()
                         true
                     }
+
                     it.matchesBinding(KeybindingOption.SETTINGS) -> {
                         onShowSettings()
                         true
                     }
+
                     else -> false
                 }
             },
@@ -210,39 +214,6 @@ fun WelcomeView(
 }
 
 @Composable
-private fun BottomInfoBar(
-    newUpdate: Update?,
-    onOpenUrlInBrowser: (String) -> Unit,
-) {
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(32.dp)
-            .background(MaterialTheme.colors.surface)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Spacer(Modifier.weight(1f, true))
-
-        if (newUpdate != null) {
-            SecondaryButton(
-                text = "Update ${newUpdate.appVersion} available",
-                onClick = { onOpenUrlInBrowser(newUpdate.downloadUrl) },
-                backgroundButton = MaterialTheme.colors.primary,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-        }
-
-        Text(
-            "Version ${AppConstants.APP_VERSION}",
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
-        )
-    }
-}
-
-@Composable
 fun HomeButtons(
     onOpenRepository: () -> Unit,
     onStartRepository: () -> Unit,
@@ -254,56 +225,56 @@ fun HomeButtons(
     Column {
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
-            title = "Open a repository",
-            painter = painterResource(AppIcons.OPEN),
+            title = stringResource(Res.string.home_button_open_repository),
+            painter = painterResource(Res.drawable.open),
             onClick = onOpenRepository
         )
 
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
-            title = "Clone a repository",
-            painter = painterResource(AppIcons.DOWNLOAD),
+            title = stringResource(Res.string.home_button_clone_repository),
+            painter = painterResource(Res.drawable.download),
             onClick = onShowCloneView
         )
 
         ButtonTile(
             modifier = Modifier.padding(bottom = 8.dp),
-            title = "Start a local repository",
-            painter = painterResource(AppIcons.OPEN),
+            title = stringResource(Res.string.home_button_start_repository),
+            painter = painterResource(Res.drawable.open),
             onClick = onStartRepository
         )
 
         Text(
-            text = "Additional options",
+            stringResource(Res.string.home_button_additional_information),
             style = MaterialTheme.typography.h3,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
         )
 
         IconTextButton(
-            title = "Source code",
-            painter = painterResource(AppIcons.CODE),
+            title = stringResource(Res.string.home_button_source_code),
+            painter = painterResource(Res.drawable.code),
             onClick = {
                 onOpenUrlInBrowser("https://github.com/JetpackDuba/Gitnuro")
             }
         )
 
         IconTextButton(
-            title = "Report a bug",
-            painter = painterResource(AppIcons.BUG),
+            title = stringResource(Res.string.home_button_report_bug),
+            painter = painterResource(Res.drawable.bug),
             onClick = {
                 onOpenUrlInBrowser("https://github.com/JetpackDuba/Gitnuro/issues")
             }
         )
 
         IconTextButton(
-            title = "Additional information",
-            painter = painterResource(AppIcons.INFO),
+            title = stringResource(Res.string.home_button_additional_information),
+            painter = painterResource(Res.drawable.info),
             onClick = onShowAdditionalInfo
         )
 
         IconTextButton(
-            title = "Settings",
-            painter = painterResource(AppIcons.SETTINGS),
+            title = stringResource(Res.string.home_button_settings),
+            painter = painterResource(Res.drawable.settings),
             onClick = onShowSettings
         )
     }
@@ -325,7 +296,7 @@ fun RecentRepositories(
     ) {
         if (recentlyOpenedRepositories.isEmpty()) {
             Text(
-                "Nothing to see here, open a repository first!",
+                stringResource(Res.string.home_recent_repositories_list_empty),
                 color = MaterialTheme.colors.onBackgroundSecondary,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.padding(top = 16.dp)
@@ -414,7 +385,7 @@ fun RecentRepositoriesList(
             value = filter,
             onValueChange = { filter = it },
             singleLine = true,
-            hint = "Search for recent repositories",
+            hint = stringResource(Res.string.home_recent_repositories_search_label),
             trailingIcon = {
                 if (filter.isNotEmpty()) {
                     IconButton(
@@ -424,7 +395,7 @@ fun RecentRepositoriesList(
                             .handOnHover(),
                     ) {
                         Icon(
-                            painterResource(AppIcons.CLOSE),
+                            painterResource(Res.drawable.close),
                             contentDescription = null,
                             tint = if (filter.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
                         )
@@ -499,19 +470,23 @@ fun RecentRepositoriesList(
                             0f
                         }
 
-                        IconButton(
-                            onClick = { onRemoveRepositoryFromRecent(repo) },
-                            enabled = canRepositoriesBeRemoved && isHovered,
-                            modifier = Modifier.alpha(buttonAlpha)
-                                .size(24.dp)
-                                .handOnHover(),
+                        DelayedTooltip(
+                            text = stringResource(Res.string.home_recent_repositories_remove_repository),
                         ) {
-                            Icon(
-                                painterResource(AppIcons.CLOSE),
-                                contentDescription = "Remove repository from recent",
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colors.onBackgroundSecondary
-                            )
+                            IconButton(
+                                onClick = { onRemoveRepositoryFromRecent(repo) },
+                                enabled = canRepositoriesBeRemoved && isHovered,
+                                modifier = Modifier.alpha(buttonAlpha)
+                                    .size(24.dp)
+                                    .handOnHover(),
+                            ) {
+                                Icon(
+                                    painterResource(Res.drawable.close),
+                                    contentDescription = stringResource(Res.string.home_recent_repositories_remove_repository),
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colors.onBackgroundSecondary
+                                )
+                            }
                         }
                     }
                 }

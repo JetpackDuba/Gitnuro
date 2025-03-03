@@ -16,13 +16,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.onDoubleClick
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.folder
+import com.jetpackduba.gitnuro.generated.resources.folder_open
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.linesHeight
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -149,7 +151,7 @@ fun DirectoryEntry(
 ) {
 
     FileEntry(
-        icon = painterResource(if (isExpanded) AppIcons.FOLDER_OPEN else AppIcons.FOLDER),
+        icon = painterResource(if (isExpanded) Res.drawable.folder_open else Res.drawable.folder),
         iconColor = MaterialTheme.colors.onBackground,
         isSelected = false,
         onClick = onClick,

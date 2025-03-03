@@ -12,11 +12,12 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.tag
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -37,7 +38,7 @@ fun NewTagDialog(
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                painterResource(AppIcons.TAG),
+                painterResource(Res.drawable.tag),
                 contentDescription = null,
                 modifier = Modifier
                     .padding(bottom = 16.dp)

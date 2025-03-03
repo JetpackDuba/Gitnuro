@@ -25,17 +25,21 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.menu_open
+import com.jetpackduba.gitnuro.generated.resources.menu_open_tooltip
+import com.jetpackduba.gitnuro.generated.resources.menu_pull_rebase
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.keybindings.Keybinding
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -46,6 +50,7 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
+import org.jetbrains.compose.resources.stringResource
 
 // TODO Add tooltips to all the buttons
 @Composable
@@ -74,10 +79,10 @@ fun Menu(
             modifier = Modifier
                 .padding(start = 16.dp)
                 .onGloballyPositioned { setPosition(it) },
-            title = "Open",
-            icon = painterResource(AppIcons.OPEN),
+            title = stringResource(Res.string.menu_open),
+            icon = painterResource(Res.drawable.open),
             keybinding = KeybindingOption.OPEN_REPOSITORY.keyBinding,
-            tooltip = "Open a different repository",
+            tooltip = stringResource(Res.string.menu_open_tooltip),
             tooltipEnabled = !showOpenPopup,
             onClick = { onShowOpenPopupChange(true) },
         )
@@ -85,17 +90,17 @@ fun Menu(
         Spacer(modifier = Modifier.weight(1f))
 
         val pullTooltip = if (isPullWithRebaseDefault) {
-            "Pull current branch with rebase"
+            stringResource(Res.string.menu_pull_rebase)
         } else {
-            "Pull current branch"
+            stringResource(Res.string.menu_pull_default)
         }
 
 
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
-            title = "Pull",
+            title = stringResource(Res.string.menu_pull),
             tooltipText = pullTooltip,
-            icon = painterResource(AppIcons.DOWNLOAD),
+            icon = painterResource(Res.drawable.download),
             keybinding = KeybindingOption.PULL.keyBinding,
             onClick = { menuViewModel.pull(PullType.DEFAULT) },
             extendedListItems = pullContextMenuItems(
@@ -117,9 +122,9 @@ fun Menu(
         )
 
         ExtendedMenuButton(
-            title = "Push",
-            tooltipText = "Push current branch changes",
-            icon = painterResource(AppIcons.UPLOAD),
+            title = stringResource(Res.string.menu_push),
+            tooltipText = stringResource(Res.string.menu_push_tooltip),
+            icon = painterResource(Res.drawable.upload),
             onClick = { menuViewModel.push() },
             keybinding = KeybindingOption.PUSH.keyBinding,
             extendedListItems = pushContextMenuItems(
@@ -135,12 +140,12 @@ fun Menu(
         Spacer(modifier = Modifier.width(32.dp))
 
         MenuButton(
-            title = "Branch",
-            icon = painterResource(AppIcons.BRANCH),
+            title = stringResource(Res.string.menu_branch),
+            icon = painterResource(Res.drawable.branch),
             onClick = {
                 onCreateBranch()
             },
-            tooltip = "Create a new branch",
+            tooltip = stringResource(Res.string.menu_branch_tooltip),
             keybinding = KeybindingOption.BRANCH_CREATE.keyBinding,
         )
 
@@ -149,9 +154,9 @@ fun Menu(
 
         ExtendedMenuButton(
             modifier = Modifier.padding(end = 4.dp),
-            title = "Stash",
-            tooltipText = "Stash uncommitted changes",
-            icon = painterResource(AppIcons.STASH),
+            title = stringResource(Res.string.menu_stash),
+            tooltipText = stringResource(Res.string.menu_stash_tooltip),
+            icon = painterResource(Res.drawable.stash),
             keybinding = KeybindingOption.STASH.keyBinding,
             onClick = { menuViewModel.stash() },
             extendedListItems = stashContextMenuItems(
@@ -160,29 +165,29 @@ fun Menu(
         )
 
         MenuButton(
-            title = "Pop",
-            icon = painterResource(AppIcons.APPLY_STASH),
+            title = stringResource(Res.string.menu_pop_stash),
+            icon = painterResource(Res.drawable.apply_stash),
             keybinding = KeybindingOption.STASH_POP.keyBinding,
-            tooltip = "Pop the last stash",
+            tooltip = stringResource(Res.string.menu_pop_stash_tooltip),
         ) { menuViewModel.popStash() }
 
         Spacer(modifier = Modifier.weight(1f))
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
-            title = "Terminal",
-            icon = painterResource(AppIcons.TERMINAL),
+            title = stringResource(Res.string.menu_terminal),
+            icon = painterResource(Res.drawable.terminal),
             onClick = { menuViewModel.openTerminal() },
-            tooltip = "Open a terminal in the repository's path",
+            tooltip = stringResource(Res.string.menu_terminal_tooltip),
             keybinding = null,
         )
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
-            title = "Actions",
-            icon = painterResource(AppIcons.BOLT),
+            title = stringResource(Res.string.menu_actions),
+            icon = painterResource(Res.drawable.bolt),
             onClick = onQuickActions,
-            tooltip = "Additional actions",
+            tooltip = stringResource(Res.string.menu_actions_tooltip),
             keybinding = null,
         )
 
@@ -190,10 +195,10 @@ fun Menu(
             modifier = Modifier.padding(end = 16.dp)
         ) {
             MenuButton(
-                title = "Settings",
-                icon = painterResource(AppIcons.SETTINGS),
+                title = stringResource(Res.string.menu_settings),
+                icon = painterResource(Res.drawable.settings),
                 onClick = onShowSettingsDialog,
-                tooltip = "Gitnuro's settings",
+                tooltip = stringResource(Res.string.menu_settings_tooltip),
                 keybinding = KeybindingOption.SETTINGS.keyBinding,
             )
         }
@@ -458,7 +463,7 @@ fun ExtendedMenuButton(
             ) {
 
                 Icon(
-                    painterResource(AppIcons.EXPAND_MORE),
+                    painterResource(Res.drawable.expand_more),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier.size(16.dp)
@@ -468,40 +473,3 @@ fun ExtendedMenuButton(
         }
     }
 }
-
-@Composable
-fun IconMenuButton(
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: Painter,
-    onClick: () -> Unit
-) {
-    val iconColor = if (enabled) {
-        MaterialTheme.colors.primaryVariant
-    } else {
-        MaterialTheme.colors.secondaryVariant
-    }
-
-    IconButton(
-        modifier = modifier
-            .handOnHover(),
-        enabled = enabled,
-        onClick = onClick,
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Image(
-                painter = icon,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .size(24.dp),
-                colorFilter = ColorFilter.tint(iconColor),
-            )
-        }
-
-    }
-}
-

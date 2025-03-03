@@ -13,12 +13,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.chevron_right
+import com.jetpackduba.gitnuro.generated.resources.expand_more
 import com.jetpackduba.gitnuro.theme.linesHeight
 
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -44,7 +46,7 @@ fun SideMenuHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            painter = painterResource(if (isExpanded) AppIcons.EXPAND_MORE else AppIcons.CHEVRON_RIGHT),
+            painter = painterResource(if (isExpanded) Res.drawable.expand_more else Res.drawable.chevron_right),
             contentDescription = null,
             tint = MaterialTheme.colors.onBackground,
             modifier = Modifier

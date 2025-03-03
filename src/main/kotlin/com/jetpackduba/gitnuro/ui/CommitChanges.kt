@@ -15,14 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.list
+import com.jetpackduba.gitnuro.generated.resources.search
+import com.jetpackduba.gitnuro.generated.resources.tree
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.tertiarySurface
@@ -236,7 +239,7 @@ private fun Header(
             modifier = Modifier.handOnHover()
         ) {
             Icon(
-                painter = painterResource(if (showAsTree) AppIcons.LIST else AppIcons.TREE),
+                painter = painterResource(if (showAsTree) Res.drawable.list else Res.drawable.tree),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colors.onBackground,
@@ -253,7 +256,7 @@ private fun Header(
             modifier = Modifier.handOnHover(),
         ) {
             Icon(
-                painter = painterResource(AppIcons.SEARCH),
+                painter = painterResource(Res.drawable.search),
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colors.onBackground,

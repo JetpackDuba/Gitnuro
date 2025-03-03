@@ -35,13 +35,17 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.align_top
+import com.jetpackduba.gitnuro.generated.resources.close
+import com.jetpackduba.gitnuro.generated.resources.search
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
@@ -69,6 +73,7 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import org.jetbrains.compose.resources.DrawableResource
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -340,7 +345,7 @@ private fun LogLoaded(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            painterResource(AppIcons.ALIGN_TOP),
+                            painterResource(Res.drawable.align_top),
                             contentDescription = null,
                             tint = MaterialTheme.colors.onPrimary,
                             modifier = Modifier.size(20.dp),
@@ -473,7 +478,7 @@ fun SearchFilter(
                             .padding(end = 4.dp),
                         onClick = { logViewModel.closeSearch() }
                     ) {
-                        Icon(painterResource(AppIcons.CLOSE), contentDescription = null)
+                        Icon(painterResource(Res.drawable.close), contentDescription = null)
                     }
                 }
             }
@@ -694,7 +699,7 @@ fun GraphHeader(
                 onClick = onShowSearch
             ) {
                 Icon(
-                    painterResource(AppIcons.SEARCH),
+                    painterResource(Res.drawable.search),
                     modifier = Modifier.size(18.dp),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground,
@@ -1152,7 +1157,7 @@ fun CommitNode(
             contentAlignment = Alignment.Center,
         ) {
             Image(
-                painterResource(AppIcons.STASH),
+                painterResource(Res.drawable.stash),
                 modifier = Modifier.size(20.dp),
                 contentDescription = null,
                 colorFilter = ColorFilter.tint(color),
@@ -1254,7 +1259,7 @@ fun BranchChip(
     if (isCurrentBranch) {
         endingContent = {
             Icon(
-                painter = painterResource(AppIcons.LOCATION),
+                painter = painterResource(Res.drawable.location),
                 contentDescription = null,
                 modifier = Modifier.padding(end = 6.dp),
                 tint = MaterialTheme.colors.primaryVariant,
@@ -1266,7 +1271,7 @@ fun BranchChip(
         modifier = modifier,
         color = color,
         ref = ref,
-        icon = AppIcons.BRANCH,
+        icon = Res.drawable.branch,
         onCheckoutRef = onCheckoutBranch,
         contextMenuItemsList = contextMenuItemsList,
         endingContent = endingContent,
@@ -1292,7 +1297,7 @@ fun TagChip(
     RefChip(
         modifier,
         ref,
-        AppIcons.TAG,
+        Res.drawable.tag,
         onCheckoutRef = onCheckoutTag,
         contextMenuItemsList = contextMenuItemsList,
         color = color,
@@ -1304,7 +1309,7 @@ fun TagChip(
 fun RefChip(
     modifier: Modifier = Modifier,
     ref: Ref,
-    icon: String,
+    icon: DrawableResource,
     color: Color,
     onCheckoutRef: () -> Unit,
     contextMenuItemsList: () -> List<ContextMenuElement>,

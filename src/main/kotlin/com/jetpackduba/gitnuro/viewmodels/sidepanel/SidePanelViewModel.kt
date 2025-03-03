@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
-import androidx.compose.runtime.collectAsState
 import com.jetpackduba.gitnuro.di.factories.*
 import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.TabState
@@ -35,7 +34,7 @@ class SidePanelViewModel @Inject constructor(
     init {
         tabScope.launch {
             tabState.closeViewFlow.collectLatest {
-                if (it == CloseableView.SIDE_PANEL_SEARCH) {
+                if (it == CloseableView.SIDE_PANE_SEARCH) {
                     newFilter("")
                     _freeSearchFocusFlow.emit(Unit)
                 }
@@ -48,10 +47,10 @@ class SidePanelViewModel @Inject constructor(
     }
 
     fun addSidePanelSearchToCloseables() = tabScope.launch {
-        tabState.addCloseableView(CloseableView.SIDE_PANEL_SEARCH)
+        tabState.addCloseableView(CloseableView.SIDE_PANE_SEARCH)
     }
 
     fun removeSidePanelSearchFromCloseables() = tabScope.launch {
-        tabState.removeCloseableView(CloseableView.SIDE_PANEL_SEARCH)
+        tabState.removeCloseableView(CloseableView.SIDE_PANE_SEARCH)
     }
 }

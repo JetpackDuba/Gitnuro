@@ -18,17 +18,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.onMiddleMouseButtonClick
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.close
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
@@ -222,7 +223,7 @@ fun Tab(
                     .size(14.dp)
             ) {
                 Icon(
-                    painterResource(AppIcons.CLOSE),
+                    painterResource(Res.drawable.close),
                     contentDescription = null,
                     tint = MaterialTheme.colors.onBackground
                 )

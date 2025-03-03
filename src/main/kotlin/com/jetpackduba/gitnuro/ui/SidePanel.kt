@@ -12,14 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.isLocal
 import com.jetpackduba.gitnuro.extensions.isValid
 import com.jetpackduba.gitnuro.extensions.simpleName
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.side_pane_local_branches_title
+import com.jetpackduba.gitnuro.generated.resources.side_pane_remotes_title
+import com.jetpackduba.gitnuro.generated.resources.side_pane_search_hint
 import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.models.newRemoteWrapper
 import com.jetpackduba.gitnuro.models.toRemoteWrapper
@@ -39,6 +43,7 @@ import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.submodule.SubmoduleStatus
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SidePanel(
@@ -168,7 +173,7 @@ fun FilterTextField(
 ) {
     AdjustableOutlinedTextField(
         value = value,
-        hint = "Search for branches, tags & more",
+        hint = stringResource(Res.string.side_pane_search_hint),
         onValueChange = onValueChange,
         modifier = modifier,
         textStyle = LocalTextStyle.current.copy(
@@ -178,7 +183,7 @@ fun FilterTextField(
         singleLine = true,
         leadingIcon = {
             Icon(
-                painterResource(AppIcons.SEARCH),
+                painterResource(Res.drawable.search),
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
                 tint = if (value.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
@@ -193,7 +198,7 @@ fun FilterTextField(
                         .handOnHover(),
                 ) {
                     Icon(
-                        painterResource(AppIcons.CLOSE),
+                        painterResource(Res.drawable.close),
                         contentDescription = null,
                         tint = if (value.isEmpty()) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground
                     )
@@ -218,8 +223,8 @@ fun LazyListScope.localBranches(
             items = { emptyList() }
         ) {
             SideMenuHeader(
-                text = "Local branches",
-                icon = painterResource(AppIcons.BRANCH),
+                text = stringResource(Res.string.side_pane_local_branches_title),
+                icon = painterResource(Res.drawable.branch),
                 itemsCount = branches.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -257,8 +262,8 @@ fun LazyListScope.remotes(
 
     item {
         SideMenuHeader(
-            text = "Remotes",
-            icon = painterResource(AppIcons.CLOUD),
+            text = stringResource(Res.string.side_pane_remotes_title),
+            icon = painterResource(Res.drawable.cloud),
             itemsCount = remotes.count(),
             hoverIcon = {
                 IconButton(
@@ -269,7 +274,7 @@ fun LazyListScope.remotes(
                         .handOnHover(),
                 ) {
                     Icon(
-                        painter = painterResource(AppIcons.ADD),
+                        painter = painterResource(Res.drawable.add),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxSize(),
@@ -330,8 +335,8 @@ fun LazyListScope.tags(
             items = { emptyList() }
         ) {
             SideMenuHeader(
-                text = "Tags",
-                icon = painterResource(AppIcons.TAG),
+                text = stringResource(Res.string.side_pane_tags_title),
+                icon = painterResource(Res.drawable.tag),
                 itemsCount = tags.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -366,8 +371,8 @@ fun LazyListScope.stashes(
             items = { emptyList() }
         ) {
             SideMenuHeader(
-                text = "Stashes",
-                icon = painterResource(AppIcons.STASH),
+                text = stringResource(Res.string.side_pane_stashes_title),
+                icon = painterResource(Res.drawable.stash),
                 itemsCount = stashes.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
@@ -403,8 +408,8 @@ fun LazyListScope.submodules(
             items = { emptyList() }
         ) {
             SideMenuHeader(
-                text = "Submodules",
-                icon = painterResource(AppIcons.TOPIC),
+                text = stringResource(Res.string.side_pane_submodules_title),
+                icon = painterResource(Res.drawable.topic),
                 itemsCount = submodules.count(),
                 hoverIcon = {
                     IconButton(
@@ -415,7 +420,7 @@ fun LazyListScope.submodules(
                             .handOnHover(),
                     ) {
                         Icon(
-                            painter = painterResource(AppIcons.ADD),
+                            painter = painterResource(Res.drawable.add),
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxSize(),
@@ -481,14 +486,14 @@ private fun Branch(
         SideMenuSubentry(
             text = branch.simpleName,
             fontWeight = if (isCurrentBranch) FontWeight.Bold else FontWeight.Normal,
-            iconResourcePath = AppIcons.BRANCH,
+            iconResourcePath = Res.drawable.branch,
             isSelected = isSelectedItem,
             onClick = onBranchClicked,
             onDoubleClick = onBranchDoubleClicked,
         ) {
             if (isCurrentBranch) {
                 Text(
-                    text = "HEAD",
+                    text = stringResource(Res.string.side_pane_local_branches_current_branch_label),
                     color = MaterialTheme.colors.onBackgroundSecondary,
                     style = MaterialTheme.typography.caption,
                     fontWeight = FontWeight.SemiBold,
@@ -517,7 +522,7 @@ private fun Remote(
     ) {
         SideMenuSubentry(
             text = remote.remoteInfo.remoteConfig.name,
-            iconResourcePath = AppIcons.CLOUD,
+            iconResourcePath = Res.drawable.cloud,
             onClick = onRemoteClicked,
             isSelected = false,
         )
@@ -561,7 +566,7 @@ private fun RemoteBranches(
             text = remoteBranch.simpleName,
             extraPadding = 24.dp,
             isSelected = false,
-            iconResourcePath = AppIcons.BRANCH,
+            iconResourcePath = Res.drawable.branch,
             onClick = onBranchClicked,
             onDoubleClick = onCheckoutBranch,
         )
@@ -587,7 +592,7 @@ private fun Tag(
         SideMenuSubentry(
             text = tag.simpleName,
             isSelected = isSelected,
-            iconResourcePath = AppIcons.TAG,
+            iconResourcePath = Res.drawable.tag,
             onClick = onTagClicked,
         )
     }
@@ -615,7 +620,7 @@ private fun Stash(
         SideMenuSubentry(
             text = stash.shortMessage,
             isSelected = isSelected,
-            iconResourcePath = AppIcons.STASH,
+            iconResourcePath = Res.drawable.stash,
             onClick = onClick,
         )
     }
@@ -646,7 +651,7 @@ private fun Submodule(
     ) {
         SideMenuSubentry(
             text = submodule.first,
-            iconResourcePath = AppIcons.TOPIC,
+            iconResourcePath = Res.drawable.topic,
             isSelected = false,
             onClick = {
                 if (submodule.second.type.isValid()) {

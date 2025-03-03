@@ -23,18 +23,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.uncommited_changes_primary_button_continue
+import com.jetpackduba.gitnuro.generated.resources.uncommited_changes_secondary_button_abort
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
@@ -56,6 +58,8 @@ import com.jetpackduba.gitnuro.viewmodels.StatusViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
+import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun UncommittedChanges(
@@ -280,9 +284,9 @@ private fun CommitField(
             enabled = !repositoryState.isRebasing || isAmenableRebaseInteractive,
             label = {
                 val text = if (repositoryState.isRebasing && !isAmenableRebaseInteractive) {
-                    "Commit message (read-only)"
+                    stringResource(Res.string.uncommited_changes_text_input_label_message_read_only)
                 } else {
-                    "Write your commit message here"
+                    stringResource(Res.string.uncommited_changes_text_input_label_message)
                 }
 
                 Text(
@@ -362,12 +366,12 @@ fun ColumnScope.StagedView(
     onTreeDirectoryClicked: (String) -> Unit,
     onTreeDirectoryAction: (String) -> Unit,
 ) {
-    val title = "Staged"
-    val actionTitle = "Unstage"
-    val allActionTitle = "Unstage all"
+    val title = stringResource(Res.string.uncommited_changes_staged_title)
+    val actionTitle = stringResource(Res.string.uncommited_changes_staged_item_action)
+    val allActionTitle = stringResource(Res.string.uncommited_changes_staged_all_items_action)
     val actionColor = MaterialTheme.colors.error
     val actionTextColor = MaterialTheme.colors.onError
-    val actionIcon = AppIcons.REMOVE_DONE
+    val actionIcon = Res.drawable.remove_done
 
     this.NeutralView(
         title = title,
@@ -422,12 +426,12 @@ fun ColumnScope.UnstagedView(
     onTreeDirectoryClicked: (String) -> Unit,
     onTreeDirectoryAction: (String) -> Unit,
 ) {
-    val title = "Unstaged"
-    val actionTitle = "Stage"
-    val allActionTitle = "Stage all"
+    val title = stringResource(Res.string.uncommited_changes_unstaged_title)
+    val actionTitle = stringResource(Res.string.uncommited_changes_unstaged_item_action)
+    val allActionTitle = stringResource(Res.string.uncommited_changes_unstaged_all_items_action)
     val actionColor = MaterialTheme.colors.primary
     val actionTextColor = MaterialTheme.colors.onPrimary
-    val actionIcon = AppIcons.DONE
+    val actionIcon = Res.drawable.done
 
     this.NeutralView(
         title = title,
@@ -468,7 +472,7 @@ fun ColumnScope.NeutralView(
     allActionTitle: String,
     actionColor: Color,
     actionTextColor: Color,
-    actionIcon: String,
+    actionIcon: DrawableResource,
     entryType: EntryType,
     stageStateUi: StageStateUi.Loaded,
     showSearchUnstaged: Boolean,
@@ -581,15 +585,15 @@ fun UncommittedChangesButtons(
     onCommit: () -> Unit
 ) {
     val buttonText = if (isAmend)
-        "Amend"
+        stringResource(Res.string.uncommited_changes_primary_button_amend)
     else
-        "Commit"
+        stringResource(Res.string.uncommited_changes_primary_button_commit)
 
     Column {
         CheckboxText(
             value = isAmend,
             onCheckedChange = { onAmendChecked(!isAmend) },
-            text = "Amend previous commit"
+            text = stringResource(Res.string.uncommited_changes_amend_check)
         )
         Row(
             modifier = Modifier
@@ -631,7 +635,7 @@ fun MergeButtons(
         )
 
         ConfirmationButton(
-            text = "Merge",
+            text = stringResource(Res.string.uncommited_changes_primary_button_merge),
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 4.dp)
@@ -663,7 +667,7 @@ fun CherryPickingButtons(
         )
 
         ConfirmationButton(
-            text = "Commit",
+            text = stringResource(Res.string.uncommited_changes_primary_button_commit),
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 4.dp)
@@ -690,7 +694,7 @@ fun RebasingButtons(
             CheckboxText(
                 value = isAmend,
                 onCheckedChange = { onAmendChecked(!isAmend) },
-                text = "Amend previous commit"
+                text = stringResource(Res.string.uncommited_changes_amend_check)
             )
         }
 
@@ -710,7 +714,7 @@ fun RebasingButtons(
 
             if (canContinue) {
                 ConfirmationButton(
-                    text = "Continue",
+                    text = stringResource(Res.string.uncommited_changes_primary_button_continue),
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
@@ -720,7 +724,7 @@ fun RebasingButtons(
                 )
             } else {
                 ConfirmationButton(
-                    text = "Skip",
+                    text = stringResource(Res.string.uncommited_changes_primary_button_skip),
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp)
@@ -753,7 +757,7 @@ fun RevertingButtons(
         )
 
         ConfirmationButton(
-            text = "Continue",
+            text = stringResource(Res.string.uncommited_changes_primary_button_continue),
             modifier = Modifier
                 .weight(1f)
                 .padding(start = 4.dp)
@@ -775,7 +779,7 @@ fun AbortButton(modifier: Modifier, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "Abort",
+            text = stringResource(Res.string.uncommited_changes_secondary_button_abort),
             style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.onError),
         )
     }
@@ -818,7 +822,7 @@ private fun EntriesList(
     actionTitle: String,
     actionColor: Color,
     actionTextColor: Color,
-    actionIcon: String,
+    actionIcon: DrawableResource,
     showSearch: Boolean,
     searchFilter: TextFieldValue,
     onSearchFilterToggled: (Boolean) -> Unit,
@@ -890,7 +894,7 @@ private fun TreeEntriesList(
     actionTitle: String,
     actionColor: Color,
     actionTextColor: Color,
-    actionIcon: String,
+    actionIcon: DrawableResource,
     showSearch: Boolean,
     searchFilter: TextFieldValue,
     onSearchFilterToggled: (Boolean) -> Unit,
@@ -970,7 +974,7 @@ fun EntriesHeader(
     showAsTree: Boolean,
     showSearch: Boolean,
     allActionTitle: String,
-    actionIcon: String,
+    actionIcon: DrawableResource,
     actionColor: Color,
     actionTextColor: Color,
     onAllAction: () -> Unit,
@@ -1018,7 +1022,7 @@ fun EntriesHeader(
                 modifier = Modifier.handOnHover()
             ) {
                 Icon(
-                    painter = painterResource(if (showAsTree) AppIcons.LIST else AppIcons.TREE),
+                    painter = painterResource(if (showAsTree) Res.drawable.list else Res.drawable.tree),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colors.onBackground,
@@ -1035,7 +1039,7 @@ fun EntriesHeader(
                 modifier = Modifier.handOnHover()
             ) {
                 Icon(
-                    painter = painterResource(AppIcons.SEARCH),
+                    painter = painterResource(Res.drawable.search),
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colors.onBackground,
@@ -1169,59 +1173,5 @@ private fun UncommittedTreeItemEntry(
             depth = entry.depth,
             onGenerateContextMenu = { onGenerateDirectoryContextMenu(entry) },
         )
-    }
-}
-
-//@Composable
-//private fun TreeItemEntry(
-//    entry: TreeItem<StatusEntry>,
-//    isSelected: Boolean,
-//    actionTitle: String,
-//    actionColor: Color,
-//    onClick: () -> Unit,
-//    onButtonClick: () -> Unit,
-//    onGenerateContextMenu: (StatusEntry) -> List<ContextMenuElement>,
-//    onGenerateDirectoryContextMenu: (TreeItem.Dir) -> List<ContextMenuElement>,
-//) {
-//    when (entry) {
-//        is TreeItem.File -> TreeFileEntry(
-//            entry,
-//            isSelected,
-//            actionTitle,
-//            actionColor,
-//            onClick,
-//            onButtonClick,
-//            onGenerateContextMenu,
-//        )
-//
-//        is TreeItem.Dir -> TreeDirEntry(
-//            entry,
-//            onClick,
-//            onGenerateDirectoryContextMenu,
-//        )
-//    }
-//}
-
-internal fun placeRightOrBottom(
-    totalSize: Int,
-    size: IntArray,
-    outPosition: IntArray,
-    reverseInput: Boolean
-) {
-    val consumedSize = size.fold(0) { a, b -> a + b }
-    var current = totalSize - consumedSize
-    size.forEachIndexed(reverseInput) { index, it ->
-        outPosition[index] = current
-        current += it
-    }
-}
-
-private inline fun IntArray.forEachIndexed(reversed: Boolean, action: (Int, Int) -> Unit) {
-    if (!reversed) {
-        forEachIndexed(action)
-    } else {
-        for (i in (size - 1) downTo 0) {
-            action(i, get(i))
-        }
     }
 }

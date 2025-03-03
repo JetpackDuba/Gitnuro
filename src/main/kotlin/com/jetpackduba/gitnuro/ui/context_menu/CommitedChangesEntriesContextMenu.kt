@@ -1,8 +1,10 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.blame
+import com.jetpackduba.gitnuro.generated.resources.history
+import org.jetbrains.compose.resources.painterResource
 import org.eclipse.jgit.diff.DiffEntry
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -18,14 +20,14 @@ fun committedChangesEntriesContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Blame file",
-                    icon = { painterResource(AppIcons.BLAME) },
+                    icon = { painterResource(Res.drawable.blame) },
                     onClick = onBlame,
                 )
             )
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "File history",
-                    icon = { painterResource(AppIcons.HISTORY) },
+                    icon = { painterResource(Res.drawable.history) },
                     onClick = onHistory,
                 )
             )

@@ -11,16 +11,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.branch
+import com.jetpackduba.gitnuro.generated.resources.layout
+import com.jetpackduba.gitnuro.generated.resources.palette
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -33,31 +37,32 @@ import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.DrawableResource
 
 sealed interface SettingsEntry {
     data class Section(val name: String) : SettingsEntry
 
-    data class Entry(val icon: String, val name: String, val content: @Composable (SettingsViewModel) -> Unit) :
+    data class Entry(val icon: DrawableResource, val name: String, val content: @Composable (SettingsViewModel) -> Unit) :
         SettingsEntry
 }
 
 val settings = listOf(
     SettingsEntry.Section("User interface"),
-    SettingsEntry.Entry(AppIcons.PALETTE, "Appearance") { Appearance(it) },
-    SettingsEntry.Entry(AppIcons.LAYOUT, "Layout") { Layout(it) },
+    SettingsEntry.Entry(Res.drawable.palette, "Appearance") { Appearance(it) },
+    SettingsEntry.Entry(Res.drawable.layout, "Layout") { Layout(it) },
 
     SettingsEntry.Section("GIT"),
-    SettingsEntry.Entry(AppIcons.BRANCH, "Branches") { Branches(it) },
-    SettingsEntry.Entry(AppIcons.CLOUD, "Remote actions") { RemoteActions(it) },
+    SettingsEntry.Entry(Res.drawable.branch, "Branches") { Branches(it) },
+    SettingsEntry.Entry(Res.drawable.cloud, "Remote actions") { RemoteActions(it) },
 
     SettingsEntry.Section("Network"),
-    SettingsEntry.Entry(AppIcons.NETWORK, "Proxy") { Proxy(it) },
-    SettingsEntry.Entry(AppIcons.PASSWORD, "Authentication") { Authentication(it) },
-    SettingsEntry.Entry(AppIcons.SECURITY, "Security") { Security(it) },
+    SettingsEntry.Entry(Res.drawable.network, "Proxy") { Proxy(it) },
+    SettingsEntry.Entry(Res.drawable.password, "Authentication") { Authentication(it) },
+    SettingsEntry.Entry(Res.drawable.security, "Security") { Security(it) },
 
     SettingsEntry.Section("Tools"),
-    SettingsEntry.Entry(AppIcons.TERMINAL, "Terminal") { Terminal(it) },
-    SettingsEntry.Entry(AppIcons.INFO, "Logs") { Logs(it) },
+    SettingsEntry.Entry(Res.drawable.terminal, "Terminal") { Terminal(it) },
+    SettingsEntry.Entry(Res.drawable.info, "Logs") { Logs(it) },
 )
 
 @Composable
@@ -246,7 +251,7 @@ fun SettingsDialog(
 }
 
 @Composable
-private fun Entry(icon: String, name: String, isSelected: Boolean, onClick: () -> Unit) {
+private fun Entry(icon: DrawableResource, name: String, isSelected: Boolean, onClick: () -> Unit) {
     val backgroundColor = if (isSelected)
         MaterialTheme.colors.backgroundSelected
     else
@@ -554,7 +559,7 @@ fun <T> SettingDropDown(
                     )
 
                     Icon(
-                        painter = painterResource(AppIcons.DROPDOWN),
+                        painter = painterResource(Res.drawable.dropdown),
                         contentDescription = null,
                         tint = MaterialTheme.colors.onBackground,
                     )

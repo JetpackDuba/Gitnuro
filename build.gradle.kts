@@ -59,6 +59,7 @@ dependencies {
     @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
     implementation(compose("org.jetbrains.compose.ui:ui-util"))
     implementation(compose("org.jetbrains.compose.components:components-animatedimage"))
+    implementation(compose("org.jetbrains.compose.components:components-resources"))
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgit")
     implementation("org.eclipse.jgit:org.eclipse.jgit.gpg.bc:$jgit")
     implementation("org.eclipse.jgit:org.eclipse.jgit.lfs:$jgit")

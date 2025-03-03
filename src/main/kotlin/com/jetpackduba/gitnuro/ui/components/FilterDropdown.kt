@@ -10,11 +10,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.dropdown
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 
 @Preview
@@ -62,7 +63,7 @@ fun <T> FilterDropdown(
             )
 
             Icon(
-                painter = painterResource(AppIcons.DROPDOWN),
+                painter = painterResource(Res.drawable.dropdown),
                 contentDescription = null,
                 tint = MaterialTheme.colors.onBackground,
             )

@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.delete
+import com.jetpackduba.gitnuro.generated.resources.edit
+import org.jetbrains.compose.resources.painterResource
 
 fun remoteContextMenu(
     onEdit: () -> Unit,
@@ -9,12 +11,12 @@ fun remoteContextMenu(
 ): List<ContextMenuElement> = listOf(
     ContextMenuElement.ContextTextEntry(
         label = "Edit",
-        icon = { painterResource(AppIcons.EDIT) },
+        icon = { painterResource(Res.drawable.edit) },
         onClick = onEdit
     ),
     ContextMenuElement.ContextTextEntry(
         label = "Delete",
-        icon = { painterResource(AppIcons.DELETE) },
+        icon = { painterResource(Res.drawable.delete) },
         onClick = onDelete
     ),
 )

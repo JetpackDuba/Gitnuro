@@ -24,12 +24,13 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.lineAt
 import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.close
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.notoSansMonoFontFamily
@@ -194,7 +195,7 @@ fun MinimizedBlame(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource(AppIcons.CLOSE),
+                painter = painterResource(Res.drawable.close),
                 contentDescription = "Close blame",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
@@ -229,7 +230,7 @@ private fun Header(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource(AppIcons.CLOSE),
+                painter = painterResource(Res.drawable.close),
                 contentDescription = "Close blame",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )

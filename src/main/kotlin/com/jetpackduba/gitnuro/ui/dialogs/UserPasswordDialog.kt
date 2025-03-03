@@ -14,14 +14,17 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.visibility
+import com.jetpackduba.gitnuro.generated.resources.visibility_off
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
@@ -32,7 +35,7 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 fun UserPasswordDialog(
     title: String = "Introduce your remote server credentials",
     subtitle: String = "Your remote requires authentication with a\nusername and a password",
-    icon: Painter = painterResource(AppIcons.LOCK),
+    icon: Painter = painterResource(Res.drawable.lock),
     onReject: () -> Unit,
     onAccept: (user: String, password: String) -> Unit,
 ) {
@@ -132,9 +135,9 @@ fun UserPasswordDialog(
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val visibilityIcon = if (showPassword) {
-                        AppIcons.VISIBILITY_OFF
+                        Res.drawable.visibility_off
                     } else {
-                        AppIcons.VISIBILITY
+                        Res.drawable.visibility
                     }
 
                     IconButton(

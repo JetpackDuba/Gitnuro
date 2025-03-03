@@ -16,25 +16,28 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.visibility
+import com.jetpackduba.gitnuro.generated.resources.visibility_off
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import org.jetbrains.compose.resources.DrawableResource
 
 @Composable
 fun PasswordDialog(
     title: String,
     subtitle: String,
-    icon: String,
+    icon: DrawableResource,
     password: String = "",
     cancelButtonText: String = "Cancel",
     isRetry: Boolean = false,
@@ -108,9 +111,9 @@ fun PasswordDialog(
                 visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val visibilityIcon = if (showPassword) {
-                        AppIcons.VISIBILITY_OFF
+                        Res.drawable.visibility_off
                     } else {
-                        AppIcons.VISIBILITY
+                        Res.drawable.visibility
                     }
 
                     IconButton(

@@ -1,8 +1,12 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.extensions.isValid
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.open
+import com.jetpackduba.gitnuro.generated.resources.sync
+import com.jetpackduba.gitnuro.generated.resources.update
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.eclipse.jgit.submodule.SubmoduleStatusType
 
@@ -28,14 +32,14 @@ fun submoduleContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Open submodule in new tab",
-                    icon = { painterResource(AppIcons.OPEN) },
+                    icon = { painterResource(Res.drawable.open) },
                     onClick = onOpenSubmoduleInTab,
                 )
             )
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Sync submodule",
-                    icon = { painterResource(AppIcons.SYNC) },
+                    icon = { painterResource(Res.drawable.sync) },
                     onClick = onSyncSubmodule,
                 )
             )
@@ -43,7 +47,7 @@ fun submoduleContextMenuItems(
             add(
                 ContextMenuElement.ContextTextEntry(
                     label = "Update submodule",
-                    icon = { painterResource(AppIcons.UPDATE) },
+                    icon = { painterResource(Res.drawable.update) },
                     onClick = onUpdateSubmodule,
                 )
             )
@@ -65,7 +69,7 @@ fun submoduleContextMenuItems(
         add(
             ContextMenuElement.ContextTextEntry(
                 label = "Delete submodule",
-                icon = { painterResource(AppIcons.DELETE) },
+                icon = { painterResource(Res.drawable.delete) },
                 onClick = onDeleteSubmodule,
             ),
         )

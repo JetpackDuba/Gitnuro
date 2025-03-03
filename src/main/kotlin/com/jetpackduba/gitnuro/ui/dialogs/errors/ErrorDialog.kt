@@ -9,14 +9,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.onDoubleClick
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.copy
+import com.jetpackduba.gitnuro.generated.resources.error
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -51,7 +53,7 @@ fun ErrorDialog(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Icon(
-                    painterResource(AppIcons.ERROR),
+                    painterResource(Res.drawable.error),
                     contentDescription = null,
                     tint = MaterialTheme.colors.error,
                     modifier = Modifier.size(24.dp)
@@ -121,7 +123,7 @@ fun ErrorDialog(
                                 .background(MaterialTheme.colors.background.copy(alpha = 0.8f))
                         ) {
                             Icon(
-                                painter = painterResource(AppIcons.COPY),
+                                painter = painterResource(Res.drawable.copy),
                                 contentDescription = "Copy stacktrace",
                                 tint = MaterialTheme.colors.onSurface,
                             )

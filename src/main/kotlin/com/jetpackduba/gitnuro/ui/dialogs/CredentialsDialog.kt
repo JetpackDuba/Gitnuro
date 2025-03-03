@@ -2,11 +2,12 @@ package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsState
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.lfs
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 
 @Composable
@@ -52,7 +53,7 @@ fun CredentialsDialog(tabViewModel: TabViewModel) {
             UserPasswordDialog(
                 title = "LFS Server Credentials",
                 subtitle = "Introduce the credentials for your LFS server",
-                icon = painterResource(AppIcons.LFS),
+                icon = painterResource(Res.drawable.lfs),
                 onReject = {
                     tabViewModel.credentialsDenied()
                 },

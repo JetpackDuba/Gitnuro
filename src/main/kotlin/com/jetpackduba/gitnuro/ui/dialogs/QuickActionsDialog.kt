@@ -14,15 +14,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.code
+import com.jetpackduba.gitnuro.generated.resources.download
+import com.jetpackduba.gitnuro.generated.resources.refresh
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
+import org.jetbrains.compose.resources.DrawableResource
 
 @Composable
 fun QuickActionsDialog(
@@ -33,10 +38,10 @@ fun QuickActionsDialog(
     val textFieldFocusRequester = remember { FocusRequester() }
     val items = remember {
         listOf(
-            QuickAction(AppIcons.CODE, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
-            QuickAction(AppIcons.DOWNLOAD, "Clone new repository", QuickActionType.CLONE),
-            QuickAction(AppIcons.REFRESH, "Refresh repository data", QuickActionType.REFRESH),
-            QuickAction(AppIcons.SIGN, "Signoff config", QuickActionType.SIGN_OFF),
+            QuickAction(Res.drawable.code, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
+            QuickAction(Res.drawable.download, "Clone new repository", QuickActionType.CLONE),
+            QuickAction(Res.drawable.refresh, "Refresh repository data", QuickActionType.REFRESH),
+            QuickAction(Res.drawable.sign, "Signoff config", QuickActionType.SIGN_OFF),
         )
     }
 
@@ -122,7 +127,7 @@ fun QuickActionsDialog(
     }
 }
 
-data class QuickAction(val icon: String, val title: String, val type: QuickActionType)
+data class QuickAction(val icon: DrawableResource, val title: String, val type: QuickActionType)
 
 enum class QuickActionType {
     OPEN_DIR_IN_FILE_MANAGER,

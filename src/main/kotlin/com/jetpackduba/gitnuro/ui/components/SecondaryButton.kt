@@ -21,10 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.theme.tertiarySurface
+import org.jetbrains.compose.resources.DrawableResource
 
 @Preview
 @Composable
@@ -63,7 +64,7 @@ fun SecondaryButton(
 @Composable
 fun SecondaryButtonCompactable(
     modifier: Modifier = Modifier,
-    icon: String,
+    icon: DrawableResource,
     text: String,
     onBackgroundColor: Color = MaterialTheme.colors.onPrimary,
     backgroundButton: Color,

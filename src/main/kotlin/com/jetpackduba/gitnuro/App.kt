@@ -14,7 +14,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -25,6 +25,8 @@ import androidx.compose.ui.window.rememberWindowState
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.logo
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -148,7 +150,7 @@ class App {
                         isOpen = false
                     },
                     state = windowState,
-                    icon = painterResource(AppIcons.LOGO),
+                    icon = painterResource(Res.drawable.logo),
                 ) {
                     val compositionValues: MutableList<ProvidedValue<*>> =
                         mutableListOf(LocalTextContextMenu provides AppPopupMenu())

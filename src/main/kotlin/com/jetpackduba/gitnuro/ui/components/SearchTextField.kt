@@ -17,11 +17,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.close
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 
@@ -57,7 +58,7 @@ fun SearchTextField(
                         .handOnHover(),
                 ) {
                     Icon(
-                        painterResource(AppIcons.CLOSE),
+                        painterResource(Res.drawable.close),
                         contentDescription = null,
                         tint = MaterialTheme.colors.onBackground
                     )

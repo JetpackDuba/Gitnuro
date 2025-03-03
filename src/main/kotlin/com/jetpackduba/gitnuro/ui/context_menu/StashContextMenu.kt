@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.message
+import org.jetbrains.compose.resources.painterResource
 
 fun stashContextMenuItems(
     onStashWithMessage: () -> Unit,
@@ -10,7 +11,7 @@ fun stashContextMenuItems(
         ContextMenuElement.ContextTextEntry(
             label = "Stash with message",
             onClick = onStashWithMessage,
-            icon = { painterResource(AppIcons.MESSAGE) }
+            icon = { painterResource(Res.drawable.message) },
         ),
     )
 }

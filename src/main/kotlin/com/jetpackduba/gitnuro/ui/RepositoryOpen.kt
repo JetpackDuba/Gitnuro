@@ -15,12 +15,18 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.bottom_info_bar_email_not_set
+import com.jetpackduba.gitnuro.generated.resources.bottom_info_bar_name_and_email
+import com.jetpackduba.gitnuro.generated.resources.bottom_info_bar_name_not_set
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.remote_operations.PullType
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
+import com.jetpackduba.gitnuro.ui.components.BottomInfoBar
 import com.jetpackduba.gitnuro.ui.components.SecondaryButton
 import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
 import com.jetpackduba.gitnuro.ui.dialogs.*
@@ -33,6 +39,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
+import org.jetbrains.compose.resources.stringResource
 
 val LocalTabFocusRequester = compositionLocalOf { FocusRequester() }
 
@@ -217,7 +224,7 @@ fun RepositoryOpenPage(
         val userInfo by repositoryOpenViewModel.authorInfoSimple.collectAsState()
         val newUpdate = repositoryOpenViewModel.update.collectAsState().value
 
-        BottomInfoBar(
+        RepositoryOpenBottomInfoBar(
             userInfo,
             newUpdate,
             onOpenUrlInBrowser = { repositoryOpenViewModel.openUrlInBrowser(it) },
@@ -231,50 +238,33 @@ fun RepositoryOpenPage(
 }
 
 @Composable
-private fun BottomInfoBar(
+private fun RepositoryOpenBottomInfoBar(
     userInfo: AuthorInfoSimple,
     newUpdate: Update?,
     onOpenUrlInBrowser: (String) -> Unit,
     onShowAuthorInfoDialog: () -> Unit,
 ) {
+    BottomInfoBar(
+        newUpdate,
+        onOpenUrlInBrowser,
+        leadingContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .handMouseClickable { onShowAuthorInfoDialog() },
+                contentAlignment = Alignment.Center,
+            ) {
+                val name = userInfo.name ?: stringResource(Res.string.bottom_info_bar_name_not_set)
+                val email = userInfo.email ?: stringResource(Res.string.bottom_info_bar_email_not_set)
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(32.dp)
-            .background(MaterialTheme.colors.surface)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .handMouseClickable { onShowAuthorInfoDialog() },
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = "${userInfo.name ?: "Name not set"} <${userInfo.email ?: "Email not set"}>",
-                style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.onBackground,
-            )
+                Text(
+                    text = stringResource(Res.string.bottom_info_bar_name_and_email, name, email),
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onBackground,
+                )
+            }
         }
-        Spacer(Modifier.weight(1f, true))
-
-        if (newUpdate != null) {
-            SecondaryButton(
-                text = "Update ${newUpdate.appVersion} available",
-                onClick = { onOpenUrlInBrowser(newUpdate.downloadUrl) },
-                backgroundButton = MaterialTheme.colors.primary,
-                modifier = Modifier.padding(end = 16.dp)
-            )
-        }
-
-        Text(
-            "Version ${AppConstants.APP_VERSION}",
-            style = MaterialTheme.typography.body2,
-            maxLines = 1,
-        )
-    }
+    )
 }
 
 @Composable

@@ -2,8 +2,12 @@ package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.painterResource
-import com.jetpackduba.gitnuro.AppIcons
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.branch
+import com.jetpackduba.gitnuro.generated.resources.start
+import com.jetpackduba.gitnuro.generated.resources.tag
+import org.jetbrains.compose.resources.painterResource
 
 fun logContextMenu(
     onCheckoutCommit: () -> Unit,
@@ -17,17 +21,17 @@ fun logContextMenu(
 ) = mutableListOf<ContextMenuElement>().apply {
     addContextMenu(
         label = "Checkout commit",
-        icon = { painterResource(AppIcons.START) },
+        icon = { painterResource(Res.drawable.start) },
         onClick = onCheckoutCommit
     )
     addContextMenu(
         label = "Create branch",
-        icon = { painterResource(AppIcons.BRANCH) },
+        icon = { painterResource(Res.drawable.branch) },
         onClick = onCreateNewBranch
     )
     addContextMenu(
         label = "Create tag",
-        icon = { painterResource(AppIcons.TAG) },
+        icon = { painterResource(Res.drawable.tag) },
         onClick = onCreateNewTag
     )
 
@@ -42,7 +46,7 @@ fun logContextMenu(
 
     addContextMenu(
         label = "Revert commit",
-        icon = { painterResource(AppIcons.REVERT) },
+        icon = { painterResource(Res.drawable.revert) },
         onClick = onRevertCommit
     )
     addContextMenu(
@@ -51,7 +55,7 @@ fun logContextMenu(
     )
     addContextMenu(
         label = "Reset current branch to this commit",
-        icon = { painterResource(AppIcons.UNDO) },
+        icon = { painterResource(Res.drawable.undo) },
         onClick = onResetBranch
     )
 }

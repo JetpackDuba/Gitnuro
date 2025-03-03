@@ -14,14 +14,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.search
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.textButtonColors
@@ -173,7 +174,7 @@ private fun CloneDialogView(
                         .size(40.dp),
                 ) {
                     Icon(
-                        painterResource(AppIcons.SEARCH),
+                        painterResource(Res.drawable.search),
                         contentDescription = "Search",
                         tint = MaterialTheme.colors.onBackground,
                     )

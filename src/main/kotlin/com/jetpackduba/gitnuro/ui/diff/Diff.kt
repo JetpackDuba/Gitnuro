@@ -27,14 +27,18 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
-import androidx.compose.ui.res.painterResource
+import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.AppIcons
 import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.generated.resources.*
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.binary
+import com.jetpackduba.gitnuro.generated.resources.close
+import com.jetpackduba.gitnuro.generated.resources.undo
 import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.EntryContent
@@ -63,6 +67,7 @@ import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.jetbrains.compose.animatedimage.Blank
 import org.jetbrains.compose.animatedimage.animate
 import org.jetbrains.compose.animatedimage.loadAnimatedImage
+import org.jetbrains.compose.resources.DrawableResource
 import java.io.FileInputStream
 import kotlin.math.max
 
@@ -412,7 +417,7 @@ private fun AnimatedImage(
 @Composable
 fun BinaryDiff() {
     Image(
-        painter = painterResource(AppIcons.BINARY),
+        painter = painterResource(Res.drawable.binary),
         contentDescription = null,
         modifier = Modifier.width(400.dp),
         colorFilter = ColorFilter.tint(MaterialTheme.colors.primary)
@@ -723,7 +728,7 @@ fun DiffContextMenu(
                 listOf(
                     ContextMenuElement.ContextTextEntry(
                         label = "Discard line",
-                        icon = { painterResource(AppIcons.UNDO) },
+                        icon = { painterResource(Res.drawable.undo) },
                         onClick = {
                             onDiscardLine()
                         }
@@ -898,7 +903,7 @@ private fun DiffHeader(
                     .handOnHover()
             ) {
                 Icon(
-                    painter = painterResource(AppIcons.CLOSE),
+                    painter = painterResource(Res.drawable.close),
                     contentDescription = "Close diff",
                     tint = MaterialTheme.colors.onBackground,
                     modifier = Modifier.size(24.dp),
@@ -910,7 +915,7 @@ private fun DiffHeader(
 
 @Composable
 fun StateIcon(
-    icon: String,
+    icon: DrawableResource,
     tooltip: String,
     isToggled: Boolean,
     onClick: () -> Unit,
@@ -955,14 +960,14 @@ fun DiffTypeButtons(
             modifier = Modifier.padding(end = 16.dp)
         ) {
             StateIcon(
-                icon = AppIcons.HORIZONTAL_SPLIT,
+                icon = Res.drawable.horizontal_split,
                 tooltip = "Divide by hunks",
                 isToggled = !isDisplayFullFile,
                 onClick = { onDisplayFullFile(false) },
             )
 
             StateIcon(
-                icon = AppIcons.DESCRIPTION,
+                icon = Res.drawable.description,
                 tooltip = "View the complete file",
                 isToggled = isDisplayFullFile,
                 onClick = { onDisplayFullFile(true) },
@@ -973,14 +978,14 @@ fun DiffTypeButtons(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             StateIcon(
-                icon = AppIcons.UNIFIED,
+                icon = Res.drawable.unified,
                 tooltip = "Unified diff",
                 isToggled = diffType == TextDiffType.UNIFIED,
                 onClick = { onChangeDiffType(TextDiffType.UNIFIED) },
             )
 
             StateIcon(
-                icon = AppIcons.VERTICAL_SPLIT,
+                icon = Res.drawable.vertical_split,
                 tooltip = "Split diff",
                 isToggled = diffType == TextDiffType.SPLIT,
                 onClick = { onChangeDiffType(TextDiffType.SPLIT) },
@@ -1048,7 +1053,7 @@ private fun PathOnlyDiffHeader(
                 .handOnHover()
         ) {
             Image(
-                painter = painterResource(AppIcons.CLOSE),
+                painter = painterResource(Res.drawable.close),
                 contentDescription = "Close diff",
                 colorFilter = ColorFilter.tint(MaterialTheme.colors.onBackground),
             )
@@ -1155,9 +1160,9 @@ fun DiffLineText(line: Line, diffType: DiffType, onActionTriggered: () -> Unit) 
 
             val iconName = remember(diffType) {
                 if (diffType is DiffType.StagedDiff) {
-                    AppIcons.REMOVE
+                    Res.drawable.remove
                 } else {
-                    AppIcons.ADD
+                    Res.drawable.add
                 }
             }
 
