@@ -81,7 +81,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 isLfs = false,
             )
 
-            if (cachedCredentials == null || appSettingsRepository.cacheCredentialsInMemory) {
+            if (cachedCredentials == null || !appSettingsRepository.cacheCredentialsInMemory) {
                 val credentials = askForCredentials()
 
                 userItem.value = credentials.user
