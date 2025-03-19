@@ -18,25 +18,20 @@ data class LfsObject(
 
 @Serializable
 data class Actions(
-    @SerialName("download") var download: Download? = null,
-    @SerialName("upload") var upload: Upload? = null,
+    @SerialName("download") var download: RemoteObjectAccessInfo? = null,
+    @SerialName("upload") var upload: RemoteObjectAccessInfo? = null,
+    @SerialName("verify") var verify: RemoteObjectAccessInfo? = null,
 )
 
 @Serializable
-data class Download(
-    @SerialName("href") var href: String? = null,
-    @SerialName("header") var header: Header? = Header(),
-    @SerialName("expires_at") var expiresAt: String? = null
-)
-
-@Serializable
-data class Upload(
+data class RemoteObjectAccessInfo(
     @SerialName("href") var href: String,
-    @SerialName("header") var header: Header?,
-    @SerialName("expires_at") var expiresAt: String?,
+    @SerialName("header") var header: Map<String, String>? = null,
+    @SerialName("expires_at") var expiresAt: String? = null,
 )
 
-@Serializable
-data class Header(
-    @SerialName("Accept") var accept: String? = null
-)
+//@Serializable
+//data class Header(
+//    @SerialName("Accept") var accept: String? = null,
+//    @SerialName("Authorization") var authorization: String? = null,
+//)

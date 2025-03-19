@@ -237,7 +237,8 @@ class GLfsPrePushHook(
         }
 
         if (!isDryRun) {
-            val lfsServerUrl = lfsRepository.getLfsRepositoryUrl(repository)
+            val lfsServerUrl =
+                lfsRepository.getLfsRepositoryUrl(repository, remote()) ?: throw Exception("LFS Url not found")
 
             val lfsPrepareUploadObjectBatch = createLfsPrepareUploadObjectBatch(
                 OperationType.UPLOAD,
@@ -249,7 +250,8 @@ class GLfsPrePushHook(
             var credentialsAlreadyRequested = false
 
             val cachedCredentials = run {
-                val cacheHttpCredentials = credentialsCacheRepository.getCachedHttpCredentials(lfsServerUrl, isLfs = true)
+                val cacheHttpCredentials =
+                    credentialsCacheRepository.getCachedHttpCredentials(lfsServerUrl, isLfs = true)
 
                 if (cacheHttpCredentials != null) {
                     CredentialsAccepted.LfsCredentialsAccepted.fromCachedCredentials(cacheHttpCredentials)
@@ -300,10 +302,17 @@ class GLfsPrePushHook(
 
                         if (uploadUrl != null) {
                             lfsRepository.uploadObject(
+                                obj,
                                 uploadUrl,
                                 p.oid.name(),
                                 lfs.getMediaFile(p.oid),
                                 p.size,
+                                credentials?.user,
+                                credentials?.password,
+                            )
+
+                            lfsRepository.verify(
+                                obj,
                                 credentials?.user,
                                 credentials?.password,
                             )

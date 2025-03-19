@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.Result
+import com.jetpackduba.gitnuro.models.lfs.LfsObject
 import com.jetpackduba.gitnuro.models.lfs.LfsObjects
 import com.jetpackduba.gitnuro.models.lfs.LfsPrepareUploadObjectBatch
 import io.ktor.client.*
@@ -34,6 +35,7 @@ interface ILfsNetworkDataSource {
     )
 
     suspend fun uploadObject(
+        lfsObject: LfsObject,
         uploadUrl: String,
         oid: String,
         file: Path,
@@ -42,7 +44,14 @@ interface ILfsNetworkDataSource {
         password: String?,
     )
 
+    suspend fun verify(
+        lfsObject: LfsObject,
+        username: String?,
+        password: String?,
+    )
+
     suspend fun downloadObject(
+        lfsObject: LfsObject,
         downloadUrl: String,
         outPath: Path,
         username: String?,
@@ -53,6 +62,8 @@ interface ILfsNetworkDataSource {
 class LfsNetworkDataSource @Inject constructor(
     private val client: HttpClient,
 ) : ILfsNetworkDataSource {
+    private val json = Json { ignoreUnknownKeys = true }
+
     override suspend fun postBatchObjects(
         remoteUrl: String,
         lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
@@ -69,15 +80,14 @@ class LfsNetworkDataSource @Inject constructor(
                 basicAuth(username, password)
             }
 
-            setBody(Json.encodeToString(lfsPrepareUploadObjectBatch))
+            setBody(json.encodeToString(lfsPrepareUploadObjectBatch))
         }
 
         if (response.status != HttpStatusCode.OK) {
             return Result.Err(LfsError.HttpError(response.status))
         }
 
-
-        return Result.Ok(Json.decodeFromString(response.bodyAsText()))
+        return Result.Ok(json.decodeFromString(response.bodyAsText()))
     }
 
     override suspend fun uploadBatchObjects(
@@ -97,7 +107,7 @@ class LfsNetworkDataSource @Inject constructor(
             }
 
 
-            this.setBody(Json.encodeToString(lfsPrepareUploadObjectBatch))
+            this.setBody(json.encodeToString(lfsPrepareUploadObjectBatch))
         }
 
         if (response.status.value != 200) {
@@ -106,6 +116,7 @@ class LfsNetworkDataSource @Inject constructor(
     }
 
     override suspend fun uploadObject(
+        lfsObject: LfsObject,
         uploadUrl: String,
         oid: String,
         file: Path,
@@ -115,7 +126,23 @@ class LfsNetworkDataSource @Inject constructor(
     ) {
         val response = client.put(uploadUrl) {
             if (username != null && password != null) {
-                basicAuth(username, password)
+                val objHeaders = lfsObject.actions.upload?.header
+
+                if (objHeaders.isNullOrEmpty()) {
+                    basicAuth(username, password)
+                } else {
+                    for (header in objHeaders.entries) {
+                        header(header.key, header.value)
+                    }
+                }
+
+
+//                if (authorization != null) {
+//
+//                    bearerAuth(authorization)
+//                } else {
+//                    basicAuth(username, password)
+//                }
             }
 
             this.headers {
@@ -131,7 +158,32 @@ class LfsNetworkDataSource @Inject constructor(
         }
     }
 
+    override suspend fun verify(lfsObject: LfsObject, username: String?, password: String?) {
+        val response = client.post(lfsObject.actions.verify!!.href) {
+            if (username != null && password != null) {
+                val objHeaders = lfsObject.actions.verify?.header
+
+                if (objHeaders.isNullOrEmpty()) {
+                    basicAuth(username, password)
+                } else {
+                    for (header in objHeaders.entries) {
+                        header(header.key, header.value)
+                    }
+                }
+            }
+
+            this.headers {
+                this["Accept"] = "application/vnd.git-lfs"
+            }
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            throw Exception("Verify status is ${response.status} instead of HTTP OK 200")
+        }
+    }
+
     override suspend fun downloadObject(
+        lfsObject: LfsObject,
         downloadUrl: String,
         outPath: Path,
         username: String?,

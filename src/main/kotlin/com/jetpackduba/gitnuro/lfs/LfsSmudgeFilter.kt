@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.lfs
 import com.jetpackduba.gitnuro.Result
 import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
-import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
@@ -17,9 +16,7 @@ import org.eclipse.jgit.lfs.LfsPointer
 import org.eclipse.jgit.lfs.lib.AnyLongObjectId
 import org.eclipse.jgit.lib.Repository
 import java.io.*
-import java.net.URI
 import java.nio.file.Files
-import java.util.concurrent.CancellationException
 
 private const val MAX_COPY_BYTES = 1024 * 1024 * 256
 
@@ -59,7 +56,7 @@ class LfsSmudgeFilter(
         repository: Repository,
         res: LfsPointer,
     ) = runBlocking {
-        val lfsServerUrl = lfsRepository.getLfsRepositoryUrl(repository)
+        val lfsServerUrl = lfsRepository.getLfsRepositoryUrl(repository, null) ?: throw Exception("LFS Url not found")
 
         val hash = res.oid.name()
         val size = res.size
@@ -146,6 +143,7 @@ class LfsSmudgeFilter(
 
             do {
                 val newLfsObjects = lfsRepository.downloadObject(
+                    lfsObject,
                     downloadUrl,
                     lfs.getMediaFile(oid),
                     username,
