@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-    val jgit = "7.1.0.202411261347-r"
+    val jgit = "7.2.0.202503040940-r"
     val ktorVersion = "3.0.3"
 
     when {
