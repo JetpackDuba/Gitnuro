@@ -298,7 +298,7 @@ class GLfsPrePushHook(
 //                    val credentials = credentialsStateManager.requestLfsCredentials()
 
                     lfsObjects.value.objects.forEach { obj ->
-                        val uploadUrl = obj.actions.upload?.href
+                        val uploadUrl = obj.actions?.upload?.href
 
                         if (uploadUrl != null) {
                             lfsRepository.uploadObject(

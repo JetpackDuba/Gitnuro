@@ -139,7 +139,7 @@ class LfsSmudgeFilter(
         for (lfsObject in lfsObjects.objects) {
             var requiresAuth: Boolean
 
-            val downloadUrl = lfsObject.actions.download?.href ?: continue
+            val downloadUrl = lfsObject.actions?.download?.href ?: continue
 
             do {
                 val newLfsObjects = lfsRepository.downloadObject(

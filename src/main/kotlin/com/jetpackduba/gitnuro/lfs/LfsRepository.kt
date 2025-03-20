@@ -73,8 +73,8 @@ fun createLfsPrepareUploadObjectBatch(
         transfers = listOf(
             "basic",
             // TODO Add support for standalone files and SSH once they are stable https://github.com/git-lfs/git-lfs/blob/main/docs/api/README.md
-            //"lfs-standalone-file",
-            //"ssh",
+            "lfs-standalone-file",
+            "ssh",
         ),
         ref = LfsRef(branch),
         hashAlgo = algo,

@@ -12,8 +12,8 @@ data class LfsObjects(
 @Serializable
 data class LfsObject(
     @SerialName("oid") var oid: String,
-    @SerialName("size") var size: Int,
-    @SerialName("actions") var actions: Actions,
+    @SerialName("size") var size: Long,
+    @SerialName("actions") var actions: Actions? = null,
 )
 
 @Serializable
@@ -29,9 +29,3 @@ data class RemoteObjectAccessInfo(
     @SerialName("header") var header: Map<String, String>? = null,
     @SerialName("expires_at") var expiresAt: String? = null,
 )
-
-//@Serializable
-//data class Header(
-//    @SerialName("Accept") var accept: String? = null,
-//    @SerialName("Authorization") var authorization: String? = null,
-//)
