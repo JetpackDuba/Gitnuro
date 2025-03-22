@@ -34,6 +34,7 @@ class SettingsViewModel @Inject constructor(
     val themeState = appSettingsRepository.themeState
     val linesHeightTypeState = appSettingsRepository.linesHeightTypeState
     val ffMergeFlow = appSettingsRepository.ffMergeFlow
+    val includeBranchNameFlow = appSettingsRepository.includeBranchNameFlow
     val pullRebaseFlow = appSettingsRepository.pullRebaseFlow
     val pushWithLeaseFlow = appSettingsRepository.pushWithLeaseFlow
     val swapUncommittedChangesFlow = appSettingsRepository.swapUncommittedChangesFlow
@@ -57,6 +58,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettingsRepository.ffMerge
         set(value) {
             appSettingsRepository.ffMerge = value
+        }
+
+    var includeBranchName: Boolean
+        get() = appSettingsRepository.includeBranchName
+        set(value) {
+            appSettingsRepository.includeBranchName = value
         }
 
     var cacheCredentialsInMemory: Boolean
