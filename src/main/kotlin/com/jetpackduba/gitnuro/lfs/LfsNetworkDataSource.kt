@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.lfs
 
+import com.jetpackduba.gitnuro.NetworkConstants
 import com.jetpackduba.gitnuro.Result
 import com.jetpackduba.gitnuro.models.lfs.LfsObject
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
@@ -24,8 +25,7 @@ interface ILfsNetworkDataSource {
     suspend fun postBatchObjects(
         remoteUrl: String,
         lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
-        username: String?,
-        password: String?,
+        onCreateHeaders: HttpRequestBuilder.() -> Unit,
     ): Result<LfsObjects, LfsError>
 
     suspend fun uploadBatchObjects(
@@ -36,25 +36,28 @@ interface ILfsNetworkDataSource {
     )
 
     suspend fun uploadObject(
-        lfsObject: LfsObject,
         uploadUrl: String,
         oid: String,
         file: Path,
         size: Long,
+        objHeaders: Map<String, String>,
         username: String?,
         password: String?,
-    )
+    ): Result<Unit, LfsError>
 
     suspend fun verify(
-        lfsObject: LfsObject,
+        url: String,
+        oid: String,
+        size: Long,
+        headers: Map<String, String>,
         username: String?,
         password: String?,
-    )
+    ): Result<Unit, LfsError>
 
     suspend fun downloadObject(
-        lfsObject: LfsObject,
         downloadUrl: String,
         outPath: Path,
+        headers: Map<String, String>,
         username: String?,
         password: String?,
     ): Result<Unit, LfsError>
@@ -68,8 +71,7 @@ class LfsNetworkDataSource @Inject constructor(
     override suspend fun postBatchObjects(
         remoteUrl: String,
         lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
-        username: String?,
-        password: String?,
+        onCreateHeaders: HttpRequestBuilder.() -> Unit,
     ): Result<LfsObjects, LfsError> {
         val response = client.post("${remoteUrl.removeSuffix("/")}/objects/batch") {
             this.headers {
@@ -77,9 +79,7 @@ class LfsNetworkDataSource @Inject constructor(
                 this["Content-Type"] = "application/vnd.git-lfs+json"
             }
 
-            if (username != null && password != null) {
-                basicAuth(username, password)
-            }
+            onCreateHeaders()
 
             setBody(json.encodeToString(lfsPrepareUploadObjectBatch))
         }
@@ -117,23 +117,93 @@ class LfsNetworkDataSource @Inject constructor(
     }
 
     override suspend fun uploadObject(
-        lfsObject: LfsObject,
         uploadUrl: String,
         oid: String,
         file: Path,
         size: Long,
+        objHeaders: Map<String, String>,
         username: String?,
         password: String?,
-    ) {
+    ): Result<Unit, LfsError> {
         val response = client.put(uploadUrl) {
-            val objHeaders = lfsObject.actions?.upload?.header.orEmpty()
-
-            for (header in objHeaders.entries) {
+            for (header in objHeaders) {
                 header(header.key, header.value)
             }
 
             this.headers {
-                if (username != null && password != null && !headers.contains("Authorization")) {
+                if (username != null && password != null && !headers.contains(NetworkConstants.AUTH_HEADER)) {
+                    basicAuth(username, password)
+                }
+
+                if (!this.contains(NetworkConstants.ACCEPT_HEADER)) {
+                    this["Accept"] = "application/vnd.git-lfs"
+                }
+
+                this["Content-Length"] = size.toString()
+            }
+
+            setBody(file.readChannel())
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            return Result.Err(LfsError.HttpError(response.status))
+        }
+
+        return Result.Ok(Unit)
+    }
+
+    override suspend fun verify(
+        url: String,
+        oid: String,
+        size: Long,
+        headers: Map<String, String>,
+        username: String?,
+        password: String?,
+    ): Result<Unit, LfsError> {
+
+        val response = client.post(url) {
+            for (header in headers) {
+                header(header.key, header.value)
+            }
+
+            this.headers {
+                if (
+                    !headers.contains(NetworkConstants.AUTH_HEADER) &&
+                    (username != null && password != null)
+                ) {
+                    basicAuth(username, password)
+                }
+
+                if (!this.contains(NetworkConstants.ACCEPT_HEADER)) {
+                    this["Accept"] = "application/vnd.git-lfs"
+                }
+            }
+
+            val body = LfsObjectBatch(oid, size)
+            setBody(json.encodeToString(body))
+        }
+
+        if (response.status != HttpStatusCode.OK) {
+            return Result.Err(LfsError.HttpError(response.status))
+        }
+
+        return Result.Ok(Unit)
+    }
+
+    override suspend fun downloadObject(
+        downloadUrl: String,
+        outPath: Path,
+        headers: Map<String, String>,
+        username: String?,
+        password: String?,
+    ): Result<Unit, LfsError> {
+        val response = client.get(downloadUrl) {
+            for (header in headers) {
+                header(header.key, header.value)
+            }
+
+            this.headers {
+                if (username != null && password != null && !headers.contains(NetworkConstants.AUTH_HEADER)) {
                     basicAuth(username, password)
                 }
 
@@ -141,71 +211,15 @@ class LfsNetworkDataSource @Inject constructor(
                     this["Accept"] = "application/vnd.git-lfs"
                 }
             }
-
-            setBody(file.readChannel())
-        }
-
-        if (response.status != HttpStatusCode.OK) {
-            throw Exception("Status is ${response.status} instead of HTTP OK 200")
-        }
-    }
-
-    override suspend fun verify(lfsObject: LfsObject, username: String?, password: String?) {
-        val verify = lfsObject.actions?.verify
-
-        if (verify != null) {
-            val response = client.post(verify.href) {
-                val objHeaders = verify.header.orEmpty()
-
-                for (header in objHeaders.entries) {
-                    header(header.key, header.value)
-                }
-
-                this.headers {
-                    if (username != null && password != null && !headers.contains("Authorization")) {
-                        basicAuth(username, password)
-                    }
-
-                    if (!this.contains("Accept")) {
-                        this["Accept"] = "application/vnd.git-lfs"
-                    }
-                }
-
-                val body = LfsObjectBatch(lfsObject.oid, lfsObject.size)
-                setBody(json.encodeToString(body))
-            }
-
-            if (response.status != HttpStatusCode.OK) {
-                throw Exception("Verify status is ${response.status} instead of HTTP OK 200")
-            }
-        }
-    }
-
-    override suspend fun downloadObject(
-        lfsObject: LfsObject,
-        downloadUrl: String,
-        outPath: Path,
-        username: String?,
-        password: String?,
-    ): Result<Unit, LfsError> {
-        val response = client.get(downloadUrl) {
-            if (username != null && password != null) {
-                basicAuth(username, password)
-            }
-
-            this.headers {
-                this["Accept"] = "application/vnd.git-lfs"
-            }
         }
 
         if (response.status != HttpStatusCode.OK) {
             return Result.Err(LfsError.HttpError(response.status))
-        } else if (response.status != HttpStatusCode.OK) {
-            throw Exception("Status is ${response.status} instead of HTTP OK 200")
         }
 
         val channel: ByteReadChannel = response.body()
         val file = outPath.toFile()
+
         withContext(Dispatchers.IO) {
             file.parentFile?.mkdirs()
             file.createNewFile()

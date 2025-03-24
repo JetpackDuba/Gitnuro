@@ -1,5 +1,8 @@
 package com.jetpackduba.gitnuro.lfs
 
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import org.eclipse.jgit.attributes.FilterCommand
 import org.eclipse.jgit.lfs.Lfs
 import org.eclipse.jgit.lfs.LfsPointer
@@ -14,12 +17,16 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 
-class LfsCleanFilter(
-    repository: Repository,
-    input: InputStream,
-    output: OutputStream,
-) :
-    FilterCommand(input, output) {
+@AssistedFactory
+interface LfsCleanFilterFactory {
+    fun create(repository: Repository, input: InputStream, output: OutputStream): LfsCleanFilter
+}
+
+class LfsCleanFilter @AssistedInject constructor(
+    @Assisted repository: Repository,
+    @Assisted input: InputStream,
+    @Assisted output: OutputStream,
+) : FilterCommand(input, output) {
     private val lfs = Lfs(repository)
 
     // the size of the original content

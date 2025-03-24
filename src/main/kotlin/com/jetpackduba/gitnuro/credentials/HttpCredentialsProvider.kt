@@ -90,7 +90,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
                 if (appSettingsRepository.cacheCredentialsInMemory) {
                     credentialsCached = CredentialsCacheType.HttpCredentialsCache(
                         url = uri.toString(),
-                        userName = credentials.user,
+                        user = credentials.user,
                         password = credentials.password,
                         isLfs = false,
                     )
@@ -98,7 +98,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
 
                 return true
             } else {
-                userItem.value = cachedCredentials.userName
+                userItem.value = cachedCredentials.user
                 passwordItem.value = cachedCredentials.password.toCharArray()
 
                 return true

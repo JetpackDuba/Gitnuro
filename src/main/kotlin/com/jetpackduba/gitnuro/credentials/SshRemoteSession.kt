@@ -3,19 +3,16 @@ package com.jetpackduba.gitnuro.credentials
 import Session
 import com.jetpackduba.gitnuro.exceptions.SshException
 import com.jetpackduba.gitnuro.extensions.throwIfSshMessage
-import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.transport.CredentialItem
+import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.URIish
-import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 
 private const val NOT_EXPLICIT_PORT = -1
 
-class SshRemoteSession @Inject constructor(
-    private val credentialsStateManager: CredentialsStateManager,
-) : RemoteSession {
+class SshRemoteSession @Inject constructor() : RemoteSession {
     private lateinit var session: Session
     private lateinit var process: SshProcess
     override fun exec(commandName: String, timeout: Int): Process {
@@ -33,7 +30,7 @@ class SshRemoteSession @Inject constructor(
         session.disconnect()
     }
 
-    fun setup(uri: URIish, sshCredentialsProvider: SshCredentialsProvider) {
+    fun setup(uri: URIish, sshCredentialsProvider: CredentialsProvider) {
         val session = Session.new()
             ?: throw SshException("Could not obtain the session, this is likely a bug. Please file a report.")
 

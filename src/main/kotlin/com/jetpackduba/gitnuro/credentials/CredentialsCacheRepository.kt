@@ -37,7 +37,7 @@ class CredentialsCacheRepository @Inject constructor() {
     }
 
     suspend fun cacheHttpCredentials(credentials: CredentialsCacheType.HttpCredentialsCache) {
-        cacheHttpCredentials(credentials.url, credentials.userName, credentials.password, credentials.isLfs)
+        cacheHttpCredentials(credentials.url, credentials.user, credentials.password, credentials.isLfs)
     }
 
     suspend fun cacheHttpCredentials(url: String, userName: String, password: String, isLfs: Boolean) {
@@ -109,7 +109,7 @@ sealed interface CredentialsCacheType {
 
     data class HttpCredentialsCache(
         val url: String,
-        val userName: String,
+        val user: String,
         val password: String,
         val isLfs: Boolean,
     ) : CredentialsCacheType

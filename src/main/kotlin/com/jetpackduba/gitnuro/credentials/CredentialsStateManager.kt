@@ -17,9 +17,6 @@ class CredentialsStateManager @Inject constructor() {
     val credentialsState: StateFlow<CredentialsState>
         get() = _credentialsState
 
-    val currentCredentialsState: CredentialsState
-        get() = credentialsState.value
-
     suspend fun requestHttpCredentials(): CredentialsAccepted.HttpCredentialsAccepted {
         return requestAwaitingCredentials(CredentialsRequest.HttpCredentialsRequest)
     }
@@ -58,7 +55,7 @@ class CredentialsStateManager @Inject constructor() {
 
     private suspend inline fun <reified T : CredentialsAccepted> requestAwaitingCredentials(credentialsRequest: CredentialsRequest): T {
         mutex.withLock {
-            assert(this.currentCredentialsState is CredentialsState.None)
+            assert(this.credentialsState.value is CredentialsState.None)
 
             _credentialsState.value = credentialsRequest
 
@@ -88,7 +85,7 @@ sealed interface CredentialsAccepted : CredentialsState {
     data class LfsCredentialsAccepted(val user: String, val password: String) : CredentialsAccepted {
         companion object {
             fun fromCachedCredentials(credentials: CredentialsCacheType.HttpCredentialsCache): LfsCredentialsAccepted {
-                return LfsCredentialsAccepted(credentials.userName, credentials.password)
+                return LfsCredentialsAccepted(credentials.user, credentials.password)
             }
         }
     }

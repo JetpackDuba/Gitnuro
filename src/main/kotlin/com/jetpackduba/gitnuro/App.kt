@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.jetpackduba.gitnuro.credentials.SshProcess
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
@@ -30,7 +31,7 @@ import com.jetpackduba.gitnuro.generated.resources.logo
 import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.lfs.GLfsFactory
+import com.jetpackduba.gitnuro.lfs.AppLfsFactory
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
@@ -49,11 +50,9 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.lfs.BuiltinLFS
 import org.eclipse.jgit.lib.GpgConfig
-import org.eclipse.jgit.lib.Signer
-import org.eclipse.jgit.lib.SignerFactory
 import org.eclipse.jgit.lib.Signers
+import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.util.LfsFactory
 import java.io.File
 import java.io.FileOutputStream
@@ -91,7 +90,7 @@ class App {
     lateinit var signer: AppGpgSigner
 
     @Inject
-    lateinit var gLfsFactory: GLfsFactory
+    lateinit var lfsFactory: AppLfsFactory
 
     init {
         appComponent.inject(this)
@@ -123,7 +122,7 @@ class App {
         }
 
         tabsManager.loadPersistedTabs()
-        gLfsFactory.register()
+        LfsFactory.setInstance(lfsFactory)
 
         if (dirToOpen != null)
             addDirTab(dirToOpen)
@@ -289,7 +288,6 @@ class App {
                 modifier = Modifier
                     .background(MaterialTheme.colors.background)
                     .onPreviewKeyEvent {
-                        println(it.toString())
                         when {
                             it.matchesBinding(KeybindingOption.OPEN_NEW_TAB) -> {
                                 tabsManager.addNewEmptyTab()
@@ -316,6 +314,7 @@ class App {
                                 }
                                 true
                             }
+
                             else -> false
                         }
                     }

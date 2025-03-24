@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.credentials
 
-import com.jetpackduba.gitnuro.git.remote_operations.CredentialsCache
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RemoteSession
 import org.eclipse.jgit.transport.SshSessionFactory
@@ -10,10 +9,10 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class GSessionManager @Inject constructor(
-    private val GSshSessionFactory: GSshSessionFactory,
+    private val sshSessionFactory: GSshSessionFactory,
 ) {
     fun generateSshSessionFactory(): GSshSessionFactory {
-        return GSshSessionFactory
+        return sshSessionFactory
     }
 }
 
@@ -27,7 +26,7 @@ class GSshSessionFactory @Inject constructor(
         tms: Int,
     ): RemoteSession {
         val remoteSession = sessionProvider.get()
-        remoteSession.setup(uri, credentialsProvider as SshCredentialsProvider)
+        remoteSession.setup(uri, credentialsProvider)
 
         return remoteSession
     }

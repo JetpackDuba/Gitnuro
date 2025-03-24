@@ -67,3 +67,5 @@ fun String.throwIfSshMessage() {
         throw SshException(this)
     }
 }
+
+fun String.isHttpOrHttps() = this.startsWith("http://") or this.startsWith("https://")

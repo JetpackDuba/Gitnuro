@@ -10,3 +10,18 @@ fun InputStream.toByteArray(): ByteArray {
         byteArrayOutStream.toByteArray()
     }
 }
+
+fun InputStream.readUntilValue(limitValue: Int): ByteArray {
+    var value: Byte
+    val bytesList = mutableListOf<Byte>()
+
+    do {
+        value = this.read().toByte()
+
+        if (value.toInt() != limitValue) {
+            bytesList.add(value)
+        }
+    } while (value.toInt() != limitValue)
+
+    return bytesList.toByteArray()
+}
