@@ -119,7 +119,7 @@ fun Log(
             selectedItem = selectedItem,
             repositoryState = repositoryState,
             changeUpstreamBranchDialogViewModel = changeUpstreamBranchDialogViewModel,
-            onRequestMoreLogItems = { logViewModel.loadMoreLogItems() }
+            onRequestMoreLogItems = { firstVisibleItemIndex -> logViewModel.loadMoreLogItems(firstVisibleItemIndex) }
         )
 
         LogStatus.Loading -> LogLoading()
@@ -152,7 +152,7 @@ private fun LogLoaded(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
-    onRequestMoreLogItems: () -> Unit,
+    onRequestMoreLogItems: (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val hasUncommittedChanges = logStatus.hasUncommittedChanges
@@ -175,7 +175,7 @@ private fun LogLoaded(
                     commitsList.last().parentCount > 0
                 ) {
                     printLog(TAG, "Requesting more items")
-                    onRequestMoreLogItems()
+                    onRequestMoreLogItems(verticalScrollState.firstVisibleItemIndex)
                 }
             }
     }

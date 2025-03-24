@@ -27,6 +27,8 @@ import com.jetpackduba.gitnuro.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.CheckoutConflictException
 import org.eclipse.jgit.lib.Ref
@@ -82,6 +84,9 @@ class LogViewModel @Inject constructor(
 
     var savedSearchFilter: String = ""
     var graphPadding = 0f
+
+    private var lastIndexUsedToLoadData = 0
+    private val loadItemsMutex = Mutex()
 
     private val scrollToItem: Flow<RevCommit> = tabState.taskEvent
         .filterIsInstance<TaskEvent.ScrollToGraphItem>()
@@ -399,32 +404,38 @@ class LogViewModel @Inject constructor(
         null
     }
 
-    fun loadMoreLogItems() = tabState.runOperation(
+    fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        val logStatusValue = logStatus.value
-
-        if (logStatusValue !is LogStatus.Loaded)
+        if (loadItemsMutex.isLocked || firstVisibleItemIndex <= lastIndexUsedToLoadData) {
             return@runOperation
+        }
+        loadItemsMutex.withLock {
+            lastIndexUsedToLoadData = firstVisibleItemIndex
+            val logStatusValue = logStatus.value
 
-        val currentBranch = getCurrentBranchUseCase(git)
+            if (logStatusValue !is LogStatus.Loaded)
+                return@runOperation
 
-        val statusSummary = getStatusSummaryUseCase(
-            git = git,
-        )
+            val currentBranch = getCurrentBranchUseCase(git)
 
-        val hasUncommittedChanges = statusSummary.total > 0
+            val statusSummary = getStatusSummaryUseCase(
+                git = git,
+            )
 
-        val log = getLogUseCase(
-            git,
-            currentBranch,
-            hasUncommittedChanges,
-            logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
-            logStatusValue.plotCommitList
-        )
+            val hasUncommittedChanges = statusSummary.total > 0
 
-        _logStatus.value =
-            LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
+            val log = getLogUseCase(
+                git,
+                currentBranch,
+                hasUncommittedChanges,
+                logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
+                logStatusValue.plotCommitList
+            )
+
+            _logStatus.value =
+                LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
+        }
     }
 
     override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
