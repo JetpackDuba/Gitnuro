@@ -28,7 +28,7 @@ class LfsRepository @Inject constructor(
                 branch = branch,
                 objects = objects,
             ),
-            objHeaders = headers,
+            headers = headers,
             username,
             password,
         )

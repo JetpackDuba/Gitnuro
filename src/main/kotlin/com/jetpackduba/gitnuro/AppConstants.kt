@@ -43,4 +43,5 @@ data class Project(val name: String, val url: String, val license: License)
 object NetworkConstants {
     const val ACCEPT_HEADER = "Accept"
     const val AUTH_HEADER = "Authorization"
+    const val CONTENT_LENGTH_HEADER = "Content-Length"
 }
