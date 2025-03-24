@@ -36,18 +36,10 @@ class LfsRepository @Inject constructor(
                 branch = branch,
                 objects = objects,
             ),
-        ) {
-            for (header in headers) {
-                this.header(header.key, header.value)
-            }
-
-            if (
-                !headers.containsKey(NetworkConstants.AUTH_HEADER) &&
-                (username != null && password != null)
-            ) {
-                basicAuth(username, password)
-            }
-        }
+            objHeaders = headers,
+            username,
+            password,
+        )
     }
 
     private fun createLfsPrepareUploadObjectBatch(

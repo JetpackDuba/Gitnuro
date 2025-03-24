@@ -105,7 +105,7 @@ class LfsSmudgeFilter @AssistedInject constructor(
         }
 
         when (lfsObjects) {
-            is Result.Err -> throw LfsException("Gettings LFS objects failed with error: {lfsObjects.error}")
+            is Result.Err -> throw LfsException("Gettings LFS objects failed with error: ${lfsObjects.error}")
             is Result.Ok -> {
 
                 val lfsObject = lfsObjects.value.objects.firstOrNull() // There should be only one LFS object

@@ -25,15 +25,10 @@ interface ILfsNetworkDataSource {
     suspend fun postBatchObjects(
         remoteUrl: String,
         lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
-        onCreateHeaders: HttpRequestBuilder.() -> Unit,
-    ): Result<LfsObjects, LfsError>
-
-    suspend fun uploadBatchObjects(
-        remoteUrl: String,
-        lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
+        objHeaders: Map<String, String>,
         username: String?,
         password: String?,
-    )
+    ): Result<LfsObjects, LfsError>
 
     suspend fun uploadObject(
         uploadUrl: String,
@@ -71,15 +66,28 @@ class LfsNetworkDataSource @Inject constructor(
     override suspend fun postBatchObjects(
         remoteUrl: String,
         lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
-        onCreateHeaders: HttpRequestBuilder.() -> Unit,
+        objHeaders: Map<String, String>,
+        username: String?,
+        password: String?,
     ): Result<LfsObjects, LfsError> {
         val response = client.post("${remoteUrl.removeSuffix("/")}/objects/batch") {
-            this.headers {
-                this["Accept"] = "application/vnd.git-lfs+json"
-                this["Content-Type"] = "application/vnd.git-lfs+json"
+            for (header in objHeaders) {
+                header(header.key, header.value)
             }
 
-            onCreateHeaders()
+            this.headers {
+                if (username != null && password != null && !headers.contains(NetworkConstants.AUTH_HEADER)) {
+                    basicAuth(username, password)
+                }
+
+                if (!this.contains(NetworkConstants.ACCEPT_HEADER)) {
+                    this[NetworkConstants.ACCEPT_HEADER] = "application/vnd.git-lfs"
+                }
+            }
+
+            this.headers {
+                contentType(ContentType("application", "vnd.git-lfs+json"))
+            }
 
             setBody(json.encodeToString(lfsPrepareUploadObjectBatch))
         }
@@ -89,31 +97,6 @@ class LfsNetworkDataSource @Inject constructor(
         }
 
         return Result.Ok(json.decodeFromString(response.bodyAsText()))
-    }
-
-    override suspend fun uploadBatchObjects(
-        remoteUrl: String,
-        lfsPrepareUploadObjectBatch: LfsPrepareUploadObjectBatch,
-        username: String?,
-        password: String?,
-    ) {
-        val response = client.post("$remoteUrl/objects/batch") {
-            if (username != null && password != null) {
-                basicAuth(username, password)
-            }
-
-            this.headers {
-                this["Accept"] = "application/vnd.git-lfs+json"
-                this["Content-Type"] = "application/vnd.git-lfs+json"
-            }
-
-
-            this.setBody(json.encodeToString(lfsPrepareUploadObjectBatch))
-        }
-
-        if (response.status.value != 200) {
-            throw Exception("Code is ${response.status.value}...")
-        }
     }
 
     override suspend fun uploadObject(
@@ -175,7 +158,7 @@ class LfsNetworkDataSource @Inject constructor(
                 }
 
                 if (!this.contains(NetworkConstants.ACCEPT_HEADER)) {
-                    this["Accept"] = "application/vnd.git-lfs"
+                    this[NetworkConstants.ACCEPT_HEADER] = "application/vnd.git-lfs"
                 }
             }
 
@@ -207,8 +190,8 @@ class LfsNetworkDataSource @Inject constructor(
                     basicAuth(username, password)
                 }
 
-                if (!this.contains("Accept")) {
-                    this["Accept"] = "application/vnd.git-lfs"
+                if (!this.contains(NetworkConstants.ACCEPT_HEADER)) {
+                    this[NetworkConstants.ACCEPT_HEADER] = "application/vnd.git-lfs"
                 }
             }
         }
