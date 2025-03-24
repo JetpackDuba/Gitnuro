@@ -1,14 +1,10 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.Result
-import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
-import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
-import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.git.lfs.AuthenticateLfsServerWithSshUseCase
 import com.jetpackduba.gitnuro.git.lfs.DownloadLfsObjectUseCase
 import com.jetpackduba.gitnuro.git.lfs.GetLfsObjectsUseCase
-import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
 import com.jetpackduba.gitnuro.models.lfs.LfsObjects
 import dagger.assisted.Assisted

@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.ui.diff.syntax_highlighter
 
-class   RubySyntaxHighlighter : SyntaxHighlighter() {
+class RubySyntaxHighlighter : SyntaxHighlighter() {
     override fun loadKeywords(): List<String> = listOf(
         "BEGIN",
         "END",

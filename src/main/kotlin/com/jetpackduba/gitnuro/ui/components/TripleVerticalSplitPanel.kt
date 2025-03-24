@@ -36,11 +36,11 @@ fun TripleVerticalSplitPanel(
 
     // The panes width used to be calculated in the remember lambda, but as it required the view to compose once to get
     // the composable width, it was flickering, so we only update them when size of the parent component changes
-    var firstWidthLimited by remember(firstWidth) { mutableStateOf(firstWidth)}
+    var firstWidthLimited by remember(firstWidth) { mutableStateOf(firstWidth) }
     var thirdWidthLimited by remember(thirdWidth) { mutableStateOf(thirdWidth) }
 
     fun updateMaxPaneWidthToComponentWidth(screenWidth: Int) {
-        val screenWidthInDp = screenWidth /density
+        val screenWidthInDp = screenWidth / density
         firstWidthLimited = calcLimitedWidth(screenWidthInDp, firstWidth)
         thirdWidthLimited = calcLimitedWidth(screenWidthInDp, thirdWidth)
     }

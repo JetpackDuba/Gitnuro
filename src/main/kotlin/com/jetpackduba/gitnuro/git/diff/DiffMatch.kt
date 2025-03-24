@@ -76,7 +76,7 @@ class DiffMatchPatch(
     fun diffMain(
         text1: String,
         text2: String,
-        checkLines: Boolean = true
+        checkLines: Boolean = true,
     ): LinkedList<Diff> {
         // Set a deadline by which time the diff must be complete.
         val deadline: Long
@@ -104,7 +104,7 @@ class DiffMatchPatch(
         text1: String,
         text2: String,
         checkLines: Boolean,
-        deadline: Long
+        deadline: Long,
     ): LinkedList<Diff> {
 
         // Check for equality (speedup).
@@ -459,7 +459,7 @@ class DiffMatchPatch(
      */
     private fun diffBisectsplit(
         text1: String, text2: String,
-        x: Int, y: Int, deadline: Long
+        x: Int, y: Int, deadline: Long,
     ): LinkedList<Diff> {
         val text1a = text1.substring(0, x)
         val text2a = text2.substring(0, y)
@@ -555,7 +555,7 @@ class DiffMatchPatch(
      */
     protected fun diffCharsToLines(
         diffs: List<Diff>,
-        lineArray: List<String>
+        lineArray: List<String>,
     ) {
         var text: StringBuilder
         for (diff: Diff in diffs) {
@@ -1237,7 +1237,7 @@ class DiffMatchPatch(
      */
     data class Diff(
         var operation: Operation,
-        var text: String
+        var text: String,
     ) {
         /**
          * Display a human-readable version of this Diff.

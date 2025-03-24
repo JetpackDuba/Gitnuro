@@ -1,15 +1,10 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.extensions.isHttpOrHttps
-import com.jetpackduba.gitnuro.git.branches.GetBranchesUseCase
 import com.jetpackduba.gitnuro.git.branches.GetCurrentBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.GetTrackingBranchUseCase
 import com.jetpackduba.gitnuro.logging.printError
-import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
-import com.jetpackduba.gitnuro.models.lfs.LfsPrepareUploadObjectBatch
-import com.jetpackduba.gitnuro.models.lfs.LfsRef
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lfs.internal.LfsConfig
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.storage.file.FileBasedConfig

@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -43,11 +42,12 @@ import com.jetpackduba.gitnuro.viewmodels.HistoryState
 import com.jetpackduba.gitnuro.viewmodels.HistoryViewModel
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
 import org.eclipse.jgit.revwalk.RevCommit
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun FileHistory(
     historyViewModel: HistoryViewModel,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
     val historyState by historyViewModel.historyState.collectAsState()
 

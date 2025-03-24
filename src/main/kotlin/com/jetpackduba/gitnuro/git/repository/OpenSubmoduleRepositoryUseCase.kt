@@ -10,7 +10,7 @@ import java.io.File
 import javax.inject.Inject
 
 class OpenSubmoduleRepositoryUseCase @Inject constructor(
-    private val openRepositoryUseCase: OpenRepositoryUseCase
+    private val openRepositoryUseCase: OpenRepositoryUseCase,
 ) {
     suspend operator fun invoke(directory: File): Repository = withContext(Dispatchers.IO) {
         val parent = getRepositoryParent(directory)

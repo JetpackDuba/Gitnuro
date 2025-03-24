@@ -34,7 +34,7 @@ private val lgpl__2_1 = License("LGPL-2.1", "https://www.gnu.org/licenses/old-li
 
 data class License(
     val name: String,
-    val url: String
+    val url: String,
 )
 
 data class Project(val name: String, val url: String, val license: License)

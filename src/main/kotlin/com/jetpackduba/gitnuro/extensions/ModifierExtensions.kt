@@ -34,7 +34,7 @@ fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
 fun Modifier.handMouseClickable(
     interactionSource: MutableInteractionSource,
     indication: Indication?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ): Modifier {
     return this
         .clickable(

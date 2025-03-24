@@ -4,8 +4,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.blame
 import com.jetpackduba.gitnuro.generated.resources.history
-import org.jetbrains.compose.resources.painterResource
 import org.eclipse.jgit.diff.DiffEntry
+import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalFoundationApi::class)
 fun committedChangesEntriesContextMenuItems(

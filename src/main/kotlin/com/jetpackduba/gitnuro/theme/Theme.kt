@@ -47,7 +47,7 @@ fun AppTheme(
     selectedTheme: Theme = Theme.DARK,
     linesHeightType: LinesHeightType = LinesHeightType.COMPACT,
     customTheme: ColorsScheme?,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val theme = when (selectedTheme) {
         Theme.LIGHT -> lightTheme

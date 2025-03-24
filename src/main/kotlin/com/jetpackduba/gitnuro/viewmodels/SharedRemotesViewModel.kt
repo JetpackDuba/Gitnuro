@@ -33,15 +33,15 @@ class SharedRemotesViewModel @Inject constructor(
     private val clipboardManager: ClipboardManager,
 ) : ISharedRemotesViewModel {
 
-   override fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
+    override fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Deleting remote branch",
         subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
-       taskType = TaskType.DELETE_REMOTE_BRANCH,
+        taskType = TaskType.DELETE_REMOTE_BRANCH,
     ) { git ->
         deleteRemoteBranchUseCase(git, ref)
 
-       positiveNotification("Remote branch \"${ref.simpleName}\" deleted",)
+        positiveNotification("Remote branch \"${ref.simpleName}\" deleted")
     }
 
     override fun checkoutRemoteBranch(remoteBranch: Ref) = tabState.safeProcessing(

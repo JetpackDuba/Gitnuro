@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.lineAt
@@ -41,6 +40,7 @@ import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.revwalk.RevCommit
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun Blame(

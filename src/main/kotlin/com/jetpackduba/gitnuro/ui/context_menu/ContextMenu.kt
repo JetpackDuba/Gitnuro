@@ -31,7 +31,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLocalization
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -47,6 +46,7 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.isDark
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
+import org.jetbrains.compose.resources.painterResource
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import kotlin.math.abs
@@ -153,7 +153,7 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
                 anchorBounds: IntRect,
                 windowSize: IntSize,
                 layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
+                popupContentSize: IntSize,
             ): IntOffset {
                 val resultY = if (popupContentSize.height > windowSize.height) {
                     0 // If the popup is taller than the window itself
@@ -275,12 +275,12 @@ fun TextEntry(contextTextEntry: ContextMenuElement.ContextTextEntry, onDismissRe
 
 sealed class ContextMenuElement(
     label: String,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) : ContextMenuItem(label, onClick) {
     class ContextTextEntry(
         label: String,
         val icon: @Composable (() -> Painter)? = null,
-        onClick: () -> Unit = {}
+        onClick: () -> Unit = {},
     ) : ContextMenuElement(label, onClick)
 
     object ContextSeparator : ContextMenuElement("", {})
@@ -293,7 +293,7 @@ class AppPopupMenu : TextContextMenu {
     override fun Area(
         textManager: TextContextMenu.TextManager,
         state: ContextMenuState,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val localization = LocalLocalization.current
         val items = {

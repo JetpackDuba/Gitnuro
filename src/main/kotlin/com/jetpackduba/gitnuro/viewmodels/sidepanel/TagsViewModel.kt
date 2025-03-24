@@ -28,7 +28,7 @@ class TagsViewModel @AssistedInject constructor(
     tabScope: CoroutineScope,
     sharedTagsViewModel: SharedTagsViewModel,
     @Assisted
-    private val filter: StateFlow<String>
+    private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(false), ISharedTagsViewModel by sharedTagsViewModel {
     private val tags = MutableStateFlow<List<Ref>>(listOf())
 

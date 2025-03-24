@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -20,10 +19,6 @@ import com.jetpackduba.gitnuro.extensions.isLocal
 import com.jetpackduba.gitnuro.extensions.isValid
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.side_pane_local_branches_title
-import com.jetpackduba.gitnuro.generated.resources.side_pane_remotes_title
-import com.jetpackduba.gitnuro.generated.resources.side_pane_search_hint
 import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.models.newRemoteWrapper
 import com.jetpackduba.gitnuro.models.toRemoteWrapper
@@ -43,6 +38,7 @@ import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.submodule.SubmoduleStatus
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -169,7 +165,7 @@ fun SidePanel(
 fun FilterTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     AdjustableOutlinedTextField(
         value = value,
@@ -541,7 +537,7 @@ private fun RemoteBranches(
     onPullRemoteBranch: () -> Unit,
     onRebaseRemoteBranch: () -> Unit,
     onMergeRemoteBranch: () -> Unit,
-    onCopyBranchNameToClipboard: () -> Unit
+    onCopyBranchNameToClipboard: () -> Unit,
 ) {
     ContextMenu(
         items = {

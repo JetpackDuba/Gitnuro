@@ -75,7 +75,7 @@ class Logging @Inject constructor() {
         }
 
         if (!directory.exists()) {
-            if(directory.isFile) {
+            if (directory.isFile) {
                 directory.delete()
             }
 

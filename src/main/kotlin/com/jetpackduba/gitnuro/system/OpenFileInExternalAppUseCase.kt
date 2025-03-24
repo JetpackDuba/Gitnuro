@@ -12,7 +12,7 @@ private const val TAG = "SystemUtils"
  * An example would be opening an image with the default image viewer
  */
 class OpenFileInExternalAppUseCase @Inject constructor(
-    private val openPathInSystemUseCase: OpenPathInSystemUseCase
+    private val openPathInSystemUseCase: OpenPathInSystemUseCase,
 ) {
     operator fun invoke(filePath: String) {
         if (!openPathInSystemUseCase(filePath)) {

@@ -31,7 +31,7 @@ class FormatHunksUseCase @Inject constructor() {
         edits: EditList,
         oldRawText: RawText,
         newRawText: RawText,
-        isDisplayFullFile: Boolean
+        isDisplayFullFile: Boolean,
     ): List<Hunk> {
         var curIdx = 0
         val hunksList = mutableListOf<Hunk>()
@@ -106,7 +106,7 @@ class FormatHunksUseCase @Inject constructor() {
         oldStartLine: Int,
         oldEndLine: Int,
         newStartLine: Int,
-        newEndLine: Int
+        newEndLine: Int,
     ): String {
         val prefix = "@@"
         val contentRemoved = createRange('-', oldStartLine + 1, oldEndLine - oldStartLine)

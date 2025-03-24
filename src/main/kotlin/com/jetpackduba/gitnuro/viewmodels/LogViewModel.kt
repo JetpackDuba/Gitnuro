@@ -399,9 +399,9 @@ class LogViewModel @Inject constructor(
         null
     }
 
-    fun loadMoreLogItems() = tabState.runOperation (
+    fun loadMoreLogItems() = tabState.runOperation(
         refreshType = RefreshType.NONE,
-    ){ git ->
+    ) { git ->
         val logStatusValue = logStatus.value
 
         if (logStatusValue !is LogStatus.Loaded)
@@ -415,7 +415,13 @@ class LogViewModel @Inject constructor(
 
         val hasUncommittedChanges = statusSummary.total > 0
 
-        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD, logStatusValue.plotCommitList)
+        val log = getLogUseCase(
+            git,
+            currentBranch,
+            hasUncommittedChanges,
+            logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
+            logStatusValue.plotCommitList
+        )
 
         _logStatus.value =
             LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)

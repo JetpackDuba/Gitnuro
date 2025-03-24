@@ -12,7 +12,6 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,11 +21,12 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun NewTagDialog(
     onReject: () -> Unit,
-    onAccept: (tagName: String) -> Unit
+    onAccept: (tagName: String) -> Unit,
 ) {
     var field by remember { mutableStateOf("") }
     val fieldFocusRequester = remember { FocusRequester() }

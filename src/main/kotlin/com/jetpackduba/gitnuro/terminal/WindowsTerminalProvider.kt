@@ -4,7 +4,7 @@ import com.jetpackduba.gitnuro.managers.IShellManager
 import javax.inject.Inject
 
 class WindowsTerminalProvider @Inject constructor(
-    private val shellManager: IShellManager
+    private val shellManager: IShellManager,
 ) : ITerminalProvider {
     private val powerShellEmulator =
         TerminalEmulator("Powershell", "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe")

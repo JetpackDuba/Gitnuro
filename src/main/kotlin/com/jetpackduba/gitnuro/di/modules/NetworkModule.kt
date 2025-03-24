@@ -8,7 +8,6 @@ import io.ktor.client.plugins.logging.*
 import retrofit2.Retrofit
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.security.cert.X509Certificate
-import javax.inject.Inject
 import javax.net.ssl.X509TrustManager
 
 @dagger.Module

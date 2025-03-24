@@ -81,7 +81,7 @@ class RawFileManager @Inject constructor(
     private fun generateImageBinary(
         ldr: ObjectLoader,
         entry: DiffEntry,
-        side: DiffEntry.Side
+        side: DiffEntry.Side,
     ): EntryContent.ImageBinary {
         val tempDir = tempFilesManager.tempDir()
 

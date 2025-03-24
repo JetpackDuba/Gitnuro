@@ -5,7 +5,7 @@ import com.jetpackduba.gitnuro.managers.IShellManager
 import javax.inject.Inject
 
 class MacTerminalProvider @Inject constructor(
-    private val shellManager: IShellManager
+    private val shellManager: IShellManager,
 ) : ITerminalProvider {
     override fun getTerminalEmulators(): List<TerminalEmulator> {
         return listOf(

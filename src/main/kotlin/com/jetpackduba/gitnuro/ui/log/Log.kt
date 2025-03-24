@@ -35,17 +35,12 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.align_top
-import com.jetpackduba.gitnuro.generated.resources.close
-import com.jetpackduba.gitnuro.generated.resources.search
 import com.jetpackduba.gitnuro.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.git.graph.GraphNode
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
@@ -74,6 +69,7 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -650,7 +646,7 @@ fun LogDialogs(
 fun GraphHeader(
     graphWidth: Dp,
     onPaddingChange: (Float) -> Unit,
-    onShowSearch: () -> Unit
+    onShowSearch: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -791,7 +787,7 @@ fun LogStatusSummary(statusSummary: StatusSummary, modifier: Modifier) {
 
 @Composable
 fun SummaryEntry(
-    count: Int, icon: ImageVector, color: Color
+    count: Int, icon: ImageVector, color: Color,
 ) {
     Row(
         modifier = Modifier.padding(horizontal = 4.dp),

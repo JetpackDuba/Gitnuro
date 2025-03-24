@@ -75,7 +75,7 @@ fun AppInfoDialog(
 @Composable
 fun ProjectUsed(
     project: Project,
-    onOpenUrlInBrowser: (String) -> Unit
+    onOpenUrlInBrowser: (String) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

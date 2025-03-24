@@ -25,7 +25,7 @@ class BranchesViewModel @AssistedInject constructor(
     tabScope: CoroutineScope,
     sharedBranchesViewModel: SharedBranchesViewModel,
     @Assisted
-    private val filter: StateFlow<String>
+    private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(true), ISharedBranchesViewModel by sharedBranchesViewModel {
     private val _branches = MutableStateFlow<List<Ref>>(listOf())
     private val _currentBranch = MutableStateFlow<Ref?>(null)

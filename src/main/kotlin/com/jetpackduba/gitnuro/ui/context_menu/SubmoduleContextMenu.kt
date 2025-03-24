@@ -1,14 +1,10 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.extensions.isValid
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.open
-import com.jetpackduba.gitnuro.generated.resources.sync
-import com.jetpackduba.gitnuro.generated.resources.update
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.eclipse.jgit.submodule.SubmoduleStatusType
+import org.jetbrains.compose.resources.painterResource
 
 fun submoduleContextMenuItems(
     submoduleStatus: SubmoduleStatus,

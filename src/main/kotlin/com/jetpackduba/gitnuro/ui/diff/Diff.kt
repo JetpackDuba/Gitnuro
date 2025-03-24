@@ -27,18 +27,14 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.loadImageBitmap
-import org.jetbrains.compose.resources.painterResource
-import androidx.compose.ui.text.*
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.binary
-import com.jetpackduba.gitnuro.generated.resources.close
-import com.jetpackduba.gitnuro.generated.resources.undo
 import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.EntryContent
@@ -68,6 +64,7 @@ import org.jetbrains.compose.animatedimage.Blank
 import org.jetbrains.compose.animatedimage.animate
 import org.jetbrains.compose.animatedimage.loadAnimatedImage
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import java.io.FileInputStream
 import kotlin.math.max
 
@@ -355,7 +352,7 @@ fun SideDiff(entryContent: EntryContent, onOpenFileWithExternalApp: (String) -> 
 private fun ImageDiff(
     imagePath: String,
     contentType: String,
-    onOpenFileWithExternalApp: () -> Unit
+    onOpenFileWithExternalApp: () -> Unit,
 ) {
     if (animatedImages.contains(contentType)) {
         AnimatedImage(imagePath, onOpenFileWithExternalApp)
@@ -367,7 +364,7 @@ private fun ImageDiff(
 @Composable
 private fun StaticImage(
     tempImagePath: String,
-    onOpenFileWithExternalApp: () -> Unit
+    onOpenFileWithExternalApp: () -> Unit,
 ) {
     var image by remember(tempImagePath) { mutableStateOf<ImageBitmap?>(null) }
 
@@ -402,7 +399,7 @@ private fun StaticImage(
 @Composable
 private fun AnimatedImage(
     imagePath: String,
-    onOpenFileWithExternalApp: () -> Unit
+    onOpenFileWithExternalApp: () -> Unit,
 ) {
     Image(
         bitmap = loadOrNull(imagePath) { loadAnimatedImage(imagePath) }?.animate() ?: ImageBitmap.Blank,
@@ -949,7 +946,7 @@ fun DiffTypeButtons(
     diffType: TextDiffType,
     isDisplayFullFile: Boolean,
     onChangeDiffType: (TextDiffType) -> Unit,
-    onDisplayFullFile: (Boolean) -> Unit
+    onDisplayFullFile: (Boolean) -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -998,7 +995,7 @@ fun DiffTypeButtons(
 fun UncommittedDiffFileHeaderButtons(
     diffType: DiffType.UncommittedDiff,
     onUnstageFile: (StatusEntry) -> Unit,
-    onStageFile: (StatusEntry) -> Unit
+    onStageFile: (StatusEntry) -> Unit,
 ) {
     val buttonText: String
     val color: Color

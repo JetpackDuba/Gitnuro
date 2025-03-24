@@ -8,7 +8,6 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -16,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class TabsManager @Inject constructor(
-    private val appSettingsRepository: AppSettingsRepository
+    private val appSettingsRepository: AppSettingsRepository,
 ) {
     lateinit var appComponent: AppComponent
 
@@ -42,7 +41,7 @@ class TabsManager @Inject constructor(
 
         val latestSelectedTabIndex = appSettingsRepository.latestRepositoryTabSelected
 
-        _currentTab.value = when(latestSelectedTabIndex < 0) {
+        _currentTab.value = when (latestSelectedTabIndex < 0) {
             true -> tabsFlow.value.first()
             false -> tabsFlow.value.getOrNull(latestSelectedTabIndex) ?: tabsFlow.value.first()
         }

@@ -3,9 +3,8 @@ package com.jetpackduba.gitnuro.ui.diff.syntax_highlighter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 
 class SyntaxHighlighterTest {
 

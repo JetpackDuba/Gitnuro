@@ -11,7 +11,7 @@ private const val TAG = "SystemUtils"
  * Opens a URL in the default system browser
  */
 class OpenUrlInBrowserUseCase @Inject constructor(
-    private val openPathInSystemUseCase: OpenPathInSystemUseCase
+    private val openPathInSystemUseCase: OpenPathInSystemUseCase,
 ) {
     operator fun invoke(url: String) {
         if (!openPathInSystemUseCase(url)) {

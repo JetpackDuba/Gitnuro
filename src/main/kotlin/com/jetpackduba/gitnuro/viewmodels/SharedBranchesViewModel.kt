@@ -35,7 +35,7 @@ class SharedBranchesViewModel @Inject constructor(
     private val mergeBranchUseCase: MergeBranchUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
     private val checkoutRefUseCase: CheckoutRefUseCase,
-    private val clipboardManager: ClipboardManager
+    private val clipboardManager: ClipboardManager,
 ) : ISharedBranchesViewModel {
 
     override fun mergeBranch(ref: Ref) = tabState.safeProcessing(

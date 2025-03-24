@@ -58,7 +58,7 @@ private class PathsComparator : Comparator<String> {
     override fun compare(path1: String, path2: String): Int {
         val path1Parts = path1.split("/")
         val path2Parts = path2.split("/")
-        
+
         val maxIndex = max(path1Parts.count(), path2Parts.count())
 
         for (i in 0 until maxIndex) {
@@ -86,13 +86,13 @@ sealed interface TreeItem<out T> {
         val isExpanded: Boolean,
         override val displayName: String,
         override val fullPath: String,
-        override val depth: Int
+        override val depth: Int,
     ) : TreeItem<Nothing>
 
     data class File<T>(
         val data: T,
         override val displayName: String,
         override val fullPath: String,
-        override val depth: Int
+        override val depth: Int,
     ) : TreeItem<T>
 }

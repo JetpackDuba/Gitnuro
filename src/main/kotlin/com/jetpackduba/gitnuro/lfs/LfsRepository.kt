@@ -1,18 +1,10 @@
 package com.jetpackduba.gitnuro.lfs
 
-import com.jetpackduba.gitnuro.NetworkConstants
 import com.jetpackduba.gitnuro.Result
-import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
-import com.jetpackduba.gitnuro.extensions.safeLet
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
 import com.jetpackduba.gitnuro.models.lfs.LfsObjects
 import com.jetpackduba.gitnuro.models.lfs.LfsPrepareUploadObjectBatch
 import com.jetpackduba.gitnuro.models.lfs.LfsRef
-import io.ktor.client.request.*
-import io.ktor.http.*
-import org.eclipse.jgit.lfs.Lfs
-import org.eclipse.jgit.lfs.errors.LfsException
-import org.eclipse.jgit.lfs.lib.AnyLongObjectId
 import javax.inject.Inject
 
 private const val TAG = "LfsRepository"

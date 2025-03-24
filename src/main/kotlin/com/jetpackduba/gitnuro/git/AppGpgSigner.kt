@@ -7,7 +7,6 @@ import org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSigner
 import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
-import javax.inject.Provider
 
 private const val INVALID_PASSWORD_MESSAGE = "Is the entered passphrase correct?"
 
@@ -21,7 +20,7 @@ class AppGpgSigner @Inject constructor(
         data: ByteArray?,
         committer: PersonIdent?,
         signingKey: String?,
-        credentialsProvider: CredentialsProvider?
+        credentialsProvider: CredentialsProvider?,
     ): GpgSignature {
         return try {
             var gpgSignature: GpgSignature? = null
@@ -44,7 +43,7 @@ class AppGpgSigner @Inject constructor(
         config: GpgConfig?,
         committer: PersonIdent?,
         signingKey: String?,
-        credentialsProvider: CredentialsProvider?
+        credentialsProvider: CredentialsProvider?,
     ): Boolean {
         return super.canLocateSigningKey(repository, config, committer, signingKey, gpgCredentials)
     }
@@ -55,7 +54,7 @@ class AppGpgSigner @Inject constructor(
         `object`: ObjectBuilder?,
         committer: PersonIdent?,
         signingKey: String?,
-        credentialsProvider: CredentialsProvider?
+        credentialsProvider: CredentialsProvider?,
     ) {
         val gpgCredentialsProvider = gpgCredentials
 

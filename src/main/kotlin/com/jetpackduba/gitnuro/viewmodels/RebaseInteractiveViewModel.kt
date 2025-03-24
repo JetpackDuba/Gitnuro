@@ -214,7 +214,7 @@ sealed interface RebaseInteractiveViewState {
 data class RebaseLine(
     val rebaseAction: RebaseAction,
     val commit: AbbreviatedObjectId,
-    val shortMessage: String
+    val shortMessage: String,
 ) {
     fun toRebaseTodoLine(): RebaseTodoLine {
         return RebaseTodoLine(

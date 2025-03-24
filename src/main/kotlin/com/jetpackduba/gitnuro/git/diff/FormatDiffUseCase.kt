@@ -25,7 +25,7 @@ class FormatDiffUseCase @Inject constructor(
     suspend operator fun invoke(
         git: Git,
         diffType: DiffType,
-        isDisplayFullFile: Boolean
+        isDisplayFullFile: Boolean,
     ): DiffResult = withContext(Dispatchers.IO) {
         val repository = git.repository
         val submodules = getSubmodulesUseCase(git)

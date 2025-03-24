@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.models.lfs
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
 
 @Serializable

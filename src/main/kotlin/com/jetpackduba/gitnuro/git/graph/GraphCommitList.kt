@@ -183,7 +183,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
      */
     private fun handleBlockedLanes(
         index: Int, currentNode: GraphNode,
-        childOnLane: GraphNode?
+        childOnLane: GraphNode?,
     ) {
         for (child in currentNode.children) {
             if (child === childOnLane) continue  // simple continuations of lanes are handled by
@@ -212,7 +212,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     // Handles the case where currCommit is a non-first parent of the child
     private fun handleMerge(
         index: Int, currCommit: GraphNode,
-        childOnLane: GraphNode?, child: GraphNode, laneToUse: GraphLane
+        childOnLane: GraphNode?, child: GraphNode, laneToUse: GraphLane,
     ): GraphLane {
 
         // find all blocked positions between currCommit and this child
@@ -285,7 +285,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
      */
     private fun drawLaneToChild(
         commitIndex: Int, child: GraphNode,
-        laneToContinue: GraphLane
+        laneToContinue: GraphLane,
     ) {
         for (index in commitIndex - 1 downTo 0) {
             val graphNode: GraphNode? = get(index)
@@ -335,7 +335,7 @@ class GraphCommitList : RevCommitList<GraphNode>() {
 
     private fun addBlockedPosition(
         blockedPositions: BitSet,
-        graphNode: GraphNode?
+        graphNode: GraphNode?,
     ) {
         if (graphNode != null) {
             val lane = graphNode.lane

@@ -1,13 +1,9 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.blame
-import com.jetpackduba.gitnuro.generated.resources.history
-import com.jetpackduba.gitnuro.generated.resources.undo
-import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
 import com.jetpackduba.gitnuro.git.workspace.StatusType
+import org.jetbrains.compose.resources.painterResource
 
 fun statusEntriesContextMenuItems(
     statusEntry: StatusEntry,

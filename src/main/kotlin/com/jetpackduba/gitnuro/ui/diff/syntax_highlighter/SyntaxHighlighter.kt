@@ -6,9 +6,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import com.jetpackduba.gitnuro.extensions.removeLineDelimiters
-import com.jetpackduba.gitnuro.extensions.replaceTabs
-import com.jetpackduba.gitnuro.git.diff.DiffMatchPatch
-import com.jetpackduba.gitnuro.git.diff.MatchLine
 import com.jetpackduba.gitnuro.theme.diffAnnotation
 import com.jetpackduba.gitnuro.theme.diffComment
 import com.jetpackduba.gitnuro.theme.diffKeyword
@@ -138,7 +135,10 @@ fun getSyntaxHighlighterFromExtension(extension: String?): SyntaxHighlighter {
 private enum class HighlightLanguagesSupported(val extensions: List<String>, val highlighter: () -> SyntaxHighlighter) {
     Kotlin(listOf("kt", "kts"), { KotlinSyntaxHighlighter() }),
     Rust(listOf("rs"), { RustSyntaxHighlighter() }),
-    TypeScript(listOf("js", "jsx", "ts", "tsx", "vue", "astro", "svelte"), { TypeScriptSyntaxHighlighter() }), // JS & various frameworks files also included
+    TypeScript(
+        listOf("js", "jsx", "ts", "tsx", "vue", "astro", "svelte"),
+        { TypeScriptSyntaxHighlighter() }
+    ), // JS & various frameworks files also included
     Python(listOf("py"), { PythonSyntaxHighlighter() }),
     Java(listOf("java"), { JavaSyntaxHighlighter() }),
     CSharp(listOf("cs"), { CSharpSyntaxHighlighter() }),

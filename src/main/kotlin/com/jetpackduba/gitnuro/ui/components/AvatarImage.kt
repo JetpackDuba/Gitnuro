@@ -21,7 +21,7 @@ import org.eclipse.jgit.lib.PersonIdent
 fun AvatarImage(
     modifier: Modifier = Modifier,
     personIdent: PersonIdent,
-    color: Color = MaterialTheme.colors.primary
+    color: Color = MaterialTheme.colors.primary,
 ) {
     Box(
         modifier = modifier

@@ -5,9 +5,7 @@ import com.jetpackduba.gitnuro.Result
 import com.jetpackduba.gitnuro.lfs.LfsError
 import com.jetpackduba.gitnuro.lfs.LfsRepository
 import com.jetpackduba.gitnuro.models.lfs.LfsObject
-import org.eclipse.jgit.lfs.Lfs
 import org.eclipse.jgit.lfs.lib.AnyLongObjectId
-import org.eclipse.jgit.lib.Repository
 import javax.inject.Inject
 
 

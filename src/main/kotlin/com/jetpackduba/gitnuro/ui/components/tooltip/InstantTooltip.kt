@@ -58,7 +58,7 @@ fun InstantTooltip(
                     anchorBounds: IntRect,
                     windowSize: IntSize,
                     layoutDirection: LayoutDirection,
-                    popupContentSize: IntSize
+                    popupContentSize: IntSize,
                 ): IntOffset {
                     val positionInWindow = coordinates.positionInWindow()
                     val contentSize = coordinates.size
@@ -119,7 +119,7 @@ fun getXBasedOnTooltipPosition(
     position: InstantTooltipPosition,
     positionInWindow: Offset,
     contentSize: IntSize,
-    popupContentSize: IntSize
+    popupContentSize: IntSize,
 ): Int {
     return when (position) {
         InstantTooltipPosition.TOP, InstantTooltipPosition.BOTTOM -> (positionInWindow.x + (contentSize.width / 2)) - (popupContentSize.width / 2)
@@ -132,7 +132,7 @@ fun getYBasedOnTooltipPosition(
     position: InstantTooltipPosition,
     positionInWindow: Offset,
     contentSize: IntSize,
-    popupContentSize: IntSize
+    popupContentSize: IntSize,
 ): Int {
     return when (position) {
         InstantTooltipPosition.TOP -> positionInWindow.y - popupContentSize.height

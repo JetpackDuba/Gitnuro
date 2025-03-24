@@ -13,7 +13,7 @@ class GetAuthorInfoUseCase @Inject constructor() {
 
         val userName = config.getString("user", null, "name")
         val email = config.getString("user", null, "email")
-        
+
         AuthorInfoSimple(userName, email)
     }
 }

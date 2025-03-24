@@ -15,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,11 +23,12 @@ import com.jetpackduba.gitnuro.generated.resources.undo
 import com.jetpackduba.gitnuro.git.log.ResetType
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ResetBranchDialog(
     onReject: () -> Unit,
-    onAccept: (resetType: ResetType) -> Unit
+    onAccept: (resetType: ResetType) -> Unit,
 ) {
     var resetType by remember { mutableStateOf(ResetType.MIXED) }
 

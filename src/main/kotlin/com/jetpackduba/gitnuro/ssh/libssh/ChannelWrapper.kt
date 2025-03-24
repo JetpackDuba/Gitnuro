@@ -10,7 +10,8 @@ import com.jetpackduba.gitnuro.ssh.libssh.streams.SshChannelOutputStream
 import java.util.concurrent.Semaphore
 
 class ChannelWrapper internal constructor(sshSession: Session) {
-    private val channel = Channel.new(sshSession)  ?: throw SshException("Could not obtain the channel, this is likely a bug. Please file a report.")
+    private val channel = Channel.new(sshSession)
+        ?: throw SshException("Could not obtain the channel, this is likely a bug. Please file a report.")
 
     private var isClosed = false
     private var closeMutex = Semaphore(1)

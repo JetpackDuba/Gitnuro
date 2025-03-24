@@ -27,16 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.uncommited_changes_primary_button_continue
-import com.jetpackduba.gitnuro.generated.resources.uncommited_changes_secondary_button_abort
 import com.jetpackduba.gitnuro.git.DiffType
 import com.jetpackduba.gitnuro.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.git.workspace.StatusEntry
@@ -59,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -582,7 +579,7 @@ fun UncommittedChangesButtons(
     canAmend: Boolean,
     isAmend: Boolean,
     onAmendChecked: (Boolean) -> Unit,
-    onCommit: () -> Unit
+    onCommit: () -> Unit,
 ) {
     val buttonText = if (isAmend)
         stringResource(Res.string.uncommited_changes_primary_button_amend)

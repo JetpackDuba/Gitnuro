@@ -14,7 +14,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -22,7 +21,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.jetpackduba.gitnuro.credentials.SshProcess
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
@@ -52,8 +50,8 @@ import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.GpgConfig
 import org.eclipse.jgit.lib.Signers
-import org.eclipse.jgit.transport.URIish
 import org.eclipse.jgit.util.LfsFactory
+import org.jetbrains.compose.resources.painterResource
 import java.io.File
 import java.io.FileOutputStream
 import java.net.Authenticator

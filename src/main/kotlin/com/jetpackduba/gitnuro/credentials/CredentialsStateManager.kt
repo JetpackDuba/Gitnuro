@@ -65,7 +65,7 @@ class CredentialsStateManager @Inject constructor() {
             _credentialsState.value = CredentialsState.None
 
             return when (credentialsResult) {
-                is T ->  credentialsResult
+                is T -> credentialsResult
                 is CredentialsState.CredentialsDenied -> throw CancellationException("Credentials denied")
                 else -> throw IllegalStateException("Unexpected credentials result")
             }

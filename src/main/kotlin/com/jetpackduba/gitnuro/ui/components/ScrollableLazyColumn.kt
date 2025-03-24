@@ -22,7 +22,7 @@ import com.jetpackduba.gitnuro.theme.scrollbarNormal
 fun ScrollableLazyColumn(
     modifier: Modifier,
     state: LazyListState = rememberLazyListState(),
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     Box(
         modifier = modifier,

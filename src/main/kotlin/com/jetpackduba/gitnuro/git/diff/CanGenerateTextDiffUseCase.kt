@@ -8,7 +8,7 @@ class CanGenerateTextDiffUseCase @Inject constructor() {
     inline operator fun invoke(
         rawOld: EntryContent,
         rawNew: EntryContent,
-        onText: (oldRawText: RawText, newRawText: RawText) -> Unit
+        onText: (oldRawText: RawText, newRawText: RawText) -> Unit,
     ): Boolean {
         val rawOldText = when (rawOld) {
             is EntryContent.Text -> rawOld.rawText

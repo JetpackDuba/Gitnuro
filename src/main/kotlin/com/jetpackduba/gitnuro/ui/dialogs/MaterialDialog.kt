@@ -38,7 +38,7 @@ fun MaterialDialog(
     paddingVertical: Dp = 16.dp,
     background: Color = MaterialTheme.colors.surface,
     onCloseRequested: () -> Unit = {},
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Popup(
         properties = PopupProperties(
@@ -49,7 +49,7 @@ fun MaterialDialog(
                 anchorBounds: IntRect,
                 windowSize: IntSize,
                 layoutDirection: LayoutDirection,
-                popupContentSize: IntSize
+                popupContentSize: IntSize,
             ): IntOffset = IntOffset.Zero
         }
     ) {

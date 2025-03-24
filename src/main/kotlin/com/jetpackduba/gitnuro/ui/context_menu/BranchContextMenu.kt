@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import org.jetbrains.compose.resources.painterResource
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
 import com.jetpackduba.gitnuro.extensions.simpleName
@@ -11,6 +10,7 @@ import com.jetpackduba.gitnuro.generated.resources.start
 import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.models.positiveNotification
 import org.eclipse.jgit.lib.Ref
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.skiko.ClipboardManager
 
 fun branchContextMenuItems(
@@ -26,7 +26,7 @@ fun branchContextMenuItems(
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
-    onCopyBranchNameToClipboard: () -> Unit
+    onCopyBranchNameToClipboard: () -> Unit,
 ): List<ContextMenuElement> {
 
     return mutableListOf<ContextMenuElement>().apply {
@@ -113,7 +113,7 @@ fun branchContextMenuItems(
 
 internal fun copyBranchNameToClipboardAndGetNotification(
     branch: Ref,
-    clipboardManager: ClipboardManager
+    clipboardManager: ClipboardManager,
 ): Notification {
     val branchName = branch.simpleName
     clipboardManager.setText(branchName)

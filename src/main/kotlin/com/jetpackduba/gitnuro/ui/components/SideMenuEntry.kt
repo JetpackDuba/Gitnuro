@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -22,8 +21,8 @@ import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.chevron_right
 import com.jetpackduba.gitnuro.generated.resources.expand_more
 import com.jetpackduba.gitnuro.theme.linesHeight
-
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun SideMenuHeader(

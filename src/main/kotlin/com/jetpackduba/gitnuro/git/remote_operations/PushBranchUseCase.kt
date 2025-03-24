@@ -14,7 +14,6 @@ import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.transport.RefLeaseSpec
 import org.eclipse.jgit.transport.RefSpec
-import java.io.PrintStream
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -44,7 +43,8 @@ class PushBranchUseCase @Inject constructor(
             // [remoteRefUpdate.trackingRefUpdate.localName] should have the following format: refs/remotes/REMOTE_NAME/BRANCH_NAME
             val remoteBranchPathSplit = remoteRefUpdate.trackingRefUpdate.localName.split("/")
             val remoteName = remoteBranchPathSplit.getOrNull(2)
-            val remoteBranchName = remoteBranchPathSplit.takeLast(max(0, remoteBranchPathSplit.count() - 3)).joinToString("/")
+            val remoteBranchName =
+                remoteBranchPathSplit.takeLast(max(0, remoteBranchPathSplit.count() - 3)).joinToString("/")
             setTrackingBranchUseCase(git, currentBranch, remoteName, remoteBranchName)
         }
     }
@@ -54,7 +54,7 @@ class PushBranchUseCase @Inject constructor(
         tracking: TrackingBranch?,
         refSpecStr: String?,
         force: Boolean,
-        pushTags: Boolean
+        pushTags: Boolean,
     ) = withContext(Dispatchers.IO) {
         val pushResult = git
             .push()
@@ -105,8 +105,7 @@ class PushBranchUseCase @Inject constructor(
             })
             .setHookOutputStream(System.out)
             .setHookErrorStream(System.err)
-            .call()
-
+            .call() // TODO This throws an exception if auth failed
 
 
         val results = pushResult

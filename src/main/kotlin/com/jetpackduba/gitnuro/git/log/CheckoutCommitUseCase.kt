@@ -10,6 +10,7 @@ class CheckoutCommitUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, revCommit: RevCommit): Unit = withContext(Dispatchers.IO) {
         this@CheckoutCommitUseCase(git, revCommit.name)
     }
+
     suspend operator fun invoke(git: Git, hash: String): Unit = withContext(Dispatchers.IO) {
         git
             .checkout()

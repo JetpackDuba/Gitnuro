@@ -16,7 +16,7 @@ class OpenPathInSystemUseCase @Inject constructor(
      * to run commands without any modification
      * (such as ones done by [com.jetpackduba.gitnuro.managers.FlatpakShellManager], because it has to run in the sandbox)
      */
-    private val shellManager: ShellManager
+    private val shellManager: ShellManager,
 ) {
     operator fun invoke(path: String): Boolean {
         when (currentOs) {

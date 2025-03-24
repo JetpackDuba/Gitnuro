@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,6 +20,7 @@ import com.jetpackduba.gitnuro.extensions.onDoubleClick
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.linesHeight
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.painterResource
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -33,7 +33,7 @@ fun SideMenuSubentry(
     extraPadding: Dp = 0.dp,
     onClick: () -> Unit,
     onDoubleClick: (() -> Unit)? = null,
-    additionalInfo: @Composable () -> Unit = {}
+    additionalInfo: @Composable () -> Unit = {},
 ) {
     Row(
         modifier = Modifier

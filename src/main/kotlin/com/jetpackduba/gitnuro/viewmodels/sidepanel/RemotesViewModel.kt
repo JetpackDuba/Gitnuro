@@ -43,7 +43,7 @@ class RemotesViewModel @AssistedInject constructor(
     tabScope: CoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
-    private val filter: StateFlow<String>
+    private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(false), ISharedRemotesViewModel by sharedRemotesViewModel,
     ISharedBranchesViewModel by sharedBranchesViewModel {
 

@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 fun rememberHorizontalDragDropState(
     lazyListState: LazyListState,
     @Suppress("PrimitiveInLambda")
-    onMove: (Int, Int) -> Unit
+    onMove: (Int, Int) -> Unit,
 ): HorizontalDragDropState {
     val scope = rememberCoroutineScope()
     val state = remember(lazyListState) {
@@ -49,7 +49,7 @@ fun rememberHorizontalDragDropState(
 fun rememberVerticalDragDropState(
     lazyListState: LazyListState,
     @Suppress("PrimitiveInLambda")
-    onMove: (Int, Int) -> Unit
+    onMove: (Int, Int) -> Unit,
 ): VerticalDragDropState {
     val scope = rememberCoroutineScope()
     val state = remember(lazyListState) {
@@ -72,7 +72,7 @@ class HorizontalDragDropState internal constructor(
     private val state: LazyListState,
     private val scope: CoroutineScope,
     @Suppress("PrimitiveInLambda")
-    private val onMove: (Int, Int) -> Unit
+    private val onMove: (Int, Int) -> Unit,
 ) {
     var draggingItemIndex by mutableStateOf<Int?>(null)
         private set
@@ -181,7 +181,7 @@ class VerticalDragDropState internal constructor(
     private val state: LazyListState,
     private val scope: CoroutineScope,
     @Suppress("PrimitiveInLambda")
-    private val onMove: (Int, Int) -> Unit
+    private val onMove: (Int, Int) -> Unit,
 ) {
     var draggingItemIndex by mutableStateOf<Int?>(null)
         private set
@@ -341,7 +341,7 @@ fun HorizontalDraggableItem(
     dragDropState: HorizontalDragDropState,
     index: Int,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.(isDragging: Boolean) -> Unit
+    content: @Composable ColumnScope.(isDragging: Boolean) -> Unit,
 ) {
     val dragging = index == dragDropState.draggingItemIndex
 
@@ -371,7 +371,7 @@ fun VerticalDraggableItem(
     dragDropState: VerticalDragDropState,
     index: Int,
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.(isDragging: Boolean) -> Unit
+    content: @Composable ColumnScope.(isDragging: Boolean) -> Unit,
 ) {
     val dragging = index == dragDropState.draggingItemIndex
 //    println("Dragging=$dragging")

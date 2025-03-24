@@ -7,7 +7,7 @@ import com.jetpackduba.gitnuro.generated.resources.lock
 @Composable
 fun SshPasswordDialog(
     onReject: () -> Unit,
-    onAccept: (password: String) -> Unit
+    onAccept: (password: String) -> Unit,
 ) {
     PasswordDialog(
         title = "Introduce your SSH key's password",

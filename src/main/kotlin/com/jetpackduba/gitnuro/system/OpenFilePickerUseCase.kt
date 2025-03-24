@@ -18,7 +18,7 @@ class OpenFilePickerUseCase @Inject constructor(
      * to run commands without any modification
      * (such as ones done by [com.jetpackduba.gitnuro.managers.FlatpakShellManager], because it has to run in the sandbox)
      */
-    private val shellManager: ShellManager
+    private val shellManager: ShellManager,
 ) {
     operator fun invoke(pickerType: PickerType, basePath: String?): String? {
         val isLinux = currentOs.isLinux()
@@ -63,7 +63,7 @@ class OpenFilePickerUseCase @Inject constructor(
         pickerType: PickerType,
         basePath: String?,
         isLinux: Boolean,
-        isMac: Boolean
+        isMac: Boolean,
     ): String? {
         if (!isLinux) {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())

@@ -14,7 +14,7 @@ const val NOTIFICATION_DURATION = 2_500L
 
 @TabScope
 class ErrorsManager @Inject constructor(
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) {
     private val _errorsList = MutableStateFlow(listOf<Error>())
     val errorsList: StateFlow<List<Error>>

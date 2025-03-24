@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.error
@@ -21,6 +20,7 @@ import com.jetpackduba.gitnuro.generated.resources.warning
 import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.models.NotificationType
 import com.jetpackduba.gitnuro.theme.AppTheme
+import org.jetbrains.compose.resources.painterResource
 
 
 @Preview

@@ -93,7 +93,7 @@ class ShellManager @Inject constructor() : IShellManager {
  * Encapsulates [ShellManager] to add the required prefix to commands before running them in a flatpak sandbox environment.
  */
 class FlatpakShellManager @Inject constructor(
-    private val shellManager: ShellManager
+    private val shellManager: ShellManager,
 ) : IShellManager {
     private val flatpakPrefix = listOf("/usr/bin/flatpak-spawn", "--host", "--env=TERM=xterm-256color")
 

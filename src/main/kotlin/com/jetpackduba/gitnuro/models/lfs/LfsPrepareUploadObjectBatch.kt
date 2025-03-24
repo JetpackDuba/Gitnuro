@@ -9,14 +9,13 @@ data class LfsPrepareUploadObjectBatch(
     @SerialName("objects") val objects: List<LfsObjectBatch>,
     @SerialName("transfers") val transfers: List<String>,
     @SerialName("ref") val ref: LfsRef?,
-    @SerialName("hash_algo") val hashAlgo: String? = null
+    @SerialName("hash_algo") val hashAlgo: String? = null,
 )
 
 @Serializable
 data class LfsObjectBatch(
     @SerialName("oid") val oid: String,
     @SerialName("size") val size: Long,
-
 )
 
 @Serializable

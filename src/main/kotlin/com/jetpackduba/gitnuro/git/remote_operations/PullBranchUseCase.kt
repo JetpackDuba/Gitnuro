@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.git.remote_operations
 
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ConfigConstants

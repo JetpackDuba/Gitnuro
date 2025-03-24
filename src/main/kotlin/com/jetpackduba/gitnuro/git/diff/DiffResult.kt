@@ -11,12 +11,12 @@ sealed class DiffResult(
 
     class Text(
         diffEntry: DiffEntry,
-        val hunks: List<Hunk>
+        val hunks: List<Hunk>,
     ) : TextDiff(diffEntry)
 
     class TextSplit(
         diffEntry: DiffEntry,
-        val hunks: List<SplitHunk>
+        val hunks: List<SplitHunk>,
     ) : TextDiff(diffEntry)
 
     class NonText(

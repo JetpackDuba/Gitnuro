@@ -3,10 +3,6 @@ package com.jetpackduba.gitnuro.ui.context_menu
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import com.jetpackduba.gitnuro.generated.resources.*
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.branch
-import com.jetpackduba.gitnuro.generated.resources.start
-import com.jetpackduba.gitnuro.generated.resources.tag
 import org.jetbrains.compose.resources.painterResource
 
 fun logContextMenu(
@@ -63,7 +59,7 @@ fun logContextMenu(
 fun MutableList<ContextMenuElement>.addContextMenu(
     label: String,
     icon: @Composable (() -> Painter)? = null,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     this.add(
         ContextMenuElement.ContextTextEntry(

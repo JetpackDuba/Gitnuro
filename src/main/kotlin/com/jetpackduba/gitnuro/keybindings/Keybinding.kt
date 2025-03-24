@@ -12,7 +12,7 @@ data class Keybinding(
     val control: Boolean = false,
     val meta: Boolean = false,
     val shift: Boolean = false,
-    val key: Key
+    val key: Key,
 )
 
 enum class KeybindingOption {

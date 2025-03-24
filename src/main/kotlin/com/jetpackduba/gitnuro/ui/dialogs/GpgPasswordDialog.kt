@@ -9,7 +9,7 @@ import com.jetpackduba.gitnuro.generated.resources.key
 fun GpgPasswordDialog(
     gpgCredentialsRequest: CredentialsRequest.GpgCredentialsRequest,
     onReject: () -> Unit,
-    onAccept: (password: String) -> Unit
+    onAccept: (password: String) -> Unit,
 ) {
     PasswordDialog(
         title = "Introduce your GPG key's password",

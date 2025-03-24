@@ -23,7 +23,7 @@ class SelectionAwareTextContextMenu(val onIsTextSelected: (AnnotatedString) -> U
     override fun Area(
         textManager: TextContextMenu.TextManager,
         state: ContextMenuState,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         try {
             // For some reason, compose crashes internally when calling selectedText the first time Area is composed

@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.NetworkConstants
 import com.jetpackduba.gitnuro.Result
-import com.jetpackduba.gitnuro.models.lfs.LfsObject
 import com.jetpackduba.gitnuro.models.lfs.LfsObjectBatch
 import com.jetpackduba.gitnuro.models.lfs.LfsObjects
 import com.jetpackduba.gitnuro.models.lfs.LfsPrepareUploadObjectBatch

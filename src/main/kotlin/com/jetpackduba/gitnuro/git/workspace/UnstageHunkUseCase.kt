@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class UnstageHunkUseCase @Inject constructor(
     private val rawFileManager: RawFileManager,
-    private val getLinesFromRawTextUseCase: GetLinesFromRawTextUseCase
+    private val getLinesFromRawTextUseCase: GetLinesFromRawTextUseCase,
 ) {
     suspend operator fun invoke(git: Git, diffEntry: DiffEntry, hunk: Hunk) = withContext(Dispatchers.IO) {
         val repository = git.repository

@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -39,6 +38,7 @@ import com.jetpackduba.gitnuro.ui.drag_sorting.rememberHorizontalDragDropState
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import javax.inject.Inject
 import kotlin.io.path.Path
 import kotlin.io.path.name

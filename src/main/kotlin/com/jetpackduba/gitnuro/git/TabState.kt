@@ -176,7 +176,7 @@ class TabState @Inject constructor(
         title: String = "",
         subtitle: String = "",
         isCancellable: Boolean = false,
-        callback: suspend CoroutineScope.() -> Unit
+        callback: suspend CoroutineScope.() -> Unit,
     ): Job {
         val job = scope.launch(Dispatchers.IO) {
             _processing.value = ProcessingState.Processing(title, subtitle, isCancellable)
@@ -212,7 +212,7 @@ class TabState @Inject constructor(
         showError: Boolean = false,
         refreshType: RefreshType,
         refreshEvenIfCrashes: Boolean = false,
-        block: suspend (git: Git) -> Unit
+        block: suspend (git: Git) -> Unit,
     ) = scope.launch(Dispatchers.IO) {
         var hasProcessFailed = false
 
