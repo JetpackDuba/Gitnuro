@@ -22,8 +22,8 @@ object AppConstants {
     const val APP_NAME = "Gitnuro"
     const val APP_DESCRIPTION =
         "Gitnuro is a Git client that allows you to manage multiple repositories with a modern experience and live visual representation of your repositories' state."
-    const val APP_VERSION = "1.5.0-beta01"
-    const val APP_VERSION_CODE = 18
+    const val APP_VERSION = "1.5.0-beta02"
+    const val APP_VERSION_CODE = 19
     const val VERSION_CHECK_URL = "https://raw.githubusercontent.com/JetpackDuba/Gitnuro/main/latest.json"
 }
 

@@ -17,7 +17,7 @@ plugins {
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "1.5.0-beta01"
+val projectVersion = "1.5.0-beta02"
 
 val projectName = "Gitnuro"
 
@@ -166,7 +166,7 @@ task("fatJarLinux", type = Jar::class) {
         "x86_64"
     }
 
-    archiveBaseName.set("$projectName-linux-$archSuffix")
+    archiveBaseName.set("$projectName-linux-$archSuffix-$projectVersion")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     manifest {
