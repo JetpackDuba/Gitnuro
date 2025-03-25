@@ -149,7 +149,8 @@ If the authentication fails and you think its due to a different reason, please 
 
 
 > Does it support Git credentials manager (aka manager-core)?
-> Yes but it requires specifying the full path of the binary in your `.gitconfig`.
+
+Yes, but it requires specifying the full path of the binary in your `.gitconfig`.
 
 Example for linux:
 
