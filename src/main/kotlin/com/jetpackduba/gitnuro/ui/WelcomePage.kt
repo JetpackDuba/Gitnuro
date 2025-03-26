@@ -320,6 +320,7 @@ fun RecentRepositoriesList(
     searchFieldFocusRequester: FocusRequester,
     onRemoveRepositoryFromRecent: (String) -> Unit,
     onOpenKnownRepository: (String) -> Unit,
+    onExitClicked: () -> Unit = {},
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -370,6 +371,15 @@ fun RecentRepositoriesList(
                         onOpenKnownRepository(repo)
                     }
                     true
+                }
+
+                it.matchesBinding(KeybindingOption.EXIT) -> {
+                    if (filter.isEmpty()) {
+                        onExitClicked()
+                        true
+                    } else {
+                        false
+                    }
                 }
 
                 else -> {

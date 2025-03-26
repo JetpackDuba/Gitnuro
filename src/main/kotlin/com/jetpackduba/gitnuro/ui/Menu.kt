@@ -244,6 +244,9 @@ fun Menu(
                             onShowOpenPopupChange(false)
                             onOpenAnotherRepository(it)
                         },
+                        onExitClicked = {
+                            onShowOpenPopupChange(false)
+                        }
                     )
                 }
             }
