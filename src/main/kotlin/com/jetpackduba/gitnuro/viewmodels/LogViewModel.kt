@@ -35,6 +35,7 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
+import kotlin.math.max
 
 /**
  * Represents when the search filter is not being used or the results list is empty
@@ -158,7 +159,12 @@ class LogViewModel @Inject constructor(
 
         val hasUncommittedChanges = statusSummary.total > 0
 
-        val log = getLogUseCase(git, currentBranch, hasUncommittedChanges, INITIAL_COMMITS_LOAD)
+        val log = getLogUseCase(
+            git = git,
+            currentBranch = currentBranch,
+            hasUncommittedChanges = hasUncommittedChanges,
+            commitsLimit = max(INITIAL_COMMITS_LOAD, (lastIndexUsedToLoadData + INCREMENTAL_COMMITS_LOAD))
+        )
 
         _logStatus.value =
             LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
@@ -407,7 +413,12 @@ class LogViewModel @Inject constructor(
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        if (loadItemsMutex.isLocked || firstVisibleItemIndex <= lastIndexUsedToLoadData) {
+        val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)?.plotCommitList?.count() ?: 0
+
+        if (
+            loadItemsMutex.isLocked ||
+            lastIndexUsedToLoadData in firstVisibleItemIndex..numberOfCommitsDisplayed // TODO what happens if the number of commits has been somehow reduced?
+        ) {
             return@runOperation
         }
         loadItemsMutex.withLock {
@@ -426,11 +437,11 @@ class LogViewModel @Inject constructor(
             val hasUncommittedChanges = statusSummary.total > 0
 
             val log = getLogUseCase(
-                git,
-                currentBranch,
-                hasUncommittedChanges,
-                logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
-                logStatusValue.plotCommitList
+                git = git,
+                currentBranch = currentBranch,
+                hasUncommittedChanges = hasUncommittedChanges,
+                commitsLimit = logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
+                cachedCommitList = logStatusValue.plotCommitList,
             )
 
             _logStatus.value =
