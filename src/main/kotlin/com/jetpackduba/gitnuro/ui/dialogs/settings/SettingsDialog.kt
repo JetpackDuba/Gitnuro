@@ -537,6 +537,7 @@ fun <T> SettingDropDown(
 
         Box {
             DropDownMenu(
+                showIcons = false,
                 items = {
                     dropDownOptions.map {
                         ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
@@ -552,13 +553,13 @@ fun <T> SettingDropDown(
                         )
                         .clip(shape = RoundedCornerShape(4.dp))
                         .background(MaterialTheme.colors.background)
-                        .padding(vertical = 8.dp, horizontal = 16.dp)
+                        .padding(vertical = 8.dp, horizontal = 12.dp)
                         .handOnHover(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = currentOption.optionName,
-                        style = MaterialTheme.typography.body1,
+                        style = MaterialTheme.typography.body2,
                         color = MaterialTheme.colors.onBackground,
                         modifier = Modifier.weight(1f),
                         maxLines = 1

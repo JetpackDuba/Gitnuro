@@ -62,8 +62,12 @@ fun ContextMenu(enabled: Boolean = true, items: () -> List<ContextMenuElement>, 
 }
 
 @Composable
-fun DropDownMenu(items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
-    Box(modifier = Modifier.dropdownMenu(items), propagateMinConstraints = true) {
+fun DropDownMenu(showIcons: Boolean = true, items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .dropdownMenu(showIcons, items),
+        propagateMinConstraints = true,
+    ) {
         function()
     }
 }
@@ -105,10 +109,11 @@ private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenu
         if (contextMenuElements.isNotEmpty()) {
             DisableSelection {
                 showPopup(
-                    mouseEvent.x,
-                    mouseEvent.y,
-                    contextMenuElements,
-                    onDismissRequest = { setMouseEvent(null) }
+                    showIcons = true,
+                    x = mouseEvent.x,
+                    y = mouseEvent.y,
+                    contextMenuElements = contextMenuElements,
+                    onDismissRequest = { setMouseEvent(null) },
                 )
             }
         }
@@ -118,7 +123,7 @@ private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenu
 }
 
 @Composable
-private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifier {
+private fun Modifier.dropdownMenu(showIcons: Boolean, items: () -> List<ContextMenuElement>): Modifier {
     val (isClicked, setIsClicked) = remember { mutableStateOf(false) }
     val (offset, setOffset) = remember { mutableStateOf<Offset?>(null) }
     val mod = this
@@ -133,6 +138,7 @@ private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifi
 
     if (offset != null && isClicked) {
         showPopup(
+            showIcons,
             offset.x.toInt(),
             offset.y.toInt(),
             items(),
@@ -143,7 +149,13 @@ private fun Modifier.dropdownMenu(items: () -> List<ContextMenuElement>): Modifi
 }
 
 @Composable
-fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onDismissRequest: () -> Unit) {
+fun showPopup(
+    showIcons: Boolean,
+    x: Int,
+    y: Int,
+    contextMenuElements: List<ContextMenuElement>,
+    onDismissRequest: () -> Unit,
+) {
     Popup(
         properties = PopupProperties(
             focusable = true,
@@ -215,7 +227,12 @@ fun showPopup(x: Int, y: Int, contextMenuElements: List<ContextMenuElement>, onD
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 for (item in contextMenuElements) {
                     when (item) {
-                        is ContextMenuElement.ContextTextEntry -> TextEntry(item, onDismissRequest = onDismissRequest)
+                        is ContextMenuElement.ContextTextEntry -> TextEntry(
+                            showIcons,
+                            item,
+                            onDismissRequest = onDismissRequest
+                        )
+
                         ContextMenuElement.ContextSeparator -> Separator()
                     }
 
@@ -237,7 +254,11 @@ fun Separator() {
 }
 
 @Composable
-fun TextEntry(contextTextEntry: ContextMenuElement.ContextTextEntry, onDismissRequest: () -> Unit) {
+fun TextEntry(
+    showIcons: Boolean,
+    contextTextEntry: ContextMenuElement.ContextTextEntry,
+    onDismissRequest: () -> Unit,
+) {
     val icon = contextTextEntry.icon
 
     Row(
@@ -247,21 +268,23 @@ fun TextEntry(contextTextEntry: ContextMenuElement.ContextTextEntry, onDismissRe
                 contextTextEntry.onClick()
             }
             .pointerHoverIcon(PointerIcon.Default)
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = if(showIcons) 8.dp else 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            modifier = Modifier
-                .padding(end = 8.dp)
-                .size(16.dp)
-        ) {
-            if (icon != null) {
-                Icon(
-                    painter = icon(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    tint = (MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.8f))
-                )
+        if (showIcons) {
+            Box(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(16.dp)
+            ) {
+                if (icon != null) {
+                    Icon(
+                        painter = icon(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        tint = (MaterialTheme.colors.onBackgroundSecondary.copy(alpha = 0.8f))
+                    )
+                }
             }
         }
 
@@ -409,6 +432,7 @@ class AppContextMenuRepresentation : ContextMenuRepresentation {
                     items().forEach { item ->
                         when (item) {
                             is ContextMenuElement.ContextTextEntry -> TextEntry(
+                                showIcons = true,
                                 contextTextEntry = item,
                                 onDismissRequest = { state.status = ContextMenuState.Status.Closed }
                             )
