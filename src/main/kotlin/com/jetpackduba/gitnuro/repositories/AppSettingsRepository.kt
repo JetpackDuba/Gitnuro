@@ -34,6 +34,7 @@ private const val PREF_SWAP_UNCOMMITTED_CHANGES = "inverseUncommittedChanges"
 private const val PREF_TERMINAL_PATH = "terminalPath"
 private const val PREF_SHOW_CHANGES_AS_TREE = "showChangesAsTree"
 private const val PREF_USE_PROXY = "useProxy"
+private const val PREF_USE_GRAVATAR = "useGravatar"
 private const val PREF_PROXY_TYPE = "proxyType"
 private const val PREF_PROXY_HOST_NAME = "proxyHostName"
 private const val PREF_PROXY_PORT = "proxyPort"
@@ -103,6 +104,9 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _terminalPathFlow = MutableStateFlow(terminalPath)
     val terminalPathFlow = _terminalPathFlow.asStateFlow()
+
+    private val _useGravatarFlow = MutableStateFlow(useGravatar)
+    val useGravatarFlow = _useGravatarFlow.asStateFlow()
 
     private val _proxyFlow = MutableStateFlow(
         ProxySettings(
@@ -298,6 +302,15 @@ class AppSettingsRepository @Inject constructor() {
             preferences.put(PREF_TERMINAL_PATH, value)
 
             _terminalPathFlow.value = value
+        }
+
+    var useGravatar: Boolean
+        get() {
+            return preferences.getBoolean(PREF_USE_GRAVATAR, false)
+        }
+        set(value) {
+            preferences.putBoolean(PREF_USE_GRAVATAR, value)
+            _useGravatarFlow.value = value
         }
 
     var useProxy: Boolean

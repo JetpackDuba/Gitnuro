@@ -106,6 +106,8 @@ class LogViewModel @Inject constructor(
     private val _logDialog = MutableStateFlow<LogDialog>(LogDialog.None)
     val logDialog: StateFlow<LogDialog> = _logDialog
 
+    val useGravatar = appSettingsRepository.useGravatarFlow
+
     val verticalListState = MutableStateFlow(LazyListState(0, 0))
     val horizontalListState = MutableStateFlow(ScrollState(0))
 

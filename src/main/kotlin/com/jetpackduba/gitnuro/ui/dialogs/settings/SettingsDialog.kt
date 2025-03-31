@@ -416,6 +416,7 @@ val linesHeightTypesList = listOf(
 private fun Appearance(settingsViewModel: SettingsViewModel) {
     val currentTheme by settingsViewModel.themeState.collectAsState()
     val currentLinesHeightType by settingsViewModel.linesHeightTypeState.collectAsState()
+    val useGravatar by settingsViewModel.useGravatarFlow.collectAsState()
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
     SettingDropDown(
@@ -507,6 +508,15 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         onOptionSelected = { newValue ->
             scaleValue = newValue
             settingsViewModel.scaleUi = newValue.value
+        }
+    )
+
+    SettingToggle(
+        title = "Use Gravatar's avatars",
+        subtitle = "The e-mail addresses will be hashed using SHA256 before sending the request to gravatar.com",
+        value = useGravatar,
+        onValueChanged = {
+            settingsViewModel.useGravatar = it
         }
     )
 

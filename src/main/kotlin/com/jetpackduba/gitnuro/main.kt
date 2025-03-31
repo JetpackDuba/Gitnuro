@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro
 
+import com.jetpackduba.gitnuro.extensions.sha256
 import com.jetpackduba.gitnuro.repositories.initPreferencesPath
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security

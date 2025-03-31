@@ -26,12 +26,16 @@ class HistoryViewModel @Inject constructor(
     private val settings: AppSettingsRepository,
     private val generateSplitHunkFromDiffResultUseCase: GenerateSplitHunkFromDiffResultUseCase,
     private val tabScope: CoroutineScope,
+    private val appSettingsRepository: AppSettingsRepository,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState
 
     private val _viewDiffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.None)
     val viewDiffResult: StateFlow<ViewDiffResult> = _viewDiffResult
+
+    val useGravatar = appSettingsRepository.useGravatarFlow
+
     var filePath: String = ""
 
     val lazyListState = MutableStateFlow(

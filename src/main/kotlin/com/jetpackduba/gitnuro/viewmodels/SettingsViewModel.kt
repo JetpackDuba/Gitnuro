@@ -40,6 +40,7 @@ class SettingsViewModel @Inject constructor(
     val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow
     val verifySslFlow = appSettingsRepository.verifySslFlow
     val terminalPathFlow = appSettingsRepository.terminalPathFlow
+    val useGravatarFlow = appSettingsRepository.useGravatarFlow
 
     var scaleUi: Float
         get() = appSettingsRepository.scaleUi
@@ -99,6 +100,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettingsRepository.terminalPath
         set(value) {
             appSettingsRepository.terminalPath = value
+        }
+
+    var useGravatar: Boolean
+        get() = appSettingsRepository.useGravatar
+        set(value) {
+            appSettingsRepository.useGravatar = value
         }
 
     var useProxy: Boolean

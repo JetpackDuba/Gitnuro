@@ -2,14 +2,13 @@ package com.jetpackduba.gitnuro.extensions
 
 import com.jetpackduba.gitnuro.exceptions.SshException
 import com.jetpackduba.gitnuro.system.systemSeparator
-import java.math.BigInteger
 import java.security.MessageDigest
 
-val String.md5: String
-    get() {
-        val md = MessageDigest.getInstance("MD5")
-        return BigInteger(1, md.digest(this.toByteArray())).toString(16).padStart(32, '0')
-    }
+@OptIn(ExperimentalStdlibApi::class)
+val String.sha256: String
+    get() = MessageDigest.getInstance("SHA-256")
+        .digest(this.toByteArray(Charsets.UTF_8))
+        .toHexString()
 
 val String.dirName: String
     get() {

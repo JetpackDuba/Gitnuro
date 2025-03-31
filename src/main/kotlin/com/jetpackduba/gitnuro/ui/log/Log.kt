@@ -110,11 +110,13 @@ fun Log(
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
     val showLogDialog by logViewModel.logDialog.collectAsState()
+    val useGravatar by logViewModel.useGravatar.collectAsState()
 
     when (logStatus) {
         is LogStatus.Loaded -> LogLoaded(
             logViewModel = logViewModel,
             logStatus = logStatus,
+            useGravatar = useGravatar,
             showLogDialog = showLogDialog,
             selectedItem = selectedItem,
             repositoryState = repositoryState,
@@ -151,6 +153,7 @@ private fun LogLoaded(
     showLogDialog: LogDialog,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
+    useGravatar: Boolean,
     changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
     onRequestMoreLogItems: (Int) -> Unit,
 ) {
@@ -274,6 +277,7 @@ private fun LogLoaded(
                 selectedItem = selectedItem,
                 commitList = commitList,
                 graphWidth = graphWidth,
+                useGravatar = useGravatar,
                 onMerge = { ref -> logViewModel.mergeBranch(ref) },
                 onRebase = { ref -> logViewModel.rebaseBranch(ref) },
                 onShowLogDialog = { dialog -> logViewModel.showDialog(dialog) },
@@ -514,6 +518,7 @@ fun CommitsList(
     onShowLogDialog: (LogDialog) -> Unit,
     onCopyBranchNameToClipboard: (Ref) -> Unit,
     graphWidth: Dp,
+    useGravatar: Boolean,
     horizontalScrollState: ScrollState,
 ) {
     val scope = rememberCoroutineScope()
@@ -567,6 +572,7 @@ fun CommitsList(
             CommitLine(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
+                useGravatar = useGravatar,
                 isSelected = selectedCommit?.name == graphNode.name,
                 currentBranch = logStatus.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
@@ -809,6 +815,7 @@ fun SummaryEntry(
 private fun CommitLine(
     graphWidth: Dp,
     graphNode: GraphNode,
+    useGravatar: Boolean,
     isSelected: Boolean,
     currentBranch: Ref?,
     matchesSearchFilter: Boolean?,
@@ -879,6 +886,7 @@ private fun CommitLine(
                         modifier = Modifier
                             .fillMaxHeight(),
                         plotCommit = graphNode,
+                        useGravatar = useGravatar,
                         nodeColor = nodeColor,
                         isSelected = isSelected,
                     )
@@ -1055,6 +1063,7 @@ fun SimpleDividerLog(modifier: Modifier) {
 fun CommitsGraph(
     modifier: Modifier = Modifier,
     plotCommit: GraphNode,
+    useGravatar: Boolean,
     nodeColor: Color,
     isSelected: Boolean,
 ) {
@@ -1131,6 +1140,7 @@ fun CommitsGraph(
                 .align(Alignment.CenterStart)
                 .padding(start = ((itemPosition + 1) * 30 - 15).dp),
             plotCommit = plotCommit,
+            useGravatar = useGravatar,
             color = nodeColor,
         )
     }
@@ -1139,6 +1149,7 @@ fun CommitsGraph(
 @Composable
 fun CommitNode(
     modifier: Modifier = Modifier,
+    useGravatar: Boolean,
     plotCommit: GraphNode,
     color: Color,
 ) {
@@ -1171,6 +1182,7 @@ fun CommitNode(
                     .clip(CircleShape)
             ) {
                 AvatarImage(
+                    useGravatar = useGravatar,
                     modifier = Modifier.fillMaxSize(),
                     personIdent = plotCommit.authorIdent,
                     color = color,

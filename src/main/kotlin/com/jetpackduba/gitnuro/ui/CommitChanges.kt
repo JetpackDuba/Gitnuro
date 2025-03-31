@@ -70,6 +70,7 @@ fun CommitChanges(
     val changesListScroll by commitChangesViewModel.changesLazyListState.collectAsState()
     val textScroll by commitChangesViewModel.textScroll.collectAsState()
     val showAsTree by commitChangesViewModel.showAsTree.collectAsState()
+    val useGravatar by commitChangesViewModel.useGravatar.collectAsState()
 
     var searchFilter by remember(commitChangesViewModel, showSearch, commitChangesStatus) {
         mutableStateOf(commitChangesViewModel.searchFilter.value)
@@ -92,6 +93,7 @@ fun CommitChanges(
                 textScroll = textScroll,
                 searchFilter = searchFilter,
                 onDiffSelected = onDiffSelected,
+                useGravatar = useGravatar,
                 onSearchFilterToggled = { visible ->
                     commitChangesViewModel.onSearchFilterToggled(visible)
                 },
@@ -118,6 +120,7 @@ private fun CommitChangesView(
     showSearch: Boolean,
     showAsTree: Boolean,
     searchFilter: TextFieldValue,
+    useGravatar: Boolean,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
     onDiffSelected: (DiffEntry) -> Unit,
@@ -191,7 +194,11 @@ private fun CommitChangesView(
 
         }
 
-        MessageAuthorFooter(commit, textScroll)
+        MessageAuthorFooter(
+            commit,
+            textScroll,
+            useGravatar,
+        )
     }
 }
 
@@ -286,6 +293,7 @@ private fun Header(
 private fun MessageAuthorFooter(
     commit: RevCommit,
     textScroll: ScrollState,
+    useGravatar: Boolean,
 ) {
     Column(
         modifier = Modifier
@@ -306,7 +314,12 @@ private fun MessageAuthorFooter(
             )
         }
 
-        Author(commit.shortName, commit.name, commit.authorIdent)
+        Author(
+            shortName = commit.shortName,
+            name = commit.name,
+            author = commit.authorIdent,
+            useGravatar = useGravatar,
+        )
     }
 }
 
@@ -315,6 +328,7 @@ fun Author(
     shortName: String,
     name: String,
     author: PersonIdent,
+    useGravatar: Boolean,
 ) {
     var copied by remember(name) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -332,6 +346,7 @@ fun Author(
                 .padding(horizontal = 16.dp)
                 .size(40.dp),
             personIdent = author,
+            useGravatar = useGravatar,
         )
 
         Column(
