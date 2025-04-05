@@ -122,14 +122,12 @@ private fun HistoryContent(
     historyState: HistoryState,
     onCommitSelected: (RevCommit) -> Unit,
 ) {
-    val useGravatar by historyViewModel.useGravatar.collectAsState()
     val textScrollState by historyViewModel.lazyListState.collectAsState()
     val viewDiffResult by historyViewModel.viewDiffResult.collectAsState()
 
     when (historyState) {
         is HistoryState.Loaded -> HistoryContentLoaded(
             historyState = historyState,
-            useGravatar = useGravatar,
             viewDiffResult = viewDiffResult,
             scrollState = textScrollState,
             onCommitSelected = onCommitSelected,
@@ -142,7 +140,6 @@ private fun HistoryContent(
 @Composable
 fun HistoryContentLoaded(
     historyState: HistoryState.Loaded,
-    useGravatar: Boolean,
     viewDiffResult: ViewDiffResult?,
     scrollState: LazyListState,
     onCommitSelected: (RevCommit) -> Unit,
@@ -159,7 +156,6 @@ fun HistoryContentLoaded(
         ) {
             items(historyState.commits) { commit ->
                 HistoryCommit(
-                    useGravatar = useGravatar,
                     commit = commit,
                     onCommitSelected = { onCommitSelected(commit) }
                 )
@@ -222,7 +218,6 @@ fun HistoryContentLoaded(
 
 @Composable
 fun HistoryCommit(
-    useGravatar: Boolean,
     commit: RevCommit,
     onCommitSelected: () -> Unit,
 ) {
@@ -234,7 +229,6 @@ fun HistoryCommit(
         verticalAlignment = Alignment.CenterVertically
     ) {
         AvatarImage(
-            useGravatar = useGravatar,
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(40.dp),

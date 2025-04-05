@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.managers.Error
+import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -84,10 +85,7 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
 
     val proxyTypes = listOf(ProxyType.HTTP, ProxyType.SOCKS)
     val proxyTypesDropDownOptions = proxyTypes.map { DropDownOption(it, it.name) }
-
-    var currentProxyType by remember {
-        mutableStateOf(proxyTypesDropDownOptions.first { it.value == settingsViewModel.proxyType })
-    }
+    val proxySettings = settingsViewModel.proxyFlow.collectAsState()
 
     Column {
         SettingToggle(
@@ -104,9 +102,8 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
             title = "Proxy type",
             subtitle = "Pick between HTTP or SOCKS",
             dropDownOptions = proxyTypesDropDownOptions,
-            currentOption = currentProxyType,
+            currentOption = proxySettings.value.proxyType,
             onOptionSelected = {
-                currentProxyType = it
                 settingsViewModel.proxyType = it.value
             }
         )
@@ -176,8 +173,8 @@ fun SettingsDialog(
     onDismiss: () -> Unit,
 ) {
     var selectedCategory by remember {
-        mutableStateOf<SettingsEntry.Entry>(
-            settings.filterIsInstance(SettingsEntry.Entry::class.java).first()
+        mutableStateOf(
+            settings.filterIsInstance<SettingsEntry.Entry>().first()
         )
     }
 
@@ -416,14 +413,14 @@ val linesHeightTypesList = listOf(
 private fun Appearance(settingsViewModel: SettingsViewModel) {
     val currentTheme by settingsViewModel.themeState.collectAsState()
     val currentLinesHeightType by settingsViewModel.linesHeightTypeState.collectAsState()
-    val useGravatar by settingsViewModel.useGravatarFlow.collectAsState()
+    val avatarProvider by settingsViewModel.avatarProviderFlow.collectAsState()
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
     SettingDropDown(
         title = "Theme",
         subtitle = "Select the UI theme between light and dark mode",
         dropDownOptions = themeLists,
-        currentOption = DropDownOption(currentTheme, currentTheme.displayName),
+        currentOption = currentTheme,
         onOptionSelected = { themeDropDown ->
             settingsViewModel.theme = themeDropDown.value
         }
@@ -454,7 +451,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         title = "Lists spacing (Beta)",
         subtitle = "Spacing around lists items",
         dropDownOptions = linesHeightTypesList,
-        currentOption = linesHeightTypesList.first { it.value == currentLinesHeightType },
+        currentOption = currentLinesHeightType,
         onOptionSelected = { dropDown ->
             settingsViewModel.linesHeightType = dropDown.value
         }
@@ -504,19 +501,23 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         title = "Scale",
         subtitle = "Adapt the size the UI to your preferred scale",
         dropDownOptions = options,
-        currentOption = scaleValue,
+        currentOption = scaleValue.value,
         onOptionSelected = { newValue ->
             scaleValue = newValue
             settingsViewModel.scaleUi = newValue.value
         }
     )
 
-    SettingToggle(
-        title = "Use Gravatar's avatars",
-        subtitle = "The e-mail addresses will be hashed using SHA256 before sending the request to gravatar.com",
-        value = useGravatar,
-        onValueChanged = {
-            settingsViewModel.useGravatar = it
+    SettingDropDown(
+        title = "Avatar provider",
+        subtitle = "When using a provider, the e-mail addresses will be hashed using SHA256",
+        currentOption = avatarProvider,
+        dropDownOptions = listOf(
+            DropDownOption(AvatarProviderType.NONE, "None"),
+            DropDownOption(AvatarProviderType.GRAVATAR, "Gravatar"),
+        ),
+        onOptionSelected = {
+            settingsViewModel.avatarProvider = it.value
         }
     )
 
@@ -535,7 +536,7 @@ fun <T> SettingDropDown(
     subtitle: String,
     dropDownOptions: List<DropDownOption<T>>,
     onOptionSelected: (DropDownOption<T>) -> Unit,
-    currentOption: DropDownOption<T>,
+    currentOption: T,
 ) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
@@ -568,7 +569,7 @@ fun <T> SettingDropDown(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = currentOption.optionName,
+                        text = dropDownOptions.first { it.value == currentOption }.optionName,
                         style = MaterialTheme.typography.body2,
                         color = MaterialTheme.colors.onBackground,
                         modifier = Modifier.weight(1f),

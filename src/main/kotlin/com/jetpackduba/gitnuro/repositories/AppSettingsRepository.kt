@@ -1,6 +1,8 @@
 package com.jetpackduba.gitnuro.repositories
 
+import com.jetpackduba.gitnuro.SettingsDefaults
 import com.jetpackduba.gitnuro.extensions.defaultWindowPlacement
+import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.preferences.WindowsPlacementPreference
 import com.jetpackduba.gitnuro.system.OS
 import com.jetpackduba.gitnuro.system.currentOs
@@ -10,8 +12,9 @@ import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
-import kotlinx.coroutines.flow.*
-import kotlinx.serialization.decodeFromString
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.prefs.Preferences
@@ -34,7 +37,7 @@ private const val PREF_SWAP_UNCOMMITTED_CHANGES = "inverseUncommittedChanges"
 private const val PREF_TERMINAL_PATH = "terminalPath"
 private const val PREF_SHOW_CHANGES_AS_TREE = "showChangesAsTree"
 private const val PREF_USE_PROXY = "useProxy"
-private const val PREF_USE_GRAVATAR = "useGravatar"
+private const val PREF_AVATAR_PROVIDER = "avatarProvider"
 private const val PREF_PROXY_TYPE = "proxyType"
 private const val PREF_PROXY_HOST_NAME = "proxyHostName"
 private const val PREF_PROXY_PORT = "proxyPort"
@@ -105,8 +108,8 @@ class AppSettingsRepository @Inject constructor() {
     private val _terminalPathFlow = MutableStateFlow(terminalPath)
     val terminalPathFlow = _terminalPathFlow.asStateFlow()
 
-    private val _useGravatarFlow = MutableStateFlow(useGravatar)
-    val useGravatarFlow = _useGravatarFlow.asStateFlow()
+    private val _avatarProviderFlow = MutableStateFlow(avatarProviderType)
+    val avatarProviderTypeFlow = _avatarProviderFlow.asStateFlow()
 
     private val _proxyFlow = MutableStateFlow(
         ProxySettings(
@@ -304,13 +307,16 @@ class AppSettingsRepository @Inject constructor() {
             _terminalPathFlow.value = value
         }
 
-    var useGravatar: Boolean
-        get() {
-            return preferences.getBoolean(PREF_USE_GRAVATAR, false)
-        }
-        set(value) {
-            preferences.putBoolean(PREF_USE_GRAVATAR, value)
-            _useGravatarFlow.value = value
+    var avatarProviderType: AvatarProviderType
+        get() = AvatarProviderType.getFromValue(
+            preferences.getInt(
+                PREF_AVATAR_PROVIDER,
+                SettingsDefaults.defaultAvatarProviderType.value,
+            )
+        )
+        set(newValue) {
+            preferences.putInt(PREF_AVATAR_PROVIDER, newValue.value)
+            _avatarProviderFlow.value = newValue
         }
 
     var useProxy: Boolean

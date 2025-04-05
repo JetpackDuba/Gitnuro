@@ -42,7 +42,6 @@ class CommitChangesViewModel @Inject constructor(
     val textScroll = MutableStateFlow(ScrollState(0))
 
     val showAsTree = appSettingsRepository.showChangesAsTreeFlow
-    val useGravatar = appSettingsRepository.useGravatarFlow
 
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
 

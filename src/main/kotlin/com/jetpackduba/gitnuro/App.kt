@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import com.jetpackduba.gitnuro.avatarproviders.GravatarAvatarProvider
+import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
@@ -33,6 +35,7 @@ import com.jetpackduba.gitnuro.lfs.AppLfsFactory
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
+import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.repositories.ProxySettings
 import com.jetpackduba.gitnuro.system.OS
@@ -131,6 +134,7 @@ class App {
             val customTheme by appSettingsRepository.customThemeFlow.collectAsState()
             val scale by appSettingsRepository.scaleUiFlow.collectAsState()
             val linesHeightType by appSettingsRepository.linesHeightTypeState.collectAsState()
+            val avatarProviderType by appSettingsRepository.avatarProviderTypeFlow.collectAsState()
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -155,6 +159,13 @@ class App {
                     if (scale != -1f) {
                         compositionValues.add(LocalDensity provides Density(scale, 1f))
                     }
+
+                    val avatarProvider = when (avatarProviderType) {
+                        AvatarProviderType.NONE -> NoneAvatarProvider()
+                        AvatarProviderType.GRAVATAR -> GravatarAvatarProvider()
+                    }
+
+                    compositionValues.add(LocalAvatarProvider provides avatarProvider)
 
                     CompositionLocalProvider(
                         values = compositionValues.toTypedArray()

@@ -34,8 +34,6 @@ class HistoryViewModel @Inject constructor(
     private val _viewDiffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.None)
     val viewDiffResult: StateFlow<ViewDiffResult> = _viewDiffResult
 
-    val useGravatar = appSettingsRepository.useGravatarFlow
-
     var filePath: String = ""
 
     val lazyListState = MutableStateFlow(

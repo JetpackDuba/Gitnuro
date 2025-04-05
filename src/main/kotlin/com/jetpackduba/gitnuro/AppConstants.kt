@@ -1,5 +1,7 @@
 package com.jetpackduba.gitnuro
 
+import com.jetpackduba.gitnuro.preferences.AvatarProviderType
+
 object AppConstants {
     val openSourceProjects = listOf(
         Project("Google Dagger", "https://dagger.dev/", apache__2_0),
@@ -44,4 +46,8 @@ object NetworkConstants {
     const val ACCEPT_HEADER = "Accept"
     const val AUTH_HEADER = "Authorization"
     const val CONTENT_LENGTH_HEADER = "Content-Length"
+}
+
+object SettingsDefaults {
+    val defaultAvatarProviderType = AvatarProviderType.GRAVATAR
 }

@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import com.jetpackduba.gitnuro.LocalAvatarProvider
 import com.jetpackduba.gitnuro.extensions.sha256
 import com.jetpackduba.gitnuro.images.rememberNetworkImageOrNull
 import org.eclipse.jgit.lib.PersonIdent
@@ -20,16 +21,21 @@ import org.eclipse.jgit.lib.PersonIdent
 @Composable
 fun AvatarImage(
     modifier: Modifier = Modifier,
-    useGravatar: Boolean,
     personIdent: PersonIdent,
     color: Color = MaterialTheme.colors.primary,
 ) {
+    val current = LocalAvatarProvider.current
+
     Box(
         modifier = modifier
             .clip(CircleShape)
     ) {
-        val avatar = if (useGravatar) {
-            rememberAvatar(personIdent.emailAddress)
+        val avatarProviderUrl = current.getAvatarUrl(personIdent.emailAddress.sha256)
+        val avatar = if (avatarProviderUrl != null) {
+            rememberNetworkImageOrNull(
+                url = avatarProviderUrl,
+                placeHolderImageRes = null,
+            )
         } else {
             null
         }
@@ -55,14 +61,4 @@ fun AvatarImage(
             )
         }
     }
-}
-
-
-@Composable
-fun rememberAvatar(email: String): ImageBitmap? {
-    val url = "https://www.gravatar.com/avatar/${email.sha256}?s=60&d=404"
-    return rememberNetworkImageOrNull(
-        url = url,
-        placeHolderImageRes = null,
-    )
 }

@@ -13,7 +13,6 @@ import com.jetpackduba.gitnuro.theme.LinesHeightType
 import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.awt.Desktop
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -40,7 +39,8 @@ class SettingsViewModel @Inject constructor(
     val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow
     val verifySslFlow = appSettingsRepository.verifySslFlow
     val terminalPathFlow = appSettingsRepository.terminalPathFlow
-    val useGravatarFlow = appSettingsRepository.useGravatarFlow
+    val avatarProviderFlow = appSettingsRepository.avatarProviderTypeFlow
+    val proxyFlow = appSettingsRepository.proxyFlow
 
     var scaleUi: Float
         get() = appSettingsRepository.scaleUi
@@ -102,10 +102,10 @@ class SettingsViewModel @Inject constructor(
             appSettingsRepository.terminalPath = value
         }
 
-    var useGravatar: Boolean
-        get() = appSettingsRepository.useGravatar
+    var avatarProvider
+        get() = appSettingsRepository.avatarProviderType
         set(value) {
-            appSettingsRepository.useGravatar = value
+            appSettingsRepository.avatarProviderType = value
         }
 
     var useProxy: Boolean
