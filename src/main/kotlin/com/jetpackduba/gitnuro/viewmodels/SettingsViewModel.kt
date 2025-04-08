@@ -14,6 +14,9 @@ import com.jetpackduba.gitnuro.theme.Theme
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.CoroutineScope
 import java.awt.Desktop
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,6 +43,7 @@ class SettingsViewModel @Inject constructor(
     val verifySslFlow = appSettingsRepository.verifySslFlow
     val terminalPathFlow = appSettingsRepository.terminalPathFlow
     val avatarProviderFlow = appSettingsRepository.avatarProviderTypeFlow
+    val dateFormatFlow = appSettingsRepository.dateTimeFormatFlow
     val proxyFlow = appSettingsRepository.proxyFlow
 
     var scaleUi: Float
@@ -108,6 +112,12 @@ class SettingsViewModel @Inject constructor(
             appSettingsRepository.avatarProviderType = value
         }
 
+    var dateFormat
+        get() = appSettingsRepository.dateTimeFormat
+        set(value) {
+            appSettingsRepository.dateTimeFormat = value
+        }
+
     var useProxy: Boolean
         get() = appSettingsRepository.useProxy
         set(value) {
@@ -174,6 +184,18 @@ class SettingsViewModel @Inject constructor(
             Desktop.getDesktop().open(logging.logsDirectory)
         } catch (ex: Exception) {
             printError(TAG, ex.message.orEmpty(), ex)
+        }
+    }
+
+    fun isValidDateFormat(value: String): Boolean {
+        return try {
+            val zoneId = ZoneId.systemDefault()
+            val sdf = DateTimeFormatter.ofPattern(value)
+            sdf.format(Instant.now().atZone(zoneId).toLocalDate())
+            true
+        } catch (ex: Exception) {
+            printError(TAG, "Is valid format date: ${ex.message}", ex)
+            false
         }
     }
 }

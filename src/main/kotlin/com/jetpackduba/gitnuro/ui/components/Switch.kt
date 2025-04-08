@@ -18,13 +18,17 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 @Preview
 @Composable
 fun SwitchPreview() {
-    AppSwitch(false, {})
+    AppSwitch(
+        isChecked = false,
+        onValueChanged = {},
+    )
 }
 
 @Composable
 fun AppSwitch(
     isChecked: Boolean,
     onValueChanged: (Boolean) -> Unit,
+    enabled: Boolean = true,
 ) {
     val background: Color
     val startPadding: Dp
@@ -49,8 +53,14 @@ fun AppSwitch(
             .width(48.dp)
             .height(28.dp)
             .clip(RoundedCornerShape(50))
-            .background(background)
-            .handMouseClickable { onValueChanged(!isChecked) }
+            .background(background.copy(alpha = if(enabled) 1F else 0.3F))
+            .run {
+                if (enabled) {
+                    this.handMouseClickable { onValueChanged(!isChecked) }
+                } else {
+                    this
+                }
+            }
             .padding(top = 4.dp, bottom = 4.dp, end = 4.dp, start = startPadding),
         contentAlignment = if (isChecked) Alignment.CenterEnd else Alignment.CenterStart,
     ) {

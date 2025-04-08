@@ -135,6 +135,7 @@ class App {
             val scale by appSettingsRepository.scaleUiFlow.collectAsState()
             val linesHeightType by appSettingsRepository.linesHeightTypeState.collectAsState()
             val avatarProviderType by appSettingsRepository.avatarProviderTypeFlow.collectAsState()
+            val dateTimeFormat by appSettingsRepository.dateTimeFormatFlow.collectAsState()
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -166,6 +167,7 @@ class App {
                     }
 
                     compositionValues.add(LocalAvatarProvider provides avatarProvider)
+                    compositionValues.add(LocalDateTimeFormat provides dateTimeFormat)
 
                     CompositionLocalProvider(
                         values = compositionValues.toTypedArray()

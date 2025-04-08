@@ -251,9 +251,7 @@ fun HistoryCommit(
                 )
                 Spacer(modifier = Modifier.weight(1f))
 
-                val date = remember(commit.authorIdent) {
-                    commit.authorIdent.`when`.toSmartSystemString()
-                }
+                val date = commit.authorIdent.whenAsInstant.toSmartSystemString()
 
                 TooltipText(
                     text = date,

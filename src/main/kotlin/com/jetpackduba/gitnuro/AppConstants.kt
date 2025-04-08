@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro
 
+import com.jetpackduba.gitnuro.models.DateTimeFormat
 import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 
 object AppConstants {
@@ -50,4 +51,10 @@ object NetworkConstants {
 
 object SettingsDefaults {
     val defaultAvatarProviderType = AvatarProviderType.GRAVATAR
+    val defaultDateTimeFormat = DateTimeFormat(
+        useSystemDefault = true,
+        customFormat = "dd MMM yyyy",
+        is24hours = true,
+        useRelativeDate = true,
+    )
 }

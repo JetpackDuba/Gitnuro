@@ -7,3 +7,4 @@ import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
 
 val LocalTabFocusRequester = compositionLocalOf { FocusRequester() }
 val LocalAvatarProvider = compositionLocalOf<AvatarProvider> { NoneAvatarProvider() }
+val LocalDateTimeFormat = compositionLocalOf { SettingsDefaults.defaultDateTimeFormat }

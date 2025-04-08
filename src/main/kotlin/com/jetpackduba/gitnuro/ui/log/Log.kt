@@ -51,6 +51,7 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.components.TooltipText
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
@@ -1015,13 +1016,14 @@ fun CommitMessage(
             overflow = TextOverflow.Ellipsis,
         )
 
-        Text(
-            text = commit.authorIdent.`when`.toSmartSystemString(),
+        TooltipText(
+            text = commit.authorIdent.whenAsInstant.toSmartSystemString(),
             modifier = Modifier.padding(horizontal = 16.dp),
             style = MaterialTheme.typography.caption,
             color = MaterialTheme.colors.onBackgroundSecondary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
+            tooltipTitle = commit.authorIdent.whenAsInstant.toSmartSystemString(allowRelative = false, showTime = true)
         )
     }
 }

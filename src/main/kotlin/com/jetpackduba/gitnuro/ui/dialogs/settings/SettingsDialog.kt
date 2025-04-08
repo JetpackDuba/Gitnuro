@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.preferences.AvatarProviderType
@@ -41,6 +42,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import java.time.Instant
 
 sealed interface SettingsEntry {
     data class Section(val name: String) : SettingsEntry
@@ -57,7 +59,7 @@ val settings = listOf(
     SettingsEntry.Section("User interface"),
     SettingsEntry.Entry(Res.drawable.palette, "Appearance") { Appearance(it) },
     SettingsEntry.Entry(Res.drawable.layout, "Layout") { Layout(it) },
-
+    SettingsEntry.Entry(Res.drawable.schedule, "Date/Time") { DateTime(it) },
     SettingsEntry.Section("GIT"),
     SettingsEntry.Entry(Res.drawable.branch, "Branches") { Branches(it) },
     SettingsEntry.Entry(Res.drawable.cloud, "Remote actions") { RemoteActions(it) },
@@ -70,6 +72,11 @@ val settings = listOf(
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(Res.drawable.terminal, "Terminal") { Terminal(it) },
     SettingsEntry.Entry(Res.drawable.info, "Logs") { Logs(it) },
+)
+
+val linesHeightTypesList = listOf(
+    DropDownOption(LinesHeightType.SPACED, "Spaced"),
+    DropDownOption(LinesHeightType.COMPACT, "Compact"),
 )
 
 @Composable
@@ -112,11 +119,11 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
             title = "Host name",
             subtitle = "",
             value = hostName,
+            enabled = useProxy,
             onValueChanged = {
                 hostName = it
                 settingsViewModel.proxyHostName = it
             },
-            enabled = useProxy,
         )
 
         SettingIntInput(
@@ -144,11 +151,11 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
             title = "Login",
             subtitle = "",
             value = user,
+            enabled = useProxy && useAuth,
             onValueChanged = {
                 user = it
                 settingsViewModel.proxyHostUser = it
             },
-            enabled = useProxy && useAuth,
         )
 
 
@@ -156,12 +163,12 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
             title = "Password",
             subtitle = "",
             value = password,
+            enabled = useProxy && useAuth,
+            isPassword = true,
             onValueChanged = {
                 password = it
                 settingsViewModel.proxyHostPassword = it
             },
-            isPassword = true,
-            enabled = useProxy && useAuth,
         )
 
     }
@@ -359,7 +366,7 @@ fun Terminal(settingsViewModel: SettingsViewModel) {
         onValueChanged = { value ->
             commitsLimit = value
             settingsViewModel.terminalPath = value
-        }
+        },
     )
 }
 
@@ -404,10 +411,76 @@ private fun Layout(settingsViewModel: SettingsViewModel) {
     )
 }
 
-val linesHeightTypesList = listOf(
-    DropDownOption(LinesHeightType.SPACED, "Spaced"),
-    DropDownOption(LinesHeightType.COMPACT, "Compact"),
-)
+@Composable
+private fun DateTime(settingsViewModel: SettingsViewModel) {
+    val dateFormat by settingsViewModel.dateFormatFlow.collectAsState()
+    var customFormat by remember(settingsViewModel) { mutableStateOf(dateFormat.customFormat) }
+    var isError by remember { mutableStateOf(false) }
+
+    val currentInstant = remember { Instant.now() }
+
+    val currentDateSystemDefault =
+        currentInstant.toSmartSystemString(allowRelative = false, useSystemDefaultFormat = true)
+
+    SettingToggle(
+        title = "Use system's Date/Time format",
+        subtitle = "If enabled, current date would be shown as \"$currentDateSystemDefault\"",
+        value = dateFormat.useSystemDefault,
+        onValueChanged = { value ->
+            settingsViewModel.dateFormat = dateFormat.copy(useSystemDefault = value)
+        }
+    )
+
+    val customFormatSubtitle = if (isError) {
+        "Invalid date/time format"
+    } else {
+        val currentDate = currentInstant.toSmartSystemString(allowRelative = false, useSystemDefaultFormat = false)
+        "Current date would be shown as \"$currentDate\""
+    }
+
+    SettingTextInput(
+        title = "Custom date format",
+        subtitle = customFormatSubtitle,
+        value = customFormat,
+        isError = isError,
+        onValueChanged = { value ->
+            customFormat = value
+            if (settingsViewModel.isValidDateFormat(value)) {
+                settingsViewModel.dateFormat = dateFormat.copy(customFormat = value)
+                isError = false
+            } else {
+                isError = true
+            }
+
+        },
+        enabled = !dateFormat.useSystemDefault,
+    )
+
+    val is24hSubtitle = if (dateFormat.is24hours) {
+        "17:30"
+    } else {
+        "05:30 PM"
+    }
+
+    SettingToggle(
+        title = "Use 24h time",
+        subtitle = is24hSubtitle,
+        enabled = !dateFormat.useSystemDefault,
+        value = dateFormat.is24hours,
+        onValueChanged = { value ->
+            settingsViewModel.dateFormat = dateFormat.copy(is24hours = value)
+        }
+    )
+
+    SettingToggle(
+        title = "Relative date",
+        subtitle = "Use \"Today\" and \"Yesterday\" instead of the date",
+        value = dateFormat.useRelativeDate,
+        onValueChanged = { value ->
+            settingsViewModel.dateFormat = dateFormat.copy(useRelativeDate = value)
+        }
+    )
+}
 
 @Composable
 private fun Appearance(settingsViewModel: SettingsViewModel) {
@@ -613,6 +686,7 @@ fun SettingButton(
 fun SettingToggle(
     title: String,
     subtitle: String,
+    enabled: Boolean = true,
     value: Boolean,
     onValueChanged: (Boolean) -> Unit,
 ) {
@@ -620,11 +694,12 @@ fun SettingToggle(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FieldTitles(title, subtitle)
+        FieldTitles(title, subtitle, enabled)
 
         Spacer(modifier = Modifier.weight(1f))
 
         AppSwitch(
+            enabled = enabled,
             isChecked = value,
             onValueChanged = onValueChanged,
         )
@@ -643,7 +718,7 @@ fun SettingIntInput(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FieldTitles(title, subtitle)
+        FieldTitles(title, subtitle, enabled)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -691,12 +766,13 @@ fun SettingTextInput(
     enabled: Boolean = true,
     isPassword: Boolean = false,
     onValueChanged: (String) -> Unit,
+    isError: Boolean = false,
 ) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        FieldTitles(title, subtitle)
+        FieldTitles(title, subtitle, enabled)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -707,7 +783,7 @@ fun SettingTextInput(
         AdjustableOutlinedTextField(
             value = text,
             modifier = Modifier.width(240.dp),
-            isError = false,
+            isError = isError,
             enabled = enabled,
             onValueChange = {
                 text = it
@@ -724,20 +800,21 @@ fun SettingTextInput(
 private fun FieldTitles(
     title: String,
     subtitle: String,
+    enabled: Boolean = true,
 ) {
     Column(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
             text = title,
-            color = MaterialTheme.colors.onBackground,
+            color = MaterialTheme.colors.onBackground.copy(alpha = if (enabled) 1F else 0.6F),
             style = MaterialTheme.typography.body1,
             fontWeight = FontWeight.Medium,
         )
 
         Text(
             text = subtitle,
-            color = MaterialTheme.colors.onBackground,
+            color = MaterialTheme.colors.onBackground.copy(alpha = if (enabled) 1F else 0.6F),
             modifier = Modifier.padding(top = 4.dp),
             style = MaterialTheme.typography.body2,
         )

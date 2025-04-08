@@ -383,13 +383,15 @@ fun Author(
 
                 Spacer(modifier = Modifier.weight(1f, fill = true))
 
-                val smartDate = remember(author) {
-                    author.`when`.toSmartSystemString()
-                }
+                val smartDate = author.whenAsInstant.toSmartSystemString(
+                    allowRelative = true,
+                    showTime = true,
+                )
 
-                val systemDate = remember(author) {
-                    author.`when`.toSystemDateTimeString()
-                }
+                val smartDateTooltip = author.whenAsInstant.toSmartSystemString(
+                    allowRelative = false,
+                    showTime = true,
+                )
 
                 TooltipText(
                     text = smartDate,
@@ -397,7 +399,7 @@ fun Author(
                     maxLines = 1,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     style = MaterialTheme.typography.body2,
-                    tooltipTitle = systemDate
+                    tooltipTitle = smartDateTooltip,
                 )
             }
         }

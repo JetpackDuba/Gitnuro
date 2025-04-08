@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.repositories
 
 import com.jetpackduba.gitnuro.SettingsDefaults
 import com.jetpackduba.gitnuro.extensions.defaultWindowPlacement
+import com.jetpackduba.gitnuro.models.DateTimeFormat
 import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.preferences.WindowsPlacementPreference
 import com.jetpackduba.gitnuro.system.OS
@@ -38,6 +39,10 @@ private const val PREF_TERMINAL_PATH = "terminalPath"
 private const val PREF_SHOW_CHANGES_AS_TREE = "showChangesAsTree"
 private const val PREF_USE_PROXY = "useProxy"
 private const val PREF_AVATAR_PROVIDER = "avatarProvider"
+private const val PREF_DATE_FORMAT_USE_DEFAULT = "dateFormatUseSystemDefault"
+private const val PREF_DATE_FORMAT_CUSTOM_FORMAT = "dateFormatCustomFormat"
+private const val PREF_DATE_FORMAT_IS_24H = "dateFormatIs24h"
+private const val PREF_DATE_FORMAT_USE_RELATIVE = "dateFormatUseRelative"
 private const val PREF_PROXY_TYPE = "proxyType"
 private const val PREF_PROXY_HOST_NAME = "proxyHostName"
 private const val PREF_PROXY_PORT = "proxyPort"
@@ -110,6 +115,9 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _avatarProviderFlow = MutableStateFlow(avatarProviderType)
     val avatarProviderTypeFlow = _avatarProviderFlow.asStateFlow()
+
+    private val _dateTimeFormatFlow = MutableStateFlow(dateTimeFormat)
+    val dateTimeFormatFlow = _dateTimeFormatFlow.asStateFlow()
 
     private val _proxyFlow = MutableStateFlow(
         ProxySettings(
@@ -317,6 +325,26 @@ class AppSettingsRepository @Inject constructor() {
         set(newValue) {
             preferences.putInt(PREF_AVATAR_PROVIDER, newValue.value)
             _avatarProviderFlow.value = newValue
+        }
+
+    var dateTimeFormat: DateTimeFormat
+        get() {
+            val default = SettingsDefaults.defaultDateTimeFormat
+
+            val useSystemDefault = preferences.getBoolean(PREF_DATE_FORMAT_USE_DEFAULT, default.useSystemDefault)
+            val customFormat = preferences.get(PREF_DATE_FORMAT_CUSTOM_FORMAT, default.customFormat)
+            val is24h = preferences.getBoolean(PREF_DATE_FORMAT_IS_24H, default.is24hours)
+            val useRelativeDate = preferences.getBoolean(PREF_DATE_FORMAT_USE_RELATIVE, default.useRelativeDate)
+
+            return DateTimeFormat(useSystemDefault, customFormat, is24h, useRelativeDate)
+        }
+        set(newValue) {
+            preferences.putBoolean(PREF_DATE_FORMAT_USE_DEFAULT, newValue.useSystemDefault)
+            preferences.put(PREF_DATE_FORMAT_CUSTOM_FORMAT, newValue.customFormat)
+            preferences.putBoolean(PREF_DATE_FORMAT_IS_24H, newValue.is24hours)
+            preferences.putBoolean(PREF_DATE_FORMAT_USE_RELATIVE, newValue.useRelativeDate)
+
+            _dateTimeFormatFlow.value = newValue
         }
 
     var useProxy: Boolean

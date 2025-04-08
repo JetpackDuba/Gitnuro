@@ -1,44 +1,72 @@
 package com.jetpackduba.gitnuro.extensions
 
-import java.text.DateFormat
+import androidx.compose.runtime.Composable
+import com.jetpackduba.gitnuro.LocalDateTimeFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.*
 
-fun Date.toSmartSystemString(): String {
-    val systemLocale = System.getProperty("user.language")
-    val locale = Locale(systemLocale)
-    val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
+@Composable
+fun Instant.toSmartSystemString(
+    allowRelative: Boolean = true,
+    useSystemDefaultFormat: Boolean? = null,
+    showTime: Boolean = false,
+): String {
+    val dateTimeFormat = LocalDateTimeFormat.current
+    val useSystemDefault = useSystemDefaultFormat ?: dateTimeFormat.useSystemDefault
 
     val zoneId = ZoneId.systemDefault()
-    val localDate = this.toInstant().atZone(zoneId).toLocalDate()
+    val localDate = atZone(zoneId).toLocalDate()
     val currentTime = LocalDate.now(zoneId)
 
-    var result = sdf.format(this)
-    if (localDate.year == currentTime.year &&
-        localDate.month == currentTime.month
+    val formattedDate = if (
+        dateTimeFormat.useRelativeDate &&
+        allowRelative &&
+        localDate.isTodayOrYesterday(currentTime)
     ) {
         if (localDate.dayOfMonth == currentTime.dayOfMonth)
-            result = "Today"
-        else if (localDate.dayOfMonth == currentTime.dayOfMonth - 1)
-            result = "Yesterday"
+            "Today"
+        else
+            "Yesterday"
+    } else {
+        val systemLocale = System.getProperty("user.language")
+        val locale = Locale(systemLocale)
+
+        val formatter = if (useSystemDefault) {
+            DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+        } else {
+            DateTimeFormatter.ofPattern(dateTimeFormat.customFormat, locale)
+        }
+
+        formatter.format(localDate)
     }
 
-    return result
+    val formattedTime = if (showTime) {
+        val localDateTime = atZone(zoneId).toLocalDateTime()
+
+        val timeFormatter = if (useSystemDefault) {
+            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+        } else if (dateTimeFormat.is24hours) {
+            DateTimeFormatter.ofPattern("HH:mm")
+        } else {
+            DateTimeFormatter.ofPattern("hh:mm a")
+        }
+
+        timeFormatter.format(localDateTime)
+    } else {
+        ""
+    }
+
+    return "${formattedDate.trim()} ${formattedTime.trim()}".trim()
 }
 
-fun Date.toSystemString(): String {
-    val systemLocale = System.getProperty("user.language")
-    val locale = Locale(systemLocale)
-    val sdf = DateFormat.getDateInstance(DateFormat.MEDIUM, locale)
-
-    return sdf.format(this)
-}
-
-fun Date.toSystemDateTimeString(): String {
-    val systemLocale = System.getProperty("user.language")
-    val locale = Locale(systemLocale)
-    val sdf = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale)
-
-    return sdf.format(this)
+private fun LocalDate.isTodayOrYesterday(
+    currentTime: LocalDate,
+): Boolean {
+    return this.year == currentTime.year &&
+            this.month == currentTime.month &&
+            this.dayOfMonth in (currentTime.dayOfMonth - 1)..currentTime.dayOfMonth
 }
