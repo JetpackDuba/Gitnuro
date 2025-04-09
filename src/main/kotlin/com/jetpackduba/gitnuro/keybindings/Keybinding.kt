@@ -166,6 +166,7 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
 
     macBindings.apply {
         val keysToReplaceControlWithCommand = listOf(
+            KeybindingOption.TEXT_ACCEPT,
             KeybindingOption.REFRESH,
             KeybindingOption.PULL,
             KeybindingOption.PUSH,
@@ -175,6 +176,9 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
             KeybindingOption.OPEN_REPOSITORY,
             KeybindingOption.OPEN_NEW_TAB,
             KeybindingOption.CLOSE_CURRENT_TAB,
+            KeybindingOption.CHANGE_CURRENT_TAB_RIGHT,
+            KeybindingOption.CHANGE_CURRENT_TAB_LEFT,
+            KeybindingOption.SETTINGS,
         )
 
         for (key in keysToReplaceControlWithCommand) {
