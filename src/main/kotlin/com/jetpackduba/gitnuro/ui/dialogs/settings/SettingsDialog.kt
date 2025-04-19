@@ -386,6 +386,7 @@ fun Logs(settingsViewModel: SettingsViewModel) {
 @Composable
 private fun Branches(settingsViewModel: SettingsViewModel) {
     val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
+    val mergeAutoStash by settingsViewModel.mergeAutoStashFlow.collectAsState()
 
     SettingToggle(
         title = "Fast-forward merge",
@@ -393,6 +394,15 @@ private fun Branches(settingsViewModel: SettingsViewModel) {
         value = ffMerge,
         onValueChanged = { value ->
             settingsViewModel.ffMerge = value
+        }
+    )
+
+    SettingToggle(
+        title = "Automatically stash uncommitted changes before merge",
+        subtitle = "To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes",
+        value = mergeAutoStash,
+        onValueChanged = { value ->
+            settingsViewModel.mergeAutoStash = value
         }
     )
 }

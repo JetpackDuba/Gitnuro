@@ -77,4 +77,8 @@
     <string name="uncommited_changes_primary_button_skip">Skip</string>
     <string name="uncommited_changes_secondary_button_abort">Abort</string>
     <string name="uncommited_changes_amend_check">Amend previous commit</string>
+
+    <!-- Merge automatic stash -->
+    <string name="merge_automatic_stash_description">Automatic stash before merge of "%1$s" to "%2$s"</string>
+    <string name="pull_with_merge_automatic_stash_description">Automatic stash before pull of "%1$s"</string>
 </resources>
