@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.foundation.text.selection.DisableSelection
@@ -23,15 +24,13 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.isSecondary
-import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.unit.*
+import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -76,44 +75,43 @@ fun DropDownMenu(showIcons: Boolean = true, items: () -> List<ContextMenuElement
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenuElement>): Modifier {
-    val (mouseEvent, setMouseEvent) = remember { mutableStateOf<MouseEvent?>(null) }
+    val (mouseOffset, setMouseOffset) = remember { mutableStateOf<Offset?>(null) }
+    val (elementPosition, setElementPosition) = remember { mutableStateOf<Offset?>(null) }
 
-    val modifier = this.pointerInput(enabled) {
-        awaitPointerEventScope {
-            while (true) {
-                val lastPointerEvent = awaitFirstDownEvent()
-                val lastMouseEvent = lastPointerEvent.awtEventOrNull
+    val modifier = this
+        .onGloballyPositioned { layoutCoordinates ->
+            val offsetToRoot = layoutCoordinates.localToRoot(Offset.Zero)
+            setElementPosition(offsetToRoot)
+        }
+        .pointerInput(items, enabled) {
+            awaitEachGesture {
+                val event = awaitEventFirstDown()
 
-                if (lastMouseEvent != null && enabled) {
-                    if (lastPointerEvent.button.isSecondary) {
-                        lastPointerEvent.changes.forEach {
-                            it.consume()
-                        }
+                if (enabled && event.buttons.isSecondaryPressed) {
+                    println("Secondary is pressed")
+                    val currentCheck = System.currentTimeMillis()
 
-                        val currentCheck = System.currentTimeMillis()
-                        if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {
-                            println("Popup ignored!")
-                        } else {
-                            lastCheck = currentCheck
-
-                            setMouseEvent(lastMouseEvent)
-                        }
+                    if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {
+                        println("Popup ignored!")
+                    } else {
+                        lastCheck = currentCheck
+                        event.changes.forEach { it.consume() }
+                        setMouseOffset(event.changes[0].position)
                     }
                 }
             }
         }
-    }
 
-    if (mouseEvent != null) {
+    if (mouseOffset != null && elementPosition != null) {
         val contextMenuElements = items()
         if (contextMenuElements.isNotEmpty()) {
             DisableSelection {
                 showPopup(
                     showIcons = true,
-                    x = mouseEvent.x,
-                    y = mouseEvent.y,
+                    x = (elementPosition.x + mouseOffset.x).toInt(),
+                    y = (elementPosition.y + mouseOffset.y).toInt(),
                     contextMenuElements = contextMenuElements,
-                    onDismissRequest = { setMouseEvent(null) },
+                    onDismissRequest = { setMouseOffset(null) },
                 )
             }
         }
@@ -121,6 +119,17 @@ private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenu
 
     return modifier
 }
+
+private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
+    var event: PointerEvent
+    do {
+        event = awaitPointerEvent()
+    } while (
+        !event.changes.fastAll { it.changedToDown() }
+    )
+    return event
+}
+
 
 @Composable
 private fun Modifier.dropdownMenu(showIcons: Boolean, items: () -> List<ContextMenuElement>): Modifier {
@@ -268,7 +277,7 @@ fun TextEntry(
                 contextTextEntry.onClick()
             }
             .pointerHoverIcon(PointerIcon.Default)
-            .padding(horizontal = if(showIcons) 8.dp else 12.dp, vertical = 8.dp),
+            .padding(horizontal = if (showIcons) 8.dp else 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (showIcons) {
