@@ -19,8 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: nightly
       - run: cargo install cargo-kotars --git https://github.com/JetpackDuba/kotars
       - name: Set up JDK 17
         uses: actions/setup-java@v3
