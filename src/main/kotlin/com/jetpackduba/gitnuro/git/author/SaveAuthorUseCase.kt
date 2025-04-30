@@ -18,6 +18,7 @@ class SaveAuthorUseCase @Inject constructor() {
             val canonicalConfigFile = globalConfig.file.canonicalFile
             val globalRepoConfig = FileBasedConfig(canonicalConfigFile, git.repository.fs)
 
+            globalRepoConfig.load()
             globalRepoConfig.setStringProperty("user", null, "name", newAuthorInfo.globalName)
             globalRepoConfig.setStringProperty("user", null, "email", newAuthorInfo.globalEmail)
             globalRepoConfig.save()
