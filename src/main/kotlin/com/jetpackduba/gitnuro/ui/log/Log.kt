@@ -1016,15 +1016,19 @@ fun CommitMessage(
             overflow = TextOverflow.Ellipsis,
         )
 
-        TooltipText(
-            text = commit.authorIdent.whenAsInstant.toSmartSystemString(),
+        InstantTooltip(
+            text = commit.authorIdent.whenAsInstant.toSmartSystemString(allowRelative = false, showTime = true),
             modifier = Modifier.padding(horizontal = 16.dp),
-            style = MaterialTheme.typography.caption,
-            color = MaterialTheme.colors.onBackgroundSecondary,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            tooltipTitle = commit.authorIdent.whenAsInstant.toSmartSystemString(allowRelative = false, showTime = true)
-        )
+            position = InstantTooltipPosition.RIGHT,
+        ) {
+            Text(
+                text = commit.authorIdent.whenAsInstant.toSmartSystemString(),
+                style = MaterialTheme.typography.caption,
+                color = MaterialTheme.colors.onBackgroundSecondary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
