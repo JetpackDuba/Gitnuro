@@ -60,10 +60,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
-import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
-import com.jetpackduba.gitnuro.viewmodels.LogSearch
-import com.jetpackduba.gitnuro.viewmodels.LogStatus
-import com.jetpackduba.gitnuro.viewmodels.LogViewModel
+import com.jetpackduba.gitnuro.viewmodels.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
@@ -96,7 +93,7 @@ private const val DIVIDER_WIDTH = 8
 
 private const val LOG_BOTTOM_PADDING = 80
 
-private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = 100
+private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = INCREMENTAL_COMMITS_LOAD
 
 private const val TAG = "LogView"
 

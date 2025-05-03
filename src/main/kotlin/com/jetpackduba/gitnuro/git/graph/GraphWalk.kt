@@ -15,6 +15,7 @@ import java.io.IOException
 class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
     private var additionalRefMap: MutableMap<AnyObjectId, Set<Ref>>? = HashMap()
     private var reverseRefMap: MutableMap<AnyObjectId, Set<Ref>>? = null
+    private var stashes = emptySet<AnyObjectId>()
 
     init {
         super.sort(RevSort.TOPO, true)
@@ -45,17 +46,18 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         return GraphNode(id)
     }
 
-    override fun next(): RevCommit? {
+    override fun next(): GraphNode? {
         val graphNode = super.next() as GraphNode?
 
         if (graphNode != null) {
             val refs = getRefs(graphNode)
-
-            graphNode.isStash = refs.count() == 1 && refs.firstOrNull()?.name == "refs/stash"
             graphNode.refs = refs
+
+            graphNode.isStash = stashes.contains(graphNode)
         }
 
         return graphNode
+
     }
 
     private fun getRefs(commitId: AnyObjectId): List<Ref> {
@@ -102,14 +104,14 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         repository?.let { repo ->
             for (ref in repo.refDatabase.getRefsByPrefix(prefix)) {
                 if (ref.isSymbolic) continue
-                markStartRef(ref)
+                markStartObjectId(ref.leaf.objectId)
             }
         }
     }
 
-    private fun markStartRef(ref: Ref) {
+    private fun markStartObjectId(objectId: AnyObjectId) {
         try {
-            val refTarget = parseAny(ref.leaf.objectId)
+            val refTarget = parseAny(objectId)
 
             when (refTarget) {
                 is RevCommit -> markStart(refTarget)
@@ -126,6 +128,17 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         } catch (e: MissingObjectException) {
             // Ignore missing Refs
         }
+    }
+
+    fun markStartStashes(stashList: List<RevCommit>) {
+        for (stash in stashList) {
+            markStartObjectId(stash)
+        }
+
+        this.stashes = stashList
+            .asSequence()
+            .map { it.toObjectId() }
+            .toSet()
     }
 
     internal inner class GraphRefComparator : Comparator<Ref> {

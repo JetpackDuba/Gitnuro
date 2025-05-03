@@ -1,11 +1,7 @@
 package com.jetpackduba.gitnuro.git.graph
 
-import org.eclipse.jgit.internal.JGitText
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.revwalk.RevCommit
-import org.eclipse.jgit.revwalk.RevCommitList
-import org.eclipse.jgit.revwalk.RevWalk
-import java.text.MessageFormat
 import java.util.*
 
 /**
@@ -21,10 +17,17 @@ import java.util.*
  *
  * type of lane used by the application.
 </L> */
-class GraphCommitList : RevCommitList<GraphNode>() {
+class GraphCommitList(
+    private val commits: MutableList<GraphNode> = mutableListOf(),
+) : MutableList<GraphNode> by commits {
+    var walker: GraphWalk? = null
     private var positionsAllocated = 0
     private val freePositions = TreeSet<Int>()
     private val activeLanes = HashSet<GraphLane>(32)
+
+    private var parentId: AnyObjectId? = null
+
+    private val graphCommit = UncommittedChangesGraphNode()
 
     var maxLine = 0
         private set
@@ -35,34 +38,48 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     )
 
     override fun clear() {
-        super.clear()
         positionsAllocated = 0
         freePositions.clear()
         activeLanes.clear()
         laneLength.clear()
+        commits.clear()
     }
 
-    override fun source(revWalk: RevWalk) {
-        if (revWalk !is GraphWalk) throw ClassCastException(
-            MessageFormat.format(
-                JGitText.get().classCastNotA,
-                GraphWalk::class.java.name
-            )
-        )
+    fun fillTo(highMark: Int) {
+        if (this.size <= highMark) {
+            var c: GraphNode? = null
 
-        super.source(revWalk)
+            do {
+                c = this.walker?.next()
+
+                if (c != null) {
+                    val stashChild = c.children.firstOrNull { it.isStash }
+
+                    if (
+                        stashChild == null ||
+                        (
+                                stashChild.parentCount > 0 &&
+                                        stashChild.parents[0] == c
+                                )
+                    ) {
+                        this.enter(this.size, c)
+                        this.add(c)
+                    }
+                }
+            } while (c != null && size <= highMark)
+
+            if (c == null) {
+                this.walker = null
+            }
+        }
     }
-
-    private var parentId: AnyObjectId? = null
-
-    private val graphCommit = UncommittedChangesGraphNode()
 
     fun addUncommittedChangesGraphCommit(parent: RevCommit) {
         parentId = parent.id
         graphCommit.lane = nextFreeLane()
     }
 
-    override fun enter(index: Int, currCommit: GraphNode) {
+    fun enter(index: Int, currCommit: GraphNode) {
         var isUncommittedChangesNodeParent = false
         if (currCommit.id == parentId) {
             graphCommit.graphParent = currCommit
@@ -113,19 +130,18 @@ class GraphCommitList : RevCommitList<GraphNode>() {
                 }
             } else {
                 val children = currCommit.children.sortedBy { it.lane.position }
-                for (i in 0 until nChildren) {
-                    val c: GraphNode = children[i]
-                    if (c.getGraphParent(0) === currCommit) {
-                        if (c.lane.position < 0)
-                            println("c.lane.position is invalid (${c.lane.position})")
+                for (child in children) {
+                    if (child.getGraphParent(0) === currCommit) {
+                        if (child.lane.position < 0)
+                            println("child.lane.position is invalid (${child.lane.position})")
 
-                        val length = laneLength[c.lane]
+                        val length = laneLength[child.lane]
 
                         // we may be the first parent for multiple lines of
                         // development, try to continue the longest one
                         if (length != null && length > lengthOfReservedLane) {
-                            reservedLane = c.lane
-                            childOnReservedLane = c
+                            reservedLane = child.lane
+                            childOnReservedLane = child
                             lengthOfReservedLane = length
 
                             break
@@ -156,9 +172,17 @@ class GraphCommitList : RevCommitList<GraphNode>() {
 
         continueActiveLanes(currCommit)
 
-        if (currCommit.parentCount == 0 && currCommit.lane.position == INVALID_LANE_POSITION)
+        if (currCommit.parentCount == 0 && currCommit.lane.position == INVALID_LANE_POSITION) {
             closeLane(currCommit.lane)
+        }
 
+        if (
+            currCommit.childCount == 1 &&
+            currCommit.children.first().isStash &&
+            currCommit.parentCount == 0
+        ) {
+            closeLane(currCommit.lane)
+        }
     }
 
     private fun continueActiveLanes(currCommit: GraphNode) {
@@ -182,7 +206,8 @@ class GraphCommitList : RevCommitList<GraphNode>() {
      * the lane
      */
     private fun handleBlockedLanes(
-        index: Int, currentNode: GraphNode,
+        index: Int,
+        currentNode: GraphNode,
         childOnLane: GraphNode?,
     ) {
         for (child in currentNode.children) {
@@ -211,8 +236,11 @@ class GraphCommitList : RevCommitList<GraphNode>() {
 
     // Handles the case where currCommit is a non-first parent of the child
     private fun handleMerge(
-        index: Int, currCommit: GraphNode,
-        childOnLane: GraphNode?, child: GraphNode, laneToUse: GraphLane,
+        index: Int,
+        currCommit: GraphNode,
+        childOnLane: GraphNode?,
+        child: GraphNode,
+        laneToUse: GraphLane,
     ): GraphLane {
 
         // find all blocked positions between currCommit and this child
@@ -302,8 +330,9 @@ class GraphCommitList : RevCommitList<GraphNode>() {
     }
 
     private fun setupChildren(currCommit: GraphNode) {
-        val nParents = currCommit.parentCount
-        for (i in 0 until nParents) (currCommit.getParent(i) as GraphNode).addChild(currCommit)
+        for (parent in currCommit.parents) {
+            (parent as GraphNode).addChild(currCommit)
+        }
     }
 
     private fun nextFreeLane(blockedPositions: BitSet? = null): GraphLane {
