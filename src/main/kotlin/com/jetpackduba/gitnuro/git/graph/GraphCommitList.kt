@@ -57,10 +57,7 @@ class GraphCommitList(
 
                     if (
                         stashChild == null ||
-                        (
-                                stashChild.parentCount > 0 &&
-                                        stashChild.parents[0] == c
-                                )
+                        stashChild.parents.firstOrNull() == c
                     ) {
                         this.enter(this.size, c)
                         this.add(c)

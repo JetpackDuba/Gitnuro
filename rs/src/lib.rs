@@ -153,6 +153,7 @@ fn remove_temporary_files(changes: &mut HashMap<String, Vec<EventKind>>) -> Vec<
     let paths: Vec<String> = changes
         .iter()
         .filter_map(|(key, value)| {
+            // TODO If a file was removed and then created, then it shouldn't be marked as temporary file
             let is_created = value.iter().any(|v| matches!(v, EventKind::Create(_)));
             let is_removed = value.iter().any(|v| matches!(v, EventKind::Remove(_)));
 
