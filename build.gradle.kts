@@ -17,7 +17,7 @@ plugins {
 }
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "1.5.0-beta02"
+val projectVersion = "1.5.0-rc01"
 
 val projectName = "Gitnuro"
 
