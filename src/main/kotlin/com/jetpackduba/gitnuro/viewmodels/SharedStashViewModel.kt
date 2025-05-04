@@ -49,7 +49,7 @@ class SharedStashViewModel @Inject constructor(
     }
 
     override fun deleteStash(stash: RevCommit) = tabState.safeProcessing(
-        refreshType = RefreshType.STASHES,
+        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.DELETE_STASH,
     ) { git ->
         deleteStashUseCase(git, stash)
