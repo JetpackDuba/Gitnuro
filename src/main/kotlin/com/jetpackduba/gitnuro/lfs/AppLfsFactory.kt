@@ -288,7 +288,9 @@ class LfsPrePushHook @AssistedInject constructor(
                 is Result.Err -> throw LfsException("Gettings LFS objects failed with error: ${lfsObjects.error}")
                 is Result.Ok -> {
                     for (p in toPush) {
-                        lfsObjects.value.objects.forEach { lfsObject ->
+                        val lfsObject = lfsObjects.value.objects.firstOrNull { it.oid == p.oid.name() }
+
+                        if (lfsObject != null) {
                             val uploadResult = uploadLfsObjectUseCase(
                                 lfsServerUrl = finalServerUrl,
                                 lfsObject = lfsObject,

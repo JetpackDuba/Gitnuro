@@ -88,7 +88,6 @@ private fun Modifier.contextMenu(enabled: Boolean, items: () -> List<ContextMenu
                 val event = awaitEventFirstDown()
 
                 if (enabled && event.buttons.isSecondaryPressed) {
-                    println("Secondary is pressed")
                     val currentCheck = System.currentTimeMillis()
 
                     if (lastCheck != 0L && currentCheck - lastCheck < MIN_TIME_BETWEEN_POPUPS_IN_MS) {

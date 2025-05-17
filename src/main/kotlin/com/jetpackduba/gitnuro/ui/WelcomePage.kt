@@ -457,8 +457,9 @@ fun RecentRepositoriesList(
                             .padding(horizontal = 16.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                             modifier = Modifier.weight(1f),
                         ) {
                             Text(
@@ -471,7 +472,11 @@ fun RecentRepositoriesList(
                             )
 
                             Text(
-                                text = repoDirPath,
+                                text = if (repoDirPath.startsWith(System.getProperty("user.home"))) {
+                                    "~${repoDirPath.removePrefix(System.getProperty("user.home"))}"
+                                } else {
+                                    repoDirPath
+                                },
                                 style = MaterialTheme.typography.body2,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier,
