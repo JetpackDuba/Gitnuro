@@ -347,7 +347,7 @@ private fun CommitField(
 fun ColumnScope.StagedView(
     stageStateUi: StageStateUi.Loaded,
     showSearchUnstaged: Boolean,
-    searchFilterUnstaged: TextFieldValue,
+    searchFilterStaged: TextFieldValue,
     stagedListState: LazyListState,
     selectedEntryType: DiffType?,
     onSearchFilterToggled: (Boolean) -> Unit,
@@ -381,7 +381,7 @@ fun ColumnScope.StagedView(
         entryType = EntryType.STAGED,
         stageStateUi = stageStateUi,
         showSearchUnstaged = showSearchUnstaged,
-        searchFilterUnstaged = searchFilterUnstaged,
+        searchFilterUnstaged = searchFilterStaged,
         listState = stagedListState,
         selectedEntryType = selectedEntryType,
         onSearchFilterToggled = onSearchFilterToggled,
@@ -397,8 +397,20 @@ fun ColumnScope.StagedView(
         onAlternateShowAsTree = onAlternateShowAsTree,
         onTreeDirectoryClicked = onTreeDirectoryClicked,
         onTreeDirectoryAction = onTreeDirectoryAction,
-        onTreeEntries = { it.staged },
-        onListEntries = { it.staged },
+        onTreeEntries = {
+            if (searchFilterStaged.text.trim().isEmpty()) {
+                it.staged
+            } else {
+                it.filteredStaged
+            }
+        },
+        onListEntries = {
+            if (searchFilterStaged.text.trim().isEmpty()) {
+                it.staged
+            } else {
+                it.filteredStaged
+            }
+        },
         onGetSelectedEntry = { if (selectedEntryType is DiffType.StagedDiff) selectedEntryType else null },
     )
 }
@@ -457,8 +469,20 @@ fun ColumnScope.UnstagedView(
         onAlternateShowAsTree = onAlternateShowAsTree,
         onTreeDirectoryClicked = onTreeDirectoryClicked,
         onTreeDirectoryAction = onTreeDirectoryAction,
-        onTreeEntries = { it.unstaged },
-        onListEntries = { it.unstaged },
+        onTreeEntries = {
+            if (searchFilterUnstaged.text.trim().isEmpty()) {
+                it.unstaged
+            } else {
+                it.filteredUnstaged
+            }
+        },
+        onListEntries = {
+            if (searchFilterUnstaged.text.trim().isEmpty()) {
+                it.unstaged
+            } else {
+                it.filteredUnstaged
+            }
+        },
         onGetSelectedEntry = { if (selectedEntryType is DiffType.UnstagedDiff) selectedEntryType else null },
     )
 }

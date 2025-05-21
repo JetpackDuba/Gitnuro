@@ -101,7 +101,7 @@ class StatusViewModel @Inject constructor(
                 state.staged
             }.prioritizeConflicts()
 
-            state.copy(staged = staged, unstaged = unstaged)
+            state.copy(filteredStaged = staged, filteredUnstaged = unstaged)
 
         } else {
             state
@@ -128,12 +128,19 @@ class StatusViewModel @Inject constructor(
                             stageStateFiltered.unstaged,
                             contractedDirectories
                         ) { it.filePath },
+                        filteredStaged = entriesToTreeEntry(stageStateFiltered.filteredStaged, contractedDirectories) { it.filePath },
+                        filteredUnstaged = entriesToTreeEntry(
+                            stageStateFiltered.filteredUnstaged,
+                            contractedDirectories
+                        ) { it.filePath },
                         isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
                     )
                 } else {
                     StageStateUi.ListLoaded(
                         staged = stageStateFiltered.staged,
                         unstaged = stageStateFiltered.unstaged,
+                        filteredStaged = stageStateFiltered.filteredStaged,
+                        filteredUnstaged = stageStateFiltered.filteredUnstaged,
                         isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
                     )
                 }
@@ -310,7 +317,9 @@ class StatusViewModel @Inject constructor(
 
                 _stageState.value = StageState.Loaded(
                     staged = staged,
+                    filteredStaged = staged,
                     unstaged = unstaged,
+                    filteredUnstaged = unstaged,
                     isPartiallyReloading = false,
                 )
             }
@@ -610,7 +619,9 @@ sealed interface StageState {
     data object Loading : StageState
     data class Loaded(
         val staged: List<StatusEntry>,
+        val filteredStaged: List<StatusEntry>,
         val unstaged: List<StatusEntry>,
+        val filteredUnstaged: List<StatusEntry>,
         val isPartiallyReloading: Boolean,
     ) : StageState
 }
@@ -637,7 +648,9 @@ sealed interface StageStateUi {
 
     data class TreeLoaded(
         val staged: List<TreeItem<StatusEntry>>,
+        val filteredStaged: List<TreeItem<StatusEntry>>,
         val unstaged: List<TreeItem<StatusEntry>>,
+        val filteredUnstaged: List<TreeItem<StatusEntry>>,
         val isPartiallyReloading: Boolean,
     ) : Loaded {
 
@@ -651,7 +664,9 @@ sealed interface StageStateUi {
 
     data class ListLoaded(
         val staged: List<StatusEntry>,
+        val filteredStaged: List<StatusEntry>,
         val unstaged: List<StatusEntry>,
+        val filteredUnstaged: List<StatusEntry>,
         val isPartiallyReloading: Boolean,
     ) : Loaded {
         override val hasStagedFiles: Boolean = staged.isNotEmpty()
