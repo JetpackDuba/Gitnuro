@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.res.useResource
 import com.jetpackduba.gitnuro.extensions.acquireAndUse
 import com.jetpackduba.gitnuro.extensions.toByteArray
+import com.jetpackduba.gitnuro.logging.printLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
@@ -51,6 +52,10 @@ object NetworkImageLoader {
     }
 
     suspend fun loadImage(link: String): ByteArray = withContext(Dispatchers.IO) {
+        // Network access can be considered somewhat surprising for a repository-browser
+        // Don't be shy about admitting the work we do.
+        printLog("NET", "loading image from $link")
+
         val url = URL(link)
         val connection = url.openConnection() as HttpURLConnection
         connection.connect()
