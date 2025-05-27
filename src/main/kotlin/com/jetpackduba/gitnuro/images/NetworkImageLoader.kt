@@ -15,9 +15,13 @@ import java.io.FileNotFoundException
 import java.net.HttpURLConnection
 import java.net.URL
 
-private const val MAX_LOADING_IMAGES = 3
-
 object NetworkImageLoader {
+    // FIXME: Keep this at 1, until we fix locking per-URL
+    // Above 1, the URL-fetch in the critical section will race with itself,
+    // because multiple fetches will be queued while the first image is still being put
+    // into the cache.
+    private const val MAX_LOADING_IMAGES = 1
+
     private val loadingImagesSemaphore = Semaphore(MAX_LOADING_IMAGES)
     private val cache: ImagesCache = InMemoryImagesCache
 
@@ -31,10 +35,19 @@ object NetworkImageLoader {
         try {
             val cachedImage = loadCachedImage(url)
 
-            if (cachedImage != null)
+            if (cachedImage != null) {
                 return@withContext cachedImage
+            }
 
             loadingImagesSemaphore.acquireAndUse {
+                // re-try cache; perhaps another coroutine found the same image
+                // while we were waiting to acquire the semaphore
+                val retryCachedImage = loadCachedImage(url)
+                if (retryCachedImage != null) {
+                    printLog("NET", "found image $url on retry");
+                    return@withContext retryCachedImage
+                }
+
                 val imageByteArray = loadImage(url)
                 cache.cacheImage(url, imageByteArray)
                 return@withContext imageByteArray.toComposeImage()
@@ -105,4 +118,8 @@ fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null)
 fun ByteArray.toComposeImage() = Image.makeFromEncoded(this).toComposeImageBitmap()
 
 
-internal class ValueHolder<T>(var value: T)
+internal class ValueHolder<T>(var value: T) {
+    override fun toString(): String {
+        return value.toString()
+    }
+}
