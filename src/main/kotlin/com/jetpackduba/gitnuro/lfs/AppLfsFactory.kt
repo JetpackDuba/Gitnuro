@@ -189,17 +189,20 @@ class LfsPrePushHook @AssistedInject constructor(
     }
 
     private fun findLfsPointers(toPush: MutableSet<LfsPointer>, walk: ObjectWalk) {
-        var obj: RevObject
+        var obj: RevObject?
         val r = walk.objectReader
-        while ((walk.nextObject().also { obj = it }) != null) {
-            if (obj.type == Constants.OBJ_BLOB
-                && getObjectSize(r, obj) < LfsPointer.SIZE_THRESHOLD
-            ) {
+
+        obj = walk.nextObject()
+
+        while (obj != null) {
+            if (obj.type == Constants.OBJ_BLOB && getObjectSize(r, obj) < LfsPointer.SIZE_THRESHOLD) {
                 val ptr = loadLfsPointer(r, obj)
                 if (ptr != null) {
                     toPush.add(ptr)
                 }
             }
+
+            obj = walk.nextObject()
         }
     }
 
