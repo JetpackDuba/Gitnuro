@@ -15,6 +15,7 @@ kotlin-logging = "7.0.7"
 slf4j = "2.0.17"
 bouncycastle = "1.81"
 ktor = "3.2.2"
+coil = "3.3.0"
 
 
 [libraries]
@@ -46,6 +47,8 @@ ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-conte
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
 
+coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil3-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 [plugins]
 
