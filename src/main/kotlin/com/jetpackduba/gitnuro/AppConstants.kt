@@ -16,7 +16,6 @@ object AppConstants {
             apache__2_0
         ),
         Project("Mockk", "https://mockk.io/", apache__2_0),
-        Project("Retrofit2", "https://square.github.io/retrofit/", apache__2_0),
         Project("LibSSH", "libssh.org/", lgpl__2_1),
     )
 
