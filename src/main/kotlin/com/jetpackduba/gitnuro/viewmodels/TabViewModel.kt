@@ -173,7 +173,6 @@ class TabViewModel @Inject constructor(
     }
 
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
-        .stateIn(tabScope, started = SharingStarted.Eagerly, null)
 
     fun cancelOngoingTask() {
         tabState.cancelCurrentTask()

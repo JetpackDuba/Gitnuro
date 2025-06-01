@@ -258,7 +258,6 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
-        .stateIn(tabScope, started = SharingStarted.Eagerly, null)
 
     fun blameFile(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,

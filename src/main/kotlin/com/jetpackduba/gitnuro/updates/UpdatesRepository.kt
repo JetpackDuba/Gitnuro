@@ -1,8 +1,15 @@
 package com.jetpackduba.gitnuro.updates
 
 import com.jetpackduba.gitnuro.AppConstants
+import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -16,12 +23,15 @@ private val updateJson = Json {
 
 @Singleton
 class UpdatesRepository @Inject constructor(
-    private val updatesWebService: UpdatesService,
+    private val httpClient: HttpClient,
+    @AppCoroutineScope private val appCoroutineScope: CoroutineScope,
 ) {
     val hasUpdatesFlow = flow {
-        val latestReleaseJson = updatesWebService.release(AppConstants.VERSION_CHECK_URL)
-
         while (coroutineContext.isActive) {
+            val latestReleaseJson = httpClient
+                .get(AppConstants.VERSION_CHECK_URL)
+                .body<String>()
+
             val update = updateJson.decodeFromString<Update?>(latestReleaseJson)
 
             if (update != null && update.appCode > AppConstants.APP_VERSION_CODE) {
@@ -30,5 +40,5 @@ class UpdatesRepository @Inject constructor(
 
             delay(5.minutes)
         }
-    }
+    }.stateIn(appCoroutineScope, started = SharingStarted.Eagerly, null)
 }
