@@ -1087,7 +1087,7 @@ fun CommitsGraph(
                         color = colors[itemPosition % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), 0f),
-                        strokeWidth = 2f,
+                        strokeWidth = 2f * density,
                     )
                 }
 
@@ -1096,7 +1096,7 @@ fun CommitsGraph(
                         color = colors[plotLane.position % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
-                        strokeWidth = 2f,
+                        strokeWidth = 2f * density,
                     )
                 }
 
@@ -1105,7 +1105,7 @@ fun CommitsGraph(
                         color = colors[plotLane.position % colors.size],
                         start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        strokeWidth = 2f,
+                        strokeWidth = 2f * density,
                     )
                 }
 
@@ -1114,7 +1114,7 @@ fun CommitsGraph(
                         color = colors[itemPosition % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), this.size.height),
-                        strokeWidth = 2f,
+                        strokeWidth = 2f * density,
                     )
                 }
 
@@ -1123,7 +1123,7 @@ fun CommitsGraph(
                         color = colors[plotLane.position % colors.size],
                         start = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
                         end = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
-                        strokeWidth = 2f,
+                        strokeWidth = 2f * density,
                     )
                 }
             }
@@ -1206,7 +1206,7 @@ fun UncommittedChangesGraphNode(
                     color = colors[0],
                     start = Offset(laneWidthWithDensity, this.center.y),
                     end = Offset(laneWidthWithDensity, this.size.height),
-                    strokeWidth = 2f,
+                    strokeWidth = 2f * density,
                 )
 
                 drawCircle(
@@ -1267,7 +1267,12 @@ fun BranchChip(
     }
 
     RefChip(
-        modifier = modifier,
+        modifier = modifier.draggable(
+            rememberDraggableState {
+
+            },
+            orientation = Orientation.Vertical,
+        ),
         color = color,
         ref = ref,
         icon = Res.drawable.branch,
