@@ -68,6 +68,8 @@ fun branchContextMenuItems(
                     onClick = onPullFromRemoteBranch
                 )
             )
+
+            add(ContextMenuElement.ContextSeparator)
         }
 
         if (isLocal) {
@@ -77,6 +79,8 @@ fun branchContextMenuItems(
                     onClick = onChangeDefaultUpstreamBranch
                 ),
             )
+
+            add(ContextMenuElement.ContextSeparator)
         }
 
         if (!isLocal) {
@@ -87,6 +91,8 @@ fun branchContextMenuItems(
                     onClick = onDeleteRemoteBranch
                 ),
             )
+
+            add(ContextMenuElement.ContextSeparator)
         }
 
         if (isLocal && !isCurrentBranch) {
@@ -97,6 +103,8 @@ fun branchContextMenuItems(
                     onClick = onDeleteBranch
                 )
             )
+
+            add(ContextMenuElement.ContextSeparator)
         }
 
         add(
