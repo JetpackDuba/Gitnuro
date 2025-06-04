@@ -61,6 +61,7 @@ val settings = listOf(
     SettingsEntry.Entry(Res.drawable.layout, "Layout") { Layout(it) },
     SettingsEntry.Entry(Res.drawable.schedule, "Date/Time") { DateTime(it) },
     SettingsEntry.Section("GIT"),
+    SettingsEntry.Entry(Res.drawable.folder, "Environment") { Environment(it) },
     SettingsEntry.Entry(Res.drawable.branch, "Branches") { Branches(it) },
     SettingsEntry.Entry(Res.drawable.cloud, "Remote actions") { RemoteActions(it) },
 
@@ -382,6 +383,21 @@ fun Logs(settingsViewModel: SettingsViewModel) {
     )
 }
 
+
+@Composable
+private fun Environment(settingsViewModel: SettingsViewModel) {
+    var defaultCloneDir by remember { mutableStateOf(settingsViewModel.defaultCloneDir) }
+
+    SettingTextInput(
+        title = "Default Clone Directory",
+        subtitle = "Directory that will be used as default when cloning a repository",
+        value = defaultCloneDir,
+        onValueChanged = { value ->
+            defaultCloneDir = value
+            settingsViewModel.defaultCloneDir = value
+        },
+    )
+}
 
 @Composable
 private fun Branches(settingsViewModel: SettingsViewModel) {
