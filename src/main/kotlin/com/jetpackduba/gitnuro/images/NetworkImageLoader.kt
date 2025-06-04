@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.res.useResource
 import com.jetpackduba.gitnuro.extensions.acquireAndUse
 import com.jetpackduba.gitnuro.extensions.toByteArray
+import com.jetpackduba.gitnuro.logging.printLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.withContext
@@ -14,9 +15,13 @@ import java.io.FileNotFoundException
 import java.net.HttpURLConnection
 import java.net.URL
 
-private const val MAX_LOADING_IMAGES = 3
-
 object NetworkImageLoader {
+    // FIXME: Keep this at 1, until we fix locking per-URL
+    // Above 1, the URL-fetch in the critical section will race with itself,
+    // because multiple fetches will be queued while the first image is still being put
+    // into the cache.
+    private const val MAX_LOADING_IMAGES = 1
+
     private val loadingImagesSemaphore = Semaphore(MAX_LOADING_IMAGES)
     private val cache: ImagesCache = InMemoryImagesCache
 
@@ -30,10 +35,19 @@ object NetworkImageLoader {
         try {
             val cachedImage = loadCachedImage(url)
 
-            if (cachedImage != null)
+            if (cachedImage != null) {
                 return@withContext cachedImage
+            }
 
             loadingImagesSemaphore.acquireAndUse {
+                // re-try cache; perhaps another coroutine found the same image
+                // while we were waiting to acquire the semaphore
+                val retryCachedImage = loadCachedImage(url)
+                if (retryCachedImage != null) {
+                    printLog("NET", "found image $url on retry");
+                    return@withContext retryCachedImage
+                }
+
                 val imageByteArray = loadImage(url)
                 cache.cacheImage(url, imageByteArray)
                 return@withContext imageByteArray.toComposeImage()
@@ -51,6 +65,10 @@ object NetworkImageLoader {
     }
 
     suspend fun loadImage(link: String): ByteArray = withContext(Dispatchers.IO) {
+        // Network access can be considered somewhat surprising for a repository-browser
+        // Don't be shy about admitting the work we do.
+        printLog("NET", "loading image from $link")
+
         val url = URL(link)
         val connection = url.openConnection() as HttpURLConnection
         connection.connect()
@@ -100,4 +118,8 @@ fun rememberNetworkImageOrNull(url: String, placeHolderImageRes: String? = null)
 fun ByteArray.toComposeImage() = Image.makeFromEncoded(this).toComposeImageBitmap()
 
 
-internal class ValueHolder<T>(var value: T)
+internal class ValueHolder<T>(var value: T) {
+    override fun toString(): String {
+        return value.toString()
+    }
+}
