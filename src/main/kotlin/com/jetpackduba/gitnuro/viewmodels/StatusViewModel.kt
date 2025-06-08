@@ -28,10 +28,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState
+import java.awt.Desktop
 import java.io.File
+import java.util.*
 import javax.inject.Inject
 
 private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
@@ -128,7 +131,10 @@ class StatusViewModel @Inject constructor(
                             stageStateFiltered.unstaged,
                             contractedDirectories
                         ) { it.filePath },
-                        filteredStaged = entriesToTreeEntry(stageStateFiltered.filteredStaged, contractedDirectories) { it.filePath },
+                        filteredStaged = entriesToTreeEntry(
+                            stageStateFiltered.filteredStaged,
+                            contractedDirectories
+                        ) { it.filePath },
                         filteredUnstaged = entriesToTreeEntry(
                             stageStateFiltered.filteredUnstaged,
                             contractedDirectories
@@ -507,6 +513,12 @@ class StatusViewModel @Inject constructor(
         val fileToDelete = File(git.repository.workTree, path)
 
         fileToDelete.deleteRecursively()
+    }
+
+    fun openFileInFolder(folderPath: String?) = tabState.runOperation(
+        refreshType = RefreshType.UNCOMMITTED_CHANGES,
+    ) {
+        folderPath?.let { File(it).openFileInFolder() }
     }
 
     fun updateCommitMessage(message: String) {

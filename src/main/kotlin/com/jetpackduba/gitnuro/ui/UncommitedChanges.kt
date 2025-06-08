@@ -165,6 +165,7 @@ fun UncommittedChanges(
                         onHistoryFile = onHistoryFile,
                         onReset = { statusViewModel.resetStaged(it) },
                         onDelete = { statusViewModel.deleteFile(it) },
+                        onOpenFileInFolder = { statusViewModel.openFileInFolder(it) },
                         onAllAction = { statusViewModel.unstageAll() },
                         onAlternateShowAsTree = { statusViewModel.alternateShowAsTree() },
                         onTreeDirectoryClicked = { statusViewModel.stagedTreeDirectoryClicked(it) },
@@ -189,6 +190,7 @@ fun UncommittedChanges(
                         onHistoryFile = onHistoryFile,
                         onReset = { statusViewModel.resetUnstaged(it) },
                         onDelete = { statusViewModel.deleteFile(it) },
+                        onOpenFileInFolder = { statusViewModel.openFileInFolder(it) },
                         onAllAction = { statusViewModel.stageAll() },
                         onAlternateShowAsTree = { statusViewModel.alternateShowAsTree() },
                         onTreeDirectoryClicked = { statusViewModel.stagedTreeDirectoryClicked(it) },
@@ -359,6 +361,7 @@ fun ColumnScope.StagedView(
     onHistoryFile: (String) -> Unit,
     onReset: (StatusEntry) -> Unit,
     onDelete: (StatusEntry) -> Unit,
+    onOpenFileInFolder: (String?) -> Unit,
     onAllAction: () -> Unit,
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (String) -> Unit,
@@ -393,6 +396,7 @@ fun ColumnScope.StagedView(
         onHistoryFile = onHistoryFile,
         onReset = onReset,
         onDelete = onDelete,
+        onOpenFileInFolder = onOpenFileInFolder,
         onAllAction = onAllAction,
         onAlternateShowAsTree = onAlternateShowAsTree,
         onTreeDirectoryClicked = onTreeDirectoryClicked,
@@ -431,6 +435,7 @@ fun ColumnScope.UnstagedView(
     onHistoryFile: (String) -> Unit,
     onReset: (StatusEntry) -> Unit,
     onDelete: (StatusEntry) -> Unit,
+    onOpenFileInFolder: (String?) -> Unit,
     onAllAction: () -> Unit,
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (String) -> Unit,
@@ -465,6 +470,7 @@ fun ColumnScope.UnstagedView(
         onHistoryFile = onHistoryFile,
         onReset = onReset,
         onDelete = onDelete,
+        onOpenFileInFolder = onOpenFileInFolder,
         onAllAction = onAllAction,
         onAlternateShowAsTree = onAlternateShowAsTree,
         onTreeDirectoryClicked = onTreeDirectoryClicked,
@@ -512,6 +518,7 @@ fun ColumnScope.NeutralView(
     onHistoryFile: (String) -> Unit,
     onReset: (StatusEntry) -> Unit,
     onDelete: (StatusEntry) -> Unit,
+    onOpenFileInFolder: (String?) -> Unit,
     onAllAction: () -> Unit,
     onAlternateShowAsTree: () -> Unit,
     onTreeDirectoryClicked: (String) -> Unit,
@@ -548,6 +555,7 @@ fun ColumnScope.NeutralView(
                     onHistory = { onHistoryFile(statusEntry.filePath) },
                     onReset = { onReset(statusEntry) },
                     onDelete = { onDelete(statusEntry) },
+                    onOpenFileInFolder = { onOpenFileInFolder(statusEntry.parentDirectoryPath) },
                 )
             },
             onAllAction = onAllAction,
@@ -588,6 +596,7 @@ fun ColumnScope.NeutralView(
                     onHistory = { onHistoryFile(statusEntry.filePath) },
                     onReset = { onReset(statusEntry) },
                     onDelete = { onDelete(statusEntry) },
+                    onOpenFileInFolder = { onOpenFileInFolder(statusEntry.parentDirectoryPath) },
                 )
             },
             onAllAction = onAllAction,
@@ -1079,8 +1088,6 @@ fun EntriesHeader(
             )
         }
 
-
-
         if (showSearch) {
             SearchTextField(
                 searchFilter = searchFilter,
@@ -1097,7 +1104,6 @@ fun EntriesHeader(
                 requestFocus = false
             }
         }
-
     }
 }
 
