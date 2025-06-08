@@ -12,6 +12,7 @@ fun statusEntriesContextMenuItems(
     onDelete: () -> Unit = {},
     onBlame: () -> Unit,
     onHistory: () -> Unit,
+    onOpenFileInFolder: () -> Unit,
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
         if (statusEntry.statusType != StatusType.ADDED) {
@@ -54,6 +55,14 @@ fun statusEntriesContextMenuItems(
                 )
             )
         }
+
+        add(
+            ContextMenuElement.ContextTextEntry(
+                label = "Open file in folder",
+                icon = { painterResource(Res.drawable.folder_open) },
+                onClick = onOpenFileInFolder,
+            )
+        )
     }
 }
 

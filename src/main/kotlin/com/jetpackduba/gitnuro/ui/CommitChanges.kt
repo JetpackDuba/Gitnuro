@@ -87,6 +87,7 @@ fun CommitChanges(
                 commitChangesStatus = commitChangesStatus,
                 onBlame = onBlame,
                 onHistory = onHistory,
+                onOpenFileInFolder = { commitChangesViewModel.openFileInFolder(it) },
                 showSearch = showSearch,
                 showAsTree = showAsTree,
                 changesListScroll = changesListScroll,
@@ -121,6 +122,7 @@ private fun CommitChangesView(
     searchFilter: TextFieldValue,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
+    onOpenFileInFolder: (String) -> Unit,
     onDiffSelected: (DiffEntry) -> Unit,
     onSearchFilterToggled: (Boolean) -> Unit,
     onSearchFocused: () -> Unit,
@@ -167,6 +169,7 @@ private fun CommitChangesView(
                                 diffEntry,
                                 onBlame = { onBlame(diffEntry.filePath) },
                                 onHistory = { onHistory(diffEntry.filePath) },
+                                onOpenFileInFolder = { onOpenFileInFolder(diffEntry.parentDirectoryPath) },
                             )
                         }
                     )
@@ -183,6 +186,7 @@ private fun CommitChangesView(
                                 diffEntry,
                                 onBlame = { onBlame(diffEntry.filePath) },
                                 onHistory = { onHistory(diffEntry.filePath) },
+                                onOpenFileInFolder = { onOpenFileInFolder(diffEntry.parentDirectoryPath) },
                             )
                         },
                         onDirectoryClicked = onDirectoryClicked,
