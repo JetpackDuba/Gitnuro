@@ -5,8 +5,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.jetpackduba.gitnuro.extensions.icon
 import com.jetpackduba.gitnuro.extensions.iconColor
-import kotlin.io.path.Path
-import kotlin.io.path.pathString
 
 data class StatusEntry(
     val filePath: String,

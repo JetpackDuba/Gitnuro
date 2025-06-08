@@ -3,11 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
-import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.extensions.filePath
-import com.jetpackduba.gitnuro.extensions.fullData
-import com.jetpackduba.gitnuro.extensions.lowercaseContains
-import com.jetpackduba.gitnuro.extensions.openFileInFolder
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState

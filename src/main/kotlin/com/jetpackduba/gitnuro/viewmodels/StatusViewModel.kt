@@ -28,13 +28,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.io.IOException
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState
-import java.awt.Desktop
 import java.io.File
-import java.util.*
 import javax.inject.Inject
 
 private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
