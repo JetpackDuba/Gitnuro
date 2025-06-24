@@ -20,7 +20,7 @@ val linuxArmTarget = "aarch64-unknown-linux-gnu"
 val linuxX64Target = "x86_64-unknown-linux-gnu"
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "1.5.0-rc02"
+val projectVersion = "1.5.0"
 
 val projectName = "Gitnuro"
 
