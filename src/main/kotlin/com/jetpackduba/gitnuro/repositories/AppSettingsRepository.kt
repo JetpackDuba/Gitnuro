@@ -53,6 +53,7 @@ private const val PREF_CACHE_CREDENTIALS_IN_MEMORY = "credentialsInMemory"
 private const val PREF_FIRST_PANE_WIDTH = "firstPaneWidth"
 private const val PREF_THIRD_PANE_WIDTH = "thirdPaneWidth"
 
+private const val PREF_GIT_DEFAULT_CLONE_DIR = "gitDefaultCloneDir"
 private const val PREF_GIT_FF_MERGE = "gitFFMerge"
 private const val PREF_GIT_MERGE_AUTOSTASH = "mergeAutoStash"
 private const val PREF_GIT_PULL_REBASE = "gitPullRebase"
@@ -89,6 +90,9 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _verifySslFlow = MutableStateFlow(cacheCredentialsInMemory)
     val verifySslFlow = _verifySslFlow.asStateFlow()
+
+    private val _defaultCloneDirFlow = MutableStateFlow(defaultCloneDir)
+    val defaultCloneDirFlow = _defaultCloneDirFlow.asStateFlow()
 
     private val _ffMergeFlow = MutableStateFlow(ffMerge)
     val ffMergeFlow = _ffMergeFlow.asStateFlow()
@@ -244,6 +248,17 @@ class AppSettingsRepository @Inject constructor() {
         set(value) {
             preferences.putFloat(PREF_UI_SCALE, value)
             _scaleUiFlow.value = value
+        }
+
+    /*
+     * Property that holds the default directory to clone a repository into.
+     */
+    var defaultCloneDir: String
+        get() = preferences.get(PREF_GIT_DEFAULT_CLONE_DIR, "")
+        set(value) {
+            preferences.put(PREF_GIT_DEFAULT_CLONE_DIR, value)
+
+            _defaultCloneDirFlow.value = value
         }
 
     /**
