@@ -513,7 +513,7 @@ class StatusViewModel @Inject constructor(
     }
 
     fun openFileInFolder(folderPath: String?) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
+        refreshType = RefreshType.NONE,
     ) {
         folderPath?.let { File(it).openFileInFolder() }
     }

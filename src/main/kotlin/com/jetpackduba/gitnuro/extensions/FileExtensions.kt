@@ -1,9 +1,13 @@
 package com.jetpackduba.gitnuro.extensions
 
+import com.jetpackduba.gitnuro.logging.printError
+import com.jetpackduba.gitnuro.system.OS
+import com.jetpackduba.gitnuro.system.currentOs
 import kotlinx.io.IOException
 import java.awt.Desktop
 import java.io.File
-import java.util.*
+
+private const val TAG = "FileExtensions"
 
 fun File.openDirectory(dirName: String): File {
     val newDir = File(this, dirName)
@@ -18,7 +22,7 @@ fun File.openDirectory(dirName: String): File {
 fun File.openFileInFolder() {
 
     if (!exists() || !isDirectory) {
-        println("Folder with path $path does not exist or is not a folder")
+        printError(TAG, "Folder with path $path does not exist or is not a folder")
         return
     }
 
@@ -31,15 +35,15 @@ fun File.openFileInFolder() {
             }
         }
     } catch (e: Exception) {
-        println("Desktop API failed: ${e.message}")
+        printError(TAG, "Desktop API failed: ${e.message}")
     }
 
     // Fallback
-    val os = System.getProperty("os.name").lowercase(Locale.getDefault())
-    val command = when {
-        os.contains("linux") -> listOf("xdg-open", absolutePath)
-        os.contains("mac") -> listOf("open", absolutePath)
-        os.contains("windows") -> listOf("explorer", absolutePath)
+    val os = currentOs
+    val command = when (os) {
+        OS.LINUX -> listOf("xdg-open", absolutePath)
+        OS.MAC -> listOf("open", absolutePath)
+        OS.WINDOWS -> listOf("explorer", absolutePath)
         else -> null
     }
 
@@ -47,9 +51,9 @@ fun File.openFileInFolder() {
         try {
             ProcessBuilder(command).start()
         } catch (ex: IOException) {
-            println("Failed to open file explorer: ${ex.message}")
+            printError(TAG, "Failed to open file explorer: ${ex.message}")
         }
     } else {
-        println("Unsupported OS: $os")
+        printError(TAG, "Unsupported OS: $os")
     }
 }

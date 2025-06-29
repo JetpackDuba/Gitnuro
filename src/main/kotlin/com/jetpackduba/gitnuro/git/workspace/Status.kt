@@ -6,10 +6,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.jetpackduba.gitnuro.extensions.icon
 import com.jetpackduba.gitnuro.extensions.iconColor
 
-data class StatusEntry(
-    val filePath: String,
-    val statusType: StatusType
-) {
+data class StatusEntry(val filePath: String, val statusType: StatusType) {
     val icon: ImageVector
         get() = statusType.icon
 
