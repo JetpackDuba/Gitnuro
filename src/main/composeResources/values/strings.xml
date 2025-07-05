@@ -81,4 +81,10 @@
     <!-- Merge automatic stash -->
     <string name="merge_automatic_stash_description">Automatic stash before merge of "%1$s" to "%2$s"</string>
     <string name="pull_with_merge_automatic_stash_description">Automatic stash before pull of "%1$s"</string>
+
+    <!-- Status entries context menu -->
+    <string name="status_entries_context_menu_delete_file">Delete file</string>
+    <string name="status_entries_context_menu_file_history">File history</string>
+    <string name="status_entries_context_menu_blame_file">Blame file</string>
+    <string name="status_entries_context_menu_discard_file_changes">Discard file changes</string>
 </resources>

@@ -63,9 +63,9 @@ fun MutableList<ContextMenuElement>.addContextMenu(
 ) {
     this.add(
         ContextMenuElement.ContextTextEntry(
-            label,
-            icon,
-            onClick,
+            label = label,
+            icon = icon,
+            onClick = onClick,
         )
     )
 }
