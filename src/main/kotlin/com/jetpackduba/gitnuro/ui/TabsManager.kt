@@ -136,7 +136,7 @@ class TabsManager @Inject constructor(
     }
 
     private fun newAppTab(
-        tabName: MutableState<String> = mutableStateOf(TabInformation.DEFAULT_NAME),
+        tabName: MutableState<String> = mutableStateOf(TabInformation.NEW_TAB_DEFAULT_NAME),
         path: String? = null,
     ): TabInformation {
         return TabInformation(

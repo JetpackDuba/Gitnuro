@@ -48,6 +48,7 @@ import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
+import com.jetpackduba.gitnuro.ui.components.TabInformation.Companion.NEW_TAB_DEFAULT_NAME
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
@@ -64,6 +65,7 @@ import javax.inject.Inject
 
 
 private const val TAG = "App"
+private const val MAX_CHARS_CURRENT_TAB_NAME = 250
 
 
 class App {
@@ -145,9 +147,13 @@ class App {
             // Save window state for next time the Window is started
             appSettingsRepository.windowPlacement = windowState.placement.preferenceValue
 
+            val currentTab = tabsManager.currentTab.collectAsState().value
+
+            val currentTabName = (currentTab?.tabName?.value ?: NEW_TAB_DEFAULT_NAME).take(MAX_CHARS_CURRENT_TAB_NAME)
+
             if (isOpen) {
                 Window(
-                    title = System.getenv("title") ?: AppConstants.APP_NAME,
+                    title = "${System.getenv("title") ?: AppConstants.APP_NAME} - $currentTabName",
                     onCloseRequest = {
                         isOpen = false
                     },
