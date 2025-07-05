@@ -4,6 +4,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import kotlinx.coroutines.Dispatchers
@@ -19,12 +20,16 @@ class CloneViewModel @Inject constructor(
     private val tabState: TabState,
     private val cloneRepositoryUseCase: CloneRepositoryUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val appSettingsRepository: AppSettingsRepository,
 ) {
     private val _repositoryUrl = MutableStateFlow(TextFieldValue(""))
     val repositoryUrl = _repositoryUrl.asStateFlow()
 
-    private val _directoryPath = MutableStateFlow(TextFieldValue(""))
+    private val _directoryPath = MutableStateFlow(TextFieldValue(appSettingsRepository.defaultCloneDir))
     val directoryPath = _directoryPath.asStateFlow()
+
+    private val _saveDirAsDefault = MutableStateFlow(false)
+    val saveDirAsDefault = _saveDirAsDefault.asStateFlow()
 
     private val _folder = MutableStateFlow(TextFieldValue(""))
     val folder = _folder.asStateFlow()
@@ -58,6 +63,9 @@ class CloneViewModel @Inject constructor(
 
             if (!directory.exists()) {
                 directory.mkdirs()
+            }
+            if (_saveDirAsDefault.value) {
+                appSettingsRepository.defaultCloneDir = directoryPath
             }
 
             val repoDir = File(directory, folder)
@@ -106,6 +114,10 @@ class CloneViewModel @Inject constructor(
 
     fun onDirectoryPathChanged(directory: TextFieldValue) {
         _directoryPath.value = directory
+    }
+
+    fun onSaveAsDefaultChanged(value: Boolean) {
+        _saveDirAsDefault.value = value
     }
 
     fun onRepositoryUrlChanged(repositoryUrl: TextFieldValue) {

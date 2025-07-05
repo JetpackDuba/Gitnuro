@@ -97,6 +97,7 @@ private fun CloneDialogView(
     onCloneSubmodulesChange: (Boolean) -> Unit,
 ) {
     val error by cloneViewModel.error.collectAsState()
+    val saveDirAsDefault by cloneViewModel.saveDirAsDefault.collectAsState()
 
     val urlFocusRequester = remember { FocusRequester() }
     val directoryFocusRequester = remember { FocusRequester() }
@@ -181,6 +182,34 @@ private fun CloneDialogView(
                 }
             }
         )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.handMouseClickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                cloneViewModel.onSaveAsDefaultChanged(!saveDirAsDefault)
+            }
+                .fillMaxWidth()
+                .padding(top = 16.dp)
+        ) {
+            Checkbox(
+                checked = saveDirAsDefault,
+                onCheckedChange = {
+                    cloneViewModel.onSaveAsDefaultChanged(!saveDirAsDefault)
+                },
+                modifier = Modifier
+                    .padding(all = 8.dp)
+                    .size(12.dp)
+            )
+
+            Text(
+                "Save as Default",
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackground,
+            )
+        }
 
         TextInput(
             modifier = Modifier.padding(top = 16.dp),
