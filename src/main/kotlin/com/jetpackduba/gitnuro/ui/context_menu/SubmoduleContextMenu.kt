@@ -5,11 +5,11 @@ import com.jetpackduba.gitnuro.generated.resources.*
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 fun submoduleContextMenuItems(
     submoduleStatus: SubmoduleStatus,
     onInitializeSubmodule: () -> Unit,
-//    onDeinitializeSubmodule: () -> Unit,
     onSyncSubmodule: () -> Unit,
     onUpdateSubmodule: () -> Unit,
     onOpenSubmoduleInTab: () -> Unit,
@@ -17,43 +17,28 @@ fun submoduleContextMenuItems(
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
         if (submoduleStatus.type == SubmoduleStatusType.UNINITIALIZED) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Initialize submodule",
-                    onClick = onInitializeSubmodule,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.submodules_context_menu_initialize_submodule) },
+                onClick = onInitializeSubmodule,
             )
         }
         if (submoduleStatus.type.isValid()) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Open submodule in new tab",
-                    icon = { painterResource(Res.drawable.open) },
-                    onClick = onOpenSubmoduleInTab,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.submodules_context_menu_open_submodule_in_tab) },
+                icon = { painterResource(Res.drawable.open) },
+                onClick = onOpenSubmoduleInTab,
             )
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Sync submodule",
-                    icon = { painterResource(Res.drawable.sync) },
-                    onClick = onSyncSubmodule,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.submodules_context_menu_sync_submodule) },
+                icon = { painterResource(Res.drawable.sync) },
+                onClick = onSyncSubmodule,
             )
 
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Update submodule",
-                    icon = { painterResource(Res.drawable.update) },
-                    onClick = onUpdateSubmodule,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.submodules_context_menu_update_submodule) },
+                icon = { painterResource(Res.drawable.update) },
+                onClick = onUpdateSubmodule,
             )
-// TODO This crashes with a NPE in jgit even when providing correct arguments, feature removed for now
-//            add(
-//                ContextMenuElement.ContextTextEntry(
-//                    label = "DeInitialize submodule",
-//                    onClick = onDeinitializeSubmodule,
-//                )
-//            )
         }
 
         if (isNotEmpty()) {
@@ -62,12 +47,10 @@ fun submoduleContextMenuItems(
             )
         }
 
-        add(
-            ContextMenuElement.ContextTextEntry(
-                label = "Delete submodule",
-                icon = { painterResource(Res.drawable.delete) },
-                onClick = onDeleteSubmodule,
-            ),
+        addContextMenu(
+            composableLabel = { stringResource(Res.string.submodules_context_menu_delete_submodule) },
+            icon = { painterResource(Res.drawable.delete) },
+            onClick = onDeleteSubmodule,
         )
     }
 }

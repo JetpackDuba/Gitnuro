@@ -16,29 +16,23 @@ fun statusEntriesContextMenuItems(
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
         if (statusEntry.statusType != StatusType.ADDED) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    composableLabel = { stringResource(Res.string.status_entries_context_menu_discard_file_changes) },
-                    icon = { painterResource(Res.drawable.undo) },
-                    onClick = onReset,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.status_entries_context_menu_discard_file_changes) },
+                icon = { painterResource(Res.drawable.undo) },
+                onClick = onReset,
             )
 
             if (statusEntry.statusType != StatusType.REMOVED) {
-                add(
-                    ContextMenuElement.ContextTextEntry(
-                        composableLabel = { stringResource(Res.string.status_entries_context_menu_blame_file) },
-                        icon = { painterResource(Res.drawable.blame) },
-                        onClick = onBlame,
-                    )
+                addContextMenu(
+                    composableLabel = { stringResource(Res.string.status_entries_context_menu_blame_file) },
+                    icon = { painterResource(Res.drawable.blame) },
+                    onClick = onBlame,
                 )
 
-                add(
-                    ContextMenuElement.ContextTextEntry(
-                        composableLabel = { stringResource(Res.string.status_entries_context_menu_file_history) },
-                        icon = { painterResource(Res.drawable.history) },
-                        onClick = onHistory,
-                    )
+                addContextMenu(
+                    composableLabel = { stringResource(Res.string.status_entries_context_menu_file_history) },
+                    icon = { painterResource(Res.drawable.history) },
+                    onClick = onHistory,
                 )
             }
         }
@@ -47,12 +41,10 @@ fun statusEntriesContextMenuItems(
             entryType == EntryType.UNSTAGED &&
             statusEntry.statusType != StatusType.REMOVED
         ) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    composableLabel = { stringResource(Res.string.status_entries_context_menu_delete_file) },
-                    icon = { painterResource(Res.drawable.delete) },
-                    onClick = onDelete,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.status_entries_context_menu_delete_file) },
+                icon = { painterResource(Res.drawable.delete) },
+                onClick = onDelete,
             )
         }
     }

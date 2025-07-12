@@ -87,4 +87,65 @@
     <string name="status_entries_context_menu_file_history">File history</string>
     <string name="status_entries_context_menu_blame_file">Blame file</string>
     <string name="status_entries_context_menu_discard_file_changes">Discard file changes</string>
+
+    <!-- Branch context menu -->
+    <string name="branch_context_menu_checkout_branch">Checkout branch</string>
+    <string name="branch_context_menu_merge_branch">Merge branch</string>
+    <string name="branch_context_menu_rebase_branch">Rebase branch</string>
+    <string name="branch_context_menu_push_current_to_target">Push "%1$s" to "%2$s"</string>
+    <string name="branch_context_menu_pull_target_to_current">Pull "%1$s" to "%2$s"</string>
+    <string name="branch_context_menu_change_default_upstream_branch">Change default upstream branch</string>
+    <string name="branch_context_menu_delete_remote_branch">Delete remote branch</string>
+    <string name="branch_context_menu_delete_branch">Delete branch</string>
+    <string name="branch_context_menu_copy_branch_name">Copy branch name</string>
+
+    <!-- Committed changes context menu -->
+    <string name="committed_changes_context_menu_blame_file">Blame file</string>
+    <string name="committed_changes_context_menu_file_history">File history</string>
+
+    <!-- Log context menu -->
+    <string name="log_context_menu_checkout_commit">Checkout commit</string>
+    <string name="log_context_menu_create_branch">Create branch</string>
+    <string name="log_context_menu_create_tag">Create tag</string>
+    <string name="log_context_menu_rebase_interactive">Rebase interactive</string>
+    <string name="log_context_menu_revert_commit">Revert commit</string>
+    <string name="log_context_menu_cherry_pick_commit">Cherry-pick commit</string>
+    <string name="log_context_menu_reset_current_branch_to_commit">Reset current branch to this commit</string>
+
+    <!-- Pull context menu -->
+    <string name="pull_context_menu_pull_with_merge">Pull with merge</string>
+    <string name="pull_context_menu_pull_with_rebase">Pull with rebase</string>
+    <string name="pull_context_menu_fetch_all">Fetch all</string>
+
+    <!-- Push context menu -->
+    <string name="push_context_menu_push_including_tags">Push including tags</string>
+    <string name="push_context_menu_force_push">Force push</string>
+
+    <!-- Remote context menu -->
+    <string name="remote_context_menu_edit">Edit</string>
+    <string name="remote_context_menu_delete">Delete</string>
+
+    <!-- Stash menu context menu -->
+    <string name="stash_context_menu_stash_with_message">Stash with message</string>
+
+    <!-- Stashes context menu -->
+    <string name="stashes_context_menu_apply_stash">Apply stash</string>
+    <string name="stashes_context_menu_pop_stash">Pop stash</string>
+    <string name="stashes_context_menu_drop_stash">Drop stash</string>
+
+    <!-- Status dir entries context menu -->
+    <string name="status_dir_entries_context_menu_unstage_changes">Unstage changes in the directory</string>
+    <string name="status_dir_entries_context_menu_stage_changes">Stage changes in the directory</string>
+    <string name="status_dir_entries_context_menu_discard_changes">Discard changes</string>
+
+    <!-- Submodules context menu -->
+    <string name="submodules_context_menu_initialize_submodule">Initialize submodule</string>
+    <string name="submodules_context_menu_open_submodule_in_tab">Open submodule in new tab</string>
+    <string name="submodules_context_menu_sync_submodule">Sync submodule</string>
+    <string name="submodules_context_menu_update_submodule">Update submodule</string>
+    <string name="submodules_context_menu_delete_submodule">Delete submodule</string>
+
+    <!-- Tag context menu -->
+    <string name="tag_context_menu_checkout_tag_commit">Checkout tag's commit</string>
+    <string name="tag_context_menu_delete_tag">Delete tag</string>
 </resources>

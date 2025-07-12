@@ -462,3 +462,17 @@ class AppContextMenuRepresentation : ContextMenuRepresentation {
         }
     }
 }
+
+fun MutableList<ContextMenuElement>.addContextMenu(
+    composableLabel: @Composable (() -> String),
+    icon: @Composable (() -> Painter)? = null,
+    onClick: () -> Unit = {},
+) {
+    this.add(
+        ContextMenuElement.ContextTextEntry(
+            composableLabel = composableLabel,
+            icon = icon,
+            onClick = onClick,
+        )
+    )
+}

@@ -3,14 +3,12 @@ package com.jetpackduba.gitnuro.ui.context_menu
 import com.jetpackduba.gitnuro.extensions.isHead
 import com.jetpackduba.gitnuro.extensions.simpleLogName
 import com.jetpackduba.gitnuro.extensions.simpleName
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.copy
-import com.jetpackduba.gitnuro.generated.resources.delete
-import com.jetpackduba.gitnuro.generated.resources.start
+import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.models.positiveNotification
 import org.eclipse.jgit.lib.Ref
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.skiko.ClipboardManager
 
 fun branchContextMenuItems(
@@ -31,90 +29,84 @@ fun branchContextMenuItems(
 
     return mutableListOf<ContextMenuElement>().apply {
         if (!isCurrentBranch) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Checkout branch",
-                    icon = { painterResource(Res.drawable.start) },
-                    onClick = onCheckoutBranch
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.branch_context_menu_checkout_branch) },
+                icon = { painterResource(Res.drawable.start) },
+                onClick = onCheckoutBranch
             )
             if (currentBranch != null && !currentBranch.isHead) {
-                add(
-                    ContextMenuElement.ContextTextEntry(
-                        label = "Merge branch",
-                        onClick = onMergeBranch
-                    )
+                addContextMenu(
+                    composableLabel = { stringResource(Res.string.branch_context_menu_merge_branch) },
+                    onClick = onMergeBranch
                 )
-                add(
-                    ContextMenuElement.ContextTextEntry(
-                        label = "Rebase branch",
-                        onClick = onRebaseBranch
-                    )
+                addContextMenu(
+                    composableLabel = { stringResource(Res.string.branch_context_menu_rebase_branch) },
+                    onClick = onRebaseBranch
                 )
 
                 add(ContextMenuElement.ContextSeparator)
             }
         }
         if (!isLocal && currentBranch != null && !currentBranch.isHead) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Push ${currentBranch.simpleLogName} to ${branch.simpleLogName}",
-                    onClick = onPushToRemoteBranch
-                )
+            addContextMenu(
+                composableLabel = {
+                    stringResource(
+                        Res.string.branch_context_menu_push_current_to_target,
+                        currentBranch.simpleLogName,
+                        branch.simpleLogName,
+                    )
+                },
+                onClick = onPushToRemoteBranch
             )
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Pull ${branch.simpleLogName} to ${currentBranch.simpleLogName}",
-                    onClick = onPullFromRemoteBranch
-                )
+            addContextMenu(
+                composableLabel = {
+                    stringResource(
+                        Res.string.branch_context_menu_pull_target_to_current,
+                        branch.simpleLogName,
+                        currentBranch.simpleLogName,
+                    )
+                },
+                onClick = onPullFromRemoteBranch,
             )
 
             add(ContextMenuElement.ContextSeparator)
         }
 
         if (isLocal) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Change default upstream branch",
-                    onClick = onChangeDefaultUpstreamBranch
-                ),
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.branch_context_menu_change_default_upstream_branch) },
+                onClick = onChangeDefaultUpstreamBranch
             )
 
             add(ContextMenuElement.ContextSeparator)
         }
 
         if (!isLocal) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Delete remote branch",
-                    icon = { painterResource(Res.drawable.delete) },
-                    onClick = onDeleteRemoteBranch
-                ),
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.branch_context_menu_delete_remote_branch) },
+                icon = { painterResource(Res.drawable.delete) },
+                onClick = onDeleteRemoteBranch,
             )
 
             add(ContextMenuElement.ContextSeparator)
         }
 
         if (isLocal && !isCurrentBranch) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Delete branch",
-                    icon = { painterResource(Res.drawable.delete) },
-                    onClick = onDeleteBranch
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.branch_context_menu_delete_branch) },
+                icon = { painterResource(Res.drawable.delete) },
+                onClick = onDeleteBranch,
             )
 
             add(ContextMenuElement.ContextSeparator)
         }
 
-        add(
-            ContextMenuElement.ContextTextEntry(
-                label = "Copy branch name",
-                icon = { painterResource(Res.drawable.copy) },
-                onClick = {
-                    onCopyBranchNameToClipboard()
-                }
-            )
+        addContextMenu(
+            composableLabel = { stringResource(Res.string.branch_context_menu_copy_branch_name) },
+            icon = { painterResource(Res.drawable.copy) },
+            onClick = {
+                onCopyBranchNameToClipboard()
+            }
         )
     }
 }
