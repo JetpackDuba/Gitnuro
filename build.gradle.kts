@@ -1,10 +1,9 @@
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.compose.ExperimentalComposeLibrary
-import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import java.io.FileOutputStream
 import java.nio.file.Files
-import org.jetbrains.compose.reload.ComposeHotRun
+import org.jetbrains.compose.reload.gradle.ComposeHotRun
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -78,7 +77,6 @@ dependencies {
     implementation(libs.slf4j.api)
     implementation(libs.slf4j.reload4j)
 
-    implementation(libs.datastore.core)
     implementation(libs.bouncycastle)
 
     implementation(libs.ktor.client)
@@ -130,10 +128,6 @@ tasks.withType<JavaExec> {
     })
 }
 
-//https://github.com/JetBrains/compose-hot-reload
-composeCompiler {
-    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-}
 tasks.withType<ComposeHotRun>().configureEach {
     mainClass.set("com.jetpackduba.gitnuro.MainKt")
 }
@@ -169,7 +163,7 @@ compose.desktop {
 }
 
 
-task("fatJarLinux", type = Jar::class) {
+tasks.register("fatJarLinux", type = Jar::class) {
     val archSuffix = if (isLinuxAarch64) {
         "arm_aarch64"
     } else {
@@ -195,7 +189,7 @@ task("fatJarLinux", type = Jar::class) {
     with(tasks.jar.get() as CopySpec)
 }
 
-task("rust_build") {
+tasks.register("rust_build") {
     buildRust()
 }
 
@@ -213,20 +207,20 @@ tasks.getByName("compileTestKotlin").doLast {
     generateKotlinFromRs()
 }
 
-task("tasksList") {
+tasks.register("tasksList") {
     println("Tasks")
     tasks.forEach {
         println("- ${it.name}")
     }
 }
 
-task("rustTasks") {
+tasks.register("rustTasks") {
     buildRust()
     copyRustBuild()
     generateKotlinFromRs()
 }
 
-task("rust_copyBuild") {
+tasks.register("rust_copyBuild") {
     copyRustBuild()
 }
 
@@ -248,44 +242,44 @@ fun generateKotlinFromRs() {
         outDir,
     )
 
-    exec {
+    providers.exec {
         println("Generating Kotlin source files")
 
         workingDir = File(project.projectDir, "rs")
         commandLine = command
-    }
+    }.result.get()
 }
 
 fun buildRust() {
-    exec {
-        println("Build rs called")
-        val binary = if (currentOs() == OS.LINUX && useCross) {
-            "cross"
+    println("Build rs called")
+    val binary = if (currentOs() == OS.LINUX && useCross) {
+        "cross"
+    } else {
+        "cargo"
+    }
+
+    val params = mutableListOf(
+        binary, "build",
+    )
+
+    if (isRustRelease) {
+        params.add("--release")
+    }
+
+    if (currentOs() == OS.LINUX && useCross) {
+        if (isLinuxAarch64) {
+            params.add("--target=$linuxArmTarget")
         } else {
-            "cargo"
+            params.add("--target=$linuxX64Target")
         }
+    } else if (currentOs() == OS.MAC) {
+        params.add("--target=x86_64-apple-darwin")
+    }
 
-        val params = mutableListOf(
-            binary, "build",
-        )
-
-        if (isRustRelease) {
-            params.add("--release")
-        }
-
-        if (currentOs() == OS.LINUX && useCross) {
-            if (isLinuxAarch64) {
-                params.add("--target=$linuxArmTarget")
-            } else {
-                params.add("--target=$linuxX64Target")
-            }
-        } else if (currentOs() == OS.MAC) {
-            params.add("--target=x86_64-apple-darwin")
-        }
-
+    providers.exec {
         workingDir = File(project.projectDir, "rs")
         commandLine = params
-    }
+    }.result.get()
 }
 
 fun copyRustBuild() {
