@@ -42,6 +42,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import java.time.Instant
 
 sealed interface SettingsEntry {
@@ -389,8 +390,8 @@ private fun Environment(settingsViewModel: SettingsViewModel) {
     var defaultCloneDir by remember { mutableStateOf(settingsViewModel.defaultCloneDir) }
 
     SettingTextInput(
-        title = "Default Clone Directory",
-        subtitle = "Directory that will be used as default when cloning a repository",
+        title = stringResource(Res.string.settings_environment_default_clone_directory_title),
+        subtitle = stringResource(Res.string.settings_environment_default_clone_directory_description),
         value = defaultCloneDir,
         onValueChanged = { value ->
             defaultCloneDir = value

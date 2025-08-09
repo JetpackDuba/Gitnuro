@@ -21,14 +21,18 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.generic_save_as_default
+import com.jetpackduba.gitnuro.generated.resources.menu_open
 import com.jetpackduba.gitnuro.generated.resources.search
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
+import com.jetpackduba.gitnuro.ui.components.CheckboxText
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.viewmodels.CloneViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import java.io.File
 
 @Composable
@@ -182,34 +186,11 @@ private fun CloneDialogView(
                 }
             }
         )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.handMouseClickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                cloneViewModel.onSaveAsDefaultChanged(!saveDirAsDefault)
-            }
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Checkbox(
-                checked = saveDirAsDefault,
-                onCheckedChange = {
-                    cloneViewModel.onSaveAsDefaultChanged(!saveDirAsDefault)
-                },
-                modifier = Modifier
-                    .padding(all = 8.dp)
-                    .size(12.dp)
-            )
-
-            Text(
-                "Save as Default",
-                style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.onBackground,
-            )
-        }
+        CheckboxText(
+            value = saveDirAsDefault,
+            onCheckedChange = { cloneViewModel.onSaveAsDefaultChanged(!saveDirAsDefault) },
+            text = stringResource(Res.string.generic_save_as_default)
+        )
 
         TextInput(
             modifier = Modifier.padding(top = 16.dp),
