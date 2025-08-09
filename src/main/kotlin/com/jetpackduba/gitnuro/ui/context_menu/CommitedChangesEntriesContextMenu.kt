@@ -1,13 +1,10 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.blame
-import com.jetpackduba.gitnuro.generated.resources.history
+import com.jetpackduba.gitnuro.generated.resources.*
 import org.eclipse.jgit.diff.DiffEntry
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalFoundationApi::class)
 fun committedChangesEntriesContextMenuItems(
     diffEntry: DiffEntry,
     onBlame: () -> Unit,
@@ -17,19 +14,15 @@ fun committedChangesEntriesContextMenuItems(
         if (diffEntry.changeType != DiffEntry.ChangeType.ADD ||
             diffEntry.changeType != DiffEntry.ChangeType.DELETE
         ) {
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Blame file",
-                    icon = { painterResource(Res.drawable.blame) },
-                    onClick = onBlame,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.committed_changes_context_menu_blame_file) },
+                icon = { painterResource(Res.drawable.blame) },
+                onClick = onBlame,
             )
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "File history",
-                    icon = { painterResource(Res.drawable.history) },
-                    onClick = onHistory,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.committed_changes_context_menu_file_history) },
+                icon = { painterResource(Res.drawable.history) },
+                onClick = onHistory,
             )
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import com.jetpackduba.gitnuro.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 fun logContextMenu(
     onCheckoutCommit: () -> Unit,
@@ -16,17 +17,17 @@ fun logContextMenu(
     isLastCommit: Boolean,
 ) = mutableListOf<ContextMenuElement>().apply {
     addContextMenu(
-        label = "Checkout commit",
+        composableLabel = { stringResource(Res.string.log_context_menu_checkout_commit) },
         icon = { painterResource(Res.drawable.start) },
         onClick = onCheckoutCommit
     )
     addContextMenu(
-        label = "Create branch",
+        composableLabel = { stringResource(Res.string.log_context_menu_create_branch) },
         icon = { painterResource(Res.drawable.branch) },
         onClick = onCreateNewBranch
     )
     addContextMenu(
-        label = "Create tag",
+        composableLabel = { stringResource(Res.string.log_context_menu_create_tag) },
         icon = { painterResource(Res.drawable.tag) },
         onClick = onCreateNewTag
     )
@@ -35,37 +36,23 @@ fun logContextMenu(
 
     if (!isLastCommit) {
         addContextMenu(
-            label = "Rebase interactive",
+            composableLabel = { stringResource(Res.string.log_context_menu_rebase_interactive) },
             onClick = onRebaseInteractive
         )
     }
 
     addContextMenu(
-        label = "Revert commit",
+        composableLabel = { stringResource(Res.string.log_context_menu_revert_commit) },
         icon = { painterResource(Res.drawable.revert) },
         onClick = onRevertCommit
     )
     addContextMenu(
-        label = "Cherry-pick commit",
+        composableLabel = { stringResource(Res.string.log_context_menu_cherry_pick_commit) },
         onClick = onCherryPickCommit
     )
     addContextMenu(
-        label = "Reset current branch to this commit",
+        composableLabel = { stringResource(Res.string.log_context_menu_reset_current_branch_to_commit) },
         icon = { painterResource(Res.drawable.undo) },
         onClick = onResetBranch
-    )
-}
-
-fun MutableList<ContextMenuElement>.addContextMenu(
-    label: String,
-    icon: @Composable (() -> Painter)? = null,
-    onClick: () -> Unit = {},
-) {
-    this.add(
-        ContextMenuElement.ContextTextEntry(
-            label,
-            icon,
-            onClick,
-        )
     )
 }

@@ -1,20 +1,20 @@
 [versions]
 
-kotlin = "2.1.21"
-compose = "1.8.1"
-hotReload = "1.0.0-alpha09"
-ksp = "2.1.21-2.0.1"
-jgit = "7.2.0.202503040940-r"
-dagger = "2.56.2"
-kotlinx-serialization = "1.5.0"
+kotlin = "2.2.0"
+compose = "1.8.3"
+compose-plugin = "1.8.2"
+hotReload = "1.0.0-beta04"
+ksp = "2.2.0-2.0.2"
+jgit = "7.3.0.202506031305-r"
+dagger = "2.57"
+kotlinx-serialization = "1.9.0"
 junit-bom = "5.9.0"
 junit-jupiter = "5.9.2"
 mockk = "1.13.4"
-kotlin-logging = "5.0.1"
-slf4j = "2.0.7"
-datastore = "1.1.7"
-bouncycastle = "1.78.1"
-ktor = "3.0.3"
+kotlin-logging = "7.0.7"
+slf4j = "2.0.17"
+bouncycastle = "1.81"
+ktor = "3.2.2"
 
 
 [libraries]
@@ -38,8 +38,6 @@ kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", versi
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 slf4j-reload4j = { group = "org.slf4j", name = "slf4j-reload4j", version.ref = "slf4j" }
 
-datastore-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastore" }
-
 bouncycastle = { group = "org.bouncycastle", name = "bcpg-jdk18on", version.ref = "bouncycastle" }
 
 ktor-client = { group = "io.ktor", name = "ktor-client", version.ref = "ktor" }
@@ -54,6 +52,6 @@ ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-compose = { id = "org.jetbrains.compose", version.ref = "compose" }
+compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 hotReload = { id = "org.jetbrains.compose.hot-reload", version.ref = "hotReload" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

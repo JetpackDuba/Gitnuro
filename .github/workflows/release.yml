@@ -126,6 +126,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
         with:
+          toolchain: nightly
           targets: x86_64-apple-darwin
       - run: cargo install cargo-kotars --git https://github.com/JetpackDuba/kotars
       - name: Set up JDK 17
