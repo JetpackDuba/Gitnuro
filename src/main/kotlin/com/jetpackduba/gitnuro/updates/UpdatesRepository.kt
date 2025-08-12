@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.updates
 
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
+import com.jetpackduba.gitnuro.logging.printLog
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -21,6 +22,8 @@ private val updateJson = Json {
     this.ignoreUnknownKeys = true
 }
 
+private const val TAG = "UpdatesRepository"
+
 @Singleton
 class UpdatesRepository @Inject constructor(
     private val httpClient: HttpClient,
@@ -28,6 +31,9 @@ class UpdatesRepository @Inject constructor(
 ) {
     val hasUpdatesFlow = flow {
         while (coroutineContext.isActive) {
+
+            printLog(TAG, "Checking for new updates in ${AppConstants.VERSION_CHECK_URL}")
+
             val latestReleaseJson = httpClient
                 .get(AppConstants.VERSION_CHECK_URL)
                 .body<String>()
