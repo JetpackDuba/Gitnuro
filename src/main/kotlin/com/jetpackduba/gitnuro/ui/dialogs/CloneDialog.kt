@@ -21,14 +21,18 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.generic_save_as_default
+import com.jetpackduba.gitnuro.generated.resources.menu_open
 import com.jetpackduba.gitnuro.generated.resources.search
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
+import com.jetpackduba.gitnuro.ui.components.CheckboxText
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.viewmodels.CloneViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import java.io.File
 
 @Composable
@@ -97,6 +101,7 @@ private fun CloneDialogView(
     onCloneSubmodulesChange: (Boolean) -> Unit,
 ) {
     val error by cloneViewModel.error.collectAsState()
+    val saveDirAsDefault by cloneViewModel.saveDirAsDefault.collectAsState()
 
     val urlFocusRequester = remember { FocusRequester() }
     val directoryFocusRequester = remember { FocusRequester() }
@@ -180,6 +185,11 @@ private fun CloneDialogView(
                     )
                 }
             }
+        )
+        CheckboxText(
+            value = saveDirAsDefault,
+            onCheckedChange = { cloneViewModel.onSaveAsDefaultChanged(!saveDirAsDefault) },
+            text = stringResource(Res.string.generic_save_as_default)
         )
 
         TextInput(

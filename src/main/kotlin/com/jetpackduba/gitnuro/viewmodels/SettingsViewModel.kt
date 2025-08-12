@@ -35,6 +35,7 @@ class SettingsViewModel @Inject constructor(
 
     val themeState = appSettingsRepository.themeState
     val linesHeightTypeState = appSettingsRepository.linesHeightTypeState
+    var defaultCloneDirFlow = appSettingsRepository.defaultCloneDirFlow
     val ffMergeFlow = appSettingsRepository.ffMergeFlow
     val mergeAutoStashFlow = appSettingsRepository.mergeAutoStashFlow
     val pullRebaseFlow = appSettingsRepository.pullRebaseFlow
@@ -51,6 +52,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettingsRepository.scaleUi
         set(value) {
             appSettingsRepository.scaleUi = value
+        }
+
+    var defaultCloneDir: String
+        get() = appSettingsRepository.defaultCloneDir
+        set(value) {
+            appSettingsRepository.defaultCloneDir = value
         }
 
     var swapUncommittedChanges: Boolean

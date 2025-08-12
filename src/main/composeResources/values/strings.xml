@@ -4,6 +4,7 @@
     <!-- Generic -->
     <string name="generic_button_ok">OK</string>
     <string name="generic_button_cancel">Cancel</string>
+    <string name="generic_save_as_default">Save as default</string>
 
     <!-- Home page -->
     <string name="home_button_open_repository">Open a repository</string>
@@ -148,4 +149,8 @@
     <!-- Tag context menu -->
     <string name="tag_context_menu_checkout_tag_commit">Checkout tag's commit</string>
     <string name="tag_context_menu_delete_tag">Delete tag</string>
+
+    <!-- Settings -->
+    <string name="settings_environment_default_clone_directory_title">Default clone directory</string>
+    <string name="settings_environment_default_clone_directory_description">Directory that will be used as default when cloning a repository</string>
 </resources>
