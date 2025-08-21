@@ -151,7 +151,7 @@ fun SidePanel(
     if (showEditSubmodulesDialog) {
         AddSubmodulesDialog(
             viewModel = submoduleDialogViewModel(),
-            onCancel = {
+            onDismiss = {
                 showEditSubmodulesDialog = false
             },
             onAccept = { repository, directory ->

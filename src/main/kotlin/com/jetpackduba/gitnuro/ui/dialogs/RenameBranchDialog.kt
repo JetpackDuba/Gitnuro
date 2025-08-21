@@ -2,25 +2,28 @@ package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.runtime.*
 import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.stash
+import com.jetpackduba.gitnuro.generated.resources.branch
 import com.jetpackduba.gitnuro.ui.dialogs.base.SingleTextFieldDialog
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun StashWithMessageDialog(
+fun RenameBranchDialog(
+    oldName: String,
     onDismiss: () -> Unit,
-    onAccept: (stashMessage: String) -> Unit,
+    onAccept: (branchName: String) -> Unit,
 ) {
-    var field by remember { mutableStateOf("") }
+    var field by remember { mutableStateOf(oldName) }
 
     SingleTextFieldDialog(
-        icon = painterResource(Res.drawable.stash),
-        title = "Stash message",
-        subtitle = "Create a new stash with a custom message",
+        icon = painterResource(Res.drawable.branch),
+        title = "Rename branch",
+        subtitle = "Set a new name to the branch \"$oldName\"",
         value = field,
-        onValueChange = { field = it },
+        onValueChange = {
+            field = it
+        },
+        primaryActionText = "Rename branch",
         isPrimaryActionEnabled = field.isNotBlank(),
-        primaryActionText = "Stash",
         onDismiss = onDismiss,
         onPrimaryActionClicked = { onAccept(field) },
     )

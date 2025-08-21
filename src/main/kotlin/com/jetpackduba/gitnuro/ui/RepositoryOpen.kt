@@ -69,7 +69,7 @@ fun RepositoryOpenPage(
         )
     } else if (showStashWithMessageDialog) {
         StashWithMessageDialog(
-            onClose = {
+            onDismiss = {
                 showStashWithMessageDialog = false
             },
             onAccept = { stashMessage ->
@@ -103,7 +103,7 @@ fun RepositoryOpenPage(
     } else if (showSignOffDialog) {
         SignOffDialog(
             viewModel = repositoryOpenViewModel.tabViewModelsProvider.signOffDialogViewModel,
-            onClose = { showSignOffDialog = false },
+            onDismiss = { showSignOffDialog = false },
         )
     }
 

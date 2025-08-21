@@ -46,8 +46,9 @@ fun SingleTextFieldDialog(
         primaryActionText = primaryActionText,
         cancelActionText = cancelActionText,
         isPrimaryActionEnabled = isPrimaryActionEnabled,
-        contentFocusRequester = fieldFocusRequester,
+        beforeActionsFocusRequester = fieldFocusRequester,
         actionsFocusRequester = actionsFocusRequester,
+        afterActionsFocusRequester = fieldFocusRequester,
         onDismiss = onDismiss,
         onPrimaryActionClicked = onPrimaryActionClicked,
     ) {

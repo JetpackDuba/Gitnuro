@@ -27,8 +27,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Preview
 @Composable
-fun IconBasedDialogPreview(
-) {
+fun IconBasedDialogPreview() {
     AppTheme {
         IconBasedDialog(
             icon = painterResource(Res.drawable.tag),
@@ -36,8 +35,9 @@ fun IconBasedDialogPreview(
             subtitle = "Subtitle example",
             primaryActionText = "Do it!",
             isPrimaryActionEnabled = true,
-            contentFocusRequester = remember { FocusRequester() },
+            beforeActionsFocusRequester = remember { FocusRequester() },
             actionsFocusRequester = remember { FocusRequester() },
+            afterActionsFocusRequester = remember { FocusRequester() },
             onDismiss = {},
             onPrimaryActionClicked = {},
         ) {
@@ -53,9 +53,11 @@ fun IconBasedDialog(
     subtitle: String,
     primaryActionText: String,
     isPrimaryActionEnabled: Boolean = true,
+    showCancelAction: Boolean = true,
     cancelActionText: String = stringResource(Res.string.generic_button_cancel),
-    contentFocusRequester: FocusRequester,
-    actionsFocusRequester: FocusRequester,
+    beforeActionsFocusRequester: FocusRequester?,
+    actionsFocusRequester: FocusRequester?,
+    afterActionsFocusRequester: FocusRequester?,
     onDismiss: () -> Unit,
     onPrimaryActionClicked: () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
@@ -66,6 +68,7 @@ fun IconBasedDialog(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
+            modifier = Modifier.width(IntrinsicSize.Min)
         ) {
             Icon(
                 icon,
@@ -101,25 +104,45 @@ fun IconBasedDialog(
                     .padding(top = 16.dp)
                     .align(Alignment.End)
             ) {
+                if (showCancelAction) {
+                    PrimaryButton(
+                        text = cancelActionText,
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .run {
+                                if (
+                                    actionsFocusRequester != null &&
+                                    afterActionsFocusRequester != null
+                                ) {
+                                    this.focusRequester(cancelButtonFocusRequester)
+                                        .focusProperties {
+                                            this.previous = actionsFocusRequester
+                                            this.next = afterActionsFocusRequester
+                                        }
+                                } else {
+                                    this
+                                }
+                            },
+                        onClick = onDismiss,
+                        backgroundColor = Color.Transparent,
+                        textColor = MaterialTheme.colors.onBackground,
+                    )
+                }
                 PrimaryButton(
-                    text = cancelActionText,
                     modifier = Modifier
-                        .padding(end = 8.dp)
-                        .focusRequester(cancelButtonFocusRequester)
-                        .focusProperties {
-                            this.previous = actionsFocusRequester
-                            this.next = contentFocusRequester
-                        },
-                    onClick = onDismiss,
-                    backgroundColor = Color.Transparent,
-                    textColor = MaterialTheme.colors.onBackground,
-                )
-                PrimaryButton(
-                    modifier = Modifier
-                        .focusRequester(actionsFocusRequester)
-                        .focusProperties {
-                            this.previous = contentFocusRequester
-                            this.next = cancelButtonFocusRequester
+                        .run {
+                            if (
+                                actionsFocusRequester != null &&
+                                beforeActionsFocusRequester != null
+                            ) {
+                                this.focusRequester(cancelButtonFocusRequester)
+                                    .focusProperties {
+                                        this.previous = beforeActionsFocusRequester
+                                        this.next = cancelButtonFocusRequester
+                                    }
+                            } else {
+                                this
+                            }
                         },
                     enabled = isPrimaryActionEnabled,
                     onClick = { onPrimaryActionClicked() },

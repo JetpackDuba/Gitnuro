@@ -2,18 +2,14 @@ package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.simpleName
@@ -21,7 +17,6 @@ import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.branch
 import com.jetpackduba.gitnuro.git.remotes.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
@@ -86,7 +81,6 @@ private fun SetDefaultUpstreamBranchDialogView(
     setSelectedBranch: (Ref) -> Unit,
     changeDefaultUpstreamBranch: () -> Unit,
 ) {
-
     IconBasedDialog(
         icon = painterResource(Res.drawable.branch),
         title = "Change upstream branch",
@@ -94,8 +88,9 @@ private fun SetDefaultUpstreamBranchDialogView(
         primaryActionText = "Accept",
         onDismiss = onDismiss,
         onPrimaryActionClicked = changeDefaultUpstreamBranch,
-        contentFocusRequester = remember { FocusRequester() },
-        actionsFocusRequester = remember { FocusRequester() }
+        beforeActionsFocusRequester = null,
+        actionsFocusRequester = null,
+        afterActionsFocusRequester = null,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)

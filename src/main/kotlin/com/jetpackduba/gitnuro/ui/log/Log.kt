@@ -628,7 +628,7 @@ fun LogDialogs(
         }
 
         is LogDialog.ResetBranch -> ResetBranchDialog(
-            onReject = onResetShowLogDialog,
+            onDismiss = onResetShowLogDialog,
             onAccept = { resetType ->
                 logViewModel.resetToCommit(showLogDialog.graphNode, resetType)
                 onResetShowLogDialog()
