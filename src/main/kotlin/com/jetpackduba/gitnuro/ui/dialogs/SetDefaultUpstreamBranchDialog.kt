@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -21,6 +22,8 @@ import com.jetpackduba.gitnuro.generated.resources.branch
 import com.jetpackduba.gitnuro.git.remotes.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
@@ -39,7 +42,7 @@ fun SetDefaultUpstreamBranchDialogPreview() {
             null,
             null
         ),
-        onClose = {},
+        onDismiss = {},
         setSelectedRemote = {},
         setSelectedBranch = {},
         changeDefaultUpstreamBranch = {}
@@ -66,7 +69,7 @@ fun SetDefaultUpstreamBranchDialog(
     MaterialDialog(onCloseRequested = onClose) {
         SetDefaultUpstreamBranchDialogView(
             state = setDefaultUpstreamBranchState,
-            onClose = onClose,
+            onDismiss = onClose,
             setSelectedRemote = { viewModel.setSelectedRemote(it) },
             setSelectedBranch = { viewModel.setSelectedBranch(it) },
             changeDefaultUpstreamBranch = { viewModel.changeDefaultUpstreamBranch() }
@@ -78,42 +81,22 @@ fun SetDefaultUpstreamBranchDialog(
 @Composable
 private fun SetDefaultUpstreamBranchDialogView(
     state: SetDefaultUpstreamBranchState,
-    onClose: () -> Unit,
+    onDismiss: () -> Unit,
     setSelectedRemote: (RemoteInfo) -> Unit,
     setSelectedBranch: (Ref) -> Unit,
     changeDefaultUpstreamBranch: () -> Unit,
 ) {
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    IconBasedDialog(
+        icon = painterResource(Res.drawable.branch),
+        title = "Change upstream branch",
+        subtitle = "Set the upstream remote branch",
+        primaryActionText = "Accept",
+        onDismiss = onDismiss,
+        onPrimaryActionClicked = changeDefaultUpstreamBranch,
+        contentFocusRequester = remember { FocusRequester() },
+        actionsFocusRequester = remember { FocusRequester() }
     ) {
-        Icon(
-            painterResource(Res.drawable.branch),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(bottom = 16.dp)
-                .size(64.dp),
-            tint = MaterialTheme.colors.onBackground,
-        )
-
-        Text(
-            text = "Change upstream branch",
-            modifier = Modifier
-                .padding(bottom = 8.dp),
-            color = MaterialTheme.colors.onBackground,
-            style = MaterialTheme.typography.body1,
-            fontWeight = FontWeight.SemiBold,
-        )
-
-        Text(
-            text = "Set the upstream remote branch",
-            modifier = Modifier
-                .padding(bottom = 16.dp),
-            color = MaterialTheme.colors.onBackground,
-            style = MaterialTheme.typography.body2,
-            textAlign = TextAlign.Center,
-        )
-
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -176,25 +159,6 @@ private fun SetDefaultUpstreamBranchDialogView(
                     onOptionSelected = { setSelectedBranch(it.value) }
                 )
             }
-        }
-        Row(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .align(Alignment.End)
-        ) {
-            PrimaryButton(
-                text = "Cancel",
-                modifier = Modifier.padding(end = 8.dp),
-                onClick = onClose,
-                backgroundColor = Color.Transparent,
-                textColor = MaterialTheme.colors.onBackground,
-            )
-            PrimaryButton(
-                onClick = {
-                    changeDefaultUpstreamBranch()
-                },
-                text = "Change"
-            )
         }
     }
 }

@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.TextLink
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 
 @Composable
 fun AppInfoDialog(

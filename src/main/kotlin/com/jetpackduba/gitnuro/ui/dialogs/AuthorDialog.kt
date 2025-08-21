@@ -17,6 +17,7 @@ import com.jetpackduba.gitnuro.generated.resources.warning
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.AuthorViewModel
 import org.jetbrains.compose.resources.painterResource
 

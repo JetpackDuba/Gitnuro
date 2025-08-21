@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.RemotesViewModel
 import kotlinx.coroutines.flow.collectLatest
 

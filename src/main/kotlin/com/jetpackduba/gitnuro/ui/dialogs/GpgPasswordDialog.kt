@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.key
+import com.jetpackduba.gitnuro.ui.dialogs.base.PasswordDialog
 
 @Composable
 fun GpgPasswordDialog(
@@ -19,7 +20,7 @@ fun GpgPasswordDialog(
         isRetry = gpgCredentialsRequest.isRetry,
         password = gpgCredentialsRequest.password,
         retryMessage = "Invalid password, please try again",
-        onReject = onReject,
+        onDismiss = onReject,
         onAccept = onAccept,
     )
 }

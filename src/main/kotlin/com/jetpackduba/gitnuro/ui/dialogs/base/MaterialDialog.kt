@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalComposeUiApi::class)
 
-package com.jetpackduba.gitnuro.ui.dialogs
+package com.jetpackduba.gitnuro.ui.dialogs.base
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

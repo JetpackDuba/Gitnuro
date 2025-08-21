@@ -23,6 +23,7 @@ import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.sign
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.SignOffDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.SignOffState
 import org.jetbrains.compose.resources.painterResource

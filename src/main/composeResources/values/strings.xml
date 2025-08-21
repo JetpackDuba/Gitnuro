@@ -4,6 +4,7 @@
     <!-- Generic -->
     <string name="generic_button_ok">OK</string>
     <string name="generic_button_cancel">Cancel</string>
+    <string name="generic_button_continue">Continue</string>
     <string name="generic_save_as_default">Save as default</string>
 
     <!-- Home page -->

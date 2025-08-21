@@ -23,6 +23,7 @@ import com.jetpackduba.gitnuro.generated.resources.undo
 import com.jetpackduba.gitnuro.git.log.ResetType
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import org.jetbrains.compose.resources.painterResource
 
 @Composable

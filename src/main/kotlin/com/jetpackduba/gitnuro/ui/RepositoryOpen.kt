@@ -59,7 +59,7 @@ fun RepositoryOpenPage(
 
     if (showNewBranchDialog) {
         NewBranchDialog(
-            onClose = {
+            onDismiss = {
                 showNewBranchDialog = false
             },
             onAccept = { branchName ->

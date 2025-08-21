@@ -22,7 +22,7 @@ import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
-import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import org.jetbrains.compose.resources.painterResource
 
 @Composable

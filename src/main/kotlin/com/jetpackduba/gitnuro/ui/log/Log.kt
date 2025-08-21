@@ -51,7 +51,6 @@ import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
-import com.jetpackduba.gitnuro.ui.components.TooltipText
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
@@ -609,23 +608,32 @@ fun LogDialogs(
 ) {
     when (showLogDialog) {
         is LogDialog.NewBranch -> {
-            NewBranchDialog(onClose = onResetShowLogDialog, onAccept = { branchName ->
-                logViewModel.createBranchOnCommit(branchName, showLogDialog.graphNode)
-                onResetShowLogDialog()
-            })
+            NewBranchDialog(
+                onDismiss = onResetShowLogDialog,
+                onAccept = { branchName ->
+                    logViewModel.createBranchOnCommit(branchName, showLogDialog.graphNode)
+                    onResetShowLogDialog()
+                }
+            )
         }
 
         is LogDialog.NewTag -> {
-            NewTagDialog(onReject = onResetShowLogDialog, onAccept = { tagName ->
-                logViewModel.createTagOnCommit(tagName, showLogDialog.graphNode)
-                onResetShowLogDialog()
-            })
+            NewTagDialog(
+                onDismiss = onResetShowLogDialog,
+                onAccept = { tagName ->
+                    logViewModel.createTagOnCommit(tagName, showLogDialog.graphNode)
+                    onResetShowLogDialog()
+                }
+            )
         }
 
-        is LogDialog.ResetBranch -> ResetBranchDialog(onReject = onResetShowLogDialog, onAccept = { resetType ->
-            logViewModel.resetToCommit(showLogDialog.graphNode, resetType)
-            onResetShowLogDialog()
-        })
+        is LogDialog.ResetBranch -> ResetBranchDialog(
+            onReject = onResetShowLogDialog,
+            onAccept = { resetType ->
+                logViewModel.resetToCommit(showLogDialog.graphNode, resetType)
+                onResetShowLogDialog()
+            }
+        )
 
         LogDialog.None -> {
         }

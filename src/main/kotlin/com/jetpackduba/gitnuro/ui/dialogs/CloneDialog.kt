@@ -22,7 +22,6 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.generic_save_as_default
-import com.jetpackduba.gitnuro.generated.resources.menu_open
 import com.jetpackduba.gitnuro.generated.resources.search
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
@@ -30,6 +29,7 @@ import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.CheckboxText
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.CloneViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
