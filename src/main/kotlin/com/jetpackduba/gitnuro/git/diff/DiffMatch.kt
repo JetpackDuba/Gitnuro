@@ -1171,7 +1171,7 @@ class DiffMatchPatch(
             }
             thisDiff = if (pointer.hasNext()) pointer.next() else null
         }
-        if (diffs.last.text!!.isEmpty()) {
+        if (diffs.last().text.isEmpty()) {
             diffs.removeLast() // Remove the dummy entry at the end.
         }
 
