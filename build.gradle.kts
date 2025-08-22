@@ -193,14 +193,14 @@ tasks.register("rust_build") {
     buildRust()
 }
 
-tasks.getByName("compileKotlin").doLast {
+tasks.getByName("compileKotlin").doFirst {
     println("compileKotlin called")
     buildRust()
     copyRustBuild()
     generateKotlinFromRs()
 }
 
-tasks.getByName("compileTestKotlin").doLast {
+tasks.getByName("compileTestKotlin").doFirst {
     println("compileTestKotlin called")
     buildRust()
     copyRustBuild()
