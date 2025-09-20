@@ -125,12 +125,6 @@ tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilation
     }
 }
 
-tasks.withType<JavaExec> {
-    javaLauncher.set(javaToolchains.launcherFor {
-        languageVersion.set(javaLanguageVersion)
-    })
-}
-
 tasks.withType<ComposeHotRun>().configureEach {
     mainClass.set("com.jetpackduba.gitnuro.MainKt")
 }
