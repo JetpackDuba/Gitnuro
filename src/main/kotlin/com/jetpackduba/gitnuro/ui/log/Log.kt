@@ -28,6 +28,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -56,6 +58,7 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.NewBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.NewTagDialog
+import com.jetpackduba.gitnuro.ui.dialogs.RenameBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
@@ -102,7 +105,7 @@ fun Log(
     logViewModel: LogViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
-    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
+    viewModelsProvider: IViewModelsProvider,
 ) {
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
@@ -115,7 +118,7 @@ fun Log(
             showLogDialog = showLogDialog,
             selectedItem = selectedItem,
             repositoryState = repositoryState,
-            changeUpstreamBranchDialogViewModel = changeUpstreamBranchDialogViewModel,
+            viewModelsProvider = viewModelsProvider,
             onRequestMoreLogItems = { firstVisibleItemIndex -> logViewModel.loadMoreLogItems(firstVisibleItemIndex) }
         )
 
@@ -148,7 +151,7 @@ private fun LogLoaded(
     showLogDialog: LogDialog,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
-    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
+    viewModelsProvider: IViewModelsProvider,
     onRequestMoreLogItems: (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -200,7 +203,8 @@ private fun LogLoaded(
         logViewModel,
         onResetShowLogDialog = { logViewModel.showDialog(LogDialog.None) },
         showLogDialog = showLogDialog,
-        changeUpstreamBranchDialogViewModel = changeUpstreamBranchDialogViewModel,
+        setUpstreamBranchDialogViewModel = { viewModelsProvider.setUpstreamBranchDialogViewModel },
+        renameBranchDialogViewModel = { viewModelsProvider.renameBranchDialogViewModel },
     )
 
     Column(
@@ -581,6 +585,7 @@ fun CommitsList(
                 onRebaseInteractive = { onRebaseInteractive(graphNode) },
                 onRevCommitSelected = { onCommitSelected(graphNode) },
                 onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) },
+                onRenameBranch = { onShowLogDialog(LogDialog.RenameBranchName(it)) },
                 onDeleteStash = { onDeleteStash(graphNode) },
                 onApplyStash = { onApplyStash(graphNode) },
                 onPopStash = { onPopStash(graphNode) },
@@ -603,7 +608,8 @@ fun CommitsList(
 fun LogDialogs(
     logViewModel: LogViewModel,
     onResetShowLogDialog: () -> Unit,
-    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
+    setUpstreamBranchDialogViewModel: () -> SetUpstreamBranchDialogViewModel,
+    renameBranchDialogViewModel: () -> RenameBranchDialogViewModel,
     showLogDialog: LogDialog,
 ) {
     when (showLogDialog) {
@@ -640,9 +646,17 @@ fun LogDialogs(
 
         is LogDialog.ChangeDefaultBranch -> {
             SetDefaultUpstreamBranchDialog(
-                viewModel = changeUpstreamBranchDialogViewModel(),
+                viewModel = setUpstreamBranchDialogViewModel(),
                 branch = showLogDialog.ref,
-                onClose = { onResetShowLogDialog() },
+                onDismiss = { onResetShowLogDialog() },
+            )
+        }
+
+        is LogDialog.RenameBranchName -> {
+            RenameBranchDialog(
+                viewModel = renameBranchDialogViewModel(),
+                branch = showLogDialog.ref,
+                onDismiss = { onResetShowLogDialog() },
             )
         }
     }
@@ -839,6 +853,7 @@ private fun CommitLine(
     onCheckoutRemoteBranch: (Ref) -> Unit,
     onCheckoutRef: (Ref) -> Unit,
     onChangeDefaultUpstreamBranch: (Ref) -> Unit,
+    onRenameBranch: (Ref) -> Unit,
     onCopyBranchNameToClipboard: (Ref) -> Unit,
     horizontalScrollState: ScrollState,
 ) {
@@ -934,6 +949,7 @@ private fun CommitLine(
                         onPushRemoteBranch = { ref -> onPushToRemoteBranch(ref) },
                         onPullRemoteBranch = { ref -> onPullFromRemoteBranch(ref) },
                         onChangeDefaultUpstreamBranch = { ref -> onChangeDefaultUpstreamBranch(ref) },
+                        onRenameBranch = { ref -> onRenameBranch(ref) },
                         onCopyBranchNameToClipboard = { ref -> onCopyBranchNameToClipboard(ref) },
                     )
                 }
@@ -957,6 +973,7 @@ fun CommitMessage(
     onPushRemoteBranch: (ref: Ref) -> Unit,
     onPullRemoteBranch: (ref: Ref) -> Unit,
     onChangeDefaultUpstreamBranch: (ref: Ref) -> Unit,
+    onRenameBranch: (ref: Ref) -> Unit,
     onCopyBranchNameToClipboard: (ref: Ref) -> Unit,
 ) {
     Row(
@@ -999,6 +1016,7 @@ fun CommitMessage(
                             onPullRemoteBranch = { onPullRemoteBranch(ref) },
                             onPushRemoteBranch = { onPushRemoteBranch(ref) },
                             onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
+                            onRenameBranch = { onRenameBranch(ref) },
                             onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(ref) },
                         )
                     }
@@ -1242,6 +1260,7 @@ fun BranchChip(
     onPullRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
     onCopyBranchNameToClipboard: () -> Unit,
+    onRenameBranch: () -> Unit,
     color: Color,
 ) {
     val contextMenuItemsList = {
@@ -1258,6 +1277,7 @@ fun BranchChip(
             onPushToRemoteBranch = onPushRemoteBranch,
             onPullFromRemoteBranch = onPullRemoteBranch,
             onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
+            onRenameBranch = onRenameBranch,
             onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
         )
     }

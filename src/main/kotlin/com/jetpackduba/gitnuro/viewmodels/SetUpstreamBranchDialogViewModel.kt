@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
-class ChangeUpstreamBranchDialogViewModel @Inject constructor(
+class SetUpstreamBranchDialogViewModel @Inject constructor(
     private val tabState: TabState,
     private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
     private val getRemotesUseCase: GetRemotesUseCase,

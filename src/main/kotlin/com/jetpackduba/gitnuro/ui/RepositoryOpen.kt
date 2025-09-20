@@ -323,9 +323,8 @@ fun MainContentView(
         thirdWidth = thirdWidth,
         first = {
             SidePanel(
-                repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
-                changeUpstreamBranchDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeUpstreamBranchDialogViewModel },
-                submoduleDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.submoduleDialogViewModel },
+                sidePanelViewModel = repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
+                viewModelsProvider = repositoryOpenViewModel.tabViewModelsProvider,
             )
         },
         second = {
@@ -351,7 +350,7 @@ fun MainContentView(
                                         logViewModel = repositoryOpenViewModel.tabViewModelsProvider.logViewModel,
                                         selectedItem = selectedItem,
                                         repositoryState = repositoryState,
-                                        changeUpstreamBranchDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeUpstreamBranchDialogViewModel },
+                                        viewModelsProvider = repositoryOpenViewModel.tabViewModelsProvider,
                                     )
                                 }
 

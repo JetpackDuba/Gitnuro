@@ -9,7 +9,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.simpleName
@@ -20,7 +19,7 @@ import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
-import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
+import com.jetpackduba.gitnuro.viewmodels.SetUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
 import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
@@ -46,9 +45,9 @@ fun SetDefaultUpstreamBranchDialogPreview() {
 
 @Composable
 fun SetDefaultUpstreamBranchDialog(
-    viewModel: ChangeUpstreamBranchDialogViewModel,
+    viewModel: SetUpstreamBranchDialogViewModel,
     branch: Ref,
-    onClose: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     LaunchedEffect(branch) {
         viewModel.init(branch)
@@ -57,14 +56,14 @@ fun SetDefaultUpstreamBranchDialog(
     val setDefaultUpstreamBranchState = viewModel.setDefaultUpstreamBranchState.collectAsState().value
     LaunchedEffect(setDefaultUpstreamBranchState) {
         if (setDefaultUpstreamBranchState is SetDefaultUpstreamBranchState.UpstreamChanged) {
-            onClose()
+            onDismiss()
         }
     }
 
-    MaterialDialog(onCloseRequested = onClose) {
+    MaterialDialog(onCloseRequested = onDismiss) {
         SetDefaultUpstreamBranchDialogView(
             state = setDefaultUpstreamBranchState,
-            onDismiss = onClose,
+            onDismiss = onDismiss,
             setSelectedRemote = { viewModel.setSelectedRemote(it) },
             setSelectedBranch = { viewModel.setSelectedBranch(it) },
             changeDefaultUpstreamBranch = { viewModel.changeDefaultUpstreamBranch() }

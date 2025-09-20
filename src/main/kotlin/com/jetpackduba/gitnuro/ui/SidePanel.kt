@@ -32,8 +32,9 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.dialogs.AddEditRemoteDialog
 import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
+import com.jetpackduba.gitnuro.ui.dialogs.RenameBranchDialog
 import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
-import com.jetpackduba.gitnuro.viewmodels.ChangeUpstreamBranchDialogViewModel
+import com.jetpackduba.gitnuro.viewmodels.IViewModelsProvider
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.lib.Ref
@@ -45,8 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun SidePanel(
     sidePanelViewModel: SidePanelViewModel,
-    changeUpstreamBranchDialogViewModel: () -> ChangeUpstreamBranchDialogViewModel,
-    submoduleDialogViewModel: () -> SubmoduleDialogViewModel,
+    viewModelsProvider: IViewModelsProvider,
     branchesViewModel: BranchesViewModel = sidePanelViewModel.branchesViewModel,
     remotesViewModel: RemotesViewModel = sidePanelViewModel.remotesViewModel,
     tagsViewModel: TagsViewModel = sidePanelViewModel.tagsViewModel,
@@ -64,6 +64,7 @@ fun SidePanel(
 
     val (showAddEditRemote, setShowAddEditRemote) = remember { mutableStateOf<RemoteWrapper?>(null) }
     val (branchToChangeUpstream, setBranchToChangeUpstream) = remember { mutableStateOf<Ref?>(null) }
+    val (branchToRename, setBranchToRename) = remember { mutableStateOf<Ref?>(null) }
     var showEditSubmodulesDialog by remember { mutableStateOf(false) }
     val searchFocusRequester = remember { FocusRequester() }
     val tabFocusRequester = LocalTabFocusRequester.current
@@ -101,7 +102,8 @@ fun SidePanel(
                 branchesState = branchesState,
                 selectedItem = selectedItem,
                 branchesViewModel = branchesViewModel,
-                onChangeDefaultUpstreamBranch = { setBranchToChangeUpstream(it) }
+                onChangeDefaultUpstreamBranch = { setBranchToChangeUpstream(it) },
+                onRenameBranch = { setBranchToRename(it) },
             )
 
             remotes(
@@ -142,15 +144,23 @@ fun SidePanel(
 
     if (branchToChangeUpstream != null) {
         SetDefaultUpstreamBranchDialog(
-            viewModel = changeUpstreamBranchDialogViewModel(),
+            viewModel = viewModelsProvider.setUpstreamBranchDialogViewModel,
             branch = branchToChangeUpstream,
-            onClose = { setBranchToChangeUpstream(null) }
+            onDismiss = { setBranchToChangeUpstream(null) }
+        )
+    }
+
+    if (branchToRename != null) {
+        RenameBranchDialog(
+            viewModel = viewModelsProvider.renameBranchDialogViewModel,
+            branch = branchToRename,
+            onDismiss = { setBranchToRename(null) }
         )
     }
 
     if (showEditSubmodulesDialog) {
         AddSubmodulesDialog(
-            viewModel = submoduleDialogViewModel(),
+            viewModel = viewModelsProvider.submoduleDialogViewModel,
             onDismiss = {
                 showEditSubmodulesDialog = false
             },
@@ -210,6 +220,7 @@ fun LazyListScope.localBranches(
     selectedItem: SelectedItem,
     branchesViewModel: BranchesViewModel,
     onChangeDefaultUpstreamBranch: (Ref) -> Unit,
+    onRenameBranch: (Ref) -> Unit,
 ) {
     val isExpanded = branchesState.isExpanded
     val branches = branchesState.branches
@@ -243,6 +254,7 @@ fun LazyListScope.localBranches(
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
                 onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
+                onRenameBranch = { onRenameBranch(branch) },
                 onCopyBranchNameToClipboard = { branchesViewModel.copyBranchNameToClipboard(branch) },
             )
         }
@@ -458,6 +470,7 @@ private fun Branch(
     onRebaseBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
+    onRenameBranch: () -> Unit,
     onCopyBranchNameToClipboard: () -> Unit,
 ) {
     val isCurrentBranch = currentBranch?.name == branch.name
@@ -476,6 +489,7 @@ private fun Branch(
                 onPushToRemoteBranch = {},
                 onPullFromRemoteBranch = {},
                 onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
+                onRenameBranch = onRenameBranch,
                 onCopyBranchNameToClipboard = onCopyBranchNameToClipboard
             )
         }
@@ -555,6 +569,7 @@ private fun RemoteBranches(
                 onPushToRemoteBranch = onPushRemoteBranch,
                 onPullFromRemoteBranch = onPullRemoteBranch,
                 onChangeDefaultUpstreamBranch = {},
+                onRenameBranch = {},
                 onCopyBranchNameToClipboard = onCopyBranchNameToClipboard
             )
         }

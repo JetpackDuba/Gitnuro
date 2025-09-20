@@ -24,6 +24,7 @@ fun branchContextMenuItems(
     onPushToRemoteBranch: () -> Unit,
     onPullFromRemoteBranch: () -> Unit,
     onChangeDefaultUpstreamBranch: () -> Unit,
+    onRenameBranch: () -> Unit,
     onCopyBranchNameToClipboard: () -> Unit,
 ): List<ContextMenuElement> {
 
@@ -73,6 +74,12 @@ fun branchContextMenuItems(
         }
 
         if (isLocal) {
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.branch_context_menu_rename_branch) },
+                icon = { painterResource(Res.drawable.edit) },
+                onClick = onRenameBranch,
+            )
+
             addContextMenu(
                 composableLabel = { stringResource(Res.string.branch_context_menu_change_default_upstream_branch) },
                 onClick = onChangeDefaultUpstreamBranch

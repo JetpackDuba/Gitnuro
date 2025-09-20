@@ -50,6 +50,7 @@ fun PasswordDialog(
             passwordField = it
             showRetryMessage = false
         },
+        fieldFocusRequester = passwordFieldFocusRequester,
         isPrimaryActionEnabled = true,
         primaryActionText = stringResource(Res.string.generic_button_continue),
         cancelActionText = cancelButtonText,

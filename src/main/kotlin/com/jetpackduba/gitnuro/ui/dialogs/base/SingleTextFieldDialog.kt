@@ -11,6 +11,7 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.generated.resources.Res
@@ -20,6 +21,7 @@ import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import org.jetbrains.compose.resources.stringResource
 
+
 @Composable
 fun SingleTextFieldDialog(
     icon: Painter,
@@ -28,6 +30,7 @@ fun SingleTextFieldDialog(
     value: String,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChange: (String) -> Unit,
+    fieldFocusRequester: FocusRequester = remember { FocusRequester() },
     primaryActionText: String,
     cancelActionText: String = stringResource(Res.string.generic_button_cancel),
     isPrimaryActionEnabled: Boolean,
@@ -36,7 +39,71 @@ fun SingleTextFieldDialog(
     fieldTrailingIcon: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (ColumnScope.() -> Unit)? = null,
 ) {
-    val fieldFocusRequester = remember { FocusRequester() }
+    val actionsFocusRequester = remember { FocusRequester() }
+
+    IconBasedDialog(
+        icon = icon,
+        title = title,
+        subtitle = subtitle,
+        primaryActionText = primaryActionText,
+        cancelActionText = cancelActionText,
+        isPrimaryActionEnabled = isPrimaryActionEnabled,
+        beforeActionsFocusRequester = fieldFocusRequester,
+        actionsFocusRequester = actionsFocusRequester,
+        afterActionsFocusRequester = fieldFocusRequester,
+        onDismiss = onDismiss,
+        onPrimaryActionClicked = onPrimaryActionClicked,
+    ) {
+        AdjustableOutlinedTextField(
+            modifier = Modifier
+                .focusRequester(fieldFocusRequester)
+                .focusProperties {
+                    this.next = actionsFocusRequester
+                }
+                .width(300.dp)
+                .onPreviewKeyEvent { keyEvent ->
+                    if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT) && isPrimaryActionEnabled) {
+                        onPrimaryActionClicked()
+                        true
+                    } else {
+                        false
+                    }
+                },
+            value = value,
+            maxLines = 1,
+            singleLine = true,
+            visualTransformation = visualTransformation,
+            trailingIcon = fieldTrailingIcon,
+            onValueChange = {
+                onValueChange(it)
+            },
+        )
+
+        trailingContent?.invoke(this)
+
+        LaunchedEffect(Unit) {
+            fieldFocusRequester.requestFocus()
+        }
+    }
+}
+
+@Composable
+fun SingleTextFieldDialog(
+    icon: Painter,
+    title: String,
+    subtitle: String,
+    value: TextFieldValue,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    onValueChange: (TextFieldValue) -> Unit,
+    fieldFocusRequester: FocusRequester = remember { FocusRequester() },
+    primaryActionText: String,
+    cancelActionText: String = stringResource(Res.string.generic_button_cancel),
+    isPrimaryActionEnabled: Boolean,
+    onDismiss: () -> Unit,
+    onPrimaryActionClicked: () -> Unit,
+    fieldTrailingIcon: @Composable (() -> Unit)? = null,
+    trailingContent: @Composable (ColumnScope.() -> Unit)? = null,
+) {
     val actionsFocusRequester = remember { FocusRequester() }
 
     IconBasedDialog(

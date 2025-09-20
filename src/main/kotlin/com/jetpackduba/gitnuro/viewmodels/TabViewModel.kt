@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TaskType
-import com.jetpackduba.gitnuro.credentials.CredentialsAccepted
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.git.FileChangesWatcher
@@ -26,9 +25,7 @@ import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
@@ -57,7 +54,7 @@ class TabViewModel @Inject constructor(
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val tabScope: CoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
-    val tabViewModelsProvider: TabViewModelsProvider,
+    val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val repositoryOpenViewModelProvider: Provider<RepositoryOpenViewModel>,
     updatesRepository: UpdatesRepository,

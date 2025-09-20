@@ -96,6 +96,7 @@
     <string name="branch_context_menu_rebase_branch">Rebase branch</string>
     <string name="branch_context_menu_push_current_to_target">Push "%1$s" to "%2$s"</string>
     <string name="branch_context_menu_pull_target_to_current">Pull "%1$s" to "%2$s"</string>
+    <string name="branch_context_menu_rename_branch">Rename branch</string>
     <string name="branch_context_menu_change_default_upstream_branch">Change default upstream branch</string>
     <string name="branch_context_menu_delete_remote_branch">Delete remote branch</string>
     <string name="branch_context_menu_delete_branch">Delete branch</string>
