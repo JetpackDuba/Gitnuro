@@ -307,6 +307,7 @@ fun LazyListScope.remotes(
                     },
                     onDeleteRemote = { remotesViewModel.deleteRemote(remote.remoteInfo.remoteConfig.name) },
                     onRemoteClicked = { remotesViewModel.onRemoteClicked(remote) },
+                    onFetchBranches = { remotesViewModel.onFetchRemoteBranches(remote) },
                 )
             }
 
@@ -521,6 +522,7 @@ private fun Remote(
     remote: RemoteView,
     onEditRemote: () -> Unit,
     onDeleteRemote: () -> Unit,
+    onFetchBranches: () -> Unit,
     onRemoteClicked: () -> Unit,
 ) {
     ContextMenu(
@@ -528,6 +530,7 @@ private fun Remote(
             remoteContextMenu(
                 onEdit = onEditRemote,
                 onDelete = onDeleteRemote,
+                onFetch = onFetchBranches,
             )
         }
     ) {

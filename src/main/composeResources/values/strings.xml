@@ -127,6 +127,7 @@
     <!-- Remote context menu -->
     <string name="remote_context_menu_edit">Edit</string>
     <string name="remote_context_menu_delete">Delete</string>
+    <string name="remote_context_menu_fetch_all">Fetch branches</string>
 
     <!-- Stash menu context menu -->
     <string name="stash_context_menu_stash_with_message">Stash with message</string>

@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.branches.DeleteLocallyRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.branches.GetCurrentBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
+import com.jetpackduba.gitnuro.git.remote_operations.FetchAllRemotesUseCase
 import com.jetpackduba.gitnuro.git.remotes.*
 import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.models.positiveNotification
@@ -35,6 +36,7 @@ class RemotesViewModel @AssistedInject constructor(
     private val getRemotesUseCase: GetRemotesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val deleteRemoteUseCase: DeleteRemoteUseCase,
+    private val fetchAllRemotesUseCase: FetchAllRemotesUseCase,
     private val addRemoteUseCase: AddRemoteUseCase,
     private val updateRemoteUseCase: UpdateRemoteUseCase,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
@@ -139,6 +141,16 @@ class RemotesViewModel @AssistedInject constructor(
         deleteLocallyRemoteBranchesUseCase(git, remoteToDeleteBranchesNames)
 
         positiveNotification("Remote $remoteName deleted")
+    }
+
+    fun onFetchRemoteBranches(remote: RemoteView) = tabState.safeProcessing(
+        refreshType = RefreshType.ALL_DATA,
+        taskType = TaskType.FETCH,
+    ) { git ->
+        val remoteConfig = remote.remoteInfo.remoteConfig
+        fetchAllRemotesUseCase(git, remoteConfig)
+
+        positiveNotification("Fetched branches from ${remoteConfig.name}")
     }
 
 

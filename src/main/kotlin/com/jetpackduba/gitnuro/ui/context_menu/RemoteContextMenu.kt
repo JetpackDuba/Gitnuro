@@ -11,6 +11,7 @@ import org.jetbrains.compose.resources.stringResource
 fun remoteContextMenu(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onFetch: () -> Unit,
 ): List<ContextMenuElement> = listOf(
     ContextMenuElement.ContextTextEntry(
         composableLabel = { stringResource(Res.string.remote_context_menu_edit) },
@@ -21,5 +22,11 @@ fun remoteContextMenu(
         composableLabel = { stringResource(Res.string.remote_context_menu_delete) },
         icon = { painterResource(Res.drawable.delete) },
         onClick = onDelete
+    ),
+    ContextMenuElement.ContextSeparator,
+    ContextMenuElement.ContextTextEntry(
+        composableLabel = { stringResource(Res.string.remote_context_menu_fetch_all) },
+        icon = null,
+        onClick = onFetch
     ),
 )
