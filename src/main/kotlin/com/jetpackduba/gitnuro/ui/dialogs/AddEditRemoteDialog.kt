@@ -91,7 +91,11 @@ fun AddEditRemoteDialog(
                         AdjustableOutlinedTextField(
                             value = remote.fetchUri,
                             onValueChange = { newValue ->
-                                remote = remote.copy(fetchUri = newValue)
+                                remote = if (remote.pushUri == remote.fetchUri) {
+                                    remote.copy(fetchUri = newValue, pushUri = newValue)
+                                } else {
+                                    remote.copy(fetchUri = newValue)
+                                }
                             },
                             singleLine = true,
                             colors = outlinedTextFieldColors(),
