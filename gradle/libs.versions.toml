@@ -1,15 +1,13 @@
 [versions]
 
 kotlin = "2.2.0"
-compose = "1.8.3"
 compose-plugin = "1.8.2"
 hotReload = "1.0.0-beta04"
 ksp = "2.2.0-2.0.2"
 jgit = "7.3.0.202506031305-r"
 dagger = "2.57"
 kotlinx-serialization = "1.9.0"
-junit-bom = "5.9.0"
-junit-jupiter = "5.9.2"
+junit-bom = "5.9.2"
 mockk = "1.13.4"
 kotlin-logging = "7.0.7"
 slf4j = "2.0.17"
@@ -30,7 +28,8 @@ dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" 
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 
 junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit-bom" }
-junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junit-jupiter" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter" }
+junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
