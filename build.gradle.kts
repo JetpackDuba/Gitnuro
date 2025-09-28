@@ -46,15 +46,18 @@ repositories {
     mavenCentral()
     google()
     maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+    maven { url = uri("https://repo.eclipse.org/content/groups/releases/") }
 }
 
 dependencies {
 
-    when {
-        currentOs() == OS.LINUX && isLinuxAarch64 -> implementation(compose.desktop.linux_arm64)
-        currentOs() == OS.MAC -> implementation(compose.desktop.macos_x64)
-        else -> implementation(compose.desktop.currentOs)
+    val composeDependency = when {
+        currentOs() == OS.LINUX && isLinuxAarch64 -> compose.desktop.linux_arm64
+        currentOs() == OS.MAC -> compose.desktop.macos_x64
+        else -> compose.desktop.currentOs
     }
+
+    implementation(composeDependency)
 
     implementation(compose.uiUtil)
     @OptIn(ExperimentalComposeLibrary::class)
