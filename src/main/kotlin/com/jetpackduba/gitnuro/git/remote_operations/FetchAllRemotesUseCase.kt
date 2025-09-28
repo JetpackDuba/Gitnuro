@@ -43,7 +43,7 @@ class FetchAllRemotesUseCase @Inject constructor(
 
                             override fun endTask() {}
 
-                            override fun isCancelled(): Boolean = isActive
+                            override fun isCancelled(): Boolean = !isActive
 
                             override fun showDuration(enabled: Boolean) {}
                         })
