@@ -167,6 +167,12 @@ class SettingsViewModel @Inject constructor(
             appSettingsRepository.proxyHostPassword = value
         }
 
+    var customActions: List<com.jetpackduba.gitnuro.models.CustomAction>
+        get() = appSettingsRepository.customActions
+        set(value) {
+            appSettingsRepository.customActions = value
+        }
+
     fun saveCustomTheme(filePath: String): Error? {
         return try {
             appSettingsRepository.saveCustomTheme(filePath)

@@ -28,17 +28,22 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun QuickActionsDialog(
     onClose: () -> Unit,
-    onAction: (QuickActionType) -> Unit,
+    onAction: (QuickAction) -> Unit,
+    customActions: List<com.jetpackduba.gitnuro.models.CustomAction>
 ) {
 
     val textFieldFocusRequester = remember { FocusRequester() }
-    val items = remember {
-        listOf(
-            QuickAction(Res.drawable.code, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
-            QuickAction(Res.drawable.download, "Clone new repository", QuickActionType.CLONE),
-            QuickAction(Res.drawable.refresh, "Refresh repository data", QuickActionType.REFRESH),
-            QuickAction(Res.drawable.sign, "Signoff config", QuickActionType.SIGN_OFF),
-        )
+    val items = remember(customActions) {
+        (
+            listOf(
+                QuickAction(Res.drawable.code, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
+                QuickAction(Res.drawable.download, "Clone new repository", QuickActionType.CLONE),
+                QuickAction(Res.drawable.refresh, "Refresh repository data", QuickActionType.REFRESH),
+                QuickAction(Res.drawable.sign, "Signoff config", QuickActionType.SIGN_OFF),
+            ) + customActions.map {
+                QuickAction(Res.drawable.bolt, it.name, QuickActionType.CUSTOM_ACTION, it.command)
+            }
+        ).sortedBy { it.title }
     }
 
     var searchFilter by remember { mutableStateOf("") }
@@ -70,7 +75,7 @@ fun QuickActionsDialog(
                     } else if (keyEvent.matchesBinding(KeybindingOption.SIMPLE_ACCEPT)) {
                         val item = filteredItems.getOrNull(selectedIndex)
                         if (item != null)
-                            onAction(item.type)
+                            onAction(item)
                         true
                     } else
                         false
@@ -98,7 +103,7 @@ fun QuickActionsDialog(
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(4.dp))
                             .backgroundIf(selectedIndex == index, MaterialTheme.colors.backgroundSelected)
-                            .handMouseClickable { onAction(item.type) }
+                            .handMouseClickable { onAction(item) }
                     ) {
                         Icon(
                             painterResource(item.icon),
@@ -123,11 +128,12 @@ fun QuickActionsDialog(
     }
 }
 
-data class QuickAction(val icon: DrawableResource, val title: String, val type: QuickActionType)
+data class QuickAction(val icon: DrawableResource, val title: String, val type: QuickActionType, val command: String = "")  
 
 enum class QuickActionType {
     OPEN_DIR_IN_FILE_MANAGER,
     CLONE,
     REFRESH,
-    SIGN_OFF
+    SIGN_OFF,
+    CUSTOM_ACTION
 }

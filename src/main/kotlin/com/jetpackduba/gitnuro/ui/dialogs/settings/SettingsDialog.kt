@@ -5,6 +5,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
@@ -25,6 +27,7 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.managers.Error
+import com.jetpackduba.gitnuro.models.CustomAction
 import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -72,6 +75,8 @@ val settings = listOf(
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(Res.drawable.terminal, "Terminal") { Terminal(it) },
     SettingsEntry.Entry(Res.drawable.info, "Logs") { Logs(it) },
+    SettingsEntry.Entry(Res.drawable.bolt, "Custom Actions") { CustomActions(it) },
+    
 )
 
 val linesHeightTypesList = listOf(
@@ -367,6 +372,96 @@ fun Terminal(settingsViewModel: SettingsViewModel) {
             commitsLimit = value
             settingsViewModel.terminalPath = value
         },
+    )
+}
+
+@Composable
+fun CustomActions(settingsViewModel: SettingsViewModel) {
+
+    var actions by remember { mutableStateOf(settingsViewModel.customActions.toMutableList()) }
+
+    Text(
+        text = "Custom Actions",
+        style = MaterialTheme.typography.body2,
+        color = MaterialTheme.colors.onBackground,
+        modifier = Modifier.fillMaxWidth(),
+        maxLines = 1
+    )
+
+    // Header row
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = "Name",
+            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackgroundSecondary,
+            modifier = Modifier.width(120.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = "Command",
+            style = MaterialTheme.typography.body2,
+            color = MaterialTheme.colors.onBackgroundSecondary,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(Modifier.width(8.dp))
+        // Empty space for Remove button
+        Spacer(Modifier.width(80.dp))
+    }
+
+    LazyColumn {
+        items(actions.size) { index ->
+            val command = actions[index]
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                AdjustableOutlinedTextField(
+                    value = command.name,
+                    modifier = Modifier.width(120.dp),
+                    onValueChange = { newName: String ->
+                        actions = actions.toMutableList().also { it[index] = command.copy(name = newName) }
+                        settingsViewModel.customActions = actions.toList()
+                    },
+                    singleLine = true
+                )
+                Spacer(Modifier.width(8.dp))
+                AdjustableOutlinedTextField(
+                    value = command.command,
+                    modifier = Modifier.weight(1f),
+                    onValueChange = { newCmd: String ->
+                        actions = actions.toMutableList().also { it[index] = command.copy(command = newCmd) }
+                        settingsViewModel.customActions = actions.toList()
+                    },
+                    singleLine = true,
+                )
+                Spacer(Modifier.width(8.dp))
+                PrimaryButton(
+                    text = "Remove",
+                    onClick = {
+                        actions = actions.toMutableList().also { it.removeAt(index) }
+                        settingsViewModel.customActions = actions.toList()
+                    }
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+
+    Spacer(Modifier.height(8.dp))
+    PrimaryButton(
+        text = "Add Action",
+        onClick = {
+            actions = actions.toMutableList().apply {
+                add(CustomAction(
+                    id = java.util.UUID.randomUUID().toString(),
+                    name = "New Action",
+                    command = "",
+                ))
+            }
+            settingsViewModel.customActions = actions.toList()
+        }
     )
 }
 

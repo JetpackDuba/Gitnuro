@@ -14,9 +14,11 @@ import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import com.jetpackduba.gitnuro.viewmodels.TextDiffType
 import com.jetpackduba.gitnuro.viewmodels.textDiffTypeFromValue
 import kotlinx.coroutines.flow.MutableStateFlow
+import com.jetpackduba.gitnuro.models.CustomAction
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import java.io.File
 import java.util.prefs.Preferences
 import javax.inject.Inject
@@ -59,6 +61,7 @@ private const val PREF_GIT_PULL_REBASE = "gitPullRebase"
 private const val PREF_GIT_PUSH_WITH_LEASE = "gitPushWithLease"
 
 private const val PREF_VERIFY_SSL = "verifySsl"
+private const val PREF_CUSTOM_ACTIONS = "customQuickActions"
 
 private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
 private const val DEFAULT_SHOW_CHANGES_AS_TREE = false
@@ -417,6 +420,24 @@ class AppSettingsRepository @Inject constructor() {
         set(value) {
             preferences.put(PREF_PROXY_PASSWORD, value)
             _proxyFlow.value = _proxyFlow.value.copy(hostPassword = value)
+        }
+
+    var customActions: List<CustomAction>
+        get() {
+            val json = preferences.get(PREF_CUSTOM_ACTIONS, null)
+            return if (json != null) {
+                try {
+                    Json.decodeFromString<List<CustomAction>>(json)
+                } catch (e: Exception) {
+                    emptyList()
+                }
+            } else {
+                emptyList()
+            }
+        }
+        set(value) {
+            val json = Json.encodeToString(value)
+            preferences.put(PREF_CUSTOM_ACTIONS, json)
         }
 
     fun saveCustomTheme(filePath: String) {

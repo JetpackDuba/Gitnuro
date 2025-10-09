@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.ErrorsManager
 import com.jetpackduba.gitnuro.managers.newErrorNow
+import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.models.errorNotification
 import com.jetpackduba.gitnuro.models.positiveNotification
@@ -25,6 +26,8 @@ import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,6 +75,9 @@ class RepositoryOpenViewModel @Inject constructor(
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
+    private val appSettingsRepository: AppSettingsRepository,
+    private val shellManager: IShellManager,
+
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel {
     private val errorsManager: ErrorsManager = tabState.errorsManager
@@ -109,6 +115,12 @@ class RepositoryOpenViewModel @Inject constructor(
 
     var authorViewModel: AuthorViewModel? = null
         private set
+
+    var customActions: List<com.jetpackduba.gitnuro.models.CustomAction>
+        get() = appSettingsRepository.customActions
+        set(value) {
+            appSettingsRepository.customActions = value
+        }
 
     private var hasGitDirChanged = false
 
@@ -361,8 +373,14 @@ class RepositoryOpenViewModel @Inject constructor(
     fun closeLastView() = tabScope.launch {
         tabState.closeLastView()
     }
-}
 
+    fun executeCustomAction(command: String) = tabState.runOperation(
+        showError = true,
+        refreshType = RefreshType.REPO_STATE,
+    ) { git ->
+         shellManager.runCommandInPath(listOf(command), git.repository.workTree.absolutePath)
+    }
+}
 
 sealed interface BlameState {
     data class Loading(val filePath: String) : BlameState
