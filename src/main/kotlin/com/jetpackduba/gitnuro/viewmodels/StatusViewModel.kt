@@ -515,7 +515,10 @@ class StatusViewModel @Inject constructor(
     fun openFileInFolder(folderPath: String?) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        folderPath?.let { File(git.repository.workTree.absolutePath + File.separator + it).openFileInFolder() }
+        if (folderPath != null) {
+            val file = File(git.repository.workTree.absolutePath + File.separator + folderPath)
+            file.openFileInFolder()
+        }
     }
 
     fun updateCommitMessage(message: String) {
