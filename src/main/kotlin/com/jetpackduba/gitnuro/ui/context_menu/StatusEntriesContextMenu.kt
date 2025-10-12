@@ -49,12 +49,10 @@ fun statusEntriesContextMenuItems(
             )
         }
 
-        add(
-            ContextMenuElement.ContextTextEntry(
-                label = "Open file in folder",
-                icon = { painterResource(Res.drawable.folder_open) },
-                onClick = onOpenFileInFolder,
-            )
+        addContextMenu(
+            composableLabel = { stringResource(Res.string.status_entries_context_menu_open_file_in_folder) },
+            icon = { painterResource(Res.drawable.folder_open) },
+            onClick = onOpenFileInFolder,
         )
     }
 }

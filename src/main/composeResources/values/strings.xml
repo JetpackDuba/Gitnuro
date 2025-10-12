@@ -89,6 +89,7 @@
     <string name="status_entries_context_menu_file_history">File history</string>
     <string name="status_entries_context_menu_blame_file">Blame file</string>
     <string name="status_entries_context_menu_discard_file_changes">Discard file changes</string>
+    <string name="status_entries_context_menu_open_file_in_folder">Open file in folder</string>
 
     <!-- Branch context menu -->
     <string name="branch_context_menu_checkout_branch">Checkout branch</string>
