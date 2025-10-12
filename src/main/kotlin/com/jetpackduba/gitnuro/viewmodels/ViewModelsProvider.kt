@@ -6,7 +6,7 @@ import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
 import javax.inject.Inject
 import javax.inject.Provider
 
-interface ITabViewModelsProvider {
+interface IViewModelsProvider {
     val logViewModel: LogViewModel
     val statusViewModel: StatusViewModel
     val menuViewModel: MenuViewModel
@@ -18,13 +18,14 @@ interface ITabViewModelsProvider {
     val diffViewModel: DiffViewModel
     val historyViewModel: HistoryViewModel
     val authorViewModel: AuthorViewModel
-    val changeUpstreamBranchDialogViewModel: ChangeUpstreamBranchDialogViewModel
+    val setUpstreamBranchDialogViewModel: SetUpstreamBranchDialogViewModel
+    val renameBranchDialogViewModel: RenameBranchDialogViewModel
     val submoduleDialogViewModel: SubmoduleDialogViewModel
     val signOffDialogViewModel: SignOffDialogViewModel
 }
 
 @TabScope
-class TabViewModelsProvider @Inject constructor(
+class ViewModelsProvider @Inject constructor(
     override val logViewModel: LogViewModel,
     override val statusViewModel: StatusViewModel,
     override val menuViewModel: MenuViewModel,
@@ -36,18 +37,21 @@ class TabViewModelsProvider @Inject constructor(
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
-    private val changeUpstreamBranchDialogViewModelProvider: Provider<ChangeUpstreamBranchDialogViewModel>,
+    private val setUpstreamBranchDialogViewModelProvider: Provider<SetUpstreamBranchDialogViewModel>,
+    private val renameBranchDialogViewModelProvider: Provider<RenameBranchDialogViewModel>,
     private val submoduleDialogViewModelProvider: Provider<SubmoduleDialogViewModel>,
     private val signOffDialogViewModelProvider: Provider<SignOffDialogViewModel>,
-) : ITabViewModelsProvider {
+) : IViewModelsProvider {
     override val diffViewModel: DiffViewModel
         get() = diffViewModelProvider.get()
     override val historyViewModel: HistoryViewModel
         get() = historyViewModelProvider.get()
     override val authorViewModel: AuthorViewModel
         get() = authorViewModelProvider.get()
-    override val changeUpstreamBranchDialogViewModel: ChangeUpstreamBranchDialogViewModel
-        get() = changeUpstreamBranchDialogViewModelProvider.get()
+    override val setUpstreamBranchDialogViewModel: SetUpstreamBranchDialogViewModel
+        get() = setUpstreamBranchDialogViewModelProvider.get()
+    override val renameBranchDialogViewModel: RenameBranchDialogViewModel
+        get() = renameBranchDialogViewModelProvider.get()
     override val submoduleDialogViewModel: SubmoduleDialogViewModel
         get() = submoduleDialogViewModelProvider.get()
     override val signOffDialogViewModel: SignOffDialogViewModel

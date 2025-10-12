@@ -59,7 +59,7 @@ fun RepositoryOpenPage(
 
     if (showNewBranchDialog) {
         NewBranchDialog(
-            onClose = {
+            onDismiss = {
                 showNewBranchDialog = false
             },
             onAccept = { branchName ->
@@ -69,7 +69,7 @@ fun RepositoryOpenPage(
         )
     } else if (showStashWithMessageDialog) {
         StashWithMessageDialog(
-            onClose = {
+            onDismiss = {
                 showStashWithMessageDialog = false
             },
             onAccept = { stashMessage ->
@@ -103,7 +103,7 @@ fun RepositoryOpenPage(
     } else if (showSignOffDialog) {
         SignOffDialog(
             viewModel = repositoryOpenViewModel.tabViewModelsProvider.signOffDialogViewModel,
-            onClose = { showSignOffDialog = false },
+            onDismiss = { showSignOffDialog = false },
         )
     }
 
@@ -323,9 +323,8 @@ fun MainContentView(
         thirdWidth = thirdWidth,
         first = {
             SidePanel(
-                repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
-                changeUpstreamBranchDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeUpstreamBranchDialogViewModel },
-                submoduleDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.submoduleDialogViewModel },
+                sidePanelViewModel = repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
+                viewModelsProvider = repositoryOpenViewModel.tabViewModelsProvider,
             )
         },
         second = {
@@ -351,7 +350,7 @@ fun MainContentView(
                                         logViewModel = repositoryOpenViewModel.tabViewModelsProvider.logViewModel,
                                         selectedItem = selectedItem,
                                         repositoryState = repositoryState,
-                                        changeUpstreamBranchDialogViewModel = { repositoryOpenViewModel.tabViewModelsProvider.changeUpstreamBranchDialogViewModel },
+                                        viewModelsProvider = repositoryOpenViewModel.tabViewModelsProvider,
                                     )
                                 }
 

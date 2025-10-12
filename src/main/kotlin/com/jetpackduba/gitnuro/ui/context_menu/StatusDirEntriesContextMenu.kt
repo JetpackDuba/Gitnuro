@@ -1,10 +1,8 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
-import com.jetpackduba.gitnuro.generated.resources.Res
-import com.jetpackduba.gitnuro.generated.resources.done
-import com.jetpackduba.gitnuro.generated.resources.remove_done
-import com.jetpackduba.gitnuro.generated.resources.undo
+import com.jetpackduba.gitnuro.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 fun statusDirEntriesContextMenuItems(
     entryType: EntryType,
@@ -12,31 +10,31 @@ fun statusDirEntriesContextMenuItems(
     onDiscardDirectoryChanges: () -> Unit,
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
-
-        val (text, icon) = if (entryType == EntryType.STAGED) {
-            "Unstage changes in the directory" to Res.drawable.remove_done
-        } else {
-            "Stage changes in the directory" to Res.drawable.done
-        }
-
-        add(
-            ContextMenuElement.ContextTextEntry(
-                label = text,
-                icon = { painterResource(icon) },
-                onClick = onStageChanges,
-            )
+        addContextMenu(
+            composableLabel = {
+                if (entryType == EntryType.STAGED) {
+                    stringResource(Res.string.status_dir_entries_context_menu_unstage_changes)
+                } else {
+                    stringResource(Res.string.status_dir_entries_context_menu_stage_changes)
+                }
+            },
+            icon = {
+                if (entryType == EntryType.STAGED) {
+                    painterResource(Res.drawable.remove_done)
+                } else {
+                    painterResource(Res.drawable.done)
+                }
+            },
+            onClick = onStageChanges,
         )
-
 
         if (entryType == EntryType.UNSTAGED) {
             add(ContextMenuElement.ContextSeparator)
 
-            add(
-                ContextMenuElement.ContextTextEntry(
-                    label = "Discard changes in the directory",
-                    icon = { painterResource(Res.drawable.undo) },
-                    onClick = onDiscardDirectoryChanges,
-                )
+            addContextMenu(
+                composableLabel = { stringResource(Res.string.status_dir_entries_context_menu_discard_changes) },
+                icon = { painterResource(Res.drawable.undo) },
+                onClick = onDiscardDirectoryChanges,
             )
         }
     }

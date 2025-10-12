@@ -12,7 +12,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.awtEventOrNull
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
@@ -35,7 +34,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import com.jetpackduba.gitnuro.extensions.awaitFirstDownEvent
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.copy
@@ -47,7 +45,6 @@ import com.jetpackduba.gitnuro.theme.isDark
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import org.jetbrains.compose.resources.painterResource
 import java.awt.event.KeyEvent
-import java.awt.event.MouseEvent
 import kotlin.math.abs
 
 private var lastCheck: Long = 0
@@ -297,7 +294,7 @@ fun TextEntry(
         }
 
         Text(
-            contextTextEntry.label,
+            contextTextEntry.composableLabel(),
             style = MaterialTheme.typography.body2,
             modifier = Modifier.fillMaxWidth(),
         )
@@ -310,9 +307,21 @@ sealed class ContextMenuElement(
 ) : ContextMenuItem(label, onClick) {
     class ContextTextEntry(
         label: String,
+        val composableLabel: @Composable (() -> String) = { label },
         val icon: @Composable (() -> Painter)? = null,
         onClick: () -> Unit = {},
-    ) : ContextMenuElement(label, onClick)
+    ) : ContextMenuElement(label, onClick) {
+        constructor(
+            composableLabel: @Composable (() -> String),
+            icon: @Composable (() -> Painter)? = null,
+            onClick: () -> Unit = {},
+        ) : this(
+            label = "",
+            composableLabel,
+            icon,
+            onClick,
+        )
+    }
 
     object ContextSeparator : ContextMenuElement("", {})
 }
@@ -452,4 +461,18 @@ class AppContextMenuRepresentation : ContextMenuRepresentation {
             }
         }
     }
+}
+
+fun MutableList<ContextMenuElement>.addContextMenu(
+    composableLabel: @Composable (() -> String),
+    icon: @Composable (() -> Painter)? = null,
+    onClick: () -> Unit = {},
+) {
+    this.add(
+        ContextMenuElement.ContextTextEntry(
+            composableLabel = composableLabel,
+            icon = icon,
+            onClick = onClick,
+        )
+    )
 }

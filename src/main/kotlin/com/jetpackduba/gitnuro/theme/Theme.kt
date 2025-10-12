@@ -46,7 +46,7 @@ enum class LinesHeightType(val value: Int) {
 fun AppTheme(
     selectedTheme: Theme = Theme.DARK,
     linesHeightType: LinesHeightType = LinesHeightType.COMPACT,
-    customTheme: ColorsScheme?,
+    customTheme: ColorsScheme? = null,
     content: @Composable () -> Unit,
 ) {
     val theme = when (selectedTheme) {

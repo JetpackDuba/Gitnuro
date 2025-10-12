@@ -17,8 +17,13 @@ private const val TAG = "FetchAllBranchesUseCase"
 class FetchAllRemotesUseCase @Inject constructor(
     private val handleTransportUseCase: HandleTransportUseCase,
 ) {
-    suspend operator fun invoke(git: Git) = withContext(Dispatchers.IO) {
-        val remotes = git.remoteList().call()
+    suspend operator fun invoke(git: Git, specificRemote: RemoteConfig? = null) = withContext(Dispatchers.IO) {
+        val remotes = if (specificRemote != null) {
+            listOf(specificRemote)
+        } else {
+            git.remoteList().call()
+        }
+
         val errors = mutableListOf<Pair<RemoteConfig, Exception>>()
         for (remote in remotes) {
             try {
@@ -38,7 +43,7 @@ class FetchAllRemotesUseCase @Inject constructor(
 
                             override fun endTask() {}
 
-                            override fun isCancelled(): Boolean = isActive
+                            override fun isCancelled(): Boolean = !isActive
 
                             override fun showDuration(enabled: Boolean) {}
                         })

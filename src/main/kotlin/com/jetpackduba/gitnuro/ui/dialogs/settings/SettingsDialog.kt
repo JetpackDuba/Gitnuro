@@ -34,7 +34,7 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
-import com.jetpackduba.gitnuro.ui.dialogs.MaterialDialog
+import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
@@ -42,6 +42,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import java.time.Instant
 
 sealed interface SettingsEntry {
@@ -61,6 +62,7 @@ val settings = listOf(
     SettingsEntry.Entry(Res.drawable.layout, "Layout") { Layout(it) },
     SettingsEntry.Entry(Res.drawable.schedule, "Date/Time") { DateTime(it) },
     SettingsEntry.Section("GIT"),
+    SettingsEntry.Entry(Res.drawable.folder, "Environment") { Environment(it) },
     SettingsEntry.Entry(Res.drawable.branch, "Branches") { Branches(it) },
     SettingsEntry.Entry(Res.drawable.cloud, "Remote actions") { RemoteActions(it) },
 
@@ -382,6 +384,21 @@ fun Logs(settingsViewModel: SettingsViewModel) {
     )
 }
 
+
+@Composable
+private fun Environment(settingsViewModel: SettingsViewModel) {
+    var defaultCloneDir by remember { mutableStateOf(settingsViewModel.defaultCloneDir) }
+
+    SettingTextInput(
+        title = stringResource(Res.string.settings_environment_default_clone_directory_title),
+        subtitle = stringResource(Res.string.settings_environment_default_clone_directory_description),
+        value = defaultCloneDir,
+        onValueChanged = { value ->
+            defaultCloneDir = value
+            settingsViewModel.defaultCloneDir = value
+        },
+    )
+}
 
 @Composable
 private fun Branches(settingsViewModel: SettingsViewModel) {

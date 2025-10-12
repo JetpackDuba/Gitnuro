@@ -98,6 +98,7 @@ data class Error(
             TaskType.CHECKOUT_REMOTE_BRANCH -> "Remote branch checkout failed"
             TaskType.CREATE_BRANCH -> "Could not create the new branch"
             TaskType.DELETE_BRANCH -> "Could not delete the branch"
+            TaskType.RENAME_BRANCH -> "Could not rename the branch"
             TaskType.MERGE_BRANCH -> "Merge failed"
             TaskType.REBASE_BRANCH -> "Rebase failed"
             TaskType.REBASE_INTERACTIVE -> "Rebase interactive failed"

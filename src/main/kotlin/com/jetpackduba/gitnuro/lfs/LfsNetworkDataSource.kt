@@ -171,7 +171,14 @@ class LfsNetworkDataSource @Inject constructor(
         user: String?,
         password: String?,
     ) {
-        for (header in newHeaders) {
+        // Some headers should not be included because Ktor already sets them and adding them twice makes it crash
+        val excludedHeaders = listOf(
+            "Transfer-Encoding"
+        )
+
+        val filteredNewHeaders = newHeaders.filter { it.key !in excludedHeaders }
+
+        for (header in filteredNewHeaders) {
             header(header.key, header.value)
         }
 

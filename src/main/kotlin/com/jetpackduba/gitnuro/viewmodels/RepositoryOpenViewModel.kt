@@ -28,9 +28,7 @@ import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
@@ -68,7 +66,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
-    val tabViewModelsProvider: TabViewModelsProvider,
+    val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,

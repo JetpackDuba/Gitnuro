@@ -23,6 +23,7 @@ import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -439,7 +440,7 @@ class StatusViewModel @Inject constructor(
 
                 PersonIdent(authorInfo.globalName, authorInfo.globalEmail)
             } else {
-                null
+                throw CancellationException("Author info request cancelled")
             }
         } else
             null

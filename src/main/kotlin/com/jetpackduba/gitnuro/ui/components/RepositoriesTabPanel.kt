@@ -272,7 +272,7 @@ class TabInformation(
             this.path = newPath
 
             if (newPath == null) {
-                tabName.value = DEFAULT_NAME
+                tabName.value = NEW_TAB_DEFAULT_NAME
             } else {
                 tabName.value = Path(newPath).name
                 appStateManager.repositoryTabChanged(newPath)
@@ -290,7 +290,7 @@ class TabInformation(
     }
 
     companion object {
-        const val DEFAULT_NAME = "New tab"
+        const val NEW_TAB_DEFAULT_NAME = "New tab"
     }
 }
 

@@ -43,6 +43,7 @@ import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.BottomInfoBar
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
+import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
@@ -471,18 +472,20 @@ fun RecentRepositoriesList(
                                 overflow = TextOverflow.Ellipsis,
                             )
 
-                            Text(
-                                text = if (repoDirPath.startsWith(System.getProperty("user.home"))) {
-                                    "~${repoDirPath.removePrefix(System.getProperty("user.home"))}"
-                                } else {
-                                    repoDirPath
-                                },
-                                style = MaterialTheme.typography.body2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier,
-                                maxLines = 1,
-                                color = MaterialTheme.colors.onBackgroundSecondary
-                            )
+                            InstantTooltip(repoDirPath) {
+                                Text(
+                                    text = if (repoDirPath.startsWith(System.getProperty("user.home"))) {
+                                        "~${repoDirPath.removePrefix(System.getProperty("user.home"))}"
+                                    } else {
+                                        repoDirPath
+                                    },
+                                    style = MaterialTheme.typography.body2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier,
+                                    maxLines = 1,
+                                    color = MaterialTheme.colors.onBackgroundSecondary
+                                )
+                            }
                         }
 
 

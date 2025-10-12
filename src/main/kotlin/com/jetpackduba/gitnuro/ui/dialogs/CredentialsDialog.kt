@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.lfs
+import com.jetpackduba.gitnuro.ui.dialogs.base.UserPasswordDialog
 import com.jetpackduba.gitnuro.viewmodels.TabViewModel
 import org.jetbrains.compose.resources.painterResource
 
@@ -16,8 +17,8 @@ fun CredentialsDialog(tabViewModel: TabViewModel) {
 
     when (val credentialsStateValue = credentialsState.value) {
         CredentialsRequest.HttpCredentialsRequest -> {
-            UserPasswordDialog(
-                onReject = {
+            HttpCredentialsDialog(
+                onDismiss = {
                     tabViewModel.credentialsDenied()
                 },
                 onAccept = { user, password ->
@@ -54,7 +55,7 @@ fun CredentialsDialog(tabViewModel: TabViewModel) {
                 title = "LFS Server Credentials",
                 subtitle = "Introduce the credentials for your LFS server",
                 icon = painterResource(Res.drawable.lfs),
-                onReject = {
+                onDismiss = {
                     tabViewModel.credentialsDenied()
                 },
                 onAccept = { user, password ->

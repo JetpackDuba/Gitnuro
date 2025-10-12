@@ -171,7 +171,7 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
                     return 0
                 }
                 val who = revObject.taggerIdent
-                return who?.getWhen()?.time ?: 0
+                return who?.whenAsInstant?.toEpochMilli() ?: 0
             }
             return 0
         }
