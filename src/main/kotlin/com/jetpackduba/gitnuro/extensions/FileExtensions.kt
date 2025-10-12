@@ -22,7 +22,7 @@ fun File.openDirectory(dirName: String): File {
 fun File.openFileInFolder() {
 
     if (!exists() || !isDirectory) {
-        printError(TAG, "Folder with path $path does not exist or is not a folder")
+        printError(TAG, "Folder with path \"$path\" does not exist or is not a folder")
         return
     }
 

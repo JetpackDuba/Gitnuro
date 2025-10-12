@@ -159,8 +159,8 @@ class CommitChangesViewModel @Inject constructor(
 
     fun openFileInFolder(folderPath: String?) = tabState.runOperation(
         refreshType = RefreshType.NONE,
-    ) {
-        folderPath?.let { File(it).openFileInFolder() }
+    ) { git ->
+        folderPath?.let { File(git.repository.workTree.absolutePath + File.separator + it).openFileInFolder() }
     }
 
     fun onDirectoryClicked(directoryPath: String) {
