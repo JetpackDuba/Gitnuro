@@ -358,10 +358,7 @@ class RepositoryOpenViewModel @Inject constructor(
         showError = true,
         refreshType = RefreshType.NONE,
     ) { git ->
-        val editor = appSettings.editor;
-
-        // TODO: Verify editor input when saving instead of here when using it
-        if (editor.trim().isEmpty()) {
+        if (!appSettings.hasEditorSet) {
             errorsManager.emitNotification(
                 errorNotification("No editor configured")
             )
@@ -369,7 +366,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
 
         val dir = git.repository.workTree;
-        val processBuilder = ProcessBuilder(editor, dir.path)
+        val processBuilder = ProcessBuilder(appSettings.editor, dir.path)
         processBuilder.directory(dir)
         processBuilder.start()
     }
