@@ -36,6 +36,7 @@ fun QuickActionsDialog(
     val items = remember {
         listOf(
             QuickAction(Res.drawable.code, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
+            QuickAction(Res.drawable.code, "Open repository in editor", QuickActionType.OPEN_DIR_IN_EDITOR),
             QuickAction(Res.drawable.download, "Clone new repository", QuickActionType.CLONE),
             QuickAction(Res.drawable.refresh, "Refresh repository data", QuickActionType.REFRESH),
             QuickAction(Res.drawable.sign, "Signoff config", QuickActionType.SIGN_OFF),
@@ -128,6 +129,7 @@ data class QuickAction(val icon: DrawableResource, val title: String, val type: 
 
 enum class QuickActionType {
     OPEN_DIR_IN_FILE_MANAGER,
+    OPEN_DIR_IN_EDITOR,
     CLONE,
     REFRESH,
     SIGN_OFF

@@ -352,6 +352,17 @@ class RepositoryOpenViewModel @Inject constructor(
         Desktop.getDesktop().open(git.repository.workTree)
     }
 
+    fun openFolderInEditor() = tabState.runOperation(
+        showError = true,
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        val dir = git.repository.workTree;
+        // TODO: Make editor configurable
+        val processBuilder = ProcessBuilder("vscodium", dir.path)
+        processBuilder.directory(dir)
+        processBuilder.start()
+    }
+
     fun openUrlInBrowser(url: String) {
         openUrlInBrowserUseCase(url)
     }
