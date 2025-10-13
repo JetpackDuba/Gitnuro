@@ -166,6 +166,11 @@ fun RepositoryOpenPage(
                         true
                     }
 
+                    it.matchesBinding(KeybindingOption.OPEN_EDITOR) -> {
+                        repositoryOpenViewModel.openFolderInEditor()
+                        true
+                    }
+
                     else -> false
                 }
 
