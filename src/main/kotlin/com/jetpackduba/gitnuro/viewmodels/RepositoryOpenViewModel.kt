@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.models.errorNotification
 import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
@@ -68,6 +69,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
+    private val appSettings: AppSettingsRepository,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -356,9 +358,14 @@ class RepositoryOpenViewModel @Inject constructor(
         showError = true,
         refreshType = RefreshType.NONE,
     ) { git ->
+        val editor = appSettings.editor;
+
+        // TODO: Verify editor input when saving instead of here when using it
+        // TODO: Show some message to the user
+        if(editor.trim().isEmpty()) return@runOperation
+
         val dir = git.repository.workTree;
-        // TODO: Make editor configurable
-        val processBuilder = ProcessBuilder("vscodium", dir.path)
+        val processBuilder = ProcessBuilder(editor, dir.path)
         processBuilder.directory(dir)
         processBuilder.start()
     }
