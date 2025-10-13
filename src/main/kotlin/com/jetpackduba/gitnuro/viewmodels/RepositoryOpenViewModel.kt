@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TaskType
+import com.jetpackduba.gitnuro.editor.OpenRepositoryInEditorUseCase
 import com.jetpackduba.gitnuro.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
@@ -64,14 +65,13 @@ class RepositoryOpenViewModel @Inject constructor(
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val openInEditorUseCase: OpenRepositoryInEditorUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
-    private val appSettings: AppSettingsRepository,
-    private val shellManager: IShellManager,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -360,15 +360,7 @@ class RepositoryOpenViewModel @Inject constructor(
         showError = true,
         refreshType = RefreshType.NONE,
     ) { git ->
-        if (!appSettings.hasEditorSet) {
-            errorsManager.emitNotification(
-                errorNotification("No editor configured")
-            )
-            return@runOperation
-        }
-
-        val dir = git.repository.workTree;
-        shellManager.runCommandInPath(listOf(appSettings.editor, dir.path), dir.path)
+      openInEditorUseCase(git.repository.workTree.path)
     }
 
     fun openUrlInBrowser(url: String) {

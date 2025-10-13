@@ -255,9 +255,6 @@ class AppSettingsRepository @Inject constructor() {
             _editorFlow.value = value
         }
 
-    val hasEditorSet: Boolean
-        get() = editor.isNotEmpty()
-
     var scaleUi: Float
         get() {
             return preferences.getFloat(PREF_UI_SCALE, DEFAULT_UI_SCALE)
