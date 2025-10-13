@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.logging.printDebug
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.ErrorsManager
+import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.models.errorNotification
@@ -70,6 +71,7 @@ class RepositoryOpenViewModel @Inject constructor(
     val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val appSettings: AppSettingsRepository,
+    private val shellManager: IShellManager,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -366,9 +368,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
 
         val dir = git.repository.workTree;
-        val processBuilder = ProcessBuilder(appSettings.editor, dir.path)
-        processBuilder.directory(dir)
-        processBuilder.start()
+        shellManager.runCommandInPath(listOf(appSettings.editor, dir.path), dir.path)
     }
 
     fun openUrlInBrowser(url: String) {
