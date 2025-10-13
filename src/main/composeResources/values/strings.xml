@@ -37,6 +37,8 @@
     <string name="menu_pop_stash_tooltip">Pop the last stash</string>
     <string name="menu_terminal">Terminal</string>
     <string name="menu_terminal_tooltip">Open a terminal in the repository's path</string>
+    <string name="menu_editor">Editor</string>
+    <string name="menu_editor_tooltip">Open a repository in external editor</string>
     <string name="menu_actions">Actions</string>
     <string name="menu_actions_tooltip">Additional actions</string>
     <string name="menu_settings">Settings</string>
