@@ -3,10 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
-import com.jetpackduba.gitnuro.extensions.delayedStateChange
-import com.jetpackduba.gitnuro.extensions.filePath
-import com.jetpackduba.gitnuro.extensions.fullData
-import com.jetpackduba.gitnuro.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.git.CloseableView
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -19,6 +16,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.revwalk.RevCommit
+import java.io.File
 import javax.inject.Inject
 
 private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 300L
@@ -157,6 +155,15 @@ class CommitChangesViewModel @Inject constructor(
 
     fun alternateShowAsTree() {
         appSettingsRepository.showChangesAsTree = !appSettingsRepository.showChangesAsTree
+    }
+
+    fun openFileInFolder(folderPath: String?) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        if (folderPath != null) {
+            val file = File(git.repository.workTree.absolutePath + File.separator + folderPath)
+            file.openFileInFolder()
+        }
     }
 
     fun onDirectoryClicked(directoryPath: String) {

@@ -13,6 +13,7 @@ fun statusEntriesContextMenuItems(
     onDelete: () -> Unit = {},
     onBlame: () -> Unit,
     onHistory: () -> Unit,
+    onOpenFileInFolder: () -> Unit,
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
         if (statusEntry.statusType != StatusType.ADDED) {
@@ -47,6 +48,12 @@ fun statusEntriesContextMenuItems(
                 onClick = onDelete,
             )
         }
+
+        addContextMenu(
+            composableLabel = { stringResource(Res.string.status_entries_context_menu_open_file_in_folder) },
+            icon = { painterResource(Res.drawable.folder_open) },
+            onClick = onOpenFileInFolder,
+        )
     }
 }
 

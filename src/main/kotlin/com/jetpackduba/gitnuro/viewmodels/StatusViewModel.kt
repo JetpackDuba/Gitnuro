@@ -129,7 +129,10 @@ class StatusViewModel @Inject constructor(
                             stageStateFiltered.unstaged,
                             contractedDirectories
                         ) { it.filePath },
-                        filteredStaged = entriesToTreeEntry(stageStateFiltered.filteredStaged, contractedDirectories) { it.filePath },
+                        filteredStaged = entriesToTreeEntry(
+                            stageStateFiltered.filteredStaged,
+                            contractedDirectories
+                        ) { it.filePath },
                         filteredUnstaged = entriesToTreeEntry(
                             stageStateFiltered.filteredUnstaged,
                             contractedDirectories
@@ -508,6 +511,15 @@ class StatusViewModel @Inject constructor(
         val fileToDelete = File(git.repository.workTree, path)
 
         fileToDelete.deleteRecursively()
+    }
+
+    fun openFileInFolder(folderPath: String?) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        if (folderPath != null) {
+            val file = File(git.repository.workTree.absolutePath + File.separator + folderPath)
+            file.openFileInFolder()
+        }
     }
 
     fun updateCommitMessage(message: String) {
