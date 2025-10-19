@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TaskType
+import com.jetpackduba.gitnuro.editor.OpenRepositoryInEditorUseCase
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.FetchAllRemotesUseCase
@@ -23,6 +24,7 @@ interface IGlobalMenuActionsViewModel {
     fun stash(): Job
     fun popStash(): Job
     fun openTerminal(): Job
+    fun openEditor(): Job
 }
 
 class GlobalMenuActionsViewModel @Inject constructor(
@@ -33,6 +35,7 @@ class GlobalMenuActionsViewModel @Inject constructor(
     private val popLastStashUseCase: PopLastStashUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val openRepositoryInTerminalUseCase: OpenRepositoryInTerminalUseCase,
+    private val openRepositoryInEditorUseCase: OpenRepositoryInEditorUseCase,
 ) : IGlobalMenuActionsViewModel {
     override fun pull(pullType: PullType) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
@@ -99,5 +102,11 @@ class GlobalMenuActionsViewModel @Inject constructor(
         refreshType = RefreshType.NONE
     ) { git ->
         openRepositoryInTerminalUseCase(git.repository.workTree.absolutePath)
+    }
+
+    override fun openEditor() = tabState.runOperation(
+        refreshType = RefreshType.NONE
+    ) { git ->
+        openRepositoryInEditorUseCase(git.repository.workTree.absolutePath)
     }
 }

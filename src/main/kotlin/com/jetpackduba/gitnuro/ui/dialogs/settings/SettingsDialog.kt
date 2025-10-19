@@ -73,6 +73,7 @@ val settings = listOf(
 
     SettingsEntry.Section("Tools"),
     SettingsEntry.Entry(Res.drawable.terminal, "Terminal") { Terminal(it) },
+    SettingsEntry.Entry(Res.drawable.edit, "Editor") { Editor(it) },
     SettingsEntry.Entry(Res.drawable.info, "Logs") { Logs(it) },
 )
 
@@ -354,6 +355,20 @@ private fun Security(settingsViewModel: SettingsViewModel) {
         onValueChanged = { value ->
             settingsViewModel.verifySsl = !value
         }
+    )
+}
+
+@Composable
+fun Editor(settingsViewModel: SettingsViewModel) {
+    val editor by settingsViewModel.editorFlow.collectAsState()
+
+    SettingTextInput(
+        title = "External editor path",
+        subtitle = "Configure an external editor to open the repository with",
+        value = editor,
+        onValueChanged = { value ->
+            settingsViewModel.editor = value
+        },
     )
 }
 

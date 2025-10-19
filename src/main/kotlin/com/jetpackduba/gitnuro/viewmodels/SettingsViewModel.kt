@@ -43,6 +43,7 @@ class SettingsViewModel @Inject constructor(
     val swapUncommittedChangesFlow = appSettingsRepository.swapUncommittedChangesFlow
     val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow
     val verifySslFlow = appSettingsRepository.verifySslFlow
+    val editorFlow = appSettingsRepository.editorFlow
     val terminalPathFlow = appSettingsRepository.terminalPathFlow
     val avatarProviderFlow = appSettingsRepository.avatarProviderTypeFlow
     val dateFormatFlow = appSettingsRepository.dateTimeFormatFlow
@@ -88,6 +89,12 @@ class SettingsViewModel @Inject constructor(
         get() = appSettingsRepository.verifySsl
         set(value) {
             appSettingsRepository.verifySsl = value
+        }
+
+    var editor: String
+        get() = appSettingsRepository.editor
+        set(value) {
+            appSettingsRepository.editor = value
         }
 
     var pullRebase: Boolean

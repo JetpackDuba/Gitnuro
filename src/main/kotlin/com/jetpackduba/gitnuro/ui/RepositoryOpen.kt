@@ -94,6 +94,7 @@ fun RepositoryOpenPage(
                 showQuickActionsDialog = false
                 when (it) {
                     QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> repositoryOpenViewModel.openFolderInFileExplorer()
+                    QuickActionType.OPEN_DIR_IN_EDITOR -> repositoryOpenViewModel.openFolderInEditor()
                     QuickActionType.CLONE -> onShowCloneDialog()
                     QuickActionType.REFRESH -> repositoryOpenViewModel.refreshAll()
                     QuickActionType.SIGN_OFF -> showSignOffDialog = true
@@ -162,6 +163,11 @@ fun RepositoryOpenPage(
 
                     it.matchesBinding(KeybindingOption.SETTINGS) -> {
                         onShowSettingsDialog()
+                        true
+                    }
+
+                    it.matchesBinding(KeybindingOption.OPEN_EDITOR) -> {
+                        repositoryOpenViewModel.openFolderInEditor()
                         true
                     }
 

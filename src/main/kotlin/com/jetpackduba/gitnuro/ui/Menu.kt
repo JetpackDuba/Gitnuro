@@ -176,6 +176,15 @@ fun Menu(
 
         MenuButton(
             modifier = Modifier.padding(end = 4.dp),
+            title = stringResource(Res.string.menu_editor),
+            icon = painterResource(Res.drawable.edit),
+            onClick = { menuViewModel.openEditor() },
+            tooltip = stringResource(Res.string.menu_editor_tooltip),
+            keybinding = KeybindingOption.OPEN_EDITOR.keyBinding,
+        )
+
+        MenuButton(
+            modifier = Modifier.padding(end = 4.dp),
             title = stringResource(Res.string.menu_actions),
             icon = painterResource(Res.drawable.bolt),
             onClick = onQuickActions,

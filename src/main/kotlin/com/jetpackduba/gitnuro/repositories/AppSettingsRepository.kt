@@ -61,6 +61,8 @@ private const val PREF_GIT_PUSH_WITH_LEASE = "gitPushWithLease"
 
 private const val PREF_VERIFY_SSL = "verifySsl"
 
+private const val PREF_EDITOR = "editor"
+
 private const val DEFAULT_SWAP_UNCOMMITTED_CHANGES = false
 private const val DEFAULT_SHOW_CHANGES_AS_TREE = false
 private const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
@@ -90,6 +92,9 @@ class AppSettingsRepository @Inject constructor() {
 
     private val _verifySslFlow = MutableStateFlow(cacheCredentialsInMemory)
     val verifySslFlow = _verifySslFlow.asStateFlow()
+
+    private val _editorFlow = MutableStateFlow(editor)
+    val editorFlow = _editorFlow.asStateFlow()
 
     private val _defaultCloneDirFlow = MutableStateFlow(defaultCloneDir)
     val defaultCloneDirFlow = _defaultCloneDirFlow.asStateFlow()
@@ -239,6 +244,15 @@ class AppSettingsRepository @Inject constructor() {
         set(value) {
             preferences.putBoolean(PREF_VERIFY_SSL, value)
             _verifySslFlow.value = value
+        }
+
+    var editor: String
+        get() {
+            return preferences.get(PREF_EDITOR, "")
+        }
+        set(value) {
+            preferences.put(PREF_EDITOR, value)
+            _editorFlow.value = value
         }
 
     var scaleUi: Float
