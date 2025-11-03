@@ -14,7 +14,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 
-val javaLanguageVersion = JavaLanguageVersion.of(17)
+val javaLanguageVersion = JavaLanguageVersion.of(21)
 val linuxArmTarget = "aarch64-unknown-linux-gnu"
 val linuxX64Target = "x86_64-unknown-linux-gnu"
 
