@@ -3,13 +3,11 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import java.io.FileOutputStream
 import java.nio.file.Files
-import org.jetbrains.compose.reload.gradle.ComposeHotRun
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose)
-    alias(libs.plugins.hotReload)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinx.serialization)
 }
@@ -128,10 +126,6 @@ tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilation
         allWarningsAsErrors.set(false)
         freeCompilerArgs.add("-opt-in=kotlin.RequiresOptIn")
     }
-}
-
-tasks.withType<ComposeHotRun>().configureEach {
-    mainClass.set("com.jetpackduba.gitnuro.MainKt")
 }
 
 compose.desktop {
