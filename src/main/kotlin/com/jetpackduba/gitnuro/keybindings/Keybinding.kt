@@ -97,6 +97,11 @@ enum class KeybindingOption {
      * Used to open the settings screen
      */
     SETTINGS,
+
+    /**
+     * Used to open the current repository in an external editor
+     */
+    OPEN_EDITOR
 }
 
 
@@ -156,6 +161,9 @@ private fun baseKeybindings() = mapOf(
     KeybindingOption.SETTINGS to listOf(
         Keybinding(key = Key.S, control = true, alt = true),
     ),
+    KeybindingOption.OPEN_EDITOR to listOf(
+        Keybinding(key = Key.A, control = true, shift = true),
+    ),
 )
 
 private fun linuxKeybindings(): Map<KeybindingOption, List<Keybinding>> = baseKeybindings()
@@ -179,6 +187,7 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
             KeybindingOption.CHANGE_CURRENT_TAB_RIGHT,
             KeybindingOption.CHANGE_CURRENT_TAB_LEFT,
             KeybindingOption.SETTINGS,
+            KeybindingOption.OPEN_EDITOR,
         )
 
         for (key in keysToReplaceControlWithCommand) {

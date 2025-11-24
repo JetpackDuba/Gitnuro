@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TaskType
+import com.jetpackduba.gitnuro.editor.OpenRepositoryInEditorUseCase
 import com.jetpackduba.gitnuro.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.git.*
 import com.jetpackduba.gitnuro.git.branches.CreateBranchUseCase
@@ -12,10 +13,12 @@ import com.jetpackduba.gitnuro.logging.printDebug
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.ErrorsManager
+import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.models.errorNotification
 import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
@@ -62,6 +65,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val stashChangesUseCase: StashChangesUseCase,
     private val stageUntrackedFileUseCase: StageUntrackedFileUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val openInEditorUseCase: OpenRepositoryInEditorUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
@@ -350,6 +354,13 @@ class RepositoryOpenViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         Desktop.getDesktop().open(git.repository.workTree)
+    }
+
+    fun openFolderInEditor() = tabState.runOperation(
+        showError = true,
+        refreshType = RefreshType.NONE,
+    ) { git ->
+      openInEditorUseCase(git.repository.workTree.path)
     }
 
     fun openUrlInBrowser(url: String) {
