@@ -92,13 +92,17 @@ fun RepositoryOpenPage(
             onClose = { showQuickActionsDialog = false },
             onAction = {
                 showQuickActionsDialog = false
-                when (it) {
+                when (it.type) {
                     QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> repositoryOpenViewModel.openFolderInFileExplorer()
                     QuickActionType.CLONE -> onShowCloneDialog()
                     QuickActionType.REFRESH -> repositoryOpenViewModel.refreshAll()
                     QuickActionType.SIGN_OFF -> showSignOffDialog = true
+                    QuickActionType.CUSTOM_ACTION -> {
+                        it.command?.let { command -> repositoryOpenViewModel.executeCustomAction(command) }
+                    }
                 }
             },
+            customActions = repositoryOpenViewModel.customActions
         )
     } else if (showSignOffDialog) {
         SignOffDialog(
