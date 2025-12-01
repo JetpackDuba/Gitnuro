@@ -225,7 +225,7 @@ fun Menu(
                     .padding(16.dp)
             ) {
                 PrimaryButton(
-                    text = "Open a repository",
+                    text = stringResource(Res.string.menu_open_dialog_title),
                     onClick = {
                         onShowOpenPopupChange(false)
                         onOpenAnotherRepositoryFromPicker()

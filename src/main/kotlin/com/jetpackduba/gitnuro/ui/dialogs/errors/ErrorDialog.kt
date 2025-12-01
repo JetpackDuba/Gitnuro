@@ -18,12 +18,15 @@ import com.jetpackduba.gitnuro.extensions.onDoubleClick
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.copy
 import com.jetpackduba.gitnuro.generated.resources.error
+import com.jetpackduba.gitnuro.generated.resources.error_dialog_copy_button_tooltip
+import com.jetpackduba.gitnuro.generated.resources.generic_button_ok
 import com.jetpackduba.gitnuro.managers.Error
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ErrorDialog(
@@ -108,7 +111,7 @@ fun ErrorDialog(
                     )
 
                     InstantTooltip(
-                        "Copy error",
+                        text = stringResource(Res.string.error_dialog_copy_button_tooltip),
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(end = 16.dp, bottom = 16.dp)
@@ -124,7 +127,7 @@ fun ErrorDialog(
                         ) {
                             Icon(
                                 painter = painterResource(Res.drawable.copy),
-                                contentDescription = "Copy stacktrace",
+                                contentDescription = null,
                                 tint = MaterialTheme.colors.onSurface,
                             )
                         }
@@ -138,7 +141,7 @@ fun ErrorDialog(
                     .padding(top = 32.dp)
             ) {
                 PrimaryButton(
-                    text = "OK",
+                    text = stringResource(Res.string.generic_button_ok),
                     onClick = onAccept
                 )
             }

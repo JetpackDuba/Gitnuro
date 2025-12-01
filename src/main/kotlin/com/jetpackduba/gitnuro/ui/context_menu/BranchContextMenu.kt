@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.models.Notification
 import com.jetpackduba.gitnuro.models.positiveNotification
 import org.eclipse.jgit.lib.Ref
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.skiko.ClipboardManager
@@ -118,11 +119,11 @@ fun branchContextMenuItems(
     }
 }
 
-internal fun copyBranchNameToClipboardAndGetNotification(
+internal suspend fun copyBranchNameToClipboardAndGetNotification(
     branch: Ref,
     clipboardManager: ClipboardManager,
 ): Notification {
     val branchName = branch.simpleName
     clipboardManager.setText(branchName)
-    return positiveNotification("\"${branchName}\" copied to clipboard")
+    return positiveNotification(getString(Res.string.notification_copied_branch_to_clipboard, branchName))
 }

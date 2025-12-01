@@ -41,39 +41,41 @@ import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.time.Instant
 
 sealed interface SettingsEntry {
-    data class Section(val name: String) : SettingsEntry
+    data class Section(val name: StringResource) : SettingsEntry
 
     data class Entry(
         val icon: DrawableResource,
-        val name: String,
+        val name: StringResource,
         val content: @Composable (SettingsViewModel) -> Unit,
     ) :
         SettingsEntry
 }
 
 val settings = listOf(
-    SettingsEntry.Section("User interface"),
-    SettingsEntry.Entry(Res.drawable.palette, "Appearance") { Appearance(it) },
-    SettingsEntry.Entry(Res.drawable.layout, "Layout") { Layout(it) },
-    SettingsEntry.Entry(Res.drawable.schedule, "Date/Time") { DateTime(it) },
-    SettingsEntry.Section("GIT"),
-    SettingsEntry.Entry(Res.drawable.folder, "Environment") { Environment(it) },
-    SettingsEntry.Entry(Res.drawable.branch, "Branches") { Branches(it) },
-    SettingsEntry.Entry(Res.drawable.cloud, "Remote actions") { RemoteActions(it) },
+    SettingsEntry.Section(Res.string.settings_section_user_interface),
+    SettingsEntry.Entry(Res.drawable.palette, Res.string.settings_entry_appearance) { Appearance(it) },
+    SettingsEntry.Entry(Res.drawable.layout, Res.string.settings_entry_layout) { Layout(it) },
+    SettingsEntry.Entry(Res.drawable.schedule, Res.string.settings_entry_datetime) { DateTime(it) },
 
-    SettingsEntry.Section("Network"),
-    SettingsEntry.Entry(Res.drawable.network, "Proxy") { Proxy(it) },
-    SettingsEntry.Entry(Res.drawable.password, "Authentication") { Authentication(it) },
-    SettingsEntry.Entry(Res.drawable.security, "Security") { Security(it) },
+    SettingsEntry.Section(Res.string.settings_section_git),
+    SettingsEntry.Entry(Res.drawable.folder, Res.string.settings_entry_environment) { Environment(it) },
+    SettingsEntry.Entry(Res.drawable.branch, Res.string.settings_entry_branches) { Branches(it) },
+    SettingsEntry.Entry(Res.drawable.cloud, Res.string.settings_entry_remote_actions) { RemoteActions(it) },
 
-    SettingsEntry.Section("Tools"),
-    SettingsEntry.Entry(Res.drawable.terminal, "Terminal") { Terminal(it) },
-    SettingsEntry.Entry(Res.drawable.info, "Logs") { Logs(it) },
+    SettingsEntry.Section(Res.string.settings_section_network),
+    SettingsEntry.Entry(Res.drawable.network, Res.string.settings_entry_proxy) { Proxy(it) },
+    SettingsEntry.Entry(Res.drawable.password, Res.string.settings_entry_auth) { Authentication(it) },
+    SettingsEntry.Entry(Res.drawable.security, Res.string.settings_entry_security) { Security(it) },
+
+    SettingsEntry.Section(Res.string.settings_section_tools),
+    SettingsEntry.Entry(Res.drawable.terminal, Res.string.settings_entry_terminal) { Terminal(it) },
+    SettingsEntry.Entry(Res.drawable.info, Res.string.settings_entry_logs) { Logs(it) },
 )
 
 val linesHeightTypesList = listOf(
@@ -220,12 +222,12 @@ fun SettingsDialog(
                                     if (index != 0) {
                                         Spacer(Modifier.height(16.dp))
                                     }
-                                    Section(settingEntry.name)
+                                    Section(stringResource(settingEntry.name))
                                 }
 
                                 is SettingsEntry.Entry -> Entry(
                                     icon = settingEntry.icon,
-                                    name = settingEntry.name,
+                                    name = stringResource(settingEntry.name),
                                     isSelected = settingEntry == selectedCategory,
                                     onClick = {
                                         selectedCategory = settingEntry

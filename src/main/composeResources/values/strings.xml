@@ -23,6 +23,7 @@
 
     <!-- Top menu -->
     <string name="menu_open">Open</string>
+    <string name="menu_open_dialog_title">Open a repository</string>
     <string name="menu_open_tooltip">Open a different repository</string>
     <string name="menu_pull">Pull</string>
     <string name="menu_pull_default">Pull current branch</string>
@@ -158,4 +159,26 @@
     <!-- Settings -->
     <string name="settings_environment_default_clone_directory_title">Default clone directory</string>
     <string name="settings_environment_default_clone_directory_description">Directory that will be used as default when cloning a repository</string>
+    <string name="settings_section_user_interface">User interface</string>
+    <string name="settings_entry_appearance">Appearance</string>
+    <string name="settings_entry_layout">Layout</string>
+    <string name="settings_entry_datetime">Date/Time</string>
+    <string name="settings_section_git">GIT</string>
+    <string name="settings_entry_environment">Environment</string>
+    <string name="settings_entry_branches">Branches</string>
+    <string name="settings_entry_remote_actions">Remote actions</string>
+    <string name="settings_section_network">Network</string>
+    <string name="settings_entry_proxy">Proxy</string>
+    <string name="settings_entry_auth">Authentication</string>
+    <string name="settings_entry_security">Security</string>
+    <string name="settings_section_tools">Tools</string>
+    <string name="settings_entry_terminal">Terminal</string>
+    <string name="settings_entry_logs">Logs</string>
+
+    <!-- Notifications -->
+    <string name="notification_copied_branch_to_clipboard">"%1$s" copied to clipboard</string>
+
+    <!-- Error dialog -->
+    <string name="error_dialog_copy_button_tooltip">Copy error</string>
+
 </resources>
