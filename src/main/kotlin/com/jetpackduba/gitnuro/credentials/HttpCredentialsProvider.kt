@@ -1,11 +1,14 @@
 package com.jetpackduba.gitnuro.credentials
 
+import com.jetpackduba.gitnuro.credentials.external.IGitCredentialsManagerProvider
 import com.jetpackduba.gitnuro.exceptions.NotSupportedHelper
 import com.jetpackduba.gitnuro.git.remote_operations.CredentialsCache
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.IShellManager
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.system.OS
+import com.jetpackduba.gitnuro.system.currentOs
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.runBlocking
@@ -18,6 +21,7 @@ import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.URIish
 import java.io.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.listOf
 
 private const val TIMEOUT_MIN = 1L
 private const val TAG = "HttpCredentialsProvider"
@@ -28,6 +32,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
     private val shellManager: IShellManager,
     private val appSettingsRepository: AppSettingsRepository,
     private val credentialsCacheRepository: CredentialsCacheRepository,
+    private val gitCredentialsManagerProvider: IGitCredentialsManagerProvider,
     @Assisted val git: Git?,
 ) : CredentialsProvider(), CredentialsCache {
 
@@ -242,7 +247,7 @@ class HttpCredentialsProvider @AssistedInject constructor(
 
         val genericCredentialHelper = config.getString("credential", null, "helper")
         val uriSpecificCredentialHelper = config.getString("credential", hostWithProtocol, "helper")
-        val credentialHelperPath = uriSpecificCredentialHelper ?: genericCredentialHelper ?: return null
+        var credentialHelperPath = uriSpecificCredentialHelper ?: genericCredentialHelper ?: return null
 
         if (credentialHelperPath == "cache" || credentialHelperPath == "store") {
             printError(TAG, "Invalid credentials helper: \"$credentialHelperPath\" is not yet supported")
@@ -250,8 +255,11 @@ class HttpCredentialsProvider @AssistedInject constructor(
         }
 
         // TODO Try to use "git-credential-manager-core" when "manager-core" is detected. Works for linux but requires testing for mac/windows
-        if (credentialHelperPath == "manager-core") {
-            throw NotSupportedHelper("Invalid credentials helper \"$credentialHelperPath\". Please specify the full path of Git Credential Manager in your .gitconfig")
+        if (credentialHelperPath == "manager-core" || credentialHelperPath == "manager") {
+            val credentialsPath = gitCredentialsManagerProvider.loadPath()
+                ?: throw NotSupportedHelper("Could not find git credentials manager path")
+
+            credentialHelperPath = credentialsPath
         }
 
         // Use getString instead of getBoolean as boolean has a default value by we want null if the config field is not set

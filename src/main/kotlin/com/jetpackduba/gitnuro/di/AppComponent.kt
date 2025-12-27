@@ -4,7 +4,9 @@ import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppEnvInfo
 import com.jetpackduba.gitnuro.credentials.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.credentials.external.IGitCredentialsManagerProvider
 import com.jetpackduba.gitnuro.di.modules.AppModule
+import com.jetpackduba.gitnuro.di.modules.GitCredentialsManagerModule
 import com.jetpackduba.gitnuro.di.modules.NetworkModule
 import com.jetpackduba.gitnuro.di.modules.ShellModule
 import com.jetpackduba.gitnuro.managers.AppStateManager
@@ -26,6 +28,7 @@ import javax.inject.Singleton
         AppModule::class,
         ShellModule::class,
         NetworkModule::class,
+        GitCredentialsManagerModule::class,
     ]
 )
 interface AppComponent {
@@ -45,6 +48,8 @@ interface AppComponent {
     fun shellManager(): IShellManager
 
     fun terminalProvider(): ITerminalProvider
+
+    fun gitCredentialsManagerProvider(): IGitCredentialsManagerProvider
 
     fun tempFilesManager(): TempFilesManager
 
