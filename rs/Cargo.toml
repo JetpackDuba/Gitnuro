@@ -10,7 +10,8 @@ name = "gitnuro_rs"
 [dependencies]
 notify = "8.0.0"
 thiserror = "2.0.11"
-libssh-rs = { version = "0.3.5", features = ["vendored", "vendored-openssl"] }
+libssh-rs = { features = ["vendored", "vendored-openssl"], git = "https://github.com/JetpackDuba/libssh-rs.git", branch="main" }
+libssh-rs-sys = { features = ["vendored", "vendored-openssl"], git = "https://github.com/JetpackDuba/libssh-rs.git", branch="main" }
 kotars = { git = "https://github.com/JetpackDuba/kotars.git" }
 jni = "0.21.1"
 

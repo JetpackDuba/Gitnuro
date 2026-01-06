@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.git.workspace
 
 import com.jetpackduba.gitnuro.exceptions.HookException
 import com.jetpackduba.gitnuro.extensions.isMerging
-import com.jetpackduba.gitnuro.git.AppGpgSigner
 import com.jetpackduba.gitnuro.git.author.LoadAuthorUseCase
 import com.jetpackduba.gitnuro.git.config.LoadSignOffConfigUseCase
 import com.jetpackduba.gitnuro.git.config.LocalConfigConstants
@@ -25,7 +24,6 @@ class DoCommitUseCase @Inject constructor(
     private val loadSignOffConfigUseCase: LoadSignOffConfigUseCase,
     private val loadAuthorUseCase: LoadAuthorUseCase,
     private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
-    private val appGpgSigner: AppGpgSigner,
 ) {
     suspend operator fun invoke(
         git: Git,

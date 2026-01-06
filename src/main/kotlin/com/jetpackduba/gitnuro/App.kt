@@ -28,7 +28,8 @@ import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.logo
-import com.jetpackduba.gitnuro.git.AppGpgSigner
+import com.jetpackduba.gitnuro.git.signers.AppGpgSigner
+import com.jetpackduba.gitnuro.git.signers.SshSigner
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
@@ -90,7 +91,10 @@ class App {
     lateinit var logging: Logging
 
     @Inject
-    lateinit var signer: AppGpgSigner
+    lateinit var gpgSigner: AppGpgSigner
+
+    @Inject
+    lateinit var sshSigner: SshSigner
 
     @Inject
     lateinit var lfsFactory: AppLfsFactory
@@ -107,7 +111,8 @@ class App {
         logging.initLogging()
         initProxySettings()
 
-        Signers.set(GpgConfig.GpgFormat.OPENPGP, signer)
+        Signers.set(GpgConfig.GpgFormat.OPENPGP, gpgSigner)
+        Signers.set(GpgConfig.GpgFormat.SSH, sshSigner)
 
         val windowPlacement = appSettingsRepository.windowPlacement.toWindowPlacement
         val dirToOpen = getDirToOpen(args)

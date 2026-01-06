@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.git
+package com.jetpackduba.gitnuro.git.signers
 
 import com.jetpackduba.gitnuro.credentials.GpgCredentialsProvider
 import org.bouncycastle.openpgp.PGPException
@@ -7,6 +7,7 @@ import org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSigner
 import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
+import kotlin.text.contains
 
 private const val INVALID_PASSWORD_MESSAGE = "Is the entered passphrase correct?"
 
@@ -69,44 +70,45 @@ class AppGpgSigner @Inject constructor(
         }
     }
 
-    private fun retryIfWrongPassphrase(block: (isRetry: Boolean) -> Unit) {
-        var isPasswordCorrect = false
-        var retries = 0
+}
 
-        while (!isPasswordCorrect) {
-            isPasswordCorrect = true
+fun retryIfWrongPassphrase(block: (isRetry: Boolean) -> Unit) {
+    var isPasswordCorrect = false
+    var retries = 0
 
-            try {
-                block(retries > 0)
-            } catch (ex: Exception) {
-                ex.printStackTrace()
+    while (!isPasswordCorrect) {
+        isPasswordCorrect = true
 
-                val pgpException = getPgpExceptionTypeOrNull(ex)
-                val pgpMessage = pgpException?.message
+        try {
+            block(retries > 0)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
 
-                if (pgpMessage != null && pgpMessage.contains(INVALID_PASSWORD_MESSAGE)) {
-                    isPasswordCorrect = false // Only set it to false if we've got this specific message
-                    retries++
-                } else
-                    throw ex
+            val pgpException = getPgpExceptionTypeOrNull(ex)
+            val pgpMessage = pgpException?.message
+
+            if (pgpMessage != null && pgpMessage.contains(INVALID_PASSWORD_MESSAGE)) {
+                isPasswordCorrect = false // Only set it to false if we've got this specific message
+                retries++
+            } else
+                throw ex
+        }
+    }
+}
+
+private fun getPgpExceptionTypeOrNull(ex: Throwable?): PGPException? {
+    var currentException: Throwable? = ex
+
+    while (currentException != null) {
+        if (currentException is PGPException) {
+            return currentException
+        } else {
+            currentException = when (currentException.cause) {
+                currentException -> null // Cause can be the same as current exception, so just return null
+                else -> currentException.cause
             }
         }
     }
 
-    private fun getPgpExceptionTypeOrNull(ex: Throwable?): PGPException? {
-        var currentException: Throwable? = ex
-
-        while (currentException != null) {
-            if (currentException is PGPException) {
-                return currentException
-            } else {
-                currentException = when (currentException.cause) {
-                    currentException -> null // Cause can be the same as current exception, so just return null
-                    else -> currentException.cause
-                }
-            }
-        }
-
-        return null
-    }
+    return null
 }
