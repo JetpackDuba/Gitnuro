@@ -9,7 +9,8 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use kotars::{jni_class, jni_data_class, jni_interface, jni_struct_impl};
 use kotars::jni_init;
-use libssh_rs::{PollStatus, SshOption};
+use libssh_rs::{PollStatus, SshOption, SshKey, SignAlgorithm, ssh_sign};
+
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
 use notify::{Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
