@@ -1,11 +1,13 @@
 package com.jetpackduba.gitnuro.git.diff
 
+import com.jetpackduba.gitnuro.extensions.filePath
 import com.jetpackduba.gitnuro.git.EntryContent
 import com.jetpackduba.gitnuro.git.RawFileManager
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.treewalk.AbstractTreeIterator
+import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import java.io.InvalidObjectException
 import javax.inject.Inject
@@ -23,6 +25,7 @@ class GetDiffContentUseCase @Inject constructor(
         outputStream.use {
             val diffFormatter = DiffFormatter(outputStream).apply {
                 setRepository(repository)
+                pathFilter = PathFilter.create(diffEntry.filePath)
             }
 
             if (oldTreeIterator != null && newTreeIterator != null) {

@@ -6,6 +6,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
+import org.eclipse.jgit.treewalk.filter.PathFilter
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
@@ -18,6 +19,7 @@ class GetDiffEntryFromDiffTypeUseCase @Inject constructor(
 
         return DiffFormatter(byteArrayOutputStream).use { formatter ->
             formatter.setRepository(repository)
+            formatter.pathFilter = PathFilter.create(diffType.filePath)
 
             val oldTree = DirCacheIterator(repository.readDirCache())
             val newTree = FileTreeIterator(repository)
