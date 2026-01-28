@@ -1,8 +1,8 @@
 [versions]
 
-kotlin = "2.2.21"
-compose-plugin = "1.9.3"
-ksp = "2.3.3"
+kotlin = "2.3.0"
+compose-plugin = "1.10.0"
+ksp = "2.3.4"
 jgit = "7.4.0.202509020913-r"
 dagger = "2.57.2"
 kotlinx-serialization = "1.9.0"
