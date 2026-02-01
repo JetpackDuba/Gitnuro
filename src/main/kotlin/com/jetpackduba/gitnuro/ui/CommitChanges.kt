@@ -145,14 +145,15 @@ private fun CommitChangesView(
                 .weight(1f, fill = true)
                 .background(MaterialTheme.colors.background)
         ) {
-            Header(
-                showSearch,
-                searchFilter,
-                onSearchFilterChanged,
-                onSearchFilterToggled,
-                onSearchFocused,
+            FilesChangedHeader (
+                title = "Files changed",
                 showAsTree = showAsTree,
+                showSearch = showSearch,
                 onAlternateShowAsTree = onAlternateShowAsTree,
+                searchFilter = searchFilter,
+                onSearchFocused = onSearchFocused,
+                onSearchFilterToggled = onSearchFilterToggled,
+                onSearchFilterChanged = onSearchFilterChanged,
             )
 
             when (commitChangesStatus) {
@@ -200,93 +201,6 @@ private fun CommitChangesView(
             commit,
             textScroll,
         )
-    }
-}
-
-@Composable
-private fun Header(
-    showSearch: Boolean,
-    searchFilter: TextFieldValue,
-    onSearchFilterChanged: (TextFieldValue) -> Unit,
-    onSearchFilterToggled: (Boolean) -> Unit,
-    onSearchFocused: () -> Unit,
-    showAsTree: Boolean,
-    onAlternateShowAsTree: () -> Unit,
-) {
-    val searchFocusRequester = remember { FocusRequester() }
-
-    /**
-     * State used to prevent the text field from getting the focus when returning from another tab
-     */
-    var requestFocus by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(34.dp)
-            .background(MaterialTheme.colors.tertiarySurface),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp),
-            text = "Files changed",
-            fontWeight = FontWeight.Normal,
-            textAlign = TextAlign.Left,
-            color = MaterialTheme.colors.onBackground,
-            maxLines = 1,
-            style = MaterialTheme.typography.body2,
-        )
-
-        Box(modifier = Modifier.weight(1f))
-
-        IconButton(
-            onClick = {
-                onAlternateShowAsTree()
-            },
-            modifier = Modifier.handOnHover()
-        ) {
-            Icon(
-                painter = painterResource(if (showAsTree) Res.drawable.list else Res.drawable.tree),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colors.onBackground,
-            )
-        }
-
-        IconButton(
-            onClick = {
-                onSearchFilterToggled(!showSearch)
-
-                if (!showSearch)
-                    requestFocus = true
-            },
-            modifier = Modifier.handOnHover(),
-        ) {
-            Icon(
-                painter = painterResource(Res.drawable.search),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colors.onBackground,
-            )
-        }
-    }
-
-    if (showSearch) {
-        SearchTextField(
-            searchFilter = searchFilter,
-            onSearchFilterChanged = onSearchFilterChanged,
-            searchFocusRequester = searchFocusRequester,
-            onClose = { onSearchFilterToggled(false) },
-            onSearchFocused = onSearchFocused,
-        )
-    }
-
-    LaunchedEffect(showSearch, requestFocus) {
-        if (showSearch && requestFocus) {
-            searchFocusRequester.requestFocus()
-            requestFocus = false
-        }
     }
 }
 

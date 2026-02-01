@@ -10,7 +10,7 @@ class TreeTest {
     fun `test entriesToTreeEntry with empty entries`() {
         val entries = emptyList<String>()
         val treeContractedDirs = emptyList<String>()
-        val result = entriesToTreeEntry(entries, treeContractedDirs) { it }
+        val result = entriesToTreeEntry(true, entries, treeContractedDirs) { it }
         assertTrue(result.isEmpty())
     }
 
@@ -18,7 +18,7 @@ class TreeTest {
     fun `test entriesToTreeEntry with single file entry`() {
         val entries = listOf("file.txt")
         val treeContractedDirs = emptyList<String>()
-        val result = entriesToTreeEntry(entries, treeContractedDirs) { it }
+        val result = entriesToTreeEntry(true, entries, treeContractedDirs) { it }
 
         assertEquals(listOf(TreeItem.File("file.txt", "file.txt", "file.txt", 0)), result)
     }
@@ -31,7 +31,7 @@ class TreeTest {
             "dir3/file3.txt",
         )
         val treeContractedDirs = emptyList<String>()
-        val result = entriesToTreeEntry(entries, treeContractedDirs) { it }
+        val result = entriesToTreeEntry(true, entries, treeContractedDirs) { it }
         val expected = listOf(
             TreeItem.Dir(true, "dir1", "dir1", 0),
             TreeItem.File("dir1/file1.txt", "file1.txt", "dir1/file1.txt", 1),
@@ -52,7 +52,7 @@ class TreeTest {
             "dir1/file3.txt"
         )
         val treeContractedDirs = emptyList<String>()
-        val result = entriesToTreeEntry(entries, treeContractedDirs) { it }
+        val result = entriesToTreeEntry(true, entries, treeContractedDirs) { it }
         val expected = listOf(
             TreeItem.Dir(true, "dir1", "dir1", 0),
             TreeItem.File("dir1/file3.txt", "file3.txt", "dir1/file3.txt", 1),
@@ -73,7 +73,7 @@ class TreeTest {
             "dir1/file3.txt"
         )
         val treeContractedDirs = listOf<String>("webpack", "dir1")
-        val result = entriesToTreeEntry(entries, treeContractedDirs) { it }
+        val result = entriesToTreeEntry(true, entries, treeContractedDirs) { it }
         val expected = listOf(
             TreeItem.Dir(false, "dir1", "dir1", 0),
             TreeItem.Dir(false, "webpack", "webpack", 0),

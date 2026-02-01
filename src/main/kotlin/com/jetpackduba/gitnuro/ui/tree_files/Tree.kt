@@ -3,10 +3,15 @@ package com.jetpackduba.gitnuro.ui.tree_files
 import kotlin.math.max
 
 fun <T> entriesToTreeEntry(
+    showAsTree: Boolean,
     entries: List<T>,
     treeContractedDirs: List<String>,
     onGetEntryPath: (T) -> String,
 ): List<TreeItem<T>> {
+    if (!showAsTree) {
+        return entries.map { entry -> entryToTreeFile(entry, onGetEntryPath(entry)) }
+    }
+
     return entries
         .asSequence()
         .sortedWith { entry1, entry2 ->
@@ -15,14 +20,14 @@ fun <T> entriesToTreeEntry(
 
             PathsComparator().compare(path1, path2)
         }
-        .map { entry ->
+        .flatMap { entry ->
             val filePath = onGetEntryPath(entry)
             val parts = filePath.split("/")
 
             parts.mapIndexed { index, partName ->
                 if (index == parts.lastIndex) {
                     val isParentDirectoryContracted = treeContractedDirs.any { contractedDir ->
-                        filePath.startsWith(contractedDir + "/")
+                        filePath.startsWith("$contractedDir/")
                     }
 
                     if (isParentDirectoryContracted) {
@@ -33,7 +38,7 @@ fun <T> entriesToTreeEntry(
                 } else {
                     val dirPath = parts.slice(0..index).joinToString("/")
                     val isParentDirectoryContracted = treeContractedDirs.any { contractedDir ->
-                        dirPath.startsWith(contractedDir + "/") &&
+                        dirPath.startsWith("$contractedDir/") &&
                                 dirPath != contractedDir
                     }
                     val isExactDirectoryContracted = treeContractedDirs.any { contractedDir ->
@@ -48,10 +53,16 @@ fun <T> entriesToTreeEntry(
                 }
             }
         }
-        .flatten()
         .filterNotNull()
         .distinct()
         .toList()
+}
+
+private fun <T> entryToTreeFile(data: T, path: String): TreeItem.File<T> {
+    val parts = path.split("/")
+    val displayName = parts.last()
+
+    return TreeItem.File(data, displayName, path, 0)
 }
 
 private class PathsComparator : Comparator<String> {

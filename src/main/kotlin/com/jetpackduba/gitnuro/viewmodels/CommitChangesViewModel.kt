@@ -65,7 +65,7 @@ class CommitChangesViewModel @Inject constructor(
                 if (showAsTree) {
                     CommitChangesStateUi.TreeLoaded(
                         commit = commitState.commit,
-                        changes = entriesToTreeEntry(commitState.changes, contractedDirs) { it.filePath }
+                        changes = entriesToTreeEntry(showAsTree, commitState.changes, contractedDirs) { it.filePath }
                     )
                 } else {
                     CommitChangesStateUi.ListLoaded(

@@ -23,17 +23,14 @@ import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
 import javax.inject.Inject
+import kotlin.collections.map
 
 private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 
@@ -79,7 +76,7 @@ class StatusViewModel @Inject constructor(
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
-    private val showAsTree = appSettingsRepository.showChangesAsTreeFlow
+    val showAsTree = appSettingsRepository.showChangesAsTreeFlow
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 
     private val stageStateFiltered: StateFlow<StageState> = combine(
@@ -122,32 +119,25 @@ class StatusViewModel @Inject constructor(
     ) { stageStateFiltered, showAsTree, contractedDirectories ->
         when (stageStateFiltered) {
             is StageState.Loaded -> {
-                if (showAsTree) {
-                    StageStateUi.TreeLoaded(
-                        staged = entriesToTreeEntry(stageStateFiltered.staged, contractedDirectories) { it.filePath },
-                        unstaged = entriesToTreeEntry(
-                            stageStateFiltered.unstaged,
-                            contractedDirectories
-                        ) { it.filePath },
-                        filteredStaged = entriesToTreeEntry(
-                            stageStateFiltered.filteredStaged,
-                            contractedDirectories
-                        ) { it.filePath },
-                        filteredUnstaged = entriesToTreeEntry(
-                            stageStateFiltered.filteredUnstaged,
-                            contractedDirectories
-                        ) { it.filePath },
-                        isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
-                    )
-                } else {
-                    StageStateUi.ListLoaded(
-                        staged = stageStateFiltered.staged,
-                        unstaged = stageStateFiltered.unstaged,
-                        filteredStaged = stageStateFiltered.filteredStaged,
-                        filteredUnstaged = stageStateFiltered.filteredUnstaged,
-                        isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
-                    )
-                }
+                StageStateUi.Loaded(
+                    staged = entriesToTreeEntry(showAsTree, stageStateFiltered.staged, contractedDirectories) { it.filePath },
+                    unstaged = entriesToTreeEntry(
+                        showAsTree,
+                        stageStateFiltered.unstaged,
+                        contractedDirectories
+                    ) { it.filePath },
+                    filteredStaged = entriesToTreeEntry(
+                        showAsTree,
+                        stageStateFiltered.filteredStaged,
+                        contractedDirectories
+                    ) { it.filePath },
+                    filteredUnstaged = entriesToTreeEntry(
+                        showAsTree,
+                        stageStateFiltered.filteredUnstaged,
+                        contractedDirectories
+                    ) { it.filePath },
+                    isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
+                )
             }
 
             StageState.Loading -> StageStateUi.Loading
@@ -642,50 +632,27 @@ sealed interface StageState {
 
 sealed interface StageStateUi {
     val hasStagedFiles: Boolean
+        get() {
+            return this is Loaded && staged.isNotEmpty()
+        }
+
     val hasUnstagedFiles: Boolean
-    val isLoading: Boolean
-    val haveConflictsBeenSolved: Boolean
+        get() {
+            return this is Loaded && unstaged.isNotEmpty()
+        }
 
-    data object Loading : StageStateUi {
-        override val hasStagedFiles: Boolean
-            get() = false
-        override val hasUnstagedFiles: Boolean
-            get() = false
-        override val isLoading: Boolean
-            get() = true
-        override val haveConflictsBeenSolved: Boolean
-            get() = false
-    }
+    data object Loading : StageStateUi
 
-    sealed interface Loaded : StageStateUi
-
-    data class TreeLoaded(
+    data class Loaded(
         val staged: List<TreeItem<StatusEntry>>,
         val filteredStaged: List<TreeItem<StatusEntry>>,
         val unstaged: List<TreeItem<StatusEntry>>,
         val filteredUnstaged: List<TreeItem<StatusEntry>>,
         val isPartiallyReloading: Boolean,
-    ) : Loaded {
-
-        override val hasStagedFiles: Boolean = staged.isNotEmpty()
-        override val hasUnstagedFiles: Boolean = unstaged.isNotEmpty()
-        override val isLoading: Boolean = isPartiallyReloading
-        override val haveConflictsBeenSolved: Boolean = unstaged.none {
+    ) : StageStateUi {
+        val haveConflictsBeenSolved: Boolean = unstaged.none {
             it is TreeItem.File && it.data.statusType == StatusType.CONFLICTING
         }
-    }
-
-    data class ListLoaded(
-        val staged: List<StatusEntry>,
-        val filteredStaged: List<StatusEntry>,
-        val unstaged: List<StatusEntry>,
-        val filteredUnstaged: List<StatusEntry>,
-        val isPartiallyReloading: Boolean,
-    ) : Loaded {
-        override val hasStagedFiles: Boolean = staged.isNotEmpty()
-        override val hasUnstagedFiles: Boolean = unstaged.isNotEmpty()
-        override val isLoading: Boolean = isPartiallyReloading
-        override val haveConflictsBeenSolved: Boolean = unstaged.none { it.statusType == StatusType.CONFLICTING }
     }
 }
 
