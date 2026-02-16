@@ -1067,8 +1067,8 @@ fun DividerLog(modifier: Modifier, graphWidth: Dp) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .width(1.dp)
-                .background(color = MaterialTheme.colors.primaryVariant)
+                .width(3.dp)
+                .background(color = MaterialTheme.colors.surface)
                 .align(Alignment.Center)
         )
     }
