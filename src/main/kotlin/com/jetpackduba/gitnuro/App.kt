@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.savedstate.serialization.SavedStateConfiguration
 import com.jetpackduba.gitnuro.avatarproviders.GravatarAvatarProvider
 import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
+import com.jetpackduba.gitnuro.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.extensions.toWindowPlacement
@@ -36,6 +37,7 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
 import com.jetpackduba.gitnuro.logging.printError
+import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
 import com.jetpackduba.gitnuro.models.RemoteWrapper
@@ -55,6 +57,7 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.TabInformation.Companion.NEW_TAB_DEFAULT_NAME
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
+import com.jetpackduba.gitnuro.viewmodels.IViewModelsProvider
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
@@ -95,6 +98,10 @@ sealed interface Screen : NavKey {
     data class AddEditRemote(val remote: RemoteWrapper) : Screen
     data class Error(val error: com.jetpackduba.gitnuro.managers.Error) : Screen
     data object SubmoduleAdd : Screen
+    data object HttpCredentials : Screen
+    data object SshCredentials : Screen
+    data class GpgCredentials(val credentialsRequest: CredentialsRequest.GpgCredentialsRequest) : Screen
+    data object LfsCredentials : Screen
 }
 
 
@@ -380,7 +387,9 @@ class App {
                     }
                 )
 
-                TabContent(currentTab)
+                CompositionLocalProvider(LocalTab provides currentTab) {
+                    TabContent(currentTab)
+                }
             }
         }
     }
@@ -432,6 +441,20 @@ class App {
     }
 }
 
+@Composable
+inline fun <reified T : TabViewModel> tabViewModel(key: NavKey, provideVM: (IViewModelsProvider) -> T): T {
+    val tab = LocalTab.current
+
+    DisposableEffect(Unit) {
+        printLog("ABDE", "Entering tabViewModel")
+        onDispose {
+            tab.removeViewModel(key)
+        }
+    }
+
+    return tab.getViewModel(key, provideVM)
+}
+
 private val config by lazy {
     SavedStateConfiguration {
         serializersModule = SerializersModule {
@@ -451,7 +474,7 @@ private fun TabContent(currentTab: TabInformation?) {
             .fillMaxSize(),
     ) {
         if (currentTab != null) {
-            AppTab(currentTab.tabViewModel)
+            AppTab(currentTab.repositoryTabViewModel)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -16,7 +17,7 @@ import javax.inject.Inject
 class SubmoduleDialogViewModel @Inject constructor(
     private val tabState: TabState,
     private val addSubmoduleUseCase: AddSubmoduleUseCase,
-) {
+) : TabViewModel() {
     private val _error = MutableStateFlow("")
     val error = _error.asStateFlow()
 

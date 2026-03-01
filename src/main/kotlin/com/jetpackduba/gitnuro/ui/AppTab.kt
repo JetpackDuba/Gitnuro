@@ -7,24 +7,29 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.ui.NavDisplay
-import com.jetpackduba.gitnuro.*
+import com.jetpackduba.gitnuro.LoadingRepository
+import com.jetpackduba.gitnuro.ProcessingScreen
+import com.jetpackduba.gitnuro.Screen
+import com.jetpackduba.gitnuro.credentials.CredentialsRequest
+import com.jetpackduba.gitnuro.generated.resources.Res
+import com.jetpackduba.gitnuro.generated.resources.lfs
 import com.jetpackduba.gitnuro.git.ProcessingState
+import com.jetpackduba.gitnuro.tabViewModel
+import com.jetpackduba.gitnuro.theme.dialogOverlay
 import com.jetpackduba.gitnuro.ui.components.Notification
-import com.jetpackduba.gitnuro.ui.dialogs.AddEditRemoteDialog
-import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
-import com.jetpackduba.gitnuro.ui.dialogs.CloneDialog
-import com.jetpackduba.gitnuro.ui.dialogs.CredentialsDialog
-import com.jetpackduba.gitnuro.ui.dialogs.RenameBranchDialog
-import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
+import com.jetpackduba.gitnuro.ui.dialogs.*
+import com.jetpackduba.gitnuro.ui.dialogs.base.UserPasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
-import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
+import org.jetbrains.compose.resources.painterResource
 
 
 fun <T : NavKey> NavBackStack<T>.addAndRemovePrevious(item: T) {
@@ -38,31 +43,31 @@ fun <T : NavKey> NavBackStack<T>.addAndRemovePrevious(item: T) {
 
 @Composable
 fun AppTab(
-    tabViewModel: TabViewModel,
+    repositoryTabViewModel: RepositoryTabViewModel,
 ) {
-    val errorManager = tabViewModel.errorsManager
+    val errorManager = repositoryTabViewModel.errorsManager
     val lastError by errorManager.error.collectAsState(null)
     val notifications = errorManager.notification.collectAsState().value
         .toList()
         .sortedBy { it.first }
         .map { it.second }
 
-    val repositorySelectionStatus = tabViewModel.repositorySelectionStatus.collectAsState()
+    val repositorySelectionStatus = repositoryTabViewModel.repositorySelectionStatus.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
-    val processingState = tabViewModel.processing.collectAsState().value
+    val processingState = repositoryTabViewModel.processing.collectAsState().value
 
-    val backStack = tabViewModel.backStack
+    val backStack = repositoryTabViewModel.backStack
     val dialogStrategy = remember { DialogSceneStrategy<NavKey>() }
 
 
-    LaunchedEffect(tabViewModel) {
+    LaunchedEffect(repositoryTabViewModel) {
         // Init the tab content when the tab is selected and also remove the "initialPath" to avoid opening the
         // repository everytime the user changes between tabs
-        val initialPath = tabViewModel.initialPath
-        tabViewModel.initialPath = null
+        val initialPath = repositoryTabViewModel.initialPath
+        repositoryTabViewModel.initialPath = null
 
         if (initialPath != null) {
-            tabViewModel.openRepository(initialPath)
+            repositoryTabViewModel.openRepository(initialPath)
         }
     }
 
@@ -81,9 +86,34 @@ fun AppTab(
             is RepositorySelectionStatus.Open -> Screen.RepositoryOpen
         }
 
-        backStack.addAndRemovePrevious(screen)
+        if (!backStack.contains(screen)) {
+            backStack.addAndRemovePrevious(screen)
+        }
     }
 
+    val dialogsMetadata =
+        DialogSceneStrategy.dialog(
+            dialogProperties = DialogProperties(
+                scrimColor = MaterialTheme.colors.dialogOverlay,
+                dismissOnClickOutside = false,
+            )
+        )
+
+    val credentialsState by repositoryTabViewModel.credentialsState.collectAsState()
+
+    LaunchedEffect(credentialsState) {
+        val destination = when (val state = credentialsState) {
+            is CredentialsRequest.GpgCredentialsRequest -> Screen.GpgCredentials(state)
+            CredentialsRequest.HttpCredentialsRequest -> Screen.HttpCredentials
+            CredentialsRequest.LfsCredentialsRequest -> Screen.LfsCredentials
+            CredentialsRequest.SshCredentialsRequest -> Screen.SshCredentials
+            else -> null
+        }
+
+        if (destination != null) {
+            backStack.add(destination)
+        }
+    }
 
     Box {
         Column(
@@ -91,7 +121,6 @@ fun AppTab(
                 .background(MaterialTheme.colors.surface)
                 .fillMaxSize()
         ) {
-            CredentialsDialog(tabViewModel)
 
             Box(modifier = Modifier.fillMaxSize()) {
                 NavDisplay(
@@ -101,7 +130,7 @@ fun AppTab(
                     entryProvider = entryProvider {
                         entry<Screen.Welcome> {
                             WelcomePage(
-                                tabViewModel = tabViewModel,
+                                repositoryTabViewModel = repositoryTabViewModel,
                                 onShowCloneDialog = { backStack.add(Screen.CloneRepository) },
                                 onShowSettings = { backStack.add(Screen.Settings) }
                             )
@@ -114,57 +143,56 @@ fun AppTab(
                             }
 
                         }
-                        entry<Screen.RepositoryOpen> { key ->
-                            val repositoryOpenViewModel =
-                                (repositorySelectionStatusValue as? RepositorySelectionStatus.Open)?.viewModel
-                            if (repositoryOpenViewModel != null) {
-                                RepositoryOpenPage(
-                                    repositoryOpenViewModel = repositoryOpenViewModel,
-                                    onShowSettingsDialog = { backStack.add(Screen.Settings) },
-                                    onShowCloneDialog = { backStack.add(Screen.CloneRepository) },
-                                    onNavigate = { backStack.add(it) }
-                                )
-                            }
+                        entry<Screen.RepositoryOpen> { entry ->
+                            val viewModel = tabViewModel(entry) { it.repositoryOpenViewModel }
+
+                            RepositoryOpenPage(
+                                repositoryOpenViewModel = viewModel,
+                                onShowSettingsDialog = { backStack.add(Screen.Settings) },
+                                onShowCloneDialog = { backStack.add(Screen.CloneRepository) },
+                                onNavigate = { backStack.add(it) }
+                            )
                         }
                         entry<Screen.Settings>(
-                            metadata = DialogSceneStrategy.dialog()
-                        ) {
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            val viewModel = tabViewModel(entry, { it.settingsViewModel })
                             SettingsDialog(
-                                settingsViewModel = tabViewModel.tabViewModelsProvider.settingsViewModel,
+                                settingsViewModel = viewModel,
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
                         entry<Screen.CloneRepository>(
-                            metadata = DialogSceneStrategy.dialog()
-                        ) {
+                            metadata = dialogsMetadata
+                        ) { entry ->
                             CloneDialog(
-                                cloneViewModel = tabViewModel.tabViewModelsProvider.cloneViewModel,
+                                cloneViewModel = tabViewModel(entry) { it.cloneViewModel },
                                 onClose = { backStack.removeLastOrNull() },
                                 onOpenRepository = { dir ->
-                                    tabViewModel.openRepository(dir)
+                                    repositoryTabViewModel.openRepository(dir)
                                 },
                             )
                         }
                         entry<Screen.BranchRename>(
-                            metadata = DialogSceneStrategy.dialog()
-                        ) {
+                            metadata = dialogsMetadata
+                        ) { entry ->
                             RenameBranchDialog(
-                                viewModel = tabViewModel.tabViewModelsProvider.renameBranchDialogViewModel,
-                                branch = it.ref,
+                                viewModel = tabViewModel(entry) { it.renameBranchDialogViewModel },
+                                branch = entry.ref,
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
                         entry<Screen.BranchChangeUpstream>(
-                            metadata = DialogSceneStrategy.dialog()
-                        ) {
+                            metadata = dialogsMetadata
+                        ) { entry ->
                             SetDefaultUpstreamBranchDialog(
-                                viewModel = tabViewModel.tabViewModelsProvider.setUpstreamBranchDialogViewModel,
-                                branch = it.ref,
+                                viewModel = tabViewModel(entry) { it.setUpstreamBranchDialogViewModel },
+                                branch = entry.ref,
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
                         entry<Screen.Error>(
-                            metadata = DialogSceneStrategy.dialog()
+                            metadata = dialogsMetadata
                         ) {
                             ErrorDialog(
                                 error = it.error,
@@ -172,20 +200,80 @@ fun AppTab(
                             )
                         }
                         entry<Screen.AddEditRemote>(
-                            metadata = DialogSceneStrategy.dialog()
+                            metadata = dialogsMetadata
                         ) {
                             AddEditRemoteDialog(
-                                remotesViewModel = tabViewModel.tabViewModelsProvider.sidePanelViewModel.remotesViewModel,
+                                remotesViewModel = repositoryTabViewModel.tabViewModelsProvider.sidePanelViewModel.remotesViewModel,
                                 remoteWrapper = it.remote,
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
                         entry<Screen.SubmoduleAdd>(
-                            metadata = DialogSceneStrategy.dialog()
-                        ) {
+                            metadata = dialogsMetadata
+                        ) { entry ->
                             AddSubmodulesDialog(
-                                viewModel = tabViewModel.tabViewModelsProvider.submoduleDialogViewModel,
+                                viewModel = tabViewModel(entry) { it.submoduleDialogViewModel },
                                 onDismiss = { backStack.removeLastOrNull() },
+                            )
+                        }
+                        entry<Screen.HttpCredentials>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            HttpCredentialsDialog(
+                                onDismiss = {
+                                    repositoryTabViewModel.credentialsDenied()
+                                    backStack.removeLastOrNull()
+                                },
+                                onAccept = { user, password ->
+                                    repositoryTabViewModel.httpCredentialsAccepted(user, password)
+                                    backStack.removeLastOrNull()
+                                }
+                            )
+                        }
+                        entry<Screen.SshCredentials>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            SshPasswordDialog(
+                                onReject = {
+                                    repositoryTabViewModel.credentialsDenied()
+                                    backStack.removeLastOrNull()
+                                },
+                                onAccept = { password ->
+                                    repositoryTabViewModel.sshCredentialsAccepted(password)
+                                    backStack.removeLastOrNull()
+                                }
+                            )
+                        }
+                        entry<Screen.GpgCredentials>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            GpgPasswordDialog(
+                                gpgCredentialsRequest = entry.credentialsRequest,
+                                onReject = {
+                                    repositoryTabViewModel.credentialsDenied()
+                                    backStack.removeLastOrNull()
+                                },
+                                onAccept = { password ->
+                                    repositoryTabViewModel.gpgCredentialsAccepted(password)
+                                    backStack.removeLastOrNull()
+                                }
+                            )
+                        }
+                        entry<Screen.LfsCredentials>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            UserPasswordDialog(
+                                title = "LFS Server Credentials",
+                                subtitle = "Introduce the credentials for your LFS server",
+                                icon = painterResource(Res.drawable.lfs),
+                                onDismiss = {
+                                    repositoryTabViewModel.credentialsDenied()
+                                    backStack.removeLastOrNull()
+                                },
+                                onAccept = { user, password ->
+                                    repositoryTabViewModel.lfsCredentialsAccepted(user, password)
+                                    backStack.removeLastOrNull()
+                                }
                             )
                         }
                     }
@@ -196,7 +284,7 @@ fun AppTab(
         if (processingState is ProcessingState.Processing) {
             ProcessingScreen(
                 processingState,
-                onCancelOnGoingTask = { tabViewModel.cancelOngoingTask() }
+                onCancelOnGoingTask = { repositoryTabViewModel.cancelOngoingTask() }
             )
         }
 

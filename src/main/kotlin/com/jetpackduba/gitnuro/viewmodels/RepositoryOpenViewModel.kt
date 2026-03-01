@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.git.*
@@ -75,7 +76,8 @@ class RepositoryOpenViewModel @Inject constructor(
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
-    IGlobalMenuActionsViewModel by globalMenuActionsViewModel {
+    IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
+    TabViewModel() {
     private val errorsManager: ErrorsManager = tabState.errorsManager
 
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
@@ -123,6 +125,10 @@ class RepositoryOpenViewModel @Inject constructor(
                         minimizeBlame()
                     }
                 }
+            }
+
+            launch {
+                loadAuthorInfo(tabState.git)
             }
         }
     }

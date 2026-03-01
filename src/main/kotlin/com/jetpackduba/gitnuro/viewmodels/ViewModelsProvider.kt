@@ -17,6 +17,7 @@ interface IViewModelsProvider {
     val settingsViewModel: SettingsViewModel
     val sidePanelViewModel: SidePanelViewModel
     val rebaseInteractiveViewModel: RebaseInteractiveViewModel
+    val repositoryOpenViewModel: RepositoryOpenViewModel
     val diffViewModel: DiffViewModel
     val historyViewModel: HistoryViewModel
     val authorViewModel: AuthorViewModel
@@ -36,6 +37,7 @@ class ViewModelsProvider @Inject constructor(
     override val settingsViewModel: SettingsViewModel,
     override val sidePanelViewModel: SidePanelViewModel,
     override val rebaseInteractiveViewModel: RebaseInteractiveViewModel,
+    private val repositoryOpenViewModelProvider: Provider<RepositoryOpenViewModel>,
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
@@ -44,6 +46,8 @@ class ViewModelsProvider @Inject constructor(
     private val submoduleDialogViewModelProvider: Provider<SubmoduleDialogViewModel>,
     private val signOffDialogViewModelProvider: Provider<SignOffDialogViewModel>,
 ) : IViewModelsProvider {
+    override val repositoryOpenViewModel: RepositoryOpenViewModel
+        get() = repositoryOpenViewModelProvider.get()
     override val diffViewModel: DiffViewModel
         get() = diffViewModelProvider.get()
     override val historyViewModel: HistoryViewModel

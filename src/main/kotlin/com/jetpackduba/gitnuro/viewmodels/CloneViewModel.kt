@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.git.CloneState
 import com.jetpackduba.gitnuro.git.TabState
 import com.jetpackduba.gitnuro.git.remote_operations.CloneRepositoryUseCase
@@ -21,7 +22,7 @@ class CloneViewModel @Inject constructor(
     private val cloneRepositoryUseCase: CloneRepositoryUseCase,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val appSettingsRepository: AppSettingsRepository,
-) {
+) : TabViewModel() {
     private val _repositoryUrl = MutableStateFlow(TextFieldValue(""))
     val repositoryUrl = _repositoryUrl.asStateFlow()
 

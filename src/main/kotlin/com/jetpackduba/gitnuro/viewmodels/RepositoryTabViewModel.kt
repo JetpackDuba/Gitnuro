@@ -43,7 +43,7 @@ private const val TAG = "TabViewModel"
  * commit changes, etc.). It holds a reference to every view model because this class lives as long as the tab is open (survives
  * across full app recompositions), therefore, tab's content can be recreated with these view models.
  */
-class TabViewModel @Inject constructor(
+class RepositoryTabViewModel @Inject constructor(
     private val initLocalRepositoryUseCase: InitLocalRepositoryUseCase,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val openSubmoduleRepositoryUseCase: OpenSubmoduleRepositoryUseCase,
