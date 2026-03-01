@@ -31,11 +31,11 @@ import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
 import org.jetbrains.compose.resources.painterResource
 
+// TODO Refactor the logic of this screen
 @Composable
 fun AddSubmodulesDialog(
     viewModel: SubmoduleDialogViewModel,
     onDismiss: () -> Unit,
-    onAccept: (repository: String, directory: String) -> Unit,
 ) {
     var repositoryField by remember { mutableStateOf("") }
     var directoryField by remember { mutableStateOf(TextFieldValue("")) }
@@ -52,7 +52,7 @@ fun AddSubmodulesDialog(
 
     LaunchedEffect(viewModel) {
         viewModel.onDataIsValid.collect {
-            onAccept(repositoryField, directoryField.text)
+            viewModel.createSubmodule(repositoryField, directoryField.text)
         }
     }
 

@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import androidx.navigation3.runtime.NavKey
+import androidx.savedstate.serialization.SavedStateConfiguration
 import com.jetpackduba.gitnuro.avatarproviders.GravatarAvatarProvider
 import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
@@ -36,6 +38,7 @@ import com.jetpackduba.gitnuro.lfs.AppLfsFactory
 import com.jetpackduba.gitnuro.logging.printError
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.managers.TempFilesManager
+import com.jetpackduba.gitnuro.models.RemoteWrapper
 import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.repositories.ProxySettings
@@ -53,7 +56,11 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation.Companion.NEW_TAB_DE
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.ui.dialogs.settings.ProxyType
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import org.eclipse.jgit.lib.GpgConfig
+import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Signers
 import org.eclipse.jgit.util.LfsFactory
 import org.jetbrains.compose.resources.painterResource
@@ -64,9 +71,31 @@ import java.net.PasswordAuthentication
 import java.nio.file.Paths
 import javax.inject.Inject
 
-
 private const val TAG = "App"
 private const val MAX_CHARS_CURRENT_TAB_NAME = 250
+
+@Serializable
+data object RouteA : NavKey
+
+@Serializable
+data class RouteB(val id: String) : NavKey
+
+@Serializable
+data class RouteC(val id: String) : NavKey
+
+
+sealed interface Screen : NavKey {
+    data object Welcome : Screen
+    data object RepositoryLoading : Screen
+    data object RepositoryOpen : Screen
+    data object Settings : Screen
+    data object CloneRepository : Screen
+    data class BranchRename(val ref: Ref) : Screen
+    data class BranchChangeUpstream(val ref: Ref) : Screen
+    data class AddEditRemote(val remote: RemoteWrapper) : Screen
+    data class Error(val error: com.jetpackduba.gitnuro.managers.Error) : Screen
+    data object SubmoduleAdd : Screen
+}
 
 
 class App {
@@ -199,7 +228,6 @@ class App {
                 appStateManager.cancelCoroutines()
                 this.exitApplication()
             }
-
         }
     }
 
@@ -401,6 +429,17 @@ class App {
         }
 
         return null
+    }
+}
+
+private val config by lazy {
+    SavedStateConfiguration {
+        serializersModule = SerializersModule {
+            polymorphic(NavKey::class) {
+                subclass(RouteA::class, RouteA.serializer())
+                subclass(RouteB::class, RouteB.serializer())
+            }
+        }
     }
 }
 

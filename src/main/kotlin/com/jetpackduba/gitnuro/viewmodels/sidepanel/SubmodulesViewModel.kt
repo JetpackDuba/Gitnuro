@@ -22,7 +22,6 @@ class SubmodulesViewModel @AssistedInject constructor(
     private val updateSubmoduleUseCase: UpdateSubmoduleUseCase,
     private val syncSubmoduleUseCase: SyncSubmoduleUseCase,
     private val deInitializeSubmoduleUseCase: DeInitializeSubmoduleUseCase,
-    private val addSubmoduleUseCase: AddSubmoduleUseCase,
     private val deleteSubmoduleUseCase: DeleteSubmoduleUseCase,
     private val tabScope: CoroutineScope,
     private val tabsManager: TabsManager,
@@ -107,20 +106,6 @@ class SubmodulesViewModel @AssistedInject constructor(
         updateSubmoduleUseCase(git, path)
 
         positiveNotification("Submodule updated")
-    }
-
-    fun onCreateSubmodule(repository: String, directory: String) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.ADD_SUBMODULE,
-    ) { git ->
-        addSubmoduleUseCase(
-            git = git,
-            name = directory,
-            path = directory,
-            uri = repository,
-        )
-
-        positiveNotification("Submodule created")
     }
 
     fun onDeleteSubmodule(path: String) = tabState.safeProcessing(
