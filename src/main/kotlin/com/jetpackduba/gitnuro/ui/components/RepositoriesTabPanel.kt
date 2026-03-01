@@ -21,6 +21,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation3.runtime.NavKey
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.di.DaggerTabComponent
 import com.jetpackduba.gitnuro.di.TabComponent
@@ -29,17 +31,20 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.onMiddleMouseButtonClick
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.close
+import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.drag_sorting.HorizontalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.horizontalDragContainer
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberHorizontalDragDropState
-import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
+import com.jetpackduba.gitnuro.viewmodels.ViewModelsProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import javax.inject.Inject
+import kotlin.collections.contains
 import kotlin.io.path.Path
 import kotlin.io.path.name
 
@@ -115,7 +120,7 @@ fun RepositoriesTabPanel(
             ) {
                 itemsIndexed(
                     items = tabs,
-                    key = { _, tab -> tab.tabViewModel }
+                    key = { _, tab -> tab.repositoryTabViewModel }
                 ) { index, tab ->
                     HorizontalDraggableItem(dragDropState, index) { _ ->
                         InstantTooltip(tab.path) {
@@ -253,10 +258,25 @@ class TabInformation(
         .build()
 
     @Inject
-    lateinit var tabViewModel: TabViewModel
+    lateinit var repositoryTabViewModel: RepositoryTabViewModel
+
+    @Inject
+    lateinit var tabViewModelsProvider: ViewModelsProvider
 
     @Inject
     lateinit var appStateManager: AppStateManager
+
+    val viewModelsMap = mutableMapOf<NavKey, TabViewModel>()
+
+    inline fun <T: TabViewModel> getViewModel(key: NavKey, provideVM: (ViewModelsProvider) -> T): T {
+        repositoryTabViewModel.backStack
+
+        if (!viewModelsMap.contains(key)) {
+            viewModelsMap[key] = provideVM(tabViewModelsProvider)
+        }
+
+        return viewModelsMap.getValue(key) as T
+    }
 
     var path = initialPath
         private set
@@ -268,7 +288,7 @@ class TabInformation(
             tabName.value = Path(initialPath).name
         }
 
-        tabViewModel.onRepositoryChanged = { newPath ->
+        repositoryTabViewModel.onRepositoryChanged = { newPath ->
             this.path = newPath
 
             if (newPath == null) {
@@ -282,11 +302,20 @@ class TabInformation(
         }
 
         // Set the path that should be loaded when the tab is selected for the first time
-        tabViewModel.initialPath = initialPath
+        repositoryTabViewModel.initialPath = initialPath
     }
 
     fun dispose() {
-        tabViewModel.dispose()
+        repositoryTabViewModel.dispose()
+    }
+
+    fun removeViewModel(key: NavKey) {
+        if (!repositoryTabViewModel.backStack.contains(key)) {
+            printLog("ABDE", "TAB ${tabName.value} - Removing view model for key $key")
+            viewModelsMap.remove(key)
+        } else {
+            printLog("ABDE", "TAB ${tabName.value} - Keeping view model for key $key")
+        }
     }
 
     companion object {

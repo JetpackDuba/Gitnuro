@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.Logging
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.logging.printError
@@ -28,7 +29,7 @@ class SettingsViewModel @Inject constructor(
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val logging: Logging,
     @AppCoroutineScope private val appScope: CoroutineScope,
-) {
+): TabViewModel() {
     // Temporary values to detect changed variables
     var commitsLimit: Int = -1
 

@@ -46,7 +46,7 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
 import com.jetpackduba.gitnuro.updates.Update
-import com.jetpackduba.gitnuro.viewmodels.TabViewModel
+import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -54,12 +54,12 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun WelcomePage(
-    tabViewModel: TabViewModel,
+    repositoryTabViewModel: RepositoryTabViewModel,
     onShowCloneDialog: () -> Unit,
     onShowSettings: () -> Unit,
 ) {
-    val recentlyOpenedRepositories by tabViewModel.appStateManager.latestOpenedRepositoriesPaths.collectAsState()
-    val newUpdate by tabViewModel.update.collectAsState()
+    val recentlyOpenedRepositories by repositoryTabViewModel.appStateManager.latestOpenedRepositoriesPaths.collectAsState()
+    val newUpdate by repositoryTabViewModel.update.collectAsState()
 
     WelcomeView(
         recentlyOpenedRepositories,
@@ -67,22 +67,22 @@ fun WelcomePage(
         onShowCloneDialog = onShowCloneDialog,
         onShowSettings = onShowSettings,
         onOpenRepository = {
-            val repo = tabViewModel.openDirectoryPicker()
+            val repo = repositoryTabViewModel.openDirectoryPicker()
 
             if (repo != null) {
-                tabViewModel.openRepository(repo)
+                repositoryTabViewModel.openRepository(repo)
             }
         },
         onStartRepository = {
-            val dir = tabViewModel.openDirectoryPicker()
+            val dir = repositoryTabViewModel.openDirectoryPicker()
 
             if (dir != null) {
-                tabViewModel.initLocalRepository(dir)
+                repositoryTabViewModel.initLocalRepository(dir)
             }
         },
-        onOpenKnownRepository = { tabViewModel.openRepository(it) },
-        onOpenUrlInBrowser = { tabViewModel.openUrlInBrowser(it) },
-        onRemoveRepositoryFromRecent = { tabViewModel.removeRepositoryFromRecent(it) }
+        onOpenKnownRepository = { repositoryTabViewModel.openRepository(it) },
+        onOpenUrlInBrowser = { repositoryTabViewModel.openUrlInBrowser(it) },
+        onRemoveRepositoryFromRecent = { repositoryTabViewModel.removeRepositoryFromRecent(it) }
 
     )
 }

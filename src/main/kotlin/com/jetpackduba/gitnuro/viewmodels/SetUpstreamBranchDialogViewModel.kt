@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -20,7 +21,7 @@ class SetUpstreamBranchDialogViewModel @Inject constructor(
     private val getRemotesUseCase: GetRemotesUseCase,
     private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
     private val setTrackingBranchUseCase: SetTrackingBranchUseCase,
-) {
+) : TabViewModel() {
     private val _setDefaultUpstreamBranchState =
         MutableStateFlow<SetDefaultUpstreamBranchState>(SetDefaultUpstreamBranchState.Loading)
     val setDefaultUpstreamBranchState: StateFlow<SetDefaultUpstreamBranchState> =

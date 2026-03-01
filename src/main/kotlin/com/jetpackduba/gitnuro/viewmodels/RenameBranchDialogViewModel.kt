@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
@@ -15,7 +16,7 @@ class RenameBranchDialogViewModel @Inject constructor(
     private val tabState: TabState,
     private val renameBranchUseCase: RenameBranchUseCase,
     private val setTrackingBranchUseCase: SetTrackingBranchUseCase,
-) {
+) : TabViewModel() {
     private val _operationCompleted = MutableStateFlow(false)
     val operationCompleted = _operationCompleted.asStateFlow()
 

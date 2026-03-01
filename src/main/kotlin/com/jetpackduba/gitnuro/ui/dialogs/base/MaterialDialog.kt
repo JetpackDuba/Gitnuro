@@ -40,7 +40,7 @@ fun MaterialDialog(
     onCloseRequested: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    Popup(
+   /* Popup(
         properties = PopupProperties(
             focusable = true,
         ),
@@ -53,7 +53,7 @@ fun MaterialDialog(
             ): IntOffset = IntOffset.Zero
         }
     ) {
-
+*/
         val focusRequester = remember { FocusRequester() }
 
         LaunchedEffect(Unit) {
@@ -63,7 +63,6 @@ fun MaterialDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colors.dialogOverlay)
                 .focusRequester(focusRequester)
                 .focusable()
                 .onPreviewKeyEvent { keyEvent ->
@@ -88,5 +87,5 @@ fun MaterialDialog(
                 content()
             }
         }
-    }
+//    }
 }
