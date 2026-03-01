@@ -8,7 +8,7 @@ import com.jetpackduba.gitnuro.git.branches.GetRemoteBranchesUseCase
 import com.jetpackduba.gitnuro.git.branches.GetTrackingBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.SetTrackingBranchUseCase
 import com.jetpackduba.gitnuro.git.branches.TrackingBranch
-import com.jetpackduba.gitnuro.git.remotes.GetRemotesUseCase
+import com.jetpackduba.gitnuro.git.remotes.GetRemotesGitAction
 import com.jetpackduba.gitnuro.git.remotes.RemoteInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class SetUpstreamBranchDialogViewModel @Inject constructor(
     private val tabState: TabState,
     private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
-    private val getRemotesUseCase: GetRemotesUseCase,
+    private val getRemotesGitAction: GetRemotesGitAction,
     private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
     private val setTrackingBranchUseCase: SetTrackingBranchUseCase,
 ) : TabViewModel() {
@@ -34,7 +34,7 @@ class SetUpstreamBranchDialogViewModel @Inject constructor(
 
         val trackingBranch = getTrackingBranchUseCase(git, branch)
         val remoteBranches = getRemoteBranchesUseCase(git)
-        val remotes = getRemotesUseCase(git, remoteBranches)
+        val remotes = getRemotesGitAction(git, remoteBranches)
 
         var remote: RemoteInfo? = null
         var remoteBranch: Ref? = null

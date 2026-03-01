@@ -33,12 +33,12 @@ import org.jetbrains.skiko.ClipboardManager
 class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabState,
     private val getRemoteBranchesUseCase: GetRemoteBranchesUseCase,
-    private val getRemotesUseCase: GetRemotesUseCase,
+    private val getRemotesGitAction: GetRemotesGitAction,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
-    private val deleteRemoteUseCase: DeleteRemoteUseCase,
+    private val deleteRemoteGitAction: DeleteRemoteGitAction,
     private val fetchAllRemotesUseCase: FetchAllRemotesUseCase,
-    private val addRemoteUseCase: AddRemoteUseCase,
-    private val updateRemoteUseCase: UpdateRemoteUseCase,
+    private val addRemoteGitAction: AddRemoteGitAction,
+    private val updateRemoteGitAction: UpdateRemoteGitAction,
     private val deleteLocallyRemoteBranchesUseCase: DeleteLocallyRemoteBranchesUseCase,
     private val sharedBranchesViewModel: SharedBranchesViewModel,
     private val clipboardManager: ClipboardManager,
@@ -91,7 +91,7 @@ class RemotesViewModel @AssistedInject constructor(
     private suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
         val allRemoteBranches = getRemoteBranchesUseCase(git)
 
-        val remoteInfoList = getRemotesUseCase(git, allRemoteBranches)
+        val remoteInfoList = getRemotesGitAction(git, allRemoteBranches)
         val currentBranch = getCurrentBranchUseCase(git)
 
         val remoteViewList = remoteInfoList.map { remoteInfo ->
@@ -129,7 +129,7 @@ class RemotesViewModel @AssistedInject constructor(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.DELETE_REMOTE,
     ) { git ->
-        deleteRemoteUseCase(git, remoteName)
+        deleteRemoteGitAction(git, remoteName)
 
         val remoteBranches = getRemoteBranchesUseCase(git)
         val remoteToDeleteBranchesNames = remoteBranches.filter {
@@ -166,7 +166,7 @@ class RemotesViewModel @AssistedInject constructor(
             throw InvalidRemoteUrlException("Invalid empty push URI")
         }
 
-        addRemoteUseCase(git, selectedRemoteConfig.remoteName, selectedRemoteConfig.fetchUri)
+        addRemoteGitAction(git, selectedRemoteConfig.remoteName, selectedRemoteConfig.fetchUri)
 
         updateRemote(selectedRemoteConfig) // Sets both, fetch and push uri
     }
@@ -184,14 +184,14 @@ class RemotesViewModel @AssistedInject constructor(
             throw InvalidRemoteUrlException("Invalid empty push URI")
         }
 
-        updateRemoteUseCase(
+        updateRemoteGitAction(
             git = git,
             remoteName = selectedRemoteConfig.remoteName,
             uri = selectedRemoteConfig.fetchUri,
             uriType = RemoteSetUrlCommand.UriType.FETCH
         )
 
-        updateRemoteUseCase(
+        updateRemoteGitAction(
             git = git,
             remoteName = selectedRemoteConfig.remoteName,
             uri = selectedRemoteConfig.pushUri,

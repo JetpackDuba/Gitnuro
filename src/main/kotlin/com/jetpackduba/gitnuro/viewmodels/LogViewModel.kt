@@ -59,7 +59,7 @@ class LogViewModel @Inject constructor(
     private val checkHasUncommittedChangesUseCase: CheckHasUncommittedChangesUseCase,
     private val getCurrentBranchUseCase: GetCurrentBranchUseCase,
     private val createBranchOnCommitUseCase: CreateBranchOnCommitUseCase,
-    private val checkoutCommitUseCase: CheckoutCommitUseCase,
+    private val checkoutCommitGitAction: CheckoutCommitGitAction,
     private val revertCommitUseCase: RevertCommitUseCase,
     private val resetToCommitUseCase: ResetToCommitUseCase,
     private val cherryPickCommitUseCase: CherryPickCommitUseCase,
@@ -179,7 +179,7 @@ class LogViewModel @Inject constructor(
         subtitle = "Checking out commit ${revCommit.name}",
         taskType = TaskType.CHECKOUT_COMMIT,
     ) { git ->
-        checkoutCommitUseCase(git, revCommit)
+        checkoutCommitGitAction(git, revCommit)
 
         positiveNotification("Commit checked out")
     }

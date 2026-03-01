@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
-class DeleteRemoteUseCase @Inject constructor() {
+class DeleteRemoteGitAction @Inject constructor() {
     suspend operator fun invoke(git: Git, remoteName: String): Unit = withContext(Dispatchers.IO) {
         git.remoteRemove()
             .setRemoteName(remoteName)

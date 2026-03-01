@@ -17,6 +17,7 @@ import com.jetpackduba.gitnuro.managers.newErrorNow
 import com.jetpackduba.gitnuro.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.models.errorNotification
 import com.jetpackduba.gitnuro.models.positiveNotification
+import com.jetpackduba.gitnuro.observers.DataObserversManager
 import com.jetpackduba.gitnuro.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
@@ -73,6 +74,7 @@ class RepositoryOpenViewModel @Inject constructor(
     val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val selectedDiffItemRepository: SelectedDiffItemRepository,
+    private val dataObserversManager: DataObserversManager,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -120,6 +122,10 @@ class RepositoryOpenViewModel @Inject constructor(
             }
 
             launch {
+                dataObserversManager.start()
+            }
+
+            launch {
                 selectedDiffItemRepository.diffSelected.collectLatest {
                     if (it != null && it.entries.count() == 1) {
                         minimizeBlame()
@@ -133,6 +139,9 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
+    override fun onClear() {
+        dataObserversManager.stop()
+    }
 
     /**
      * To make sure the tab opens the new repository with a clean state,

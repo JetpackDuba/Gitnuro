@@ -312,6 +312,7 @@ class TabInformation(
     fun removeViewModel(key: NavKey) {
         if (!repositoryTabViewModel.backStack.contains(key)) {
             printLog("ABDE", "TAB ${tabName.value} - Removing view model for key $key")
+            viewModelsMap[key]?.onClear()
             viewModelsMap.remove(key)
         } else {
             printLog("ABDE", "TAB ${tabName.value} - Keeping view model for key $key")

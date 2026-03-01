@@ -6,7 +6,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
-class GetRemotesUseCase @Inject constructor() {
+class GetRemotesGitAction @Inject constructor() {
     suspend operator fun invoke(git: Git, allRemoteBranches: List<Ref>): List<RemoteInfo> =
         withContext(Dispatchers.IO) {
             val remotes = git.remoteList()

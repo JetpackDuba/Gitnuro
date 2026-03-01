@@ -5,8 +5,7 @@ import com.jetpackduba.gitnuro.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.extensions.simpleName
 import com.jetpackduba.gitnuro.git.RefreshType
 import com.jetpackduba.gitnuro.git.TabState
-import com.jetpackduba.gitnuro.git.log.CheckoutCommitUseCase
-import com.jetpackduba.gitnuro.git.tags.DeleteTagUseCase
+import com.jetpackduba.gitnuro.git.log.CheckoutCommitGitAction
 import com.jetpackduba.gitnuro.git.tags.GetTagsUseCase
 import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.viewmodels.ISharedTagsViewModel
@@ -24,7 +23,7 @@ import org.eclipse.jgit.lib.Ref
 class TagsViewModel @AssistedInject constructor(
     private val tabState: TabState,
     private val getTagsUseCase: GetTagsUseCase,
-    private val checkoutCommitUseCase: CheckoutCommitUseCase,
+    private val checkoutCommitGitAction: CheckoutCommitGitAction,
     tabScope: CoroutineScope,
     sharedTagsViewModel: SharedTagsViewModel,
     @Assisted
@@ -62,7 +61,7 @@ class TagsViewModel @AssistedInject constructor(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.INIT_SUBMODULE,
     ) { git ->
-        checkoutCommitUseCase(git, ref.objectId.name)
+        checkoutCommitGitAction(git, ref.objectId.name)
 
         positiveNotification("Commit checked out")
     }

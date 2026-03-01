@@ -7,7 +7,7 @@ import org.eclipse.jgit.api.RemoteSetUrlCommand
 import org.eclipse.jgit.transport.URIish
 import javax.inject.Inject
 
-class UpdateRemoteUseCase @Inject constructor() {
+class UpdateRemoteGitAction @Inject constructor() {
     suspend operator fun invoke(git: Git, remoteName: String, uri: String, uriType: RemoteSetUrlCommand.UriType): Unit =
         withContext(Dispatchers.IO) {
             git.remoteSetUrl()
