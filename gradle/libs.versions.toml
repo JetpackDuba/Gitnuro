@@ -14,6 +14,7 @@ bouncycastle = "1.81"
 ktor = "3.3.2"
 coil = "3.3.0"
 compose = "1.10.0"
+composeNav = "1.1.0-alpha03"
 materialExtended = "1.7.3"
 
 [libraries]
@@ -23,6 +24,7 @@ compose-components-animatedimage = { group = "org.jetbrains.compose.components",
 compose-components-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose" }
 compose-material-icons-extended = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "materialExtended" }
 
+compose-navigation3  = { group = "org.jetbrains.androidx.navigation3", name= "navigation3-ui", version.ref="composeNav" }
 
 jgit-core = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 jgit-gpg = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.gpg.bc", version.ref = "jgit" }

@@ -342,28 +342,28 @@ class AppPopupMenu : TextContextMenu {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.copy,
                         icon = { painterResource(Res.drawable.copy) },
-                        onClick = it
+                        onClick = it.execute
                     )
                 },
                 textManager.cut?.let {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.cut,
                         icon = { painterResource(Res.drawable.cut) },
-                        onClick = it
+                        onClick = it.execute
                     )
                 },
                 textManager.paste?.let {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.paste,
                         icon = { painterResource(Res.drawable.paste) },
-                        onClick = it
+                        onClick = it.execute
                     )
                 },
                 textManager.selectAll?.let {
                     ContextMenuElement.ContextTextEntry(
                         label = localization.selectAll,
                         icon = null,
-                        onClick = it
+                        onClick = it.execute
                     )
                 },
             )

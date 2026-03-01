@@ -1,5 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import androidx.navigation3.runtime.NavBackStack
+import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.TaskType
 import com.jetpackduba.gitnuro.credentials.CredentialsState
 import com.jetpackduba.gitnuro.credentials.CredentialsStateManager
@@ -26,7 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import java.io.File
@@ -64,6 +65,8 @@ class TabViewModel @Inject constructor(
     val errorsManager: ErrorsManager = tabState.errorsManager
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
+    val backStack = NavBackStack<Screen>(Screen.Welcome)
+
     private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
         get() = _repositorySelectionStatus
@@ -71,19 +74,6 @@ class TabViewModel @Inject constructor(
     val processing: StateFlow<ProcessingState> = tabState.processing
 
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
-
-    val showError = MutableStateFlow(false)
-
-    init {
-        tabScope.run {
-
-            launch {
-                errorsManager.error.collect {
-                    showError.value = true
-                }
-            }
-        }
-    }
 
     fun openRepository(directory: String) {
         openRepository(File(directory))

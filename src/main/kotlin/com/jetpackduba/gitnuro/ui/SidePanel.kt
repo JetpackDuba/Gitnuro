@@ -15,6 +15,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
+import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.isLocal
 import com.jetpackduba.gitnuro.extensions.isValid
@@ -30,11 +31,6 @@ import com.jetpackduba.gitnuro.ui.components.SideMenuHeader
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
-import com.jetpackduba.gitnuro.ui.dialogs.AddEditRemoteDialog
-import com.jetpackduba.gitnuro.ui.dialogs.AddSubmodulesDialog
-import com.jetpackduba.gitnuro.ui.dialogs.RenameBranchDialog
-import com.jetpackduba.gitnuro.ui.dialogs.SetDefaultUpstreamBranchDialog
-import com.jetpackduba.gitnuro.viewmodels.IViewModelsProvider
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.lib.Ref
@@ -46,12 +42,12 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun SidePanel(
     sidePanelViewModel: SidePanelViewModel,
-    viewModelsProvider: IViewModelsProvider,
     branchesViewModel: BranchesViewModel = sidePanelViewModel.branchesViewModel,
     remotesViewModel: RemotesViewModel = sidePanelViewModel.remotesViewModel,
     tagsViewModel: TagsViewModel = sidePanelViewModel.tagsViewModel,
     stashesViewModel: StashesViewModel = sidePanelViewModel.stashesViewModel,
     submodulesViewModel: SubmodulesViewModel = sidePanelViewModel.submodulesViewModel,
+    onNavigate: (Screen) -> Unit,
 ) {
     val filter by sidePanelViewModel.filter.collectAsState()
     val selectedItem by sidePanelViewModel.selectedItem.collectAsState()
@@ -62,10 +58,6 @@ fun SidePanel(
     val stashesState by stashesViewModel.stashesState.collectAsState()
     val submodulesState by submodulesViewModel.submodules.collectAsState()
 
-    val (showAddEditRemote, setShowAddEditRemote) = remember { mutableStateOf<RemoteWrapper?>(null) }
-    val (branchToChangeUpstream, setBranchToChangeUpstream) = remember { mutableStateOf<Ref?>(null) }
-    val (branchToRename, setBranchToRename) = remember { mutableStateOf<Ref?>(null) }
-    var showEditSubmodulesDialog by remember { mutableStateOf(false) }
     val searchFocusRequester = remember { FocusRequester() }
     val tabFocusRequester = LocalTabFocusRequester.current
 
@@ -102,14 +94,14 @@ fun SidePanel(
                 branchesState = branchesState,
                 selectedItem = selectedItem,
                 branchesViewModel = branchesViewModel,
-                onChangeDefaultUpstreamBranch = { setBranchToChangeUpstream(it) },
-                onRenameBranch = { setBranchToRename(it) },
+                onChangeDefaultUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
+                onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
             )
 
             remotes(
                 remotesState = remotesState,
                 remotesViewModel = remotesViewModel,
-                onShowAddEditRemoteDialog = { setShowAddEditRemote(it) },
+                onShowAddEditRemoteDialog = { onNavigate(Screen.AddEditRemote(it)) },
             )
 
             tags(
@@ -127,48 +119,9 @@ fun SidePanel(
             submodules(
                 submodulesState = submodulesState,
                 submodulesViewModel = submodulesViewModel,
-                onShowEditSubmodulesDialog = { showEditSubmodulesDialog = true },
+                onAddSubmodule = { onNavigate(Screen.SubmoduleAdd) },
             )
         }
-    }
-
-    if (showAddEditRemote != null) {
-        AddEditRemoteDialog(
-            remotesViewModel = remotesViewModel,
-            remoteWrapper = showAddEditRemote,
-            onDismiss = {
-                setShowAddEditRemote(null)
-            },
-        )
-    }
-
-    if (branchToChangeUpstream != null) {
-        SetDefaultUpstreamBranchDialog(
-            viewModel = viewModelsProvider.setUpstreamBranchDialogViewModel,
-            branch = branchToChangeUpstream,
-            onDismiss = { setBranchToChangeUpstream(null) }
-        )
-    }
-
-    if (branchToRename != null) {
-        RenameBranchDialog(
-            viewModel = viewModelsProvider.renameBranchDialogViewModel,
-            branch = branchToRename,
-            onDismiss = { setBranchToRename(null) }
-        )
-    }
-
-    if (showEditSubmodulesDialog) {
-        AddSubmodulesDialog(
-            viewModel = viewModelsProvider.submoduleDialogViewModel,
-            onDismiss = {
-                showEditSubmodulesDialog = false
-            },
-            onAccept = { repository, directory ->
-                submodulesViewModel.onCreateSubmodule(repository, directory)
-                showEditSubmodulesDialog = false
-            }
-        )
     }
 }
 
@@ -408,7 +361,7 @@ fun LazyListScope.stashes(
 fun LazyListScope.submodules(
     submodulesState: SubmodulesState,
     submodulesViewModel: SubmodulesViewModel,
-    onShowEditSubmodulesDialog: () -> Unit,
+    onAddSubmodule: () -> Unit,
 ) {
     val isExpanded = submodulesState.isExpanded
     val submodules = submodulesState.submodules
@@ -423,7 +376,7 @@ fun LazyListScope.submodules(
                 itemsCount = submodules.count(),
                 hoverIcon = {
                     IconButton(
-                        onClick = onShowEditSubmodulesDialog,
+                        onClick = onAddSubmodule,
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .size(16.dp)

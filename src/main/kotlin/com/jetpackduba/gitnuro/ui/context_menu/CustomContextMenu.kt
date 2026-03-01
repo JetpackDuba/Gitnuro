@@ -33,13 +33,13 @@ class SelectionAwareTextContextMenu(val onIsTextSelected: (AnnotatedString) -> U
         }
 
         val emptyTextManager = object : TextContextMenu.TextManager {
-            override val copy: (() -> Unit)?
+            override val copy: TextContextMenu.Action?
                 get() = null
-            override val cut: (() -> Unit)?
+            override val cut: TextContextMenu.Action?
                 get() = null
-            override val paste: (() -> Unit)?
+            override val paste: TextContextMenu.Action?
                 get() = null
-            override val selectAll: (() -> Unit)?
+            override val selectAll: TextContextMenu.Action?
                 get() = null
             override val selectedText: AnnotatedString
                 get() = AnnotatedString("")

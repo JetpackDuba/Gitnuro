@@ -14,6 +14,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
+import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.generated.resources.Res
 import com.jetpackduba.gitnuro.generated.resources.bottom_info_bar_email_not_set
@@ -44,6 +45,7 @@ fun RepositoryOpenPage(
     repositoryOpenViewModel: RepositoryOpenViewModel,
     onShowSettingsDialog: () -> Unit,
     onShowCloneDialog: () -> Unit,
+    onNavigate: (Screen) -> Unit,
 ) {
     val repositoryState by repositoryOpenViewModel.repositoryState.collectAsState()
     val selectedItem by repositoryOpenViewModel.selectedItem.collectAsState()
@@ -202,6 +204,7 @@ fun RepositoryOpenPage(
                     repositoryState = repositoryState,
                     blameState = blameState,
                     showHistory = showHistory,
+                    onNavigate = onNavigate,
                 )
             }
         }
@@ -267,6 +270,7 @@ fun RepoContent(
     repositoryState: RepositoryState,
     blameState: BlameState,
     showHistory: Boolean,
+    onNavigate: (Screen) -> Unit,
 ) {
     if (showHistory) {
         val historyViewModel = repositoryOpenViewModel.historyViewModel
@@ -285,6 +289,7 @@ fun RepoContent(
             selectedItem = selectedItem,
             repositoryState = repositoryState,
             blameState = blameState,
+            onNavigate = onNavigate,
         )
     }
 }
@@ -295,6 +300,7 @@ fun MainContentView(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
+    onNavigate: (Screen) -> Unit,
 ) {
     val diffSelected by repositoryOpenViewModel.diffSelected.collectAsState()
     val rebaseInteractiveState by repositoryOpenViewModel.rebaseInteractiveState.collectAsState()
@@ -320,7 +326,7 @@ fun MainContentView(
         first = {
             SidePanel(
                 sidePanelViewModel = repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
-                viewModelsProvider = repositoryOpenViewModel.tabViewModelsProvider,
+                onNavigate = onNavigate,
             )
         },
         second = {
