@@ -1,0 +1,23 @@
+package com.jetpackduba.gitnuro.data.mappers
+
+import com.jetpackduba.gitnuro.domain.models.Remote
+import org.eclipse.jgit.transport.RemoteConfig
+
+class RemoteConfigToRemoteMapper: DataMapper<RemoteConfig, Remote> {
+    override fun map(from: RemoteConfig): Remote {
+        return from.toRemoteWrapper()
+    }
+}
+
+// TODO remove this extension in the future after refactoring
+fun RemoteConfig.toRemoteWrapper(): Remote {
+    val fetchUri = this.urIs.firstOrNull()
+    val pushUri = this.pushURIs.firstOrNull()
+        ?: this.urIs.firstOrNull() // If push URI == null, take fetch URI
+
+    return Remote(
+        remoteName = this.name,
+        fetchUri = fetchUri?.toString().orEmpty(),
+        pushUri = pushUri?.toString().orEmpty(),
+    )
+}

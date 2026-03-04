@@ -10,9 +10,15 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 build/
+*/build/
 /captures
 .externalNativeBuild
 .cxx
 rs/target/
 rs/Cargo.lock
 src/main/resources/*gitnuro_rs*
+*.salive
+*.hprof
+*.dylib
+*.dll
+*.so
