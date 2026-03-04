@@ -1,0 +1,324 @@
+import org.gradle.jvm.tasks.Jar
+import java.io.FileOutputStream
+import java.nio.file.Files
+
+plugins {    // Apply the shared build logic from a convention plugin.
+    // The shared code is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
+    id("buildsrc.convention.kotlin-jvm")
+
+    // Apply the Application plugin to add support for building an executable JVM application.
+    //application
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotlinx.serialization)
+}
+
+val javaLanguageVersion = JavaLanguageVersion.of(21)
+val linuxArmTarget = "aarch64-unknown-linux-gnu"
+val linuxX64Target = "x86_64-unknown-linux-gnu"
+
+// Remember to update Constants.APP_VERSION when changing this version
+val projectVersion = "1.5.0"
+
+val projectName = "Gitnuro"
+
+// Required for JPackage, as it doesn't accept additional suffixes after the version.
+val projectVersionSimplified = "1.5.0"
+
+val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
+
+group = "com.jetpackduba.gitnuro"
+version = projectVersion
+
+val isLinuxAarch64 = (properties.getOrDefault("isLinuxAarch64", "false") as String).toBoolean()
+val useCross = (properties.getOrDefault("useCross", "false") as String).toBoolean()
+val isRustRelease = (properties.getOrDefault("isRustRelease", "true") as String).toBoolean()
+
+
+sourceSets.getByName("main") {
+    kotlin.srcDir(rustGeneratedSource)
+}
+
+sourceSets.main.get().java.srcDirs("app/src/main/resources").includes.addAll(arrayOf("**/*.*"))
+
+dependencies {
+    implementation(project(":common"))
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
+    val composeDependency = when {
+        currentOs() == OS.LINUX && isLinuxAarch64 -> libs.compose.desktop.linux.arm64
+        else -> compose.desktop.currentOs
+    }
+
+    println("composeDependency: $composeDependency")
+    implementation(composeDependency)
+
+    implementation(libs.compose.ui.util)
+    implementation(libs.compose.components.animatedimage)
+    implementation(libs.compose.components.resources)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.navigation3)
+
+    implementation(libs.jgit.core)
+    implementation(libs.jgit.gpg)
+    implementation(libs.jgit.lfs)
+
+    implementation(libs.coroutines)
+
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.dagger)
+    ksp(libs.dagger.compiler)
+
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testRuntimeOnly(libs.junit.platform.launcher)
+
+    testImplementation(libs.mockk)
+
+    implementation(libs.kotlin.logging)
+    implementation(libs.slf4j.api)
+    implementation(libs.slf4j.reload4j)
+
+    implementation(libs.bouncycastle)
+
+    implementation(libs.ktor.client)
+    implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+
+    implementation(libs.coil3.compose)
+    implementation(libs.coil3.network.okhttp)
+}
+
+fun currentOs(): OS {
+    val os = System.getProperty("os.name")
+    return when {
+        os.equals("Mac OS X", ignoreCase = true) -> OS.MAC
+        os.startsWith("Win", ignoreCase = true) -> OS.WINDOWS
+        os.startsWith("Linux", ignoreCase = true) -> OS.LINUX
+        else -> error("Unknown OS name: $os")
+    }
+}
+
+enum class OS {
+    LINUX,
+    WINDOWS,
+    MAC
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "faile  d")
+    }
+}
+
+kotlin {
+    jvmToolchain {
+        languageVersion.set(javaLanguageVersion)
+    }
+}
+
+tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
+    compilerOptions {
+        allWarningsAsErrors.set(false)
+        freeCompilerArgs.addAll("-opt-in=kotlin.RequiresOptIn")
+    }
+}
+
+compose.desktop {
+    application {
+        mainClass = "com.jetpackduba.gitnuro.MainKt"
+
+        this@application.dependsOn("rustTasks")
+
+        sourceSets.forEach {
+            it.java.srcDir(rustGeneratedSource)
+        }
+
+        nativeDistributions {
+            includeAllModules = true
+            packageName = projectName
+            version = projectVersionSimplified
+            description = "Multiplatform Git client"
+
+            windows {
+                iconFile.set(project.file("icons/icon.ico"))
+            }
+
+            macOS {
+                jvmArgs(
+                    "-Dapple.awt.application.appearance=system"
+                )
+                iconFile.set(project.file("icons/icon.icns"))
+            }
+        }
+    }
+}
+
+
+tasks.register("fatJarLinux", type = Jar::class) {
+    val archSuffix = if (isLinuxAarch64) {
+        "arm_aarch64"
+    } else {
+        "x86_64"
+    }
+
+    archiveBaseName.set("$projectName-linux-$archSuffix-$projectVersion")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes["Implementation-Title"] = name
+        attributes["Implementation-Version"] = projectVersion
+        attributes["Main-Class"] = "com.jetpackduba.gitnuro.MainKt"
+    }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) }) {
+        exclude(
+            "META-INF/MANIFEST.MF",
+            "META-INF/*.SF",
+            "META-INF/*.DSA",
+            "META-INF/*.RSA",
+        )
+    }
+    with(tasks.jar.get() as CopySpec)
+}
+
+tasks.register("rust_build") {
+    buildRust()
+}
+
+tasks.getByName("compileKotlin").doFirst {
+    println("compileKotlin called")
+    buildRust()
+    copyRustBuild()
+    generateKotlinFromRs()
+}
+
+tasks.getByName("compileTestKotlin").doFirst {
+    println("compileTestKotlin called")
+    buildRust()
+    copyRustBuild()
+    generateKotlinFromRs()
+}
+
+tasks.register("tasksList") {
+    println("Tasks")
+    tasks.forEach {
+        println("- ${it.name}")
+    }
+}
+
+tasks.register("rustTasks") {
+    buildRust()
+    copyRustBuild()
+    generateKotlinFromRs()
+}
+
+tasks.register("rust_copyBuild") {
+    copyRustBuild()
+}
+
+val rustProjectDir = File(project.projectDir.parent, "rs")
+
+fun generateKotlinFromRs() {
+    val outDir = "${project.rootProject.projectDir}/domain/src/main/kotlin/com/jetpackduba/gitnuro/autogenerated/"
+    println("Out dir is $outDir")
+    val outDirFile = File(outDir)
+
+    if (outDirFile.exists()) {
+        outDirFile.listFiles()?.forEach { file -> if (file.name != ".gitignore") file.delete() }
+    } else {
+        outDirFile.mkdirs()
+    }
+
+    val kotarsBin = "cargo-kotars"
+
+    // cargo-kotars must be preinstalled
+    val command = listOf(
+        kotarsBin,
+        "--kotlin-output",
+        outDir,
+    )
+
+    println(command.joinToString(" "))
+
+    providers.exec {
+        println("Generating Kotlin source files")
+
+        workingDir = rustProjectDir
+        commandLine = command
+    }.result.get()
+}
+
+fun buildRust() {
+    println("Build rs called")
+    val binary = if (currentOs() == OS.LINUX && useCross) {
+        arrayOf("cross")
+    } else {
+        arrayOf("cargo")
+    }
+
+    val params = mutableListOf(
+        *binary, "build",
+    )
+
+    if (isRustRelease) {
+        params.add("--release")
+    }
+
+    if (currentOs() == OS.LINUX && useCross) {
+        if (isLinuxAarch64) {
+            params.add("--target=$linuxArmTarget")
+        } else {
+            params.add("--target=$linuxX64Target")
+        }
+    }
+
+    providers.exec {
+        workingDir = rustProjectDir
+        commandLine = params
+    }.result.get()
+}
+
+fun copyRustBuild() {
+    val outputDir = "${project.projectDir}/src/main/resources"
+
+    val buildTypeDirectory = if (isRustRelease) {
+        "release"
+    } else {
+        "debug"
+    }
+
+    val workingDirPath = if (currentOs() == OS.LINUX && useCross) {
+        if (isLinuxAarch64) {
+            "rs/target/$linuxArmTarget/$buildTypeDirectory"
+        } else {
+            "rs/target/$linuxX64Target/$buildTypeDirectory"
+        }
+    } else if (currentOs() == OS.MAC) {
+        "rs/target/$buildTypeDirectory"
+    } else {
+        "rs/target/$buildTypeDirectory"
+    }
+
+    val workingDir = File(project.projectDir.parent, workingDirPath)
+
+    val directory = File(outputDir)
+    directory.mkdirs()
+
+    val lib = when (currentOs()) {
+        OS.LINUX -> "libgitnuro_rs.so"
+        OS.WINDOWS -> "gitnuro_rs.dll"
+        OS.MAC -> "libgitnuro_rs.dylib"
+    }
+
+    val originFile = File(workingDir, lib)
+    val destinyFile = File(directory, lib)
+
+    Files.copy(originFile.toPath(), FileOutputStream(destinyFile))
+
+    println("Copy rs build completed")
+}
