@@ -1,0 +1,435 @@
+package com.jetpackduba.gitnuro.ui
+
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.LinearProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.LocalTabFocusRequester
+import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.data.repositories.DiffSelected
+import com.jetpackduba.gitnuro.domain.extensions.fileName
+import com.jetpackduba.gitnuro.domain.extensions.filePath
+import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
+import com.jetpackduba.gitnuro.domain.extensions.shortName
+import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
+import com.jetpackduba.gitnuro.theme.tertiarySurface
+import com.jetpackduba.gitnuro.ui.components.*
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.committedChangesEntriesContextMenuItems
+import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
+import com.jetpackduba.gitnuro.viewmodels.CommitChangesStateUi
+import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.lib.PersonIdent
+import org.eclipse.jgit.revwalk.RevCommit
+
+@Composable
+fun CommitChanges(
+    commitChangesViewModel: CommitChangesViewModel,
+    selectedItem: SelectedItem.CommitBasedItem,
+    onBlame: (String) -> Unit,
+    onHistory: (String) -> Unit,
+) {
+    val tabFocusRequester = LocalTabFocusRequester.current
+    val diffSelected by commitChangesViewModel.diffSelected.collectAsState(null)
+
+    LaunchedEffect(selectedItem) {
+        commitChangesViewModel.loadChanges(selectedItem.revCommit)
+    }
+
+    LaunchedEffect(commitChangesViewModel) {
+        commitChangesViewModel.showSearch.collectLatest { show ->
+            if (!show) {
+                tabFocusRequester.requestFocus()
+            }
+        }
+    }
+
+    val commitChangesStatus = commitChangesViewModel.commitChangesStateUi.collectAsState().value
+    val showSearch by commitChangesViewModel.showSearch.collectAsState()
+    val changesListScroll by commitChangesViewModel.changesLazyListState.collectAsState()
+    val textScroll by commitChangesViewModel.textScroll.collectAsState()
+    val showAsTree by commitChangesViewModel.showAsTree.collectAsState()
+
+    var searchFilter by remember(commitChangesViewModel, showSearch, commitChangesStatus) {
+        mutableStateOf(commitChangesViewModel.searchFilter.value)
+    }
+
+    when (commitChangesStatus) {
+        CommitChangesStateUi.Loading -> {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
+        }
+
+        is CommitChangesStateUi.Loaded -> {
+            CommitChangesView(
+                diffSelected = diffSelected,
+                commitChangesStatus = commitChangesStatus,
+                onBlame = onBlame,
+                onHistory = onHistory,
+                onOpenFileInFolder = { commitChangesViewModel.openFileInFolder(it) },
+                showSearch = showSearch,
+                showAsTree = showAsTree,
+                changesListScroll = changesListScroll,
+                textScroll = textScroll,
+                searchFilter = searchFilter,
+                onDiffSelected = {
+                    commitChangesViewModel.selectEntries(listOf(it)) // TODO pass proper list
+                },
+                onSearchFilterToggled = { visible ->
+                    commitChangesViewModel.onSearchFilterToggled(visible)
+                },
+                onSearchFocused = {
+                    commitChangesViewModel.addSearchToCloseableView()
+                },
+                onSearchFilterChanged = { filter ->
+                    searchFilter = filter
+                    commitChangesViewModel.onSearchFilterChanged(filter)
+                },
+                onDirectoryClicked = { commitChangesViewModel.onDirectoryClicked(it.fullPath) },
+                onAlternateShowAsTree = { commitChangesViewModel.alternateShowAsTree() },
+            )
+        }
+    }
+}
+
+@Composable
+private fun CommitChangesView(
+    commitChangesStatus: CommitChangesStateUi.Loaded,
+    diffSelected: DiffSelected.CommitedChanges?,
+    changesListScroll: LazyListState,
+    textScroll: ScrollState,
+    showSearch: Boolean,
+    showAsTree: Boolean,
+    searchFilter: TextFieldValue,
+    onBlame: (String) -> Unit,
+    onHistory: (String) -> Unit,
+    onOpenFileInFolder: (String) -> Unit,
+    onDiffSelected: (DiffEntry) -> Unit,
+    onSearchFilterToggled: (Boolean) -> Unit,
+    onSearchFocused: () -> Unit,
+    onSearchFilterChanged: (TextFieldValue) -> Unit,
+    onDirectoryClicked: (TreeItem.Dir) -> Unit,
+    onAlternateShowAsTree: () -> Unit,
+) {
+    val commit = commitChangesStatus.commit
+
+    Column(
+        modifier = Modifier
+            .padding(end = 8.dp, bottom = 8.dp)
+            .fillMaxSize(),
+    ) {
+
+        Column(
+            modifier = Modifier
+                .padding(bottom = 4.dp)
+                .fillMaxWidth()
+                .weight(1f, fill = true)
+                .background(MaterialTheme.colors.background)
+        ) {
+            FilesChangedHeader(
+                title = "Files changed",
+                showAsTree = showAsTree,
+                showSearch = showSearch,
+                onAlternateShowAsTree = onAlternateShowAsTree,
+                searchFilter = searchFilter,
+                onSearchFocused = onSearchFocused,
+                onSearchFilterToggled = onSearchFilterToggled,
+                onSearchFilterChanged = onSearchFilterChanged,
+                showActionForSelected = false,
+            )
+
+            when (commitChangesStatus) {
+                is CommitChangesStateUi.ListLoaded -> {
+                    val changes = commitChangesStatus.changes
+
+                    ListCommitLogChanges(
+                        diffSelected = diffSelected,
+                        changesListScroll = changesListScroll,
+                        diffEntries = changes,
+                        onDiffSelected = onDiffSelected,
+                        onGenerateContextMenu = { diffEntry ->
+                            committedChangesEntriesContextMenuItems(
+                                diffEntry,
+                                onBlame = { onBlame(diffEntry.filePath) },
+                                onHistory = { onHistory(diffEntry.filePath) },
+                                onOpenFileInFolder = { onOpenFileInFolder(diffEntry.parentDirectoryPath) },
+                            )
+                        }
+                    )
+                }
+
+                is CommitChangesStateUi.TreeLoaded -> {
+                    TreeCommitLogChanges(
+                        diffSelected = diffSelected,
+                        changesListScroll = changesListScroll,
+                        treeItems = commitChangesStatus.changes,
+                        onDiffSelected = onDiffSelected,
+                        onGenerateContextMenu = { diffEntry ->
+                            committedChangesEntriesContextMenuItems(
+                                diffEntry,
+                                onBlame = { onBlame(diffEntry.filePath) },
+                                onHistory = { onHistory(diffEntry.filePath) },
+                                onOpenFileInFolder = { onOpenFileInFolder(diffEntry.parentDirectoryPath) },
+                            )
+                        },
+                        onDirectoryClicked = onDirectoryClicked,
+                    )
+                }
+            }
+
+        }
+
+        MessageAuthorFooter(
+            commit,
+            textScroll,
+        )
+    }
+}
+
+@Composable
+private fun MessageAuthorFooter(
+    commit: RevCommit,
+    textScroll: ScrollState,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.background),
+    ) {
+        SelectionContainer {
+            Text(
+                text = commit.fullMessage,
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onBackground,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .padding(8.dp)
+                    .verticalScroll(textScroll),
+            )
+        }
+
+        Author(
+            shortName = commit.shortName,
+            name = commit.name,
+            author = commit.authorIdent,
+        )
+    }
+}
+
+@Composable
+fun Author(
+    shortName: String,
+    name: String,
+    author: PersonIdent,
+) {
+    var copied by remember(name) { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboardManager.current
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .background(MaterialTheme.colors.tertiarySurface),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AvatarImage(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .size(40.dp),
+            personIdent = author,
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            TooltipText(
+                text = author.name,
+                maxLines = 1,
+                style = MaterialTheme.typography.body2,
+                tooltipTitle = author.emailAddress,
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = shortName,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.handMouseClickable {
+                        scope.launch {
+                            clipboard.setText(AnnotatedString(name))
+                            copied = true
+                            delay(2000) // 2s
+                            copied = false
+                        }
+                    }
+                )
+
+                if (copied) {
+                    Text(
+                        text = "Copied!",
+                        color = MaterialTheme.colors.primaryVariant,
+                        maxLines = 1,
+                        style = MaterialTheme.typography.caption,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                }
+
+
+                Spacer(modifier = Modifier.weight(1f, fill = true))
+
+                val smartDate = author.whenAsInstant.toSmartSystemString(
+                    allowRelative = true,
+                    showTime = true,
+                )
+
+                val smartDateTooltip = author.whenAsInstant.toSmartSystemString(
+                    allowRelative = false,
+                    showTime = true,
+                )
+
+                TooltipText(
+                    text = smartDate,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    maxLines = 1,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    style = MaterialTheme.typography.body2,
+                    tooltipTitle = smartDateTooltip,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ListCommitLogChanges(
+    diffEntries: List<DiffEntry>,
+    diffSelected: DiffSelected.CommitedChanges?,
+    changesListScroll: LazyListState,
+    onDiffSelected: (DiffEntry) -> Unit,
+    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuElement>,
+) {
+    ScrollableLazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = changesListScroll,
+    ) {
+        items(items = diffEntries) { diffEntry ->
+            FileEntry(
+                icon = diffEntry.icon,
+                iconColor = diffEntry.iconColor,
+                parentDirectoryPath = diffEntry.parentDirectoryPath,
+                fileName = diffEntry.fileName,
+                isSelected = false/*diffSelected is DiffType.CommitDiff && diffSelected.diffEntry == diffEntry*/,
+                onClick = { onDiffSelected(diffEntry) },
+                onDoubleClick = {},
+                onGenerateContextMenu = { onGenerateContextMenu(diffEntry) },
+                trailingAction = null,
+            )
+        }
+    }
+}
+
+@Composable
+fun TreeCommitLogChanges(
+    treeItems: List<TreeItem<DiffEntry>>,
+    diffSelected: DiffSelected.CommitedChanges?,
+    changesListScroll: LazyListState,
+    onDiffSelected: (DiffEntry) -> Unit,
+    onDirectoryClicked: (TreeItem.Dir) -> Unit,
+    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuElement>,
+) {
+    ScrollableLazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = changesListScroll,
+    ) {
+        items(items = treeItems) { entry ->
+            CommitTreeItemEntry(
+                entry = entry,
+                isSelected =  false/*entry is TreeItem.File &&
+                        diffSelected is DiffType.CommitDiff &&
+                        diffSelected.diffEntry == entry.data*/,
+                onFileClick = { onDiffSelected(it) },
+                onDirectoryClick = { onDirectoryClicked(it) },
+                onGenerateContextMenu = onGenerateContextMenu,
+                onGenerateDirectoryContextMenu = { emptyList() },
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun CommitTreeItemEntry(
+    entry: TreeItem<DiffEntry>,
+    isSelected: Boolean,
+    onFileClick: (DiffEntry) -> Unit,
+    onDirectoryClick: (TreeItem.Dir) -> Unit,
+    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuElement>,
+    onGenerateDirectoryContextMenu: (TreeItem.Dir) -> List<ContextMenuElement>,
+) {
+    when (entry) {
+        is TreeItem.File -> CommitFileEntry(
+            fileEntry = entry,
+            isSelected = isSelected,
+            onClick = { onFileClick(entry.data) },
+            onGenerateContextMenu = onGenerateContextMenu,
+        )
+
+        is TreeItem.Dir -> DirectoryEntry(
+            dirName = entry.displayName,
+            isExpanded = entry.isExpanded,
+            onClick = { onDirectoryClick(entry) },
+            depth = entry.depth,
+            onGenerateContextMenu = { onGenerateDirectoryContextMenu(entry) },
+        )
+    }
+}
+
+@Composable
+private fun CommitFileEntry(
+    fileEntry: TreeItem.File<DiffEntry>,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    onGenerateContextMenu: (DiffEntry) -> List<ContextMenuElement>,
+) {
+    val diffEntry = fileEntry.data
+
+    FileEntry(
+        icon = diffEntry.icon,
+        iconColor = diffEntry.iconColor,
+        parentDirectoryPath = "",
+        fileName = diffEntry.fileName,
+        isSelected = isSelected,
+        onClick = onClick,
+        onDoubleClick = {},
+        depth = fileEntry.depth,
+        onGenerateContextMenu = { onGenerateContextMenu(diffEntry) },
+        trailingAction = null,
+    )
+}

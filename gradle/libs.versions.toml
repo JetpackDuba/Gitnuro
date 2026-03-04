@@ -1,6 +1,6 @@
 [versions]
 
-kotlin = "2.3.0"
+kotlin = "2.3.20-RC2"
 compose-plugin = "1.10.0"
 ksp = "2.3.4"
 jgit = "7.4.0.202509020913-r"
@@ -16,15 +16,17 @@ coil = "3.3.0"
 compose = "1.10.0"
 composeNav = "1.1.0-alpha03"
 materialExtended = "1.7.3"
+coroutines = "1.10.2"
+datastore = "1.2.0"
 
 [libraries]
-compose-desktop-linux-arm64 = { group="org.jetbrains.compose.desktop", name ="desktop-jvm-linux-arm64", version.ref="compose" }
+compose-desktop-linux-arm64 = { group = "org.jetbrains.compose.desktop", name = "desktop-jvm-linux-arm64", version.ref = "compose" }
 compose-ui-util = { group = "org.jetbrains.compose.ui", name = "ui-util", version.ref = "compose" }
 compose-components-animatedimage = { group = "org.jetbrains.compose.components", name = "components-animatedimage", version.ref = "compose" }
 compose-components-resources = { group = "org.jetbrains.compose.components", name = "components-resources", version.ref = "compose" }
 compose-material-icons-extended = { group = "org.jetbrains.compose.material", name = "material-icons-extended", version.ref = "materialExtended" }
 
-compose-navigation3  = { group = "org.jetbrains.androidx.navigation3", name= "navigation3-ui", version.ref="composeNav" }
+compose-navigation3 = { group = "org.jetbrains.androidx.navigation3", name = "navigation3-ui", version.ref = "composeNav" }
 
 jgit-core = { group = "org.eclipse.jgit", name = "org.eclipse.jgit", version.ref = "jgit" }
 jgit-gpg = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.gpg.bc", version.ref = "jgit" }
@@ -43,6 +45,8 @@ mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 kotlin-logging = { group = "io.github.oshai", name = "kotlin-logging-jvm", version.ref = "kotlin-logging" }
 
+coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+
 slf4j-api = { group = "org.slf4j", name = "slf4j-api", version.ref = "slf4j" }
 slf4j-reload4j = { group = "org.slf4j", name = "slf4j-reload4j", version.ref = "slf4j" }
 
@@ -56,6 +60,10 @@ ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version
 
 coil3-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil3-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+
+datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
 
 [plugins]
 
