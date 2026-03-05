@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.data.repositories
 
+import androidx.datastore.core.DataStore
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
+import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DateTimeFormat
 import com.jetpackduba.gitnuro.domain.models.ProxySettings
@@ -444,9 +446,12 @@ class AppSettingsRepository @Inject constructor() {
     fun loadCustomTheme() {
         val themeJson = preferences.get(PREF_CUSTOM_THEME, null)
         if (themeJson != null) {
-           // _customThemeFlow.value = Json.decodeFromString<ColorsScheme>(themeJson)
+            // _customThemeFlow.value = Json.decodeFromString<ColorsScheme>(themeJson)
         }
     }
+
+    fun createDataStore(): DataStore<Preferences> = createDataStore(
+        )
 }
 
 fun initPreferencesPath() {
@@ -461,5 +466,31 @@ fun initPreferencesPath() {
         }
 
         System.setProperty("java.util.prefs.userRoot", settingsPath)
+    }
+}
+
+fun getPreferencesPath(): String {
+    val home = System.getProperty("user.home").orEmpty()
+
+    return when (currentOs) {
+        OS.LINUX -> {
+            val xdgConfigHome: String? = System.getenv("XDG_CONFIG_HOME")
+
+            val settingsPath = if (xdgConfigHome.isNullOrBlank()) {
+                "$home/.config/gitnuro"
+            } else {
+                "$xdgConfigHome/gitnuro"
+            }
+
+            settingsPath
+        }
+
+        OS.MAC -> {
+            "$home/Library/Application Support/gitnuro"
+        }
+
+        else -> {
+            System.getProperty("java.util.prefs.userRoot") ?: "$home${systemSeparator}gitnuro"
+        }
     }
 }
