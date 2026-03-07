@@ -91,6 +91,9 @@ dependencies {
 
     implementation(libs.coil3.compose)
     implementation(libs.coil3.network.okhttp)
+
+    implementation(libs.datastore)
+    implementation(libs.datastore.preferences)
 }
 
 fun currentOs(): OS {

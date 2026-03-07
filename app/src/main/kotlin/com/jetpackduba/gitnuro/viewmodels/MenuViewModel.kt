@@ -9,7 +9,7 @@ class MenuViewModel @Inject constructor(
     settings: AppSettingsRepository,
     appStateManager: AppStateManager,
 ) : IGlobalMenuActionsViewModel by globalMenuActionsViewModel {
-    val isPullWithRebaseDefault = settings.pullRebaseFlow
+    val isPullWithRebaseDefault = settings.pullWithRebase
     val lastLoadedTabs = appStateManager.latestOpenedRepositoriesPaths
 
 }

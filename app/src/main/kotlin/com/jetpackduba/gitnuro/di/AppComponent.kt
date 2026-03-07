@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.di
 
 import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppEnvInfo
+import com.jetpackduba.gitnuro.data.di.DatastoreModule
 import com.jetpackduba.gitnuro.data.di.RepositoriesModule
 import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.CredentialsCacheRepository
@@ -33,6 +34,7 @@ import javax.inject.Singleton
         NetworkModule::class,
         GitCredentialsManagerModule::class,
         RepositoriesModule::class,
+        DatastoreModule::class,
     ]
 )
 interface AppComponent {
@@ -65,5 +67,6 @@ interface AppComponent {
     fun clipboardManager(): ClipboardManager
 
     fun lfsRepository(): LfsRepository
+
     fun credentialsRepository(): CredentialsRepository
 }

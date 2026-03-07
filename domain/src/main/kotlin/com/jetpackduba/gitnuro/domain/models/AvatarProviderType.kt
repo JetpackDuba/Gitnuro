@@ -6,7 +6,7 @@ enum class AvatarProviderType(val value: Int) {
 
     // TODO This should be in the data layer as the domain doesn't care of how this is persisted
     companion object {
-        fun fromValue(value: Int): AvatarProviderType? {
+        fun fromValue(value: Int?): AvatarProviderType? {
             return when (value) {
                 NONE.value -> NONE
                 GRAVATAR.value -> GRAVATAR
