@@ -135,7 +135,7 @@ class App @Inject constructor(
             var isOpen by remember { mutableStateOf(true) }
             val theme by appSettingsRepository.themeState.collectAsState()
             val customTheme = null //by appSettingsRepository.customThemeFlow.collectAsState()
-            val scale by appSettingsRepository.scaleUiFlow.collectAsState()
+            val scale = appSettingsRepository.scaleUi.collectAsState(null).value
             val linesHeightType by appSettingsRepository.linesHeightTypeState.collectAsState()
             val avatarProviderType by appSettingsRepository.avatarProviderTypeFlow.collectAsState()
             val dateTimeFormat =
@@ -172,7 +172,7 @@ class App @Inject constructor(
                 val compositionValues: MutableList<ProvidedValue<*>> =
                     mutableListOf(LocalTextContextMenu provides AppPopupMenu())
 
-                if (scale != -1f) {
+                if (scale != null) {
                     compositionValues.add(LocalDensity provides Density(scale, 1f))
                 }
 

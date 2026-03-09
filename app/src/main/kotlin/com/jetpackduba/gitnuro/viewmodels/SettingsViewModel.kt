@@ -37,9 +37,9 @@ class SettingsViewModel @Inject constructor(
     val themeState = appSettingsRepository.themeState
     val linesHeightTypeState = appSettingsRepository.linesHeightTypeState
     var defaultCloneDirFlow = appSettingsRepository.defaultCloneDirFlow
-    val ffMergeFlow = appSettingsRepository.ffMergeFlow
-    val mergeAutoStashFlow = appSettingsRepository.mergeAutoStashFlow
-    val pullRebaseFlow = appSettingsRepository.pullRebaseFlow
+    val ffMergeFlow = appSettingsRepository.fastForwardMerge
+    val mergeAutoStashFlow = appSettingsRepository.autoStashOnMerge
+    val pullRebaseFlow = appSettingsRepository.pullWithRebase
     val pushWithLeaseFlow = appSettingsRepository.pushWithLeaseFlow
     val swapUncommittedChangesFlow = appSettingsRepository.swapUncommittedChangesFlow
     val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow

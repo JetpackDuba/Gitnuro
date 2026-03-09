@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.coroutines)
 
     implementation(libs.datastore)
+    implementation(libs.datastore.preferences)
 
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)

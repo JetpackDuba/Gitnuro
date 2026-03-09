@@ -6,6 +6,6 @@ enum class LinesHeightType(val value: Int) {
 
     // TODO This should be in the data layer as the domain doesn't care of how this is persisted
     companion object {
-        fun fromInt(value: Int) = entries.first { it.value == value }
+        fun fromValue(value: Int?) = entries.firstOrNull { it.value == value }
     }
 }

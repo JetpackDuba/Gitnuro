@@ -9,6 +9,8 @@ plugins {
 dependencies {
     implementation(libs.kotlin.logging)
 
+    implementation(libs.coroutines)
+
     implementation(libs.dagger)
     ksp(libs.dagger.compiler)
 
