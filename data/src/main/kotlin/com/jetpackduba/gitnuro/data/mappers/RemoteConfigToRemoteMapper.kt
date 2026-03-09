@@ -3,9 +3,13 @@ package com.jetpackduba.gitnuro.data.mappers
 import com.jetpackduba.gitnuro.domain.models.Remote
 import org.eclipse.jgit.transport.RemoteConfig
 
-class RemoteConfigToRemoteMapper: DataMapper<RemoteConfig, Remote> {
-    override fun map(from: RemoteConfig): Remote {
-        return from.toRemoteWrapper()
+class RemoteConfigToRemoteMapper: DataMapper<Remote, RemoteConfig> {
+    override fun toData(value: Remote): RemoteConfig {
+        throw NotImplementedError("Remote to RemoteWrapper not implemented")
+    }
+
+    override fun toDomain(value: RemoteConfig): Remote {
+        return value.toRemoteWrapper()
     }
 }
 

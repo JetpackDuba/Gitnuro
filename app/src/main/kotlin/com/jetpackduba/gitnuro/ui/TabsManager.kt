@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.jetpackduba.gitnuro.di.AppComponent
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +16,7 @@ import com.jetpackduba.gitnuro.di.DaggerTabComponent
 
 @Singleton
 class TabsManager @Inject constructor(
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettingsRepository: DataStoreAppSettingsRepository,
     private val appComponent: AppComponent,
 ) {
     private val _tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())

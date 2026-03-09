@@ -10,9 +10,11 @@ import com.jetpackduba.gitnuro.domain.git.branches.MergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.git.rebase.RebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.first
 import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
@@ -28,7 +30,7 @@ interface ISharedBranchesViewModel {
 class SharedBranchesViewModel @Inject constructor(
     private val rebaseBranchGitAction: RebaseBranchGitAction,
     private val tabState: TabInstanceRepository,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettingsService,
     private val mergeBranchGitAction: MergeBranchGitAction,
     private val deleteBranchGitAction: DeleteBranchGitAction,
     private val checkoutRefGitAction: CheckoutRefGitAction,
@@ -42,7 +44,7 @@ class SharedBranchesViewModel @Inject constructor(
         taskType = TaskType.MERGE_BRANCH,
         refreshEvenIfCrashes = true,
     ) { git ->
-        if (mergeBranchGitAction(git, ref, appSettingsRepository.ffMerge, mergeAutoStash = true)) { // TODO fix after refactor
+        if (mergeBranchGitAction(git, ref, appSettings.fastForwardMerge.first(), mergeAutoStash = true)) { // TODO fix after refactor
             warningNotification("Merge produced conflicts, please fix them to continue.")
         } else {
             positiveNotification("Merged from \"${ref.simpleName}\"")

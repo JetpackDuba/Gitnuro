@@ -45,6 +45,7 @@ import com.jetpackduba.gitnuro.domain.extensions.lineDelimiter
 import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
 import com.jetpackduba.gitnuro.domain.extensions.removeLineDelimiters
 import com.jetpackduba.gitnuro.domain.extensions.replaceTabs
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.theme.*
@@ -88,8 +89,8 @@ fun DiffPane(
     onCloseDiffView: () -> Unit,
 ) {
     val diffResultState = diffViewModel.diffResult.collectAsState()
-    val textDiffType by diffViewModel.diffTypeFlow.collectAsState()
-    val isDisplayFullFile by diffViewModel.isDisplayFullFile.collectAsState()
+    val textDiffType by diffViewModel.diffTypeFlow.collectAsState(DiffTextViewType.Unified)
+    val isDisplayFullFile by diffViewModel.isDisplayFullFile.collectAsState(false)
     val viewDiffResult = diffResultState.value ?: return
     val isRepositoryInSafeState by diffViewModel.isRepositoryInSafeState.collectAsState(false)
     val focusRequester = remember { FocusRequester() }

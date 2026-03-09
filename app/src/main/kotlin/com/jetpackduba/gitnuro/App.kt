@@ -31,14 +31,17 @@ import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.git.signers.AppGpgSigner
 import com.jetpackduba.gitnuro.domain.git.signers.SshSigner
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DateTimeFormat
 import com.jetpackduba.gitnuro.domain.models.Remote
+import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
+import com.jetpackduba.gitnuro.domain.models.ui.Theme
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.extensions.preferenceValue
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -92,7 +95,7 @@ sealed interface Screen : NavKey {
 
 class App @Inject constructor(
     private val appStateManager: AppStateManager,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettingsService,
     private val appEnvInfo: AppEnvInfo,
     private val tabsManager: TabsManager,
     private val tempFilesManager: TempFilesManager,
@@ -133,11 +136,11 @@ class App @Inject constructor(
 
         application {
             var isOpen by remember { mutableStateOf(true) }
-            val theme by appSettingsRepository.themeState.collectAsState()
+            val theme by appSettings.theme.collectAsState(Theme.Dark)
             val customTheme = null //by appSettingsRepository.customThemeFlow.collectAsState()
-            val scale = appSettingsRepository.scaleUi.collectAsState(null).value
-            val linesHeightType by appSettingsRepository.linesHeightTypeState.collectAsState()
-            val avatarProviderType by appSettingsRepository.avatarProviderTypeFlow.collectAsState()
+            val scale = appSettings.scaleUi.collectAsState(null).value
+            val linesHeightType by appSettings.linesHeightType.collectAsState(LinesHeightType.SPACED)
+            val avatarProviderType by appSettings.avatarProvider.collectAsState(AvatarProviderType.None)
             val dateTimeFormat =
                 DateTimeFormat(true, null, true, true)//by appSettingsRepository.dateTimeFormatFlow.collectAsState()
 
@@ -147,7 +150,7 @@ class App @Inject constructor(
             )
 
             // Save window state for next time the Window is started
-            appSettingsRepository.windowPlacement = windowState.placement.preferenceValue
+            // TODO appSettings.windowPlacement = windowState.placement.preferenceValue
 
             val currentTab = tabsManager.currentTab.collectAsState().value
 
@@ -178,9 +181,7 @@ class App @Inject constructor(
 
                 val avatarProvider = when (avatarProviderType) {
                     AvatarProviderType.Gravatar -> GravatarAvatarProvider()
-                    // TODO this else shouldn't be necessary as avatar provider should not be null and have a
-                    //  default value handled by domain layer
-                    else -> NoneAvatarProvider()
+                    AvatarProviderType.None -> NoneAvatarProvider()
                 }
 
                 compositionValues.add(LocalAvatarProvider provides avatarProvider)

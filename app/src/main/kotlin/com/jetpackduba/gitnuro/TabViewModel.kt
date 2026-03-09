@@ -4,9 +4,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.navigation3.runtime.NavKey
 import com.jetpackduba.gitnuro.viewmodels.IViewModelsProvider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 
 open class TabViewModel {
-    open fun onClear() {}
+    val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    open fun onClear() {
+        viewModelScope.coroutineContext.cancelChildren()
+    }
 }
 
 @Composable

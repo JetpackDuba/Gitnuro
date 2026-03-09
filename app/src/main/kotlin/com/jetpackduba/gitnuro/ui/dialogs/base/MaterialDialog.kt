@@ -40,52 +40,37 @@ fun MaterialDialog(
     onCloseRequested: () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-   /* Popup(
-        properties = PopupProperties(
-            focusable = true,
-        ),
-        popupPositionProvider = object : PopupPositionProvider {
-            override fun calculatePosition(
-                anchorBounds: IntRect,
-                windowSize: IntSize,
-                layoutDirection: LayoutDirection,
-                popupContentSize: IntSize,
-            ): IntOffset = IntOffset.Zero
-        }
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .onPreviewKeyEvent { keyEvent ->
+                if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
+                    onCloseRequested()
+                    true
+                } else
+                    false
+            },
+        contentAlignment = alignment,
     ) {
-*/
-        val focusRequester = remember { FocusRequester() }
-
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
-
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .focusRequester(focusRequester)
-                .focusable()
-                .onPreviewKeyEvent { keyEvent ->
-                    if (keyEvent.matchesBinding(KeybindingOption.EXIT) && keyEvent.type == KeyEventType.KeyDown) {
-                        onCloseRequested()
-                        true
-                    } else
-                        false
-                },
-            contentAlignment = alignment,
+                .border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                .clip(RoundedCornerShape(8.dp))
+                .background(background)
+                .padding(
+                    horizontal = paddingHorizontal,
+                    vertical = paddingVertical,
+                )
         ) {
-            Box(
-                modifier = Modifier
-                    .border(1.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(background)
-                    .padding(
-                        horizontal = paddingHorizontal,
-                        vertical = paddingVertical,
-                    )
-            ) {
-                content()
-            }
+            content()
         }
-//    }
+    }
 }

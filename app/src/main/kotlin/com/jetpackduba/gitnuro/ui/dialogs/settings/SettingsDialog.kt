@@ -24,8 +24,8 @@ import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.Error
-import com.jetpackduba.gitnuro.data.repositories.configuration.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
@@ -40,7 +40,9 @@ import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
+import com.jetpackduba.gitnuro.viewmodels.SettingsAction
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
+import com.jetpackduba.gitnuro.viewmodels.SettingsViewState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
@@ -55,131 +57,79 @@ sealed interface SettingsEntry {
     data class Entry(
         val icon: DrawableResource,
         val name: StringResource,
-        val content: @Composable (SettingsViewModel) -> Unit,
+        val content: @Composable (SettingsViewState, onAction: (SettingsAction) -> Unit) -> Unit,
     ) :
         SettingsEntry
 }
 
 val settings = listOf(
     SettingsEntry.Section(Res.string.settings_section_user_interface),
-    SettingsEntry.Entry(Res.drawable.palette, Res.string.settings_entry_appearance) { Appearance(it) },
-    SettingsEntry.Entry(Res.drawable.layout, Res.string.settings_entry_layout) { Layout(it) },
-    SettingsEntry.Entry(Res.drawable.schedule, Res.string.settings_entry_datetime) { DateTime(it) },
+    SettingsEntry.Entry(
+        Res.drawable.palette,
+        Res.string.settings_entry_appearance
+    ) { state, onAction ->
+        Appearance(state, onAction)
+    },
+    SettingsEntry.Entry(Res.drawable.layout, Res.string.settings_entry_layout) { state, onAction ->
+        Layout(state, onAction)
+    },
+    SettingsEntry.Entry(Res.drawable.schedule, Res.string.settings_entry_datetime) { state, onAction ->
+        DateTime(
+            state,
+            onAction
+        )
+    },
 
     SettingsEntry.Section(Res.string.settings_section_git),
-    SettingsEntry.Entry(Res.drawable.folder, Res.string.settings_entry_environment) { Environment(it) },
-    SettingsEntry.Entry(Res.drawable.branch, Res.string.settings_entry_branches) { Branches(it) },
-    SettingsEntry.Entry(Res.drawable.cloud, Res.string.settings_entry_remote_actions) { RemoteActions(it) },
+    SettingsEntry.Entry(Res.drawable.folder, Res.string.settings_entry_environment) { state, onAction ->
+        Environment(
+            state,
+            onAction
+        )
+    },
+    SettingsEntry.Entry(Res.drawable.branch, Res.string.settings_entry_branches) { state, onAction ->
+        Branches(
+            state,
+            onAction
+        )
+    },
+    SettingsEntry.Entry(
+        Res.drawable.cloud,
+        Res.string.settings_entry_remote_actions
+    ) { state, onAction -> RemoteActions(state, onAction) },
 
     SettingsEntry.Section(Res.string.settings_section_network),
-    SettingsEntry.Entry(Res.drawable.network, Res.string.settings_entry_proxy) { Proxy(it) },
-    SettingsEntry.Entry(Res.drawable.password, Res.string.settings_entry_auth) { Authentication(it) },
-    SettingsEntry.Entry(Res.drawable.security, Res.string.settings_entry_security) { Security(it) },
+    SettingsEntry.Entry(Res.drawable.network, Res.string.settings_entry_proxy) { state, onAction ->
+        Proxy(
+            state,
+            onAction
+        )
+    },
+    SettingsEntry.Entry(
+        Res.drawable.password,
+        Res.string.settings_entry_auth
+    ) { state, onAction -> Authentication(state, onAction) },
+    SettingsEntry.Entry(Res.drawable.security, Res.string.settings_entry_security) { state, onAction ->
+        Security(
+            state,
+            onAction
+        )
+    },
 
     SettingsEntry.Section(Res.string.settings_section_tools),
-    SettingsEntry.Entry(Res.drawable.terminal, Res.string.settings_entry_terminal) { Terminal(it) },
-    SettingsEntry.Entry(Res.drawable.info, Res.string.settings_entry_logs) { Logs(it) },
+    SettingsEntry.Entry(Res.drawable.terminal, Res.string.settings_entry_terminal) { state, onAction ->
+        Terminal(
+            state,
+            onAction
+        )
+    },
+    SettingsEntry.Entry(Res.drawable.info, Res.string.settings_entry_logs) { state, onAction -> Logs(state, onAction) },
 )
 
 val linesHeightTypesList = listOf(
     DropDownOption(LinesHeightType.SPACED, "Spaced"),
     DropDownOption(LinesHeightType.COMPACT, "Compact"),
 )
-
-@Composable
-fun Proxy(settingsViewModel: SettingsViewModel) {
-    var useProxy by remember { mutableStateOf(settingsViewModel.useProxy) }
-
-    var hostName by remember { mutableStateOf(settingsViewModel.proxyHostName) }
-    var portNumber by remember { mutableStateOf(settingsViewModel.proxyPortNumber) }
-
-    var useAuth by remember { mutableStateOf(settingsViewModel.proxyUseAuth) }
-    var user by remember { mutableStateOf(settingsViewModel.proxyHostUser) }
-    var password by remember { mutableStateOf(settingsViewModel.proxyHostPassword) }
-
-    val proxyTypes = listOf(ProxyType.HTTP, ProxyType.SOCKS)
-    val proxyTypesDropDownOptions = proxyTypes.map { DropDownOption(it, it.name) }
-    val proxySettings = settingsViewModel.proxyFlow.collectAsState()
-
-    Column {
-        SettingToggle(
-            title = "Use proxy",
-            subtitle = "Set up your proxy configuration if needed",
-            value = useProxy,
-            onValueChanged = {
-                useProxy = it
-                settingsViewModel.useProxy = it
-            },
-        )
-
-        SettingDropDown(
-            title = "Proxy type",
-            subtitle = "Pick between HTTP or SOCKS",
-            dropDownOptions = proxyTypesDropDownOptions,
-            currentOption = proxySettings.value.proxyType,
-            onOptionSelected = {
-                settingsViewModel.proxyType = it.value
-            }
-        )
-
-        SettingTextInput(
-            title = "Host name",
-            subtitle = "",
-            value = hostName,
-            enabled = useProxy,
-            onValueChanged = {
-                hostName = it
-                settingsViewModel.proxyHostName = it
-            },
-        )
-
-        SettingIntInput(
-            title = "Port number",
-            subtitle = "",
-            value = portNumber,
-            onValueChanged = {
-                portNumber = it
-                settingsViewModel.proxyPortNumber = it
-            },
-            enabled = useProxy,
-        )
-
-        SettingToggle(
-            title = "Proxy authentication",
-            subtitle = "Use your credentials to provide your identity the proxy server",
-            value = useAuth,
-            onValueChanged = {
-                useAuth = it
-                settingsViewModel.proxyUseAuth = it
-            }
-        )
-
-        SettingTextInput(
-            title = "Login",
-            subtitle = "",
-            value = user,
-            enabled = useProxy && useAuth,
-            onValueChanged = {
-                user = it
-                settingsViewModel.proxyHostUser = it
-            },
-        )
-
-
-        SettingTextInput(
-            title = "Password",
-            subtitle = "",
-            value = password,
-            enabled = useProxy && useAuth,
-            isPassword = true,
-            onValueChanged = {
-                password = it
-                settingsViewModel.proxyHostPassword = it
-            },
-        )
-
-    }
-}
 
 @Composable
 fun SettingsDialog(
@@ -192,6 +142,8 @@ fun SettingsDialog(
         )
     }
 
+    val settingsViewState by settingsViewModel.settingsViewState.collectAsState()
+
     MaterialDialog(
         background = MaterialTheme.colors.surface,
         onCloseRequested = {
@@ -200,7 +152,11 @@ fun SettingsDialog(
         paddingHorizontal = 0.dp,
         paddingVertical = 0.dp,
     ) {
-        Row(modifier = Modifier.height(720.dp).width(1000.dp)) {
+        Row(
+            modifier = Modifier
+                .height(720.dp)
+                .width(1000.dp)
+        ) {
             Column(
                 modifier = Modifier
                     .width(200.dp)
@@ -249,7 +205,9 @@ fun SettingsDialog(
                         .weight(1f, true)
                         .padding(start = 16.dp, top = 64.dp, end = 16.dp)
                 ) {
-                    selectedCategory.content(settingsViewModel)
+                    selectedCategory.content(settingsViewState) { action ->
+                        settingsViewModel.onAction(action)
+                    }
                 }
 
                 PrimaryButton(
@@ -264,6 +222,88 @@ fun SettingsDialog(
             }
 
         }
+    }
+}
+
+@Composable
+fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val useProxy = settingsViewState.useProxy
+    val proxyUseAuth = settingsViewState.proxyUseAuth
+
+    val proxyTypes = listOf(ProxyType.HTTP, ProxyType.SOCKS)
+    val proxyTypesDropDownOptions = proxyTypes.map { DropDownOption(it, it.name) }
+
+    Column {
+        SettingToggle(
+            title = "Use proxy",
+            subtitle = "Set up your proxy configuration if needed",
+            value = useProxy,
+            onValueChanged = {
+                onAction(SettingsAction.SetConfig(AppConfig.UseProxy(it)))
+            },
+        )
+
+        SettingDropDown(
+            title = "Proxy type",
+            subtitle = "Pick between HTTP or SOCKS",
+            dropDownOptions = proxyTypesDropDownOptions,
+            currentOption = settingsViewState.proxyType,
+            onOptionSelected = {
+                onAction(SettingsAction.SetConfig(AppConfig.ProxyProxyType(it.value)))
+            }
+        )
+
+        SettingTextInput(
+            title = "Host name",
+            subtitle = "",
+            value = settingsViewState.proxyHostName.orEmpty(),
+            enabled = useProxy,
+            onValueChanged = {
+                onAction(SettingsAction.SetConfig(AppConfig.ProxyHostName(it)))
+            },
+        )
+
+        SettingIntInput(
+            title = "Port number",
+            subtitle = "",
+            value = settingsViewState.proxyPortNumber ?: 0,
+            onValueChanged = {
+                onAction(SettingsAction.SetConfig(AppConfig.ProxyPortNumber(it)))
+            },
+            enabled = useProxy,
+        )
+
+        SettingToggle(
+            title = "Proxy authentication",
+            subtitle = "Use your credentials to provide your identity the proxy server",
+            value = proxyUseAuth,
+            onValueChanged = {
+                onAction(SettingsAction.SetConfig(AppConfig.ProxyUseAuth(it)))
+            }
+        )
+
+        SettingTextInput(
+            title = "Login",
+            subtitle = "",
+            value = settingsViewState.proxyHostUser.orEmpty(),
+            enabled = useProxy && proxyUseAuth,
+            onValueChanged = {
+                onAction(SettingsAction.SetConfig(AppConfig.ProxyHostPassword(it)))
+            },
+        )
+
+
+        SettingTextInput(
+            title = "Password",
+            subtitle = "",
+            value = settingsViewState.proxyHostPassword.orEmpty(),
+            enabled = useProxy && proxyUseAuth,
+            isPassword = true,
+            onValueChanged = {
+                onAction(SettingsAction.SetConfig(AppConfig.ProxyHostPassword(it)))
+            },
+        )
+
     }
 }
 
@@ -310,16 +350,16 @@ private fun Section(name: String) {
 }
 
 @Composable
-private fun RemoteActions(settingsViewModel: SettingsViewModel) {
-    val pullRebase by settingsViewModel.pullRebaseFlow.collectAsState()
-    val pushWithLease by settingsViewModel.pushWithLeaseFlow.collectAsState()
+private fun RemoteActions(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val pullRebase = settingsViewState.pullWithRebase
+    val pushWithLease = settingsViewState.pushWithLease
 
     SettingToggle(
         title = "Pull with rebase as default",
         subtitle = "Rebase changes instead of merging when pulling",
         value = pullRebase,
         onValueChanged = { value ->
-            settingsViewModel.pullRebase = value
+            onAction(SettingsAction.SetConfig(AppConfig.PullWithRebase(value)))
         }
     )
 
@@ -328,71 +368,71 @@ private fun RemoteActions(settingsViewModel: SettingsViewModel) {
         subtitle = "Check if the local version remote branch is up to date to avoid accidentally overriding unintended commits",
         value = pushWithLease,
         onValueChanged = { value ->
-            settingsViewModel.pushWithLease = value
+            onAction(SettingsAction.SetConfig(AppConfig.PushWithLease(value)))
         }
     )
 }
 
 
 @Composable
-private fun Authentication(settingsViewModel: SettingsViewModel) {
-    val cacheCredentialsInMemory by settingsViewModel.cacheCredentialsInMemoryFlow.collectAsState()
+private fun Authentication(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val cacheCredentialsInMemory = settingsViewState.cacheCredentialsInMemory
 
     SettingToggle(
         title = "Cache HTTP credentials in memory",
         subtitle = "If active, HTTP Credentials will be remembered until Gitnuro is closed",
         value = cacheCredentialsInMemory,
         onValueChanged = { value ->
-            settingsViewModel.cacheCredentialsInMemory = value
+            onAction(SettingsAction.SetConfig(AppConfig.CacheCredentialsInMemory(value)))
         }
     )
 }
 
 @Composable
-private fun Security(settingsViewModel: SettingsViewModel) {
-    val verifySsl by settingsViewModel.verifySslFlow.collectAsState()
+private fun Security(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val verifySsl = settingsViewState.verifySsl
 
     SettingToggle(
         title = "Do not verify SSL security",
         subtitle = "If active, you may connect to the remote server via insecure HTTPS connection",
         value = !verifySsl,
         onValueChanged = { value ->
-            settingsViewModel.verifySsl = !value
+            onAction(SettingsAction.SetConfig(AppConfig.CacheCredentialsInMemory(!value)))
         }
     )
 }
 
 @Composable
-fun Terminal(settingsViewModel: SettingsViewModel) {
-    var commitsLimit by remember { mutableStateOf(settingsViewModel.terminalPath) }
+fun Terminal(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val terminalPath = settingsViewState.terminalPath.orEmpty()
 
     SettingTextInput(
         title = "Custom terminal path",
         subtitle = "If empty, Gitnuro will try to open the default terminal emulator",
-        value = commitsLimit,
+        value = terminalPath,
         onValueChanged = { value ->
-            commitsLimit = value
-            settingsViewModel.terminalPath = value
+            onAction(SettingsAction.SetConfig(AppConfig.TerminalPath(value)))
         },
     )
 }
 
 @Composable
-fun Logs(settingsViewModel: SettingsViewModel) {
+fun Logs(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
     SettingButton(
         title = "Logs",
         subtitle = "Open the logs folder",
         buttonText = "Open folder",
         onClick = {
-            settingsViewModel.openLogsFolderInFileExplorer()
+            onAction(SettingsAction.OpenLogsFolder)
         }
     )
 }
 
 
 @Composable
-private fun Environment(settingsViewModel: SettingsViewModel) {
-    var defaultCloneDir by remember { mutableStateOf(settingsViewModel.defaultCloneDir) }
+private fun Environment(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    //var defaultCloneDir by remember { mutableStateOf(settingsViewModel.defaultCloneDir) }
+    var defaultCloneDir = settingsViewState.cloneDefaultDirectory.orEmpty()
 
     SettingTextInput(
         title = stringResource(Res.string.settings_environment_default_clone_directory_title),
@@ -400,22 +440,22 @@ private fun Environment(settingsViewModel: SettingsViewModel) {
         value = defaultCloneDir,
         onValueChanged = { value ->
             defaultCloneDir = value
-            settingsViewModel.defaultCloneDir = value
+            onAction(SettingsAction.SetConfig(AppConfig.CloneDefaultDirectory(value)))
         },
     )
 }
 
 @Composable
-private fun Branches(settingsViewModel: SettingsViewModel) {
-    val ffMerge by settingsViewModel.ffMergeFlow.collectAsState()
-    val mergeAutoStash by settingsViewModel.mergeAutoStashFlow.collectAsState()
+private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val fastForwardMerge = settingsViewState.fastForwardMerge
+    val mergeAutoStash = settingsViewState.autoStashOnMerge
 
     SettingToggle(
         title = "Fast-forward merge",
         subtitle = "Try to fast-forward merges when possible",
-        value = ffMerge,
+        value = fastForwardMerge,
         onValueChanged = { value ->
-            settingsViewModel.ffMerge = value
+            onAction(SettingsAction.SetConfig(AppConfig.FastForwardMerge(value)))
         }
     )
 
@@ -424,29 +464,33 @@ private fun Branches(settingsViewModel: SettingsViewModel) {
         subtitle = "To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes",
         value = mergeAutoStash,
         onValueChanged = { value ->
-            settingsViewModel.mergeAutoStash = value
+            onAction(SettingsAction.SetConfig(AppConfig.AutoStashOnMerge(value)))
         }
     )
 }
 
 @Composable
-private fun Layout(settingsViewModel: SettingsViewModel) {
-    val swapUncommittedChanges by settingsViewModel.swapUncommittedChangesFlow.collectAsState()
+private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val swapUncommittedChanges = settingsViewState.swapStatusPanes
 
     SettingToggle(
         title = "Swap position for staged/unstaged views",
         subtitle = "Show the list of unstaged changes above the list of staged changes",
         value = swapUncommittedChanges,
         onValueChanged = { value ->
-            settingsViewModel.swapUncommittedChanges = value
+            onAction(SettingsAction.SetConfig(AppConfig.SwapStatusPanes(value)))
         }
     )
 }
 
 @Composable
-private fun DateTime(settingsViewModel: SettingsViewModel) {
-    val dateFormat by settingsViewModel.dateFormatFlow.collectAsState()
-    var customFormat by remember(settingsViewModel) { mutableStateOf(dateFormat.customFormat) }
+private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val useDefault = settingsViewState.dateFormatUseDefault
+    val customFormat = settingsViewState.dateFormatCustomFormat
+    val is24h = settingsViewState.dateFormatIs24h
+    val useRelative = settingsViewState.dateFormatUseRelative
+
+
     var isError by remember { mutableStateOf(false) }
 
     val currentInstant = remember { Instant.now() }
@@ -457,9 +501,9 @@ private fun DateTime(settingsViewModel: SettingsViewModel) {
     SettingToggle(
         title = "Use system's Date/Time format",
         subtitle = "If enabled, current date would be shown as \"$currentDateSystemDefault\"",
-        value = dateFormat.useSystemDefault!!, // TODO Fix this
+        value = useDefault,
         onValueChanged = { value ->
-            settingsViewModel.dateFormat = dateFormat.copy(useSystemDefault = value)
+            onAction(SettingsAction.SetConfig(AppConfig.DateFormatUseDefault(value)))
         }
     )
 
@@ -473,9 +517,10 @@ private fun DateTime(settingsViewModel: SettingsViewModel) {
     SettingTextInput(
         title = "Custom date format",
         subtitle = customFormatSubtitle,
-        value = customFormat!!, // TODO Fix this
+        value = customFormat,
         isError = isError,
         onValueChanged = { value ->
+            /*TODO
             customFormat = value
             if (settingsViewModel.isValidDateFormat(value)) {
                 settingsViewModel.dateFormat = dateFormat.copy(customFormat = value)
@@ -483,12 +528,12 @@ private fun DateTime(settingsViewModel: SettingsViewModel) {
             } else {
                 isError = true
             }
-
+            */
         },
-        enabled = !dateFormat.useSystemDefault!!, // TODO Fix this
+        enabled = !useDefault,
     )
 
-    val is24hSubtitle = if (dateFormat.is24hours!!) { // TODO Fix this
+    val is24hSubtitle = if (is24h) { // TODO Fix this
         "17:30"
     } else {
         "05:30 PM"
@@ -497,28 +542,28 @@ private fun DateTime(settingsViewModel: SettingsViewModel) {
     SettingToggle(
         title = "Use 24h time",
         subtitle = is24hSubtitle,
-        enabled = !dateFormat.useSystemDefault!!, // TODO Fix this
-        value = dateFormat.is24hours!!, // TODO Fix this
+        enabled = !useDefault,
+        value = is24h,
         onValueChanged = { value ->
-            settingsViewModel.dateFormat = dateFormat.copy(is24hours = value)
+            onAction(SettingsAction.SetConfig(AppConfig.DateFormatIs24h(value)))
         }
     )
 
     SettingToggle(
         title = "Relative date",
         subtitle = "Use \"Today\" and \"Yesterday\" instead of the date",
-        value = dateFormat.useRelativeDate!!, // TODO Fix this
+        value = useRelative,
         onValueChanged = { value ->
-            settingsViewModel.dateFormat = dateFormat.copy(useRelativeDate = value)
+            onAction(SettingsAction.SetConfig(AppConfig.DateFormatUseRelative(value)))
         }
     )
 }
 
 @Composable
-private fun Appearance(settingsViewModel: SettingsViewModel) {
-    val currentTheme by settingsViewModel.themeState.collectAsState()
-    val currentLinesHeightType by settingsViewModel.linesHeightTypeState.collectAsState()
-    val avatarProvider by settingsViewModel.avatarProviderFlow.collectAsState()
+private fun Appearance(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val currentTheme = settingsViewState.theme
+    val currentLinesHeightType = settingsViewState.linesHeightType
+    val avatarProvider = settingsViewState.avatarProvider
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
     SettingDropDown(
@@ -527,7 +572,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         dropDownOptions = themeLists,
         currentOption = currentTheme,
         onOptionSelected = { themeDropDown ->
-            settingsViewModel.theme = themeDropDown.value
+            onAction(SettingsAction.SetConfig(AppConfig.Theme(themeDropDown.value)))
         }
     )
 
@@ -537,6 +582,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
             subtitle = "Select a JSON file to load the custom theme",
             buttonText = "Open file",
             onClick = {
+                /*TODO
                 val filePath = settingsViewModel.openFileDialog()
 
                 if (filePath != null) {
@@ -547,7 +593,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
                     if (error != null) {
                         setErrorToDisplay(error)
                     }
-                }
+                }*/
             }
         )
     }
@@ -558,7 +604,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         dropDownOptions = linesHeightTypesList,
         currentOption = currentLinesHeightType,
         onOptionSelected = { dropDown ->
-            settingsViewModel.linesHeightType = dropDown.value
+            onAction(SettingsAction.SetConfig(AppConfig.LinesHeight(dropDown.value)))
         }
     )
 
@@ -581,12 +627,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
     }
 
     var scaleValue by remember {
-        val savedScaleUi = settingsViewModel.scaleUi
-        val scaleUi = if (savedScaleUi == null) {
-            density
-        } else {
-            savedScaleUi
-        }
+        val scaleUi = settingsViewState.scaleUi ?: density
 
         var matchingOption = options.firstOrNull { it.value == scaleUi }
 
@@ -608,8 +649,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         dropDownOptions = options,
         currentOption = scaleValue.value,
         onOptionSelected = { newValue ->
-            scaleValue = newValue
-            settingsViewModel.scaleUi = newValue.value
+            onAction(SettingsAction.SetConfig(AppConfig.ScaleUi(newValue.value)))
         }
     )
 
@@ -622,7 +662,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
             DropDownOption(AvatarProviderType.Gravatar, "Gravatar"),
         ),
         onOptionSelected = {
-            settingsViewModel.avatarProvider = it.value
+            onAction(SettingsAction.SetConfig(AppConfig.AvatarProvider(it.value)))
         }
     )
 

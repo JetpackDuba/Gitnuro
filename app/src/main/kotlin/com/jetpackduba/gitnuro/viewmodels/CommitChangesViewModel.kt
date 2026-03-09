@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.data.repositories.DiffSelected
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.extensions.filePath
@@ -12,9 +12,11 @@ import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.git.DiffType
 import com.jetpackduba.gitnuro.domain.git.diff.GetCommitDiffEntriesGitAction
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
@@ -31,10 +33,10 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 300L
 class CommitChangesViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val getCommitDiffEntriesGitAction: GetCommitDiffEntriesGitAction,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettingsService,
     private val tabScope: CoroutineScope,
     private val selectedDiffItemRepository: SelectedDiffItemRepository,
-) {
+) : TabViewModel() {
     private val _showSearch = MutableStateFlow(false)
     val showSearch: StateFlow<Boolean> = _showSearch
 
@@ -47,7 +49,7 @@ class CommitChangesViewModel @Inject constructor(
 
     val textScroll = MutableStateFlow(ScrollState(0))
 
-    val showAsTree = appSettingsRepository.showChangesAsTreeFlow
+    val showAsTree = appSettings.showChangesAsTree
 
     val diffSelected = selectedDiffItemRepository.diffSelected.map { it as? DiffSelected.CommitedChanges }
 
@@ -163,8 +165,12 @@ class CommitChangesViewModel @Inject constructor(
         }
     }
 
-    fun alternateShowAsTree() {
-        appSettingsRepository.showChangesAsTree = !appSettingsRepository.showChangesAsTree
+    fun alternateShowAsTree() = viewModelScope.launch {
+        val showChangesAsTree = appSettings.showChangesAsTree.firstOrNull()
+
+        if (showChangesAsTree != null) {
+            appSettings.setConfiguration(AppConfig.ShowChangesAsTree(showChangesAsTree))
+        }
     }
 
     fun openFileInFolder(folderPath: String?) = tabState.runOperation(

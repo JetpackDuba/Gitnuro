@@ -11,11 +11,13 @@ import com.jetpackduba.gitnuro.domain.git.diff.DiffResult
 import com.jetpackduba.gitnuro.domain.git.diff.FormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.git.diff.GenerateSplitHunkFromDiffResultGitAction
 import com.jetpackduba.gitnuro.domain.git.diff.GetCommitDiffEntriesGitAction
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
@@ -24,10 +26,10 @@ class HistoryViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val formatDiffGitAction: FormatDiffGitAction,
     private val getCommitDiffEntriesGitAction: GetCommitDiffEntriesGitAction,
-    private val settings: AppSettingsRepository,
+    private val settings: AppSettingsService,
     private val generateSplitHunkFromDiffResultGitAction: GenerateSplitHunkFromDiffResultGitAction,
     private val tabScope: CoroutineScope,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettingsRepository: DataStoreAppSettingsRepository,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState
@@ -47,7 +49,7 @@ class HistoryViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            settings.textDiffTypeFlow.collect { diffType ->
+            settings.diffTextViewType.collect { diffType ->
                 if (filePath.isNotBlank()) {
                     updateDiffType(diffType)
                 }
@@ -120,7 +122,7 @@ class HistoryViewModel @Inject constructor(
                 diffType,
                 false
             ) // TODO This hardcoded false should be changed when the UI is implemented
-            val textDiffType = settings.diffTextViewType
+            val textDiffType = settings.diffTextViewType.first()
 
             val formattedDiffResult = if (textDiffType == DiffTextViewType.Split && diffResult is DiffResult.Text) {
                 DiffResult.TextSplit(diffEntry, generateSplitHunkFromDiffResultGitAction(diffResult))

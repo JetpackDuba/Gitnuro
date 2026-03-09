@@ -3,8 +3,8 @@ package com.jetpackduba.gitnuro.di
 import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppEnvInfo
 import com.jetpackduba.gitnuro.data.di.DatastoreModule
-import com.jetpackduba.gitnuro.data.di.RepositoriesModule
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.di.modules.RepositoriesModule
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.di.modules.AppModule
 import com.jetpackduba.gitnuro.di.modules.GitCredentialsManagerModule
@@ -14,6 +14,7 @@ import com.jetpackduba.gitnuro.domain.IShellManager
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.credentials.external.IGitCredentialsManagerProvider
+import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.domain.repositories.CredentialsRepository
 import com.jetpackduba.gitnuro.domain.repositories.LfsRepository
 import com.jetpackduba.gitnuro.managers.AppStateManager
@@ -44,7 +45,7 @@ interface AppComponent {
 
     fun credentialsStateManager(): CredentialsStateManager
 
-    fun appPreferences(): AppSettingsRepository
+    fun appPreferences(): DataStoreAppSettingsRepository
 
     fun verticalSplitPaneConfig(): VerticalSplitPaneConfig
 
@@ -69,4 +70,5 @@ interface AppComponent {
     fun lfsRepository(): LfsRepository
 
     fun credentialsRepository(): CredentialsRepository
+    fun appSettingsRepository(): AppSettingsRepository
 }

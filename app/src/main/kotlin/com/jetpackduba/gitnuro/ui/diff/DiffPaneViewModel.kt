@@ -10,9 +10,11 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.git.diff.*
 import com.jetpackduba.gitnuro.domain.git.workspace.*
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppGitAction
 import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
@@ -37,7 +39,7 @@ class DiffViewModel @Inject constructor(
     private val stageEntryGitAction: StageEntryGitAction,
     private val unstageEntryGitAction: UnstageEntryGitAction,
     private val openFileInExternalAppGitAction: OpenFileInExternalAppGitAction,
-    private val settings: AppSettingsRepository,
+    private val settings: AppSettingsService,
     private val generateSplitHunkFromDiffResultGitAction: GenerateSplitHunkFromDiffResultGitAction,
     private val discardUnstagedHunkLineGitAction: DiscardUnstagedHunkLineGitAction,
     private val tabsManager: TabsManager,
@@ -50,8 +52,8 @@ class DiffViewModel @Inject constructor(
 
     val closeViewFlow = tabState.closeViewFlow
 
-    val diffTypeFlow = settings.textDiffTypeFlow
-    val isDisplayFullFile = settings.diffDisplayFullFileFlow
+    val diffTypeFlow = settings.diffTextViewType
+    val isDisplayFullFile = settings.diffDisplayFullFile
 
     val isRepositoryInSafeState = sharedRepositoryStateManager.repositoryState
         .map { it == RepositoryState.SAFE }
@@ -112,7 +114,7 @@ class DiffViewModel @Inject constructor(
         )
     )
 
-    private fun updateDiff(diffType: DiffType) {
+    private suspend fun updateDiff(diffType: DiffType) {
         addToCloseables()
 
         diffJob = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
@@ -146,10 +148,10 @@ class DiffViewModel @Inject constructor(
                     delayMs = if (isFirstLoad) 0 else DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD,
                     onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading(diffType) }
                 ) {
-                    val diffFormat = formatDiffGitAction(git, diffType, isDisplayFullFile.value)
+                    val diffFormat = formatDiffGitAction(git, diffType, isDisplayFullFile.first())
                     val diffEntry = diffFormat.diffEntry
                     if (
-                        diffTypeFlow.value == DiffTextViewType.Split &&
+                        diffTypeFlow.first() == DiffTextViewType.Split &&
                         diffFormat is DiffResult.Text &&
                         diffEntry.changeType != DiffEntry.ChangeType.ADD &&
                         diffEntry.changeType != DiffEntry.ChangeType.DELETE
@@ -210,12 +212,12 @@ class DiffViewModel @Inject constructor(
         diffJob?.cancel()
     }
 
-    fun changeTextDiffType(newDiffType: DiffTextViewType) {
-        settings.diffTextViewType = newDiffType
+    fun changeTextDiffType(newDiffType: DiffTextViewType) = tabScope.launch {
+        settings.setConfiguration(AppConfig.DiffTextViewType(newDiffType))
     }
 
-    fun changeDisplayFullFile(isDisplayFullFile: Boolean) {
-        settings.diffDisplayFullFile = isDisplayFullFile
+    fun changeDisplayFullFile(isDisplayFullFile: Boolean) = tabScope.launch {
+        settings.setConfiguration(AppConfig.DiffDisplayFullFile(isDisplayFullFile))
     }
 
     fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(

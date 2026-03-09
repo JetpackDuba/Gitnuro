@@ -2,10 +2,10 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.domain.git.CloneState
 import com.jetpackduba.gitnuro.domain.git.remote_operations.CloneRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.PickerType
 import kotlinx.coroutines.Dispatchers
@@ -21,12 +21,13 @@ class CloneViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val cloneRepositoryGitAction: CloneRepositoryGitAction,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettingsService,
 ) : TabViewModel() {
     private val _repositoryUrl = MutableStateFlow(TextFieldValue(""))
     val repositoryUrl = _repositoryUrl.asStateFlow()
 
-    private val _directoryPath = MutableStateFlow(TextFieldValue(appSettingsRepository.defaultCloneDir))
+    // TODO Fix this
+    private val _directoryPath = MutableStateFlow(TextFieldValue(/*appSettings.cloneDefaultDirectory*/))
     val directoryPath = _directoryPath.asStateFlow()
 
     private val _saveDirAsDefault = MutableStateFlow(false)
@@ -66,7 +67,8 @@ class CloneViewModel @Inject constructor(
                 directory.mkdirs()
             }
             if (_saveDirAsDefault.value) {
-                appSettingsRepository.defaultCloneDir = directoryPath
+                // TODO Fix this
+                // appSettings.defaultCloneDir = directoryPath
             }
 
             val repoDir = File(directory, folder)

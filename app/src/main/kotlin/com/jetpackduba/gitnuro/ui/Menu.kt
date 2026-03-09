@@ -58,7 +58,7 @@ fun Menu(
     showOpenPopup: Boolean,
     onShowOpenPopupChange: (Boolean) -> Unit,
 ) {
-    val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState()
+    val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState(false)
     val lastLoadedTabs by menuViewModel.lastLoadedTabs.collectAsState()
     val (position, setPosition) = remember { mutableStateOf<LayoutCoordinates?>(null) }
 

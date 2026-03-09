@@ -68,7 +68,7 @@ fun CommitChanges(
     val showSearch by commitChangesViewModel.showSearch.collectAsState()
     val changesListScroll by commitChangesViewModel.changesLazyListState.collectAsState()
     val textScroll by commitChangesViewModel.textScroll.collectAsState()
-    val showAsTree by commitChangesViewModel.showAsTree.collectAsState()
+    val showAsTree by commitChangesViewModel.showAsTree.collectAsState(false)
 
     var searchFilter by remember(commitChangesViewModel, showSearch, commitChangesStatus) {
         mutableStateOf(commitChangesViewModel.searchFilter.value)

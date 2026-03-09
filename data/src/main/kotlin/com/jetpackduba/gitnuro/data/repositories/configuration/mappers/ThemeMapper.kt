@@ -9,7 +9,7 @@ private const val LIGHT = "light"
 private const val CUSTOM = "custom"
 
 class ThemeMapper @Inject constructor() : DataMapper<Theme?, String?> {
-    override fun map(value: Theme?): String? {
+    override fun toData(value: Theme?): String? {
         return when (value) {
             Theme.Light -> LIGHT
             Theme.Dark -> DARK
@@ -19,7 +19,7 @@ class ThemeMapper @Inject constructor() : DataMapper<Theme?, String?> {
     }
 
 
-    override fun map(value: String?): Theme? {
+    override fun toDomain(value: String?): Theme? {
         return when (value) {
             LIGHT -> Theme.Light
             DARK -> Theme.Dark

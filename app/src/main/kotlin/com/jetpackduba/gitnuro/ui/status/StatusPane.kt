@@ -67,7 +67,7 @@ fun StatusPane(
     onHistoryFile: (String) -> Unit,
 ) {
     val stageStateUi = statusPaneViewModel.stageStateUi.collectAsState().value
-    val swapUncommittedChanges by statusPaneViewModel.swapUncommittedChanges.collectAsState()
+    val swapUncommittedChanges by statusPaneViewModel.swapUncommittedChanges.collectAsState(false)
     val (commitMessage, setCommitMessage) = remember(statusPaneViewModel) { mutableStateOf(statusPaneViewModel.savedCommitMessage.message) }
     val stagedListState by statusPaneViewModel.stagedLazyListState.collectAsState()
     val unstagedListState by statusPaneViewModel.unstagedLazyListState.collectAsState()
@@ -80,7 +80,7 @@ fun StatusPane(
     val selectedStagedDiffEntries by statusPaneViewModel.selectedStagedDiffEntries.collectAsState()
 
     val showSearchStaged by statusPaneViewModel.showSearchStaged.collectAsState()
-    val showAsTree by statusPaneViewModel.showAsTree.collectAsState()
+    val showAsTree by statusPaneViewModel.showAsTree.collectAsState(false)
     val searchFilterStaged by statusPaneViewModel.searchFilterStaged.collectAsState()
     val showSearchUnstaged by statusPaneViewModel.showSearchUnstaged.collectAsState()
     val searchFilterUnstaged by statusPaneViewModel.searchFilterUnstaged.collectAsState()

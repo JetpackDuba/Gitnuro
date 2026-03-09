@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.managers
 
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppStateManager @Inject constructor(
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettingsRepository: DataStoreAppSettingsRepository,
     @AppCoroutineScope val appScope: CoroutineScope,
 ) {
     private val mutex = Mutex()

@@ -10,13 +10,13 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.AvatarPro
 import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.LinesHeightMapper
 import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.TextDiffViewTypeMapper
 import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.ThemeMapper
-import com.jetpackduba.gitnuro.domain.models.AppConfiguration
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.AppWindowPlacement
+import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
-import javax.inject.Singleton
 import java.util.prefs.Preferences as LegacyPreferences
 
 private const val PREFERENCES_NAME = "GitnuroConfig"
@@ -80,91 +80,92 @@ suspend fun <T> DataStore<Preferences>.setValue(key: Preferences.Key<T>, value: 
     }
 }
 
-@Singleton
-class AppSettingsRepository @Inject constructor(
+class DataStoreAppSettingsRepository @Inject constructor(
     private val userSettingsDataStore: UserSettingsDataStore,
     private val themeMapper: ThemeMapper,
     private val linesHeightMapper: LinesHeightMapper,
     private val avatarProviderMapper: AvatarProviderMapper,
     private val textDiffViewTypeMapper: TextDiffViewTypeMapper,
-) {
+) : AppSettingsRepository {
     private val preferences = userSettingsDataStore.preferences
 
     // UI
-    val scaleUi = preferences.data[scaleUiPreference]
+    override val scaleUi = preferences.data[scaleUiPreference]
 
-    val theme = preferences.data[themePreference].map { themeMapper.map(it) }
-    val customTheme = preferences.data[customThemePreference]
+    override val theme = preferences.data[themePreference].map { themeMapper.toDomain(it) }
+    override val customTheme = preferences.data[customThemePreference]
 
-    val linesHeightType =
-        preferences.data[linesHeightPreference].map { linesHeightMapper.map(it) } // TODO Do proper type mapping
+    override val linesHeightType =
+        preferences.data[linesHeightPreference].map { linesHeightMapper.toDomain(it) }
 
-    val dateFormatUseDefault get() = preferences.data[dateFormatUseDefaultPreference]
-    val dateFormatCustomFormat get() = preferences.data[dateFormatCustomFormatPreference]
-    val dateFormatIs24h get() = preferences.data[dateFormatIs24hPreference]
-    val dateFormatUseRelative get() = preferences.data[dateFormatUseRelativePreference]
+    override val dateFormatUseDefault get() = preferences.data[dateFormatUseDefaultPreference]
+    override val dateFormatCustomFormat get() = preferences.data[dateFormatCustomFormatPreference]
+    override val dateFormatIs24h get() = preferences.data[dateFormatIs24hPreference]
+    override val dateFormatUseRelative get() = preferences.data[dateFormatUseRelativePreference]
 
-    val avatarProvider get() = preferences.data[avatarProviderPreference].map { avatarProviderMapper.map(it) }
-    val swapStatusPanes get() = preferences.data[swapStatusPanesPreference]
-    val showChangesAsTree get() = preferences.data[showChangesAsTreePreference]
-    val diffDisplayFullFile get() = preferences.data[diffDisplayFullFilePreference]
-    val diffTextViewType get() = preferences.data[diffTextViewTypePreference].map { textDiffViewTypeMapper.map(it) }
+    override val avatarProvider get() = preferences.data[avatarProviderPreference].map { avatarProviderMapper.toDomain(it) }
+    override val swapStatusPanes get() = preferences.data[swapStatusPanesPreference]
+    override val showChangesAsTree get() = preferences.data[showChangesAsTreePreference]
+    override val diffDisplayFullFile get() = preferences.data[diffDisplayFullFilePreference]
+    override val diffTextViewType get() = preferences.data[diffTextViewTypePreference].map { textDiffViewTypeMapper.toDomain(it) }
 
     // Git
-    val pullWithRebase get() = preferences.data[pullWithRebasePreference]
-    val pushWithLease get() = preferences.data[pushWithLeasePreference]
-    val fastForwardMerge get() = preferences.data[fastForwardMergePreference]
-    val autoStashOnMerge get() = preferences.data[autoStashOnMergePreference]
-    val cloneDefaultDirectory get() = preferences.data[cloneDefaultDirectoryPreference]
+    override val pullWithRebase get() = preferences.data[pullWithRebasePreference]
+    override val pushWithLease get() = preferences.data[pushWithLeasePreference]
+    override val fastForwardMerge get() = preferences.data[fastForwardMergePreference]
+    override val autoStashOnMerge get() = preferences.data[autoStashOnMergePreference]
+    override val cloneDefaultDirectory get() = preferences.data[cloneDefaultDirectoryPreference]
 
 
     // Network
-    val useProxy get() = preferences.data[useProxyPreference]
-    val proxyUseAuth get() = preferences.data[proxyUseAuthPreference]
-    val proxyType get() = preferences.data[proxyProxyTypePreference].map { ProxyType.fromValue(it) }
-    val proxyHostName get() = preferences.data[proxyHostNamePreference]
-    val proxyPortNumber get() = preferences.data[proxyPortNumberPreference]
-    val proxyHostUser get() = preferences.data[proxyHostUserPreference]
-    val proxyHostPassword get() = preferences.data[proxyHostPasswordPreference]
+    override val useProxy get() = preferences.data[useProxyPreference]
+    override val proxyUseAuth get() = preferences.data[proxyUseAuthPreference]
+    override val proxyType get() = preferences.data[proxyProxyTypePreference].map { ProxyType.fromValue(it) }
+    override val proxyHostName get() = preferences.data[proxyHostNamePreference]
+    override val proxyPortNumber get() = preferences.data[proxyPortNumberPreference]
+    override val proxyHostUser get() = preferences.data[proxyHostUserPreference]
+    override val proxyHostPassword get() = preferences.data[proxyHostPasswordPreference]
 
-    val verifySsl get() = preferences.data[verifySslPreference]
-    val cacheCredentialsInMemory get() = preferences.data[cacheCredentialsPreference]
+    override val verifySsl get() = preferences.data[verifySslPreference]
+    override val cacheCredentialsInMemory get() = preferences.data[cacheCredentialsPreference]
 
     // Tools
-    val terminalPath get() = preferences.data[terminalPathPreference]
+    override val terminalPath get() = preferences.data[terminalPathPreference]
 
-    suspend fun setConfiguration(setting: AppConfiguration) {
+    override suspend fun setConfiguration(appConfig: AppConfig) {
         preferences.apply {
-            when (setting) {
-                is AppConfiguration.AutoStashOnMerge -> setValue(autoStashOnMergePreference, setting.value)
-                is AppConfiguration.CloneDefaultDirectory -> setValue(cloneDefaultDirectoryPreference, setting.value)
-                is AppConfiguration.DateFormatCustomFormat -> setValue(dateFormatCustomFormatPreference, setting.value)
-                is AppConfiguration.DateFormatIs24h -> setValue(dateFormatIs24hPreference, setting.value)
-                is AppConfiguration.DateFormatUseDefault -> setValue(dateFormatUseDefaultPreference, setting.value)
-                is AppConfiguration.DateFormatUseRelative -> setValue(dateFormatUseRelativePreference, setting.value)
-                is AppConfiguration.FastForwardMerge -> setValue(fastForwardMergePreference, setting.value)
-                is AppConfiguration.LinesHeight -> setValue(linesHeightPreference, linesHeightMapper.map(setting.value))
-                is AppConfiguration.ProxyHostName -> setValue(proxyHostNamePreference, setting.value)
-                is AppConfiguration.ProxyHostPassword -> setValue(proxyHostPasswordPreference, setting.value)
-                is AppConfiguration.ProxyHostApp -> setValue(proxyHostUserPreference, setting.value)
-                is AppConfiguration.ProxyPortNumber -> setValue(proxyPortNumberPreference, setting.value)
-                is AppConfiguration.ProxyProxyType -> setValue(proxyProxyTypePreference, setting.value.value)
-                is AppConfiguration.ProxyUseAuth -> setValue(proxyUseAuthPreference, setting.value)
-                is AppConfiguration.PullWithRebase -> setValue(pullWithRebasePreference, setting.value)
-                is AppConfiguration.PushWithLease -> setValue(pushWithLeasePreference, setting.value)
-                is AppConfiguration.ScaleUi -> setValue(scaleUiPreference, setting.value)
-                is AppConfiguration.CacheCredentialsInMemory -> setValue(cacheCredentialsPreference, setting.value)
-                is AppConfiguration.AvatarProvider -> setValue(
+            when (appConfig) {
+                is AppConfig.AutoStashOnMerge -> setValue(autoStashOnMergePreference, appConfig.value)
+                is AppConfig.CloneDefaultDirectory -> setValue(cloneDefaultDirectoryPreference, appConfig.value)
+                is AppConfig.DateFormatCustomFormat -> setValue(dateFormatCustomFormatPreference, appConfig.value)
+                is AppConfig.DateFormatIs24h -> setValue(dateFormatIs24hPreference, appConfig.value)
+                is AppConfig.DateFormatUseDefault -> setValue(dateFormatUseDefaultPreference, appConfig.value)
+                is AppConfig.DateFormatUseRelative -> setValue(dateFormatUseRelativePreference, appConfig.value)
+                is AppConfig.FastForwardMerge -> setValue(fastForwardMergePreference, appConfig.value)
+                is AppConfig.LinesHeight -> setValue(linesHeightPreference, linesHeightMapper.toData(appConfig.value))
+                is AppConfig.UseProxy -> setValue(useProxyPreference, appConfig.value)
+                is AppConfig.ProxyHostName -> setValue(proxyHostNamePreference, appConfig.value)
+                is AppConfig.ProxyHostPassword -> setValue(proxyHostPasswordPreference, appConfig.value)
+                is AppConfig.ProxyHostUser -> setValue(proxyHostUserPreference, appConfig.value)
+                is AppConfig.ProxyPortNumber -> setValue(proxyPortNumberPreference, appConfig.value)
+                is AppConfig.ProxyProxyType -> setValue(proxyProxyTypePreference, appConfig.value.value)
+                is AppConfig.ProxyUseAuth -> setValue(proxyUseAuthPreference, appConfig.value)
+                is AppConfig.PullWithRebase -> setValue(pullWithRebasePreference, appConfig.value)
+                is AppConfig.PushWithLease -> setValue(pushWithLeasePreference, appConfig.value)
+                is AppConfig.ScaleUi -> setValue(scaleUiPreference, appConfig.value)
+                is AppConfig.CacheCredentialsInMemory -> setValue(cacheCredentialsPreference, appConfig.value)
+                is AppConfig.AvatarProvider -> setValue(
                     avatarProviderPreference,
-                    avatarProviderMapper.map(setting.value)
+                    avatarProviderMapper.toData(appConfig.value)
                 )
 
-                is AppConfiguration.Theme -> setValue(themePreference, themeMapper.map(setting.value))
-                is AppConfiguration.CustomTheme -> setValue(customThemePreference, setting.value)
-                is AppConfiguration.SwapStatusPanes -> setValue(swapStatusPanesPreference, setting.value)
-                is AppConfiguration.DiffDisplayFullFile -> setValue(diffDisplayFullFilePreference, setting.value)
-                is AppConfiguration.DiffTextViewType -> setValue(diffTextViewTypePreference, textDiffViewTypeMapper.map(setting.value))
-                is AppConfiguration.ShowChangesAsTree -> setValue(diffDisplayFullFilePreference, setting.value)
+                is AppConfig.Theme -> setValue(themePreference, themeMapper.toData(appConfig.value))
+                is AppConfig.CustomTheme -> setValue(customThemePreference, appConfig.value)
+                is AppConfig.SwapStatusPanes -> setValue(swapStatusPanesPreference, appConfig.value)
+                is AppConfig.DiffDisplayFullFile -> setValue(diffDisplayFullFilePreference, appConfig.value)
+                is AppConfig.DiffTextViewType -> setValue(diffTextViewTypePreference, textDiffViewTypeMapper.toData(appConfig.value))
+                is AppConfig.ShowChangesAsTree -> setValue(diffDisplayFullFilePreference, appConfig.value)
+                is AppConfig.TerminalPath -> setValue(terminalPathPreference, appConfig.value)
             }
         }
     }

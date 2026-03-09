@@ -7,7 +7,6 @@ import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.DiffSelected
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.extensions.*
@@ -23,12 +22,14 @@ import com.jetpackduba.gitnuro.domain.git.rebase.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.git.rebase.SkipRebaseGitAction
 import com.jetpackduba.gitnuro.domain.git.repository.ResetRepositoryStateGitAction
 import com.jetpackduba.gitnuro.domain.git.workspace.*
+import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.AuthorInfo
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.StatusStageAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StatusStageUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StatusUnstageAllUseCase
@@ -72,7 +73,7 @@ class StatusPaneViewModel @Inject constructor(
     private val saveAuthorGitAction: SaveAuthorGitAction,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageGitAction: GetSpecificCommitMessageGitAction,
-    private val appSettingsRepository: AppSettingsRepository,
+    private val appSettings: AppSettingsService,
     private val tabScope: CoroutineScope,
     private val selectedDiffItemRepository: SelectedDiffItemRepository,
     private val clipboardManager: ClipboardManager,
@@ -111,11 +112,11 @@ class StatusPaneViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    val swapUncommittedChanges = appSettingsRepository.swapUncommittedChangesFlow
+    val swapUncommittedChanges = appSettings.swapStatusPanes
     val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
-    val showAsTree = appSettingsRepository.showChangesAsTreeFlow
+    val showAsTree = appSettings.showChangesAsTree
     private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
 
     private val stageStateFiltered: StateFlow<StageState> = combine(
@@ -735,8 +736,8 @@ class StatusPaneViewModel @Inject constructor(
         }
     }
 
-    fun alternateShowAsTree() {
-        appSettingsRepository.showChangesAsTree = !appSettingsRepository.showChangesAsTree
+    fun alternateShowAsTree() = tabScope.launch {
+        appSettings.setConfiguration(AppConfig.ShowChangesAsTree(!appSettings.showChangesAsTree.first()))
     }
 
     fun stageByDirectory(dir: String) = tabState.runOperation(
