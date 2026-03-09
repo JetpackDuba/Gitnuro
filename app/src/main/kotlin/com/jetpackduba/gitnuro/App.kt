@@ -31,7 +31,7 @@ import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.git.signers.AppGpgSigner
@@ -177,7 +177,7 @@ class App @Inject constructor(
                 }
 
                 val avatarProvider = when (avatarProviderType) {
-                    AvatarProviderType.GRAVATAR -> GravatarAvatarProvider()
+                    AvatarProviderType.Gravatar -> GravatarAvatarProvider()
                     // TODO this else shouldn't be necessary as avatar provider should not be null and have a
                     //  default value handled by domain layer
                     else -> NoneAvatarProvider()

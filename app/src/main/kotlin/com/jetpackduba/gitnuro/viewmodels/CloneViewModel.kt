@@ -2,7 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.domain.git.CloneState
 import com.jetpackduba.gitnuro.domain.git.remote_operations.CloneRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository

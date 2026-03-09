@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.DiffSelected
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.extensions.filePath

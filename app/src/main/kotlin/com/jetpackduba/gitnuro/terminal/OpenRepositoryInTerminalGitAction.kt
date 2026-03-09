@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.terminal
 
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import javax.inject.Inject
 
 // For flatpak: https://github.com/flathub/com.visualstudio.code#use-host-shell-in-the-integrated-terminal

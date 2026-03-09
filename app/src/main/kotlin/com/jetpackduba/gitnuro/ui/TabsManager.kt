@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import com.jetpackduba.gitnuro.di.AppComponent
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import kotlinx.coroutines.flow.MutableStateFlow

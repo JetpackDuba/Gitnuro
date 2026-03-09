@@ -1,19 +1,24 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import androidx.compose.runtime.Stable
 import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
+import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
+import com.jetpackduba.gitnuro.domain.models.AppConfiguration
+import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.Error
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.domain.models.ProxySettings
+import com.jetpackduba.gitnuro.domain.models.TaskType
+import com.jetpackduba.gitnuro.domain.models.newErrorNow
+import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
+import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.PickerType
-import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
-import com.jetpackduba.gitnuro.domain.models.ProxyType
-import com.jetpackduba.gitnuro.domain.models.newErrorNow
-import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.awt.Desktop
 import java.time.Instant
 import java.time.ZoneId
@@ -28,152 +33,31 @@ class SettingsViewModel @Inject constructor(
     private val appSettingsRepository: AppSettingsRepository,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val logsRepository: LogsRepository,
-    @AppCoroutineScope private val appScope: CoroutineScope,
-): TabViewModel() {
+    private val getConfigurationUseCase: GetConfigurationUseCase,
+    @param:AppCoroutineScope private val appScope: CoroutineScope,
+) : TabViewModel() {
     // Temporary values to detect changed variables
     var commitsLimit: Int = -1
 
 
-    val themeState = appSettingsRepository.themeState
-    val linesHeightTypeState = appSettingsRepository.linesHeightTypeState
-    var defaultCloneDirFlow = appSettingsRepository.defaultCloneDirFlow
+    val themeState = appSettingsRepository.theme
+    val linesHeightTypeState = appSettingsRepository.linesHeightType
+    var defaultCloneDirFlow = appSettingsRepository.cloneDefaultDirectory
     val ffMergeFlow = appSettingsRepository.fastForwardMerge
     val mergeAutoStashFlow = appSettingsRepository.autoStashOnMerge
     val pullRebaseFlow = appSettingsRepository.pullWithRebase
-    val pushWithLeaseFlow = appSettingsRepository.pushWithLeaseFlow
+    val pushWithLeaseFlow = appSettingsRepository.pushWithLease
     val swapUncommittedChangesFlow = appSettingsRepository.swapUncommittedChangesFlow
-    val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemoryFlow
-    val verifySslFlow = appSettingsRepository.verifySslFlow
-    val terminalPathFlow = appSettingsRepository.terminalPathFlow
-    val avatarProviderFlow = appSettingsRepository.avatarProviderTypeFlow
+    val cacheCredentialsInMemoryFlow = appSettingsRepository.cacheCredentialsInMemory
+    val verifySslFlow = appSettingsRepository.verifySsl
+    val terminalPathFlow = appSettingsRepository.terminalPath
+    val avatarProviderFlow = appSettingsRepository.avatarProvider
     val dateFormatFlow = appSettingsRepository.dateTimeFormatFlow
     val proxyFlow = appSettingsRepository.proxyFlow
 
-    var scaleUi: Float
-        get() = appSettingsRepository.scaleUi
-        set(value) {
-            appSettingsRepository.scaleUi = value
-        }
-
-    var defaultCloneDir: String
-        get() = appSettingsRepository.defaultCloneDir
-        set(value) {
-            appSettingsRepository.defaultCloneDir = value
-        }
-
-    var swapUncommittedChanges: Boolean
-        get() = appSettingsRepository.swapUncommittedChanges
-        set(value) {
-            appSettingsRepository.swapUncommittedChanges = value
-        }
-
-    var ffMerge: Boolean
-        get() = appSettingsRepository.ffMerge
-        set(value) {
-            appSettingsRepository.ffMerge = value
-        }
-
-    var mergeAutoStash: Boolean
-        get() = appSettingsRepository.mergeAutoStash
-        set(value) {
-            appSettingsRepository.mergeAutoStash = value
-        }
-
-    var cacheCredentialsInMemory: Boolean
-        get() = appSettingsRepository.cacheCredentialsInMemory
-        set(value) {
-            appSettingsRepository.cacheCredentialsInMemory = value
-        }
-
-    var verifySsl: Boolean
-        get() = appSettingsRepository.verifySsl
-        set(value) {
-            appSettingsRepository.verifySsl = value
-        }
-
-    var pullRebase: Boolean
-        get() = appSettingsRepository.pullRebase
-        set(value) {
-            appSettingsRepository.pullRebase = value
-        }
-
-    var pushWithLease: Boolean
-        get() = appSettingsRepository.pushWithLease
-        set(value) {
-            appSettingsRepository.pushWithLease = value
-        }
-
-    var theme: Theme
-        get() = appSettingsRepository.theme
-        set(value) {
-            appSettingsRepository.theme = value
-        }
-
-    var linesHeightType: LinesHeightType
-        get() = appSettingsRepository.linesHeightType
-        set(value) {
-            appSettingsRepository.linesHeightType = value
-        }
-
-    var terminalPath: String
-        get() = appSettingsRepository.terminalPath
-        set(value) {
-            appSettingsRepository.terminalPath = value
-        }
-
-    var avatarProvider
-        get() = appSettingsRepository.avatarProviderType
-        set(value) {
-            appSettingsRepository.avatarProviderType = value
-        }
-
-    var dateFormat
-        get() = appSettingsRepository.dateTimeFormat
-        set(value) {
-            appSettingsRepository.dateTimeFormat = value
-        }
-
-    var useProxy: Boolean
-        get() = appSettingsRepository.useProxy
-        set(value) {
-            appSettingsRepository.useProxy = value
-        }
-
-    var proxyType: ProxyType
-        get() = appSettingsRepository.proxyType
-        set(value) {
-            appSettingsRepository.proxyType = value
-        }
-
-    var proxyHostName: String
-        get() = appSettingsRepository.proxyHostName
-        set(value) {
-            appSettingsRepository.proxyHostName = value
-        }
-
-    var proxyPortNumber: Int
-        get() = appSettingsRepository.proxyPortNumber
-        set(value) {
-            appSettingsRepository.proxyPortNumber = value
-        }
-
-    var proxyUseAuth: Boolean
-        get() = appSettingsRepository.proxyUseAuth
-        set(value) {
-            appSettingsRepository.proxyUseAuth = value
-        }
-
-    var proxyHostUser: String
-        get() = appSettingsRepository.proxyHostUser
-        set(value) {
-            appSettingsRepository.proxyHostUser = value
-        }
-
-    var proxyHostPassword: String
-        get() = appSettingsRepository.proxyHostPassword
-        set(value) {
-            appSettingsRepository.proxyHostPassword = value
-        }
+    fun setAppConfiguration(appConfiguration: AppConfiguration) = appScope.launch {
+        appSettingsRepository.setConfiguration(appConfiguration)
+    }
 
     fun saveCustomTheme(filePath: String): Error? {
         return try {
@@ -212,5 +96,37 @@ class SettingsViewModel @Inject constructor(
             printError(TAG, "Is valid format date: ${ex.message}", ex)
             false
         }
+    }
+}
+
+@Stable
+data class SettingsViewState(
+    val scaleUi: Float,
+    val theme: Theme,
+    val linesHeightType: LinesHeightType,
+    val defaultCloneDir: String,
+    val fastForwardMerge: Boolean,
+    val mergeAutoStash: Boolean,
+    val pullWithRebase: Boolean,
+    val pushWithLease: Boolean,
+    val swapUncommittedChanges: Boolean,
+    val cacheCredentialsInMemory: Boolean,
+    val verifySsl: Boolean,
+    val terminalPath: String?,
+    val avatarProvider: AvatarProviderType,
+    val dateFormat: String?,
+    val proxy: ProxySettings,
+)
+
+// TODO Do we want something like this?
+class GetConfigurationUseCase @Inject constructor(
+    val appSettingsRepository: AppSettingsRepository,
+) {
+    inline fun <reified T : AppConfiguration> invoke(): Flow<T?> {
+        return when (T::class) {
+            AppConfiguration::ScaleUi::class -> appSettingsRepository.scaleUi
+            AppConfiguration::LinesHeight::class -> appSettingsRepository.linesHeightType
+            else -> throw IllegalStateException("Invalid settings class type")
+        } as Flow<T?>
     }
 }

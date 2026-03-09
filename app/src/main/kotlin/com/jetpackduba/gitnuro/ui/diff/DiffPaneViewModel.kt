@@ -10,9 +10,9 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.git.diff.*
 import com.jetpackduba.gitnuro.domain.git.workspace.*
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
-import com.jetpackduba.gitnuro.domain.models.TextDiffType
+import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppGitAction
 import com.jetpackduba.gitnuro.ui.TabsManager
 import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
@@ -149,7 +149,7 @@ class DiffViewModel @Inject constructor(
                     val diffFormat = formatDiffGitAction(git, diffType, isDisplayFullFile.value)
                     val diffEntry = diffFormat.diffEntry
                     if (
-                        diffTypeFlow.value == TextDiffType.SPLIT &&
+                        diffTypeFlow.value == DiffTextViewType.Split &&
                         diffFormat is DiffResult.Text &&
                         diffEntry.changeType != DiffEntry.ChangeType.ADD &&
                         diffEntry.changeType != DiffEntry.ChangeType.DELETE
@@ -210,8 +210,8 @@ class DiffViewModel @Inject constructor(
         diffJob?.cancel()
     }
 
-    fun changeTextDiffType(newDiffType: TextDiffType) {
-        settings.textDiffType = newDiffType
+    fun changeTextDiffType(newDiffType: DiffTextViewType) {
+        settings.diffTextViewType = newDiffType
     }
 
     fun changeDisplayFullFile(isDisplayFullFile: Boolean) {

@@ -25,7 +25,7 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.domain.models.Error
-import com.jetpackduba.gitnuro.data.repositories.DEFAULT_UI_SCALE
+import com.jetpackduba.gitnuro.data.repositories.configuration.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
@@ -531,7 +531,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         }
     )
 
-    if (currentTheme == Theme.CUSTOM) {
+    if (currentTheme == Theme.Custom) {
         SettingButton(
             title = "Custom theme",
             subtitle = "Select a JSON file to load the custom theme",
@@ -582,7 +582,7 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
 
     var scaleValue by remember {
         val savedScaleUi = settingsViewModel.scaleUi
-        val scaleUi = if (savedScaleUi == DEFAULT_UI_SCALE) {
+        val scaleUi = if (savedScaleUi == null) {
             density
         } else {
             savedScaleUi
@@ -618,8 +618,8 @@ private fun Appearance(settingsViewModel: SettingsViewModel) {
         subtitle = "When using a provider, the e-mail addresses will be hashed using SHA256",
         currentOption = avatarProvider,
         dropDownOptions = listOf(
-            DropDownOption(AvatarProviderType.NONE, "None"),
-            DropDownOption(AvatarProviderType.GRAVATAR, "Gravatar"),
+            DropDownOption(AvatarProviderType.None, "None"),
+            DropDownOption(AvatarProviderType.Gravatar, "Gravatar"),
         ),
         onOptionSelected = {
             settingsViewModel.avatarProvider = it.value

@@ -4,7 +4,7 @@ import com.jetpackduba.gitnuro.App
 import com.jetpackduba.gitnuro.AppEnvInfo
 import com.jetpackduba.gitnuro.data.di.DatastoreModule
 import com.jetpackduba.gitnuro.data.di.RepositoriesModule
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.di.modules.AppModule
 import com.jetpackduba.gitnuro.di.modules.GitCredentialsManagerModule

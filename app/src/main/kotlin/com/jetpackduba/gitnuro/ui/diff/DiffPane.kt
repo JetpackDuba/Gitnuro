@@ -45,7 +45,7 @@ import com.jetpackduba.gitnuro.domain.extensions.lineDelimiter
 import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
 import com.jetpackduba.gitnuro.domain.extensions.removeLineDelimiters
 import com.jetpackduba.gitnuro.domain.extensions.replaceTabs
-import com.jetpackduba.gitnuro.domain.models.TextDiffType
+import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -131,7 +131,7 @@ fun DiffPane(
                     diffType = diffType,
                     diffEntry = diffEntry,
                     onCloseDiffView = { closeDiffView() },
-                    textDiffType = textDiffType,
+                    textDiffViewType = textDiffType,
                     isTextDiff = diffResult is DiffResult.TextDiff,
                     isDisplayFullFile = isDisplayFullFile,
                     onStageFile = { diffViewModel.stageFile(it) },
@@ -844,13 +844,13 @@ fun HunkHeader(
 private fun DiffHeader(
     diffType: DiffType,
     diffEntry: DiffEntry,
-    textDiffType: TextDiffType,
+    textDiffViewType: DiffTextViewType,
     isDisplayFullFile: Boolean,
     isTextDiff: Boolean,
     onCloseDiffView: () -> Unit,
     onStageFile: (StatusEntry) -> Unit,
     onUnstageFile: (StatusEntry) -> Unit,
-    onChangeDiffType: (TextDiffType) -> Unit,
+    onChangeDiffType: (DiffTextViewType) -> Unit,
     onDisplayFullFile: (Boolean) -> Unit,
 ) {
     Row(
@@ -910,7 +910,7 @@ private fun DiffHeader(
         ) {
             if (diffType.statusType != StatusType.ADDED && diffType.statusType != StatusType.REMOVED && isTextDiff) {
                 DiffTypeButtons(
-                    diffType = textDiffType,
+                    diffType = textDiffViewType,
                     isDisplayFullFile = isDisplayFullFile,
                     onChangeDiffType = onChangeDiffType,
                     onDisplayFullFile = onDisplayFullFile,
@@ -974,9 +974,9 @@ fun StateIcon(
 
 @Composable
 fun DiffTypeButtons(
-    diffType: TextDiffType,
+    diffType: DiffTextViewType,
     isDisplayFullFile: Boolean,
-    onChangeDiffType: (TextDiffType) -> Unit,
+    onChangeDiffType: (DiffTextViewType) -> Unit,
     onDisplayFullFile: (Boolean) -> Unit,
 ) {
     Row(
@@ -1008,15 +1008,15 @@ fun DiffTypeButtons(
             StateIcon(
                 icon = Res.drawable.unified,
                 tooltip = "Unified diff",
-                isToggled = diffType == TextDiffType.UNIFIED,
-                onClick = { onChangeDiffType(TextDiffType.UNIFIED) },
+                isToggled = diffType == DiffTextViewType.Unified,
+                onClick = { onChangeDiffType(DiffTextViewType.Unified) },
             )
 
             StateIcon(
                 icon = Res.drawable.vertical_split,
                 tooltip = "Split diff",
-                isToggled = diffType == TextDiffType.SPLIT,
-                onClick = { onChangeDiffType(TextDiffType.SPLIT) },
+                isToggled = diffType == DiffTextViewType.Split,
+                onClick = { onChangeDiffType(DiffTextViewType.Split) },
             )
         }
     }

@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.managers
 
 import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel

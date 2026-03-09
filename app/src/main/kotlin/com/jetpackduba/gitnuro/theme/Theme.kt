@@ -37,16 +37,16 @@ val compactLineHeight = LinesHeight(
 
 @Composable
 fun AppTheme(
-    selectedTheme: Theme = Theme.DARK,
+    selectedTheme: Theme = Theme.Dark,
     linesHeightType: LinesHeightType = LinesHeightType.COMPACT,
     customTheme: ColorsScheme? = null,
     content: @Composable () -> Unit,
 ) {
     val theme = when (selectedTheme) {
-        Theme.LIGHT -> lightTheme
-        Theme.DARK -> darkBlueTheme
+        Theme.Light -> lightTheme
+        Theme.Dark -> darkBlueTheme
         Theme.DARK_GRAY -> darkGrayTheme
-        Theme.CUSTOM -> customTheme ?: defaultAppTheme
+        Theme.Custom -> customTheme ?: defaultAppTheme
     }
 
     val lineHeight = when (linesHeightType) {
@@ -161,8 +161,8 @@ val Colors.isDark: Boolean
 
 
 val themeLists = listOf(
-    DropDownOption(Theme.LIGHT, Theme.LIGHT.displayName),
-    DropDownOption(Theme.DARK, Theme.DARK.displayName),
+    DropDownOption(Theme.Light, Theme.Light.displayName),
+    DropDownOption(Theme.Dark, Theme.Dark.displayName),
     DropDownOption(Theme.DARK_GRAY, Theme.DARK_GRAY.displayName),
-    DropDownOption(Theme.CUSTOM, Theme.CUSTOM.displayName),
+    DropDownOption(Theme.Custom, Theme.Custom.displayName),
 )

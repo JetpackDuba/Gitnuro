@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.domain.extensions.shortName
 import com.jetpackduba.gitnuro.domain.git.branches.GetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
@@ -12,7 +11,6 @@ import com.jetpackduba.gitnuro.domain.git.log.CherryPickCommitGitAction
 import com.jetpackduba.gitnuro.domain.git.log.GetLogGitAction
 import com.jetpackduba.gitnuro.domain.git.log.RevertCommitGitAction
 import com.jetpackduba.gitnuro.domain.git.rebase.StartRebaseInteractiveGitAction
-import com.jetpackduba.gitnuro.domain.git.tags.CreateTagGitAction
 import com.jetpackduba.gitnuro.domain.git.workspace.CheckHasUncommittedChangesGitAction
 import com.jetpackduba.gitnuro.domain.git.workspace.GetStatusSummaryGitAction
 import com.jetpackduba.gitnuro.domain.git.workspace.StatusSummary

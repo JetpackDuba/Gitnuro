@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro
 
-import com.jetpackduba.gitnuro.data.repositories.initPreferencesPath
+import com.jetpackduba.gitnuro.data.repositories.configuration.initPreferencesPath
 import com.jetpackduba.gitnuro.di.DaggerAppComponent
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security

@@ -7,7 +7,7 @@ import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.DiffSelected
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.extensions.*

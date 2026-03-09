@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.managers.AppStateManager
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import javax.inject.Inject
 
 class MenuViewModel @Inject constructor(

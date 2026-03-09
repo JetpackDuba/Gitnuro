@@ -10,7 +10,7 @@ import com.jetpackduba.gitnuro.domain.git.branches.MergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.git.rebase.RebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
-import com.jetpackduba.gitnuro.data.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
 import org.eclipse.jgit.lib.Ref
