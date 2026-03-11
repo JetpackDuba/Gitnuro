@@ -5,6 +5,5 @@ sealed interface ProcessingState {
     data class Processing(
         val title: String,
         val subtitle: String,
-        val isCancellable: Boolean,
     ) : ProcessingState
 }

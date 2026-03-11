@@ -52,7 +52,6 @@ class GlobalMenuActionsViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Fetching",
         subtitle = "Updating references from the remote repositories...",
-        isCancellable = false,
         refreshEvenIfCrashes = true,
         taskType = TaskType.FETCH,
     ) { git ->
@@ -65,7 +64,6 @@ class GlobalMenuActionsViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Push",
         subtitle = "Pushing current branch to the remote repository",
-        isCancellable = false,
         refreshEvenIfCrashes = true,
         taskType = TaskType.PUSH,
     ) { git ->

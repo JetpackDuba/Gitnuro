@@ -59,13 +59,6 @@ fun ProcessingScreen(
                     .padding(bottom = 32.dp),
                 color = MaterialTheme.colors.secondary,
             )
-
-            if (processingState.isCancellable) {
-                PrimaryButton(
-                    text = "Cancel",
-                    onClick = onCancelOnGoingTask,
-                )
-            }
         }
     }
 }

@@ -72,8 +72,6 @@ class TabInstanceRepository @Inject constructor(
         title: String = "",
         subtitle: String = "",
         taskType: TaskType,
-        // TODO For now have it always as false because the data refresh is cancelled even when the git process couldn't be cancelled
-        isCancellable: Boolean = false,
         refreshEvenIfCrashes: Boolean = false,
         refreshEvenIfCrashesInteractive: ((Exception) -> Boolean)? = null,
         callback: suspend (git: Git) -> Notification?,
@@ -87,7 +85,7 @@ class TabInstanceRepository @Inject constructor(
             try {
                 _processing.update { processingState ->
                     if (processingState is ProcessingState.None) {
-                        ProcessingState.Processing(title, subtitle, isCancellable)
+                        ProcessingState.Processing(title, subtitle)
                     } else {
                         processingState
                     }
@@ -156,11 +154,10 @@ class TabInstanceRepository @Inject constructor(
         //  migrate the code that uses this function
         title: String = "",
         subtitle: String = "",
-        isCancellable: Boolean = false,
         callback: suspend CoroutineScope.() -> Unit,
     ): Job {
         val job = scope.launch(Dispatchers.IO) {
-            _processing.value = ProcessingState.Processing(title, subtitle, isCancellable)
+            _processing.value = ProcessingState.Processing(title, subtitle)
             operationRunning = true
 
             try {
