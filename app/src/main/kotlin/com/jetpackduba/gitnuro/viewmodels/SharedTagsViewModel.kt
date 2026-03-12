@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
-import com.jetpackduba.gitnuro.domain.git.tags.DeleteTagGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IDeleteTagGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -15,7 +15,7 @@ interface ISharedTagsViewModel {
 }
 
 class SharedTagsViewModel @Inject constructor(
-    private val deleteTagGitAction: DeleteTagGitAction,
+    private val deleteTagGitAction: IDeleteTagGitAction,
     private val tabState: TabInstanceRepository,
 ) : ISharedTagsViewModel {
     override fun deleteTag(tag: Ref) = tabState.safeProcessing(

@@ -4,10 +4,10 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.git.branches.CheckoutRefGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.DeleteBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.MergeBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IDeleteBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IRebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
@@ -28,12 +28,12 @@ interface ISharedBranchesViewModel {
 }
 
 class SharedBranchesViewModel @Inject constructor(
-    private val rebaseBranchGitAction: RebaseBranchGitAction,
     private val tabState: TabInstanceRepository,
     private val appSettings: AppSettingsService,
-    private val mergeBranchGitAction: MergeBranchGitAction,
-    private val deleteBranchGitAction: DeleteBranchGitAction,
-    private val checkoutRefGitAction: CheckoutRefGitAction,
+    private val rebaseBranchGitAction: IRebaseBranchGitAction,
+    private val mergeBranchGitAction: IMergeBranchGitAction,
+    private val deleteBranchGitAction: IDeleteBranchGitAction,
+    private val checkoutRefGitAction: ICheckoutRefGitAction,
     private val clipboardManager: ClipboardManager,
 ) : ISharedBranchesViewModel {
 

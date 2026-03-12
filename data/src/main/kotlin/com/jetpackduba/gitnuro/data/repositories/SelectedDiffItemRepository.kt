@@ -2,8 +2,8 @@ package com.jetpackduba.gitnuro.data.repositories
 
 import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAddAll
-import com.jetpackduba.gitnuro.domain.git.DiffType
-import com.jetpackduba.gitnuro.domain.git.EntryType
+import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.models.EntryType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject

@@ -2,8 +2,8 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.git.CloneState
-import com.jetpackduba.gitnuro.domain.git.remote_operations.CloneRepositoryGitAction
+import com.jetpackduba.gitnuro.domain.models.CloneState
+import com.jetpackduba.gitnuro.domain.interfaces.ICloneRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 class CloneViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val cloneRepositoryGitAction: CloneRepositoryGitAction,
+    private val cloneRepositoryGitAction: ICloneRepositoryGitAction,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val appSettings: AppSettingsService,
 ) : TabViewModel() {

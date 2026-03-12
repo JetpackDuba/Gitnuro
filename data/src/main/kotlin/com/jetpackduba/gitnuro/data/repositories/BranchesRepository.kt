@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.data.repositories
 
 import com.jetpackduba.gitnuro.common.TabScope
-import com.jetpackduba.gitnuro.domain.git.branches.GetBranchesGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.GetCurrentBranchGitAction
+import com.jetpackduba.gitnuro.data.git.branches.GetBranchesGitAction
+import com.jetpackduba.gitnuro.data.git.branches.GetCurrentBranchGitAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.eclipse.jgit.api.Git

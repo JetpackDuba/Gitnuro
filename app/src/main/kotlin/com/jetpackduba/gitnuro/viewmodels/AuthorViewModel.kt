@@ -1,19 +1,19 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.domain.extensions.nullIfEmpty
+import com.jetpackduba.gitnuro.domain.interfaces.ILoadAuthorGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ISaveAuthorGitAction
+import com.jetpackduba.gitnuro.domain.models.AuthorInfo
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.git.author.LoadAuthorGitAction
-import com.jetpackduba.gitnuro.domain.git.author.SaveAuthorGitAction
-import com.jetpackduba.gitnuro.domain.models.AuthorInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class AuthorViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val saveAuthorGitAction: SaveAuthorGitAction,
-    private val loadAuthorGitAction: LoadAuthorGitAction,
+    private val saveAuthorGitAction: ISaveAuthorGitAction,
+    private val loadAuthorGitAction: ILoadAuthorGitAction,
 ) {
 
     private val _authorInfo = MutableStateFlow(AuthorInfo(null, null, null, null))

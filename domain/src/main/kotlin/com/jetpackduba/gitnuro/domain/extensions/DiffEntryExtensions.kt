@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.domain.extensions
 
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusEntry
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusType
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.StatusType
 import org.eclipse.jgit.diff.DiffEntry
 
 val DiffEntry.parentDirectoryPath: String

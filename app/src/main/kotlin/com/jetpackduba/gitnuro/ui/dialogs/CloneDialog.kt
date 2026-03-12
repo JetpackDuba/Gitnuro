@@ -23,7 +23,7 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.generic_save_as_default
 import com.jetpackduba.gitnuro.app.generated.resources.search
-import com.jetpackduba.gitnuro.domain.git.CloneState
+import com.jetpackduba.gitnuro.domain.models.CloneState
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField

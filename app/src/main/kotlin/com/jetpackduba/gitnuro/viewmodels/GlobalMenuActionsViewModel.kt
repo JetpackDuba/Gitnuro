@@ -1,11 +1,11 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.domain.git.remote_operations.FetchAllRemotesGitAction
-import com.jetpackduba.gitnuro.domain.git.remote_operations.PullBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.remote_operations.PullType
-import com.jetpackduba.gitnuro.domain.git.remote_operations.PushBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.stash.PopLastStashGitAction
-import com.jetpackduba.gitnuro.domain.git.stash.StashChangesGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IFetchAllRemotesGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IPullBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IPushBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IPopLastStashGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStashChangesGitAction
+import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.errorNotification
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
@@ -27,11 +27,11 @@ interface IGlobalMenuActionsViewModel {
 
 class GlobalMenuActionsViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val pullBranchGitAction: PullBranchGitAction,
-    private val pushBranchGitAction: PushBranchGitAction,
-    private val fetchAllRemotesGitAction: FetchAllRemotesGitAction,
-    private val popLastStashGitAction: PopLastStashGitAction,
-    private val stashChangesGitAction: StashChangesGitAction,
+    private val pullBranchGitAction: IPullBranchGitAction,
+    private val pushBranchGitAction: IPushBranchGitAction,
+    private val fetchAllRemotesGitAction: IFetchAllRemotesGitAction,
+    private val popLastStashGitAction: IPopLastStashGitAction,
+    private val stashChangesGitAction: IStashChangesGitAction,
     private val openRepositoryInTerminalGitAction: OpenRepositoryInTerminalGitAction,
 ) : IGlobalMenuActionsViewModel {
     override fun pull(pullType: PullType) = tabState.safeProcessing(

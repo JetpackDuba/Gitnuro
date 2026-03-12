@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.git.config.LoadSignOffConfigGitAction
-import com.jetpackduba.gitnuro.domain.git.config.SaveLocalRepositoryConfigGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ILoadSignOffConfigGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ISaveLocalRepositoryConfigGitAction
 import com.jetpackduba.gitnuro.domain.models.SignOffConfig
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -12,8 +12,8 @@ import javax.inject.Inject
 
 class SignOffDialogViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val loadSignOffConfigGitAction: LoadSignOffConfigGitAction,
-    private val saveLocalRepositoryConfigGitAction: SaveLocalRepositoryConfigGitAction,
+    private val loadSignOffConfigGitAction: ILoadSignOffConfigGitAction,
+    private val saveLocalRepositoryConfigGitAction: ISaveLocalRepositoryConfigGitAction,
 ) : TabViewModel() {
     private val _state = MutableStateFlow<SignOffState>(SignOffState.Loading)
     val state = _state.asStateFlow()

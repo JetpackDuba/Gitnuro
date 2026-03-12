@@ -28,7 +28,7 @@ import com.jetpackduba.gitnuro.domain.extensions.shortName
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
-import com.jetpackduba.gitnuro.domain.git.diff.DiffResult
+import com.jetpackduba.gitnuro.domain.models.DiffResult
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary

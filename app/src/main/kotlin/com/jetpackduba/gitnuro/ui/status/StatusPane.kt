@@ -33,10 +33,10 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.app.generated.resources.*
-import com.jetpackduba.gitnuro.domain.git.DiffType
-import com.jetpackduba.gitnuro.domain.git.EntryType
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.models.EntryType
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.domain.extensions.fileName
 import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
 import com.jetpackduba.gitnuro.domain.extensions.isMerging

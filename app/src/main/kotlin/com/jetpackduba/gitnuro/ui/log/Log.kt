@@ -43,7 +43,7 @@ import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusSummary
+import com.jetpackduba.gitnuro.domain.models.StatusSummary
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.common.printLog

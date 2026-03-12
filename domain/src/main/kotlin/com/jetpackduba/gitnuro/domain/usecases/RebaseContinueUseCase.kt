@@ -1,10 +1,10 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.git.rebase.ContinueRebaseGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.GetRebaseInteractiveStateGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.git.repository.GetRepositoryStateGitAction
-import com.jetpackduba.gitnuro.domain.git.workspace.DoCommitGitAction
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.interfaces.IContinueRebaseGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseInteractiveStateGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetRepositoryStateGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -15,10 +15,10 @@ import javax.inject.Inject
 
 class RebaseContinueUseCase @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val getRepositoryStateGitAction: GetRepositoryStateGitAction,
-    private val getRebaseInteractiveStateGitAction: GetRebaseInteractiveStateGitAction,
-    private val continueRebaseGitAction: ContinueRebaseGitAction,
-    private val doCommitGitAction: DoCommitGitAction,
+    private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
+    private val getRebaseInteractiveStateGitAction: IGetRebaseInteractiveStateGitAction,
+    private val continueRebaseGitAction: IContinueRebaseGitAction,
+    private val doCommitGitAction: IDoCommitGitAction,
 ) {
     operator fun invoke(
         message: String,

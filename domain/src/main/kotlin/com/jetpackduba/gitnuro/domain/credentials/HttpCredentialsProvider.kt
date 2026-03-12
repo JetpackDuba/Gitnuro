@@ -5,7 +5,6 @@ import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.IShellManager
 import com.jetpackduba.gitnuro.domain.credentials.external.IGitCredentialsManagerProvider
 import com.jetpackduba.gitnuro.domain.exceptions.NotSupportedHelper
-import com.jetpackduba.gitnuro.domain.git.remote_operations.CredentialsCache
 import com.jetpackduba.gitnuro.domain.models.CredentialsType
 import com.jetpackduba.gitnuro.domain.repositories.CredentialsRepository
 import dagger.assisted.Assisted

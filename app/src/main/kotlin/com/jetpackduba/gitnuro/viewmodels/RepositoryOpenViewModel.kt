@@ -6,12 +6,11 @@ import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
-import com.jetpackduba.gitnuro.domain.git.FileChangesWatcher
-import com.jetpackduba.gitnuro.domain.git.GetWorkspacePathGitAction
-import com.jetpackduba.gitnuro.domain.git.WatcherEvent
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.git.stash.StashChangesGitAction
-import com.jetpackduba.gitnuro.domain.git.workspace.StageUntrackedFileGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
+import com.jetpackduba.gitnuro.domain.interfaces.IGetWorkspacePathGitAction
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.interfaces.IStashChangesGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStageUntrackedFileGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
@@ -53,16 +52,16 @@ private const val TAG = "TabViewModel"
  * across full app recompositions), therefore, tab's content can be recreated with these view models.
  */
 class RepositoryOpenViewModel @Inject constructor(
-    private val getWorkspacePathGitAction: GetWorkspacePathGitAction,
+    private val getWorkspacePathGitAction: IGetWorkspacePathGitAction,
     val diffViewModel: DiffViewModel,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val tabState: TabInstanceRepository,
     val appStateManager: AppStateManager,
-    private val fileChangesWatcher: FileChangesWatcher,
+    private val fileChangesWatcher: IFileChangesWatcher,
     private val getAuthorInfoGitAction: GetAuthorInfoGitAction,
-    private val stashChangesGitAction: StashChangesGitAction,
-    private val stageUntrackedFileGitAction: StageUntrackedFileGitAction,
+    private val stashChangesGitAction: IStashChangesGitAction,
+    private val stageUntrackedFileGitAction: IStageUntrackedFileGitAction,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
     private val tabsManager: TabsManager,

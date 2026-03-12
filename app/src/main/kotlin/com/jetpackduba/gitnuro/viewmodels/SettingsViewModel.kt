@@ -209,7 +209,6 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
-@Stable
 data class SettingsViewState(
     val scaleUi: Float?,
     val theme: Theme,

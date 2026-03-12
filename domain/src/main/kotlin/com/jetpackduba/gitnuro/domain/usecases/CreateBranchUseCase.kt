@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.git.branches.CreateBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICreateBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class CreateBranchUseCase @Inject constructor(
     val tabState: TabInstanceRepository,
-    val createBranchGitAction: CreateBranchGitAction,
+    val createBranchGitAction: ICreateBranchGitAction,
 ) {
     operator fun invoke(branchName: String, target: RevCommit?) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

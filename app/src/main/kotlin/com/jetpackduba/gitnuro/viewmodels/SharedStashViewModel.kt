@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.domain.git.stash.ApplyStashGitAction
-import com.jetpackduba.gitnuro.domain.git.stash.DeleteStashGitAction
-import com.jetpackduba.gitnuro.domain.git.stash.PopStashGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IApplyStashGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IDeleteStashGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IPopStashGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
@@ -21,9 +21,9 @@ interface ISharedStashViewModel {
 }
 
 class SharedStashViewModel @Inject constructor(
-    private val applyStashGitAction: ApplyStashGitAction,
-    private val popStashGitAction: PopStashGitAction,
-    private val deleteStashGitAction: DeleteStashGitAction,
+    private val applyStashGitAction: IApplyStashGitAction,
+    private val popStashGitAction: IPopStashGitAction,
+    private val deleteStashGitAction: IDeleteStashGitAction,
     private val tabState: TabInstanceRepository,
 ) : ISharedStashViewModel {
     override fun applyStash(stashInfo: RevCommit) = tabState.safeProcessing(

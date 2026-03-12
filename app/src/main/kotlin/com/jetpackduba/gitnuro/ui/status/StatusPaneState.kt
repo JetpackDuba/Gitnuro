@@ -1,9 +1,9 @@
 package com.jetpackduba.gitnuro.ui.status
 
 import androidx.compose.ui.text.input.TextFieldValue
-import com.jetpackduba.gitnuro.domain.git.DiffType
-import com.jetpackduba.gitnuro.domain.git.EntryType
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.models.EntryType
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 
 //data class StatusPaneState(

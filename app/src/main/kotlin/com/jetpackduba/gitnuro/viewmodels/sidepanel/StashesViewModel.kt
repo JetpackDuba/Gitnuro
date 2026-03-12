@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
-import com.jetpackduba.gitnuro.domain.git.stash.GetStashListGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetStashListGitAction
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.viewmodels.ISharedStashViewModel
@@ -15,7 +15,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
 
 class StashesViewModel @AssistedInject constructor(
-    private val getStashListGitAction: GetStashListGitAction,
+    private val getStashListGitAction: IGetStashListGitAction,
     private val tabState: TabInstanceRepository,
     private val tabScope: CoroutineScope,
     @Assisted

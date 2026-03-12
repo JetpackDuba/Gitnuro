@@ -6,10 +6,10 @@ import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
-import com.jetpackduba.gitnuro.domain.git.FileChangesWatcher
-import com.jetpackduba.gitnuro.domain.git.repository.InitLocalRepositoryGitAction
-import com.jetpackduba.gitnuro.domain.git.repository.OpenRepositoryGitAction
-import com.jetpackduba.gitnuro.domain.git.repository.OpenSubmoduleRepositoryGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
+import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IOpenRepositoryGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IOpenSubmoduleRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.newErrorNow
@@ -47,12 +47,12 @@ private const val TAG = "TabViewModel"
  * across full app recompositions), therefore, tab's content can be recreated with these view models.
  */
 class RepositoryTabViewModel @AssistedInject constructor(
-    private val initLocalRepositoryGitAction: InitLocalRepositoryGitAction,
-    private val openRepositoryGitAction: OpenRepositoryGitAction,
-    private val openSubmoduleRepositoryGitAction: OpenSubmoduleRepositoryGitAction,
+    private val initLocalRepositoryGitAction: IInitLocalRepositoryGitAction,
+    private val openRepositoryGitAction: IOpenRepositoryGitAction,
+    private val openSubmoduleRepositoryGitAction: IOpenSubmoduleRepositoryGitAction,
     private val tabState: TabInstanceRepository,
     val appStateManager: AppStateManager,
-    private val fileChangesWatcher: FileChangesWatcher,
+    private val fileChangesWatcher: IFileChangesWatcher,
     private val credentialsStateManager: CredentialsStateManager,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,

@@ -1,10 +1,10 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
-import com.jetpackduba.gitnuro.domain.git.branches.CheckoutRefGitAction
-import com.jetpackduba.gitnuro.domain.git.remote_operations.DeleteRemoteBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.remote_operations.PullFromSpecificBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.remote_operations.PushToSpecificBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IDeleteRemoteBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IPullFromSpecificBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IPushToSpecificBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
@@ -26,10 +26,10 @@ interface ISharedRemotesViewModel {
 
 class SharedRemotesViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val deleteRemoteBranchGitAction: DeleteRemoteBranchGitAction,
-    private val checkoutRefGitAction: CheckoutRefGitAction,
-    private val pushToSpecificBranchGitAction: PushToSpecificBranchGitAction,
-    private val pullFromSpecificBranchGitAction: PullFromSpecificBranchGitAction,
+    private val deleteRemoteBranchGitAction: IDeleteRemoteBranchGitAction,
+    private val checkoutRefGitAction: ICheckoutRefGitAction,
+    private val pushToSpecificBranchGitAction: IPushToSpecificBranchGitAction,
+    private val pullFromSpecificBranchGitAction: IPullFromSpecificBranchGitAction,
     private val clipboardManager: ClipboardManager,
 ) : ISharedRemotesViewModel {
 

@@ -6,8 +6,8 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusEntry
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusType
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.StatusType
 import com.jetpackduba.gitnuro.theme.addFile
 import com.jetpackduba.gitnuro.theme.conflictFile
 import com.jetpackduba.gitnuro.theme.modifyFile

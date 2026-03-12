@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.git.branches.MergeBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
@@ -11,7 +11,7 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class BranchMergeUseCase @Inject constructor(
-    private val mergeBranchGitAction: MergeBranchGitAction,
+    private val mergeBranchGitAction: IMergeBranchGitAction,
   //  private val appSettingsRepository: AppSettingsRepository,
     private val tabState: TabInstanceRepository,
 ) {

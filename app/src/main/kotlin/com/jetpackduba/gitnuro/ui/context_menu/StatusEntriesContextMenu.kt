@@ -1,9 +1,9 @@
 package com.jetpackduba.gitnuro.ui.context_menu
 
 import com.jetpackduba.gitnuro.app.generated.resources.*
-import com.jetpackduba.gitnuro.domain.git.EntryType
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusEntry
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusType
+import com.jetpackduba.gitnuro.domain.models.EntryType
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.StatusType
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 

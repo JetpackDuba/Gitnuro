@@ -2,8 +2,8 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
-import com.jetpackduba.gitnuro.domain.git.log.CheckoutCommitGitAction
-import com.jetpackduba.gitnuro.domain.git.tags.GetTagsGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetTagsGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -22,8 +22,8 @@ import org.eclipse.jgit.lib.Ref
 
 class TagsViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val getTagsGitAction: GetTagsGitAction,
-    private val checkoutCommitGitAction: CheckoutCommitGitAction,
+    private val getTagsGitAction: IGetTagsGitAction,
+    private val checkoutCommitGitAction: ICheckoutCommitGitAction,
     tabScope: CoroutineScope,
     sharedTagsViewModel: SharedTagsViewModel,
     @Assisted

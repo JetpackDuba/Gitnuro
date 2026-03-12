@@ -15,6 +15,8 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override val localBranches: Flow<List<Ref>>
         field = MutableStateFlow<List<Ref>>(emptyList())
+    override val currentBranch: Flow<Ref?>
+        field = MutableStateFlow<Ref?>(null)
 
     override val tags: Flow<List<Ref>>
         field = MutableStateFlow(emptyList())
@@ -41,11 +43,19 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         this.localBranches.value = branches
     }
 
+    override fun updateCurrentBranch(branch: Ref?) {
+        this.currentBranch.value = branch
+    }
+
     override fun updateTags(tags: List<Ref>) {
         this.tags.value = tags
     }
 
     override fun updateLog(graphCommitList: GraphCommitList) {
         this.log.value = graphCommitList
+    }
+
+    override fun updateRemotes(remotes: List<Remote>) {
+        this.remotes.value = remotes
     }
 }

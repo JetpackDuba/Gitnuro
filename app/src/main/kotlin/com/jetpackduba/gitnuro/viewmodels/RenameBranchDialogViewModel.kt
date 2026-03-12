@@ -4,8 +4,8 @@ import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.git.branches.RenameBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.SetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IRenameBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ISetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -13,12 +13,11 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.eclipse.jgit.lib.Ref
-import javax.inject.Inject
 
 class RenameBranchDialogViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val renameBranchGitAction: RenameBranchGitAction,
-    private val setTrackingBranchGitAction: SetTrackingBranchGitAction,
+    private val renameBranchGitAction: IRenameBranchGitAction,
+    private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
     @Assisted val branch: Ref,
 ) : TabViewModel() {
     @AssistedFactory

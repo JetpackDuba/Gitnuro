@@ -1,18 +1,16 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
-import com.jetpackduba.gitnuro.domain.exceptions.InvalidRemoteUrlException
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
-import com.jetpackduba.gitnuro.domain.git.branches.DeleteLocallyRemoteBranchesGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.GetCurrentBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.GetRemoteBranchesGitAction
-import com.jetpackduba.gitnuro.domain.git.remote_operations.FetchAllRemotesGitAction
-import com.jetpackduba.gitnuro.domain.git.remotes.*
+import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.Remote
+import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.AddRemoteUseCase
+import com.jetpackduba.gitnuro.domain.usecases.UpdateRemoteUseCase
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
@@ -26,22 +24,23 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.RemoteSetUrlCommand
 import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skiko.ClipboardManager
 
 class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val getRemoteBranchesGitAction: GetRemoteBranchesGitAction,
-    private val getRemotesGitAction: GetRemotesGitAction,
-    private val getCurrentBranchGitAction: GetCurrentBranchGitAction,
-    private val deleteRemoteGitAction: DeleteRemoteGitAction,
-    private val fetchAllRemotesGitAction: FetchAllRemotesGitAction,
-    private val addRemoteGitAction: AddRemoteGitAction,
-    private val updateRemoteGitAction: UpdateRemoteGitAction,
-    private val deleteLocallyRemoteBranchesGitAction: DeleteLocallyRemoteBranchesGitAction,
+    private val getRemoteBranchesGitAction: IGetRemoteBranchesGitAction,
+    private val getRemotesGitAction: IGetRemotesGitAction,
+    private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
+    private val deleteRemoteGitAction: IDeleteRemoteGitAction,
+    private val fetchAllRemotesGitAction: IFetchAllRemotesGitAction,
+    private val addRemoteGitAction: IAddRemoteGitAction,
+    private val updateRemoteGitAction: IUpdateRemoteGitAction,
+    private val deleteLocallyRemoteBranchesGitAction: IDeleteLocallyRemoteBranchesGitAction,
     private val sharedBranchesViewModel: SharedBranchesViewModel,
     private val clipboardManager: ClipboardManager,
+    private val addRemoteUseCase: AddRemoteUseCase,
+    private val updateRemoteUseCase: UpdateRemoteUseCase,
     tabScope: CoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
@@ -154,52 +153,9 @@ class RemotesViewModel @AssistedInject constructor(
     }
 
 
-    fun addRemote(selectedRemoteConfig: Remote) = tabState.runOperation(
-        refreshType = RefreshType.REMOTES,
-        showError = true,
-    ) { git ->
-        if (selectedRemoteConfig.fetchUri.isBlank()) {
-            throw InvalidRemoteUrlException("Invalid empty fetch URI")
-        }
+    fun addRemote(selectedRemoteConfig: Remote) = addRemoteUseCase(selectedRemoteConfig)
 
-        if (selectedRemoteConfig.pushUri.isBlank()) {
-            throw InvalidRemoteUrlException("Invalid empty push URI")
-        }
-
-        addRemoteGitAction(git, selectedRemoteConfig.remoteName, selectedRemoteConfig.fetchUri)
-
-        updateRemote(selectedRemoteConfig) // Sets both, fetch and push uri
-    }
-
-    fun updateRemote(selectedRemoteConfig: Remote) = tabState.runOperation(
-        refreshType = RefreshType.REMOTES,
-        showError = true,
-    ) { git ->
-
-        if (selectedRemoteConfig.fetchUri.isBlank()) {
-            throw InvalidRemoteUrlException("Invalid empty fetch URI")
-        }
-
-        if (selectedRemoteConfig.pushUri.isBlank()) {
-            throw InvalidRemoteUrlException("Invalid empty push URI")
-        }
-
-        updateRemoteGitAction(
-            git = git,
-            remoteName = selectedRemoteConfig.remoteName,
-            uri = selectedRemoteConfig.fetchUri,
-            uriType = RemoteSetUrlCommand.UriType.FETCH
-        )
-
-        updateRemoteGitAction(
-            git = git,
-            remoteName = selectedRemoteConfig.remoteName,
-            uri = selectedRemoteConfig.pushUri,
-            uriType = RemoteSetUrlCommand.UriType.PUSH
-        )
-
-        _remoteUpdated.emit(Unit)
-    }
+    fun updateRemote(selectedRemoteConfig: Remote) = addRemoteUseCase(selectedRemoteConfig)
 
     override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,

@@ -2,12 +2,12 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
-import com.jetpackduba.gitnuro.domain.git.branches.GetRemoteBranchesGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.GetTrackingBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.SetTrackingBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.branches.TrackingBranch
-import com.jetpackduba.gitnuro.domain.git.remotes.GetRemotesGitAction
-import com.jetpackduba.gitnuro.domain.git.remotes.RemoteInfo
+import com.jetpackduba.gitnuro.domain.interfaces.IGetRemoteBranchesGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ISetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.TrackingBranch
+import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import dagger.assisted.Assisted
@@ -19,10 +19,10 @@ import org.eclipse.jgit.lib.Ref
 
 class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val getRemoteBranchesGitAction: GetRemoteBranchesGitAction,
-    private val getRemotesGitAction: GetRemotesGitAction,
-    private val getTrackingBranchGitAction: GetTrackingBranchGitAction,
-    private val setTrackingBranchGitAction: SetTrackingBranchGitAction,
+    private val getRemoteBranchesGitAction: IGetRemoteBranchesGitAction,
+    private val getRemotesGitAction: IGetRemotesGitAction,
+    private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
+    private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
     @Assisted private val branch: Ref,
 ) : TabViewModel() {
 

@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.git.rebase.AbortRebaseGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.SkipRebaseGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IAbortRebaseGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -10,7 +9,7 @@ import javax.inject.Inject
 
 class RebaseAbortUseCase @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val abortRebaseGitAction: AbortRebaseGitAction,
+    private val abortRebaseGitAction: IAbortRebaseGitAction,
 ) {
     operator fun invoke() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

@@ -12,12 +12,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.jetpackduba.gitnuro.di.DaggerTabComponent
 
 @Singleton
 class TabsManager @Inject constructor(
     private val appSettingsRepository: DataStoreAppSettingsRepository,
-    private val appComponent: AppComponent,
+    private val tabComponentFactory: TabComponent.Factory,
 ) {
     private val _tabsFlow = MutableStateFlow<List<TabInformation>>(emptyList())
     val tabsFlow: StateFlow<List<TabInformation>> = _tabsFlow
@@ -139,9 +138,7 @@ class TabsManager @Inject constructor(
         tabName: MutableState<String> = mutableStateOf(TabInformation.NEW_TAB_DEFAULT_NAME),
         path: String? = null,
     ): TabInformation {
-        val tabComponent: TabComponent = DaggerTabComponent.builder()
-            .appComponent(appComponent)
-            .build()
+        val tabComponent: TabComponent = tabComponentFactory.create()
 
         val tabInformation = tabComponent
             .tabInformationFactory().create(

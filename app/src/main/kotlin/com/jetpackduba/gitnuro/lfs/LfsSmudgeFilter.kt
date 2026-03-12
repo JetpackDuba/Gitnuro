@@ -1,6 +1,9 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.common.Either
+import com.jetpackduba.gitnuro.data.git.lfs.AuthenticateLfsServerWithSshGitAction
+import com.jetpackduba.gitnuro.data.git.lfs.DownloadLfsObjectGitAction
+import com.jetpackduba.gitnuro.data.git.lfs.GetLfsObjectsGitAction
 import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch
@@ -33,9 +36,9 @@ class LfsSmudgeFilter @AssistedInject constructor(
     @Assisted input: InputStream,
     @Assisted output: OutputStream,
     private val getLfsUrlGitAction: GetLfsUrlGitAction,
-    private val getLfsObjectsGitAction: com.jetpackduba.gitnuro.domain.git.lfs.GetLfsObjectsGitAction,
-    private val authenticateLfsServerWithSshGitAction: com.jetpackduba.gitnuro.domain.git.lfs.AuthenticateLfsServerWithSshGitAction,
-    private val downloadLfsObjectGitAction: com.jetpackduba.gitnuro.domain.git.lfs.DownloadLfsObjectGitAction,
+    private val getLfsObjectsGitAction: GetLfsObjectsGitAction,
+    private val authenticateLfsServerWithSshGitAction: AuthenticateLfsServerWithSshGitAction,
+    private val downloadLfsObjectGitAction: DownloadLfsObjectGitAction,
 ) : FilterCommand(
     if (input.markSupported()) input else BufferedInputStream(input),
     output,

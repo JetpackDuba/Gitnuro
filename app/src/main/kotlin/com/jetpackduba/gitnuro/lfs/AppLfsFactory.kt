@@ -1,6 +1,10 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.common.Either
+import com.jetpackduba.gitnuro.data.git.lfs.AuthenticateLfsServerWithSshGitAction
+import com.jetpackduba.gitnuro.data.git.lfs.GetLfsObjectsGitAction
+import com.jetpackduba.gitnuro.data.git.lfs.UploadLfsObjectGitAction
+import com.jetpackduba.gitnuro.data.git.lfs.VerifyUploadLfsObjectGitAction
 import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch
@@ -148,10 +152,10 @@ class LfsPrePushHook @AssistedInject constructor(
     @Assisted("outputStream") outputStream: PrintStream?,
     @Assisted("errorStream") errorStream: PrintStream?,
     private val getLfsUrlGitAction: GetLfsUrlGitAction,
-    private val getLfsObjectsGitAction: com.jetpackduba.gitnuro.domain.git.lfs.GetLfsObjectsGitAction,
-    private val uploadLfsObjectGitAction: com.jetpackduba.gitnuro.domain.git.lfs.UploadLfsObjectGitAction,
-    private val verifyUploadLfsObjectGitAction: com.jetpackduba.gitnuro.domain.git.lfs.VerifyUploadLfsObjectGitAction,
-    private val authenticateLfsServerWithSshGitAction: com.jetpackduba.gitnuro.domain.git.lfs.AuthenticateLfsServerWithSshGitAction,
+    private val getLfsObjectsGitAction: GetLfsObjectsGitAction,
+    private val uploadLfsObjectGitAction: UploadLfsObjectGitAction,
+    private val verifyUploadLfsObjectGitAction: VerifyUploadLfsObjectGitAction,
+    private val authenticateLfsServerWithSshGitAction: AuthenticateLfsServerWithSshGitAction,
 ) : PrePushHook(repository, outputStream, errorStream) {
     private var refs: Collection<RemoteRefUpdate> = emptyList()
 

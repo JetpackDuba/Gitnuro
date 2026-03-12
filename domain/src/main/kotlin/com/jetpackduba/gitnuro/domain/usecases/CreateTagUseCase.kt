@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.extensions.shortName
-import com.jetpackduba.gitnuro.domain.git.tags.CreateTagGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICreateTagGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class CreateTagUseCase @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val createTagGitAction: CreateTagGitAction,
+    private val createTagGitAction: ICreateTagGitAction,
 ) {
     operator fun invoke(tag: String, revCommit: RevCommit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

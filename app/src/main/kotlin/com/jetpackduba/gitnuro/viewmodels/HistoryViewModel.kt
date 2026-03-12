@@ -4,13 +4,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.domain.extensions.filePath
-import com.jetpackduba.gitnuro.domain.git.DiffType
+import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.git.diff.DiffResult
-import com.jetpackduba.gitnuro.domain.git.diff.FormatDiffGitAction
-import com.jetpackduba.gitnuro.domain.git.diff.GenerateSplitHunkFromDiffResultGitAction
-import com.jetpackduba.gitnuro.domain.git.diff.GetCommitDiffEntriesGitAction
+import com.jetpackduba.gitnuro.domain.models.DiffResult
+import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
@@ -24,10 +24,10 @@ import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val formatDiffGitAction: FormatDiffGitAction,
-    private val getCommitDiffEntriesGitAction: GetCommitDiffEntriesGitAction,
+    private val formatDiffGitAction: IFormatDiffGitAction,
+    private val getCommitDiffEntriesGitAction: IGetCommitDiffEntriesGitAction,
+    private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
     private val settings: AppSettingsService,
-    private val generateSplitHunkFromDiffResultGitAction: GenerateSplitHunkFromDiffResultGitAction,
     private val tabScope: CoroutineScope,
     private val appSettingsRepository: DataStoreAppSettingsRepository,
 ) {

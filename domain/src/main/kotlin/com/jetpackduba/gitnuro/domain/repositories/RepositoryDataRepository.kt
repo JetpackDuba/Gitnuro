@@ -9,6 +9,7 @@ import org.eclipse.jgit.lib.Ref
 interface RepositoryDataRepository {
     val status: Flow<Status>
     val localBranches: Flow<List<Ref>>
+    val currentBranch: Flow<Ref?>
     val tags: Flow<List<Ref>>
     val remotes: Flow<List<Remote>>
     val log: Flow<GraphCommitList>
@@ -16,6 +17,8 @@ interface RepositoryDataRepository {
     fun clearAll()
     fun updateStatus(status: Status)
     fun updateLocalBranches(branches: List<Ref>)
+    fun updateCurrentBranch(branch: Ref?)
     fun updateTags(tags: List<Ref>)
     fun updateLog(graphCommitList: GraphCommitList)
+    fun updateRemotes(remotes: List<Remote>)
 }

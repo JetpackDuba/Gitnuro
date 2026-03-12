@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
-import com.jetpackduba.gitnuro.domain.git.submodules.*
+import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -17,12 +17,12 @@ import org.eclipse.jgit.submodule.SubmoduleStatus
 
 class SubmodulesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val getSubmodulesGitAction: GetSubmodulesGitAction,
-    private val initializeSubmoduleGitAction: InitializeSubmoduleGitAction,
-    private val updateSubmoduleGitAction: UpdateSubmoduleGitAction,
-    private val syncSubmoduleGitAction: SyncSubmoduleGitAction,
-    private val deInitializeSubmoduleGitAction: DeInitializeSubmoduleGitAction,
-    private val deleteSubmoduleGitAction: DeleteSubmoduleGitAction,
+    private val getSubmodulesGitAction: IGetSubmodulesGitAction,
+    private val initializeSubmoduleGitAction: IInitializeSubmoduleGitAction,
+    private val updateSubmoduleGitAction: IUpdateSubmoduleGitAction,
+    private val syncSubmoduleGitAction: ISyncSubmoduleGitAction,
+    private val deInitializeSubmoduleGitAction: IDeInitializeSubmoduleGitAction,
+    private val deleteSubmoduleGitAction: IDeleteSubmoduleGitAction,
     private val tabScope: CoroutineScope,
     private val tabsManager: TabsManager,
     @Assisted

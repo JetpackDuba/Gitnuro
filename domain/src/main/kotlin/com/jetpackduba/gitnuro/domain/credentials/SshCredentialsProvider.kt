@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.domain.credentials
 
-import com.jetpackduba.gitnuro.domain.git.remote_operations.CredentialsCache
 import com.jetpackduba.gitnuro.domain.models.CredentialsType
 import com.jetpackduba.gitnuro.domain.repositories.CredentialsRepository
 import kotlinx.coroutines.runBlocking

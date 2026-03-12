@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IRebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
@@ -11,7 +11,7 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class BranchRebaseUseCase @Inject constructor(
-    private val rebaseBranchGitAction: RebaseBranchGitAction,
+    private val rebaseBranchGitAction: IRebaseBranchGitAction,
     private val tabState: TabInstanceRepository,
 ) {
 

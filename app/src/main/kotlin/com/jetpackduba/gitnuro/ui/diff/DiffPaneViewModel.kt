@@ -5,15 +5,26 @@ import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
-import com.jetpackduba.gitnuro.domain.git.DiffType
+import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.git.diff.*
-import com.jetpackduba.gitnuro.domain.git.workspace.*
-import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
+import com.jetpackduba.gitnuro.domain.interfaces.IDiscardUnstagedHunkLineGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IResetHunkGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStageEntryGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStageHunkGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStageHunkLineGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IUnstageEntryGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IUnstageHunkGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IUnstageHunkLineGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.DiffResult
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
+import com.jetpackduba.gitnuro.domain.models.Hunk
+import com.jetpackduba.gitnuro.domain.models.Line
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppGitAction
 import com.jetpackduba.gitnuro.ui.TabsManager
@@ -30,18 +41,18 @@ private const val DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD = 200L
 
 class DiffViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val formatDiffGitAction: FormatDiffGitAction,
-    private val stageHunkGitAction: StageHunkGitAction,
-    private val unstageHunkGitAction: UnstageHunkGitAction,
-    private val stageHunkLineGitAction: StageHunkLineGitAction,
-    private val unstageHunkLineGitAction: UnstageHunkLineGitAction,
-    private val resetHunkGitAction: ResetHunkGitAction,
-    private val stageEntryGitAction: StageEntryGitAction,
-    private val unstageEntryGitAction: UnstageEntryGitAction,
+    private val formatDiffGitAction: IFormatDiffGitAction,
+    private val stageHunkGitAction: IStageHunkGitAction,
+    private val unstageHunkGitAction: IUnstageHunkGitAction,
+    private val stageHunkLineGitAction: IStageHunkLineGitAction,
+    private val unstageHunkLineGitAction: IUnstageHunkLineGitAction,
+    private val resetHunkGitAction: IResetHunkGitAction,
+    private val stageEntryGitAction: IStageEntryGitAction,
+    private val unstageEntryGitAction: IUnstageEntryGitAction,
+    private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
+    private val discardUnstagedHunkLineGitAction: IDiscardUnstagedHunkLineGitAction,
     private val openFileInExternalAppGitAction: OpenFileInExternalAppGitAction,
     private val settings: AppSettingsService,
-    private val generateSplitHunkFromDiffResultGitAction: GenerateSplitHunkFromDiffResultGitAction,
-    private val discardUnstagedHunkLineGitAction: DiscardUnstagedHunkLineGitAction,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
     private val selectedDiffTypeRepository: SelectedDiffItemRepository,

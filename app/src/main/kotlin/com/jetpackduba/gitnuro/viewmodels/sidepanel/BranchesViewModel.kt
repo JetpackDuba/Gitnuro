@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 import com.jetpackduba.gitnuro.data.repositories.BranchesRepository
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedBranchesViewModel
@@ -20,14 +21,14 @@ private const val TAG = "BranchesViewModel"
 
 class BranchesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val branchesRepository: BranchesRepository,
+    private val repositoryDataRepository: RepositoryDataRepository,
     tabScope: CoroutineScope,
     sharedBranchesViewModel: SharedBranchesViewModel,
     @Assisted
     private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(true), ISharedBranchesViewModel by sharedBranchesViewModel {
-    private val branches = branchesRepository.branches
-    private val currentBranch = branchesRepository.currentBranch
+    private val branches = repositoryDataRepository.localBranches
+    private val currentBranch = repositoryDataRepository.currentBranch
 
     val branchesState =
         combine(branches, currentBranch, isExpanded, filter) { branches, currentBranch, isExpanded, filter ->

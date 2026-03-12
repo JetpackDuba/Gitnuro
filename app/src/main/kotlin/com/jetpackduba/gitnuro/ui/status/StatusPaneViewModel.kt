@@ -10,20 +10,14 @@ import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.data.repositories.DiffSelected
 import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.extensions.*
-import com.jetpackduba.gitnuro.domain.git.DiffType
-import com.jetpackduba.gitnuro.domain.git.EntryType
-import com.jetpackduba.gitnuro.domain.git.author.LoadAuthorGitAction
-import com.jetpackduba.gitnuro.domain.git.author.SaveAuthorGitAction
-import com.jetpackduba.gitnuro.domain.git.log.GetLastCommitMessageGitAction
-import com.jetpackduba.gitnuro.domain.git.log.GetSpecificCommitMessageGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.AbortRebaseGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.ContinueRebaseGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.git.rebase.SkipRebaseGitAction
-import com.jetpackduba.gitnuro.domain.git.repository.ResetRepositoryStateGitAction
-import com.jetpackduba.gitnuro.domain.git.workspace.*
+import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.models.EntryType
+import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.AuthorInfo
+import com.jetpackduba.gitnuro.domain.models.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.StatusType
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
@@ -56,23 +50,23 @@ class StatusPaneViewModel @Inject constructor(
     private val stageUseCase: StatusStageUseCase,
     private val stageAllUseCase: StatusStageAllUseCase,
     private val unstageAllUseCase: StatusUnstageAllUseCase,
-    private val stageByDirectoryGitAction: StageByDirectoryGitAction,
-    private val unstageByDirectoryGitAction: UnstageByDirectoryGitAction,
-    private val discardEntriesGitAction: DiscardEntriesGitAction,
-    private val stageAllGitAction: StageAllGitAction,
-    private val unstageAllGitAction: UnstageAllGitAction,
-    private val getLastCommitMessageGitAction: GetLastCommitMessageGitAction,
-    private val resetRepositoryStateGitAction: ResetRepositoryStateGitAction,
-    private val continueRebaseGitAction: ContinueRebaseGitAction,
-    private val abortRebaseGitAction: AbortRebaseGitAction,
-    private val skipRebaseGitAction: SkipRebaseGitAction,
-    private val getStatusGitAction: GetStatusGitAction,
-    private val checkHasUncommittedChangesGitAction: CheckHasUncommittedChangesGitAction,
-    private val doCommitGitAction: DoCommitGitAction,
-    private val loadAuthorGitAction: LoadAuthorGitAction,
-    private val saveAuthorGitAction: SaveAuthorGitAction,
+    private val stageByDirectoryGitAction: IStageByDirectoryGitAction,
+    private val unstageByDirectoryGitAction: IUnstageByDirectoryGitAction,
+    private val discardEntriesGitAction: IDiscardEntriesGitAction,
+    private val stageAllGitAction: IStageAllGitAction,
+    private val unstageAllGitAction: IUnstageAllGitAction,
+    private val getLastCommitMessageGitAction: IGetLastCommitMessageGitAction,
+    private val resetRepositoryStateGitAction: IResetRepositoryStateGitAction,
+    private val continueRebaseGitAction: IContinueRebaseGitAction,
+    private val abortRebaseGitAction: IAbortRebaseGitAction,
+    private val skipRebaseGitAction: ISkipRebaseGitAction,
+    private val getStatusGitAction: IGetStatusGitAction,
+    private val checkHasUncommittedChangesGitAction: ICheckHasUncommittedChangesGitAction,
+    private val doCommitGitAction: IDoCommitGitAction,
+    private val loadAuthorGitAction: ILoadAuthorGitAction,
+    private val saveAuthorGitAction: ISaveAuthorGitAction,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
-    private val getSpecificCommitMessageGitAction: GetSpecificCommitMessageGitAction,
+    private val getSpecificCommitMessageGitAction: IGetSpecificCommitMessageGitAction,
     private val appSettings: AppSettingsService,
     private val tabScope: CoroutineScope,
     private val selectedDiffItemRepository: SelectedDiffItemRepository,

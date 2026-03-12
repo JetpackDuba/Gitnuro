@@ -2,8 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.domain.exceptions.RebaseCancelledException
-import com.jetpackduba.gitnuro.domain.git.rebase.*
-import com.jetpackduba.gitnuro.domain.git.repository.GetRepositoryStateGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -19,12 +18,12 @@ private const val TAG = "RebaseInteractiveViewMo"
 
 class RebaseInteractiveViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val getRebaseLinesFullMessageGitAction: GetRebaseLinesFullMessageGitAction,
-    private val getCommitFromRebaseLineGitAction: GetCommitFromRebaseLineGitAction,
-    private val getRebaseInteractiveTodoLinesGitAction: GetRebaseInteractiveTodoLinesGitAction,
-    private val abortRebaseGitAction: AbortRebaseGitAction,
-    private val resumeRebaseInteractiveGitAction: ResumeRebaseInteractiveGitAction,
-    private val getRepositoryStateGitAction: GetRepositoryStateGitAction,
+    private val getRebaseLinesFullMessageGitAction: IGetRebaseLinesFullMessageGitAction,
+    private val getCommitFromRebaseLineGitAction: IGetCommitFromRebaseLineGitAction,
+    private val getRebaseInteractiveTodoLinesGitAction: IGetRebaseInteractiveTodoLinesGitAction,
+    private val abortRebaseGitAction: IAbortRebaseGitAction,
+    private val resumeRebaseInteractiveGitAction: IResumeRebaseInteractiveGitAction,
+    private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
 ) {
     private val _rebaseState = MutableStateFlow<RebaseInteractiveViewState>(RebaseInteractiveViewState.Loading)
     val rebaseState: StateFlow<RebaseInteractiveViewState> = _rebaseState

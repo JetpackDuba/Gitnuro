@@ -2,6 +2,8 @@ package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
+import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.Repository
@@ -12,8 +14,8 @@ import javax.inject.Inject
 private const val TAG = "LfsRepository"
 
 class GetLfsUrlGitAction @Inject constructor(
-    private val getTrackingBranchGitAction: com.jetpackduba.gitnuro.domain.git.branches.GetTrackingBranchGitAction,
-    private val getCurrentBranchGitAction: com.jetpackduba.gitnuro.domain.git.branches.GetCurrentBranchGitAction,
+    private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
+    private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
 ) {
     suspend operator fun invoke(repository: Repository, remoteName: String?): String? {
         val git = Git(repository)

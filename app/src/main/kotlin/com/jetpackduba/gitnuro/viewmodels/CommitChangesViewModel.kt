@@ -10,8 +10,8 @@ import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.fullData
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
-import com.jetpackduba.gitnuro.domain.git.DiffType
-import com.jetpackduba.gitnuro.domain.git.diff.GetCommitDiffEntriesGitAction
+import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -32,7 +32,7 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 300L
 
 class CommitChangesViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val getCommitDiffEntriesGitAction: GetCommitDiffEntriesGitAction,
+    private val getCommitDiffEntriesGitAction: IGetCommitDiffEntriesGitAction,
     private val appSettings: AppSettingsService,
     private val tabScope: CoroutineScope,
     private val selectedDiffItemRepository: SelectedDiffItemRepository,

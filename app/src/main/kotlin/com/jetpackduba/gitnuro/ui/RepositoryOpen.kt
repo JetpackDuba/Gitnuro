@@ -19,8 +19,8 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_email_not_set
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_name_and_email
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_name_not_set
-import com.jetpackduba.gitnuro.domain.git.rebase.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.git.remote_operations.PullType
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.handMouseClickable

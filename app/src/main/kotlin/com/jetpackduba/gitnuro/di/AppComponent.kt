@@ -7,6 +7,8 @@ import com.jetpackduba.gitnuro.di.modules.RepositoriesModule
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.data.repositories.CredentialsCacheRepository
 import com.jetpackduba.gitnuro.di.modules.AppModule
+import com.jetpackduba.gitnuro.di.modules.FileWatcherModule
+import com.jetpackduba.gitnuro.di.modules.GitActionsModule
 import com.jetpackduba.gitnuro.di.modules.GitCredentialsManagerModule
 import com.jetpackduba.gitnuro.di.modules.NetworkModule
 import com.jetpackduba.gitnuro.di.modules.ShellModule
@@ -36,10 +38,13 @@ import javax.inject.Singleton
         GitCredentialsManagerModule::class,
         RepositoriesModule::class,
         DatastoreModule::class,
+        GitActionsModule::class,
     ]
 )
 interface AppComponent {
     fun app(): App
+    fun tabComponentFactory(): TabComponent.Factory
+
     fun appStateManager(): AppStateManager
     fun settingsViewModel(): SettingsViewModel
 

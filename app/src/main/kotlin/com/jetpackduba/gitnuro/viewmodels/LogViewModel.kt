@@ -3,17 +3,17 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.domain.extensions.shortName
-import com.jetpackduba.gitnuro.domain.git.branches.GetCurrentBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
-import com.jetpackduba.gitnuro.domain.git.log.CheckoutCommitGitAction
-import com.jetpackduba.gitnuro.domain.git.log.CherryPickCommitGitAction
-import com.jetpackduba.gitnuro.domain.git.log.GetLogGitAction
-import com.jetpackduba.gitnuro.domain.git.log.RevertCommitGitAction
-import com.jetpackduba.gitnuro.domain.git.rebase.StartRebaseInteractiveGitAction
-import com.jetpackduba.gitnuro.domain.git.workspace.CheckHasUncommittedChangesGitAction
-import com.jetpackduba.gitnuro.domain.git.workspace.GetStatusSummaryGitAction
-import com.jetpackduba.gitnuro.domain.git.workspace.StatusSummary
+import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICheckHasUncommittedChangesGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusSummaryGitAction
+import com.jetpackduba.gitnuro.domain.models.StatusSummary
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
@@ -50,14 +50,14 @@ private const val INITIAL_COMMITS_LOAD = 2000
 const val INCREMENTAL_COMMITS_LOAD = 1000
 
 class LogViewModel @Inject constructor(
-    private val getLogGitAction: GetLogGitAction,
-    private val getStatusSummaryGitAction: GetStatusSummaryGitAction,
-    private val checkHasUncommittedChangesGitAction: CheckHasUncommittedChangesGitAction,
-    private val getCurrentBranchGitAction: GetCurrentBranchGitAction,
-    private val checkoutCommitGitAction: CheckoutCommitGitAction,
-    private val revertCommitGitAction: RevertCommitGitAction,
-    private val cherryPickCommitGitAction: CherryPickCommitGitAction,
-    private val startRebaseInteractiveGitAction: StartRebaseInteractiveGitAction,
+    private val getLogGitAction: IGetLogGitAction,
+    private val getStatusSummaryGitAction: IGetStatusSummaryGitAction,
+    private val checkHasUncommittedChangesGitAction: ICheckHasUncommittedChangesGitAction,
+    private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
+    private val checkoutCommitGitAction: ICheckoutCommitGitAction,
+    private val revertCommitGitAction: IRevertCommitGitAction,
+    private val cherryPickCommitGitAction: ICherryPickCommitGitAction,
+    private val startRebaseInteractiveGitAction: IStartRebaseInteractiveGitAction,
     private val tabState: TabInstanceRepository,
     private val tabScope: CoroutineScope,
     private val clipboardManager: ClipboardManager,

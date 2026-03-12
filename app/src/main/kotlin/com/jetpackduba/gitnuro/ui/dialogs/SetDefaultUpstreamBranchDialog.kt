@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
-import com.jetpackduba.gitnuro.domain.git.remotes.RemoteInfo
+import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
