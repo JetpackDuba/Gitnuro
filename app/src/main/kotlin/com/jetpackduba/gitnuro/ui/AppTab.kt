@@ -95,6 +95,7 @@ fun AppTab(
             dialogProperties = DialogProperties(
                 scrimColor = MaterialTheme.colors.dialogOverlay,
                 dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false,
             )
         )
 
