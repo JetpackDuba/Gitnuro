@@ -23,7 +23,7 @@ fun Instant.toSmartSystemString(
     val currentTime = LocalDate.now(zoneId)
 
     val formattedDate = if (
-        dateTimeFormat.useRelativeDate!! &&
+        dateTimeFormat.useRelativeDate &&
         allowRelative &&
         localDate.isTodayOrYesterday(currentTime)
     ) {
@@ -33,9 +33,11 @@ fun Instant.toSmartSystemString(
             "Yesterday"
     } else {
         val systemLocale = System.getProperty("user.language")
-        val locale = Locale(systemLocale)
+        val locale = Locale.Builder()
+            .setLanguageTag(systemLocale)
+            .build()
 
-        val formatter = if (useSystemDefault!!) {
+        val formatter = if (useSystemDefault) {
             DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
         } else {
             DateTimeFormatter.ofPattern(dateTimeFormat.customFormat, locale)
@@ -47,9 +49,9 @@ fun Instant.toSmartSystemString(
     val formattedTime = if (showTime) {
         val localDateTime = atZone(zoneId).toLocalDateTime()
 
-        val timeFormatter = if (useSystemDefault!!) {
+        val timeFormatter = if (useSystemDefault) {
             DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        } else if (dateTimeFormat.is24hours!!) {
+        } else if (dateTimeFormat.is24hours) {
             DateTimeFormatter.ofPattern("HH:mm")
         } else {
             DateTimeFormatter.ofPattern("hh:mm a")

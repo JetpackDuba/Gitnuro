@@ -139,8 +139,19 @@ class App @Inject constructor(
             val scale = appSettings.scaleUi.collectAsState(null).value
             val linesHeightType by appSettings.linesHeightType.collectAsState(LinesHeightType.SPACED)
             val avatarProviderType by appSettings.avatarProvider.collectAsState(AvatarProviderType.None)
-            val dateTimeFormat =
-                DateTimeFormat(true, null, true, true)//by appSettingsRepository.dateTimeFormatFlow.collectAsState()
+            val dateFormatUseDefault by appSettings.dateFormatUseDefault.collectAsState(AppSettingsService.DEFAULT_DATE_USE_DEFAULT)
+            val dateFormatCustomFormat by appSettings.dateFormatCustomFormat.collectAsState(AppSettingsService.DEFAULT_DATE_CUSTOM_FORMAT)
+            val dateFormatIs24h by appSettings.dateFormatIs24h.collectAsState(AppSettingsService.DEFAULT_DATE_IS_24H)
+            val dateFormatUseRelative by appSettings.dateFormatUseRelative.collectAsState(AppSettingsService.DEFAULT_DATE_USE_RELATIVE)
+
+            val dateFormat by derivedStateOf {
+                DateTimeFormat(
+                    useSystemDefault = dateFormatUseDefault,
+                    customFormat = dateFormatCustomFormat,
+                    is24hours = dateFormatIs24h,
+                    useRelativeDate = dateFormatUseRelative,
+                )
+            }
 
             val windowState = rememberWindowState(
                 placement = windowPlacement,
@@ -183,7 +194,7 @@ class App @Inject constructor(
                 }
 
                 compositionValues.add(LocalAvatarProvider provides avatarProvider)
-                compositionValues.add(LocalDateTimeFormat provides dateTimeFormat)
+                compositionValues.add(LocalDateTimeFormat provides dateFormat)
 
                 CompositionLocalProvider(
                     values = compositionValues.toTypedArray()
