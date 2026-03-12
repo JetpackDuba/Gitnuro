@@ -10,7 +10,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelChildren
 
 open class TabViewModel {
-    val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     open fun onClear() {
         viewModelScope.coroutineContext.cancelChildren()

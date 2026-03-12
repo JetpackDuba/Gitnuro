@@ -6,5 +6,5 @@ import kotlinx.coroutines.SupervisorJob
 import kotlin.coroutines.CoroutineContext
 
 class TabCoroutineScope : CoroutineScope {
-    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Main
+    override val coroutineContext: CoroutineContext = SupervisorJob() + Dispatchers.Default
 }
