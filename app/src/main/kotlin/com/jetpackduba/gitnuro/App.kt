@@ -79,7 +79,7 @@ sealed interface Screen : NavKey {
     data class BranchCreate(val targetCommit: RevCommit?) : Screen
     data class TagCreate(val targetCommit: RevCommit) : Screen
     data class BranchReset(val targetCommit: RevCommit) : Screen
-    data class AddEditRemote(val remote: Remote) : Screen
+    data class AddEditRemote(val remote: Remote?) : Screen
     data class Error(val error: com.jetpackduba.gitnuro.domain.models.Error) : Screen
     data object SubmoduleAdd : Screen
     data object HttpCredentials : Screen

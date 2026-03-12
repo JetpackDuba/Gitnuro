@@ -218,7 +218,7 @@ fun LazyListScope.localBranches(
 fun LazyListScope.remotes(
     remotesState: RemotesState,
     remotesViewModel: RemotesViewModel,
-    onShowAddEditRemoteDialog: (Remote) -> Unit,
+    onShowAddEditRemoteDialog: (Remote?) -> Unit,
 ) {
     val isExpanded = remotesState.isExpanded
     val remotes = remotesState.remotes
@@ -230,7 +230,7 @@ fun LazyListScope.remotes(
             itemsCount = remotes.count(),
             hoverIcon = {
                 IconButton(
-                    onClick = { onShowAddEditRemoteDialog(newRemoteWrapper()) },
+                    onClick = { onShowAddEditRemoteDialog(null) },
                     modifier = Modifier
                         .padding(end = 16.dp)
                         .size(16.dp)
