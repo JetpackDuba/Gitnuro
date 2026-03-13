@@ -148,8 +148,6 @@ fun AppTab(
 
                             RepositoryOpenPage(
                                 repositoryOpenViewModel = viewModel,
-                                onShowSettingsDialog = { backStack.add(Screen.Settings) },
-                                onShowCloneDialog = { backStack.add(Screen.CloneRepository) },
                                 onNavigate = { backStack.add(it) }
                             )
                         }

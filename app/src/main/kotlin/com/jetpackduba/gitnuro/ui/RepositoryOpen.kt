@@ -45,8 +45,6 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun RepositoryOpenPage(
     repositoryOpenViewModel: RepositoryOpenViewModel,
-    onShowSettingsDialog: () -> Unit,
-    onShowCloneDialog: () -> Unit,
     onNavigate: (Screen) -> Unit, // TODO Perhaps have specific callbacks instead of directly navigating
 ) {
     val repositoryState by repositoryOpenViewModel.repositoryState.collectAsState()
@@ -135,7 +133,7 @@ fun RepositoryOpenPage(
                     }
 
                     it.matchesBinding(KeybindingOption.SETTINGS) -> {
-                        onShowSettingsDialog()
+                        onNavigate(Screen.Settings)
                         true
                     }
 
@@ -166,7 +164,7 @@ fun RepositoryOpenPage(
                         }
                     },
                     onQuickActions = { onNavigate(Screen.QuickActions) },
-                    onShowSettingsDialog = onShowSettingsDialog,
+                    onShowSettingsDialog = { onNavigate(Screen.Settings) },
                     showOpenPopup = showOpenPopup,
                     onShowOpenPopupChange = { showOpenPopup = it }
                 )
