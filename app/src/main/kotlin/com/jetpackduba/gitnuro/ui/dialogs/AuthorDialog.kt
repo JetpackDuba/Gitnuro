@@ -24,7 +24,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun AuthorDialog(
     viewModel: AuthorViewModel,
-    onClose: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val authorInfo by viewModel.authorInfo.collectAsState()
 
@@ -34,7 +34,7 @@ fun AuthorDialog(
     var email by remember(authorInfo) { mutableStateOf(authorInfo.email.orEmpty()) }
 
     MaterialDialog(
-        onCloseRequested = onClose,
+        onCloseRequested = onDismiss,
         background = MaterialTheme.colors.surface,
     ) {
         Column(
@@ -107,7 +107,7 @@ fun AuthorDialog(
                 PrimaryButton(
                     text = "Cancel",
                     modifier = Modifier.padding(end = 8.dp),
-                    onClick = onClose,
+                    onClick = onDismiss,
                     backgroundColor = Color.Transparent,
                     textColor = MaterialTheme.colors.onBackground,
                 )
@@ -119,7 +119,7 @@ fun AuthorDialog(
                             name,
                             email,
                         )
-                        onClose()
+                        onDismiss()
                     },
                     text = "Save data"
                 )

@@ -52,20 +52,6 @@ fun RepositoryOpenPage(
     val blameState by repositoryOpenViewModel.blameState.collectAsState()
     val showHistory by repositoryOpenViewModel.showHistory.collectAsState()
 
-    var showStashWithMessageDialog by remember { mutableStateOf(false) }
-
-    if (showStashWithMessageDialog) {
-        StashWithMessageDialog(
-            onDismiss = {
-                showStashWithMessageDialog = false
-            },
-            onAccept = { stashMessage ->
-                repositoryOpenViewModel.stashWithMessage(stashMessage)
-                showStashWithMessageDialog = false
-            }
-        )
-    }
-
     val focusRequester = remember { FocusRequester() }
     var showOpenPopup by remember { mutableStateOf(false) }
 
@@ -137,7 +123,7 @@ fun RepositoryOpenPage(
                         )
                         .fillMaxWidth(),
                     onCreateBranch = { onNavigate(Screen.BranchCreate(null)) },
-                    onStashWithMessage = { showStashWithMessageDialog = true },
+                    onStashWithMessage = { onNavigate(Screen.StashWithMessage) },
                     onOpenAnotherRepository = { repositoryOpenViewModel.openAnotherRepository(it) },
                     onOpenAnotherRepositoryFromPicker = {
                         val repoToOpen = repositoryOpenViewModel.openDirectoryPicker()

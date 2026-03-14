@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.observers.DataObserversManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
@@ -59,8 +60,7 @@ class RepositoryOpenViewModel @Inject constructor(
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: IFileChangesWatcher,
     private val getAuthorInfoGitAction: GetAuthorInfoGitAction,
-    private val stashChangesGitAction: IStashChangesGitAction,
-    private val stageUntrackedFileGitAction: IStageUntrackedFileGitAction,
+    private val stashChangesUseCase: StashChangesUseCase,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
     private val tabsManager: TabsManager,
@@ -301,18 +301,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun stashWithMessage(message: String) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-        taskType = TaskType.STASH,
-    ) { git ->
-        stageUntrackedFileGitAction(git)
-
-        if (stashChangesGitAction(git, message)) {
-            positiveNotification("Changes stashed")
-        } else {
-            errorNotification("There are no changes to stash")
-        }
-    }
+    fun stashWithMessage(message: String) = stashChangesUseCase(message)
 
     fun openFolderInFileExplorer() = tabState.runOperation(
         showError = true,

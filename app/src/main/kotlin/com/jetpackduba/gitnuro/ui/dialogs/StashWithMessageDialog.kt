@@ -8,8 +8,8 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun StashWithMessageDialog(
+    viewModel: StashWithMessageViewModel,
     onDismiss: () -> Unit,
-    onAccept: (stashMessage: String) -> Unit,
 ) {
     var field by remember { mutableStateOf("") }
 
@@ -22,6 +22,9 @@ fun StashWithMessageDialog(
         isPrimaryActionEnabled = field.isNotBlank(),
         primaryActionText = "Stash",
         onDismiss = onDismiss,
-        onPrimaryActionClicked = { onAccept(field) },
+        onPrimaryActionClicked = {
+            viewModel.stash(field)
+            onDismiss()
+        },
     )
 }

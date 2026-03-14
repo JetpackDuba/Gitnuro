@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.CreateTagViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.QuickActionsViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.SignOffDialogViewModel
+import com.jetpackduba.gitnuro.ui.dialogs.StashWithMessageViewModel
 import com.jetpackduba.gitnuro.ui.diff.DiffViewModel
 import com.jetpackduba.gitnuro.ui.status.StatusPaneViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SidePanelViewModel
@@ -27,6 +28,7 @@ interface IViewModelsProvider {
     val diffViewModel: DiffViewModel
     val historyViewModel: HistoryViewModel
     val authorViewModel: AuthorViewModel
+    val stashWithMessageViewModel: StashWithMessageViewModel
     val quickActionsViewModel: QuickActionsViewModel
     val setUpstreamBranchDialogViewModelFactory: SetUpstreamBranchDialogViewModel.Factory
     val renameBranchDialogViewModelFactory: RenameBranchDialogViewModel.Factory
@@ -52,6 +54,7 @@ class ViewModelsProvider @Inject constructor(
     private val diffViewModelProvider: Provider<DiffViewModel>,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val authorViewModelProvider: Provider<AuthorViewModel>,
+    private val stashWithMessageViewModelProvider: Provider<StashWithMessageViewModel>,
     private val setUpstreamBranchDialogViewModelProvider: Provider<SetUpstreamBranchDialogViewModel.Factory>,
     private val renameBranchDialogViewModelProvider: Provider<RenameBranchDialogViewModel.Factory>,
     private val addEditRemoteViewModelProvider: Provider<AddEditRemoteViewModel.Factory>,
@@ -70,6 +73,8 @@ class ViewModelsProvider @Inject constructor(
         get() = historyViewModelProvider.get()
     override val authorViewModel: AuthorViewModel
         get() = authorViewModelProvider.get()
+    override val stashWithMessageViewModel: StashWithMessageViewModel
+        get() = stashWithMessageViewModelProvider.get()
     override val setUpstreamBranchDialogViewModelFactory: SetUpstreamBranchDialogViewModel.Factory
         get() = setUpstreamBranchDialogViewModelProvider.get()
     override val renameBranchDialogViewModelFactory: RenameBranchDialogViewModel.Factory

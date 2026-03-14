@@ -89,6 +89,7 @@ sealed interface Screen : NavKey {
     data object QuickActions : Screen
     data object SignOffData : Screen
     data object Author : Screen
+    data object StashWithMessage : Screen
 }
 
 

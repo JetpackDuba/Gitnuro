@@ -343,9 +343,16 @@ fun AppTab(
 
                             AuthorDialog(
                                 viewModel = viewModel,
-                                onClose = {
-                                    backStack.removeLastOrNull()
-                                }
+                                onDismiss = { backStack.removeLastOrNull() }
+                            )
+                        }
+                        entry<Screen.StashWithMessage>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            val viewModel = tabViewModel(entry) { it.stashWithMessageViewModel }
+                            StashWithMessageDialog(
+                                viewModel = viewModel,
+                                onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
                     }
