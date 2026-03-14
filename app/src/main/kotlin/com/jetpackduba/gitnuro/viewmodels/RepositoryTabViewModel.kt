@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.navigation3.runtime.NavBackStack
 import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.common.printLog
-import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
@@ -34,7 +33,6 @@ import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Repository
 import java.io.File
-import javax.inject.Inject
 import javax.inject.Provider
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
@@ -69,15 +67,25 @@ class RepositoryTabViewModel @AssistedInject constructor(
         fun create(initialPath: String?): RepositoryTabViewModel
     }
 
-    //var initialPath: String? = null // Stores the path that should be opened when the tab is selected
     val errorsManager: IErrorsRepository = tabState.errorsRepository
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
-    val backStack = NavBackStack<Screen>(Screen.Welcome)
-
-    private val _repositorySelectionStatus = MutableStateFlow<RepositorySelectionStatus>(RepositorySelectionStatus.None)
     val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
-        get() = _repositorySelectionStatus
+        field = MutableStateFlow<RepositorySelectionStatus>(
+            if (initialPath == null) {
+                RepositorySelectionStatus.None
+            } else {
+                RepositorySelectionStatus.Opening(initialPath)
+            }
+        )
+
+    val backStack = NavBackStack<Screen>(
+        if (initialPath == null) {
+            Screen.Welcome
+        } else {
+            Screen.RepositoryLoading
+        }
+    )
 
     val processing: StateFlow<ProcessingState> = tabState.processing
         .debounce(300L)
@@ -101,7 +109,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     fun openRepository(directory: File) = tabState.safeProcessingWithoutGit {
         printLog(TAG, "Trying to open repository ${directory.absoluteFile}")
 
-        _repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
+        repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
 
         try {
             val repository: Repository = if (directory.listFiles()?.any { it.name == ".git" && it.isFile } == true) {
@@ -122,7 +130,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
             val git = Git(repository)
             tabState.initGit(git)
 
-            _repositorySelectionStatus.value = RepositorySelectionStatus.Open(repositoryOpenViewModelProvider.get())
+            repositorySelectionStatus.value = RepositorySelectionStatus.Open(repositoryOpenViewModelProvider.get())
 
             tabState.refreshData(RefreshType.ALL_DATA)
         } catch (ex: Exception) {
@@ -135,7 +143,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
                     exception = ex
                 )
             )
-            _repositorySelectionStatus.value = RepositorySelectionStatus.None
+            repositorySelectionStatus.value = RepositorySelectionStatus.None
         }
     }
 
