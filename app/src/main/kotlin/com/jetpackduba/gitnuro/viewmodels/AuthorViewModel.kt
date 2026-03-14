@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.extensions.nullIfEmpty
 import com.jetpackduba.gitnuro.domain.interfaces.ILoadAuthorGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ISaveAuthorGitAction
@@ -14,7 +15,7 @@ class AuthorViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val saveAuthorGitAction: ISaveAuthorGitAction,
     private val loadAuthorGitAction: ILoadAuthorGitAction,
-) {
+): TabViewModel() {
 
     private val _authorInfo = MutableStateFlow(AuthorInfo(null, null, null, null))
     val authorInfo: StateFlow<AuthorInfo> = _authorInfo

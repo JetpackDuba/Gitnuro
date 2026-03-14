@@ -23,10 +23,10 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun AuthorDialog(
-    authorViewModel: AuthorViewModel,
+    viewModel: AuthorViewModel,
     onClose: () -> Unit,
 ) {
-    val authorInfo by authorViewModel.authorInfo.collectAsState()
+    val authorInfo by viewModel.authorInfo.collectAsState()
 
     var globalName by remember(authorInfo) { mutableStateOf(authorInfo.globalName.orEmpty()) }
     var globalEmail by remember(authorInfo) { mutableStateOf(authorInfo.globalEmail.orEmpty()) }
@@ -113,7 +113,7 @@ fun AuthorDialog(
                 )
                 PrimaryButton(
                     onClick = {
-                        authorViewModel.saveAuthorInfo(
+                        viewModel.saveAuthorInfo(
                             globalName,
                             globalEmail,
                             name,

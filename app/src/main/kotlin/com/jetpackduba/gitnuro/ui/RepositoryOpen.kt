@@ -51,10 +51,8 @@ fun RepositoryOpenPage(
     val selectedItem by repositoryOpenViewModel.selectedItem.collectAsState()
     val blameState by repositoryOpenViewModel.blameState.collectAsState()
     val showHistory by repositoryOpenViewModel.showHistory.collectAsState()
-    val showAuthorInfo by repositoryOpenViewModel.showAuthorInfo.collectAsState()
 
     var showStashWithMessageDialog by remember { mutableStateOf(false) }
-    var showSignOffDialog by remember { mutableStateOf(false) }
 
     if (showStashWithMessageDialog) {
         StashWithMessageDialog(
@@ -65,21 +63,6 @@ fun RepositoryOpenPage(
                 repositoryOpenViewModel.stashWithMessage(stashMessage)
                 showStashWithMessageDialog = false
             }
-        )
-    } else if (showAuthorInfo) {
-        val authorViewModel = repositoryOpenViewModel.authorViewModel
-        if (authorViewModel != null) {
-            AuthorDialog(
-                authorViewModel = authorViewModel,
-                onClose = {
-                    repositoryOpenViewModel.closeAuthorInfoDialog()
-                }
-            )
-        }
-    } else if (showSignOffDialog) {
-        SignOffDialog(
-            viewModel = repositoryOpenViewModel.tabViewModelsProvider.signOffDialogViewModel,
-            onDismiss = { showSignOffDialog = false },
         )
     }
 
@@ -195,7 +178,7 @@ fun RepositoryOpenPage(
             userInfo,
             newUpdate,
             onOpenUrlInBrowser = { repositoryOpenViewModel.openUrlInBrowser(it) },
-            onShowAuthorInfoDialog = { repositoryOpenViewModel.showAuthorInfoDialog() },
+            onShowAuthorInfoDialog = { onNavigate(Screen.Author) },
         )
     }
 

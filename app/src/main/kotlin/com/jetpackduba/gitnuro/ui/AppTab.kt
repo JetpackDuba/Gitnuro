@@ -203,7 +203,7 @@ fun AppTab(
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
-                        entry<Screen.Error>(
+                        entry<Screen.Error>( // TODO Navigating from a dialog (such as add submodule) to this produces a crash
                             metadata = dialogsMetadata
                         ) {
                             ErrorDialog(
@@ -334,6 +334,18 @@ fun AppTab(
                                     backStack.removeLastOrNull()
                                     backStack.add(Screen.Clone)
                                 },
+                            )
+                        }
+                        entry<Screen.Author>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            val viewModel = tabViewModel(entry) { it.authorViewModel }
+
+                            AuthorDialog(
+                                viewModel = viewModel,
+                                onClose = {
+                                    backStack.removeLastOrNull()
+                                }
                             )
                         }
                     }

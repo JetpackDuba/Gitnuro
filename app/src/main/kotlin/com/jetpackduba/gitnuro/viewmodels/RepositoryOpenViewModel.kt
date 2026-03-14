@@ -55,7 +55,6 @@ class RepositoryOpenViewModel @Inject constructor(
     private val getWorkspacePathGitAction: IGetWorkspacePathGitAction,
     val diffViewModel: DiffViewModel,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
-    private val authorViewModelProvider: Provider<AuthorViewModel>,
     private val tabState: TabInstanceRepository,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: IFileChangesWatcher,
@@ -89,16 +88,10 @@ class RepositoryOpenViewModel @Inject constructor(
     private val _showHistory = MutableStateFlow(false)
     val showHistory: StateFlow<Boolean> = _showHistory
 
-    private val _showAuthorInfo = MutableStateFlow(false)
-    val showAuthorInfo: StateFlow<Boolean> = _showAuthorInfo
-
     private val _authorInfoSimple = MutableStateFlow(AuthorInfoSimple(null, null))
     val authorInfoSimple: StateFlow<AuthorInfoSimple> = _authorInfoSimple
 
     var historyViewModel: HistoryViewModel? = null
-        private set
-
-    var authorViewModel: AuthorViewModel? = null
         private set
 
     val diffSelected = selectedDiffItemRepository.diffSelected
@@ -153,17 +146,6 @@ class RepositoryOpenViewModel @Inject constructor(
 
     private suspend fun loadAuthorInfo(git: Git) {
         _authorInfoSimple.value = getAuthorInfoGitAction(git)
-    }
-
-    fun showAuthorInfoDialog() {
-        authorViewModel = authorViewModelProvider.get()
-        authorViewModel?.loadAuthorInfo()
-        _showAuthorInfo.value = true
-    }
-
-    fun closeAuthorInfoDialog() {
-        _showAuthorInfo.value = false
-        authorViewModel = null
     }
 
     /**

@@ -88,6 +88,7 @@ sealed interface Screen : NavKey {
     data object LfsCredentials : Screen
     data object QuickActions : Screen
     data object SignOffData : Screen
+    data object Author : Screen
 }
 
 
