@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.domain.interfaces.IGetRemoteBranchesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ISetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.TrackingBranch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -23,12 +24,12 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
     private val getRemotesGitAction: IGetRemotesGitAction,
     private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
     private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
-    @Assisted private val branch: Ref,
+    @Assisted private val branch: Branch,
 ) : TabViewModel() {
 
     @AssistedFactory
     interface Factory {
-        fun create(branch: Ref): SetUpstreamBranchDialogViewModel
+        fun create(branch: Branch): SetUpstreamBranchDialogViewModel
     }
 
     private val _setDefaultUpstreamBranchState =
@@ -41,7 +42,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
     }
 
     // TODO Refactor this to a flow that is initialized later instead of being a side effect at object construction time
-    private fun loadData(branch: Ref) = tabState.runOperation(
+    private fun loadData(branch: Branch) = tabState.runOperation(
         refreshType = RefreshType.NONE
     ) { git ->
         _setDefaultUpstreamBranchState.value = SetDefaultUpstreamBranchState.Loading
@@ -51,7 +52,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
         val remotes = getRemotesGitAction(git, remoteBranches)
 
         var remote: RemoteInfo? = null
-        var remoteBranch: Ref? = null
+        var remoteBranch: Branch? = null
 
         if (trackingBranch != null) {
             remote = remotes.firstOrNull { it.remoteConfig.name == trackingBranch.remote }
@@ -76,7 +77,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
         if (state is SetDefaultUpstreamBranchState.Loaded) {
             setTrackingBranchGitAction(
                 git = git,
-                ref = state.branch,
+                branch = state.branch,
                 remoteName = state.selectedRemote?.remoteConfig?.name,
                 remoteBranch = state.selectedBranch
             )
@@ -85,7 +86,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
         }
     }
 
-    fun setSelectedBranch(branchOption: Ref) {
+    fun setSelectedBranch(branchOption: Branch) {
         val state = _setDefaultUpstreamBranchState.value
 
         if (state is SetDefaultUpstreamBranchState.Loaded) {
@@ -115,11 +116,11 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
 sealed interface SetDefaultUpstreamBranchState {
     object Loading : SetDefaultUpstreamBranchState
     data class Loaded(
-        val branch: Ref,
+        val branch: Branch,
         val trackingBranch: TrackingBranch?,
         val remotes: List<RemoteInfo>,
         val selectedRemote: RemoteInfo?,
-        val selectedBranch: Ref?,
+        val selectedBranch: Branch?,
     ) : SetDefaultUpstreamBranchState
 
     object UpstreamChanged : SetDefaultUpstreamBranchState

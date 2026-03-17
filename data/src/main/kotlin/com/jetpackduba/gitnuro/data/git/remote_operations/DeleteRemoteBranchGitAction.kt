@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.data.git.remote_operations
 
 import com.jetpackduba.gitnuro.data.git.branches.DeleteBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteRemoteBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.isRejected
 import com.jetpackduba.gitnuro.domain.models.statusMessage
 import org.eclipse.jgit.api.Git
@@ -13,7 +14,7 @@ class DeleteRemoteBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
     private val deleteBranchGitAction: DeleteBranchGitAction,
 ) : IDeleteRemoteBranchGitAction {
-    override suspend operator fun invoke(git: Git, ref: Ref) {
+    override suspend operator fun invoke(git: Git, ref: Branch) {
         val branchSplit = ref.name.split("/").toMutableList()
         val remoteName = branchSplit[2] // Remote name
         repeat(3) {

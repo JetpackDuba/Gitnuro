@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
@@ -30,7 +31,7 @@ import org.jetbrains.compose.resources.painterResource
 fun SetDefaultUpstreamBranchDialogPreview() {
     SetDefaultUpstreamBranchDialogView(
         state = SetDefaultUpstreamBranchState.Loaded(
-            ObjectIdRef.PeeledNonTag(null, "TestBranch", null),
+            Branch("XYZ", "main", isLocal = true),
             null,
             emptyList(),
             null,
@@ -72,7 +73,7 @@ private fun SetDefaultUpstreamBranchDialogView(
     state: SetDefaultUpstreamBranchState,
     onDismiss: () -> Unit,
     setSelectedRemote: (RemoteInfo) -> Unit,
-    setSelectedBranch: (Ref) -> Unit,
+    setSelectedBranch: (Branch) -> Unit,
     changeDefaultUpstreamBranch: () -> Unit,
 ) {
     IconBasedDialog(

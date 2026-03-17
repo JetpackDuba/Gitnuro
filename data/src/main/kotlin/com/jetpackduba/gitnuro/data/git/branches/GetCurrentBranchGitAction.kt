@@ -1,8 +1,10 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
+import com.jetpackduba.gitnuro.data.JGitBranchMapper
 import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
@@ -12,11 +14,12 @@ import javax.inject.Inject
  */
 class GetCurrentBranchGitAction @Inject constructor(
     private val getBranchesGitAction: GetBranchesGitAction,
+    private val branchMapper: JGitBranchMapper,
 ) : IGetCurrentBranchGitAction {
-    override suspend operator fun invoke(git: Git): Ref? {
+    override suspend operator fun invoke(git: Git): Branch? {
         return invoke(git.repository.directory.absolutePath)
     }
-    override suspend operator fun invoke(path: String): Ref? {
+    override suspend operator fun invoke(path: String): Branch? {
         return jgit(path) {
             val branchList = getBranchesGitAction(this)
             val branchName =
@@ -29,7 +32,7 @@ class GetCurrentBranchGitAction @Inject constructor(
 
             if (branchFound == null) {
                 branchFound = branchList.firstOrNull {
-                    it.objectId.name == branchName // Try to get the HEAD
+                    it.hash == branchName // Try to get the HEAD
                 }
             }
 

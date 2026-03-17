@@ -1,10 +1,10 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteRemoteBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPullFromSpecificBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPushToSpecificBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
@@ -12,16 +12,15 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
-import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 interface ISharedRemotesViewModel {
-    fun deleteRemoteBranch(ref: Ref): Job
-    fun checkoutRemoteBranch(remoteBranch: Ref): Job
-    fun pushToRemoteBranch(branch: Ref): Job
-    fun pullFromRemoteBranch(branch: Ref): Job
-    fun copyBranchNameToClipboard(branch: Ref): Job
+    fun deleteRemoteBranch(ref: Branch): Job
+    fun checkoutRemoteBranch(remoteBranch: Branch): Job
+    fun pushToRemoteBranch(branch: Branch): Job
+    fun pullFromRemoteBranch(branch: Branch): Job
+    fun copyBranchNameToClipboard(branch: Branch): Job
 }
 
 class SharedRemotesViewModel @Inject constructor(
@@ -33,7 +32,7 @@ class SharedRemotesViewModel @Inject constructor(
     private val clipboardManager: ClipboardManager,
 ) : ISharedRemotesViewModel {
 
-    override fun deleteRemoteBranch(ref: Ref) = tabState.safeProcessing(
+    override fun deleteRemoteBranch(ref: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Deleting remote branch",
         subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
@@ -44,7 +43,7 @@ class SharedRemotesViewModel @Inject constructor(
         positiveNotification("Remote branch \"${ref.simpleName}\" deleted")
     }
 
-    override fun checkoutRemoteBranch(remoteBranch: Ref) = tabState.safeProcessing(
+    override fun checkoutRemoteBranch(remoteBranch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.CHECKOUT_REMOTE_BRANCH,
     ) { git ->
@@ -53,7 +52,7 @@ class SharedRemotesViewModel @Inject constructor(
         positiveNotification("\"${remoteBranch.simpleName}\" checked out")
     }
 
-    override fun pushToRemoteBranch(branch: Ref) = tabState.safeProcessing(
+    override fun pushToRemoteBranch(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Push",
         subtitle = "Pushing current branch to ${branch.simpleName}",
@@ -69,20 +68,25 @@ class SharedRemotesViewModel @Inject constructor(
         positiveNotification("Pushed to \"${branch.simpleName}\"")
     }
 
-    override fun pullFromRemoteBranch(branch: Ref) = tabState.safeProcessing(
+    override fun pullFromRemoteBranch(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Pull",
         subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
         taskType = TaskType.PULL_FROM_BRANCH,
     ) { git ->
-        if (pullFromSpecificBranchGitAction(git = git, remoteBranch = branch, pullWithRebase = true /*TODO Fix once moved to use cases*/)) {
+        if (pullFromSpecificBranchGitAction(
+                git = git,
+                remoteBranch = branch,
+                pullWithRebase = true /*TODO Fix once moved to use cases*/
+            )
+        ) {
             warningNotification("Pull produced conflicts, fix them to continue")
         } else {
             positiveNotification("Pulled from \"${branch.simpleName}\"")
         }
     }
 
-    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+    override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.UNSPECIFIED
     ) {

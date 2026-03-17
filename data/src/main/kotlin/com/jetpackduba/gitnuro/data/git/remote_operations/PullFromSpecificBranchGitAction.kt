@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.data.git.remote_operations
 
 import com.jetpackduba.gitnuro.domain.interfaces.IPullFromSpecificBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.PullHasConflicts
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.remoteName
 import com.jetpackduba.gitnuro.domain.simpleName
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,7 @@ class PullFromSpecificBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
     private val hasPullResultConflictsGitAction: HasPullResultConflictsGitAction,
 ) : IPullFromSpecificBranchGitAction {
-    override suspend operator fun invoke(git: Git, remoteBranch: Ref, pullWithRebase: Boolean): PullHasConflicts =
+    override suspend operator fun invoke(git: Git, remoteBranch: Branch, pullWithRebase: Boolean): PullHasConflicts =
         withContext(Dispatchers.IO) {
             handleTransportGitAction(git) {
                 val pullResult = git

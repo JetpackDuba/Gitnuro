@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -14,7 +15,7 @@ class RefCheckoutUseCase @Inject constructor(
     private val tabState: TabInstanceRepository,
 ) {
 
-    fun invoke(ref: Ref) {
+    fun invoke(ref: Branch  ) {
 
         tabState.safeProcessing(
             refreshType = RefreshType.ALL_DATA,

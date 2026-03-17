@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.domain.repositories
 import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Notification
 import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -243,11 +244,15 @@ class TabInstanceRepository @Inject constructor(
         }
     }
 
-    fun newSelectedRef(ref: Ref, objectId: ObjectId?) = runOperation(
+    suspend fun newSelectedItem(selectedItem: SelectedItem) {
+        _selectedItem.value = selectedItem
+    }
+
+    fun newSelectedRef(ref: Branch, hash: String) = runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
         //if (objectId == null) {
-            newSelectedItem(SelectedItem.None)
+        newSelectedItem(SelectedItem.None)
         /*} else {
             val commit = findCommitGitAction(git, objectId)
 
@@ -260,8 +265,21 @@ class TabInstanceRepository @Inject constructor(
         }*/
     }
 
-    suspend fun newSelectedItem(selectedItem: SelectedItem) {
-        _selectedItem.value = selectedItem
+    fun newSelectedRef(ref: Ref, hash: ObjectId) = runOperation(
+        refreshType = RefreshType.NONE,
+    ) { git ->
+        //if (objectId == null) {
+        newSelectedItem(SelectedItem.None)
+        /*} else {
+            val commit = findCommitGitAction(git, objectId)
+
+            if (commit == null) {
+                newSelectedItem(SelectedItem.None)
+            } else {
+                val newSelectedItem = SelectedItem.Ref(ref, commit)
+                newSelectedItem(newSelectedItem)
+            }
+        }*/
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

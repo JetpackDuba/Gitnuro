@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.data.repositories
 
 import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.Status
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
@@ -13,10 +14,10 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val status: Flow<Status>
         field = MutableStateFlow<Status>(Status(emptyList(), emptyList()))
 
-    override val localBranches: Flow<List<Ref>>
-        field = MutableStateFlow<List<Ref>>(emptyList())
-    override val currentBranch: Flow<Ref?>
-        field = MutableStateFlow<Ref?>(null)
+    override val localBranches: Flow<List<Branch>>
+        field = MutableStateFlow<List<Branch>>(emptyList())
+    override val currentBranch: Flow<Branch?>
+        field = MutableStateFlow<Branch?>(null)
 
     override val tags: Flow<List<Ref>>
         field = MutableStateFlow(emptyList())
@@ -39,11 +40,11 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         this.status.value = status
     }
 
-    override fun updateLocalBranches(branches: List<Ref>) {
+    override fun updateLocalBranches(branches: List<Branch>) {
         this.localBranches.value = branches
     }
 
-    override fun updateCurrentBranch(branch: Ref?) {
+    override fun updateCurrentBranch(branch: Branch?) {
         this.currentBranch.value = branch
     }
 

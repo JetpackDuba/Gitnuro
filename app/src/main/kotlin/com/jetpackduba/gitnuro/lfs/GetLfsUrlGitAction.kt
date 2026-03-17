@@ -41,7 +41,7 @@ class GetLfsUrlGitAction @Inject constructor(
                 return null
             }
 
-            val trackingBranch = getTrackingBranchGitAction(git, currentBranch)
+            val trackingBranch = getTrackingBranchGitAction(git, currentBranch.name)
             val currentBranchTracedRemote = trackingBranch?.remote
 
             if (currentBranchTracedRemote != null) {
