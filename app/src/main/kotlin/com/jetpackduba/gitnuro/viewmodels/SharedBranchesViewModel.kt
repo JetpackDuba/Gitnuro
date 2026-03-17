@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.domain.interfaces.IRebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
@@ -20,11 +21,11 @@ import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 interface ISharedBranchesViewModel {
-    fun mergeBranch(ref: Ref): Job
-    fun deleteBranch(branch: Ref): Job
-    fun checkoutRef(ref: Ref): Job
-    fun rebaseBranch(ref: Ref): Job
-    fun copyBranchNameToClipboard(branch: Ref): Job
+    fun mergeBranch(ref: Branch): Job
+    fun deleteBranch(branch: Branch): Job
+    fun checkoutRef(ref: Branch): Job
+    fun rebaseBranch(ref: Branch): Job
+    fun copyBranchNameToClipboard(branch: Branch): Job
 }
 
 class SharedBranchesViewModel @Inject constructor(
@@ -37,7 +38,7 @@ class SharedBranchesViewModel @Inject constructor(
     private val clipboardManager: ClipboardManager,
 ) : ISharedBranchesViewModel {
 
-    override fun mergeBranch(ref: Ref) = tabState.safeProcessing(
+    override fun mergeBranch(ref: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch merge",
         subtitle = "Merging branch ${ref.simpleName}",
@@ -51,7 +52,7 @@ class SharedBranchesViewModel @Inject constructor(
         }
     }
 
-    override fun deleteBranch(branch: Ref) = tabState.safeProcessing(
+    override fun deleteBranch(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch delete",
         subtitle = "Deleting branch ${branch.simpleName}",
@@ -62,7 +63,7 @@ class SharedBranchesViewModel @Inject constructor(
         positiveNotification("\"${branch.simpleName}\" deleted")
     }
 
-    override fun checkoutRef(ref: Ref) = tabState.safeProcessing(
+    override fun checkoutRef(ref: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch checkout",
         subtitle = "Checking out branch ${ref.simpleName}",
@@ -73,7 +74,7 @@ class SharedBranchesViewModel @Inject constructor(
         positiveNotification("\"${ref.simpleName}\" checked out")
     }
 
-    override fun rebaseBranch(ref: Ref) = tabState.safeProcessing(
+    override fun rebaseBranch(ref: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch rebase",
         subtitle = "Rebasing branch ${ref.simpleName}",
@@ -87,7 +88,7 @@ class SharedBranchesViewModel @Inject constructor(
         }
     }
 
-    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+    override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.UNSPECIFIED
     ) {

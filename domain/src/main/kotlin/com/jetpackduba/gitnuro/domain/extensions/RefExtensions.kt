@@ -5,8 +5,8 @@ import org.eclipse.jgit.lib.ObjectIdRef
 import org.eclipse.jgit.lib.Ref
 
 // Remotes can have slashes in the name, but we won't care about it, known issue
-private const val REMOTE_PREFIX_LENGTH = 3
-private const val LOCAL_PREFIX_LENGTH = 2
+const val REMOTE_PREFIX_LENGTH = 3
+const val LOCAL_PREFIX_LENGTH = 2
 
 val Ref.simpleName: String
     get() {

@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.remotes
 
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -9,7 +10,7 @@ import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class GetRemotesGitAction @Inject constructor() : IGetRemotesGitAction {
-    override suspend operator fun invoke(git: Git, allRemoteBranches: List<Ref>): List<RemoteInfo> =
+    override suspend operator fun invoke(git: Git, allRemoteBranches: List<Branch>): List<RemoteInfo> =
         withContext(Dispatchers.IO) {
             val remotes = git.remoteList()
                 .call()

@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
 import com.jetpackduba.gitnuro.data.git.stash.GetStashListGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
@@ -18,7 +19,7 @@ class GetLogGitAction @Inject constructor(
 ) : IGetLogGitAction {
     override suspend operator fun invoke(
         git: Git,
-        currentBranch: Ref?,
+        currentBranch: Branch?,
         hasUncommittedChanges: Boolean,
         commitsLimit: Int,
         cachedCommitList: GraphCommitList?,

@@ -1,16 +1,18 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
 import com.jetpackduba.gitnuro.data.git.stash.DeleteStashGitAction
-import com.jetpackduba.gitnuro.data.git.workspace.CheckHasUncommittedChangesGitAction
-import com.jetpackduba.gitnuro.domain.exceptions.UncommittedChangesDetectedException
 import com.jetpackduba.gitnuro.data.git.stash.SnapshotStashCreateCommand
+import com.jetpackduba.gitnuro.data.git.workspace.CheckHasUncommittedChangesGitAction
+import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
+import com.jetpackduba.gitnuro.domain.exceptions.UncommittedChangesDetectedException
 import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeCommand
 import org.eclipse.jgit.api.MergeResult
-import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
@@ -24,7 +26,7 @@ class MergeBranchGitAction @Inject constructor(
      */
     override suspend operator fun invoke(
         git: Git,
-        branch: Ref,
+        branch: Branch,
         fastForward: Boolean,
         mergeAutoStash: Boolean,
     ) = withContext(Dispatchers.IO) {
@@ -53,9 +55,12 @@ class MergeBranchGitAction @Inject constructor(
         else
             MergeCommand.FastForwardMode.NO_FF
 
+        val mergeBase: ObjectId =
+            git.repository.resolve(branch.name) ?: throw Exception("Branch ${branch.name} not found")
+
         val mergeResult = git
             .merge()
-            .include(branch)
+            .include(mergeBase)
             .setFastForward(fastForwardMode)
             .call()
 

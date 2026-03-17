@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.domain.extensions.isValid
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.data.mappers.toRemoteWrapper
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.newRemoteWrapper
@@ -173,8 +174,8 @@ fun LazyListScope.localBranches(
     branchesState: BranchesState,
     selectedItem: SelectedItem,
     branchesViewModel: BranchesViewModel,
-    onChangeDefaultUpstreamBranch: (Ref) -> Unit,
-    onRenameBranch: (Ref) -> Unit,
+    onChangeDefaultUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
 ) {
     val isExpanded = branchesState.isExpanded
     val branches = branchesState.branches
@@ -415,8 +416,8 @@ fun LazyListScope.submodules(
 
 @Composable
 private fun Branch(
-    branch: Ref,
-    currentBranch: Ref?,
+    branch: Branch,
+    currentBranch: Branch?,
     isSelectedItem: Boolean,
     onBranchClicked: () -> Unit,
     onBranchDoubleClicked: () -> Unit,
@@ -436,7 +437,7 @@ private fun Branch(
                 branch = branch,
                 currentBranch = currentBranch,
                 isCurrentBranch = isCurrentBranch,
-                isLocal = branch.isLocal,
+                isLocal = true,
                 onCheckoutBranch = onCheckoutBranch,
                 onMergeBranch = onMergeBranch,
                 onDeleteBranch = onDeleteBranch,
@@ -500,8 +501,8 @@ private fun Remote(
 
 @Composable
 private fun RemoteBranches(
-    remoteBranch: Ref,
-    currentBranch: Ref?,
+    remoteBranch: Branch,
+    currentBranch: Branch?,
     onBranchClicked: () -> Unit,
     onCheckoutBranch: () -> Unit,
     onDeleteBranch: () -> Unit,

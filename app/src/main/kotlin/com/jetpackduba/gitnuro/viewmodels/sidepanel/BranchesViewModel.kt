@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
-import com.jetpackduba.gitnuro.data.repositories.BranchesRepository
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
@@ -33,7 +33,7 @@ class BranchesViewModel @AssistedInject constructor(
     val branchesState =
         combine(branches, currentBranch, isExpanded, filter) { branches, currentBranch, isExpanded, filter ->
             BranchesState(
-                branches = branches.filter { it.simpleName.lowercaseContains(filter) },
+                branches = branches.filter { it.name.lowercaseContains(filter) },
                 isExpanded = isExpanded,
                 currentBranch = currentBranch
             )
@@ -43,13 +43,13 @@ class BranchesViewModel @AssistedInject constructor(
             initialValue = BranchesState(emptyList(), isExpanded.value, null)
         )
 
-    fun selectBranch(ref: Ref) {
-        tabState.newSelectedRef(ref, ref.objectId)
+    fun selectBranch(ref: Branch) {
+        tabState.newSelectedRef(ref, ref.hash)
     }
 }
 
 data class BranchesState(
-    val branches: List<Ref>,
+    val branches: List<Branch>,
     val isExpanded: Boolean,
-    val currentBranch: Ref?,
+    val currentBranch: Branch?,
 )

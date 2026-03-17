@@ -57,6 +57,7 @@ import com.jetpackduba.gitnuro.domain.extensions.isReverting
 import com.jetpackduba.gitnuro.domain.extensions.isSameBranch
 import com.jetpackduba.gitnuro.domain.extensions.isTag
 import com.jetpackduba.gitnuro.domain.extensions.simpleLogName
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
@@ -113,8 +114,8 @@ fun Log(
     onCreateBranch: (RevCommit) -> Unit,
     onResetBranch: (RevCommit) -> Unit,
     onCreateTag: (RevCommit) -> Unit,
-    onChangeUpstreamBranch: (Ref) -> Unit,
-    onRenameBranch: (Ref) -> Unit,
+    onChangeUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
 ) {
     val logStatusState = logViewModel.logStatus.collectAsState()
     val logStatus = logStatusState.value
@@ -165,8 +166,8 @@ private fun LogLoaded(
     onCreateBranch: (RevCommit) -> Unit,
     onResetBranch: (RevCommit) -> Unit,
     onCreateTag: (RevCommit) -> Unit,
-    onChangeUpstreamBranch: (Ref) -> Unit,
-    onRenameBranch: (Ref) -> Unit,
+    onChangeUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val hasUncommittedChanges = logStatus.hasUncommittedChanges
@@ -507,27 +508,27 @@ fun CommitsList(
     onCheckoutCommit: (GraphNode) -> Unit,
     onRevertCommit: (GraphNode) -> Unit,
     onCherryPickCommit: (GraphNode) -> Unit,
-    onCheckoutRemoteBranch: (Ref) -> Unit,
-    onCheckoutRef: (Ref) -> Unit,
-    onMerge: (Ref) -> Unit,
-    onRebase: (Ref) -> Unit,
+    onCheckoutRemoteBranch: (Branch) -> Unit,
+    onCheckoutRef: (Branch) -> Unit,
+    onMerge: (Branch) -> Unit,
+    onRebase: (Branch) -> Unit,
     onRebaseInteractive: (GraphNode) -> Unit,
     onCommitSelected: (GraphNode) -> Unit,
     onUncommittedChangesSelected: () -> Unit,
     onDeleteStash: (GraphNode) -> Unit,
     onApplyStash: (GraphNode) -> Unit,
     onPopStash: (GraphNode) -> Unit,
-    onDeleteBranch: (Ref) -> Unit,
-    onDeleteRemoteBranch: (Ref) -> Unit,
+    onDeleteBranch: (Branch) -> Unit,
+    onDeleteRemoteBranch: (Branch) -> Unit,
     onDeleteTag: (Ref) -> Unit,
-    onPushToRemoteBranch: (Ref) -> Unit,
-    onPullFromRemoteBranch: (Ref) -> Unit,
-    onCopyBranchNameToClipboard: (Ref) -> Unit,
+    onPushToRemoteBranch: (Branch) -> Unit,
+    onPullFromRemoteBranch: (Branch) -> Unit,
+    onCopyBranchNameToClipboard: (Branch) -> Unit,
     onCreateBranch: (RevCommit) -> Unit,
     onResetBranch: (RevCommit) -> Unit,
     onCreateTag: (RevCommit) -> Unit,
-    onChangeUpstreamBranch: (Ref) -> Unit,
-    onRenameBranch: (Ref) -> Unit,
+    onChangeUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
     graphWidth: Dp,
     horizontalScrollState: ScrollState,
 ) {
@@ -607,7 +608,7 @@ fun CommitsList(
                 onRevertCommit = { onRevertCommit(graphNode) },
                 onCherryPickCommit = { onCherryPickCommit(graphNode) },
                 onCheckoutRemoteBranch = onCheckoutRemoteBranch,
-                onCheckoutRef = onCheckoutRef,
+                onCheckoutBranch = onCheckoutRef,
                 onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
             )
         }
@@ -787,7 +788,7 @@ private fun CommitLine(
     graphWidth: Dp,
     graphNode: GraphNode,
     isSelected: Boolean,
-    currentBranch: Ref?,
+    currentBranch: Branch?,
     matchesSearchFilter: Boolean?,
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
@@ -795,26 +796,26 @@ private fun CommitLine(
     onApplyStash: () -> Unit,
     onPopStash: () -> Unit,
     onDeleteStash: () -> Unit,
-    onMergeBranch: (Ref) -> Unit,
-    onDeleteBranch: (Ref) -> Unit,
-    onDeleteRemoteBranch: (Ref) -> Unit,
+    onMergeBranch: (Branch) -> Unit,
+    onDeleteBranch: (Branch) -> Unit,
+    onDeleteRemoteBranch: (Branch) -> Unit,
     onDeleteTag: (Ref) -> Unit,
-    onPushToRemoteBranch: (Ref) -> Unit,
-    onPullFromRemoteBranch: (Ref) -> Unit,
-    onRebaseBranch: (Ref) -> Unit,
+    onPushToRemoteBranch: (Branch) -> Unit,
+    onPullFromRemoteBranch: (Branch) -> Unit,
+    onRebaseBranch: (Branch) -> Unit,
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
     onCheckoutCommit: () -> Unit,
     onRevertCommit: () -> Unit,
     onCherryPickCommit: () -> Unit,
-    onCheckoutRemoteBranch: (Ref) -> Unit,
-    onCheckoutRef: (Ref) -> Unit,
-    onChangeDefaultUpstreamBranch: (Ref) -> Unit,
-    onRenameBranch: (Ref) -> Unit,
-    onCopyBranchNameToClipboard: (Ref) -> Unit,
+    onCheckoutRemoteBranch: (Branch) -> Unit,
+    onCheckoutBranch: (Branch) -> Unit,
+    onChangeDefaultUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
+    onCopyBranchNameToClipboard: (Branch) -> Unit,
     horizontalScrollState: ScrollState,
 ) {
-    val isLastCommitOfCurrentBranch = currentBranch?.objectId?.name == graphNode.id.name
+    val isLastCommitOfCurrentBranch = currentBranch?.hash == graphNode.id.name
 
     ContextMenu(
         items = {
@@ -892,10 +893,10 @@ private fun CommitLine(
                         matchesSearchFilter = matchesSearchFilter,
                         currentBranch = currentBranch,
                         onCheckoutRef = { ref ->
-                            if (ref.isRemote && ref.isBranch) {
+                            if (ref.isRemote) {
                                 onCheckoutRemoteBranch(ref)
                             } else {
-                                onCheckoutRef(ref)
+                                onCheckoutBranch(ref)
                             }
                         },
                         onMergeBranch = { ref -> onMergeBranch(ref) },
@@ -918,20 +919,20 @@ private fun CommitLine(
 @Composable
 fun CommitMessage(
     commit: GraphNode,
-    currentBranch: Ref?,
+    currentBranch: Branch?,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
-    onCheckoutRef: (ref: Ref) -> Unit,
-    onMergeBranch: (ref: Ref) -> Unit,
-    onDeleteBranch: (ref: Ref) -> Unit,
-    onDeleteRemoteBranch: (ref: Ref) -> Unit,
-    onRebaseBranch: (ref: Ref) -> Unit,
+    onCheckoutRef: (ref: Branch) -> Unit,
+    onMergeBranch: (ref: Branch) -> Unit,
+    onDeleteBranch: (ref: Branch) -> Unit,
+    onDeleteRemoteBranch: (ref: Branch) -> Unit,
+    onRebaseBranch: (ref: Branch) -> Unit,
     onDeleteTag: (ref: Ref) -> Unit,
-    onPushRemoteBranch: (ref: Ref) -> Unit,
-    onPullRemoteBranch: (ref: Ref) -> Unit,
-    onChangeDefaultUpstreamBranch: (ref: Ref) -> Unit,
-    onRenameBranch: (ref: Ref) -> Unit,
-    onCopyBranchNameToClipboard: (ref: Ref) -> Unit,
+    onPushRemoteBranch: (ref: Branch) -> Unit,
+    onPullRemoteBranch: (ref: Branch) -> Unit,
+    onChangeDefaultUpstreamBranch: (ref: Branch) -> Unit,
+    onRenameBranch: (ref: Branch) -> Unit,
+    onCopyBranchNameToClipboard: (ref: Branch) -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxSize()
@@ -945,7 +946,8 @@ fun CommitMessage(
             modifier = Modifier.padding(start = 16.dp)
         ) {
             if (!commit.isStash) {
-                commit.refs.sortedWith { ref1, ref2 ->
+                // TODO Enable this once commits list is migrated to new structure
+                /*commit.refs.sortedWith { ref1, ref2 ->
                     if (ref1.isSameBranch(currentBranch)) {
                         -1
                     } else {
@@ -977,7 +979,7 @@ fun CommitMessage(
                             onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(ref) },
                         )
                     }
-                }
+                }*/
             }
         }
 
@@ -1206,8 +1208,8 @@ fun UncommittedChangesGraphNode(
 fun BranchChip(
     modifier: Modifier = Modifier,
     isCurrentBranch: Boolean = false,
-    ref: Ref,
-    currentBranch: Ref?,
+    ref: Branch,
+    currentBranch: Branch?,
     onCheckoutBranch: () -> Unit,
     onMergeBranch: () -> Unit,
     onDeleteBranch: () -> Unit,
@@ -1271,7 +1273,7 @@ fun BranchChip(
 @Composable
 fun TagChip(
     modifier: Modifier = Modifier,
-    ref: Ref,
+    ref: Branch,
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
     color: Color,
@@ -1297,7 +1299,7 @@ fun TagChip(
 @Composable
 fun RefChip(
     modifier: Modifier = Modifier,
-    ref: Ref,
+    ref: Branch,
     icon: DrawableResource,
     color: Color,
     onCheckoutRef: () -> Unit,
@@ -1330,7 +1332,7 @@ fun RefChip(
                     )
                 }
                 Text(
-                    text = ref.simpleLogName,
+                    text = ref.simpleName,
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackground,
                     maxLines = 1,

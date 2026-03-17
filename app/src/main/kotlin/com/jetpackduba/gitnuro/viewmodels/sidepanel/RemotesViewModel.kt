@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -24,7 +25,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skiko.ClipboardManager
 
 class RemotesViewModel @AssistedInject constructor(
@@ -49,7 +49,7 @@ class RemotesViewModel @AssistedInject constructor(
     ISharedBranchesViewModel by sharedBranchesViewModel {
 
     private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
-    private val currentBranch = MutableStateFlow<Ref?>(null)
+    private val currentBranch = MutableStateFlow<Branch?>(null)
 
     private val _remoteUpdated = MutableSharedFlow<Unit>()
     val remoteUpdated = _remoteUpdated.asSharedFlow()
@@ -120,8 +120,8 @@ class RemotesViewModel @AssistedInject constructor(
         }
     }
 
-    fun selectBranch(ref: Ref) {
-        tabState.newSelectedRef(ref, ref.objectId)
+    fun selectBranch(ref: Branch) {
+        tabState.newSelectedRef(ref, ref.hash)
     }
 
     fun deleteRemote(remoteName: String) = tabState.safeProcessing(
@@ -157,7 +157,7 @@ class RemotesViewModel @AssistedInject constructor(
 
     fun updateRemote(selectedRemoteConfig: Remote) = addRemoteUseCase(selectedRemoteConfig)
 
-    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+    override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.UNSPECIFIED
     ) {
@@ -170,4 +170,4 @@ class RemotesViewModel @AssistedInject constructor(
 
 data class RemoteView(val remoteInfo: RemoteInfo, val isExpanded: Boolean)
 
-data class RemotesState(val remotes: List<RemoteView>, val isExpanded: Boolean, val currentBranch: Ref?)
+data class RemotesState(val remotes: List<RemoteView>, val isExpanded: Boolean, val currentBranch: Branch?)

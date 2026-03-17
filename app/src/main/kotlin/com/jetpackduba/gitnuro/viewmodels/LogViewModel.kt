@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckHasUncommittedChangesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusSummaryGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.StatusSummary
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
@@ -401,7 +402,7 @@ class LogViewModel @Inject constructor(
         }
     }
 
-    override fun copyBranchNameToClipboard(branch: Ref) = tabState.safeProcessing(
+    override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.UNSPECIFIED
     ) {
@@ -417,7 +418,7 @@ sealed interface LogStatus {
     class Loaded(
         val hasUncommittedChanges: Boolean,
         val plotCommitList: GraphCommitList,
-        val currentBranch: Ref?,
+        val currentBranch: Branch?,
         val statusSummary: StatusSummary,
     ) : LogStatus
 }

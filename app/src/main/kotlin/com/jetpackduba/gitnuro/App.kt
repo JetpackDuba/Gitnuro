@@ -36,6 +36,7 @@ import com.jetpackduba.gitnuro.data.git.signers.SshSigner
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.DateTimeFormat
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
@@ -74,8 +75,8 @@ sealed interface Screen : NavKey {
     data object RepositoryOpen : Screen
     data object Settings : Screen
     data object CloneRepository : Screen
-    data class BranchRename(val ref: Ref) : Screen
-    data class BranchChangeUpstream(val ref: Ref) : Screen
+    data class BranchRename(val ref: Branch) : Screen
+    data class BranchChangeUpstream(val ref: Branch) : Screen
     data class BranchCreate(val targetCommit: RevCommit?) : Screen
     data class TagCreate(val targetCommit: RevCommit) : Screen
     data class BranchReset(val targetCommit: RevCommit) : Screen

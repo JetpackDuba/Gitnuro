@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.interfaces.IRenameBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ISetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -18,17 +19,17 @@ class RenameBranchDialogViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
     private val renameBranchGitAction: IRenameBranchGitAction,
     private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
-    @Assisted val branch: Ref,
+    @Assisted val branch: Branch,
 ) : TabViewModel() {
     @AssistedFactory
     interface Factory {
-        fun create(branch: Ref): RenameBranchDialogViewModel
+        fun create(branch: Branch): RenameBranchDialogViewModel
     }
 
     private val _operationCompleted = MutableStateFlow(false)
     val operationCompleted = _operationCompleted.asStateFlow()
 
-    fun renameBranch(branch: Ref, newName: String) = tabState.safeProcessing(
+    fun renameBranch(branch: Branch, newName: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.RENAME_BRANCH,
     ) { git ->
