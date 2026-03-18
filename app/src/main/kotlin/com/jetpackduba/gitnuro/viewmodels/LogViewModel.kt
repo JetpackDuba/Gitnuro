@@ -14,6 +14,8 @@ import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitActio
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckHasUncommittedChangesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusSummaryGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.GraphCommit
+import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import com.jetpackduba.gitnuro.domain.models.StatusSummary
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
@@ -88,7 +90,7 @@ class LogViewModel @Inject constructor(
     private val loadItemsMutex = Mutex()
 
     // TODO Restore functionality after refactoring
-    private val scrollToItem: Flow<RevCommit> = emptyFlow() /*tabState.taskEvent
+    private val scrollToItem: Flow<GraphCommit> = emptyFlow() /*tabState.taskEvent
         .filterIsInstance<TaskEvent.ScrollToGraphItem>()
         .map { it.selectedItem }
         .filterIsInstance<SelectedItem.CommitBasedItem>()
@@ -99,8 +101,8 @@ class LogViewModel @Inject constructor(
         .map { it.selectedItem }
         .filterIsInstance()*/
 
-    private val _focusCommit = MutableSharedFlow<RevCommit>()
-    val focusCommit: Flow<RevCommit> = merge(_focusCommit, scrollToItem)
+    private val _focusCommit = MutableSharedFlow<GraphCommit>()
+    val focusCommit: Flow<GraphCommit> = merge(_focusCommit, scrollToItem)
 
     val verticalListState = MutableStateFlow(LazyListState(0, 0))
     val horizontalListState = MutableStateFlow(ScrollState(0))
@@ -250,7 +252,7 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectCommit(commit: GraphNode) = tabState.runOperation(
+    fun selectCommit(commit: GraphCommit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         tabState.newSelectedCommit(commit)
@@ -280,11 +282,11 @@ class LogViewModel @Inject constructor(
             val lowercaseValue = searchTerm.lowercase()
             val plotCommitList = logStatusValue.plotCommitList
 
-            val matchingCommits = plotCommitList.filter {
-                it.fullMessage.lowercase().contains(lowercaseValue) ||
-                        it.authorIdent.name.lowercase().contains(lowercaseValue) ||
-                        it.committerIdent.name.lowercase().contains(lowercaseValue) ||
-                        it.name.lowercase().contains(lowercaseValue)
+            val matchingCommits = plotCommitList.commits.filter {
+                it.message.lowercase().contains(lowercaseValue) ||
+                        it.author.name.lowercase().contains(lowercaseValue) ||
+                        it.committer.name.lowercase().contains(lowercaseValue) ||
+                        it.hash.lowercase().contains(lowercaseValue)
             }
 
             var startingUiIndex = NONE_MATCHING_INDEX
@@ -366,7 +368,11 @@ class LogViewModel @Inject constructor(
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)?.plotCommitList?.count() ?: 0
+        val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)
+            ?.plotCommitList
+            ?.commits
+            .orEmpty()
+            .count()
 
         if (
             loadItemsMutex.isLocked ||
@@ -393,8 +399,8 @@ class LogViewModel @Inject constructor(
                 git = git,
                 currentBranch = currentBranch,
                 hasUncommittedChanges = hasUncommittedChanges,
-                commitsLimit = logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
-                cachedCommitList = logStatusValue.plotCommitList,
+                commitsLimit = logStatusValue.plotCommitList.commits.count() + INCREMENTAL_COMMITS_LOAD,
+                // TODO Reenable lazy loading later: cachedCommitList = logStatusValue.plotCommitList,
             )
 
             _logStatus.value =
@@ -417,7 +423,7 @@ sealed interface LogStatus {
     data object Loading : LogStatus
     class Loaded(
         val hasUncommittedChanges: Boolean,
-        val plotCommitList: GraphCommitList,
+        val plotCommitList: GraphCommits,
         val currentBranch: Branch?,
         val statusSummary: StatusSummary,
     ) : LogStatus
@@ -426,7 +432,7 @@ sealed interface LogStatus {
 sealed interface LogSearch {
     data object NotSearching : LogSearch
     data class SearchResults(
-        val commits: List<GraphNode>,
+        val commits: List<GraphCommit>,
         val index: Int,
         val totalCount: Int = commits.count(),
     ) : LogSearch

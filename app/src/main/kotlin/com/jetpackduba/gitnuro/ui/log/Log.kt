@@ -48,15 +48,9 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.extensions.getShortMessageTrimmed
-import com.jetpackduba.gitnuro.domain.extensions.isBranch
 import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
-import com.jetpackduba.gitnuro.domain.extensions.isLocal
 import com.jetpackduba.gitnuro.domain.extensions.isMerging
-import com.jetpackduba.gitnuro.domain.extensions.isRemote
 import com.jetpackduba.gitnuro.domain.extensions.isReverting
-import com.jetpackduba.gitnuro.domain.extensions.isSameBranch
-import com.jetpackduba.gitnuro.domain.extensions.isTag
-import com.jetpackduba.gitnuro.domain.extensions.simpleLogName
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
@@ -65,8 +59,6 @@ import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
-import com.jetpackduba.gitnuro.ui.dialogs.CreateTagDialog
-import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
 import com.jetpackduba.gitnuro.viewmodels.*
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -225,7 +217,7 @@ private fun LogLoaded(
         if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
 
         val maxLinePosition = if (commitList.isNotEmpty())
-            commitList.maxLine
+            commitList.maxLane
         else
             MIN_GRAPH_LANES
 

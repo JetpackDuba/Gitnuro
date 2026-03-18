@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -115,7 +116,7 @@ class CommitChangesViewModel @Inject constructor(
         }
     }
 
-    fun loadChanges(commit: RevCommit) = tabState.runOperation(
+    fun loadChanges(commit: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
         val state = _commitChangesState.value
@@ -129,14 +130,14 @@ class CommitChangesViewModel @Inject constructor(
                 delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
                 onDelayTriggered = { _commitChangesState.value = CommitChangesState.Loading }
             ) {
-                val fullCommit = commit.fullData(git.repository)
+                val commit = commit.fullData(git.repository)
 
-                if (fullCommit != null) {
-                    val changes = getCommitDiffEntriesGitAction(git, fullCommit).toMutableList()
+                if (commit != null) {
+                    val changes = getCommitDiffEntriesGitAction(git, commit).toMutableList()
 
-                    if (fullCommit.parentCount == 3) {
+                    if (commit.parentCount == 3) {
                         val untrackedFilesCommit =
-                            fullCommit.parents?.firstOrNull {
+                            commit.parents?.firstOrNull {
                                 val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
 
                                 parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
@@ -218,7 +219,7 @@ class CommitChangesViewModel @Inject constructor(
 
 private sealed interface CommitChangesState {
     data object Loading : CommitChangesState
-    data class Loaded(val commit: RevCommit, val changes: List<DiffEntry>) :
+    data class Loaded(val commit: Commit, val changes: List<DiffEntry>) :
         CommitChangesState
 }
 

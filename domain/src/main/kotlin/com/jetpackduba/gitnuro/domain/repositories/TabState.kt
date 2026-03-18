@@ -4,6 +4,8 @@ import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.Notification
 import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -225,7 +227,7 @@ class TabInstanceRepository @Inject constructor(
         refreshData.emit(refreshType)
     }
 
-    suspend fun newSelectedStash(stash: RevCommit) {
+    suspend fun newSelectedStash(stash: Commit) {
         newSelectedItem(SelectedItem.Stash(stash))
     }
 
@@ -233,13 +235,13 @@ class TabInstanceRepository @Inject constructor(
         newSelectedItem(SelectedItem.None)
     }
 
-    fun newSelectedCommit(revCommit: RevCommit?) = runOperation(
+    fun newSelectedCommit(revCommit: GraphCommit?) = runOperation(
         refreshType = RefreshType.NONE,
     ) { _ ->
         if (revCommit == null) {
             newSelectedItem(SelectedItem.None)
         } else {
-            val newSelectedItem = SelectedItem.Commit(revCommit)
+            val newSelectedItem = SelectedItem.Commit(revCommit.commit)
             newSelectedItem(newSelectedItem)
         }
     }

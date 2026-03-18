@@ -4,18 +4,20 @@ package com.jetpackduba.gitnuro.data.git.log
 import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
 import com.jetpackduba.gitnuro.data.git.stash.GetStashListGitAction
+import com.jetpackduba.gitnuro.data.mappers.GraphCommitMapper
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class GetLogGitAction @Inject constructor(
     private val getStashListGitAction: GetStashListGitAction,
+    private val graphCommitMapper: GraphCommitMapper
 ) : IGetLogGitAction {
     override suspend operator fun invoke(
         git: Git,
@@ -57,6 +59,9 @@ class GetLogGitAction @Inject constructor(
 
         commitList.calcMaxLine()
 
-        return@withContext commitList
+        return@withContext GraphCommits(
+            commits = commitList.map { graphCommitMapper.toDomain(it) },
+            maxLane = commitList.maxLane,
+        )
     }
 }

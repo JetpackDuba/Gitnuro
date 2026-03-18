@@ -29,7 +29,7 @@ class GraphCommitList(
 
     private val graphCommit = UncommittedChangesGraphNode()
 
-    var maxLine = 0
+    var maxLane = 0
         private set
 
     /** number of (child) commits on a lane  */
@@ -386,7 +386,7 @@ class GraphCommitList(
 
     fun calcMaxLine() {
         if (this.isNotEmpty()) {
-            maxLine = this.maxOf { it.lane.position }
+            maxLane = this.maxOf { it.lane.position }
         }
     }
 }
