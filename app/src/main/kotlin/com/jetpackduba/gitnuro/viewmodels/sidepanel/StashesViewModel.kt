@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStashListGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.viewmodels.ISharedStashViewModel
@@ -23,11 +24,11 @@ class StashesViewModel @AssistedInject constructor(
     sharedStashViewModel: SharedStashViewModel,
 ) : SidePanelChildViewModel(true), ISharedStashViewModel by sharedStashViewModel {
 
-    private val stashes = MutableStateFlow<List<RevCommit>>(emptyList())
+    private val stashes = MutableStateFlow<List<Commit>>(emptyList())
 
     val stashesState: StateFlow<StashesState> = combine(stashes, isExpanded, filter) { stashes, isExpanded, filter ->
         StashesState(
-            stashes = stashes.filter { it.fullMessage.lowercaseContains(filter) },
+            stashes = stashes.filter { it.message.lowercaseContains(filter) },
             isExpanded,
         )
     }.stateIn(
@@ -59,4 +60,4 @@ class StashesViewModel @AssistedInject constructor(
 }
 
 
-data class StashesState(val stashes: List<RevCommit>, val isExpanded: Boolean)
+data class StashesState(val stashes: List<Commit>, val isExpanded: Boolean)

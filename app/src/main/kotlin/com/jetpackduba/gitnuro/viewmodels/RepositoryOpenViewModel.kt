@@ -277,7 +277,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun selectCommit(commit: RevCommit) = tabState.runOperation(
+    fun selectCommit(commit: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         tabState.newSelectedCommit(commit)

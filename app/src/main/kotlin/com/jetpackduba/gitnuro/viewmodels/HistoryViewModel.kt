@@ -12,13 +12,16 @@ import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
@@ -30,6 +33,7 @@ class HistoryViewModel @Inject constructor(
     private val settings: AppSettingsService,
     private val tabScope: CoroutineScope,
     private val appSettingsRepository: DataStoreAppSettingsRepository,
+    private val getFileCommitsUseCase: GetFileCommitsUseCase,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState
@@ -89,17 +93,14 @@ class HistoryViewModel @Inject constructor(
         this@HistoryViewModel.filePath = filePath
         _historyState.value = HistoryState.Loading(filePath)
 
-        val log = git.log()
-            .addPath(filePath)
-            .call()
-            .toList()
+        val log = getFileCommitsUseCase(git, filePath)
 
         _historyState.value = HistoryState.Loaded(filePath, log)
 
         null
     }
 
-    fun selectCommit(commit: RevCommit) = tabState.runOperation(
+    fun selectCommit(commit: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
         showError = true,
     ) { git ->
@@ -142,6 +143,6 @@ class HistoryViewModel @Inject constructor(
 
 sealed class HistoryState(val filePath: String) {
     class Loading(filePath: String) : HistoryState(filePath)
-    class Loaded(filePath: String, val commits: List<RevCommit>) : HistoryState(filePath)
+    class Loaded(filePath: String, val commits: List<Commit>) : HistoryState(filePath)
 }
 

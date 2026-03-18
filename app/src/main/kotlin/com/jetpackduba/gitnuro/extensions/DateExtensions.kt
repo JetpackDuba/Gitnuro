@@ -10,6 +10,19 @@ import java.time.format.FormatStyle
 import java.util.*
 
 @Composable
+fun Long.toSmartSystemString(
+    allowRelative: Boolean = true,
+    useSystemDefaultFormat: Boolean? = null,
+    showTime: Boolean = false,
+): String {
+    return Instant.ofEpochSecond(this).toSmartSystemString(
+        allowRelative,
+        useSystemDefaultFormat,
+        showTime,
+    )
+}
+
+@Composable
 fun Instant.toSmartSystemString(
     allowRelative: Boolean = true,
     useSystemDefaultFormat: Boolean? = null,

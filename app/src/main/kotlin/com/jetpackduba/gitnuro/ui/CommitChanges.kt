@@ -20,13 +20,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
-import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.data.repositories.DiffSelected
 import com.jetpackduba.gitnuro.domain.extensions.fileName
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
-import com.jetpackduba.gitnuro.domain.extensions.shortName
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.Identity
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.ui.components.*
@@ -39,8 +40,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.lib.PersonIdent
-import org.eclipse.jgit.revwalk.RevCommit
 
 @Composable
 fun CommitChanges(
@@ -207,7 +206,7 @@ private fun CommitChangesView(
 
 @Composable
 private fun MessageAuthorFooter(
-    commit: RevCommit,
+    commit: Commit,
     textScroll: ScrollState,
 ) {
     Column(
@@ -218,7 +217,7 @@ private fun MessageAuthorFooter(
     ) {
         SelectionContainer {
             Text(
-                text = commit.fullMessage,
+                text = commit.message,
                 style = MaterialTheme.typography.body1,
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier
@@ -229,21 +228,23 @@ private fun MessageAuthorFooter(
             )
         }
 
-        Author(
-            shortName = commit.shortName,
-            name = commit.name,
-            author = commit.authorIdent,
+        CommitFooter(
+            shortHash = commit.shortHash,
+            hash = commit.hash,
+            date = commit.date,
+            author = commit.author,
         )
     }
 }
 
 @Composable
-fun Author(
-    shortName: String,
-    name: String,
-    author: PersonIdent,
+fun CommitFooter(
+    shortHash: String,
+    hash: String,
+    date: Long,
+    author: Identity,
 ) {
-    var copied by remember(name) { mutableStateOf(false) }
+    var copied by remember(hash) { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboardManager.current
 
@@ -270,18 +271,18 @@ fun Author(
                 text = author.name,
                 maxLines = 1,
                 style = MaterialTheme.typography.body2,
-                tooltipTitle = author.emailAddress,
+                tooltipTitle = author.email,
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = shortName,
+                    text = shortHash,
                     color = MaterialTheme.colors.onBackgroundSecondary,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier.handMouseClickable {
                         scope.launch {
-                            clipboard.setText(AnnotatedString(name))
+                            clipboard.setText(AnnotatedString(hash))
                             copied = true
                             delay(2000) // 2s
                             copied = false
@@ -302,12 +303,12 @@ fun Author(
 
                 Spacer(modifier = Modifier.weight(1f, fill = true))
 
-                val smartDate = author.whenAsInstant.toSmartSystemString(
+                val smartDate = date.toSmartSystemString(
                     allowRelative = true,
                     showTime = true,
                 )
 
-                val smartDateTooltip = author.whenAsInstant.toSmartSystemString(
+                val smartDateTooltip = date.toSmartSystemString(
                     allowRelative = false,
                     showTime = true,
                 )
@@ -344,7 +345,7 @@ fun ListCommitLogChanges(
                 iconColor = diffEntry.iconColor,
                 parentDirectoryPath = diffEntry.parentDirectoryPath,
                 fileName = diffEntry.fileName,
-                isSelected = false/*diffSelected is DiffType.CommitDiff && diffSelected.diffEntry == diffEntry*/,
+                isSelected = false,/*diffSelected is DiffType.CommitDiff && diffSelected.diffEntry == diffEntry*/
                 onClick = { onDiffSelected(diffEntry) },
                 onDoubleClick = {},
                 onGenerateContextMenu = { onGenerateContextMenu(diffEntry) },
@@ -371,9 +372,10 @@ fun TreeCommitLogChanges(
         items(items = treeItems) { entry ->
             CommitTreeItemEntry(
                 entry = entry,
-                isSelected =  false/*entry is TreeItem.File &&
-                        diffSelected is DiffType.CommitDiff &&
-                        diffSelected.diffEntry == entry.data*/,
+                isSelected = false,
+                /*entry is TreeItem.File &&
+                                        diffSelected is DiffType.CommitDiff &&
+                                        diffSelected.diffEntry == entry.data*/
                 onFileClick = { onDiffSelected(it) },
                 onDirectoryClick = { onDirectoryClicked(it) },
                 onGenerateContextMenu = onGenerateContextMenu,

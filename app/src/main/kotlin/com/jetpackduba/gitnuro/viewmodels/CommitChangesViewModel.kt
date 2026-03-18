@@ -10,9 +10,10 @@ import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.fullData
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
-import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -24,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.revwalk.RevCommit
 import java.io.File
 import javax.inject.Inject
 
@@ -115,7 +115,7 @@ class CommitChangesViewModel @Inject constructor(
         }
     }
 
-    fun loadChanges(commit: RevCommit) = tabState.runOperation(
+    fun loadChanges(commit: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
         val state = _commitChangesState.value
@@ -129,30 +129,28 @@ class CommitChangesViewModel @Inject constructor(
                 delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
                 onDelayTriggered = { _commitChangesState.value = CommitChangesState.Loading }
             ) {
-                val fullCommit = commit.fullData(git.repository)
 
-                if (fullCommit != null) {
-                    val changes = getCommitDiffEntriesGitAction(git, fullCommit).toMutableList()
+                val changes = getCommitDiffEntriesGitAction(git, commit).toMutableList()
 
-                    if (fullCommit.parentCount == 3) {
-                        val untrackedFilesCommit =
-                            fullCommit.parents?.firstOrNull {
-                                val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
+                // TODO Restore stashes change loading. IIRC only stashes have 3 parents, usually.
+                /*if (commit.parentCount == 3) {
+                    val untrackedFilesCommit =
+                        commit.parents?.firstOrNull {
+                            val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
 
-                                parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
-                            }
+                            parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
+                        }
 
-                        if (untrackedFilesCommit != null) {
-                            val untrackedFilesChanges = getCommitDiffEntriesGitAction(git, untrackedFilesCommit)
+                    if (untrackedFilesCommit != null) {
+                        val untrackedFilesChanges = getCommitDiffEntriesGitAction(git, untrackedFilesCommit)
 
-                            if (untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
-                                changes.addAll(untrackedFilesChanges)
-                            }
+                        if (untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
+                            changes.addAll(untrackedFilesChanges)
                         }
                     }
+                }*/
 
-                    _commitChangesState.value = CommitChangesState.Loaded(commit, changes)
-                }
+                _commitChangesState.value = CommitChangesState.Loaded(commit, changes)
             }
 
             _showSearch.value = false
@@ -218,7 +216,7 @@ class CommitChangesViewModel @Inject constructor(
 
 private sealed interface CommitChangesState {
     data object Loading : CommitChangesState
-    data class Loaded(val commit: RevCommit, val changes: List<DiffEntry>) :
+    data class Loaded(val commit: Commit, val changes: List<DiffEntry>) :
         CommitChangesState
 }
 
@@ -226,13 +224,13 @@ sealed interface CommitChangesStateUi {
     data object Loading : CommitChangesStateUi
 
     sealed interface Loaded : CommitChangesStateUi {
-        val commit: RevCommit
+        val commit: Commit
     }
 
-    data class ListLoaded(override val commit: RevCommit, val changes: List<DiffEntry>) :
+    data class ListLoaded(override val commit: Commit, val changes: List<DiffEntry>) :
         Loaded
 
-    data class TreeLoaded(override val commit: RevCommit, val changes: List<TreeItem<DiffEntry>>) :
+    data class TreeLoaded(override val commit: Commit, val changes: List<TreeItem<DiffEntry>>) :
         Loaded
 }
 

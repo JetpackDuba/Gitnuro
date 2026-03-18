@@ -2,21 +2,8 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
-import com.jetpackduba.gitnuro.domain.extensions.shortName
-import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
-import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
-import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
-import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.ICheckHasUncommittedChangesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusSummaryGitAction
-import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.StatusSummary
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
+import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -28,8 +15,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 import kotlin.math.max
@@ -88,7 +73,7 @@ class LogViewModel @Inject constructor(
     private val loadItemsMutex = Mutex()
 
     // TODO Restore functionality after refactoring
-    private val scrollToItem: Flow<RevCommit> = emptyFlow() /*tabState.taskEvent
+    private val scrollToItem: Flow<GraphCommit> = emptyFlow() /*tabState.taskEvent
         .filterIsInstance<TaskEvent.ScrollToGraphItem>()
         .map { it.selectedItem }
         .filterIsInstance<SelectedItem.CommitBasedItem>()
@@ -99,8 +84,8 @@ class LogViewModel @Inject constructor(
         .map { it.selectedItem }
         .filterIsInstance()*/
 
-    private val _focusCommit = MutableSharedFlow<RevCommit>()
-    val focusCommit: Flow<RevCommit> = merge(_focusCommit, scrollToItem)
+    private val _focusCommit = MutableSharedFlow<GraphCommit>()
+    val focusCommit: Flow<GraphCommit> = merge(_focusCommit, scrollToItem)
 
     val verticalListState = MutableStateFlow(LazyListState(0, 0))
     val horizontalListState = MutableStateFlow(ScrollState(0))
@@ -164,10 +149,10 @@ class LogViewModel @Inject constructor(
         _logSearchFilterResults.value = LogSearch.NotSearching
     }
 
-    fun checkoutCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun checkoutCommit(revCommit: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit checkout",
-        subtitle = "Checking out commit ${revCommit.name}",
+        subtitle = "Checking out commit ${revCommit.hash}",
         taskType = TaskType.CHECKOUT_COMMIT,
     ) { git ->
         checkoutCommitGitAction(git, revCommit)
@@ -175,10 +160,10 @@ class LogViewModel @Inject constructor(
         positiveNotification("Commit checked out")
     }
 
-    fun revertCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun revertCommit(revCommit: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit revert",
-        subtitle = "Reverting commit ${revCommit.name}",
+        subtitle = "Reverting commit ${revCommit.hash}",
         refreshEvenIfCrashes = true,
         taskType = TaskType.REVERT_COMMIT,
     ) { git ->
@@ -187,10 +172,10 @@ class LogViewModel @Inject constructor(
         positiveNotification("Commit reverted")
     }
 
-    fun cherryPickCommit(revCommit: RevCommit) = tabState.safeProcessing(
+    fun cherryPickCommit(revCommit: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         title = "Cherry-pick",
-        subtitle = "Cherry-picking commit ${revCommit.shortName}",
+        subtitle = "Cherry-picking commit ${revCommit.shortHash}",
         taskType = TaskType.CHERRY_PICK_COMMIT,
         refreshEvenIfCrashes = true,
     ) { git ->
@@ -250,14 +235,14 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectCommit(commit: GraphNode) = tabState.runOperation(
+    fun selectCommit(commit: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         tabState.newSelectedCommit(commit)
 
         val searchValue = _logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {
-            var index = searchValue.commits.indexOf(commit)
+            var index = searchValue.commits.indexOfFirst { it.hash == commit.hash }
 
             if (index == -1)
                 index = getLastIndexSelected()
@@ -280,11 +265,11 @@ class LogViewModel @Inject constructor(
             val lowercaseValue = searchTerm.lowercase()
             val plotCommitList = logStatusValue.plotCommitList
 
-            val matchingCommits = plotCommitList.filter {
-                it.fullMessage.lowercase().contains(lowercaseValue) ||
-                        it.authorIdent.name.lowercase().contains(lowercaseValue) ||
-                        it.committerIdent.name.lowercase().contains(lowercaseValue) ||
-                        it.name.lowercase().contains(lowercaseValue)
+            val matchingCommits = plotCommitList.commits.filter {
+                it.message.lowercase().contains(lowercaseValue) ||
+                        it.author.name.lowercase().contains(lowercaseValue) ||
+                        it.committer.name.lowercase().contains(lowercaseValue) ||
+                        it.hash.lowercase().contains(lowercaseValue)
             }
 
             var startingUiIndex = NONE_MATCHING_INDEX
@@ -354,7 +339,7 @@ class LogViewModel @Inject constructor(
         tabState.removeCloseableView(CloseableView.LOG_SEARCH)
     }
 
-    fun rebaseInteractive(revCommit: RevCommit) = tabState.safeProcessing(
+    fun rebaseInteractive(revCommit: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.REBASE_INTERACTIVE_STATE,
         taskType = TaskType.REBASE_INTERACTIVE,
     ) { git ->
@@ -366,7 +351,11 @@ class LogViewModel @Inject constructor(
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)?.plotCommitList?.count() ?: 0
+        val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)
+            ?.plotCommitList
+            ?.commits
+            .orEmpty()
+            .count()
 
         if (
             loadItemsMutex.isLocked ||
@@ -393,8 +382,8 @@ class LogViewModel @Inject constructor(
                 git = git,
                 currentBranch = currentBranch,
                 hasUncommittedChanges = hasUncommittedChanges,
-                commitsLimit = logStatusValue.plotCommitList.count() + INCREMENTAL_COMMITS_LOAD,
-                cachedCommitList = logStatusValue.plotCommitList,
+                commitsLimit = logStatusValue.plotCommitList.commits.count() + INCREMENTAL_COMMITS_LOAD,
+                // TODO Reenable lazy loading later: cachedCommitList = logStatusValue.plotCommitList,
             )
 
             _logStatus.value =
@@ -417,7 +406,7 @@ sealed interface LogStatus {
     data object Loading : LogStatus
     class Loaded(
         val hasUncommittedChanges: Boolean,
-        val plotCommitList: GraphCommitList,
+        val plotCommitList: GraphCommits,
         val currentBranch: Branch?,
         val statusSummary: StatusSummary,
     ) : LogStatus
@@ -426,7 +415,7 @@ sealed interface LogStatus {
 sealed interface LogSearch {
     data object NotSearching : LogSearch
     data class SearchResults(
-        val commits: List<GraphNode>,
+        val commits: List<GraphCommit>,
         val index: Int,
         val totalCount: Int = commits.count(),
     ) : LogSearch

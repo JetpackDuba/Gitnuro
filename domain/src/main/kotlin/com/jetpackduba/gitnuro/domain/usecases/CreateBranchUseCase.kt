@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.interfaces.ICreateBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -13,7 +14,7 @@ class CreateBranchUseCase @Inject constructor(
     val tabState: TabInstanceRepository,
     val createBranchGitAction: ICreateBranchGitAction,
 ) {
-    operator fun invoke(branchName: String, target: RevCommit?) = tabState.safeProcessing(
+    operator fun invoke(branchName: String, target: Commit?) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
         taskType = TaskType.CREATE_BRANCH,

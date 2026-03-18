@@ -30,6 +30,7 @@ import com.jetpackduba.gitnuro.domain.extensions.lineAt
 import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.notoSansMonoFontFamily
@@ -46,7 +47,7 @@ import org.jetbrains.compose.resources.painterResource
 fun Blame(
     filePath: String,
     blameResult: BlameResult,
-    onSelectCommit: (RevCommit) -> Unit,
+    onSelectCommit: (Commit) -> Unit,
     onClose: () -> Unit,
 ) {
 
@@ -103,7 +104,7 @@ fun Blame(
                                     .width(200.dp)
                                     .fillMaxHeight()
                                     .background(MaterialTheme.colors.secondarySurface)
-                                    .clickable { if (commit != null) onSelectCommit(commit) },
+                                    .clickable { /* TODO Reenable this once blame has been refactored: if (commit != null) onSelectCommit(commit)*/ },
                                 verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(

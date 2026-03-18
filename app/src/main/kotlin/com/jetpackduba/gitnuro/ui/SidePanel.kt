@@ -23,6 +23,7 @@ import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.data.mappers.toRemoteWrapper
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.newRemoteWrapper
@@ -347,7 +348,7 @@ fun LazyListScope.stashes(
     }
 
     if (isExpanded) {
-        items(stashes, key = { it.name }) { stash ->
+        items(stashes, key = { it.hash }) { stash ->
             Stash(
                 stash,
                 isSelected = selectedItem is SelectedItem.Stash && selectedItem.revCommit == stash,
@@ -571,7 +572,7 @@ private fun Tag(
 
 @Composable
 private fun Stash(
-    stash: RevCommit,
+    stash: Commit,
     isSelected: Boolean,
     onClick: () -> Unit,
     onApply: () -> Unit,

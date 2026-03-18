@@ -3,6 +3,8 @@ package com.jetpackduba.gitnuro.viewmodels
 import com.jetpackduba.gitnuro.domain.interfaces.IApplyStashGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteStashGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPopStashGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
@@ -13,11 +15,11 @@ import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 interface ISharedStashViewModel {
-    fun applyStash(stashInfo: RevCommit): Job
-    fun popStash(stash: RevCommit): Job
-    fun deleteStash(stash: RevCommit): Job
-    fun selectStash(stash: RevCommit): Job
-    fun stashDropped(stash: RevCommit): Job
+    fun applyStash(stashInfo: Commit): Job
+    fun popStash(stash: Commit): Job
+    fun deleteStash(stash: Commit): Job
+    fun selectStash(stash: Commit): Job
+    fun stashDropped(stash: Commit): Job
 }
 
 class SharedStashViewModel @Inject constructor(
@@ -26,7 +28,7 @@ class SharedStashViewModel @Inject constructor(
     private val deleteStashGitAction: IDeleteStashGitAction,
     private val tabState: TabInstanceRepository,
 ) : ISharedStashViewModel {
-    override fun applyStash(stashInfo: RevCommit) = tabState.safeProcessing(
+    override fun applyStash(stashInfo: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.APPLY_STASH,
@@ -36,7 +38,7 @@ class SharedStashViewModel @Inject constructor(
         positiveNotification("Stash applied")
     }
 
-    override fun popStash(stash: RevCommit) = tabState.safeProcessing(
+    override fun popStash(stash: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
         taskType = TaskType.POP_STASH,
@@ -48,7 +50,7 @@ class SharedStashViewModel @Inject constructor(
         positiveNotification("Stash popped")
     }
 
-    override fun deleteStash(stash: RevCommit) = tabState.safeProcessing(
+    override fun deleteStash(stash: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.DELETE_STASH,
     ) { git ->
@@ -59,19 +61,19 @@ class SharedStashViewModel @Inject constructor(
         positiveNotification("Stash deleted")
     }
 
-    override fun selectStash(stash: RevCommit) = tabState.runOperation(
+    override fun selectStash(stash: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         tabState.newSelectedStash(stash)
     }
 
-    override fun stashDropped(stash: RevCommit) = tabState.runOperation(
+    override fun stashDropped(stash: Commit) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
         val selectedValue = tabState.selectedItem.value
         if (
             selectedValue is SelectedItem.Stash &&
-            selectedValue.revCommit.name == stash.name
+            selectedValue.revCommit.hash == stash.hash
         ) {
             tabState.noneSelected()
         }

@@ -41,23 +41,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.app.generated.resources.*
-import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
-import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
 import com.jetpackduba.gitnuro.domain.models.StatusSummary
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.common.printLog
-import com.jetpackduba.gitnuro.domain.extensions.getShortMessageTrimmed
-import com.jetpackduba.gitnuro.domain.extensions.isBranch
 import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
-import com.jetpackduba.gitnuro.domain.extensions.isLocal
 import com.jetpackduba.gitnuro.domain.extensions.isMerging
-import com.jetpackduba.gitnuro.domain.extensions.isRemote
 import com.jetpackduba.gitnuro.domain.extensions.isReverting
-import com.jetpackduba.gitnuro.domain.extensions.isSameBranch
-import com.jetpackduba.gitnuro.domain.extensions.isTag
-import com.jetpackduba.gitnuro.domain.extensions.simpleLogName
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.GraphCommit
+import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
@@ -65,15 +59,12 @@ import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
-import com.jetpackduba.gitnuro.ui.dialogs.CreateTagDialog
-import com.jetpackduba.gitnuro.ui.dialogs.ResetBranchDialog
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
 import com.jetpackduba.gitnuro.viewmodels.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
-import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
@@ -111,9 +102,9 @@ fun Log(
     logViewModel: LogViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
-    onCreateBranch: (RevCommit) -> Unit,
-    onResetBranch: (RevCommit) -> Unit,
-    onCreateTag: (RevCommit) -> Unit,
+    onCreateBranch: (Commit) -> Unit,
+    onResetBranch: (Commit) -> Unit,
+    onCreateTag: (Commit) -> Unit,
     onChangeUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
 ) {
@@ -163,9 +154,9 @@ private fun LogLoaded(
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     onRequestMoreLogItems: (Int) -> Unit,
-    onCreateBranch: (RevCommit) -> Unit,
-    onResetBranch: (RevCommit) -> Unit,
-    onCreateTag: (RevCommit) -> Unit,
+    onCreateBranch: (Commit) -> Unit,
+    onResetBranch: (Commit) -> Unit,
+    onCreateTag: (Commit) -> Unit,
     onChangeUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
 ) {
@@ -185,9 +176,9 @@ private fun LogLoaded(
 
                 // TODO Check what would happen with a repo with multiple starting commits
                 if (
-                    commitsList.isNotEmpty() &&
-                    commitsList.count() - it < MIN_COMMITS_BEFORE_REQUESTING_MORE &&
-                    commitsList.last().parentCount > 0
+                    commitsList.commits.isNotEmpty() &&
+                    commitsList.commits.count() - it < MIN_COMMITS_BEFORE_REQUESTING_MORE &&
+                    commitsList.commits.last().commit.parentCount > 0
                 ) {
                     printLog(TAG, "Requesting more items")
                     onRequestMoreLogItems(verticalScrollState.firstVisibleItemIndex)
@@ -204,7 +195,7 @@ private fun LogLoaded(
     LaunchedEffect(verticalScrollState, commitList) {
         launch {
             logViewModel.focusCommit.collect { commit ->
-                scrollToCommit(verticalScrollState, commitList, commit)
+                scrollToCommit(verticalScrollState, commitList, commit.commit)
             }
         }
         launch {
@@ -225,7 +216,7 @@ private fun LogLoaded(
         if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
 
         val maxLinePosition = if (commitList.isNotEmpty())
-            commitList.maxLine
+            commitList.maxLane
         else
             MIN_GRAPH_LANES
 
@@ -284,9 +275,9 @@ private fun LogLoaded(
                 graphWidth = graphWidth,
                 onMerge = { ref -> logViewModel.mergeBranch(ref) },
                 onRebase = { ref -> logViewModel.rebaseBranch(ref) },
-                onCheckoutCommit = { logViewModel.checkoutCommit(it) },
-                onRevertCommit = { logViewModel.revertCommit(it) },
-                onCherryPickCommit = { logViewModel.cherryPickCommit(it) },
+                onCheckoutCommit = { logViewModel.checkoutCommit(it.commit) },
+                onRevertCommit = { logViewModel.revertCommit(it.commit) },
+                onCherryPickCommit = { logViewModel.cherryPickCommit(it.commit) },
                 onCheckoutRemoteBranch = { logViewModel.checkoutRemoteBranch(it) },
                 onCheckoutRef = { logViewModel.checkoutRef(it) },
                 onRebaseInteractive = { logViewModel.rebaseInteractive(it) },
@@ -375,10 +366,10 @@ private fun LogLoaded(
 
 suspend fun scrollToCommit(
     verticalScrollState: LazyListState,
-    commitList: GraphCommitList,
-    commit: RevCommit?,
+    commitList: GraphCommits,
+    commit: Commit?,
 ) {
-    val index = commitList.indexOfFirst { it.name == commit?.name }
+    val index = commitList.commits.indexOfFirst { it.hash == commit?.hash }
     // TODO Show a message informing the user why we aren't scrolling
     // Index can be -1 if the ref points to a commit that is not shown in the graph due to the limited
     // number of displayed commits.
@@ -387,7 +378,7 @@ suspend fun scrollToCommit(
 
 suspend fun scrollToUncommittedChanges(
     verticalScrollState: LazyListState,
-    commitList: GraphCommitList,
+    commitList: GraphCommits,
 ) {
     if (commitList.isNotEmpty())
         verticalScrollState.scrollToItem(0)
@@ -499,34 +490,34 @@ fun SearchFilter(
 fun CommitsList(
     scrollState: LazyListState,
     hasUncommittedChanges: Boolean,
-    searchFilter: List<GraphNode>?,
-    selectedCommit: RevCommit?,
+    searchFilter: List<GraphCommit>?,
+    selectedCommit: Commit?,
     logStatus: LogStatus.Loaded,
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
-    commitList: GraphCommitList,
-    onCheckoutCommit: (GraphNode) -> Unit,
-    onRevertCommit: (GraphNode) -> Unit,
-    onCherryPickCommit: (GraphNode) -> Unit,
+    commitList: GraphCommits,
+    onCheckoutCommit: (GraphCommit) -> Unit,
+    onRevertCommit: (GraphCommit) -> Unit,
+    onCherryPickCommit: (GraphCommit) -> Unit,
     onCheckoutRemoteBranch: (Branch) -> Unit,
     onCheckoutRef: (Branch) -> Unit,
     onMerge: (Branch) -> Unit,
     onRebase: (Branch) -> Unit,
-    onRebaseInteractive: (GraphNode) -> Unit,
-    onCommitSelected: (GraphNode) -> Unit,
+    onRebaseInteractive: (Commit) -> Unit,
+    onCommitSelected: (Commit) -> Unit,
     onUncommittedChangesSelected: () -> Unit,
-    onDeleteStash: (GraphNode) -> Unit,
-    onApplyStash: (GraphNode) -> Unit,
-    onPopStash: (GraphNode) -> Unit,
+    onDeleteStash: (Commit) -> Unit,
+    onApplyStash: (Commit) -> Unit,
+    onPopStash: (Commit) -> Unit,
     onDeleteBranch: (Branch) -> Unit,
     onDeleteRemoteBranch: (Branch) -> Unit,
     onDeleteTag: (Ref) -> Unit,
     onPushToRemoteBranch: (Branch) -> Unit,
     onPullFromRemoteBranch: (Branch) -> Unit,
     onCopyBranchNameToClipboard: (Branch) -> Unit,
-    onCreateBranch: (RevCommit) -> Unit,
-    onResetBranch: (RevCommit) -> Unit,
-    onCreateTag: (RevCommit) -> Unit,
+    onCreateBranch: (Commit) -> Unit,
+    onResetBranch: (Commit) -> Unit,
+    onCreateTag: (Commit) -> Unit,
     onChangeUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
     graphWidth: Dp,
@@ -562,7 +553,7 @@ fun CommitsList(
                         .handMouseClickable { onUncommittedChangesSelected() }
                 ) {
                     UncommittedChangesGraphNode(
-                        hasPreviousCommits = commitList.isNotEmpty(),
+                        hasPreviousCommits = commitList.commits.isNotEmpty(),
                         isSelected = selectedItem is SelectedItem.UncommittedChanges,
                         modifier = Modifier.offset(-horizontalScrollState.value.dp)
                     )
@@ -583,13 +574,13 @@ fun CommitsList(
             CommitLine(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
-                isSelected = selectedCommit?.name == graphNode.name,
+                isSelected = selectedCommit?.hash == graphNode.hash,
                 currentBranch = logStatus.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
                 horizontalScrollState = horizontalScrollState,
-                showCreateNewBranch = { onCreateBranch(graphNode) },
-                showCreateNewTag = { onCreateTag(graphNode) },
-                resetBranch = { onResetBranch(graphNode) },
+                showCreateNewBranch = { onCreateBranch(graphNode.commit) },
+                showCreateNewTag = { onCreateTag(graphNode.commit) },
+                resetBranch = { onResetBranch(graphNode.commit) },
                 onMergeBranch = onMerge,
                 onDeleteBranch = onDeleteBranch,
                 onDeleteRemoteBranch = onDeleteRemoteBranch,
@@ -597,13 +588,13 @@ fun CommitsList(
                 onPushToRemoteBranch = onPushToRemoteBranch,
                 onPullFromRemoteBranch = onPullFromRemoteBranch,
                 onRebaseBranch = onRebase,
-                onRebaseInteractive = { onRebaseInteractive(graphNode) },
-                onRevCommitSelected = { onCommitSelected(graphNode) },
+                onRebaseInteractive = { onRebaseInteractive(graphNode.commit) },
+                onRevCommitSelected = { onCommitSelected(graphNode.commit) },
                 onChangeDefaultUpstreamBranch = { onChangeUpstreamBranch(it) },
                 onRenameBranch = { onRenameBranch(it) },
-                onDeleteStash = { onDeleteStash(graphNode) },
-                onApplyStash = { onApplyStash(graphNode) },
-                onPopStash = { onPopStash(graphNode) },
+                onDeleteStash = { onDeleteStash(graphNode.commit) },
+                onApplyStash = { onApplyStash(graphNode.commit) },
+                onPopStash = { onPopStash(graphNode.commit) },
                 onCheckoutCommit = { onCheckoutCommit(graphNode) },
                 onRevertCommit = { onRevertCommit(graphNode) },
                 onCherryPickCommit = { onCherryPickCommit(graphNode) },
@@ -786,7 +777,7 @@ fun SummaryEntry(
 @Composable
 private fun CommitLine(
     graphWidth: Dp,
-    graphNode: GraphNode,
+    graphNode: GraphCommit,
     isSelected: Boolean,
     currentBranch: Branch?,
     matchesSearchFilter: Boolean?,
@@ -815,7 +806,7 @@ private fun CommitLine(
     onCopyBranchNameToClipboard: (Branch) -> Unit,
     horizontalScrollState: ScrollState,
 ) {
-    val isLastCommitOfCurrentBranch = currentBranch?.hash == graphNode.id.name
+    val isLastCommitOfCurrentBranch = currentBranch?.hash == graphNode.hash
 
     ContextMenu(
         items = {
@@ -844,7 +835,7 @@ private fun CommitLine(
                 .height(MaterialTheme.linesHeight.logCommitHeight)
                 .handMouseClickable { onRevCommitSelected() }
         ) {
-            val nodeColor = colors[graphNode.lane.position % colors.size]
+            val nodeColor = colors[graphNode.lane % colors.size]
 
             Box {
                 Row(
@@ -888,7 +879,7 @@ private fun CommitLine(
                         .padding(end = 4.dp),
                 ) {
                     CommitMessage(
-                        commit = graphNode,
+                        graphCommit = graphNode,
                         nodeColor = nodeColor,
                         matchesSearchFilter = matchesSearchFilter,
                         currentBranch = currentBranch,
@@ -918,7 +909,7 @@ private fun CommitLine(
 
 @Composable
 fun CommitMessage(
-    commit: GraphNode,
+    graphCommit: GraphCommit,
     currentBranch: Branch?,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
@@ -945,8 +936,26 @@ fun CommitMessage(
         Row(
             modifier = Modifier.padding(start = 16.dp)
         ) {
-            if (!commit.isStash) {
+            if (!graphCommit.isStash) {
                 // TODO Enable this once commits list is migrated to new structure
+                for (branch in graphCommit.branches) {
+                    BranchChip(
+                        ref = branch,
+                        color = nodeColor,
+                        currentBranch = currentBranch,
+                        isCurrentBranch = branch.isSameBranch(currentBranch),
+                        onCheckoutBranch = { onCheckoutRef(branch) },
+                        onMergeBranch = { onMergeBranch(branch) },
+                        onDeleteBranch = { onDeleteBranch(branch) },
+                        onDeleteRemoteBranch = { onDeleteRemoteBranch(branch) },
+                        onRebaseBranch = { onRebaseBranch(branch) },
+                        onPullRemoteBranch = { onPullRemoteBranch(branch) },
+                        onPushRemoteBranch = { onPushRemoteBranch(branch) },
+                        onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
+                        onRenameBranch = { onRenameBranch(branch) },
+                        onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(branch) },
+                    )
+                }
                 /*commit.refs.sortedWith { ref1, ref2 ->
                     if (ref1.isSameBranch(currentBranch)) {
                         -1
@@ -983,8 +992,8 @@ fun CommitMessage(
             }
         }
 
-        val message = remember(commit.id.name) {
-            commit.getShortMessageTrimmed()
+        val message = remember(graphCommit.hash) {
+            graphCommit.commit.shortMessage
         }
 
         Text(
@@ -999,12 +1008,12 @@ fun CommitMessage(
         )
 
         InstantTooltip(
-            text = commit.authorIdent.whenAsInstant.toSmartSystemString(allowRelative = false, showTime = true),
+            text = graphCommit.date.toSmartSystemString(allowRelative = false, showTime = true),
             modifier = Modifier.padding(horizontal = 16.dp),
             position = InstantTooltipPosition.RIGHT,
         ) {
             Text(
-                text = commit.authorIdent.whenAsInstant.toSmartSystemString(),
+                text = graphCommit.date.toSmartSystemString(),
                 style = MaterialTheme.typography.caption,
                 color = MaterialTheme.colors.onBackgroundSecondary,
                 maxLines = 1,
@@ -1042,7 +1051,7 @@ fun SimpleDividerLog(modifier: Modifier) {
 @Composable
 fun CommitsGraph(
     modifier: Modifier = Modifier,
-    plotCommit: GraphNode,
+    plotCommit: GraphCommit,
     nodeColor: Color,
     isSelected: Boolean,
 ) {
@@ -1061,7 +1070,7 @@ fun CommitsGraph(
         contentAlignment = Alignment.CenterStart,
     ) {
 
-        val itemPosition = plotCommit.lane.position
+        val itemPosition = plotCommit.lane
 
         Canvas(
             modifier = Modifier.fillMaxSize()
@@ -1078,23 +1087,23 @@ fun CommitsGraph(
 
                 forkingOffLanes.forEach { plotLane ->
                     drawLine(
-                        color = colors[plotLane.position % colors.size],
+                        color = colors[plotLane % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
+                        end = Offset(laneWidthWithDensity * (plotLane + 1), 0f),
                         strokeWidth = 2f * density,
                     )
                 }
 
                 mergingLanes.forEach { plotLane ->
                     drawLine(
-                        color = colors[plotLane.position % colors.size],
-                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        color = colors[plotLane % colors.size],
+                        start = Offset(laneWidthWithDensity * (plotLane + 1), this.size.height),
                         end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
                         strokeWidth = 2f * density,
                     )
                 }
 
-                if (plotCommit.parentCount > 0) {
+                if (plotCommit.commit.parentCount > 0) {
                     drawLine(
                         color = colors[itemPosition % colors.size],
                         start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
@@ -1105,9 +1114,9 @@ fun CommitsGraph(
 
                 passingLanes.forEach { plotLane ->
                     drawLine(
-                        color = colors[plotLane.position % colors.size],
-                        start = Offset(laneWidthWithDensity * (plotLane.position + 1), 0f),
-                        end = Offset(laneWidthWithDensity * (plotLane.position + 1), this.size.height),
+                        color = colors[plotLane % colors.size],
+                        start = Offset(laneWidthWithDensity * (plotLane + 1), 0f),
+                        end = Offset(laneWidthWithDensity * (plotLane + 1), this.size.height),
                         strokeWidth = 2f * density,
                     )
                 }
@@ -1127,10 +1136,10 @@ fun CommitsGraph(
 @Composable
 fun CommitNode(
     modifier: Modifier = Modifier,
-    plotCommit: GraphNode,
+    plotCommit: GraphCommit,
     color: Color,
 ) {
-    val author = plotCommit.authorIdent
+    val author = plotCommit.author
     if (plotCommit.isStash) {
         Box(
             modifier = modifier
@@ -1149,7 +1158,7 @@ fun CommitNode(
         }
     } else {
         InstantTooltip(
-            "${author.name} <${author.emailAddress}>",
+            "${author.name} <${author.email}>",
             position = InstantTooltipPosition.RIGHT,
         ) {
             Box(
@@ -1160,7 +1169,7 @@ fun CommitNode(
             ) {
                 AvatarImage(
                     modifier = Modifier.fillMaxSize(),
-                    personIdent = plotCommit.authorIdent,
+                    personIdent = plotCommit.author,
                     color = color,
                 )
             }

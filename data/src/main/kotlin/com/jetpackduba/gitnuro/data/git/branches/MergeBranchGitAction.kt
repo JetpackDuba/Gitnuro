@@ -3,10 +3,12 @@ package com.jetpackduba.gitnuro.data.git.branches
 import com.jetpackduba.gitnuro.data.git.stash.DeleteStashGitAction
 import com.jetpackduba.gitnuro.data.git.stash.SnapshotStashCreateCommand
 import com.jetpackduba.gitnuro.data.git.workspace.CheckHasUncommittedChangesGitAction
+import com.jetpackduba.gitnuro.data.mappers.JGitCommitMapper
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.exceptions.UncommittedChangesDetectedException
 import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.Commit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -20,6 +22,7 @@ import javax.inject.Inject
 class MergeBranchGitAction @Inject constructor(
     private val checkHasUncommittedChangesGitAction: CheckHasUncommittedChangesGitAction,
     private val deleteStashGitAction: DeleteStashGitAction,
+    private val commitMapper: JGitCommitMapper,
 ) : IMergeBranchGitAction {
     /**
      * @return true if success has conflicts, false if success without conflicts
@@ -30,7 +33,7 @@ class MergeBranchGitAction @Inject constructor(
         fastForward: Boolean,
         mergeAutoStash: Boolean,
     ) = withContext(Dispatchers.IO) {
-        var backupStash: RevCommit? = null
+        var backupStash: Commit? = null
 
         if (mergeAutoStash) {
             val hasUncommitedChanges = checkHasUncommittedChangesGitAction(git)
@@ -38,7 +41,7 @@ class MergeBranchGitAction @Inject constructor(
                 val snapshotStashCreateCommand = SnapshotStashCreateCommand(
                     repository = git.repository,
                     // TODO Fix this
-                    workingDirectoryMessage = "TMP MESSAGE"/*getString(
+                    workingDirectoryMessage = "TMP MESSAGE"/* TODO getString(
                         Res.string.merge_automatic_stash_description,
                         branch.simpleName,
                         git.repository.branch
@@ -46,7 +49,8 @@ class MergeBranchGitAction @Inject constructor(
                     includeUntracked = true
                 )
 
-                backupStash = snapshotStashCreateCommand.call()
+
+                backupStash = snapshotStashCreateCommand.call()?.let { commitMapper.toDomain(it) }
             }
         }
 

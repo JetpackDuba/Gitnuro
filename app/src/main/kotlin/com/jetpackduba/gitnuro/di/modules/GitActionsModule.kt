@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.data.git.tags.CreateTagGitAction
 import com.jetpackduba.gitnuro.data.git.tags.DeleteTagGitAction
 import com.jetpackduba.gitnuro.data.git.tags.GetTagsGitAction
 import com.jetpackduba.gitnuro.data.git.workspace.*
+import com.jetpackduba.gitnuro.data.log.GetFileCommitsAction
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import dagger.Binds
 import dagger.Module
@@ -346,4 +347,7 @@ interface GitActionsModule {
 
     @Binds
     fun bindsVerifyUploadLfsObjectGitAction(action: VerifyUploadLfsObjectGitAction): IVerifyUploadLfsObjectGitAction
+
+    @Binds
+    fun bindsGetFileCommitsAction(action: GetFileCommitsAction): IGetFileCommitsAction
 }

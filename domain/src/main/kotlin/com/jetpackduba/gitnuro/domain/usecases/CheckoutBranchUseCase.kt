@@ -12,7 +12,6 @@ class CheckoutBranchUseCase @Inject constructor(
     private val checkoutRefGitAction: ICheckoutRefGitAction,
     private val tabState: TabInstanceRepository,
 ) {
-
     fun invoke(ref: Branch) {
         tabState.safeProcessing(
             refreshType = RefreshType.ALL_DATA,

@@ -28,6 +28,7 @@ import com.jetpackduba.gitnuro.domain.extensions.shortName
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffResult
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -120,7 +121,7 @@ private fun Header(
 private fun HistoryContent(
     historyViewModel: HistoryViewModel,
     historyState: HistoryState,
-    onCommitSelected: (RevCommit) -> Unit,
+    onCommitSelected: (Commit) -> Unit,
 ) {
     val textScrollState by historyViewModel.lazyListState.collectAsState()
     val viewDiffResult by historyViewModel.viewDiffResult.collectAsState()
@@ -142,7 +143,7 @@ fun HistoryContentLoaded(
     historyState: HistoryState.Loaded,
     viewDiffResult: ViewDiffResult?,
     scrollState: LazyListState,
-    onCommitSelected: (RevCommit) -> Unit,
+    onCommitSelected: (Commit) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -220,7 +221,7 @@ fun HistoryContentLoaded(
 
 @Composable
 fun HistoryCommit(
-    commit: RevCommit,
+    commit: Commit,
     onCommitSelected: () -> Unit,
 ) {
     Row(
@@ -234,7 +235,7 @@ fun HistoryCommit(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .size(40.dp),
-            personIdent = commit.authorIdent,
+            personIdent = commit.author,
         )
 
         Column {
@@ -246,14 +247,14 @@ fun HistoryCommit(
 
             Row {
                 Text(
-                    text = commit.shortName,
+                    text = commit.shortHash,
                     maxLines = 1,
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackgroundSecondary,
                 )
                 Spacer(modifier = Modifier.weight(1f))
 
-                val date = commit.authorIdent.whenAsInstant.toSmartSystemString()
+                val date = commit.date.toSmartSystemString()
 
                 TooltipText(
                     text = date,

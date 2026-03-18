@@ -2,18 +2,21 @@ package com.jetpackduba.gitnuro.data.git.log
 
 import com.jetpackduba.gitnuro.domain.exceptions.RevertCommitException
 import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.MergeResult
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class RevertCommitGitAction @Inject constructor() : IRevertCommitGitAction {
-    override suspend operator fun invoke(git: Git, revCommit: RevCommit): Unit = withContext(Dispatchers.IO) {
+    override suspend operator fun invoke(git: Git, revCommit: Commit): Unit = withContext(Dispatchers.IO) {
+        val base =
+            git.repository.resolve(revCommit.hash) ?: throw Exception("Commit ${revCommit.hash} not found")
+
         val revertCommand = git
             .revert()
-            .include(revCommit)
+            .include(base)
 
         revertCommand.call()
 

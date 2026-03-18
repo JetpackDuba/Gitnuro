@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.data.git.diff
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.fullData
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -16,10 +17,13 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import javax.inject.Inject
 
 class GetCommitDiffEntriesGitAction @Inject constructor() : IGetCommitDiffEntriesGitAction {
-    override suspend operator fun invoke(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {
-        val fullCommit = commit.fullData(git.repository) ?: return@withContext emptyList()
-
+    override suspend operator fun invoke(git: Git, commit: Commit): List<DiffEntry> = withContext(Dispatchers.IO) {
         val repository = git.repository
+
+        val base = repository
+            .resolve(commit.hash) ?: throw Exception("Commit ${commit.hash} not found")
+
+        val fullCommit = git.repository.parseCommit(base) ?: return@withContext emptyList()
 
         val parent = if (fullCommit.parentCount == 0) {
             null

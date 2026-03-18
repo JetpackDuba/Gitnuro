@@ -16,7 +16,7 @@ class GetRebaseLinesFullMessageGitAction @Inject constructor(
     ): Map<String, String> = withContext(Dispatchers.IO) {
         return@withContext rebaseTodoLines.associate { line ->
             val commit = getCommitFromRebaseLineGitAction(git, line.commit, line.shortMessage)
-            val fullMessage = commit?.fullMessage ?: line.shortMessage
+            val fullMessage = commit?.message ?: line.shortMessage
             line.commit.name() to fullMessage
         }
     }

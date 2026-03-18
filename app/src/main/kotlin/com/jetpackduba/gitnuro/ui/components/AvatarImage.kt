@@ -15,12 +15,13 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import com.jetpackduba.gitnuro.LocalAvatarProvider
 import com.jetpackduba.gitnuro.domain.extensions.sha256
+import com.jetpackduba.gitnuro.domain.models.Identity
 import org.eclipse.jgit.lib.PersonIdent
 
 @Composable
 fun AvatarImage(
     modifier: Modifier = Modifier,
-    personIdent: PersonIdent,
+    personIdent: Identity,
     color: Color = MaterialTheme.colors.primary,
 ) {
     val current = LocalAvatarProvider.current
@@ -29,7 +30,7 @@ fun AvatarImage(
         modifier = modifier
             .clip(CircleShape)
     ) {
-        val avatarProviderUrl = current.getAvatarUrl(personIdent.emailAddress.sha256)
+        val avatarProviderUrl = current.getAvatarUrl(personIdent.email.sha256)
         var isSuccessfulLoad by remember { mutableStateOf(false) }
 
         AsyncImage(

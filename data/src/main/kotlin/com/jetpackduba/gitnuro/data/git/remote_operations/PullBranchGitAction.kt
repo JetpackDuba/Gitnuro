@@ -3,8 +3,10 @@ package com.jetpackduba.gitnuro.data.git.remote_operations
 import com.jetpackduba.gitnuro.data.git.stash.DeleteStashGitAction
 import com.jetpackduba.gitnuro.data.git.stash.SnapshotStashCreateCommand
 import com.jetpackduba.gitnuro.data.git.workspace.CheckHasUncommittedChangesGitAction
+import com.jetpackduba.gitnuro.data.mappers.JGitCommitMapper
 import com.jetpackduba.gitnuro.domain.interfaces.IPullBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.PullHasConflicts
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.PullType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,6 +22,7 @@ class PullBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
     private val hasPullResultConflictsGitAction: HasPullResultConflictsGitAction,
     private val deleteStashGitAction: DeleteStashGitAction,
+    private val commitMapper: JGitCommitMapper,
 ) : IPullBranchGitAction {
     override suspend operator fun invoke(
         git: Git,
@@ -33,7 +36,7 @@ class PullBranchGitAction @Inject constructor(
             }
 
             val pullWithMerge = !pullWithRebase
-            var backupStash: RevCommit? = null
+            var backupStash: Commit? = null
 
             if (mergeAutoStash && pullWithMerge) {
                 val hasUncommitedChanges = checkHasUncommittedChangesGitAction(git)
@@ -47,7 +50,7 @@ class PullBranchGitAction @Inject constructor(
                         includeUntracked = true
                     )
 
-                    backupStash = snapshotStashCreateCommand.call()
+                    backupStash = snapshotStashCreateCommand.call()?.let { commitMapper.toDomain(it) }
                 }
             }
 
