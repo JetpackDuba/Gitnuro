@@ -1,12 +1,11 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
-import com.jetpackduba.gitnuro.data.JGitBranchMapper
+import com.jetpackduba.gitnuro.data.mappers.JGitBranchMapper
 import com.jetpackduba.gitnuro.domain.interfaces.IRenameBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class RenameBranchGitAction @Inject constructor(

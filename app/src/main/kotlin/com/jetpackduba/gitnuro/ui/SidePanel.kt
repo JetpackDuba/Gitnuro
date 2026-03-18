@@ -26,6 +26,7 @@ import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.models.Remote
+import com.jetpackduba.gitnuro.domain.models.Tag
 import com.jetpackduba.gitnuro.domain.models.newRemoteWrapper
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -546,7 +547,7 @@ private fun RemoteBranches(
 
 @Composable
 private fun Tag(
-    tag: Ref,
+    tag: Tag,
     isSelected: Boolean,
     onTagClicked: () -> Unit,
     onCheckoutTag: () -> Unit,

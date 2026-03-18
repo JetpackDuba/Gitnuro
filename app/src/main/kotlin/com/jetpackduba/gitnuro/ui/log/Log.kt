@@ -39,28 +39,30 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.app.generated.resources.*
-import com.jetpackduba.gitnuro.domain.models.StatusSummary
-import com.jetpackduba.gitnuro.keybindings.KeybindingOption
-import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
 import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.extensions.isReverting
-import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.GraphCommit
-import com.jetpackduba.gitnuro.domain.models.GraphCommits
-import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.extensions.backgroundIf
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.toSmartSystemString
+import com.jetpackduba.gitnuro.keybindings.KeybindingOption
+import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
-import com.jetpackduba.gitnuro.viewmodels.*
+import com.jetpackduba.gitnuro.viewmodels.INCREMENTAL_COMMITS_LOAD
+import com.jetpackduba.gitnuro.viewmodels.LogSearch
+import com.jetpackduba.gitnuro.viewmodels.LogStatus
+import com.jetpackduba.gitnuro.viewmodels.LogViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Ref
@@ -286,6 +288,7 @@ private fun LogLoaded(
                 onDeleteStash = { logViewModel.deleteStash(it) },
                 onApplyStash = { logViewModel.applyStash(it) },
                 onPopStash = { logViewModel.popStash(it) },
+                onCheckoutTag = { logViewModel.checkoutTag(it) },
                 onDeleteBranch = { logViewModel.deleteBranch(it) },
                 onDeleteRemoteBranch = { logViewModel.deleteRemoteBranch(it) },
                 onDeleteTag = { logViewModel.deleteTag(it) },
@@ -511,7 +514,8 @@ fun CommitsList(
     onPopStash: (Commit) -> Unit,
     onDeleteBranch: (Branch) -> Unit,
     onDeleteRemoteBranch: (Branch) -> Unit,
-    onDeleteTag: (Ref) -> Unit,
+    onCheckoutTag: (Tag) -> Unit,
+    onDeleteTag: (Tag) -> Unit,
     onPushToRemoteBranch: (Branch) -> Unit,
     onPullFromRemoteBranch: (Branch) -> Unit,
     onCopyBranchNameToClipboard: (Branch) -> Unit,
@@ -584,6 +588,7 @@ fun CommitsList(
                 onMergeBranch = onMerge,
                 onDeleteBranch = onDeleteBranch,
                 onDeleteRemoteBranch = onDeleteRemoteBranch,
+                onCheckoutTag = onCheckoutTag,
                 onDeleteTag = onDeleteTag,
                 onPushToRemoteBranch = onPushToRemoteBranch,
                 onPullFromRemoteBranch = onPullFromRemoteBranch,
@@ -790,7 +795,8 @@ private fun CommitLine(
     onMergeBranch: (Branch) -> Unit,
     onDeleteBranch: (Branch) -> Unit,
     onDeleteRemoteBranch: (Branch) -> Unit,
-    onDeleteTag: (Ref) -> Unit,
+    onCheckoutTag: (Tag) -> Unit,
+    onDeleteTag: (Tag) -> Unit,
     onPushToRemoteBranch: (Branch) -> Unit,
     onPullFromRemoteBranch: (Branch) -> Unit,
     onRebaseBranch: (Branch) -> Unit,
@@ -883,23 +889,24 @@ private fun CommitLine(
                         nodeColor = nodeColor,
                         matchesSearchFilter = matchesSearchFilter,
                         currentBranch = currentBranch,
-                        onCheckoutRef = { ref ->
+                        onCheckoutBranch = { ref ->
                             if (ref.isRemote) {
                                 onCheckoutRemoteBranch(ref)
                             } else {
                                 onCheckoutBranch(ref)
                             }
                         },
-                        onMergeBranch = { ref -> onMergeBranch(ref) },
-                        onDeleteBranch = { ref -> onDeleteBranch(ref) },
-                        onDeleteRemoteBranch = { ref -> onDeleteRemoteBranch(ref) },
-                        onDeleteTag = { ref -> onDeleteTag(ref) },
-                        onRebaseBranch = { ref -> onRebaseBranch(ref) },
-                        onPushRemoteBranch = { ref -> onPushToRemoteBranch(ref) },
-                        onPullRemoteBranch = { ref -> onPullFromRemoteBranch(ref) },
-                        onChangeDefaultUpstreamBranch = { ref -> onChangeDefaultUpstreamBranch(ref) },
-                        onRenameBranch = { ref -> onRenameBranch(ref) },
-                        onCopyBranchNameToClipboard = { ref -> onCopyBranchNameToClipboard(ref) },
+                        onMergeBranch = onMergeBranch,
+                        onDeleteBranch = onDeleteBranch,
+                        onDeleteRemoteBranch = onDeleteRemoteBranch,
+                        onCheckoutTag = onCheckoutTag,
+                        onDeleteTag = onDeleteTag,
+                        onRebaseBranch = onRebaseBranch,
+                        onPushRemoteBranch = onPushToRemoteBranch,
+                        onPullRemoteBranch = onPullFromRemoteBranch,
+                        onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
+                        onRenameBranch = onRenameBranch,
+                        onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
                     )
                 }
             }
@@ -913,12 +920,13 @@ fun CommitMessage(
     currentBranch: Branch?,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
-    onCheckoutRef: (ref: Branch) -> Unit,
+    onCheckoutBranch: (ref: Branch) -> Unit,
     onMergeBranch: (ref: Branch) -> Unit,
     onDeleteBranch: (ref: Branch) -> Unit,
     onDeleteRemoteBranch: (ref: Branch) -> Unit,
     onRebaseBranch: (ref: Branch) -> Unit,
-    onDeleteTag: (ref: Ref) -> Unit,
+    onCheckoutTag: (tag: Tag) -> Unit,
+    onDeleteTag: (tag: Tag) -> Unit,
     onPushRemoteBranch: (ref: Branch) -> Unit,
     onPullRemoteBranch: (ref: Branch) -> Unit,
     onChangeDefaultUpstreamBranch: (ref: Branch) -> Unit,
@@ -938,13 +946,21 @@ fun CommitMessage(
         ) {
             if (!graphCommit.isStash) {
                 // TODO Enable this once commits list is migrated to new structure
+                for (tag in graphCommit.tags) {
+                    TagChip(
+                        tag = tag,
+                        color = nodeColor,
+                        onCheckoutTag = { onCheckoutTag(tag) },
+                        onDeleteTag = { onDeleteTag(tag) },
+                    )
+                }
                 for (branch in graphCommit.branches) {
                     BranchChip(
                         ref = branch,
                         color = nodeColor,
                         currentBranch = currentBranch,
                         isCurrentBranch = branch.isSameBranch(currentBranch),
-                        onCheckoutBranch = { onCheckoutRef(branch) },
+                        onCheckoutBranch = { onCheckoutBranch(branch) },
                         onMergeBranch = { onMergeBranch(branch) },
                         onDeleteBranch = { onDeleteBranch(branch) },
                         onDeleteRemoteBranch = { onDeleteRemoteBranch(branch) },
@@ -1262,7 +1278,7 @@ fun BranchChip(
         }
     }
 
-    RefChip(
+    Chip(
         modifier = modifier.draggable(
             rememberDraggableState {
 
@@ -1270,7 +1286,7 @@ fun BranchChip(
             orientation = Orientation.Vertical,
         ),
         color = color,
-        ref = ref,
+        text = ref.simpleName,
         icon = Res.drawable.branch,
         onCheckoutRef = onCheckoutBranch,
         contextMenuItemsList = contextMenuItemsList,
@@ -1282,7 +1298,7 @@ fun BranchChip(
 @Composable
 fun TagChip(
     modifier: Modifier = Modifier,
-    ref: Branch,
+    tag: Tag,
     onCheckoutTag: () -> Unit,
     onDeleteTag: () -> Unit,
     color: Color,
@@ -1294,9 +1310,9 @@ fun TagChip(
         )
     }
 
-    RefChip(
+    Chip(
         modifier,
-        ref,
+        tag.simpleName,
         Res.drawable.tag,
         onCheckoutRef = onCheckoutTag,
         contextMenuItemsList = contextMenuItemsList,
@@ -1306,9 +1322,9 @@ fun TagChip(
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun RefChip(
+fun Chip(
     modifier: Modifier = Modifier,
-    ref: Branch,
+    text: String,
     icon: DrawableResource,
     color: Color,
     onCheckoutRef: () -> Unit,
@@ -1341,7 +1357,7 @@ fun RefChip(
                     )
                 }
                 Text(
-                    text = ref.simpleName,
+                    text = text,
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onBackground,
                     maxLines = 1,

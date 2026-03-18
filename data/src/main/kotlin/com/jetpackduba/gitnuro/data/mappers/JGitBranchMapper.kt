@@ -1,6 +1,5 @@
-package com.jetpackduba.gitnuro.data
+package com.jetpackduba.gitnuro.data.mappers
 
-import com.jetpackduba.gitnuro.data.mappers.DataMapper
 import com.jetpackduba.gitnuro.domain.extensions.isLocal
 import com.jetpackduba.gitnuro.domain.models.Branch
 import org.eclipse.jgit.lib.Ref

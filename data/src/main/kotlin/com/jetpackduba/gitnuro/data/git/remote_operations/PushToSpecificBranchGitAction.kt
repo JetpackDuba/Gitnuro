@@ -4,12 +4,9 @@ import com.jetpackduba.gitnuro.domain.interfaces.IPushToSpecificBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.isRejected
 import com.jetpackduba.gitnuro.domain.models.statusMessage
-import com.jetpackduba.gitnuro.domain.remoteName
-import com.jetpackduba.gitnuro.domain.simpleName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.transport.RefSpec
 import javax.inject.Inject
 

@@ -1,14 +1,11 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
-import com.jetpackduba.gitnuro.domain.isBranch
 import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.simpleName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class CheckoutRefGitAction @Inject constructor() : ICheckoutRefGitAction {

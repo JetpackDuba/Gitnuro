@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTagsGitAction
+import com.jetpackduba.gitnuro.domain.models.Tag
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
@@ -29,7 +30,7 @@ class TagsViewModel @AssistedInject constructor(
     @Assisted
     private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(false), ISharedTagsViewModel by sharedTagsViewModel {
-    private val tags = MutableStateFlow<List<Ref>>(listOf())
+    private val tags = MutableStateFlow<List<Tag>>(listOf())
 
     val tagsState: StateFlow<TagsState> = combine(tags, isExpanded, filter) { tags, isExpanded, filter ->
         TagsState(
@@ -57,17 +58,18 @@ class TagsViewModel @AssistedInject constructor(
         tags.value = tagsList
     }
 
-    fun checkoutTagCommit(ref: Ref) = tabState.safeProcessing(
+    fun checkoutTagCommit(ref: Tag) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.INIT_SUBMODULE,
     ) { git ->
-        checkoutCommitGitAction(git, ref.objectId.name)
+        checkoutCommitGitAction(git, ref.hash)
 
         positiveNotification("Commit checked out")
     }
 
-    fun selectTag(tag: Ref) {
-        tabState.newSelectedRef(tag, tag.objectId)
+    fun selectTag(tag: Tag) {
+        // TODO Reimplement this
+//        tabState.newSelectedRef(tag, tag.objectId)
     }
 
     suspend fun refresh(git: Git) {
@@ -75,4 +77,4 @@ class TagsViewModel @AssistedInject constructor(
     }
 }
 
-data class TagsState(val tags: List<Ref>, val isExpanded: Boolean)
+data class TagsState(val tags: List<Tag>, val isExpanded: Boolean)

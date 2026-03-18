@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
-import com.jetpackduba.gitnuro.data.JGitBranchMapper
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.mappers.JGitBranchMapper
 import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch

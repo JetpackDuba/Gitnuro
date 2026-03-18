@@ -6,8 +6,6 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.simpleName
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class BranchDeleteUseCase @Inject constructor(
