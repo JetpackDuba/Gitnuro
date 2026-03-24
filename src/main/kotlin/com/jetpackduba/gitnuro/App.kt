@@ -117,7 +117,7 @@ class App {
         val windowPlacement = appSettingsRepository.windowPlacement.toWindowPlacement
         val dirToOpen = getDirToOpen(args)
 
-        appEnvInfo.isFlatpak = args.contains("--flatpak")
+        appEnvInfo.isFlatpak = File("/.flatpak-info").exists()
         appStateManager.loadRepositoriesTabs()
 
         try {
