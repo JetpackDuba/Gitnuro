@@ -14,15 +14,15 @@ import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
+import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(
@@ -34,6 +34,7 @@ class HistoryViewModel @Inject constructor(
     private val tabScope: CoroutineScope,
     private val appSettingsRepository: DataStoreAppSettingsRepository,
     private val getFileCommitsUseCase: GetFileCommitsUseCase,
+    private val getDiffUseCase: GetDiffUseCase,
 ) {
     private val _historyState = MutableStateFlow<HistoryState>(HistoryState.Loading(""))
     val historyState: StateFlow<HistoryState> = _historyState
@@ -117,20 +118,7 @@ class HistoryViewModel @Inject constructor(
             }
 
             val diffType = DiffType.CommitDiff(diffEntry)
-
-            val diffResult = formatDiffGitAction(
-                git,
-                diffType,
-                false
-            ) // TODO This hardcoded false should be changed when the UI is implemented
-            val textDiffType = settings.diffTextViewType.first()
-
-            val formattedDiffResult = if (textDiffType == DiffTextViewType.Split && diffResult is DiffResult.Text) {
-                DiffResult.TextSplit(diffEntry, generateSplitHunkFromDiffResultGitAction(diffResult))
-            } else
-                diffResult
-
-            _viewDiffResult.value = ViewDiffResult.Loaded(diffType, formattedDiffResult)
+            _viewDiffResult.value = getDiffUseCase(diffType)
         } catch (ex: Exception) {
             if (ex is MissingDiffEntryException) {
                 tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)

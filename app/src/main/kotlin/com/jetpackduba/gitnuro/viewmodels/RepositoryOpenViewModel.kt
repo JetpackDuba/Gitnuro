@@ -4,17 +4,15 @@ import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.common.printLog
-import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
 import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IGetWorkspacePathGitAction
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.interfaces.IStashChangesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IStageUntrackedFileGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
 import com.jetpackduba.gitnuro.managers.AppStateManager
@@ -38,7 +36,6 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.lib.RepositoryState
-import org.eclipse.jgit.revwalk.RevCommit
 import java.awt.Desktop
 import javax.inject.Inject
 import javax.inject.Provider
@@ -68,7 +65,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
-    private val selectedDiffItemRepository: SelectedDiffItemRepository,
+    private val repositoryDataRepository: RepositoryDataRepository,
     private val dataObserversManager: DataObserversManager,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
@@ -94,7 +91,7 @@ class RepositoryOpenViewModel @Inject constructor(
     var historyViewModel: HistoryViewModel? = null
         private set
 
-    val diffSelected = selectedDiffItemRepository.diffSelected
+    val diffSelected = repositoryDataRepository.diffSelected
 
     private var hasGitDirChanged = false
 
@@ -115,7 +112,7 @@ class RepositoryOpenViewModel @Inject constructor(
             }
 
             launch {
-                selectedDiffItemRepository.diffSelected.collectLatest {
+                repositoryDataRepository.diffSelected.collectLatest {
                     if (it != null && it.entries.count() == 1) {
                         minimizeBlame()
                     }

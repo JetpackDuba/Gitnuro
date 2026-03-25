@@ -24,7 +24,6 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.domain.extensions.shortName
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
@@ -41,8 +40,7 @@ import com.jetpackduba.gitnuro.ui.diff.HunkSplitTextDiff
 import com.jetpackduba.gitnuro.ui.diff.HunkUnifiedTextDiff
 import com.jetpackduba.gitnuro.viewmodels.HistoryState
 import com.jetpackduba.gitnuro.viewmodels.HistoryViewModel
-import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
-import org.eclipse.jgit.revwalk.RevCommit
+import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
 import org.jetbrains.compose.resources.painterResource
 
 @Composable

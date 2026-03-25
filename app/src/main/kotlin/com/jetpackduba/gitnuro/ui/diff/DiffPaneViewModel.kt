@@ -2,33 +2,21 @@ package com.jetpackduba.gitnuro.ui.diff
 
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
-import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
-import com.jetpackduba.gitnuro.extensions.delayedStateChange
+import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
-import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
-import com.jetpackduba.gitnuro.domain.interfaces.IDiscardUnstagedHunkLineGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IResetHunkGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IStageEntryGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IStageHunkGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IStageHunkLineGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IUnstageEntryGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IUnstageHunkGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IUnstageHunkLineGitAction
-import com.jetpackduba.gitnuro.domain.models.AppConfig
-import com.jetpackduba.gitnuro.domain.models.DiffResult
-import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
-import com.jetpackduba.gitnuro.domain.models.Hunk
-import com.jetpackduba.gitnuro.domain.models.Line
-import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.AddSelectedDiffUseCase
+import com.jetpackduba.gitnuro.domain.usecases.RemoveSelectedDiffUseCase
+import com.jetpackduba.gitnuro.domain.usecases.StatusStageUseCase
+import com.jetpackduba.gitnuro.domain.usecases.StatusUnstageUseCase
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppGitAction
 import com.jetpackduba.gitnuro.ui.TabsManager
-import com.jetpackduba.gitnuro.viewmodels.ViewDiffResult
+import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
+import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
@@ -47,19 +35,39 @@ class DiffViewModel @Inject constructor(
     private val stageHunkLineGitAction: IStageHunkLineGitAction,
     private val unstageHunkLineGitAction: IUnstageHunkLineGitAction,
     private val resetHunkGitAction: IResetHunkGitAction,
-    private val stageEntryGitAction: IStageEntryGitAction,
-    private val unstageEntryGitAction: IUnstageEntryGitAction,
+    private val statusStageUseCase: StatusStageUseCase,
+    private val statusUnstageUseCase: StatusUnstageUseCase,
     private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
     private val discardUnstagedHunkLineGitAction: IDiscardUnstagedHunkLineGitAction,
     private val openFileInExternalAppGitAction: OpenFileInExternalAppGitAction,
     private val settings: AppSettingsService,
     private val tabsManager: TabsManager,
     private val tabScope: CoroutineScope,
-    private val selectedDiffTypeRepository: SelectedDiffItemRepository,
+    private val repositoryDataRepository: RepositoryDataRepository,
+    private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,
+    private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
+    private val getDiffUseCase: GetDiffUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
 ) {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.None)
-    val diffResult: StateFlow<ViewDiffResult?> = _diffResult
+//    val diffResult: StateFlow<ViewDiffResult?> = _diffResult
+    val diffResult: StateFlow<ViewDiffResult?> = repositoryDataRepository.diffSelected.map { diffSelected ->
+        if (diffSelected?.entries?.count() == 1) {
+            val diff = loadDiff(diffSelected.entries.first())
+
+            if (diff is ViewDiffResult.Loaded) {
+                addToCloseables()
+            }
+
+            diff
+        } else {
+            ViewDiffResult.DiffNotFound(null)
+        }
+    }.stateIn(
+        tabScope,
+        started = SharingStarted.Lazily,
+        initialValue = null,
+    )
 
     val closeViewFlow = tabState.closeViewFlow
 
@@ -69,54 +77,7 @@ class DiffViewModel @Inject constructor(
     val isRepositoryInSafeState = sharedRepositoryStateManager.repositoryState
         .map { it == RepositoryState.SAFE }
 
-    private var diffType: DiffType? = null
     private var diffJob: Job? = null
-
-    init {
-        tabScope.launch {
-            diffTypeFlow
-                .drop(1) // Ignore the first time the flow triggers, we only care about updates
-                .collect {
-                    val diffEntryType = this@DiffViewModel.diffType
-                    if (diffEntryType != null) {
-                        updateDiff(diffEntryType)
-                    }
-                }
-        }
-
-        tabScope.launch {
-            isDisplayFullFile
-                .drop(1) // Ignore the first time the flow triggers, we only care about updates
-                .collect {
-                    val diffEntryType = this@DiffViewModel.diffType
-                    if (diffEntryType != null) {
-                        updateDiff(diffEntryType)
-                    }
-                }
-        }
-
-        tabScope.launch {
-            tabState.refreshFlowFiltered(
-                RefreshType.UNCOMMITTED_CHANGES,
-                RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-            ) {
-                val diffResultValue = diffResult.value
-                if (diffResultValue is ViewDiffResult.Loaded) {
-                    updateDiff(diffResultValue.diffType)
-                }
-            }
-        }
-
-        tabScope.launch {
-            selectedDiffTypeRepository.diffSelected.collectLatest { diffSelected ->
-                if (diffSelected != null && diffSelected.entries.count() == 1) {
-                    updateDiff(diffSelected.entries.first())
-                } else {
-                    reset()
-                }
-            }
-        }
-    }
 
     val lazyListState = MutableStateFlow(
         LazyListState(
@@ -125,65 +86,8 @@ class DiffViewModel @Inject constructor(
         )
     )
 
-    private suspend fun updateDiff(diffType: DiffType) {
-        addToCloseables()
-
-        diffJob = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
-            this.diffType = diffType
-
-            var oldDiffType: DiffType? = null
-            val oldDiffResult = _diffResult.value
-
-            if (oldDiffResult is ViewDiffResult.Loaded) {
-                oldDiffType = oldDiffResult.diffType
-            }
-
-            // If it's a different file or different state (index or workdir), reset the scroll state
-            if (
-                oldDiffType?.filePath != diffType.filePath ||
-                oldDiffType is DiffType.UncommittedDiff &&
-                diffType is DiffType.UncommittedDiff &&
-                oldDiffType.statusEntry.filePath == diffType.statusEntry.filePath &&
-                oldDiffType::class != diffType::class
-            ) {
-                lazyListState.value = LazyListState(
-                    0,
-                    0
-                )
-            }
-
-            val isFirstLoad = oldDiffResult is ViewDiffResult.Loading && oldDiffResult.diffType.filePath.isEmpty()
-
-            try {
-                delayedStateChange(
-                    delayMs = if (isFirstLoad) 0 else DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD,
-                    onDelayTriggered = { _diffResult.value = ViewDiffResult.Loading(diffType) }
-                ) {
-                    val diffFormat = formatDiffGitAction(git, diffType, isDisplayFullFile.first())
-                    val diffEntry = diffFormat.diffEntry
-                    if (
-                        diffTypeFlow.first() == DiffTextViewType.Split &&
-                        diffFormat is DiffResult.Text &&
-                        diffEntry.changeType != DiffEntry.ChangeType.ADD &&
-                        diffEntry.changeType != DiffEntry.ChangeType.DELETE
-                    ) {
-                        val splitHunkList = generateSplitHunkFromDiffResultGitAction(diffFormat)
-                        _diffResult.value = ViewDiffResult.Loaded(
-                            diffType,
-                            DiffResult.TextSplit(diffEntry, splitHunkList)
-                        )
-                    } else {
-                        _diffResult.value = ViewDiffResult.Loaded(diffType, diffFormat)
-                    }
-                }
-            } catch (ex: Exception) {
-                if (ex is MissingDiffEntryException) {
-                    tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
-                    _diffResult.value = ViewDiffResult.DiffNotFound(diffType)
-                } else
-                    ex.printStackTrace()
-            }
-        }
+    private suspend fun loadDiff(diffType: DiffType): ViewDiffResult {
+        return getDiffUseCase(diffType)
     }
 
     fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
@@ -205,19 +109,9 @@ class DiffViewModel @Inject constructor(
         unstageHunkGitAction(git, diffEntry, hunk)
     }
 
-    fun stageFile(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        stageEntryGitAction(git, statusEntry)
-    }
+    fun stageFile(statusEntry: StatusEntry) = statusStageUseCase(statusEntry)
 
-    fun unstageFile(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        unstageEntryGitAction(git, statusEntry)
-    }
+    fun unstageFile(statusEntry: StatusEntry) = statusUnstageUseCase(statusEntry)
 
     fun cancelRunningJobs() {
         diffJob?.cancel()
@@ -275,17 +169,17 @@ class DiffViewModel @Inject constructor(
     }
 
     fun clearDiff() {
-        val diff = when (val state = _diffResult.value) {
+        val diff = when (val state = diffResult.value) {
             is ViewDiffResult.DiffNotFound -> state.diff
             is ViewDiffResult.Loaded -> state.diffType
             is ViewDiffResult.Loading -> state.diffType
-            ViewDiffResult.None -> null
+            else -> null
         }
 
         if (diff != null) {
             when (diff) {
-                is DiffType.CommitDiff -> selectedDiffTypeRepository.removeSelectedCommited(setOf(diff))
-                is DiffType.UncommittedDiff -> selectedDiffTypeRepository.removeSelectedUncommited(
+                is DiffType.CommitDiff -> removeSelectedDiffUseCase(setOf(diff))
+                is DiffType.UncommittedDiff -> removeSelectedDiffUseCase(
                     setOf(diff),
                     diff.entryType,
                 )

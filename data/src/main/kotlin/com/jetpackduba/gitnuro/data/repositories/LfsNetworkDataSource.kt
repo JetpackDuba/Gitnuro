@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.repositories
 
-import com.jetpackduba.gitnuro.common.Either
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.network.NetworkConstants
 import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch

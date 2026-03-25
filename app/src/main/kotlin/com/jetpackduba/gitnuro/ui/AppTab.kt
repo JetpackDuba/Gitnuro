@@ -20,6 +20,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.lfs
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.ProcessingState
+import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.tabViewModel
 import com.jetpackduba.gitnuro.theme.dialogOverlay
 import com.jetpackduba.gitnuro.ui.components.Notification
@@ -27,7 +28,6 @@ import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.base.UserPasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
-import com.jetpackduba.gitnuro.viewmodels.RepositorySelectionStatus
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import org.jetbrains.compose.resources.painterResource
 
@@ -52,7 +52,7 @@ fun AppTab(
         .sortedBy { it.first }
         .map { it.second }
 
-    val repositorySelectionStatus = repositoryTabViewModel.repositorySelectionStatus.collectAsState()
+    val repositorySelectionStatus = repositoryTabViewModel.repositorySelectionState.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
     val processingState = repositoryTabViewModel.processing.collectAsState().value
 
@@ -67,6 +67,8 @@ fun AppTab(
 
         if (initialPath != null) {
             repositoryTabViewModel.openRepository(initialPath)
+        } else {
+            repositoryTabViewModel.newTab()
         }
     }
 
@@ -78,11 +80,11 @@ fun AppTab(
 
     LaunchedEffect(repositorySelectionStatusValue) {
         val screen = when (repositorySelectionStatusValue) {
-            RepositorySelectionStatus.None -> Screen.Welcome
+            RepositorySelectionState.None -> Screen.Welcome
 
-            is RepositorySelectionStatus.Opening -> Screen.RepositoryLoading
+            RepositorySelectionState.Unknown, is RepositorySelectionState.Opening -> Screen.RepositoryLoading
 
-            is RepositorySelectionStatus.Open -> Screen.RepositoryOpen
+            is RepositorySelectionState.Open -> Screen.RepositoryOpen
         }
 
         if (!backStack.contains(screen)) {
@@ -136,7 +138,7 @@ fun AppTab(
                             )
                         }
                         entry<Screen.RepositoryLoading> {
-                            val path = (repositorySelectionStatusValue as? RepositorySelectionStatus.Opening)?.path
+                            val path = (repositorySelectionStatusValue as? RepositorySelectionState.Opening)?.path
 
                             if (path != null) {
                                 LoadingRepository(path)
@@ -167,7 +169,7 @@ fun AppTab(
                                 cloneViewModel = tabViewModel(entry) { it.cloneViewModel },
                                 onClose = { backStack.removeLastOrNull() },
                                 onOpenRepository = { dir ->
-                                    repositoryTabViewModel.openRepository(dir)
+                                    repositoryTabViewModel.openRepository(dir.absolutePath)
                                 },
                             )
                         }

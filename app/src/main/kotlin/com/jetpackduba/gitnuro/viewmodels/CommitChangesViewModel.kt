@@ -4,10 +4,8 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.data.repositories.DiffSelected
-import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
+import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.extensions.filePath
-import com.jetpackduba.gitnuro.domain.extensions.fullData
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
@@ -16,8 +14,11 @@ import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.AddSelectedDiffUseCase
+import com.jetpackduba.gitnuro.domain.usecases.RemoveSelectedDiffUseCase
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
@@ -35,7 +36,8 @@ class CommitChangesViewModel @Inject constructor(
     private val getCommitDiffEntriesGitAction: IGetCommitDiffEntriesGitAction,
     private val appSettings: AppSettingsService,
     private val tabScope: CoroutineScope,
-    private val selectedDiffItemRepository: SelectedDiffItemRepository,
+    private val repositoryDataRepository: RepositoryDataRepository,
+    private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
 ) : TabViewModel() {
     private val _showSearch = MutableStateFlow(false)
     val showSearch: StateFlow<Boolean> = _showSearch
@@ -51,7 +53,7 @@ class CommitChangesViewModel @Inject constructor(
 
     val showAsTree = appSettings.showChangesAsTree
 
-    val diffSelected = selectedDiffItemRepository.diffSelected.map { it as? DiffSelected.CommitedChanges }
+    val diffSelected = repositoryDataRepository.diffSelected.map { it as? DiffSelected.CommitedChanges }
 
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
 
@@ -203,7 +205,7 @@ class CommitChangesViewModel @Inject constructor(
     }
 
     fun selectEntries(entries: List<DiffEntry>) {
-        selectedDiffItemRepository.addDiffCommited(
+        addSelectedDiffUseCase(
             diffType = entries.map { DiffType.CommitDiff(it) },
             addToExisting = false,
         )

@@ -1,14 +1,10 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.*
-import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.Remote
-import com.jetpackduba.gitnuro.domain.models.RemoteInfo
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.AddRemoteUseCase
 import com.jetpackduba.gitnuro.domain.usecases.UpdateRemoteUseCase
@@ -31,16 +27,12 @@ class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
     private val getRemoteBranchesGitAction: IGetRemoteBranchesGitAction,
     private val getRemotesGitAction: IGetRemotesGitAction,
-    private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
     private val deleteRemoteGitAction: IDeleteRemoteGitAction,
     private val fetchAllRemotesGitAction: IFetchAllRemotesGitAction,
-    private val addRemoteGitAction: IAddRemoteGitAction,
-    private val updateRemoteGitAction: IUpdateRemoteGitAction,
     private val deleteLocallyRemoteBranchesGitAction: IDeleteLocallyRemoteBranchesGitAction,
     private val sharedBranchesViewModel: SharedBranchesViewModel,
     private val clipboardManager: ClipboardManager,
-    private val addRemoteUseCase: AddRemoteUseCase,
-    private val updateRemoteUseCase: UpdateRemoteUseCase,
+    private val repositoryDataRepository: RepositoryDataRepository,
     tabScope: CoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
@@ -49,10 +41,7 @@ class RemotesViewModel @AssistedInject constructor(
     ISharedBranchesViewModel by sharedBranchesViewModel {
 
     private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
-    private val currentBranch = MutableStateFlow<Branch?>(null)
-
-    private val _remoteUpdated = MutableSharedFlow<Unit>()
-    val remoteUpdated = _remoteUpdated.asSharedFlow()
+    private val currentBranch = repositoryDataRepository.currentBranch
 
     val remoteState: StateFlow<RemotesState> =
         combine(remotes, isExpanded, filter, currentBranch) { remotes, isExpanded, filter, currentBranch ->
@@ -91,14 +80,12 @@ class RemotesViewModel @AssistedInject constructor(
         val allRemoteBranches = getRemoteBranchesGitAction(git)
 
         val remoteInfoList = getRemotesGitAction(git, allRemoteBranches)
-        val currentBranch = getCurrentBranchGitAction(git)
 
         val remoteViewList = remoteInfoList.map { remoteInfo ->
             RemoteView(remoteInfo, true)
         }
 
         this@RemotesViewModel.remotes.value = remoteViewList
-        this@RemotesViewModel.currentBranch.value = currentBranch
     }
 
     suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
@@ -151,11 +138,6 @@ class RemotesViewModel @AssistedInject constructor(
 
         positiveNotification("Fetched branches from ${remoteConfig.name}")
     }
-
-
-    fun addRemote(selectedRemoteConfig: Remote) = addRemoteUseCase(selectedRemoteConfig)
-
-    fun updateRemote(selectedRemoteConfig: Remote) = addRemoteUseCase(selectedRemoteConfig)
 
     override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,

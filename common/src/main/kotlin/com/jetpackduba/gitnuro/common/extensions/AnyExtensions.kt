@@ -23,3 +23,7 @@ inline fun <T, R> T.runIfNotNull(value: R?, predicate: T.(R) -> T): T {
         this
     }
 }
+
+
+val Any.TAG: String
+    get() = javaClass.simpleName

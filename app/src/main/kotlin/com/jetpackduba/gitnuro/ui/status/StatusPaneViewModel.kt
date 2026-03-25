@@ -6,29 +6,23 @@ import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
+import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.data.repositories.DiffSelected
-import com.jetpackduba.gitnuro.data.repositories.SelectedDiffItemRepository
+import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.extensions.*
-import com.jetpackduba.gitnuro.domain.models.DiffType
-import com.jetpackduba.gitnuro.domain.models.EntryType
 import com.jetpackduba.gitnuro.domain.interfaces.*
-import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.models.AppConfig
-import com.jetpackduba.gitnuro.domain.models.AuthorInfo
-import com.jetpackduba.gitnuro.domain.models.StatusEntry
-import com.jetpackduba.gitnuro.domain.models.StatusType
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.AddSelectedDiffUseCase
+import com.jetpackduba.gitnuro.domain.usecases.RemoveSelectedDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StatusStageAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StatusStageUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StatusUnstageAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StatusUnstageUseCase
-import com.jetpackduba.gitnuro.extensions.delayedStateChange
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.*
@@ -53,15 +47,11 @@ class StatusPaneViewModel @Inject constructor(
     private val stageByDirectoryGitAction: IStageByDirectoryGitAction,
     private val unstageByDirectoryGitAction: IUnstageByDirectoryGitAction,
     private val discardEntriesGitAction: IDiscardEntriesGitAction,
-    private val stageAllGitAction: IStageAllGitAction,
-    private val unstageAllGitAction: IUnstageAllGitAction,
     private val getLastCommitMessageGitAction: IGetLastCommitMessageGitAction,
     private val resetRepositoryStateGitAction: IResetRepositoryStateGitAction,
     private val continueRebaseGitAction: IContinueRebaseGitAction,
     private val abortRebaseGitAction: IAbortRebaseGitAction,
     private val skipRebaseGitAction: ISkipRebaseGitAction,
-    private val getStatusGitAction: IGetStatusGitAction,
-    private val checkHasUncommittedChangesGitAction: ICheckHasUncommittedChangesGitAction,
     private val doCommitGitAction: IDoCommitGitAction,
     private val loadAuthorGitAction: ILoadAuthorGitAction,
     private val saveAuthorGitAction: ISaveAuthorGitAction,
@@ -69,8 +59,10 @@ class StatusPaneViewModel @Inject constructor(
     private val getSpecificCommitMessageGitAction: IGetSpecificCommitMessageGitAction,
     private val appSettings: AppSettingsService,
     private val tabScope: CoroutineScope,
-    private val selectedDiffItemRepository: SelectedDiffItemRepository,
     private val clipboardManager: ClipboardManager,
+    private val repositoryDataRepository: RepositoryDataRepository,
+    private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,
+    private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
 ) {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
@@ -84,7 +76,7 @@ class StatusPaneViewModel @Inject constructor(
     private val _searchFilterStaged = MutableStateFlow(TextFieldValue(""))
     val searchFilterStaged: StateFlow<TextFieldValue> = _searchFilterStaged
 
-    val selectedStagedDiffEntries = selectedDiffItemRepository
+    val selectedStagedDiffEntries = repositoryDataRepository
         .diffSelected
         .map { diffSelected ->
             getDiffSelectedEntriesByEntryType(diffSelected, EntryType.STAGED)
@@ -95,7 +87,7 @@ class StatusPaneViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    val selectedUnstagedDiffEntries = selectedDiffItemRepository
+    val selectedUnstagedDiffEntries = repositoryDataRepository
         .diffSelected
         .map { diffSelected ->
             getDiffSelectedEntriesByEntryType(diffSelected, EntryType.UNSTAGED)
@@ -106,92 +98,72 @@ class StatusPaneViewModel @Inject constructor(
             initialValue = emptyList()
         )
 
-    val swapUncommittedChanges = appSettings.swapStatusPanes
-    val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
-
     private val treeContractedDirectories = MutableStateFlow(emptyList<String>())
     val showAsTree = appSettings.showChangesAsTree
-    private val _stageState = MutableStateFlow<StageState>(StageState.Loading)
+    private val _statusState = MutableStateFlow<StatusState>(StatusState.Loading)
 
-    private val stageStateFiltered: StateFlow<StageState> = combine(
-        _stageState,
+    val statusStateUi = combine(
+        repositoryDataRepository.status,
         _showSearchStaged,
         _searchFilterStaged,
         _showSearchUnstaged,
         _searchFilterUnstaged,
-    ) { state, showSearchStaged, filterStaged, showSearchUnstaged, filterUnstaged ->
-        if (state is StageState.Loaded) {
-            val unstaged = if (showSearchUnstaged && filterUnstaged.text.isNotBlank()) {
-                state.unstaged.filter { it.filePath.lowercaseContains(filterUnstaged.text) }
-            } else {
-                state.unstaged
-            }.prioritizeConflicts()
-
-            val staged = if (showSearchStaged && filterStaged.text.isNotBlank()) {
-                state.staged.filter { it.filePath.lowercaseContains(filterStaged.text) }
-            } else {
-                state.staged
-            }.prioritizeConflicts()
-
-            state.copy(filteredStaged = staged, filteredUnstaged = unstaged)
-
-        } else {
-            state
-        }
-    }
-        .stateIn(
-            tabScope,
-            SharingStarted.Lazily,
-            StageState.Loading
-        )
-
-
-    val stageStateUi: StateFlow<StageStateUi> = combine(
-        stageStateFiltered,
         showAsTree,
         treeContractedDirectories,
-    ) { stageStateFiltered, showAsTree, contractedDirectories ->
-        when (stageStateFiltered) {
-            is StageState.Loaded -> {
-                StageStateUi.Loaded(
-                    staged = entriesToTreeEntry(
-                        showAsTree,
-                        stageStateFiltered.staged,
-                        contractedDirectories
-                    ) { it.filePath },
-                    unstaged = entriesToTreeEntry(
-                        showAsTree,
-                        stageStateFiltered.unstaged,
-                        contractedDirectories
-                    ) { it.filePath },
-                    filteredStaged = entriesToTreeEntry(
-                        showAsTree,
-                        stageStateFiltered.filteredStaged,
-                        contractedDirectories
-                    ) { it.filePath },
-                    filteredUnstaged = entriesToTreeEntry(
-                        showAsTree,
-                        stageStateFiltered.filteredUnstaged,
-                        contractedDirectories
-                    ) { it.filePath },
-                    isPartiallyReloading = stageStateFiltered.isPartiallyReloading,
-                )
-            }
+    ) { status,
+        showSearchStaged,
+        filterStaged,
+        showSearchUnstaged,
+        filterUnstaged,
+        showAsTree,
+        contractedDirectories ->
+        val filteredUnstaged = if (showSearchUnstaged && filterUnstaged.text.isNotBlank()) {
+            status.unstaged.filter { it.filePath.lowercaseContains(filterUnstaged.text) }
+        } else {
+            status.unstaged
+        }.prioritizeConflicts()
 
-            StageState.Loading -> StageStateUi.Loading
-        }
+        val filteredStaged = if (showSearchStaged && filterStaged.text.isNotBlank()) {
+            status.staged.filter { it.filePath.lowercaseContains(filterStaged.text) }
+        } else {
+            status.staged
+        }.prioritizeConflicts()
+        StatusStateUi.Loaded(
+            statusEntriesToTreeEntry(
+                showAsTree,
+                status.staged,
+                contractedDirectories
+            ),
+            statusEntriesToTreeEntry(
+                showAsTree,
+                filteredStaged,
+                contractedDirectories
+            ),
+            statusEntriesToTreeEntry(
+                showAsTree,
+                status.unstaged,
+                contractedDirectories
+            ),
+            statusEntriesToTreeEntry(
+                showAsTree,
+                filteredUnstaged,
+                contractedDirectories
+            ),
+            false,
+        )
     }
         .stateIn(
             tabScope,
             SharingStarted.Lazily,
-            StageStateUi.Loading
+            StatusStateUi.Loading
         )
+
+    val swapUncommittedChanges = appSettings.swapStatusPanes
+    val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState
 
     var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
 
     var hasPreviousCommits = true // When false, disable "amend previous commit"
-
-    private var lastUncommittedChangesState = false
 
     val stagedLazyListState = MutableStateFlow(LazyListState(0, 0))
     val unstagedLazyListState = MutableStateFlow(LazyListState(0, 0))
@@ -213,16 +185,6 @@ class StatusPaneViewModel @Inject constructor(
     val isAmendRebaseInteractive: StateFlow<Boolean> = _isAmendRebaseInteractive
 
     init {
-        tabScope.launch {
-            tabState.refreshFlowFiltered(
-                RefreshType.ALL_DATA,
-                RefreshType.UNCOMMITTED_CHANGES,
-                RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-            ) {
-                refresh(tabState.git)
-            }
-        }
-
         tabScope.launch {
             showSearchStaged.collectLatest {
                 if (it) {
@@ -254,13 +216,13 @@ class StatusPaneViewModel @Inject constructor(
         }
 
         tabScope.launch {
-            selectedDiffItemRepository
+            repositoryDataRepository
                 .diffSelected
-                .combine(_stageState) { diffSelected, state ->
+                .combine(_statusState) { diffSelected, state ->
                     diffSelected to state
                 }
                 .collectLatest { (diffSelected, state) ->
-                    if (state is StageState.Loaded && diffSelected is DiffSelected.UncommittedChanges) {
+                    if (state is StatusState.Loaded && diffSelected is DiffSelected.UncommittedChanges) {
                         val entries = state.getEntriesByEntryType(diffSelected.entryType)
 
                         val diffSelectedToRemove = diffSelected.items
@@ -281,11 +243,23 @@ class StatusPaneViewModel @Inject constructor(
         }
     }
 
+    private fun statusEntriesToTreeEntry(
+        showAsTree: Boolean,
+        entries: List<StatusEntry>,
+        contractedDirectories: List<String>
+    ): List<TreeItem<StatusEntry>> {
+        return entriesToTreeEntry(
+            showAsTree,
+            entries,
+            contractedDirectories
+        ) { it.filePath }
+    }
+
     private fun removeEntriesFromSelection(
         diffSelectedToRemove: Set<DiffType.UncommittedDiff>,
         entryType: EntryType,
     ) {
-        selectedDiffItemRepository.removeSelectedUncommited(
+        removeSelectedDiffUseCase(
             selectedToRemove = diffSelectedToRemove,
             entryType = entryType,
         )
@@ -432,8 +406,8 @@ class StatusPaneViewModel @Inject constructor(
         discardEntriesGitAction(git, statusEntries, staged = false)
     }
 
+    // TODO Load message somehow in the data+domain layer?
     private suspend fun loadStatus(git: Git) {
-        val previousStatus = _stageState.value
         val type = if (
             git.repository.repositoryState.isRebasing ||
             git.repository.repositoryState.isMerging ||
@@ -448,34 +422,6 @@ class StatusPaneViewModel @Inject constructor(
         if (type != savedCommitMessage.type) {
             savedCommitMessage = CommitMessage(messageByRepoState(git), type)
             _commitMessageChangesFlow.emit(savedCommitMessage.message)
-        }
-
-        try {
-            delayedStateChange(
-                delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
-                onDelayTriggered = {
-                    if (previousStatus is StageState.Loaded) {
-                        _stageState.value = previousStatus.copy(isPartiallyReloading = true)
-                    } else {
-                        _stageState.value = StageState.Loading
-                    }
-                }
-            ) {
-                val status = getStatusGitAction(git.repository.directory.absolutePath)
-                val staged = status.staged
-                val unstaged = status.unstaged
-
-                _stageState.value = StageState.Loaded(
-                    staged = staged,
-                    filteredStaged = staged,
-                    unstaged = unstaged,
-                    filteredUnstaged = unstaged,
-                    isPartiallyReloading = false,
-                )
-            }
-        } catch (ex: Exception) {
-            _stageState.value = previousStatus
-            throw ex
         }
     }
 
@@ -517,10 +463,6 @@ class StatusPaneViewModel @Inject constructor(
 
         //TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
         return message.orEmpty().replace("\t", "    ")
-    }
-
-    private suspend fun loadHasUncommittedChanges(git: Git) = withContext(Dispatchers.IO) {
-        lastUncommittedChangesState = checkHasUncommittedChangesGitAction(git)
     }
 
     fun amend(isAmend: Boolean) {
@@ -589,11 +531,6 @@ class StatusPaneViewModel @Inject constructor(
             }
         } else
             null
-    }
-
-    suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
-        loadStatus(git)
-        loadHasUncommittedChanges(git)
     }
 
     fun continueRebase(message: String) = tabState.safeProcessing(
@@ -876,7 +813,7 @@ class StatusPaneViewModel @Inject constructor(
     }
 
     fun selectEntries(entryType: EntryType, entries: List<StatusEntry>, addToExisting: Boolean) {
-        selectedDiffItemRepository.addDiffUncommited(
+        addSelectedDiffUseCase(
             entries.map {
                 DiffType.UncommittedDiff(
                     statusEntry = it,
@@ -896,15 +833,15 @@ sealed interface SelectionType<T> {
     data class AddMultipleEntries<T>(val entries: List<T>) : SelectionType<T>
 }
 
-sealed interface StageState {
-    data object Loading : StageState
+sealed interface StatusState {
+    data object Loading : StatusState
     data class Loaded(
         val staged: List<StatusEntry>,
         val filteredStaged: List<StatusEntry>,
         val unstaged: List<StatusEntry>,
         val filteredUnstaged: List<StatusEntry>,
         val isPartiallyReloading: Boolean,
-    ) : StageState {
+    ) : StatusState {
         fun getEntriesByEntryType(entryType: EntryType): List<StatusEntry> {
             return when (entryType) {
                 EntryType.STAGED -> staged
@@ -915,7 +852,7 @@ sealed interface StageState {
 }
 
 
-sealed interface StageStateUi {
+sealed interface StatusStateUi {
     val hasStagedFiles: Boolean
         get() {
             return this is Loaded && staged.isNotEmpty()
@@ -926,7 +863,7 @@ sealed interface StageStateUi {
             return this is Loaded && unstaged.isNotEmpty()
         }
 
-    data object Loading : StageStateUi
+    data object Loading : StatusStateUi
 
     data class Loaded(
         val staged: List<TreeItem<StatusEntry>>,
@@ -934,7 +871,7 @@ sealed interface StageStateUi {
         val unstaged: List<TreeItem<StatusEntry>>,
         val filteredUnstaged: List<TreeItem<StatusEntry>>,
         val isPartiallyReloading: Boolean,
-    ) : StageStateUi {
+    ) : StatusStateUi {
         val haveConflictsBeenSolved: Boolean = unstaged.none {
             it is TreeItem.File && it.data.statusType == StatusType.CONFLICTING
         }

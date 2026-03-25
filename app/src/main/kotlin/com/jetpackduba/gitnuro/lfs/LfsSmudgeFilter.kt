@@ -1,9 +1,9 @@
 package com.jetpackduba.gitnuro.lfs
 
-import com.jetpackduba.gitnuro.common.Either
 import com.jetpackduba.gitnuro.data.git.lfs.AuthenticateLfsServerWithSshGitAction
 import com.jetpackduba.gitnuro.data.git.lfs.DownloadLfsObjectGitAction
 import com.jetpackduba.gitnuro.data.git.lfs.GetLfsObjectsGitAction
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch

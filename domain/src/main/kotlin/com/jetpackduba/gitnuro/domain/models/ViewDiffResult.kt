@@ -1,7 +1,4 @@
-package com.jetpackduba.gitnuro.viewmodels
-
-import com.jetpackduba.gitnuro.domain.models.DiffType
-import com.jetpackduba.gitnuro.domain.models.DiffResult
+package com.jetpackduba.gitnuro.domain.models
 
 sealed interface ViewDiffResult {
     object None : ViewDiffResult

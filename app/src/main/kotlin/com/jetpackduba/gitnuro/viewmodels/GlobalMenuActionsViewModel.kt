@@ -22,7 +22,7 @@ interface IGlobalMenuActionsViewModel {
     fun push(force: Boolean = false, pushTags: Boolean = false): Job
     fun stash(): Job
     fun popStash(): Job
-    fun openTerminal(): Job
+    fun openTerminal()
 }
 
 class GlobalMenuActionsViewModel @Inject constructor(
@@ -93,9 +93,7 @@ class GlobalMenuActionsViewModel @Inject constructor(
         positiveNotification("Stash popped")
     }
 
-    override fun openTerminal() = tabState.runOperation(
-        refreshType = RefreshType.NONE
-    ) { git ->
-        openRepositoryInTerminalGitAction(git.repository.workTree.absolutePath)
+    override fun openTerminal() {
+        openRepositoryInTerminalGitAction()
     }
 }

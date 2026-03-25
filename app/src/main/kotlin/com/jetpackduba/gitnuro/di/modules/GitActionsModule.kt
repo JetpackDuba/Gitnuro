@@ -193,9 +193,6 @@ interface GitActionsModule {
     fun bindsGetStatusGitAction(action: GetStatusGitAction): IGetStatusGitAction
 
     @Binds
-    fun bindsGetStatusSummaryGitAction(action: GetStatusSummaryGitAction): IGetStatusSummaryGitAction
-
-    @Binds
     fun bindsGetTagsGitAction(action: GetTagsGitAction): IGetTagsGitAction
 
     @Binds
@@ -233,9 +230,6 @@ interface GitActionsModule {
 
     @Binds
     fun bindsOpenRepositoryGitAction(action: OpenRepositoryGitAction): IOpenRepositoryGitAction
-
-    @Binds
-    fun bindsOpenSubmoduleRepositoryGitAction(action: OpenSubmoduleRepositoryGitAction): IOpenSubmoduleRepositoryGitAction
 
     @Binds
     fun bindsPopLastStashGitAction(action: PopLastStashGitAction): IPopLastStashGitAction

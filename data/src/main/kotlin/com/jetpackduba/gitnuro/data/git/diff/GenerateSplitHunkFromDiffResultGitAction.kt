@@ -72,14 +72,12 @@ class GenerateSplitHunkFromDiffResultGitAction @Inject constructor() : IGenerate
 
         val listToUpdate = if (consecutiveChangedLines > 0) {
             oldSideLines
-        } else if (consecutiveChangedLines < 0) {
-            newSideLines
         } else {
-            null
+            newSideLines
         }
 
         repeat(abs(consecutiveChangedLines)) {
-            listToUpdate?.add(null)
+            listToUpdate.add(null)
         }
     }
 }

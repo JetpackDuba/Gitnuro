@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
@@ -34,7 +35,7 @@ class GetLfsUrlGitAction @Inject constructor(
         val remotePath = if (remoteName != null) {
             remoteName
         } else {
-            val currentBranch = getCurrentBranchGitAction(git)
+            val currentBranch = getCurrentBranchGitAction(git).okOrNull() // TODO Proper error handling?
 
             if (currentBranch == null) {
                 printError(TAG, "Current branch is null and couldn't obtain tracking branch remote.")

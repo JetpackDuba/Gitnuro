@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.diff
 
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.models.EntryContent
@@ -27,14 +28,14 @@ class FormatDiffGitAction @Inject constructor(
     private val textDiffFromDiffLinesGitAction: TextDiffFromDiffLinesGitAction,
 ) : IFormatDiffGitAction {
     override suspend operator fun invoke(
-        git: Git,
+        repositoryPath: String,
         diffType: DiffType,
         isDisplayFullFile: Boolean,
-    ): DiffResult = withContext(Dispatchers.IO) {
-        val repository = git.repository
-        val submodules = getSubmodulesGitAction(git)
+    ) = jgit(repositoryPath) {
+        val repository = repository
+        val submodules = getSubmodulesGitAction(this)
 
-        val diffEntry = getDiffEntryFromDiffTypeGitAction(git, diffType)
+        val diffEntry = getDiffEntryFromDiffTypeGitAction(this, diffType)
 
         var diffResult: DiffResult
         val submoduleStatus = submodules[diffEntry.filePath]
@@ -83,7 +84,7 @@ class FormatDiffGitAction @Inject constructor(
             }
         }
 
-        return@withContext diffResult
+        diffResult
     }
 
     private suspend fun diffHunksParts(hunks: List<Hunk>): List<Hunk> = withContext(Dispatchers.Default) {

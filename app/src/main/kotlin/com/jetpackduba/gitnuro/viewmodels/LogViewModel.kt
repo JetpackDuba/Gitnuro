@@ -2,18 +2,19 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
+import com.jetpackduba.gitnuro.domain.extensions.countOrZero
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
@@ -36,10 +37,6 @@ private const val INITIAL_COMMITS_LOAD = 2000
 const val INCREMENTAL_COMMITS_LOAD = 1000
 
 class LogViewModel @Inject constructor(
-    private val getLogGitAction: IGetLogGitAction,
-    private val getStatusSummaryGitAction: IGetStatusSummaryGitAction,
-    private val checkHasUncommittedChangesGitAction: ICheckHasUncommittedChangesGitAction,
-    private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
     private val checkoutCommitGitAction: ICheckoutCommitGitAction,
     private val revertCommitGitAction: IRevertCommitGitAction,
     private val cherryPickCommitGitAction: ICherryPickCommitGitAction,
@@ -47,6 +44,7 @@ class LogViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val tabScope: CoroutineScope,
     private val clipboardManager: ClipboardManager,
+    private val repositoryDataRepository: RepositoryDataRepository,
     sharedStashViewModel: SharedStashViewModel,
     sharedBranchesViewModel: SharedBranchesViewModel,
     sharedRemotesViewModel: SharedRemotesViewModel,
@@ -55,14 +53,30 @@ class LogViewModel @Inject constructor(
     ISharedBranchesViewModel by sharedBranchesViewModel,
     ISharedRemotesViewModel by sharedRemotesViewModel,
     ISharedTagsViewModel by sharedTagsViewModel {
-    private val _logStatus = MutableStateFlow<LogStatus>(LogStatus.Loading)
 
-    val logStatus = _logStatus
+    private val hasUncommittedChanges = repositoryDataRepository.status.map {
+        it.staged.isNotEmpty() || it.unstaged.isNotEmpty()
+    }
+
+    private val log = repositoryDataRepository.log
+    private val currentBranch = repositoryDataRepository.currentBranch
+    private val statusSummary = repositoryDataRepository.status.map {
+        getSummary(it)
+    }
+
+    val logStatus = combine(
+        log,
+        hasUncommittedChanges,
+        currentBranch,
+        statusSummary,
+    ) { log, hasUncommittedChanges, currentBranch, statusSummary ->
+        LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
+    }
         .debounce(LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD)
         .stateIn(
             scope = tabScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = _logStatus.value,
+            initialValue = LogStatus.Loading,
         )
 
 
@@ -95,20 +109,6 @@ class LogViewModel @Inject constructor(
 
     init {
         tabScope.launch {
-            tabState.refreshFlowFiltered(
-                RefreshType.ALL_DATA,
-                RefreshType.ONLY_LOG,
-                RefreshType.UNCOMMITTED_CHANGES,
-                RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-            ) { refreshType ->
-                if (refreshType == RefreshType.UNCOMMITTED_CHANGES) {
-                    uncommittedChangesLoadLog(tabState.git)
-                } else
-                    refresh(tabState.git)
-            }
-        }
-
-        tabScope.launch {
             tabState.closeViewFlow.collectLatest {
                 if (it == CloseableView.LOG_SEARCH) {
                     _logSearchFilterResults.value = LogSearch.NotSearching
@@ -124,29 +124,6 @@ class LogViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private suspend fun loadLog(git: Git) {
-        val currentBranch = getCurrentBranchGitAction(git)
-
-        val statusSummary = getStatusSummaryGitAction(
-            git = git,
-        )
-
-        val hasUncommittedChanges = statusSummary.total > 0
-
-        val log = getLogGitAction(
-            git = git,
-            currentBranch = currentBranch,
-            hasUncommittedChanges = hasUncommittedChanges,
-            commitsLimit = max(INITIAL_COMMITS_LOAD, (lastIndexUsedToLoadData + INCREMENTAL_COMMITS_LOAD))
-        )
-
-        _logStatus.value =
-            LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
-
-        // Remove search filter if the log has been updated
-        _logSearchFilterResults.value = LogSearch.NotSearching
     }
 
     fun checkoutCommit(revCommit: Commit) = tabState.safeProcessing(
@@ -182,35 +159,6 @@ class LogViewModel @Inject constructor(
         cherryPickCommitGitAction(git, revCommit)
 
         positiveNotification("Commit cherry-picked")
-    }
-
-    private suspend fun uncommittedChangesLoadLog(git: Git) {
-        val currentBranch = getCurrentBranchGitAction(git)
-        val hasUncommittedChanges = checkHasUncommittedChangesGitAction(git)
-
-        val statsSummary = if (hasUncommittedChanges) {
-            getStatusSummaryGitAction(
-                git = git,
-            )
-        } else
-            StatusSummary(0, 0, 0, 0)
-
-        val previousLogStatusValue = _logStatus.value
-
-        if (previousLogStatusValue is LogStatus.Loaded) {
-            val newLogStatusValue = LogStatus.Loaded(
-                hasUncommittedChanges = hasUncommittedChanges,
-                plotCommitList = previousLogStatusValue.plotCommitList,
-                currentBranch = currentBranch,
-                statusSummary = statsSummary,
-            )
-
-            _logStatus.value = newLogStatusValue
-        }
-    }
-
-    suspend fun refresh(git: Git) {
-        loadLog(git)
     }
 
     fun selectUncommittedChanges() = tabState.runOperation(
@@ -351,7 +299,8 @@ class LogViewModel @Inject constructor(
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
-        val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)
+        // TODO Refactor this after refactoring
+        /*val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)
             ?.plotCommitList
             ?.commits
             .orEmpty()
@@ -388,7 +337,7 @@ class LogViewModel @Inject constructor(
 
             _logStatus.value =
                 LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
-        }
+        }*/
     }
 
     override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
@@ -398,6 +347,30 @@ class LogViewModel @Inject constructor(
         copyBranchNameToClipboardAndGetNotification(
             branch,
             clipboardManager
+        )
+    }
+
+    fun getSummary(status: Status): StatusSummary {
+        val staged = status.staged
+
+        val unstaged = status.unstaged
+        val allChanges = staged + unstaged
+
+        val groupedChanges = allChanges.groupBy {
+            it.statusType
+        }
+
+        val deletedCount = groupedChanges[StatusType.REMOVED].countOrZero()
+        val addedCount = groupedChanges[StatusType.ADDED].countOrZero()
+
+        val modifiedCount = groupedChanges[StatusType.MODIFIED].countOrZero()
+        val conflictingCount = groupedChanges[StatusType.CONFLICTING].countOrZero()
+
+        return StatusSummary(
+            modifiedCount = modifiedCount,
+            deletedCount = deletedCount,
+            addedCount = addedCount,
+            conflictingCount = conflictingCount,
         )
     }
 }

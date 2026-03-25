@@ -1,5 +1,10 @@
 package com.jetpackduba.gitnuro.data.git.workspace
 
+import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.domain.errors.AppError
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.bind
+import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.IStageAllGitAction
 import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.domain.models.StatusType
@@ -12,20 +17,23 @@ import javax.inject.Inject
 class StageAllGitAction @Inject constructor(
     private val getStatusGitAction: GetStatusGitAction,
 ) : IStageAllGitAction {
-    override suspend operator fun invoke(git: Git, entries: List<StatusEntry>?): Unit = withContext(Dispatchers.IO) {
-        val status = getStatusGitAction(git.repository.directory.absolutePath)
-        val unstaged = status.unstaged
-            .run {
-                if (entries != null) {
-                    this.filter { entries.contains(it) }
-                } else {
-                    this
+    override suspend operator fun invoke(repositoryPath: String, entries: List<StatusEntry>?) = either {
+        val status = getStatusGitAction(repositoryPath).bind()
+
+        jgit(repositoryPath) {
+            val unstaged = status.unstaged
+                .run {
+                    if (entries != null) {
+                        this.filter { entries.contains(it) }
+                    } else {
+                        this
+                    }
                 }
-            }
 
 
-        addAllExceptNew(git, unstaged.filter { it.statusType != StatusType.ADDED })
-        addNewFiles(git, unstaged.filter { it.statusType == StatusType.ADDED })
+            addAllExceptNew(this, unstaged.filter { it.statusType != StatusType.ADDED })
+            addNewFiles(this, unstaged.filter { it.statusType == StatusType.ADDED })
+        }
     }
 
     /**

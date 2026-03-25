@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.lfs
 
-import com.jetpackduba.gitnuro.common.Either
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.interfaces.IProvideLfsCredentialsGitAction
 import com.jetpackduba.gitnuro.domain.repositories.CredentialsRepository

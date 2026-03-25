@@ -66,7 +66,7 @@ fun StatusPane(
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
 ) {
-    val stageStateUi = statusPaneViewModel.stageStateUi.collectAsState().value
+    val stageStateUi = statusPaneViewModel.statusStateUi.collectAsState().value
     val swapUncommittedChanges by statusPaneViewModel.swapUncommittedChanges.collectAsState(false)
     val (commitMessage, setCommitMessage) = remember(statusPaneViewModel) { mutableStateOf(statusPaneViewModel.savedCommitMessage.message) }
     val stagedListState by statusPaneViewModel.stagedLazyListState.collectAsState()
@@ -137,7 +137,7 @@ fun StatusPane(
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = stageStateUi is StageStateUi.Loading || (stageStateUi is StageStateUi.Loaded && stageStateUi.isPartiallyReloading),
+            visible = stageStateUi is StatusStateUi.Loading || (stageStateUi is StatusStateUi.Loaded && stageStateUi.isPartiallyReloading),
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -147,7 +147,7 @@ fun StatusPane(
         Column(
             modifier = Modifier.weight(1f),
         ) {
-            if (stageStateUi is StageStateUi.Loaded) {
+            if (stageStateUi is StatusStateUi.Loaded) {
                 @Composable
                 fun staged() {
                     StatusChangesList(
@@ -170,7 +170,7 @@ fun StatusPane(
                 fun unstaged() {
                     StatusChangesList(
                         entryType = EntryType.UNSTAGED,
-                        stageStateUi = stageStateUi,
+                        statusStateUi = stageStateUi,
                         showSearch = showSearchUnstaged,
                         showAsTree = showAsTree,
                         searchFilter = searchFilterUnstaged,
@@ -206,7 +206,7 @@ fun StatusPane(
             rebaseInteractiveState,
             stageStateUi.hasStagedFiles,
             isAmendRebaseInteractive,
-            stageStateUi is StageStateUi.Loaded && stageStateUi.haveConflictsBeenSolved,
+            stageStateUi is StatusStateUi.Loaded && stageStateUi.haveConflictsBeenSolved,
             setCommitMessage = {
                 setCommitMessage(it)
                 statusPaneViewModel.updateCommitMessage(it)
@@ -230,7 +230,7 @@ fun StatusPane(
 @Composable
 fun ColumnScope.StatusChangesList(
     entryType: EntryType,
-    stageStateUi: StageStateUi.Loaded,
+    statusStateUi: StatusStateUi.Loaded,
     showSearch: Boolean,
     showAsTree: Boolean,
     searchFilter: TextFieldValue,
@@ -242,7 +242,7 @@ fun ColumnScope.StatusChangesList(
     onHistoryFile: (String) -> Unit,
     onAction: (StatusPaneAction) -> Unit,
 ) {
-    val actionTitle = when (entryType) {
+    val title = when (entryType) {
         EntryType.STAGED -> stringResource(Res.string.uncommited_changes_staged_title)
         EntryType.UNSTAGED -> stringResource(Res.string.uncommited_changes_unstaged_title)
     }
@@ -250,19 +250,18 @@ fun ColumnScope.StatusChangesList(
     val actionInfo = getActionInfo(entryType)
     val entries = if (searchFilter.text.trim().isEmpty()) {
         when (entryType) {
-            EntryType.STAGED -> stageStateUi.staged
-            EntryType.UNSTAGED -> stageStateUi.unstaged
+            EntryType.STAGED -> statusStateUi.staged
+            EntryType.UNSTAGED -> statusStateUi.unstaged
         }
     } else {
         when (entryType) {
-            EntryType.STAGED -> stageStateUi.filteredStaged
-            EntryType.UNSTAGED -> stageStateUi.filteredUnstaged
+            EntryType.STAGED -> statusStateUi.filteredStaged
+            EntryType.UNSTAGED -> statusStateUi.filteredUnstaged
         }
     }
 
     this.ChangesList(
-        title = actionTitle,
-        actionTitle = actionTitle,
+        title = title,
         actionInfo = actionInfo,
         entryType = entryType,
         entries = entries,
@@ -282,7 +281,6 @@ fun ColumnScope.StatusChangesList(
 @Composable
 fun ColumnScope.ChangesList(
     title: String,
-    actionTitle: String,
     actionInfo: ActionInfo,
     entryType: EntryType,
     showSearch: Boolean,
@@ -362,7 +360,7 @@ fun ColumnScope.ChangesList(
             UncommittedTreeItemEntry(
                 treeEntry,
                 isSelected = isEntrySelected,
-                actionTitle = actionTitle,
+                actionTitle = actionInfo.applyToOneTitle,
                 actionColor = actionInfo.color,
                 showAsTree = showAsTree,
                 onClick = {

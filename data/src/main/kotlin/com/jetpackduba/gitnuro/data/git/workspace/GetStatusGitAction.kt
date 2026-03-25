@@ -3,6 +3,9 @@ package com.jetpackduba.gitnuro.data.git.workspace
 import com.jetpackduba.gitnuro.domain.extensions.flatListOf
 import com.jetpackduba.gitnuro.domain.models.EntryType
 import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.bind
+import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusGitAction
 import com.jetpackduba.gitnuro.domain.models.Status
 import com.jetpackduba.gitnuro.domain.models.StatusEntry
@@ -13,18 +16,18 @@ import javax.inject.Inject
 import org.eclipse.jgit.api.Status as JGitStatus
 
 class GetStatusGitAction @Inject constructor() : IGetStatusGitAction {
-    override suspend operator fun invoke(repository: String): Status {
+    override suspend operator fun invoke(repository: String) = either {
         val status = withContext(Dispatchers.IO) {
             jgit(repository) {
                 status()
                     .call()
             }
-        }
+        }.bind()
 
         val staged = getStaged(status)
         val unstaged = getUnstaged(status)
 
-        return Status(staged, unstaged)
+        Either.Ok(Status(staged, unstaged))
     }
 
     private fun getUnstaged(status: JGitStatus): List<StatusEntry> {

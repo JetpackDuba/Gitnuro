@@ -7,15 +7,15 @@ import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IOpenRepositoryGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IOpenSubmoduleRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.ProcessingState
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.newErrorNow
+import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
+import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
@@ -30,10 +30,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Repository
 import java.io.File
-import javax.inject.Provider
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
 
@@ -46,8 +43,6 @@ private const val TAG = "TabViewModel"
  */
 class RepositoryTabViewModel @AssistedInject constructor(
     private val initLocalRepositoryGitAction: IInitLocalRepositoryGitAction,
-    private val openRepositoryGitAction: IOpenRepositoryGitAction,
-    private val openSubmoduleRepositoryGitAction: IOpenSubmoduleRepositoryGitAction,
     private val tabState: TabInstanceRepository,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: IFileChangesWatcher,
@@ -57,7 +52,9 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val tabScope: CoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
-    private val repositoryOpenViewModelProvider: Provider<RepositoryOpenViewModel>,
+    private val openRepositoryUseCase: OpenRepositoryUseCase,
+    private val repositoryDataRepository: RepositoryDataRepository,
+    private val setRepositorySelectionStateToNoneUseCase: SetRepositorySelectionStateToNoneUseCase,
     @Assisted val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -70,14 +67,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     val errorsManager: IErrorsRepository = tabState.errorsRepository
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
-    val repositorySelectionStatus: StateFlow<RepositorySelectionStatus>
-        field = MutableStateFlow<RepositorySelectionStatus>(
-            if (initialPath == null) {
-                RepositorySelectionStatus.None
-            } else {
-                RepositorySelectionStatus.Opening(initialPath)
-            }
-        )
+    val repositorySelectionState: StateFlow<RepositorySelectionState> = repositoryDataRepository.repositoryState
 
     val backStack = NavBackStack<Screen>(
         if (initialPath == null) {
@@ -95,56 +85,14 @@ class RepositoryTabViewModel @AssistedInject constructor(
             initialValue = ProcessingState.None
         )
 
-    private var hasRepositoryAlreadyOpened: Boolean = false
 
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
 
-    fun openRepository(directory: String) {
-        if (!hasRepositoryAlreadyOpened) {
-            openRepository(File(directory))
-            hasRepositoryAlreadyOpened = true
-        }
-    }
 
-    fun openRepository(directory: File) = tabState.safeProcessingWithoutGit {
-        printLog(TAG, "Trying to open repository ${directory.absoluteFile}")
+    fun openRepository(directory: String) = tabState.safeProcessingWithoutGit {
+        printLog(TAG, "Trying to open repository ${directory}")
 
-        repositorySelectionStatus.value = RepositorySelectionStatus.Opening(directory.absolutePath)
-
-        try {
-            val repository: Repository = if (directory.listFiles()?.any { it.name == ".git" && it.isFile } == true) {
-                openSubmoduleRepositoryGitAction(directory)
-            } else {
-                openRepositoryGitAction(directory)
-            }
-
-            repository.workTree // test if repository is valid
-
-            val path = if (directory.name == ".git") {
-                directory.parent
-            } else
-                directory.absolutePath
-
-            onRepositoryChanged(path)
-
-            val git = Git(repository)
-            tabState.initGit(git)
-
-            repositorySelectionStatus.value = RepositorySelectionStatus.Open(repositoryOpenViewModelProvider.get())
-
-            tabState.refreshData(RefreshType.ALL_DATA)
-        } catch (ex: Exception) {
-            onRepositoryChanged(null)
-            ex.printStackTrace()
-
-            errorsManager.addError(
-                newErrorNow(
-                    taskType = TaskType.REPOSITORY_OPEN,
-                    exception = ex
-                )
-            )
-            repositorySelectionStatus.value = RepositorySelectionStatus.None
-        }
+        openRepositoryUseCase(directory)
     }
 
     fun credentialsDenied() {
@@ -183,7 +131,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     fun initLocalRepository(dir: String) = tabState.safeProcessingWithoutGit {
         val repoDir = File(dir)
         initLocalRepositoryGitAction(repoDir)
-        openRepository(repoDir)
+        openRepository(dir)
     }
 
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
@@ -199,11 +147,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
     fun removeRepositoryFromRecent(repository: String) {
         appStateManager.removeRepositoryFromRecent(repository)
     }
-}
 
-
-sealed class RepositorySelectionStatus {
-    data object None : RepositorySelectionStatus()
-    data class Opening(val path: String) : RepositorySelectionStatus()
-    data class Open(val viewModel: RepositoryOpenViewModel) : RepositorySelectionStatus()
+    fun newTab() {
+        setRepositorySelectionStateToNoneUseCase()
+    }
 }

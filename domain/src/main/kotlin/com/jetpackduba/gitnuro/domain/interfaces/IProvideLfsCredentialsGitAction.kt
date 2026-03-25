@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.interfaces
 
-import com.jetpackduba.gitnuro.common.Either
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.LfsError
 
 interface IProvideLfsCredentialsGitAction {

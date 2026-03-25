@@ -55,6 +55,8 @@ import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.components.TabInformation.Companion.NEW_TAB_DEFAULT_NAME
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import org.eclipse.jgit.lib.GpgConfig
 import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Signers
@@ -107,7 +109,7 @@ class App @Inject constructor(
     private val lfsFactory: AppLfsFactory,
 ) {
     @OptIn(ExperimentalFoundationApi::class)
-    fun start(args: Array<String>) {
+    suspend fun start(args: Array<String>) {
         initNativeDependencies()
         logsRepository.initLogging()
         initProxySettings()
@@ -136,17 +138,29 @@ class App @Inject constructor(
         if (dirToOpen != null)
             addDirTab(dirToOpen)
 
+        val themeInitial = appSettings.theme.first()
+        val customThemeInitial = null //by appSettingsRepository.customThemeFlow.collectAsState()
+        val scaleInitial = appSettings.scaleUi.firstOrNull()
+        val linesHeightTypeInitial = appSettings.linesHeightType.first()
+        val avatarProviderTypeInitial = appSettings.avatarProvider.first()
+        val dateFormatUseDefaultInitial = appSettings.dateFormatUseDefault.first()
+        val dateFormatCustomFormatInitial = appSettings.dateFormatCustomFormat.first()
+        val dateFormatIs24hInitial = appSettings.dateFormatIs24h.first()
+        val dateFormatUseRelativeInitial = appSettings.dateFormatUseRelative.first()
+
+
+
         application {
             var isOpen by remember { mutableStateOf(true) }
-            val theme by appSettings.theme.collectAsState(Theme.Dark)
+            val theme by appSettings.theme.collectAsState(themeInitial)
             val customTheme = null //by appSettingsRepository.customThemeFlow.collectAsState()
-            val scale = appSettings.scaleUi.collectAsState(null).value
-            val linesHeightType by appSettings.linesHeightType.collectAsState(LinesHeightType.SPACED)
-            val avatarProviderType by appSettings.avatarProvider.collectAsState(AvatarProviderType.None)
-            val dateFormatUseDefault by appSettings.dateFormatUseDefault.collectAsState(AppSettingsService.DEFAULT_DATE_USE_DEFAULT)
-            val dateFormatCustomFormat by appSettings.dateFormatCustomFormat.collectAsState(AppSettingsService.DEFAULT_DATE_CUSTOM_FORMAT)
-            val dateFormatIs24h by appSettings.dateFormatIs24h.collectAsState(AppSettingsService.DEFAULT_DATE_IS_24H)
-            val dateFormatUseRelative by appSettings.dateFormatUseRelative.collectAsState(AppSettingsService.DEFAULT_DATE_USE_RELATIVE)
+            val scale = appSettings.scaleUi.collectAsState(scaleInitial).value
+            val linesHeightType by appSettings.linesHeightType.collectAsState(linesHeightTypeInitial)
+            val avatarProviderType by appSettings.avatarProvider.collectAsState(avatarProviderTypeInitial)
+            val dateFormatUseDefault by appSettings.dateFormatUseDefault.collectAsState(dateFormatUseDefaultInitial)
+            val dateFormatCustomFormat by appSettings.dateFormatCustomFormat.collectAsState(dateFormatCustomFormatInitial)
+            val dateFormatIs24h by appSettings.dateFormatIs24h.collectAsState(dateFormatIs24hInitial)
+            val dateFormatUseRelative by appSettings.dateFormatUseRelative.collectAsState(dateFormatUseRelativeInitial)
 
             val dateFormat by derivedStateOf {
                 DateTimeFormat(
