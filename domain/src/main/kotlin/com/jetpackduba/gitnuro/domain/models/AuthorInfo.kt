@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.domain.models
 import org.eclipse.jgit.lib.PersonIdent
 
 
+// TODO Refactor to global and local Identity instead of 4 fields
 data class AuthorInfo(
     val globalName: String?,
     val globalEmail: String?,

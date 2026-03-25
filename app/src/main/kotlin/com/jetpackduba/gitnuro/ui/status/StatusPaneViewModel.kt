@@ -3,12 +3,12 @@ package com.jetpackduba.gitnuro.ui.status
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
@@ -17,18 +17,12 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
-import com.jetpackduba.gitnuro.domain.usecases.AddSelectedDiffUseCase
-import com.jetpackduba.gitnuro.domain.usecases.RemoveSelectedDiffUseCase
-import com.jetpackduba.gitnuro.domain.usecases.StatusStageAllUseCase
-import com.jetpackduba.gitnuro.domain.usecases.StatusStageUseCase
-import com.jetpackduba.gitnuro.domain.usecases.StatusUnstageAllUseCase
-import com.jetpackduba.gitnuro.domain.usecases.StatusUnstageUseCase
+import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.skiko.ClipboardManager
 import java.io.File
@@ -52,7 +46,7 @@ class StatusPaneViewModel @Inject constructor(
     private val continueRebaseGitAction: IContinueRebaseGitAction,
     private val abortRebaseGitAction: IAbortRebaseGitAction,
     private val skipRebaseGitAction: ISkipRebaseGitAction,
-    private val doCommitGitAction: IDoCommitGitAction,
+    private val doCommitUseCase: DoCommitUseCase,
     private val loadAuthorGitAction: ILoadAuthorGitAction,
     private val saveAuthorGitAction: ISaveAuthorGitAction,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
@@ -63,7 +57,7 @@ class StatusPaneViewModel @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
-) {
+) : TabViewModel() {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
 
@@ -481,20 +475,13 @@ class StatusPaneViewModel @Inject constructor(
         }
     }
 
-    fun commit(message: String) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.DO_COMMIT,
-    ) { git ->
+    fun commit(message: String) = tabScope.launch {
         val amend = isAmend.value
 
-        val commitMessage = if (amend && message.isBlank()) {
-            getLastCommitMessageGitAction(git)
-        } else
-            message
+// TODO restore this val personIdent = getIdentity(git)
+        val personIdent = null
 
-        val personIdent = getPersonIdent(git)
-
-        doCommitGitAction(git, commitMessage, amend, personIdent)
+        doCommitUseCase(message, amend, personIdent)
 
         updateCommitMessage("")
         _commitMessageChangesFlow.emit("")
@@ -503,7 +490,7 @@ class StatusPaneViewModel @Inject constructor(
         positiveNotification(if (isAmend.value) "Commit amended" else "New commit created")
     }
 
-    private suspend fun getPersonIdent(git: Git): PersonIdent? {
+    private suspend fun getIdentity(git: Git): Identity? {
         val author = loadAuthorGitAction(git)
 
         return if (
@@ -525,7 +512,7 @@ class StatusPaneViewModel @Inject constructor(
                     saveAuthorGitAction(git, authorInfo)
                 }
 
-                PersonIdent(authorInfo.globalName, authorInfo.globalEmail)
+                Identity(authorInfo.globalName.orEmpty(), authorInfo.globalEmail.orEmpty())
             } else {
                 throw CancellationException("Author info request cancelled")
             }
@@ -549,7 +536,7 @@ class StatusPaneViewModel @Inject constructor(
             val amendCommitId = rebaseInteractiveState.commitToAmendId
 
             if (!amendCommitId.isNullOrBlank()) {
-                doCommitGitAction(git, message, true, getPersonIdent(git))
+                doCommitUseCase(message, true, getIdentity(git))
             }
         }
 

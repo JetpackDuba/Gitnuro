@@ -11,3 +11,5 @@ data class GenericError(val message: String) : GitError
  * Errors reading information from a repository (such as branches, status, etc.)
  */
 data object RepositoryReadError : GitError
+
+data class HookRejectionError(val message: String): GitError

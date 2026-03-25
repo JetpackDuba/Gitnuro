@@ -1,14 +1,18 @@
 package com.jetpackduba.gitnuro.domain.interfaces
 
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.Identity
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.PersonIdent
 import org.eclipse.jgit.revwalk.RevCommit
 
 interface IDoCommitGitAction {
     suspend operator fun invoke(
-        git: Git,
+        repositoryPath: String,
         message: String,
         amend: Boolean,
-        author: PersonIdent?,
-    ): RevCommit
+        author: Identity?,
+    ): Either<Commit, GitError>
 }

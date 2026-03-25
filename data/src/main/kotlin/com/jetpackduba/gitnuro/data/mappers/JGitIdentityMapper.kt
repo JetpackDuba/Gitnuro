@@ -6,7 +6,10 @@ import javax.inject.Inject
 
 class JGitIdentityMapper @Inject constructor(): DataMapper<Identity, PersonIdent> {
     override fun toData(value: Identity): PersonIdent {
-        TODO("Not yet implemented")
+        return PersonIdent(
+            value.name,
+            value.email,
+        )
     }
 
     override fun toDomain(value: PersonIdent): Identity {

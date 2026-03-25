@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.domain.interfaces.IContinueRebaseGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseInteractiveStateGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRepositoryStateGitAction
+import com.jetpackduba.gitnuro.domain.models.Identity
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -18,12 +19,12 @@ class RebaseContinueUseCase @Inject constructor(
     private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
     private val getRebaseInteractiveStateGitAction: IGetRebaseInteractiveStateGitAction,
     private val continueRebaseGitAction: IContinueRebaseGitAction,
-    private val doCommitGitAction: IDoCommitGitAction,
+    private val doCommitUseCase: DoCommitUseCase,
 ) {
     operator fun invoke(
         message: String,
         isAmendRebaseInteractive: Boolean,
-        personIdent: suspend (Git) -> PersonIdent?,
+        personIdent: suspend (Git) -> Identity?,
     ) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.CONTINUE_REBASE,
@@ -40,7 +41,7 @@ class RebaseContinueUseCase @Inject constructor(
             val amendCommitId = rebaseInteractiveState.commitToAmendId
 
             if (!amendCommitId.isNullOrBlank()) {
-                doCommitGitAction(git, message, true, personIdent(git))
+                doCommitUseCase(message, true, personIdent(git))
             }
         }
 

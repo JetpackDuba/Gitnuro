@@ -14,6 +14,7 @@ import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.RefreshAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.observers.DataObserversManager
@@ -67,6 +68,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val dataObserversManager: DataObserversManager,
+    private val refreshAllUseCase: RefreshAllUseCase,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -222,7 +224,7 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     private suspend fun refreshRepositoryInfo() {
-        tabState.refreshData(RefreshType.ALL_DATA)
+        refreshAllUseCase()
     }
 
     fun openDirectoryPicker(): String? {
