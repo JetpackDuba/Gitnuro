@@ -29,6 +29,7 @@ import com.jetpackduba.gitnuro.ui.components.*
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.committedChangesEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
+import com.jetpackduba.gitnuro.viewmodels.CommitChangesSelection
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesStateUi
 import com.jetpackduba.gitnuro.viewmodels.CommitChangesViewModel
 import kotlinx.coroutines.delay
@@ -49,7 +50,7 @@ fun CommitChanges(
     val diffSelected by commitChangesViewModel.diffSelected.collectAsState(null)
 
     LaunchedEffect(selectedItem) {
-        commitChangesViewModel.loadChanges(selectedItem.revCommit)
+        commitChangesViewModel.loadChanges(selectedItem)
     }
 
     LaunchedEffect(commitChangesViewModel) {
@@ -126,7 +127,7 @@ private fun CommitChangesView(
     onDirectoryClicked: (TreeItem.Dir) -> Unit,
     onAlternateShowAsTree: () -> Unit,
 ) {
-    val commit = commitChangesStatus.commit
+    val selection = commitChangesStatus.selection
 
     Column(
         modifier = Modifier
@@ -142,7 +143,11 @@ private fun CommitChangesView(
                 .background(MaterialTheme.colors.background)
         ) {
             FilesChangedHeader(
-                title = "Files changed",
+                title = if (selection.isMultiple) {
+                    "Files changed · merged diff"
+                } else {
+                    "Files changed"
+                },
                 showAsTree = showAsTree,
                 showSearch = showSearch,
                 onAlternateShowAsTree = onAlternateShowAsTree,
@@ -194,10 +199,22 @@ private fun CommitChangesView(
 
         }
 
-        MessageAuthorFooter(
-            commit,
-            textScroll,
+        CommitSelectionFooter(
+            selection = selection,
+            textScroll = textScroll,
         )
+    }
+}
+
+@Composable
+private fun CommitSelectionFooter(
+    selection: CommitChangesSelection,
+    textScroll: ScrollState,
+) {
+    if (selection.isMultiple) {
+        MultipleCommitsFooter(selection, textScroll)
+    } else {
+        MessageAuthorFooter(selection.primaryCommit, textScroll)
     }
 }
 
@@ -230,6 +247,85 @@ private fun MessageAuthorFooter(
             name = commit.name,
             author = commit.authorIdent,
         )
+    }
+}
+
+@Composable
+private fun MultipleCommitsFooter(
+    selection: CommitChangesSelection,
+    textScroll: ScrollState,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colors.background),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .padding(8.dp)
+                .verticalScroll(textScroll),
+        ) {
+            Text(
+                text = "${selection.commits.count()} commits selected",
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onBackground,
+            )
+
+            Text(
+                text = "Showing the merged diff from ${selection.oldestCommit.shortName} to ${selection.newestCommit.shortName}",
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackgroundSecondary,
+                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+            )
+
+            selection.commits.forEach { commit ->
+                Text(
+                    text = "${commit.shortName} ${commit.getShortMessageTrimmed()}",
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.onBackground,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
+            }
+        }
+
+        MultiCommitSummary(selection)
+    }
+}
+
+@Composable
+private fun MultiCommitSummary(selection: CommitChangesSelection) {
+    val newestCommit = selection.newestCommit
+    val oldestCommit = selection.oldestCommit
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .background(MaterialTheme.colors.tertiarySurface)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "${newestCommit.authorIdent.name} → ${oldestCommit.authorIdent.name}",
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackground,
+                maxLines = 1,
+            )
+
+            Text(
+                text = "${oldestCommit.authorIdent.whenAsInstant.toSmartSystemString(showTime = true)} → ${newestCommit.authorIdent.whenAsInstant.toSmartSystemString(showTime = true)}",
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackgroundSecondary,
+                maxLines = 1,
+            )
+        }
     }
 }
 
@@ -340,7 +436,7 @@ fun ListCommitLogChanges(
                 iconColor = diffEntry.iconColor,
                 parentDirectoryPath = diffEntry.parentDirectoryPath,
                 fileName = diffEntry.fileName,
-                isSelected = false/*diffSelected is DiffType.CommitDiff && diffSelected.diffEntry == diffEntry*/,
+                isSelected = diffSelected?.items?.any { it.diffEntry == diffEntry } == true,
                 onClick = { onDiffSelected(diffEntry) },
                 onDoubleClick = {},
                 onGenerateContextMenu = { onGenerateContextMenu(diffEntry) },
@@ -367,9 +463,7 @@ fun TreeCommitLogChanges(
         items(items = treeItems) { entry ->
             CommitTreeItemEntry(
                 entry = entry,
-                isSelected =  false/*entry is TreeItem.File &&
-                        diffSelected is DiffType.CommitDiff &&
-                        diffSelected.diffEntry == entry.data*/,
+                isSelected = entry is TreeItem.File && diffSelected?.items?.any { it.diffEntry == entry.data } == true,
                 onFileClick = { onDiffSelected(it) },
                 onDirectoryClick = { onDirectoryClicked(it) },
                 onGenerateContextMenu = onGenerateContextMenu,

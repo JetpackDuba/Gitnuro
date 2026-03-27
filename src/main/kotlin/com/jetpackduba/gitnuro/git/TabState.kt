@@ -265,6 +265,20 @@ class TabState @Inject constructor(
         }
     }
 
+    fun newSelectedCommits(
+        commits: List<RevCommit>,
+        primaryCommit: RevCommit? = commits.firstOrNull(),
+    ) = runOperation(
+        refreshType = RefreshType.NONE,
+    ) { _ ->
+        when {
+            commits.isEmpty() -> newSelectedItem(SelectedItem.None)
+            commits.count() == 1 -> newSelectedItem(SelectedItem.Commit(commits.first()))
+            primaryCommit == null -> newSelectedItem(SelectedItem.None)
+            else -> newSelectedItem(SelectedItem.MultipleCommits(commits, primaryCommit))
+        }
+    }
+
     fun newSelectedRef(ref: Ref, objectId: ObjectId?) = runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->

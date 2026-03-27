@@ -892,6 +892,15 @@ private fun DiffHeader(
                         maxLines = 1,
                         modifier = Modifier.padding(end = 16.dp),
                     )
+
+                    if (diffType is DiffType.CommitDiff && diffType.commitsCount > 1) {
+                        Text(
+                            text = "${diffType.commitsCount} commits",
+                            style = MaterialTheme.typography.caption,
+                            color = MaterialTheme.colors.onBackgroundSecondary,
+                            modifier = Modifier.padding(end = 16.dp),
+                        )
+                    }
                 }
             }
         }

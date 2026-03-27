@@ -13,7 +13,10 @@ sealed class DiffType {
     abstract val filePath: String
     abstract val statusType: StatusType
 
-    data class CommitDiff(val diffEntry: DiffEntry) : DiffType() {
+    data class CommitDiff(
+        val diffEntry: DiffEntry,
+        val commitsCount: Int = 1,
+    ) : DiffType() {
         override val filePath: String
             get() = diffEntry.filePath
 

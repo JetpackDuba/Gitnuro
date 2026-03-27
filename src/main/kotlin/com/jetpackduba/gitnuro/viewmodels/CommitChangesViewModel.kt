@@ -12,6 +12,8 @@ import com.jetpackduba.gitnuro.git.diff.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.repositories.DiffSelected
 import com.jetpackduba.gitnuro.repositories.SelectedDiffItemRepository
+import com.jetpackduba.gitnuro.ui.SelectedItem
+import com.jetpackduba.gitnuro.ui.selectedCommits
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CoroutineScope
@@ -70,12 +72,12 @@ class CommitChangesViewModel @Inject constructor(
             is CommitChangesState.Loaded -> {
                 if (showAsTree) {
                     CommitChangesStateUi.TreeLoaded(
-                        commit = commitState.commit,
+                        selection = commitState.selection,
                         changes = entriesToTreeEntry(showAsTree, commitState.changes, contractedDirs) { it.filePath }
                     )
                 } else {
                     CommitChangesStateUi.ListLoaded(
-                        commit = commitState.commit,
+                        selection = commitState.selection,
                         changes = commitState.changes
                     )
                 }
@@ -87,7 +89,6 @@ class CommitChangesViewModel @Inject constructor(
             SharingStarted.Lazily,
             CommitChangesStateUi.Loading
         )
-
 
     init {
         tabScope.launch {
@@ -109,54 +110,75 @@ class CommitChangesViewModel @Inject constructor(
         }
     }
 
-    fun loadChanges(commit: RevCommit) = tabState.runOperation(
+    fun loadChanges(selectedItem: SelectedItem.CommitBasedItem) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) { git ->
+        val selection = CommitChangesSelection.from(selectedItem)
         val state = _commitChangesState.value
 
-        // Check if it's a different commit before resetting everything
         if (
             state is CommitChangesState.Loading ||
-            state is CommitChangesState.Loaded && state.commit != commit
+            state is CommitChangesState.Loaded && state.selection != selection
         ) {
             delayedStateChange(
                 delayMs = MIN_TIME_IN_MS_TO_SHOW_LOAD,
                 onDelayTriggered = { _commitChangesState.value = CommitChangesState.Loading }
             ) {
-                val fullCommit = commit.fullData(git.repository)
-
-                if (fullCommit != null) {
-                    val changes = getCommitDiffEntriesUseCase(git, fullCommit).toMutableList()
-
-                    if (fullCommit.parentCount == 3) {
-                        val untrackedFilesCommit =
-                            fullCommit.parents?.firstOrNull {
-                                val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
-
-                                parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
-                            }
-
-                        if (untrackedFilesCommit != null) {
-                            val untrackedFilesChanges = getCommitDiffEntriesUseCase(git, untrackedFilesCommit)
-
-                            if (untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
-                                changes.addAll(untrackedFilesChanges)
-                            }
-                        }
-                    }
-
-                    _commitChangesState.value = CommitChangesState.Loaded(commit, changes)
-                }
+                val changes = loadSelectionChanges(git, selection)
+                _commitChangesState.value = CommitChangesState.Loaded(selection, changes)
             }
 
             _showSearch.value = false
             _searchFilter.value = TextFieldValue("")
-            changesLazyListState.value = LazyListState(
-                0,
-                0
-            )
+            changesLazyListState.value = LazyListState(0, 0)
             textScroll.value = ScrollState(0)
         }
+    }
+
+    private suspend fun loadSelectionChanges(
+        git: org.eclipse.jgit.api.Git,
+        selection: CommitChangesSelection,
+    ): List<DiffEntry> {
+        return if (selection.isMultiple) {
+            val newestCommit = selection.newestCommit.fullData(git.repository) ?: return emptyList()
+            val oldestCommit = selection.oldestCommit.fullData(git.repository) ?: return emptyList()
+            val parentCommit = oldestCommit.parents.firstOrNull()?.fullData(git.repository)
+
+            getCommitDiffEntriesUseCase.getDiffEntriesBetweenCommits(
+                git = git,
+                oldCommit = parentCommit,
+                newCommit = newestCommit,
+            )
+        } else {
+            loadSingleCommitChanges(git, selection.primaryCommit)
+        }
+    }
+
+    private suspend fun loadSingleCommitChanges(
+        git: org.eclipse.jgit.api.Git,
+        commit: RevCommit,
+    ): List<DiffEntry> {
+        val fullCommit = commit.fullData(git.repository) ?: return emptyList()
+        val changes = getCommitDiffEntriesUseCase(git, fullCommit).toMutableList()
+
+        if (fullCommit.parentCount == 3) {
+            val untrackedFilesCommit =
+                fullCommit.parents?.firstOrNull {
+                    val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
+
+                    parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
+                }
+
+            if (untrackedFilesCommit != null) {
+                val untrackedFilesChanges = getCommitDiffEntriesUseCase(git, untrackedFilesCommit)
+
+                if (untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) {
+                    changes.addAll(untrackedFilesChanges)
+                }
+            }
+        }
+
+        return changes
     }
 
     fun alternateShowAsTree() {
@@ -195,8 +217,10 @@ class CommitChangesViewModel @Inject constructor(
     }
 
     fun selectEntries(entries: List<DiffEntry>) {
+        val commitsCount = (_commitChangesState.value as? CommitChangesState.Loaded)?.selection?.commits?.count() ?: 1
+
         selectedDiffItemRepository.addDiffCommited(
-            diffType = entries.map { DiffType.CommitDiff(it) },
+            diffType = entries.map { DiffType.CommitDiff(it, commitsCount = commitsCount) },
             addToExisting = false,
         )
     }
@@ -208,21 +232,38 @@ class CommitChangesViewModel @Inject constructor(
 
 private sealed interface CommitChangesState {
     data object Loading : CommitChangesState
-    data class Loaded(val commit: RevCommit, val changes: List<DiffEntry>) :
-        CommitChangesState
+    data class Loaded(val selection: CommitChangesSelection, val changes: List<DiffEntry>) : CommitChangesState
+}
+
+data class CommitChangesSelection(
+    val commits: List<RevCommit>,
+    val primaryCommit: RevCommit,
+) {
+    val isMultiple: Boolean
+        get() = commits.count() > 1
+
+    val newestCommit: RevCommit
+        get() = commits.first()
+
+    val oldestCommit: RevCommit
+        get() = commits.last()
+
+    companion object {
+        fun from(selectedItem: SelectedItem.CommitBasedItem): CommitChangesSelection {
+            val commits = selectedItem.selectedCommits.ifEmpty { listOf(selectedItem.revCommit) }
+            return CommitChangesSelection(commits = commits, primaryCommit = selectedItem.revCommit)
+        }
+    }
 }
 
 sealed interface CommitChangesStateUi {
     data object Loading : CommitChangesStateUi
 
     sealed interface Loaded : CommitChangesStateUi {
-        val commit: RevCommit
+        val selection: CommitChangesSelection
     }
 
-    data class ListLoaded(override val commit: RevCommit, val changes: List<DiffEntry>) :
-        Loaded
+    data class ListLoaded(override val selection: CommitChangesSelection, val changes: List<DiffEntry>) : Loaded
 
-    data class TreeLoaded(override val commit: RevCommit, val changes: List<TreeItem<DiffEntry>>) :
-        Loaded
+    data class TreeLoaded(override val selection: CommitChangesSelection, val changes: List<TreeItem<DiffEntry>>) : Loaded
 }
-

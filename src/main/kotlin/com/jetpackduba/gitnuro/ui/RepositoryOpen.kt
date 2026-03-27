@@ -443,4 +443,27 @@ sealed interface SelectedItem {
     class Ref(val ref: org.eclipse.jgit.lib.Ref, revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Commit(revCommit: RevCommit) : CommitBasedItem(revCommit)
     class Stash(revCommit: RevCommit) : CommitBasedItem(revCommit)
+    data class MultipleCommits(
+        val commits: List<RevCommit>,
+        val primaryCommit: RevCommit,
+    ) : CommitBasedItem(primaryCommit)
 }
+
+val SelectedItem.selectedCommits: List<RevCommit>
+    get() = when (this) {
+        is SelectedItem.Commit -> listOf(revCommit)
+        is SelectedItem.MultipleCommits -> commits
+        is SelectedItem.Ref -> listOf(revCommit)
+        is SelectedItem.Stash -> listOf(revCommit)
+        SelectedItem.None,
+        SelectedItem.UncommittedChanges,
+        -> emptyList()
+    }
+
+val SelectedItem.primaryCommit: RevCommit?
+    get() = when (this) {
+        is SelectedItem.CommitBasedItem -> revCommit
+        SelectedItem.None,
+        SelectedItem.UncommittedChanges,
+        -> null
+    }

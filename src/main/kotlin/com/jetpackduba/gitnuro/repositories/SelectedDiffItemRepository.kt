@@ -72,4 +72,8 @@ class SelectedDiffItemRepository @Inject constructor() {
             this._diffSelected.value = diffSelected.copy(items = diffSelected.items - selectedToRemove)
         }
     }
+
+    fun clearSelection() {
+        _diffSelected.value = null
+    }
 }

@@ -21,7 +21,12 @@ import com.jetpackduba.gitnuro.git.workspace.GetStatusSummaryUseCase
 import com.jetpackduba.gitnuro.git.workspace.StatusSummary
 import com.jetpackduba.gitnuro.models.positiveNotification
 import com.jetpackduba.gitnuro.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.repositories.SelectedDiffItemRepository
+import com.jetpackduba.gitnuro.system.OS
+import com.jetpackduba.gitnuro.system.currentOs
 import com.jetpackduba.gitnuro.ui.SelectedItem
+import com.jetpackduba.gitnuro.ui.primaryCommit
+import com.jetpackduba.gitnuro.ui.selectedCommits
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import com.jetpackduba.gitnuro.ui.log.LogDialog
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +41,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Represents when the search filter is not being used or the results list is empty
@@ -67,6 +73,7 @@ class LogViewModel @Inject constructor(
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
     private val tabState: TabState,
     private val appSettingsRepository: AppSettingsRepository,
+    private val selectedDiffItemRepository: SelectedDiffItemRepository,
     private val tabScope: CoroutineScope,
     private val clipboardManager: ClipboardManager,
     sharedStashViewModel: SharedStashViewModel,
@@ -274,14 +281,9 @@ class LogViewModel @Inject constructor(
     fun selectUncommittedChanges() = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
+        selectedDiffItemRepository.clearSelection()
         tabState.newSelectedItem(SelectedItem.UncommittedChanges)
-
-        val searchValue = _logSearchFilterResults.value
-        if (searchValue is LogSearch.SearchResults) {
-            val lastIndexSelected = getLastIndexSelected()
-
-            _logSearchFilterResults.value = searchValue.copy(index = lastIndexSelected)
-        }
+        updateSearchSelectionIndex()
     }
 
     private fun getLastIndexSelected(): Int {
@@ -293,14 +295,97 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectCommit(commit: GraphNode) = tabState.runOperation(
+    fun selectCommit(
+        commit: GraphNode,
+        commitList: GraphCommitList,
+        isCtrlPressed: Boolean,
+        isMetaPressed: Boolean,
+        isShiftPressed: Boolean,
+    ) = tabState.runOperation(
         refreshType = RefreshType.NONE,
     ) {
-        tabState.newSelectedCommit(commit)
+        selectedDiffItemRepository.clearSelection()
 
+        val selectedCommits = getSelectedCommits(
+            commit = commit,
+            commitList = commitList,
+            isCtrlPressed = isCtrlPressed,
+            isMetaPressed = isMetaPressed,
+            isShiftPressed = isShiftPressed,
+        )
+
+        val newSelectedItem = when (selectedCommits.count()) {
+            0 -> SelectedItem.None
+            1 -> SelectedItem.Commit(selectedCommits.first())
+            else -> {
+                val primaryCommit = selectedCommits.firstOrNull { it.name == commit.name } ?: selectedCommits.first()
+                SelectedItem.MultipleCommits(selectedCommits, primaryCommit)
+            }
+        }
+
+        tabState.newSelectedItem(newSelectedItem)
+        updateSearchSelectionIndex(commit)
+    }
+
+    private fun getSelectedCommits(
+        commit: GraphNode,
+        commitList: GraphCommitList,
+        isCtrlPressed: Boolean,
+        isMetaPressed: Boolean,
+        isShiftPressed: Boolean,
+    ): List<RevCommit> {
+        val selectedItem = tabState.selectedItem.value
+        val currentSelection = selectedItem.selectedCommits
+        val primaryCommit = selectedItem.primaryCommit
+
+        return when {
+            isShiftPressed && primaryCommit != null -> getCommitRangeSelection(commitList, primaryCommit, commit)
+            (currentOs == OS.MAC && isMetaPressed) || isCtrlPressed ->
+                toggleCommitSelection(commitList, currentSelection, commit)
+
+            else -> listOf(commit)
+        }
+    }
+
+    private fun getCommitRangeSelection(
+        commitList: GraphCommitList,
+        startCommit: RevCommit,
+        endCommit: RevCommit,
+    ): List<RevCommit> {
+        val startIndex = commitList.indexOfFirst { it.name == startCommit.name }
+        val endIndex = commitList.indexOfFirst { it.name == endCommit.name }
+
+        if (startIndex == -1 || endIndex == -1) {
+            return listOf(endCommit)
+        }
+
+        return commitList
+            .subList(min(startIndex, endIndex), max(startIndex, endIndex) + 1)
+            .map { it as RevCommit }
+    }
+
+    private fun toggleCommitSelection(
+        commitList: GraphCommitList,
+        currentSelection: List<RevCommit>,
+        commit: GraphNode,
+    ): List<RevCommit> {
+        val updatedSelection = if (currentSelection.any { it.name == commit.name }) {
+            currentSelection.filterNot { it.name == commit.name }
+        } else {
+            currentSelection + commit
+        }
+
+        val selectedNames = updatedSelection.associateBy { it.name }
+
+        return commitList
+            .filter { selectedNames.containsKey(it.name) }
+            .map { selectedNames.getValue(it.name) }
+    }
+
+    private fun updateSearchSelectionIndex(commit: GraphNode? = null) {
         val searchValue = _logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {
-            var index = searchValue.commits.indexOf(commit)
+            var index = if (commit != null) searchValue.commits.indexOf(commit) else -1
 
             if (index == -1)
                 index = getLastIndexSelected()

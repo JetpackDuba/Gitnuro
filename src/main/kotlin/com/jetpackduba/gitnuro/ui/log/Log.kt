@@ -34,9 +34,13 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isCtrlPressed
+import androidx.compose.ui.input.pointer.isMetaPressed
+import androidx.compose.ui.input.pointer.isShiftPressed
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -51,6 +55,7 @@ import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.logging.printLog
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.SelectedItem
+import com.jetpackduba.gitnuro.ui.selectedCommits
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
@@ -180,11 +185,8 @@ private fun LogLoaded(
             }
     }
 
-    val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
-        selectedItem.revCommit
-    } else {
-        null
-    }
+    val selectedCommits = selectedItem.selectedCommits
+    val selectedCommitIds = remember(selectedCommits) { selectedCommits.map { it.name }.toSet() }
 
     LaunchedEffect(verticalScrollState, commitList) {
         launch {
@@ -269,7 +271,7 @@ private fun LogLoaded(
                 horizontalScrollState = horizontalScrollState,
                 hasUncommittedChanges = hasUncommittedChanges,
                 searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
-                selectedCommit = selectedCommit,
+                selectedCommitIds = selectedCommitIds,
                 logStatus = logStatus,
                 repositoryState = repositoryState,
                 selectedItem = selectedItem,
@@ -284,7 +286,9 @@ private fun LogLoaded(
                 onCheckoutRemoteBranch = { logViewModel.checkoutRemoteBranch(it) },
                 onCheckoutRef = { logViewModel.checkoutRef(it) },
                 onRebaseInteractive = { logViewModel.rebaseInteractive(it) },
-                onCommitSelected = { logViewModel.selectCommit(it) },
+                onCommitSelected = { commit, isCtrlPressed, isMetaPressed, isShiftPressed ->
+                    logViewModel.selectCommit(commit, commitList, isCtrlPressed, isMetaPressed, isShiftPressed)
+                },
                 onUncommittedChangesSelected = { logViewModel.selectUncommittedChanges() },
                 onDeleteStash = { logViewModel.deleteStash(it) },
                 onApplyStash = { logViewModel.applyStash(it) },
@@ -489,7 +493,7 @@ fun CommitsList(
     scrollState: LazyListState,
     hasUncommittedChanges: Boolean,
     searchFilter: List<GraphNode>?,
-    selectedCommit: RevCommit?,
+    selectedCommitIds: Set<String>,
     logStatus: LogStatus.Loaded,
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
@@ -502,7 +506,7 @@ fun CommitsList(
     onMerge: (Ref) -> Unit,
     onRebase: (Ref) -> Unit,
     onRebaseInteractive: (GraphNode) -> Unit,
-    onCommitSelected: (GraphNode) -> Unit,
+    onCommitSelected: (GraphNode, Boolean, Boolean, Boolean) -> Unit,
     onUncommittedChangesSelected: () -> Unit,
     onDeleteStash: (GraphNode) -> Unit,
     onApplyStash: (GraphNode) -> Unit,
@@ -518,6 +522,7 @@ fun CommitsList(
     horizontalScrollState: ScrollState,
 ) {
     val scope = rememberCoroutineScope()
+    val keyboardModifiers = LocalWindowInfo.current.keyboardModifiers
 
     ScrollableLazyColumn(
         state = scrollState,
@@ -568,7 +573,7 @@ fun CommitsList(
             CommitLine(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
-                isSelected = selectedCommit?.name == graphNode.name,
+                isSelected = selectedCommitIds.contains(graphNode.name),
                 currentBranch = logStatus.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
                 horizontalScrollState = horizontalScrollState,
@@ -583,7 +588,14 @@ fun CommitsList(
                 onPullFromRemoteBranch = onPullFromRemoteBranch,
                 onRebaseBranch = onRebase,
                 onRebaseInteractive = { onRebaseInteractive(graphNode) },
-                onRevCommitSelected = { onCommitSelected(graphNode) },
+                onRevCommitSelected = {
+                    onCommitSelected(
+                        graphNode,
+                        keyboardModifiers.isCtrlPressed,
+                        keyboardModifiers.isMetaPressed,
+                        keyboardModifiers.isShiftPressed,
+                    )
+                },
                 onChangeDefaultUpstreamBranch = { onShowLogDialog(LogDialog.ChangeDefaultBranch(it)) },
                 onRenameBranch = { onShowLogDialog(LogDialog.RenameBranchName(it)) },
                 onDeleteStash = { onDeleteStash(graphNode) },

@@ -16,3 +16,4 @@ build/
 rs/target/
 rs/Cargo.lock
 src/main/resources/*gitnuro_rs*
+.kotlin/

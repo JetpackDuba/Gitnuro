@@ -18,20 +18,29 @@ class GetCommitDiffEntriesUseCase @Inject constructor() {
     suspend operator fun invoke(git: Git, commit: RevCommit): List<DiffEntry> = withContext(Dispatchers.IO) {
         val fullCommit = commit.fullData(git.repository) ?: return@withContext emptyList()
 
-        val repository = git.repository
-
         val parent = if (fullCommit.parentCount == 0) {
             null
-        } else
+        } else {
             fullCommit.parents.first().fullData(git.repository)
+        }
 
-        val oldTreeParser = if (parent != null)
-            prepareTreeParser(repository, parent)
-        else {
+        return@withContext getDiffEntriesBetweenCommits(git, oldCommit = parent, newCommit = fullCommit)
+    }
+
+    suspend fun getDiffEntriesBetweenCommits(
+        git: Git,
+        oldCommit: RevCommit?,
+        newCommit: RevCommit,
+    ): List<DiffEntry> = withContext(Dispatchers.IO) {
+        val repository = git.repository
+
+        val oldTreeParser = if (oldCommit != null) {
+            prepareTreeParser(repository, oldCommit)
+        } else {
             CanonicalTreeParser()
         }
 
-        val newTreeParser = prepareTreeParser(repository, fullCommit)
+        val newTreeParser = prepareTreeParser(repository, newCommit)
 
         return@withContext git.diff()
             .setNewTree(newTreeParser)
