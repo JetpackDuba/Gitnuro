@@ -2,9 +2,10 @@ package com.jetpackduba.gitnuro.data.git.remote_operations
 
 import com.jetpackduba.gitnuro.data.git.branches.GetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.data.git.branches.SetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsHandler
-import com.jetpackduba.gitnuro.domain.models.TrackingBranch
 import com.jetpackduba.gitnuro.domain.interfaces.IPushBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.TrackingBranch
 import com.jetpackduba.gitnuro.domain.models.isRejected
 import com.jetpackduba.gitnuro.domain.models.statusMessage
 import kotlinx.coroutines.Dispatchers
@@ -23,19 +24,24 @@ class PushBranchGitAction @Inject constructor(
     private val getTrackingBranchGitAction: GetTrackingBranchGitAction,
     private val setTrackingBranchGitAction: SetTrackingBranchGitAction,
 ) : IPushBranchGitAction {
-    override suspend operator fun invoke(git: Git, force: Boolean, pushTags: Boolean, pushWithLease: Boolean) = withContext(Dispatchers.IO) {
-        val currentBranch = git.repository.branch
-        val fullCurrentBranch = git.repository.fullBranch
+    override suspend operator fun invoke(
+        repositoryPath: String,
+        force: Boolean,
+        pushTags: Boolean,
+        pushWithLease: Boolean
+    ) = jgit(repositoryPath) {
+        val currentBranch = repository.branch
+        val fullCurrentBranch = repository.fullBranch
 
-        val tracking = getTrackingBranchGitAction(git, currentBranch)
+        val tracking = getTrackingBranchGitAction(this, currentBranch)
         val refSpecStr = if (tracking != null) {
             "$fullCurrentBranch:${Constants.R_HEADS}${tracking.branch}"
         } else {
             fullCurrentBranch
         }
 
-        val remoteRefUpdate = handleTransportGitAction(git) {
-            push(git, tracking, refSpecStr, force, pushTags, pushWithLease)
+        val remoteRefUpdate = handleTransportGitAction(this) {
+            push(this@jgit, tracking, refSpecStr, force, pushTags, pushWithLease)
         }
 
 
@@ -45,7 +51,7 @@ class PushBranchGitAction @Inject constructor(
             val remoteName = remoteBranchPathSplit.getOrNull(2)
             val remoteBranchName =
                 remoteBranchPathSplit.takeLast(max(0, remoteBranchPathSplit.count() - 3)).joinToString("/")
-            setTrackingBranchGitAction(git, currentBranch, remoteName, remoteBranchName)
+            setTrackingBranchGitAction(this, currentBranch, remoteName, remoteBranchName)
         }
     }
 

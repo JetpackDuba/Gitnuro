@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.PushBranchUseCase
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalGitAction
 import kotlinx.coroutines.Job
 import javax.inject.Inject
@@ -19,7 +20,7 @@ import javax.inject.Inject
 interface IGlobalMenuActionsViewModel {
     fun pull(pullType: PullType): Job
     fun fetchAll(): Job
-    fun push(force: Boolean = false, pushTags: Boolean = false): Job
+    fun push(force: Boolean = false, pushTags: Boolean = false)
     fun stash(): Job
     fun popStash(): Job
     fun openTerminal()
@@ -28,7 +29,7 @@ interface IGlobalMenuActionsViewModel {
 class GlobalMenuActionsViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val pullBranchGitAction: IPullBranchGitAction,
-    private val pushBranchGitAction: IPushBranchGitAction,
+    private val pushBranchUseCase: PushBranchUseCase,
     private val fetchAllRemotesGitAction: IFetchAllRemotesGitAction,
     private val popLastStashGitAction: IPopLastStashGitAction,
     private val stashChangesGitAction: IStashChangesGitAction,
@@ -48,6 +49,10 @@ class GlobalMenuActionsViewModel @Inject constructor(
         }
     }
 
+    override fun push(force: Boolean, pushTags: Boolean) {
+        pushBranchUseCase(force, pushTags)
+    }
+
     override fun fetchAll() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Fetching",
@@ -58,18 +63,6 @@ class GlobalMenuActionsViewModel @Inject constructor(
         fetchAllRemotesGitAction(git)
 
         positiveNotification("Fetch all completed")
-    }
-
-    override fun push(force: Boolean, pushTags: Boolean) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Push",
-        subtitle = "Pushing current branch to the remote repository",
-        refreshEvenIfCrashes = true,
-        taskType = TaskType.PUSH,
-    ) { git ->
-        pushBranchGitAction(git, force, pushTags, pushWithLease = true) // TODO Fix this after refactor to use cases
-
-        positiveNotification("Push completed")
     }
 
     override fun stash() = tabState.safeProcessing(

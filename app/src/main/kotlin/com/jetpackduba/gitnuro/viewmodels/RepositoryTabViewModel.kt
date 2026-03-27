@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.viewmodels
 import androidx.navigation3.runtime.NavBackStack
 import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
@@ -49,7 +50,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val credentialsStateManager: CredentialsStateManager,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val openRepositoryUseCase: OpenRepositoryUseCase,

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStashListGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
@@ -18,7 +19,7 @@ import org.eclipse.jgit.revwalk.RevCommit
 class StashesViewModel @AssistedInject constructor(
     private val getStashListGitAction: IGetStashListGitAction,
     private val tabState: TabInstanceRepository,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     @Assisted
     private val filter: StateFlow<String>,
     sharedStashViewModel: SharedStashViewModel,

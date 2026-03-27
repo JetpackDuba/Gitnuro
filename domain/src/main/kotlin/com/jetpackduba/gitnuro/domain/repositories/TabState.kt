@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.domain.repositories
 
 import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
@@ -26,7 +27,7 @@ private const val TAG = "TabState"
 @TabScope
 class TabInstanceRepository @Inject constructor(
     val errorsRepository: IErrorsRepository,
-    private val scope: CoroutineScope,
+    private val scope: TabCoroutineScope,
 //    private val findCommitGitAction: FindCommitGitAction,
 ) {
     private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommittedChanges)

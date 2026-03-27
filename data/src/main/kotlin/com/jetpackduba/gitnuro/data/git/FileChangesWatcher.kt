@@ -4,6 +4,7 @@ import FileWatcher
 import WatchDirectoryNotifier
 import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IGetIgnoreRulesGitAction
 import com.jetpackduba.gitnuro.domain.models.WatcherEvent
@@ -24,7 +25,7 @@ private const val TAG = "FileChangesWatcher"
 @TabScope
 class FileChangesWatcher @Inject constructor(
     private val getIgnoreRulesGitAction: IGetIgnoreRulesGitAction,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
 ) : AutoCloseable, IFileChangesWatcher {
     private val _changesNotifier = MutableSharedFlow<WatcherEvent>()
     override val changesNotifier: SharedFlow<WatcherEvent> = _changesNotifier

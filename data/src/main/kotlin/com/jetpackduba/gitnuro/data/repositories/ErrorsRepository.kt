@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.repositories
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.Notification
@@ -14,7 +15,7 @@ import javax.inject.Inject
 const val NOTIFICATION_DURATION = 2_500L
 
 class ErrorsRepository @Inject constructor(
-    private val coroutineScope: CoroutineScope,
+    private val coroutineScope: TabCoroutineScope,
 ) : IErrorsRepository {
     private val _errorsList = MutableStateFlow(listOf<Error>())
     override val errorsList: StateFlow<List<Error>>

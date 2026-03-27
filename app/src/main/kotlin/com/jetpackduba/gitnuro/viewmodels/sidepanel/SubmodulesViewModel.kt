@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -23,7 +24,7 @@ class SubmodulesViewModel @AssistedInject constructor(
     private val syncSubmoduleGitAction: ISyncSubmoduleGitAction,
     private val deInitializeSubmoduleGitAction: IDeInitializeSubmoduleGitAction,
     private val deleteSubmoduleGitAction: IDeleteSubmoduleGitAction,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val tabsManager: TabsManager,
     @Assisted
     private val filter: StateFlow<String>,

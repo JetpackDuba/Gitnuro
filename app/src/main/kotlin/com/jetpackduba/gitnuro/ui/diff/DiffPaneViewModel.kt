@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.diff
 
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
@@ -42,7 +43,7 @@ class DiffViewModel @Inject constructor(
     private val openFileInExternalAppGitAction: OpenFileInExternalAppGitAction,
     private val settings: AppSettingsService,
     private val tabsManager: TabsManager,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,

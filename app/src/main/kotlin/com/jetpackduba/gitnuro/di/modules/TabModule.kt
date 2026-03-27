@@ -8,11 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 @Module
-class TabModule {
-    @TabScope
-    @Provides
-    fun provideScope() = CoroutineScope(SupervisorJob())
-    @TabScope
+class TabModule {    @TabScope
     @Provides
     fun provideTabCoroutineScope() = TabCoroutineScope()
 }

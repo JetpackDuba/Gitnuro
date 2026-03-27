@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.countOrZero
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
@@ -42,7 +43,7 @@ class LogViewModel @Inject constructor(
     private val cherryPickCommitGitAction: ICherryPickCommitGitAction,
     private val startRebaseInteractiveGitAction: IStartRebaseInteractiveGitAction,
     private val tabState: TabInstanceRepository,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val clipboardManager: ClipboardManager,
     private val repositoryDataRepository: RepositoryDataRepository,
     sharedStashViewModel: SharedStashViewModel,

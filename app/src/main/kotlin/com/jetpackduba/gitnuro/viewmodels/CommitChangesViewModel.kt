@@ -4,6 +4,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
@@ -35,7 +36,7 @@ class CommitChangesViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val getCommitDiffEntriesGitAction: IGetCommitDiffEntriesGitAction,
     private val appSettings: AppSettingsService,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
 ) : TabViewModel() {

@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IGetWorkspacePathGitAction
@@ -62,7 +63,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
     private val tabsManager: TabsManager,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     val tabViewModelsProvider: ViewModelsProvider,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,

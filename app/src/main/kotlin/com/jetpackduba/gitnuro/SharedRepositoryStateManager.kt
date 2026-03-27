@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro
 
 import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseInteractiveStateGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRepositoryStateGitAction
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
@@ -22,7 +23,7 @@ class SharedRepositoryStateManager @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val getRebaseInteractiveStateGitAction: IGetRebaseInteractiveStateGitAction,
     private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
-    tabScope: CoroutineScope,
+    tabScope: TabCoroutineScope,
 ) {
     private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
     val repositoryState = _repositoryState.asStateFlow()

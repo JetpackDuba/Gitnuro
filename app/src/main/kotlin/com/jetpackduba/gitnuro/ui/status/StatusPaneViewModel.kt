@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
@@ -52,7 +53,7 @@ class StatusPaneViewModel @Inject constructor(
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageGitAction: IGetSpecificCommitMessageGitAction,
     private val appSettings: AppSettingsService,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val clipboardManager: ClipboardManager,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,

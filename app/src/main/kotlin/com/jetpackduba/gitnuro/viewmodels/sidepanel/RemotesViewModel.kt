@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
@@ -33,7 +34,7 @@ class RemotesViewModel @AssistedInject constructor(
     private val sharedBranchesViewModel: SharedBranchesViewModel,
     private val clipboardManager: ClipboardManager,
     private val repositoryDataRepository: RepositoryDataRepository,
-    tabScope: CoroutineScope,
+    tabScope: TabCoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
     private val filter: StateFlow<String>,

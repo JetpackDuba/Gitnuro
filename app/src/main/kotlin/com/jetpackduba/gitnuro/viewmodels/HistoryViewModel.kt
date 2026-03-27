@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
@@ -31,7 +32,7 @@ class HistoryViewModel @Inject constructor(
     private val getCommitDiffEntriesGitAction: IGetCommitDiffEntriesGitAction,
     private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
     private val settings: AppSettingsService,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
     private val appSettingsRepository: DataStoreAppSettingsRepository,
     private val getFileCommitsUseCase: GetFileCommitsUseCase,
     private val getDiffUseCase: GetDiffUseCase,

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
@@ -25,7 +26,7 @@ class TagsViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
     private val getTagsGitAction: IGetTagsGitAction,
     private val checkoutCommitGitAction: ICheckoutCommitGitAction,
-    tabScope: CoroutineScope,
+    tabScope: TabCoroutineScope,
     sharedTagsViewModel: SharedTagsViewModel,
     @Assisted
     private val filter: StateFlow<String>,

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.models.Branch
@@ -22,7 +23,7 @@ private const val TAG = "BranchesViewModel"
 class BranchesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
     private val repositoryDataRepository: RepositoryDataRepository,
-    tabScope: CoroutineScope,
+    tabScope: TabCoroutineScope,
     sharedBranchesViewModel: SharedBranchesViewModel,
     @Assisted
     private val filter: StateFlow<String>,

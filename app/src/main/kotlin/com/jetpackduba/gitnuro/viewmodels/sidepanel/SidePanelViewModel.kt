@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.di.factories.*
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
@@ -16,7 +17,7 @@ class SidePanelViewModel @Inject constructor(
     stashesViewModelFactory: StashesViewModelFactory,
     submodulesViewModelFactory: SubmodulesViewModelFactory,
     private val tabState: TabInstanceRepository,
-    private val tabScope: CoroutineScope,
+    private val tabScope: TabCoroutineScope,
 ) {
     private val _filter = MutableStateFlow("")
     val filter: StateFlow<String> = _filter

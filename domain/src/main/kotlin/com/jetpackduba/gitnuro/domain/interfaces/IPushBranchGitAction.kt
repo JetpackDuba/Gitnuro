@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.domain.interfaces
 
-import org.eclipse.jgit.api.Git
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 
 interface IPushBranchGitAction {
-    suspend operator fun invoke(git: Git, force: Boolean, pushTags: Boolean, pushWithLease: Boolean)
+    suspend operator fun invoke(repositoryPath: String, force: Boolean, pushTags: Boolean, pushWithLease: Boolean): Either<Unit, GitError>
 }
