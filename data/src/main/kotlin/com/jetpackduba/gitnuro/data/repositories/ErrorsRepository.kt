@@ -52,7 +52,7 @@ class ErrorsRepository @Inject constructor(
         }
     }
 
-    override suspend fun addError(error: Error) = withContext(Dispatchers.IO) {
+    override suspend fun addError(error: Error) {
         _errorsList.value = _errorsList.value.toMutableList().apply {
             add(error)
         }

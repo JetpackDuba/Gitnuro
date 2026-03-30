@@ -14,13 +14,11 @@ class UpdateRemoteGitAction @Inject constructor() : IUpdateRemoteGitAction {
         remoteName: String,
         uri: String,
         uriType: RemoteSetUrlCommand.UriType
-    ): Unit = withContext(Dispatchers.IO) {
-        jgit(repositoryPath) {
-            remoteSetUrl()
-                .setRemoteName(remoteName)
-                .setRemoteUri(URIish(uri))
-                .setUriType(uriType)
-                .call()
-        }
+    ) = jgit(repositoryPath) {
+        remoteSetUrl()
+            .setRemoteName(remoteName)
+            .setRemoteUri(URIish(uri))
+            .setUriType(uriType)
+            .call()
     }
 }

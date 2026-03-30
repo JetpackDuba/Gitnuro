@@ -2,38 +2,34 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
+import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.usecases.AddRemoteUseCase
-import com.jetpackduba.gitnuro.domain.usecases.UpdateRemoteUseCase
-import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
+import com.jetpackduba.gitnuro.domain.usecases.DeleteRemoteInfoUseCase
+import com.jetpackduba.gitnuro.domain.usecases.SetClipboardContentUseCase
 import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.ISharedRemotesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedRemotesViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.jetbrains.skiko.ClipboardManager
 
 class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val getRemoteBranchesGitAction: IGetRemoteBranchesGitAction,
-    private val getRemotesGitAction: IGetRemotesGitAction,
-    private val deleteRemoteGitAction: IDeleteRemoteGitAction,
     private val fetchAllRemotesGitAction: IFetchAllRemotesGitAction,
-    private val deleteLocallyRemoteBranchesGitAction: IDeleteLocallyRemoteBranchesGitAction,
     private val sharedBranchesViewModel: SharedBranchesViewModel,
-    private val clipboardManager: ClipboardManager,
     private val repositoryDataRepository: RepositoryDataRepository,
+    private val setClipboardContentUseCase: SetClipboardContentUseCase,
+    private val deleteRemoteInfoUseCase: DeleteRemoteInfoUseCase,
     tabScope: TabCoroutineScope,
     sharedRemotesViewModel: SharedRemotesViewModel,
     @Assisted
@@ -41,21 +37,27 @@ class RemotesViewModel @AssistedInject constructor(
 ) : SidePanelChildViewModel(false), ISharedRemotesViewModel by sharedRemotesViewModel,
     ISharedBranchesViewModel by sharedBranchesViewModel {
 
-    private val remotes = MutableStateFlow<List<RemoteView>>(listOf())
+    private val remotes = repositoryDataRepository.remotes
     private val currentBranch = repositoryDataRepository.currentBranch
+    private val remotesContracted = MutableStateFlow<Set<Remote>>(emptySet())
+
 
     val remoteState: StateFlow<RemotesState> =
-        combine(remotes, isExpanded, filter, currentBranch) { remotes, isExpanded, filter, currentBranch ->
-            val remotesFiltered = remotes.map { remote ->
-                val remoteInfo = remote.remoteInfo
-
+        combine(
+            remotes,
+            isExpanded,
+            filter,
+            currentBranch,
+            remotesContracted,
+        ) { remotes, isExpanded, filter, currentBranch, remotesContracted ->
+            val remotesFiltered = remotes.map { remoteInfo ->
                 val newRemoteInfo = remoteInfo.copy(
                     branchesList = remoteInfo.branchesList.filter { branch ->
                         branch.simpleName.lowercaseContains(filter)
                     }
                 )
 
-                remote.copy(remoteInfo = newRemoteInfo)
+                RemoteView(newRemoteInfo, isExpanded = !remotesContracted.contains(newRemoteInfo.remote))
             }
 
             RemotesState(
@@ -69,42 +71,11 @@ class RemotesViewModel @AssistedInject constructor(
             initialValue = RemotesState(emptyList(), isExpanded.value, null)
         )
 
-    init {
-        tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REMOTES) {
-                refresh(tabState.git)
-            }
-        }
-    }
-
-    private suspend fun loadRemotes(git: Git) = withContext(Dispatchers.IO) {
-        val allRemoteBranches = getRemoteBranchesGitAction(git)
-
-        val remoteInfoList = getRemotesGitAction(git, allRemoteBranches)
-
-        val remoteViewList = remoteInfoList.map { remoteInfo ->
-            RemoteView(remoteInfo, true)
-        }
-
-        this@RemotesViewModel.remotes.value = remoteViewList
-    }
-
-    suspend fun refresh(git: Git) = withContext(Dispatchers.IO) {
-        loadRemotes(git)
-    }
-
     fun onRemoteClicked(remoteClicked: RemoteView) {
-        val remoteName = remoteClicked.remoteInfo.remoteConfig.name
-        val remotes = this.remotes.value
-        val remoteInfo = remotes.firstOrNull { it.remoteInfo.remoteConfig.name == remoteName }
-
-        if (remoteInfo != null) {
-            val newRemoteInfo = remoteInfo.copy(isExpanded = !remoteClicked.isExpanded)
-            val newRemotesList = remotes.toMutableList()
-            val indexToReplace = newRemotesList.indexOf(remoteInfo)
-            newRemotesList[indexToReplace] = newRemoteInfo
-
-            this.remotes.value = newRemotesList
+        remotesContracted.value = if (remotesContracted.value.contains(remoteClicked.remoteInfo.remote)) {
+            remotesContracted.value.toMutableSetAndRemove(remoteClicked.remoteInfo.remote)
+        } else {
+            remotesContracted.value.toMutableSetAndAdd(remoteClicked.remoteInfo.remote)
         }
     }
 
@@ -112,42 +83,20 @@ class RemotesViewModel @AssistedInject constructor(
         tabState.newSelectedRef(ref, ref.hash)
     }
 
-    fun deleteRemote(remoteName: String) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.DELETE_REMOTE,
-    ) { git ->
-        deleteRemoteGitAction(git, remoteName)
-
-        val remoteBranches = getRemoteBranchesGitAction(git)
-        val remoteToDeleteBranchesNames = remoteBranches.filter {
-            it.name.startsWith("refs/remotes/$remoteName/")
-        }.map {
-            it.name
-        }
-
-        deleteLocallyRemoteBranchesGitAction(git, remoteToDeleteBranchesNames)
-
-        positiveNotification("Remote $remoteName deleted")
-    }
+    fun deleteRemote(remoteInfo: RemoteInfo) = deleteRemoteInfoUseCase(remoteInfo)
 
     fun onFetchRemoteBranches(remote: RemoteView) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         taskType = TaskType.FETCH,
     ) { git ->
-        val remoteConfig = remote.remoteInfo.remoteConfig
+        val remoteConfig = remote.remoteInfo.remote
         fetchAllRemotesGitAction(git, remoteConfig)
 
         positiveNotification("Fetched branches from ${remoteConfig.name}")
     }
 
-    override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
-        refreshType = RefreshType.NONE,
-        taskType = TaskType.UNSPECIFIED
-    ) {
-        copyBranchNameToClipboardAndGetNotification(
-            branch,
-            clipboardManager
-        )
+    override fun copyBranchNameToClipboard(branch: Branch) = viewModelScope.launch {
+        setClipboardContentUseCase(branch.simpleName, MessageType.BranchCopied(branch.simpleName))
     }
 }
 

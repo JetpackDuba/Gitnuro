@@ -12,12 +12,12 @@ class AddRemoteGitAction @Inject constructor() : IAddRemoteGitAction {
         repositoryPath: String,
         remoteName: String,
         fetchUri: String,
-    ): Unit = withContext(Dispatchers.IO) {
-        jgit(repositoryPath) {
-            remoteAdd()
-                .setName(remoteName)
-                .setUri(URIish(fetchUri))
-                .call()
-        }
+    ) = jgit(repositoryPath) {
+        remoteAdd()
+            .setName(remoteName)
+            .setUri(URIish(fetchUri))
+            .call()
+
+        Unit
     }
 }

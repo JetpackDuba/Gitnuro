@@ -13,17 +13,17 @@ import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.AddSelectedDiffUseCase
-import com.jetpackduba.gitnuro.domain.usecases.RemoveSelectedDiffUseCase
+import com.jetpackduba.gitnuro.domain.usecases.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
@@ -39,6 +39,7 @@ class CommitChangesViewModel @Inject constructor(
     private val tabScope: TabCoroutineScope,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
+    private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
 ) : TabViewModel() {
     private val _showSearch = MutableStateFlow(false)
     val showSearch: StateFlow<Boolean> = _showSearch
@@ -97,6 +98,12 @@ class CommitChangesViewModel @Inject constructor(
             CommitChangesStateUi.Loading
         )
 
+    val commitChangesStateUi2 = tabState
+        .selectedItem
+        .filterIsInstance<SelectedItem.CommitBasedItem>()
+        .map {
+            loadChanges(it.commit)
+        }
 
     init {
         tabScope.launch {
@@ -118,9 +125,7 @@ class CommitChangesViewModel @Inject constructor(
         }
     }
 
-    fun loadChanges(commit: Commit) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
+    fun loadChanges(commit: Commit) = viewModelScope.launch{
         val state = _commitChangesState.value
 
         // Check if it's a different commit before resetting everything
@@ -133,7 +138,7 @@ class CommitChangesViewModel @Inject constructor(
                 onDelayTriggered = { _commitChangesState.value = CommitChangesState.Loading }
             ) {
 
-                val changes = getCommitDiffEntriesGitAction(git, commit).toMutableList()
+                val changes = getCommitDiffEntriesUseCase(commit).toMutableList()
 
                 // TODO Restore stashes change loading. IIRC only stashes have 3 parents, usually.
                 /*if (commit.parentCount == 3) {

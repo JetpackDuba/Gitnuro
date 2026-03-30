@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.Identity
+import com.jetpackduba.gitnuro.domain.usecases.GetAuthorUseCase
 import org.eclipse.jgit.api.errors.AbortedByHookException
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -24,8 +25,6 @@ import javax.inject.Inject
 private const val TAG = "DoCommitGitAction"
 
 class DoCommitGitAction @Inject constructor(
-    private val loadSignOffConfigGitAction: LoadSignOffConfigGitAction,
-    private val loadAuthorGitAction: LoadAuthorGitAction,
     private val getRepositoryStateGitAction: GetRepositoryStateGitAction,
     private val commitMapper: JGitCommitMapper,
     private val identityMapper: JGitIdentityMapper,
@@ -49,20 +48,6 @@ class DoCommitGitAction @Inject constructor(
             }
         }
     ) {
-        val signOffConfig = loadSignOffConfigGitAction(repository)
-        val author = author?.let { identityMapper.toData(it) }
-
-        val finalMessage = if (signOffConfig.isEnabled) {
-            val authorToSign = author ?: loadAuthorGitAction(this).toPersonIdent()
-
-            val signature = signOffConfig.format
-                .replace(LocalConfigConstants.SignOff.DEFAULT_SIGN_OFF_FORMAT_USER, authorToSign.name)
-                .replace(LocalConfigConstants.SignOff.DEFAULT_SIGN_OFF_FORMAT_EMAIL, authorToSign.emailAddress)
-
-            "$message\n\n$signature"
-        } else
-            message
-
         val state = getRepositoryStateGitAction(this)
         val isMerging = state.isMerging
         val output = ByteArrayOutputStream()
@@ -70,12 +55,18 @@ class DoCommitGitAction @Inject constructor(
 
         use(output, printStream) {
             val commit = this.commit()
-                .setMessage(finalMessage)
+                .setMessage(message)
                 .setAllowEmpty(amend || isMerging) // Only allow empty commits when amending
                 .setAmend(amend)
                 .setHookErrorStream(printStream)
                 .setHookOutputStream(printStream)
-                .setAuthor(author)
+                .run {
+                    if (author != null) {
+                        setAuthor(identityMapper.toData(author))
+                    } else {
+                        this
+                    }
+                }
                 .call()
 
             commitMapper.toDomain(commit)

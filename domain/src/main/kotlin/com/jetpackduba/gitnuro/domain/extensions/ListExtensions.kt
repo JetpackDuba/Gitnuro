@@ -22,6 +22,14 @@ fun <T> List<T>.toMutableAndAddAll(item: List<T>): List<T> {
     return this.toMutableList().apply { addAll(item) }
 }
 
+fun <T> Set<T>.toMutableSetAndAdd(item: T): Set<T> {
+    return this.toMutableSet().apply { add(item) }
+}
+
+fun <T> Set<T>.toMutableSetAndRemove(item: T): Set<T> {
+    return this.toMutableSet().apply { remove(item) }
+}
+
 fun <T> Set<T>.toMutableSetAndAddAll(item: List<T>): Set<T> {
     return this.toMutableSet().apply { addAll(item) }
 }

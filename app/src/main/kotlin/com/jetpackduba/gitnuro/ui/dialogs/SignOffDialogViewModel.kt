@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
 import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.interfaces.ILoadSignOffConfigGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ISaveLocalRepositoryConfigGitAction
 import com.jetpackduba.gitnuro.domain.models.SignOffConfig
@@ -22,9 +23,11 @@ class SignOffDialogViewModel @Inject constructor(
         showError = true,
         refreshType = RefreshType.NONE,
     ) { git ->
-        val signOffConfig = loadSignOffConfigGitAction(git.repository)
+        val signOffConfig = loadSignOffConfigGitAction(git.repository.directory.absolutePath)
 
-        _state.value = SignOffState.Loaded(signOffConfig)
+        if (signOffConfig is Either.Ok) {
+            _state.value = SignOffState.Loaded(signOffConfig.value)
+        }
     }
 
     fun saveSignOffFormat(newIsEnabled: Boolean, newFormat: String) = tabState.runOperation(

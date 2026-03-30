@@ -1,17 +1,21 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
+import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteLocallyRemoteBranchesGitAction
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
 class DeleteLocallyRemoteBranchesGitAction @Inject constructor() : IDeleteLocallyRemoteBranchesGitAction {
-    override suspend operator fun invoke(git: Git, branches: List<String>): List<String> = withContext(Dispatchers.IO) {
-        git
-            .branchDelete()
-            .setBranchNames(*branches.toTypedArray())
-            .setForce(true)
-            .call()
+    override suspend operator fun invoke(
+        repositoryPath: String,
+        branches: List<String>
+    ): Either<List<String>, GitError> {
+        return jgit(repositoryPath) {
+            branchDelete()
+                .setBranchNames(*branches.toTypedArray())
+                .setForce(true)
+                .call()
+        }
     }
 }

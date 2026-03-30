@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.domain.interfaces
 
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.dircache.DirCache
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 
 interface IStageByDirectoryGitAction {
-    suspend operator fun invoke(git: Git, dir: String): DirCache
+    suspend operator fun invoke(repositoryPath: String, dir: String): Either<Unit, GitError>
 }

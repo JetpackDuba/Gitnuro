@@ -36,7 +36,7 @@ class AddEditRemoteViewModel @AssistedInject constructor(
     }
 
     fun updateRemoteName(name: String) {
-        _remote.update { it.copy(remoteName = name) }
+        _remote.update { it.copy(name = name) }
     }
 
     fun updateAllUri(uri: String) {

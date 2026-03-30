@@ -1,43 +1,49 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.common.extensions.TAG
-import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.domain.TabCoroutineScope
-import com.jetpackduba.gitnuro.domain.errors.Either
-import com.jetpackduba.gitnuro.domain.extensions.runOperationInTabScope
+import com.jetpackduba.gitnuro.domain.SignOffConstants
+import com.jetpackduba.gitnuro.domain.UseCaseExecutor
+import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ILoadSignOffConfigGitAction
 import com.jetpackduba.gitnuro.domain.models.Identity
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
-import kotlinx.coroutines.CoroutineScope
+import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
 class DoCommitUseCase @Inject constructor(
     private val refreshStatusUseCase: RefreshStatusUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
-    private val repositoryDataRepository: RepositoryDataRepository,
     private val doCommitGitAction: IDoCommitGitAction,
-    private val repositoryStateRepository: RepositoryStateRepository,
-    private val tabScope: TabCoroutineScope,
+    private val useCaseExecutor: UseCaseExecutor,
+    private val loadSignOffConfigGitAction: ILoadSignOffConfigGitAction,
+    private val getAuthorUseCase: GetAuthorUseCase,
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         message: String,
         amend: Boolean,
         author: Identity?,
     ) {
-        val repositoryPath = repositoryDataRepository.repositoryPath ?: return
-
-        repositoryStateRepository.runOperationInTabScope(tabScope) {
-            when (val commit = doCommitGitAction(repositoryPath, message, amend, author)) {
-                is Either.Err -> {
-                    printError(TAG, "Failed to commit changes: ${commit.error}")
-                }
-
-                is Either.Ok -> {
-                    refreshStatusUseCase()
-                    refreshLogUseCase()
-                }
+        useCaseExecutor.executeLaunch(
+            taskType = TaskType.DO_COMMIT,
+            onSuccess = {
+                refreshStatusUseCase()
+                refreshLogUseCase()
             }
+        ) { repositoryPath ->
+            val signOffConfig = loadSignOffConfigGitAction(repositoryPath).bind()
+
+            val finalMessage = if (signOffConfig.isEnabled) {
+                val authorToSign = author ?: getAuthorUseCase().bind().toIdentity()
+
+                val signature = signOffConfig.format
+                    .replace(SignOffConstants.DEFAULT_SIGN_OFF_FORMAT_USER, authorToSign.name)
+                    .replace(SignOffConstants.DEFAULT_SIGN_OFF_FORMAT_EMAIL, authorToSign.email)
+
+                "$message\n\n$signature"
+            } else
+                message
+
+
+            doCommitGitAction(repositoryPath, finalMessage, amend, author)
         }
     }
 }

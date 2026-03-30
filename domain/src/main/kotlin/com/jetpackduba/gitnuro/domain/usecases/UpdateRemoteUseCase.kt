@@ -27,14 +27,14 @@ class UpdateRemoteUseCase @Inject constructor(
 
             updateRemoteGitAction(
                 repositoryPath = git.repository.directory.absolutePath,
-                remoteName = remote.remoteName,
+                remoteName = remote.name,
                 uri = remote.fetchUri,
                 uriType = RemoteSetUrlCommand.UriType.FETCH
             )
 
             updateRemoteGitAction(
                 repositoryPath = git.repository.directory.absolutePath,
-                remoteName = remote.remoteName,
+                remoteName = remote.name,
                 uri = remote.pushUri,
                 uriType = RemoteSetUrlCommand.UriType.PUSH
             )

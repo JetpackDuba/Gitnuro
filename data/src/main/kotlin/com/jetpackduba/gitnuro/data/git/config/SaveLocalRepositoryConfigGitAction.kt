@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.config
 
+import com.jetpackduba.gitnuro.domain.SignOffConstants
 import com.jetpackduba.gitnuro.domain.interfaces.ISaveLocalRepositoryConfigGitAction
 import com.jetpackduba.gitnuro.domain.models.SignOffConfig
 import org.eclipse.jgit.lib.Repository
@@ -18,16 +19,16 @@ class SaveLocalRepositoryConfigGitAction @Inject constructor() : ISaveLocalRepos
         val config = FileBasedConfig(configFile, repository.fs)
 
         config.setBoolean(
-            LocalConfigConstants.SignOff.SECTION,
+            SignOffConstants.SECTION,
             null,
-            LocalConfigConstants.SignOff.FIELD_ENABLED,
+            SignOffConstants.FIELD_ENABLED,
             signOffConfig.isEnabled
         )
 
         config.setString(
-            LocalConfigConstants.SignOff.SECTION,
+            SignOffConstants.SECTION,
             null,
-            LocalConfigConstants.SignOff.FIELD_FORMAT,
+            SignOffConstants.FIELD_FORMAT,
             signOffConfig.format
         )
 

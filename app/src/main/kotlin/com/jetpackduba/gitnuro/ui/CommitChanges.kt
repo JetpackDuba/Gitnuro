@@ -52,7 +52,7 @@ fun CommitChanges(
     val diffSelected by commitChangesViewModel.diffSelected.collectAsState(null)
 
     LaunchedEffect(selectedItem) {
-        commitChangesViewModel.loadChanges(selectedItem.revCommit)
+        commitChangesViewModel.loadChanges(selectedItem.commit)
     }
 
     LaunchedEffect(commitChangesViewModel) {

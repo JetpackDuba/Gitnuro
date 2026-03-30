@@ -6,13 +6,15 @@ import com.jetpackduba.gitnuro.domain.repositories.ClipboardRepository
 import com.jetpackduba.gitnuro.domain.repositories.NotificationsRepository
 import javax.inject.Inject
 
-class BranchCopyNameUseCase @Inject constructor(
+class SetClipboardContentUseCase @Inject constructor(
     private val clipboardManager: ClipboardRepository,
     private val notificationsRepository: NotificationsRepository,
 ) {
-    suspend fun invoke(content: String) {
+    suspend operator fun invoke(content: String, notification: MessageType? = null) {
         clipboardManager.copy(content)
 
-        notificationsRepository.emitNotification(positiveNotification(MessageType.BranchCopied(content)))
+        if (notification != null) {
+            notificationsRepository.emitNotification(positiveNotification(notification))
+        }
     }
 }

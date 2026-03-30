@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import com.jetpackduba.gitnuro.domain.models.Remote
+import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.models.Status
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
@@ -26,7 +27,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val tags: Flow<List<Ref>>
         field = MutableStateFlow(emptyList())
 
-    override val remotes: Flow<List<Remote>>
+    override val remotes: Flow<List<RemoteInfo>>
         field = MutableStateFlow(emptyList())
 
     override val log: Flow<GraphCommits>
@@ -78,7 +79,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         this.log.value = graphCommits
     }
 
-    override fun updateRemotes(remotes: List<Remote>) {
+    override fun updateRemotes(remotes: List<RemoteInfo>) {
         this.remotes.value = remotes
     }
 

@@ -16,5 +16,10 @@ data class AuthorInfo(
         name ?: globalName ?: "",
         email ?: globalEmail ?: "",
     )
+
+     fun toIdentity() = Identity(
+         name ?: globalName ?: "",
+         email ?: globalEmail ?: "",
+     )
 }
 

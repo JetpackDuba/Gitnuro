@@ -38,7 +38,7 @@ fun AddEditRemoteDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (isNew) "New remote" else "Edit remote \"${remote.remoteName}\"",
+                    text = if (isNew) "New remote" else "Edit remote \"${remote.name}\"",
                     color = MaterialTheme.colors.onBackground,
                     style = MaterialTheme.typography.h3,
                     modifier = Modifier
@@ -64,7 +64,7 @@ fun AddEditRemoteDialog(
                             )
 
                             AdjustableOutlinedTextField(
-                                value = remote.remoteName,
+                                value = remote.name,
                                 onValueChange = { newValue ->
                                     viewModel.updateRemoteName(newValue)
                                 },

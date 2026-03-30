@@ -59,13 +59,9 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
-import com.jetpackduba.gitnuro.viewmodels.INCREMENTAL_COMMITS_LOAD
-import com.jetpackduba.gitnuro.viewmodels.LogSearch
-import com.jetpackduba.gitnuro.viewmodels.LogStatus
-import com.jetpackduba.gitnuro.viewmodels.LogViewModel
+import com.jetpackduba.gitnuro.viewmodels.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -101,7 +97,7 @@ private const val TAG = "LogView"
 // TODO Min size for message column
 @Composable
 fun Log(
-    logViewModel: LogViewModel,
+    viewModel: LogViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     onCreateBranch: (Commit) -> Unit,
@@ -110,71 +106,78 @@ fun Log(
     onChangeUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
 ) {
-    val logStatusState = logViewModel.logStatus.collectAsState()
+    val logStatusState = viewModel.logState.collectAsState()
     val logStatus = logStatusState.value
+    var graphPadding by remember(viewModel) { mutableStateOf(viewModel.graphPadding) }
 
-    when (logStatus) {
-        is LogStatus.Loaded -> LogLoaded(
-            logViewModel = logViewModel,
-            logStatus = logStatus,
-            selectedItem = selectedItem,
-            repositoryState = repositoryState,
-            onRequestMoreLogItems = { firstVisibleItemIndex -> logViewModel.loadMoreLogItems(firstVisibleItemIndex) },
-            onCreateBranch = onCreateBranch,
-            onResetBranch = onResetBranch,
-            onCreateTag = onCreateTag,
-            onChangeUpstreamBranch = onChangeUpstreamBranch,
-            onRenameBranch = onRenameBranch,
-        )
-
-        LogStatus.Loading -> LogLoading()
+    LaunchedEffect(logStatus.verticalScrollState, logStatus.commitList) {
+        launch {
+            viewModel.focusCommit.collect { commit ->
+                scrollToCommit(logStatus.verticalScrollState, logStatus.commitList, commit.commit)
+            }
+        }
+        launch {
+            viewModel.scrollToUncommittedChanges.collect {
+                scrollToUncommittedChanges(logStatus.verticalScrollState, logStatus.commitList)
+            }
+        }
     }
+
+    LogView(
+        logState = logStatus,
+        selectedItem = selectedItem,
+        repositoryState = repositoryState,
+        graphPadding = graphPadding,
+        onRequestMoreLogItems = { firstVisibleItemIndex -> viewModel.loadMoreLogItems(firstVisibleItemIndex) },
+        onCreateBranch = onCreateBranch,
+        onResetBranch = onResetBranch,
+        onCreateTag = onCreateTag,
+        onChangeUpstreamBranch = onChangeUpstreamBranch,
+        onRenameBranch = onRenameBranch,
+        onGraphPaddingChange = { newGraphPadding ->
+            graphPadding = newGraphPadding
+            viewModel.graphPadding = newGraphPadding
+        },
+        onAction = { viewModel.onAction(it) },
+        searchView = {
+            SearchFilter(
+                logViewModel = viewModel,
+                searchFilterResults = it,
+                searchFocused = { viewModel.addSearchToCloseableView() },
+            )
+        }
+    )
 }
 
 @Composable
-private fun LogLoading() {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colors.background),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        CircularProgressIndicator()
-        Text(
-            text = "Loading commits history...",
-            style = MaterialTheme.typography.h4,
-            modifier = Modifier.padding(top = 8.dp),
-        )
-    }
-}
-
-@Composable
-private fun LogLoaded(
-    logViewModel: LogViewModel,
-    logStatus: LogStatus.Loaded,
+private fun LogView(
+    logState: LogState,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
+    graphPadding: Float,
     onRequestMoreLogItems: (Int) -> Unit,
     onCreateBranch: (Commit) -> Unit,
     onResetBranch: (Commit) -> Unit,
     onCreateTag: (Commit) -> Unit,
     onChangeUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
+    onGraphPaddingChange: (Float) -> Unit,
+    onAction: (LogAction) -> Unit,
+    searchView: @Composable (LogSearch.SearchResults) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val hasUncommittedChanges = logStatus.hasUncommittedChanges
-    val commitList = logStatus.plotCommitList
-    val verticalScrollState by logViewModel.verticalListState.collectAsState()
-    val horizontalScrollState by logViewModel.horizontalListState.collectAsState()
-    val searchFilter = logViewModel.logSearchFilterResults.collectAsState()
-    val searchFilterValue = searchFilter.value
+    val hasUncommittedChanges = logState.hasUncommittedChanges
+    val commitList = logState.commitList
+
+    val verticalScrollState = logState.verticalScrollState
+    val horizontalScrollState = logState.horizontalScrollState
+    val searchFilterValue = logState.searchFilter
 
     LaunchedEffect(verticalScrollState) {
         snapshotFlow { verticalScrollState.firstVisibleItemIndex }
             .distinctUntilChanged()
             .collect {
-                val commitsList = logStatus.plotCommitList
+                val commitsList = logState.commitList
 
                 // TODO Check what would happen with a repo with multiple starting commits
                 if (
@@ -189,22 +192,9 @@ private fun LogLoaded(
     }
 
     val selectedCommit = if (selectedItem is SelectedItem.CommitBasedItem) {
-        selectedItem.revCommit
+        selectedItem.commit
     } else {
         null
-    }
-
-    LaunchedEffect(verticalScrollState, commitList) {
-        launch {
-            logViewModel.focusCommit.collect { commit ->
-                scrollToCommit(verticalScrollState, commitList, commit.commit)
-            }
-        }
-        launch {
-            logViewModel.scrollToUncommittedChanges.collect {
-                scrollToUncommittedChanges(verticalScrollState, commitList)
-            }
-        }
     }
 
     Column(
@@ -212,7 +202,6 @@ private fun LogLoaded(
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
     ) {
-        var graphPadding by remember(logViewModel) { mutableStateOf(logViewModel.graphPadding) }
         var graphWidth = (CANVAS_DEFAULT_WIDTH + graphPadding).dp
 
         if (graphWidth.value < CANVAS_MIN_WIDTH) graphWidth = CANVAS_MIN_WIDTH.dp
@@ -231,20 +220,17 @@ private fun LogLoaded(
 
 
         if (searchFilterValue is LogSearch.SearchResults) {
-            SearchFilter(
-                logViewModel = logViewModel,
-                searchFilterResults = searchFilterValue,
-                searchFocused = { logViewModel.addSearchToCloseableView() },
-            )
+            searchView(searchFilterValue)
         }
 
         GraphHeader(
             graphWidth = graphWidth,
             onPaddingChange = {
-                graphPadding += it
-                logViewModel.graphPadding = graphPadding
+                onGraphPaddingChange(graphPadding + it)
             },
-            onShowSearch = { scope.launch { logViewModel.onSearchValueChanged("") } }
+            onShowSearch = {
+                onAction(LogAction.SearchValueChange(""))
+            }
         )
 
         Box {
@@ -270,44 +256,24 @@ private fun LogLoaded(
                 hasUncommittedChanges = hasUncommittedChanges,
                 searchFilter = if (searchFilterValue is LogSearch.SearchResults) searchFilterValue.commits else null,
                 selectedCommit = selectedCommit,
-                logStatus = logStatus,
+                logState = logState,
                 repositoryState = repositoryState,
                 selectedItem = selectedItem,
                 commitList = commitList,
                 graphWidth = graphWidth,
-                onMerge = { ref -> logViewModel.mergeBranch(ref) },
-                onRebase = { ref -> logViewModel.rebaseBranch(ref) },
-                onCheckoutCommit = { logViewModel.checkoutCommit(it.commit) },
-                onRevertCommit = { logViewModel.revertCommit(it.commit) },
-                onCherryPickCommit = { logViewModel.cherryPickCommit(it.commit) },
-                onCheckoutRemoteBranch = { logViewModel.checkoutRemoteBranch(it) },
-                onCheckoutRef = { logViewModel.checkoutRef(it) },
-                onRebaseInteractive = { logViewModel.rebaseInteractive(it) },
-                onCommitSelected = { logViewModel.selectCommit(it) },
-                onUncommittedChangesSelected = { logViewModel.selectUncommittedChanges() },
-                onDeleteStash = { logViewModel.deleteStash(it) },
-                onApplyStash = { logViewModel.applyStash(it) },
-                onPopStash = { logViewModel.popStash(it) },
-                onCheckoutTag = { logViewModel.checkoutTag(it) },
-                onDeleteBranch = { logViewModel.deleteBranch(it) },
-                onDeleteRemoteBranch = { logViewModel.deleteRemoteBranch(it) },
-                onDeleteTag = { logViewModel.deleteTag(it) },
-                onPushToRemoteBranch = { logViewModel.pushToRemoteBranch(it) },
-                onPullFromRemoteBranch = { logViewModel.pullFromRemoteBranch(it) },
-                onCopyBranchNameToClipboard = { ref -> logViewModel.copyBranchNameToClipboard(ref) },
                 onCreateBranch = onCreateBranch,
                 onResetBranch = onResetBranch,
                 onCreateTag = onCreateTag,
                 onChangeUpstreamBranch = onChangeUpstreamBranch,
                 onRenameBranch = onRenameBranch,
+                onAction = onAction,
             )
 
             val density = LocalDensity.current.density
             DividerLog(
                 modifier = Modifier.draggable(
                     rememberDraggableState {
-                        graphPadding += it / density
-                        logViewModel.graphPadding = graphPadding
+                        onGraphPaddingChange(graphPadding + it / density)
                     }, Orientation.Horizontal
                 ),
                 graphWidth = graphWidth,
@@ -495,30 +461,11 @@ fun CommitsList(
     hasUncommittedChanges: Boolean,
     searchFilter: List<GraphCommit>?,
     selectedCommit: Commit?,
-    logStatus: LogStatus.Loaded,
+    logState: LogState,
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
     commitList: GraphCommits,
-    onCheckoutCommit: (GraphCommit) -> Unit,
-    onRevertCommit: (GraphCommit) -> Unit,
-    onCherryPickCommit: (GraphCommit) -> Unit,
-    onCheckoutRemoteBranch: (Branch) -> Unit,
-    onCheckoutRef: (Branch) -> Unit,
-    onMerge: (Branch) -> Unit,
-    onRebase: (Branch) -> Unit,
-    onRebaseInteractive: (Commit) -> Unit,
-    onCommitSelected: (Commit) -> Unit,
-    onUncommittedChangesSelected: () -> Unit,
-    onDeleteStash: (Commit) -> Unit,
-    onApplyStash: (Commit) -> Unit,
-    onPopStash: (Commit) -> Unit,
-    onDeleteBranch: (Branch) -> Unit,
-    onDeleteRemoteBranch: (Branch) -> Unit,
-    onCheckoutTag: (Tag) -> Unit,
-    onDeleteTag: (Tag) -> Unit,
-    onPushToRemoteBranch: (Branch) -> Unit,
-    onPullFromRemoteBranch: (Branch) -> Unit,
-    onCopyBranchNameToClipboard: (Branch) -> Unit,
+    onAction: (LogAction) -> Unit,
     onCreateBranch: (Commit) -> Unit,
     onResetBranch: (Commit) -> Unit,
     onCreateTag: (Commit) -> Unit,
@@ -554,7 +501,7 @@ fun CommitsList(
                     modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
                         .clipToBounds()
                         .fillMaxWidth()
-                        .handMouseClickable { onUncommittedChangesSelected() }
+                        .handMouseClickable { onAction(LogAction.UncommittedChangesSelected) }
                 ) {
                     UncommittedChangesGraphNode(
                         hasPreviousCommits = commitList.commits.isNotEmpty(),
@@ -565,7 +512,7 @@ fun CommitsList(
                     UncommittedChangesLine(
                         graphWidth = graphWidth,
                         isSelected = selectedItem == SelectedItem.UncommittedChanges,
-                        statusSummary = logStatus.statusSummary,
+                        statusSummary = logState.statusSummary,
                         repositoryState = repositoryState,
                     )
                 }
@@ -579,33 +526,33 @@ fun CommitsList(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
                 isSelected = selectedCommit?.hash == graphNode.hash,
-                currentBranch = logStatus.currentBranch,
+                currentBranch = logState.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
                 horizontalScrollState = horizontalScrollState,
                 showCreateNewBranch = { onCreateBranch(graphNode.commit) },
                 showCreateNewTag = { onCreateTag(graphNode.commit) },
                 resetBranch = { onResetBranch(graphNode.commit) },
-                onMergeBranch = onMerge,
-                onDeleteBranch = onDeleteBranch,
-                onDeleteRemoteBranch = onDeleteRemoteBranch,
-                onCheckoutTag = onCheckoutTag,
-                onDeleteTag = onDeleteTag,
-                onPushToRemoteBranch = onPushToRemoteBranch,
-                onPullFromRemoteBranch = onPullFromRemoteBranch,
-                onRebaseBranch = onRebase,
-                onRebaseInteractive = { onRebaseInteractive(graphNode.commit) },
-                onRevCommitSelected = { onCommitSelected(graphNode.commit) },
+                onMergeBranch = { onAction(LogAction.Merge(it)) },
+                onDeleteBranch = { onAction(LogAction.DeleteBranch(it)) },
+                onDeleteRemoteBranch = { onAction(LogAction.DeleteRemoteBranch(it)) },
+                onCheckoutTag = { onAction(LogAction.CheckoutTag(it)) },
+                onDeleteTag = { onAction(LogAction.DeleteTag(it)) },
+                onPushToRemoteBranch = { onAction(LogAction.PushToRemoteBranch(it)) },
+                onPullFromRemoteBranch = { onAction(LogAction.PullFromRemoteBranch(it)) },
+                onRebaseBranch = { onAction(LogAction.Rebase(it)) },
+                onRebaseInteractive = { onAction(LogAction.RebaseInteractive(graphNode.commit)) },
+                onRevCommitSelected = { onAction(LogAction.CommitSelected(graphNode.commit)) },
                 onChangeDefaultUpstreamBranch = { onChangeUpstreamBranch(it) },
                 onRenameBranch = { onRenameBranch(it) },
-                onDeleteStash = { onDeleteStash(graphNode.commit) },
-                onApplyStash = { onApplyStash(graphNode.commit) },
-                onPopStash = { onPopStash(graphNode.commit) },
-                onCheckoutCommit = { onCheckoutCommit(graphNode) },
-                onRevertCommit = { onRevertCommit(graphNode) },
-                onCherryPickCommit = { onCherryPickCommit(graphNode) },
-                onCheckoutRemoteBranch = onCheckoutRemoteBranch,
-                onCheckoutBranch = onCheckoutRef,
-                onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
+                onDeleteStash = { onAction(LogAction.DeleteStash(graphNode.commit)) },
+                onApplyStash = { onAction(LogAction.ApplyStash(graphNode.commit)) },
+                onPopStash = { onAction(LogAction.PopStash(graphNode.commit)) },
+                onCheckoutCommit = { onAction(LogAction.CheckoutCommit(graphNode.commit)) },
+                onRevertCommit = { onAction(LogAction.RevertCommit(graphNode.commit)) },
+                onCherryPickCommit = { onAction(LogAction.CherryPickCommit(graphNode.commit)) },
+                onCheckoutRemoteBranch = { onAction(LogAction.CheckoutRemoteBranch(it)) },
+                onCheckoutBranch = { onAction(LogAction.CheckoutBranch(it)) },
+                onCopyBranchNameToClipboard = { onAction(LogAction.CopyBranchNameToClipboard(it)) },
             )
         }
 

@@ -3,6 +3,8 @@ package com.jetpackduba.gitnuro.data.git.remote_operations
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.exceptions.FetchException
 import com.jetpackduba.gitnuro.domain.interfaces.IFetchAllRemotesGitAction
+import com.jetpackduba.gitnuro.domain.models.Remote
+import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
@@ -18,11 +20,17 @@ private const val TAG = "FetchAllBranchesGitAction"
 class FetchAllRemotesGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
 ) : IFetchAllRemotesGitAction {
-    override suspend operator fun invoke(git: Git, specificRemote: RemoteConfig?) = withContext(Dispatchers.IO) {
-        val remotes = if (specificRemote != null) {
-            listOf(specificRemote)
+    override suspend operator fun invoke(git: Git, specificRemote: Remote?) = withContext(Dispatchers.IO) {
+        val allRemotes = git.remoteList().call()
+        val matchingRemote = specificRemote?.let {
+            allRemotes.firstOrNull {
+                it.name == specificRemote.name
+            }
+        }
+        val remotes = if (matchingRemote != null) {
+            listOf(matchingRemote)
         } else {
-            git.remoteList().call()
+            allRemotes
         }
 
         val errors = mutableListOf<Pair<RemoteConfig, Exception>>()

@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.author
 
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.interfaces.ILoadAuthorGitAction
 import com.jetpackduba.gitnuro.domain.models.AuthorInfo
 import kotlinx.coroutines.Dispatchers
@@ -9,11 +10,11 @@ import org.eclipse.jgit.storage.file.FileBasedConfig
 import javax.inject.Inject
 
 class LoadAuthorGitAction @Inject constructor() : ILoadAuthorGitAction {
-    override suspend operator fun invoke(git: Git): AuthorInfo = withContext(Dispatchers.IO) {
-        val config = git.repository.config
-        val globalConfig = git.repository.config.baseConfig
+    override suspend operator fun invoke(repositoryPath: String) = jgit(repositoryPath) {
+        val config = repository.config
+        val globalConfig = repository.config.baseConfig
 
-        val repoConfig = FileBasedConfig((config as FileBasedConfig).file, git.repository.fs)
+        val repoConfig = FileBasedConfig((config as FileBasedConfig).file, repository.fs)
         repoConfig.load()
 
         val globalName = globalConfig.getString("user", null, "name")
@@ -22,7 +23,7 @@ class LoadAuthorGitAction @Inject constructor() : ILoadAuthorGitAction {
         val name = repoConfig.getString("user", null, "name")
         val email = repoConfig.getString("user", null, "email")
 
-        return@withContext AuthorInfo(
+        AuthorInfo(
             globalName,
             globalEmail,
             name,

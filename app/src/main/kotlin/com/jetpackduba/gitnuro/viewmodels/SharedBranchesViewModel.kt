@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
@@ -10,20 +9,18 @@ import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IRebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
-import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
-import org.eclipse.jgit.lib.Ref
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 interface ISharedBranchesViewModel {
     fun mergeBranch(ref: Branch): Job
     fun deleteBranch(branch: Branch): Job
-    fun checkoutRef(ref: Branch): Job
+    fun checkoutBranch(ref: Branch): Job
     fun rebaseBranch(ref: Branch): Job
     fun copyBranchNameToClipboard(branch: Branch): Job
 }
@@ -63,7 +60,7 @@ class SharedBranchesViewModel @Inject constructor(
         positiveNotification("\"${branch.simpleName}\" deleted")
     }
 
-    override fun checkoutRef(ref: Branch) = tabState.safeProcessing(
+    override fun checkoutBranch(ref: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch checkout",
         subtitle = "Checking out branch ${ref.simpleName}",

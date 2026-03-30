@@ -28,9 +28,6 @@ import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.BottomInfoBar
 import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
-import com.jetpackduba.gitnuro.ui.dialogs.AuthorDialog
-import com.jetpackduba.gitnuro.ui.dialogs.SignOffDialog
-import com.jetpackduba.gitnuro.ui.dialogs.StashWithMessageDialog
 import com.jetpackduba.gitnuro.ui.diff.DiffPane
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.ui.status.StatusPane
@@ -298,7 +295,7 @@ fun MainContentView(
                                 )
                             } else {
                                 Log(
-                                    logViewModel = repositoryOpenViewModel.tabViewModelsProvider.logViewModel,
+                                    viewModel = repositoryOpenViewModel.tabViewModelsProvider.logViewModel,
                                     selectedItem = selectedItem,
                                     repositoryState = repositoryState,
                                     // TODO Move nav outside of this? Applies to next lines

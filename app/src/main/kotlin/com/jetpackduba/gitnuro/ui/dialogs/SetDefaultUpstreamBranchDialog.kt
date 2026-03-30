@@ -11,7 +11,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
 import com.jetpackduba.gitnuro.domain.models.Branch
@@ -22,8 +21,6 @@ import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SetUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
-import org.eclipse.jgit.lib.ObjectIdRef
-import org.eclipse.jgit.lib.Ref
 import org.jetbrains.compose.resources.painterResource
 
 @Preview
@@ -94,11 +91,11 @@ private fun SetDefaultUpstreamBranchDialogView(
             if (state is SetDefaultUpstreamBranchState.Loaded) {
 
                 val remotesDropDown =
-                    state.remotes.map { DropDownOption(it, it.remoteConfig.name) }
+                    state.remotes.map { DropDownOption(it, it.remote.name) }
 
                 val selectedRemote = state.selectedRemote
                 val selectedRemoteOption = if (selectedRemote != null) {
-                    DropDownOption(selectedRemote, selectedRemote.remoteConfig.name)
+                    DropDownOption(selectedRemote, selectedRemote.remote.name)
                 } else {
                     null
                 }

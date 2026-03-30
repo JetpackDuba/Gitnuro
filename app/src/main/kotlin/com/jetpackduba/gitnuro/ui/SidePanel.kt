@@ -17,17 +17,13 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.domain.extensions.isLocal
 import com.jetpackduba.gitnuro.domain.extensions.isValid
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.*
-import com.jetpackduba.gitnuro.data.mappers.toRemoteWrapper
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.Tag
-import com.jetpackduba.gitnuro.domain.models.newRemoteWrapper
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
@@ -37,8 +33,6 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -205,8 +199,8 @@ fun LazyListScope.localBranches(
                 isSelectedItem = selectedItem is SelectedItem.Ref && selectedItem.ref == branch,
                 currentBranch = currentBranch,
                 onBranchClicked = { branchesViewModel.selectBranch(branch) },
-                onBranchDoubleClicked = { branchesViewModel.checkoutRef(branch) },
-                onCheckoutBranch = { branchesViewModel.checkoutRef(branch) },
+                onBranchDoubleClicked = { branchesViewModel.checkoutBranch(branch) },
+                onCheckoutBranch = { branchesViewModel.checkoutBranch(branch) },
                 onMergeBranch = { branchesViewModel.mergeBranch(branch) },
                 onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
                 onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
@@ -259,10 +253,10 @@ fun LazyListScope.remotes(
                 Remote(
                     remote = remote,
                     onEditRemote = {
-                        val wrapper = remote.remoteInfo.remoteConfig.toRemoteWrapper()
+                        val wrapper = remote.remoteInfo.remote
                         onShowAddEditRemoteDialog(wrapper)
                     },
-                    onDeleteRemote = { remotesViewModel.deleteRemote(remote.remoteInfo.remoteConfig.name) },
+                    onDeleteRemote = { remotesViewModel.deleteRemote(remote.remoteInfo) },
                     onRemoteClicked = { remotesViewModel.onRemoteClicked(remote) },
                     onFetchBranches = { remotesViewModel.onFetchRemoteBranches(remote) },
                 )
@@ -352,7 +346,7 @@ fun LazyListScope.stashes(
         items(stashes, key = { it.hash }) { stash ->
             Stash(
                 stash,
-                isSelected = selectedItem is SelectedItem.Stash && selectedItem.revCommit == stash,
+                isSelected = selectedItem is SelectedItem.Stash && selectedItem.commit == stash,
                 onClick = { stashesViewModel.selectStash(stash) },
                 onApply = { stashesViewModel.applyStash(stash) },
                 onPop = { stashesViewModel.popStash(stash) },
@@ -492,7 +486,7 @@ private fun Remote(
         }
     ) {
         SideMenuSubentry(
-            text = remote.remoteInfo.remoteConfig.name,
+            text = remote.remoteInfo.remote.name,
             iconResourcePath = Res.drawable.cloud,
             onClick = onRemoteClicked,
             isSelected = false,

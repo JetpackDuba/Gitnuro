@@ -4,14 +4,12 @@ import com.jetpackduba.gitnuro.domain.interfaces.IApplyStashGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteStashGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPopStashGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import kotlinx.coroutines.Job
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 interface ISharedStashViewModel {
@@ -73,7 +71,7 @@ class SharedStashViewModel @Inject constructor(
         val selectedValue = tabState.selectedItem.value
         if (
             selectedValue is SelectedItem.Stash &&
-            selectedValue.revCommit.hash == stash.hash
+            selectedValue.commit.hash == stash.hash
         ) {
             tabState.noneSelected()
         }

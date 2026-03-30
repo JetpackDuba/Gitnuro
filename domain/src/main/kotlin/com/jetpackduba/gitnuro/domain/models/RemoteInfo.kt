@@ -1,6 +1,3 @@
 package com.jetpackduba.gitnuro.domain.models
 
-import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.transport.RemoteConfig
-
-data class RemoteInfo(val remoteConfig: RemoteConfig, val branchesList: List<Branch>)
+data class RemoteInfo(val remote: Remote, val branchesList: List<Branch>)

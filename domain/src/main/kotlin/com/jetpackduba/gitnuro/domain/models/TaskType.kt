@@ -10,6 +10,8 @@ enum class TaskType {
     UNSTAGE_HUNK,
     STAGE_LINE,
     UNSTAGE_LINE,
+    STAGE_DIR,
+    UNSTAGE_DIR,
     DISCARD_FILE,
     DELETE_FILE,
     BLAME_FILE,
@@ -58,4 +60,5 @@ enum class TaskType {
     REPOSITORY_CLONE,
     ADD_REMOTE,
     DELETE_REMOTE,
+    LOAD_AUTHOR,
 }

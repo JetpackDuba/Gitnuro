@@ -236,9 +236,7 @@ class TabInstanceRepository @Inject constructor(
         newSelectedItem(SelectedItem.None)
     }
 
-    fun newSelectedCommit(revCommit: Commit?) = runOperation(
-        refreshType = RefreshType.NONE,
-    ) { _ ->
+    fun newSelectedCommit(revCommit: Commit?) {
         if (revCommit == null) {
             newSelectedItem(SelectedItem.None)
         } else {
@@ -247,7 +245,7 @@ class TabInstanceRepository @Inject constructor(
         }
     }
 
-    suspend fun newSelectedItem(selectedItem: SelectedItem) {
+    fun newSelectedItem(selectedItem: SelectedItem) {
         _selectedItem.value = selectedItem
     }
 

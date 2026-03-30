@@ -10,6 +10,7 @@ import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
@@ -25,7 +26,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.RepositoryState
-import org.jetbrains.skiko.ClipboardManager
 import java.io.File
 import javax.inject.Inject
 import kotlin.math.max
@@ -48,16 +48,18 @@ class StatusPaneViewModel @Inject constructor(
     private val abortRebaseGitAction: IAbortRebaseGitAction,
     private val skipRebaseGitAction: ISkipRebaseGitAction,
     private val doCommitUseCase: DoCommitUseCase,
-    private val loadAuthorGitAction: ILoadAuthorGitAction,
+    private val getAuthorUseCase: GetAuthorUseCase,
     private val saveAuthorGitAction: ISaveAuthorGitAction,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
     private val getSpecificCommitMessageGitAction: IGetSpecificCommitMessageGitAction,
     private val appSettings: AppSettingsService,
     private val tabScope: TabCoroutineScope,
-    private val clipboardManager: ClipboardManager,
+    private val setClipboardContentUseCase: SetClipboardContentUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
+    private val stageByDirectoryUseCase: StageByDirectoryUseCase,
+    private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,
 ) : TabViewModel() {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
@@ -352,9 +354,8 @@ class StatusPaneViewModel @Inject constructor(
     private fun copyEntriesPath(
         entries: List<StatusEntry>,
         relative: Boolean
-    ) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
-
-        val repoAbsolutPath = git.repository.workTree.absolutePath
+    ) = viewModelScope.launch {
+        val repoAbsolutPath = repositoryDataRepository.repositoryPath ?: return@launch
         val pathsToCopy = entries.joinToString("\n") { entry ->
             if (relative) {
                 entry.filePath
@@ -363,7 +364,7 @@ class StatusPaneViewModel @Inject constructor(
             }
         }
 
-        clipboardManager.setText(pathsToCopy)
+        setClipboardContentUseCase(pathsToCopy)
     }
 
     private fun stage(statusEntry: StatusEntry) = stageUseCase(statusEntry)
@@ -492,7 +493,7 @@ class StatusPaneViewModel @Inject constructor(
     }
 
     private suspend fun getIdentity(git: Git): Identity? {
-        val author = loadAuthorGitAction(git)
+        val author = getAuthorUseCase().okOrNull() ?: return null
 
         return if (
             author.name.isNullOrEmpty() && author.globalName.isNullOrEmpty() ||
@@ -659,19 +660,9 @@ class StatusPaneViewModel @Inject constructor(
         appSettings.setConfiguration(AppConfig.ShowChangesAsTree(!appSettings.showChangesAsTree.first()))
     }
 
-    fun stageByDirectory(dir: String) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        stageByDirectoryGitAction(git, dir)
-    }
+    fun stageByDirectory(dir: String) = stageByDirectoryUseCase(dir)
 
-    fun unstageByDirectory(dir: String) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        unstageByDirectoryGitAction(git, dir)
-    }
+    fun unstageByDirectory(dir: String) = unstageByDirectoryUseCase(dir)
 
     fun addStagedSearchToCloseableView() {
         addSearchToCloseView(CloseableView.STAGED_CHANGES_SEARCH)

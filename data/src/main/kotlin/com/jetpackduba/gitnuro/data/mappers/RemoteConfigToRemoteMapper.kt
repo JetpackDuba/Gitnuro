@@ -2,8 +2,9 @@ package com.jetpackduba.gitnuro.data.mappers
 
 import com.jetpackduba.gitnuro.domain.models.Remote
 import org.eclipse.jgit.transport.RemoteConfig
+import javax.inject.Inject
 
-class RemoteConfigToRemoteMapper: DataMapper<Remote, RemoteConfig> {
+class RemoteConfigToRemoteMapper @Inject constructor(): DataMapper<Remote, RemoteConfig> {
     override fun toData(value: Remote): RemoteConfig {
         throw NotImplementedError("Remote to RemoteWrapper not implemented")
     }
@@ -20,7 +21,7 @@ fun RemoteConfig.toRemoteWrapper(): Remote {
         ?: this.urIs.firstOrNull() // If push URI == null, take fetch URI
 
     return Remote(
-        remoteName = this.name,
+        name = this.name,
         fetchUri = fetchUri?.toString().orEmpty(),
         pushUri = pushUri?.toString().orEmpty(),
     )

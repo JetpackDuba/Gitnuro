@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRemoteBranchesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
@@ -16,7 +15,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.eclipse.jgit.lib.Ref
 
 class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
@@ -48,25 +46,25 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
         _setDefaultUpstreamBranchState.value = SetDefaultUpstreamBranchState.Loading
 
         val trackingBranch = getTrackingBranchGitAction(git, branch)
-        val remoteBranches = getRemoteBranchesGitAction(git)
-        val remotes = getRemotesGitAction(git, remoteBranches)
+        val remoteBranches = getRemoteBranchesGitAction(git.repository.directory.absolutePath)
+        val remotes = getRemotesGitAction(git.repository.directory.absolutePath)
 
         var remote: RemoteInfo? = null
         var remoteBranch: Branch? = null
-
-        if (trackingBranch != null) {
-            remote = remotes.firstOrNull { it.remoteConfig.name == trackingBranch.remote }
-            remoteBranch = remote?.branchesList?.firstOrNull { it.simpleName == trackingBranch.branch }
-        }
-
-        _setDefaultUpstreamBranchState.value =
-            SetDefaultUpstreamBranchState.Loaded(
-                branch = branch,
-                trackingBranch = trackingBranch,
-                remotes = remotes,
-                selectedRemote = remote,
-                selectedBranch = remoteBranch
-            )
+// TODO Fix this
+//        if (trackingBranch != null) {
+//            remote = remotes.firstOrNull { it.remoteConfig.name == trackingBranch.remote }
+//            remoteBranch = remote?.branchesList?.firstOrNull { it.simpleName == trackingBranch.branch }
+//        }
+//
+//        _setDefaultUpstreamBranchState.value =
+//            SetDefaultUpstreamBranchState.Loaded(
+//                branch = branch,
+//                trackingBranch = trackingBranch,
+//                remotes = remotes,
+//                selectedRemote = remote,
+//                selectedBranch = remoteBranch
+//            )
     }
 
     fun changeDefaultUpstreamBranch() = tabState.runOperation(
@@ -78,7 +76,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
             setTrackingBranchGitAction(
                 git = git,
                 branch = state.branch,
-                remoteName = state.selectedRemote?.remoteConfig?.name,
+                remoteName = state.selectedRemote?.remote?.name,
                 remoteBranch = state.selectedBranch
             )
 
@@ -96,7 +94,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
 
     fun setSelectedRemote(remote: RemoteInfo) {
         val state = setDefaultUpstreamBranchState.value
-        val remoteConfig = remote.remoteConfig
+        val remoteConfig = remote.remote
 
         if (state is SetDefaultUpstreamBranchState.Loaded) {
             val branch = if (remoteConfig.name == state.trackingBranch?.remote) {

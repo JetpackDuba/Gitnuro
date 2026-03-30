@@ -67,6 +67,9 @@ data class Error(
             TaskType.REPOSITORY_CLONE -> "Could not clone the repository"
             TaskType.ADD_REMOTE -> "Adding remote failed"
             TaskType.DELETE_REMOTE -> "Deleting remote failed"
+            TaskType.LOAD_AUTHOR -> "Loading author failed"
+            TaskType.STAGE_DIR -> "Staging directory failed"
+            TaskType.UNSTAGE_DIR -> "Unstaging directory failed"
         }
     }
 }

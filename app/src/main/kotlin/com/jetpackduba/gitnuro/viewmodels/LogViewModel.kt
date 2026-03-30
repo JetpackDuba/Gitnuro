@@ -2,9 +2,15 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.Stable
+import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.countOrZero
-import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
@@ -12,14 +18,11 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
-import org.eclipse.jgit.api.Git
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
-import kotlin.math.max
 
 /**
  * Represents when the search filter is not being used or the results list is empty
@@ -53,7 +56,8 @@ class LogViewModel @Inject constructor(
 ) : ISharedStashViewModel by sharedStashViewModel,
     ISharedBranchesViewModel by sharedBranchesViewModel,
     ISharedRemotesViewModel by sharedRemotesViewModel,
-    ISharedTagsViewModel by sharedTagsViewModel {
+    ISharedTagsViewModel by sharedTagsViewModel,
+    TabViewModel() {
 
     private val hasUncommittedChanges = repositoryDataRepository.status.map {
         it.staged.isNotEmpty() || it.unstaged.isNotEmpty()
@@ -65,19 +69,45 @@ class LogViewModel @Inject constructor(
         getSummary(it)
     }
 
-    val logStatus = combine(
+
+    private val verticalListState = MutableStateFlow(LazyListState(0, 0))
+    private val horizontalListState = MutableStateFlow(ScrollState(0))
+
+
+    private val _logSearchFilterResults = MutableStateFlow<LogSearch>(LogSearch.NotSearching)
+    val logSearchFilterResults: StateFlow<LogSearch> = _logSearchFilterResults
+
+    val logState = combine(
         log,
         hasUncommittedChanges,
         currentBranch,
         statusSummary,
-    ) { log, hasUncommittedChanges, currentBranch, statusSummary ->
-        LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
+        logSearchFilterResults,
+        verticalListState,
+        horizontalListState,
+    ) { log,
+        hasUncommittedChanges,
+        currentBranch,
+        statusSummary,
+        logSearchFilterResults,
+        verticalListState,
+        horizontalListState ->
+        LogState(
+            isLoading = false,
+            hasUncommittedChanges,
+            log,
+            currentBranch,
+            statusSummary,
+            logSearchFilterResults,
+            verticalListState,
+            horizontalListState,
+        )
     }
         .debounce(LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD)
         .stateIn(
             scope = tabScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = LogStatus.Loading,
+            initialValue = LogState(true),
         )
 
 
@@ -101,12 +131,6 @@ class LogViewModel @Inject constructor(
 
     private val _focusCommit = MutableSharedFlow<GraphCommit>()
     val focusCommit: Flow<GraphCommit> = merge(_focusCommit, scrollToItem)
-
-    val verticalListState = MutableStateFlow(LazyListState(0, 0))
-    val horizontalListState = MutableStateFlow(ScrollState(0))
-
-    private val _logSearchFilterResults = MutableStateFlow<LogSearch>(LogSearch.NotSearching)
-    val logSearchFilterResults: StateFlow<LogSearch> = _logSearchFilterResults
 
     init {
         tabScope.launch {
@@ -162,9 +186,7 @@ class LogViewModel @Inject constructor(
         positiveNotification("Commit cherry-picked")
     }
 
-    fun selectUncommittedChanges() = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) {
+    fun selectUncommittedChanges() = viewModelScope.launch {
         tabState.newSelectedItem(SelectedItem.UncommittedChanges)
 
         val searchValue = _logSearchFilterResults.value
@@ -184,9 +206,7 @@ class LogViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectCommit(commit: Commit) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) {
+    fun selectCommit(commit: Commit) = viewModelScope.launch {
         tabState.newSelectedCommit(commit)
 
         val searchValue = _logSearchFilterResults.value
@@ -202,17 +222,14 @@ class LogViewModel @Inject constructor(
         }
     }
 
-    suspend fun onSearchValueChanged(searchTerm: String) {
-        val logStatusValue = logStatus.value
-
-        if (logStatusValue !is LogStatus.Loaded)
-            return
+    fun onSearchValueChanged(searchTerm: String) = viewModelScope.launch {
+        val logStatusValue = logState.value
 
         savedSearchFilter = searchTerm
 
         if (searchTerm.isNotBlank()) {
             val lowercaseValue = searchTerm.lowercase()
-            val plotCommitList = logStatusValue.plotCommitList
+            val plotCommitList = logStatusValue.commitList
 
             val matchingCommits = plotCommitList.commits.filter {
                 it.message.lowercase().contains(lowercaseValue) ||
@@ -374,17 +391,45 @@ class LogViewModel @Inject constructor(
             conflictingCount = conflictingCount,
         )
     }
+
+    fun onAction(action: LogAction) {
+        when (action) {
+            is LogAction.ApplyStash -> applyStash(action.commit)
+            is LogAction.CheckoutCommit -> checkoutCommit(action.commit)
+            is LogAction.CheckoutBranch -> checkoutBranch(action.branch)
+            is LogAction.CheckoutRemoteBranch -> checkoutRemoteBranch(action.branch)
+            is LogAction.CheckoutTag -> checkoutTag(action.tag)
+            is LogAction.CherryPickCommit -> cherryPickCommit(action.commit)
+            is LogAction.CommitSelected -> selectCommit(action.commit)
+            is LogAction.CopyBranchNameToClipboard -> copyBranchNameToClipboard(action.branch)
+            is LogAction.DeleteBranch -> deleteBranch(action.branch)
+            is LogAction.DeleteRemoteBranch -> deleteRemoteBranch(action.branch)
+            is LogAction.DeleteStash -> deleteStash(action.commit)
+            is LogAction.DeleteTag -> deleteTag(action.tag)
+            is LogAction.Merge -> mergeBranch(action.branch)
+            is LogAction.PopStash -> popStash(action.commit)
+            is LogAction.PullFromRemoteBranch -> pullFromRemoteBranch(action.branch)
+            is LogAction.PushToRemoteBranch -> pushToRemoteBranch(action.branch)
+            is LogAction.Rebase -> rebaseBranch(action.branch)
+            is LogAction.RebaseInteractive -> rebaseInteractive(action.commit)
+            is LogAction.RevertCommit -> revertCommit(action.commit)
+            LogAction.UncommittedChangesSelected -> selectUncommittedChanges()
+            is LogAction.SearchValueChange -> onSearchValueChanged(action.filter)
+        }
+    }
 }
 
-sealed interface LogStatus {
-    data object Loading : LogStatus
-    class Loaded(
-        val hasUncommittedChanges: Boolean,
-        val plotCommitList: GraphCommits,
-        val currentBranch: Branch?,
-        val statusSummary: StatusSummary,
-    ) : LogStatus
-}
+@Stable
+data class LogState(
+    val isLoading: Boolean,
+    val hasUncommittedChanges: Boolean = false,
+    val commitList: GraphCommits = GraphCommits(emptyList(), 0),
+    val currentBranch: Branch? = null,
+    val statusSummary: StatusSummary = StatusSummary(0, 0, 0, 0),
+    val searchFilter: LogSearch = LogSearch.NotSearching,
+    val verticalScrollState: LazyListState = LazyListState(),
+    val horizontalScrollState: ScrollState = ScrollState(0),
+)
 
 sealed interface LogSearch {
     data object NotSearching : LogSearch
@@ -393,4 +438,29 @@ sealed interface LogSearch {
         val index: Int,
         val totalCount: Int = commits.count(),
     ) : LogSearch
+}
+
+
+sealed interface LogAction {
+    data class Merge(val branch: Branch) : LogAction
+    data class Rebase(val branch: Branch) : LogAction
+    data class DeleteBranch(val branch: Branch) : LogAction
+    data class CheckoutCommit(val commit: Commit) : LogAction
+    data class RevertCommit(val commit: Commit) : LogAction
+    data class CherryPickCommit(val commit: Commit) : LogAction
+    data class CheckoutRemoteBranch(val branch: Branch) : LogAction
+    data class CheckoutBranch(val branch: Branch) : LogAction
+    data class RebaseInteractive(val commit: Commit) : LogAction
+    data class CommitSelected(val commit: Commit) : LogAction
+    data object UncommittedChangesSelected : LogAction
+    data class DeleteStash(val commit: Commit) : LogAction
+    data class ApplyStash(val commit: Commit) : LogAction
+    data class PopStash(val commit: Commit) : LogAction
+    data class CheckoutTag(val tag: Tag) : LogAction
+    data class DeleteRemoteBranch(val branch: Branch) : LogAction
+    data class DeleteTag(val tag: Tag) : LogAction
+    data class PushToRemoteBranch(val branch: Branch) : LogAction
+    data class PullFromRemoteBranch(val branch: Branch) : LogAction
+    data class CopyBranchNameToClipboard(val branch: Branch) : LogAction
+    data class SearchValueChange(val filter: String) : LogAction
 }

@@ -10,7 +10,7 @@ interface RepositoryDataRepository {
     val localBranches: Flow<List<Branch>>
     val currentBranch: Flow<Branch?>
     val tags: Flow<List<Ref>>
-    val remotes: Flow<List<Remote>>
+    val remotes: Flow<List<RemoteInfo>>
     val log: Flow<GraphCommits>
     val repositoryState: StateFlow<RepositorySelectionState>
     val repositoryPath: String?
@@ -23,6 +23,6 @@ interface RepositoryDataRepository {
     fun updateCurrentBranch(branch: Branch?)
     fun updateTags(tags: List<Ref>)
     fun updateLog(graphCommits: GraphCommits)
-    fun updateRemotes(remotes: List<Remote>)
+    fun updateRemotes(remotes: List<RemoteInfo>)
     fun updateDiffSelected(diffSelected: DiffSelected?)
 }
