@@ -74,6 +74,10 @@ class TabViewModel @Inject constructor(
 
     val showError = MutableStateFlow(false)
 
+    val currentRepositoryPath: String?
+        get() = (_repositorySelectionStatus.value as? RepositorySelectionStatus.Open)
+            ?.let { tabState.git.repository.workTree.absolutePath }
+
     init {
         tabScope.run {
 

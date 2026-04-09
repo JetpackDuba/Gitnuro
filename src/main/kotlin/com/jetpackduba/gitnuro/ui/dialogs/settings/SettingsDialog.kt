@@ -19,12 +19,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.generated.resources.*
 import com.jetpackduba.gitnuro.managers.Error
+import com.jetpackduba.gitnuro.models.GitSigningSettingsField
+import com.jetpackduba.gitnuro.models.GitSigningSettingsScope
 import com.jetpackduba.gitnuro.preferences.AvatarProviderType
 import com.jetpackduba.gitnuro.repositories.DEFAULT_UI_SCALE
 import com.jetpackduba.gitnuro.theme.*
@@ -32,6 +35,8 @@ import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.AppSwitch
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
+import com.jetpackduba.gitnuro.ui.components.SecondaryButton
+import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
@@ -40,6 +45,7 @@ import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.lib.GpgConfig
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
@@ -65,6 +71,7 @@ val settings = listOf(
 
     SettingsEntry.Section(Res.string.settings_section_git),
     SettingsEntry.Entry(Res.drawable.folder, Res.string.settings_entry_environment) { Environment(it) },
+    SettingsEntry.Entry(Res.drawable.key, Res.string.settings_entry_signing) { Signing(it) },
     SettingsEntry.Entry(Res.drawable.branch, Res.string.settings_entry_branches) { Branches(it) },
     SettingsEntry.Entry(Res.drawable.cloud, Res.string.settings_entry_remote_actions) { RemoteActions(it) },
 
@@ -181,8 +188,13 @@ fun Proxy(settingsViewModel: SettingsViewModel) {
 @Composable
 fun SettingsDialog(
     settingsViewModel: SettingsViewModel,
+    repositoryPath: String?,
     onDismiss: () -> Unit,
 ) {
+    LaunchedEffect(repositoryPath) {
+        settingsViewModel.setGitSigningRepositoryPath(repositoryPath)
+    }
+
     var selectedCategory by remember {
         mutableStateOf(
             settings.filterIsInstance<SettingsEntry.Entry>().first()
@@ -400,6 +412,289 @@ private fun Environment(settingsViewModel: SettingsViewModel) {
             settingsViewModel.defaultCloneDir = value
         },
     )
+}
+
+@Composable
+private fun Signing(settingsViewModel: SettingsViewModel) {
+    val signingSettings by settingsViewModel.gitSigningSettingsFlow.collectAsState()
+    val signingOverrides by settingsViewModel.gitSigningOverridesFlow.collectAsState()
+    val signingScope by settingsViewModel.gitSigningScopeFlow.collectAsState()
+    val repositoryPath by settingsViewModel.gitSigningRepositoryPathFlow.collectAsState()
+    val discoveredSigningKeys by settingsViewModel.gitSigningKeysFlow.collectAsState()
+    val signingKeysMessage by settingsViewModel.gitSigningKeysMessageFlow.collectAsState()
+    val isLoadingSigningKeys by settingsViewModel.isLoadingGitSigningKeysFlow.collectAsState()
+
+    var openPgpProgram by remember(signingSettings.openPgpProgram) {
+        mutableStateOf(signingSettings.openPgpProgram)
+    }
+    var signingKey by remember(signingSettings.signingKey) {
+        mutableStateOf(signingSettings.signingKey)
+    }
+
+    val formatOptions = listOf(
+        DropDownOption(GpgConfig.GpgFormat.OPENPGP, "OpenPGP"),
+        DropDownOption(GpgConfig.GpgFormat.SSH, "SSH"),
+    )
+
+    val scopeOptions = buildList {
+        add(DropDownOption(GitSigningSettingsScope.GLOBAL, "Global (~/.gitconfig)"))
+        if (repositoryPath != null) {
+            add(DropDownOption(GitSigningSettingsScope.REPOSITORY, "Repository (.git/config)"))
+        }
+    }
+
+    val signingKeyOptions = remember(discoveredSigningKeys, signingKey, isLoadingSigningKeys) {
+        buildList {
+            if (signingKey.isBlank()) {
+                add(
+                    DropDownOption(
+                        value = "",
+                        optionName = if (isLoadingSigningKeys) {
+                            "Loading signing keys..."
+                        } else {
+                            "No signing key selected"
+                        },
+                    )
+                )
+            } else if (discoveredSigningKeys.none { it.value == signingKey }) {
+                add(DropDownOption(signingKey, "Current value — $signingKey"))
+            }
+
+            discoveredSigningKeys.forEach { keyOption ->
+                add(DropDownOption(keyOption.value, keyOption.label))
+            }
+
+            if (isEmpty()) {
+                add(
+                    DropDownOption(
+                        value = "",
+                        optionName = if (isLoadingSigningKeys) {
+                            "Loading signing keys..."
+                        } else {
+                            "No signing keys detected"
+                        },
+                    )
+                )
+            }
+        }
+    }
+
+    val currentSigningKey = signingKeyOptions.firstOrNull { it.value == signingKey }?.value
+        ?: signingKeyOptions.first().value
+
+    val signingKeyTextTitle = if (signingSettings.format == GpgConfig.GpgFormat.SSH) {
+        "SSH signing key"
+    } else {
+        "OpenPGP signing key"
+    }
+
+    val signingKeyTextSubtitle = if (signingSettings.format == GpgConfig.GpgFormat.SSH) {
+        "Absolute path to the private SSH key file used for signing"
+    } else {
+        "Key ID or fingerprint used for OpenPGP signing"
+    }
+
+    val signingKeyDropDownSubtitle = if (isLoadingSigningKeys) {
+        "Refreshing available keys..."
+    } else {
+        signingKeysMessage.ifBlank { "Select a detected signing key or enter one manually below." }
+    }
+
+    val isRepositoryScope = signingScope == GitSigningSettingsScope.REPOSITORY
+    val formatSubtitle = withOverrideStatus(
+        if (isRepositoryScope) "Stored in this repository's .git/config" else "Choose whether Git signs with OpenPGP or SSH keys",
+        isRepositoryScope,
+        signingOverrides.format,
+    )
+    val signingKeyEffectiveSubtitle = withOverrideStatus(
+        signingKeyTextSubtitle,
+        isRepositoryScope,
+        signingOverrides.signingKey,
+    )
+    val openPgpProgramSubtitle = withOverrideStatus(
+        "Executable used for OpenPGP signing, for example gpg or gpg2",
+        isRepositoryScope,
+        signingOverrides.openPgpProgram,
+    )
+    val signCommitsSubtitle = withOverrideStatus(
+        if (isRepositoryScope) "Controls commit.gpgSign in this repository's config" else "Controls commit.gpgSign in your global Git config",
+        isRepositoryScope,
+        signingOverrides.signCommitsByDefault,
+    )
+    val signTagsSubtitle = withOverrideStatus(
+        if (isRepositoryScope) "Controls tag.gpgSign in this repository's config" else "Controls tag.gpgSign in your global Git config",
+        isRepositoryScope,
+        signingOverrides.signTagsByDefault,
+    )
+
+    if (repositoryPath != null) {
+        SettingDropDown(
+            title = "Settings scope",
+            subtitle = "Choose whether to edit global defaults or repository-specific overrides",
+            dropDownOptions = scopeOptions,
+            currentOption = signingScope,
+            onOptionSelected = { scopeOption ->
+                settingsViewModel.setGitSigningScope(scopeOption.value)
+            },
+            width = 220.dp,
+        )
+    }
+
+    if (isRepositoryScope && signingOverrides.hasOverrides) {
+        SettingButton(
+            title = "Repository signing overrides",
+            subtitle = "Remove all repository-specific signing settings and inherit the global values again",
+            buttonText = "Use global defaults",
+            onClick = {
+                settingsViewModel.clearRepositoryGitSigningOverrides()
+            }
+        )
+    }
+
+    SettingDropDown(
+        title = "Signing format",
+        subtitle = formatSubtitle,
+        dropDownOptions = formatOptions,
+        currentOption = signingSettings.format,
+        onOptionSelected = { formatOption ->
+            settingsViewModel.setGitSigningFormat(formatOption.value)
+        },
+        actionButtonText = if (isRepositoryScope && signingOverrides.format) "Use global" else null,
+        onActionButtonClick = if (isRepositoryScope && signingOverrides.format) {
+            { settingsViewModel.unsetRepositoryGitSigningSetting(GitSigningSettingsField.FORMAT) }
+        } else {
+            null
+        },
+    )
+
+    SettingDropDown(
+        title = "Signing key",
+        subtitle = signingKeyDropDownSubtitle,
+        dropDownOptions = signingKeyOptions,
+        currentOption = currentSigningKey,
+        onOptionSelected = { option ->
+            signingKey = option.value
+            settingsViewModel.setGitSigningKey(option.value)
+        },
+        width = 460.dp,
+    )
+
+    SettingTextInput(
+        title = signingKeyTextTitle,
+        subtitle = signingKeyEffectiveSubtitle,
+        value = signingKey,
+        onValueChanged = { value ->
+            signingKey = value
+            settingsViewModel.setGitSigningKey(value)
+        },
+        actionButtonText = if (isRepositoryScope && signingOverrides.signingKey) "Use global" else null,
+        onActionButtonClick = if (isRepositoryScope && signingOverrides.signingKey) {
+            { settingsViewModel.unsetRepositoryGitSigningSetting(GitSigningSettingsField.SIGNING_KEY) }
+        } else {
+            null
+        },
+    )
+
+    if (signingSettings.format == GpgConfig.GpgFormat.OPENPGP) {
+        SettingTextInput(
+            title = "GPG program",
+            subtitle = openPgpProgramSubtitle,
+            value = openPgpProgram,
+            onValueChanged = { value ->
+                openPgpProgram = value
+                settingsViewModel.setGitSigningOpenPgpProgram(value)
+            },
+            actionButtonText = if (isRepositoryScope && signingOverrides.openPgpProgram) "Use global" else null,
+            onActionButtonClick = if (isRepositoryScope && signingOverrides.openPgpProgram) {
+                { settingsViewModel.unsetRepositoryGitSigningSetting(GitSigningSettingsField.OPENPGP_PROGRAM) }
+            } else {
+                null
+            },
+        )
+
+        SettingButton(
+            title = "Browse GPG program",
+            subtitle = "Select the OpenPGP executable from disk",
+            buttonText = "Choose file",
+            onClick = {
+                settingsViewModel.pickGitSigningOpenPgpProgram()?.let { filePath ->
+                    openPgpProgram = filePath
+                }
+            }
+        )
+    } else {
+        SettingButton(
+            title = "Browse SSH key",
+            subtitle = "Select the private SSH key file used for signing",
+            buttonText = "Choose file",
+            onClick = {
+                settingsViewModel.pickGitSigningKeyFile()?.let { filePath ->
+                    signingKey = filePath
+                }
+            }
+        )
+    }
+
+    SettingButton(
+        title = "Refresh detected keys",
+        subtitle = if (signingSettings.format == GpgConfig.GpgFormat.SSH) {
+            "Rescan ~/.ssh for private keys"
+        } else {
+            "Rescan secret OpenPGP keys using the configured GPG program"
+        },
+        buttonText = if (isLoadingSigningKeys) "Refreshing..." else "Refresh",
+        onClick = {
+            settingsViewModel.refreshGitSigningKeys()
+        }
+    )
+
+    SettingToggle(
+        title = "Sign commits by default",
+        subtitle = signCommitsSubtitle,
+        value = signingSettings.signCommitsByDefault,
+        onValueChanged = { value ->
+            settingsViewModel.setSignCommitsByDefault(value)
+        },
+        actionButtonText = if (isRepositoryScope && signingOverrides.signCommitsByDefault) "Use global" else null,
+        onActionButtonClick = if (isRepositoryScope && signingOverrides.signCommitsByDefault) {
+            { settingsViewModel.unsetRepositoryGitSigningSetting(GitSigningSettingsField.SIGN_COMMITS) }
+        } else {
+            null
+        },
+    )
+
+    SettingToggle(
+        title = "Sign tags by default",
+        subtitle = signTagsSubtitle,
+        value = signingSettings.signTagsByDefault,
+        onValueChanged = { value ->
+            settingsViewModel.setSignTagsByDefault(value)
+        },
+        actionButtonText = if (isRepositoryScope && signingOverrides.signTagsByDefault) "Use global" else null,
+        onActionButtonClick = if (isRepositoryScope && signingOverrides.signTagsByDefault) {
+            { settingsViewModel.unsetRepositoryGitSigningSetting(GitSigningSettingsField.SIGN_TAGS) }
+        } else {
+            null
+        },
+    )
+}
+
+private fun withOverrideStatus(
+    baseSubtitle: String,
+    isRepositoryScope: Boolean,
+    isOverridden: Boolean,
+): String {
+    if (!isRepositoryScope) {
+        return baseSubtitle
+    }
+
+    val status = if (isOverridden) {
+        "Status: explicitly overridden in this repository"
+    } else {
+        "Status: inherited from global/default Git config"
+    }
+
+    return if (baseSubtitle.isBlank()) status else "$baseSubtitle\n$status"
 }
 
 @Composable
@@ -639,6 +934,9 @@ fun <T> SettingDropDown(
     dropDownOptions: List<DropDownOption<T>>,
     onOptionSelected: (DropDownOption<T>) -> Unit,
     currentOption: T,
+    width: Dp = 180.dp,
+    actionButtonText: String? = null,
+    onActionButtonClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
@@ -648,41 +946,56 @@ fun <T> SettingDropDown(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box {
-            DropDownMenu(
-                showIcons = false,
-                items = {
-                    dropDownOptions.map {
-                        ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
-                    }
-                },
-            ) {
-                Row(
-                    modifier = Modifier.width(180.dp)
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.1F),
-                            shape = RoundedCornerShape(4.dp),
-                        )
-                        .clip(shape = RoundedCornerShape(4.dp))
-                        .background(MaterialTheme.colors.background)
-                        .padding(vertical = 8.dp, horizontal = 12.dp)
-                        .handOnHover(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = dropDownOptions.first { it.value == currentOption }.optionName,
-                        style = MaterialTheme.typography.body2,
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1
-                    )
+        val selectedOption = dropDownOptions.first { it.value == currentOption }
 
-                    Icon(
-                        painter = painterResource(Res.drawable.dropdown),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground,
-                    )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (actionButtonText != null && onActionButtonClick != null) {
+                SecondaryButton(
+                    text = actionButtonText,
+                    onClick = onActionButtonClick,
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            Box {
+                DropDownMenu(
+                    showIcons = false,
+                    items = {
+                        dropDownOptions.map {
+                            ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
+                        }
+                    },
+                ) {
+                    InstantTooltip(text = selectedOption.optionName) {
+                        Row(
+                            modifier = Modifier.width(width)
+                                .border(
+                                    width = 2.dp,
+                                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.1F),
+                                    shape = RoundedCornerShape(4.dp),
+                                )
+                                .clip(shape = RoundedCornerShape(4.dp))
+                                .background(MaterialTheme.colors.background)
+                                .padding(vertical = 8.dp, horizontal = 12.dp)
+                                .handOnHover(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = selectedOption.optionName,
+                                style = MaterialTheme.typography.body2,
+                                color = MaterialTheme.colors.onBackground,
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1
+                            )
+
+                            Icon(
+                                painter = painterResource(Res.drawable.dropdown),
+                                contentDescription = null,
+                                tint = MaterialTheme.colors.onBackground,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -718,6 +1031,8 @@ fun SettingToggle(
     enabled: Boolean = true,
     value: Boolean,
     onValueChanged: (Boolean) -> Unit,
+    actionButtonText: String? = null,
+    onActionButtonClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
@@ -727,11 +1042,22 @@ fun SettingToggle(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        AppSwitch(
-            enabled = enabled,
-            isChecked = value,
-            onValueChanged = onValueChanged,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (actionButtonText != null && onActionButtonClick != null) {
+                SecondaryButton(
+                    text = actionButtonText,
+                    onClick = onActionButtonClick,
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            AppSwitch(
+                enabled = enabled,
+                isChecked = value,
+                onValueChanged = onValueChanged,
+            )
+        }
     }
 }
 
@@ -796,6 +1122,8 @@ fun SettingTextInput(
     isPassword: Boolean = false,
     onValueChanged: (String) -> Unit,
     isError: Boolean = false,
+    actionButtonText: String? = null,
+    onActionButtonClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
@@ -809,19 +1137,30 @@ fun SettingTextInput(
             mutableStateOf(value)
         }
 
-        AdjustableOutlinedTextField(
-            value = text,
-            modifier = Modifier.width(240.dp),
-            isError = isError,
-            enabled = enabled,
-            onValueChange = {
-                text = it
-                onValueChanged(it)
-            },
-            visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
-            colors = outlinedTextFieldColors(),
-            singleLine = true,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (actionButtonText != null && onActionButtonClick != null) {
+                SecondaryButton(
+                    text = actionButtonText,
+                    onClick = onActionButtonClick,
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            AdjustableOutlinedTextField(
+                value = text,
+                modifier = Modifier.width(240.dp),
+                isError = isError,
+                enabled = enabled,
+                onValueChange = {
+                    text = it
+                    onValueChanged(it)
+                },
+                visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+                colors = outlinedTextFieldColors(),
+                singleLine = true,
+            )
+        }
     }
 }
 

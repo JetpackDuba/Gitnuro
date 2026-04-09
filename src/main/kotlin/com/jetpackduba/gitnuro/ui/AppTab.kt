@@ -59,6 +59,11 @@ fun AppTab(
             if (showSettingsDialog) {
                 SettingsDialog(
                     settingsViewModel = tabViewModel.tabViewModelsProvider.settingsViewModel,
+                    repositoryPath = if (repositorySelectionStatusValue is RepositorySelectionStatus.Open) {
+                        tabViewModel.currentRepositoryPath
+                    } else {
+                        null
+                    },
                     onDismiss = { showSettingsDialog = false }
                 )
             }
