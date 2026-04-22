@@ -1,15 +1,13 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.exceptions.FetchException
 import com.jetpackduba.gitnuro.domain.interfaces.IFetchAllRemotesGitAction
 import com.jetpackduba.gitnuro.domain.models.Remote
-import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ProgressMonitor
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RemoteConfig
@@ -20,8 +18,8 @@ private const val TAG = "FetchAllBranchesGitAction"
 class FetchAllRemotesGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
 ) : IFetchAllRemotesGitAction {
-    override suspend operator fun invoke(git: Git, specificRemote: Remote?) = withContext(Dispatchers.IO) {
-        val allRemotes = git.remoteList().call()
+    override suspend operator fun invoke(repositoryPath: String, specificRemote: Remote?) = jgit(repositoryPath) {
+        val allRemotes = remoteList().call()
         val matchingRemote = specificRemote?.let {
             allRemotes.firstOrNull {
                 it.name == specificRemote.name
@@ -36,27 +34,29 @@ class FetchAllRemotesGitAction @Inject constructor(
         val errors = mutableListOf<Pair<RemoteConfig, Exception>>()
         for (remote in remotes) {
             try {
-                handleTransportGitAction(git) {
-                    git.fetch()
-                        .setRemote(remote.name)
-                        .setRefSpecs(remote.fetchRefSpecs)
-                        .setRemoveDeletedRefs(true)
-                        .setTransportConfigCallback { handleTransport(it) }
-                        .setCredentialsProvider(CredentialsProvider.getDefault())
-                        .setProgressMonitor(object : ProgressMonitor {
-                            override fun start(totalTasks: Int) {}
+                handleTransportGitAction(repositoryPath) {
+                    coroutineScope {
+                        fetch()
+                            .setRemote(remote.name)
+                            .setRefSpecs(remote.fetchRefSpecs)
+                            .setRemoveDeletedRefs(true)
+                            .setTransportConfigCallback { handleTransport(it) }
+                            .setCredentialsProvider(CredentialsProvider.getDefault())
+                            .setProgressMonitor(object : ProgressMonitor {
+                                override fun start(totalTasks: Int) {}
 
-                            override fun beginTask(title: String?, totalWork: Int) {}
+                                override fun beginTask(title: String?, totalWork: Int) {}
 
-                            override fun update(completed: Int) {}
+                                override fun update(completed: Int) {}
 
-                            override fun endTask() {}
+                                override fun endTask() {}
 
-                            override fun isCancelled(): Boolean = !isActive
+                                override fun isCancelled(): Boolean = !isActive
 
-                            override fun showDuration(enabled: Boolean) {}
-                        })
-                        .call()
+                                override fun showDuration(enabled: Boolean) {}
+                            })
+                            .call()
+                    }
                 }
             } catch (ex: Exception) {
                 printError(TAG, "Fetch failed for remote ${remote.name} with error ${ex.message}", ex)

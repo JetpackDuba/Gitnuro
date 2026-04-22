@@ -17,6 +17,7 @@ import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.StartRebaseInteractiveUseCase
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -49,6 +50,7 @@ class LogViewModel @Inject constructor(
     private val tabScope: TabCoroutineScope,
     private val clipboardManager: ClipboardManager,
     private val repositoryDataRepository: RepositoryDataRepository,
+    private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
     sharedStashViewModel: SharedStashViewModel,
     sharedBranchesViewModel: SharedBranchesViewModel,
     sharedRemotesViewModel: SharedRemotesViewModel,
@@ -305,14 +307,7 @@ class LogViewModel @Inject constructor(
         tabState.removeCloseableView(CloseableView.LOG_SEARCH)
     }
 
-    fun rebaseInteractive(revCommit: Commit) = tabState.safeProcessing(
-        refreshType = RefreshType.REBASE_INTERACTIVE_STATE,
-        taskType = TaskType.REBASE_INTERACTIVE,
-    ) { git ->
-        startRebaseInteractiveGitAction(git, revCommit)
-
-        null
-    }
+    private fun rebaseInteractive(commit: Commit) = startRebaseInteractiveUseCase(commit)
 
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
         refreshType = RefreshType.NONE,

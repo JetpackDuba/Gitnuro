@@ -12,14 +12,16 @@ import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.FetchAllBranchUseCase
+import com.jetpackduba.gitnuro.domain.usecases.PullBranchUseCase
 import com.jetpackduba.gitnuro.domain.usecases.PushBranchUseCase
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalGitAction
 import kotlinx.coroutines.Job
 import javax.inject.Inject
 
 interface IGlobalMenuActionsViewModel {
-    fun pull(pullType: PullType): Job
-    fun fetchAll(): Job
+    fun pull(pullType: PullType)
+    fun fetchAll()
     fun push(force: Boolean = false, pushTags: Boolean = false)
     fun stash(): Job
     fun popStash(): Job
@@ -28,42 +30,18 @@ interface IGlobalMenuActionsViewModel {
 
 class GlobalMenuActionsViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val pullBranchGitAction: IPullBranchGitAction,
-    private val pushBranchUseCase: PushBranchUseCase,
-    private val fetchAllRemotesGitAction: IFetchAllRemotesGitAction,
+    private val fetchAllUseCase: FetchAllBranchUseCase,
     private val popLastStashGitAction: IPopLastStashGitAction,
+    private val pullBranchUseCase: PullBranchUseCase,
+    private val pushBranchUseCase: PushBranchUseCase,
     private val stashChangesGitAction: IStashChangesGitAction,
     private val openRepositoryInTerminalGitAction: OpenRepositoryInTerminalGitAction,
 ) : IGlobalMenuActionsViewModel {
-    override fun pull(pullType: PullType) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Pulling",
-        subtitle = "Pulling changes from the remote branch to the current branch",
-        refreshEvenIfCrashes = true,
-        taskType = TaskType.PULL,
-    ) { git ->
-        if (pullBranchGitAction(git, pullType)) {
-            warningNotification("Pull produced conflicts, fix them to continue")
-        } else {
-            positiveNotification("Pull completed")
-        }
-    }
+    override fun pull(pullType: PullType) = pullBranchUseCase(pullType)
 
-    override fun push(force: Boolean, pushTags: Boolean) {
-        pushBranchUseCase(force, pushTags)
-    }
+    override fun push(force: Boolean, pushTags: Boolean) = pushBranchUseCase(force, pushTags)
 
-    override fun fetchAll() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Fetching",
-        subtitle = "Updating references from the remote repositories...",
-        refreshEvenIfCrashes = true,
-        taskType = TaskType.FETCH,
-    ) { git ->
-        fetchAllRemotesGitAction(git)
-
-        positiveNotification("Fetch all completed")
-    }
+    override fun fetchAll() = fetchAllUseCase()
 
     override fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,

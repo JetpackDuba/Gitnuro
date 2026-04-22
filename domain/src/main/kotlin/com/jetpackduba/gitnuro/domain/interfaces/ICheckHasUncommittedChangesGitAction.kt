@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.domain.interfaces
 
-import org.eclipse.jgit.api.Git
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 
 interface ICheckHasUncommittedChangesGitAction {
-    suspend operator fun invoke(git: Git): Boolean
+    suspend operator fun invoke(repositoryPath: String): Either<Boolean, GitError>
 }

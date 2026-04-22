@@ -29,11 +29,12 @@ class UseCaseExecutor @Inject constructor(
 
     fun <T> executeLaunch(
         taskType: TaskType,
+        refreshEvenIfFailed: Boolean = false,
         onSuccess: suspend () -> Unit,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ) {
         repositoryStateRepository.runOperationInTabScope(scope) {
-            if (executeTask(taskType, block) is Either.Ok) {
+            if (executeTask(taskType, block) is Either.Ok || refreshEvenIfFailed) {
                 onSuccess()
             }
         }

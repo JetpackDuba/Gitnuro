@@ -1,9 +1,14 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.data.git.stash.DeleteStashGitAction
 import com.jetpackduba.gitnuro.data.git.stash.SnapshotStashCreateCommand
 import com.jetpackduba.gitnuro.data.git.workspace.CheckHasUncommittedChangesGitAction
 import com.jetpackduba.gitnuro.data.mappers.JGitCommitMapper
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
+import com.jetpackduba.gitnuro.domain.errors.bind
+import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.IPullBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.PullHasConflicts
 import com.jetpackduba.gitnuro.domain.models.Commit
@@ -25,52 +30,52 @@ class PullBranchGitAction @Inject constructor(
     private val commitMapper: JGitCommitMapper,
 ) : IPullBranchGitAction {
     override suspend operator fun invoke(
-        git: Git,
+        repositoryPath: String,
         pullType: PullType,
         mergeAutoStash: Boolean, // TODO Fix this after refactor
-    ): PullHasConflicts = withContext(Dispatchers.IO) {
-        useBuiltinLfs(git.repository) {
-            val pullWithRebase = when (pullType) {
-                PullType.REBASE -> true
-                else -> false
-            }
+    ) = either {
+        jgit(repositoryPath) {
+            useBuiltinLfs(repository) {
+                val pullWithRebase = when (pullType) {
+                    PullType.REBASE -> true
+                    else -> false
+                }
 
-            val pullWithMerge = !pullWithRebase
-            var backupStash: Commit? = null
+                val pullWithMerge = !pullWithRebase
+                var backupStash: Commit? = null
 
-            if (mergeAutoStash && pullWithMerge) {
-                val hasUncommitedChanges = checkHasUncommittedChangesGitAction(git)
-                if (hasUncommitedChanges) {
-                    val snapshotStashCreateCommand = SnapshotStashCreateCommand(
-                        repository = git.repository,
-                        workingDirectoryMessage = "FIX THIS AFTER REFACTOR"/*getString(
+                if (mergeAutoStash && pullWithMerge) {
+                    val hasUncommitedChanges = checkHasUncommittedChangesGitAction(repositoryPath).bind()
+                    if (hasUncommitedChanges) {
+                        val snapshotStashCreateCommand = SnapshotStashCreateCommand(
+                            repository = repository,
+                            workingDirectoryMessage = "FIX THIS AFTER REFACTOR"/*getString(
                             Res.string.pull_with_merge_automatic_stash_description,
                             git.repository.branch
                         )*/,
-                        includeUntracked = true
-                    )
+                            includeUntracked = true
+                        )
 
-                    backupStash = snapshotStashCreateCommand.call()?.let { commitMapper.toDomain(it) }
+                        backupStash = snapshotStashCreateCommand.call()?.let { commitMapper.toDomain(it) }
+                    }
                 }
+
+                val pullHasConflicts = handleTransportGitAction(repositoryPath) {
+                    val pullResult = pull()
+                        .setTransportConfigCallback { this.handleTransport(it) }
+                        .setRebase(pullWithRebase)
+                        .setCredentialsProvider(CredentialsProvider.getDefault())
+                        .call()
+
+                    return@handleTransportGitAction hasPullResultConflictsGitAction(pullWithRebase, pullResult)
+                }
+
+                if (!pullHasConflicts && backupStash != null) {
+                    deleteStashGitAction(this, backupStash)
+                }
+
+                pullHasConflicts
             }
-
-            val pullHasConflicts = handleTransportGitAction(git) {
-                val pullResult = git
-                    .pull()
-                    .setTransportConfigCallback { this.handleTransport(it) }
-                    .setRebase(pullWithRebase)
-                    .setCredentialsProvider(CredentialsProvider.getDefault())
-                    .call()
-
-                return@handleTransportGitAction hasPullResultConflictsGitAction(pullWithRebase, pullResult)
-            }
-
-            if (!pullHasConflicts && backupStash != null) {
-                deleteStashGitAction(git, backupStash)
-            }
-
-            pullHasConflicts
-
         }
     }
 }

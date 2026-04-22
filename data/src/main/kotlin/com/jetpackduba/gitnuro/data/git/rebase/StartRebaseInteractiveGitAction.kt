@@ -1,5 +1,8 @@
 package com.jetpackduba.gitnuro.data.git.rebase
 
+import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.exceptions.UncommittedChangesDetectedException
 import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
@@ -15,10 +18,10 @@ import javax.inject.Inject
 
 class StartRebaseInteractiveGitAction @Inject constructor() : IStartRebaseInteractiveGitAction {
     override suspend operator fun invoke(
-        git: Git,
+        repositoryPath: String,
         commit: Commit,
-    ) = withContext(Dispatchers.IO) {
-        val base = git.repository
+    ): Either<Unit, GitError> = jgit(repositoryPath) {
+        val base = repository
             .resolve(commit.hash) ?: throw Exception("Commit ${commit.hash} not found")
 
         val interactiveHandler = object : RebaseCommand.InteractiveHandler {
@@ -26,7 +29,7 @@ class StartRebaseInteractiveGitAction @Inject constructor() : IStartRebaseIntera
             override fun modifyCommitMessage(message: String?): String = ""
         }
 
-        val rebaseResult = git.rebase()
+        val rebaseResult = rebase()
             .runInteractively(interactiveHandler, true)
             .setOperation(RebaseCommand.Operation.BEGIN)
             .setUpstream(base)
