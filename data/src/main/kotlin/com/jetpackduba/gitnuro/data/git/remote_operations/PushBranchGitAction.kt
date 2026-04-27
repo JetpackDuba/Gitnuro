@@ -40,7 +40,7 @@ class PushBranchGitAction @Inject constructor(
             fullCurrentBranch
         }
 
-        val remoteRefUpdate = handleTransportGitAction(this) {
+        val remoteRefUpdate = handleTransportGitAction(repositoryPath) {
             push(this@jgit, tracking, refSpecStr, force, pushTags, pushWithLease)
         }
 

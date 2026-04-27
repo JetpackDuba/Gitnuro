@@ -16,7 +16,7 @@ class PullBranchUseCase @Inject constructor(
 ) {
     operator fun invoke(pullType: PullType) =  useCaseExecutor.executeLaunch(
         taskType = TaskType.PULL,
-        onSuccess = {
+        onRefresh = {
             refreshAllUseCase()
         }
     ) { repositoryPath ->

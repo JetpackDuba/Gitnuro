@@ -1,11 +1,8 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.interfaces.IPullFromSpecificBranchGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.PullHasConflicts
 import com.jetpackduba.gitnuro.domain.models.Branch
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.CredentialsProvider
 import javax.inject.Inject
 
@@ -13,11 +10,10 @@ class PullFromSpecificBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
     private val hasPullResultConflictsGitAction: HasPullResultConflictsGitAction,
 ) : IPullFromSpecificBranchGitAction {
-    override suspend operator fun invoke(git: Git, remoteBranch: Branch, pullWithRebase: Boolean): PullHasConflicts =
-        withContext(Dispatchers.IO) {
-            handleTransportGitAction(git) {
-                val pullResult = git
-                    .pull()
+    override suspend operator fun invoke(repositoryPath: String, remoteBranch: Branch, pullWithRebase: Boolean) =
+        jgit(repositoryPath) {
+            handleTransportGitAction(repositoryPath) {
+                val pullResult = pull()
                     .setTransportConfigCallback { handleTransport(it) }
                     .setRemote(remoteBranch.remoteName)
                     .setRemoteBranchName(remoteBranch.simpleName)

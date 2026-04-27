@@ -21,7 +21,7 @@ class AddRemoteUseCase @Inject constructor(
     operator fun invoke(remote: Remote) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.ADD_REMOTE,
-            onSuccess = {
+            onRefresh = {
                 refreshRemotesUseCase()
             }
         ) { repositoryPath ->

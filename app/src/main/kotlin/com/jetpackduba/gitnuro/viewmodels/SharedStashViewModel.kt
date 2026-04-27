@@ -52,7 +52,7 @@ class SharedStashViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         taskType = TaskType.DELETE_STASH,
     ) { git ->
-        deleteStashGitAction(git, stash)
+        deleteStashGitAction(git.repository.directory.absolutePath, stash)
 
         stashDropped(stash)
 

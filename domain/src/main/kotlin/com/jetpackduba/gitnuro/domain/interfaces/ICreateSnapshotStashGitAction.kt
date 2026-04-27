@@ -4,6 +4,10 @@ import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.models.Commit
 
-interface IDeleteStashGitAction {
-    suspend operator fun invoke(repositoryPath: String, stashInfo: Commit): Either<Unit, GitError>
+interface ICreateSnapshotStashGitAction {
+    suspend operator fun invoke(
+        repositoryPath: String,
+        message: String,
+        includeUntracked: Boolean,
+    ): Either<Commit?, GitError>
 }

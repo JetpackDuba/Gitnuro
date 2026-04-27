@@ -12,7 +12,7 @@ class StartRebaseInteractiveUseCase @Inject constructor(
 ) {
     operator fun invoke(commit: Commit) =  useCaseExecutor.executeLaunch(
         taskType = TaskType.REBASE_INTERACTIVE,
-        onSuccess = {
+        onRefresh = {
             // TODO Refresh rebase interactive state?
         }
     ) { repositoryPath ->

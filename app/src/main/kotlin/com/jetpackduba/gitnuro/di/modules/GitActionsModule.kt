@@ -73,6 +73,9 @@ interface GitActionsModule {
     fun bindsCreateBranchGitAction(action: CreateBranchGitAction): ICreateBranchGitAction
 
     @Binds
+    fun bindsCreateSnapshotStashGitAction(action: CreateSnapshotStashGitAction): ICreateSnapshotStashGitAction
+
+    @Binds
     fun bindsCreateTagGitAction(action: CreateTagGitAction): ICreateTagGitAction
 
     @Binds

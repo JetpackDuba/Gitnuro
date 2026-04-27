@@ -5,21 +5,20 @@ import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteBranchGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IRebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
 import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.DeleteBranchUseCase
+import com.jetpackduba.gitnuro.domain.usecases.MergeBranchUseCase
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
 
 interface ISharedBranchesViewModel {
-    fun mergeBranch(ref: Branch): Job
-    fun deleteBranch(branch: Branch): Job
+    fun mergeBranch(branch: Branch)
+    fun deleteBranch(branch: Branch)
     fun checkoutBranch(ref: Branch): Job
     fun rebaseBranch(ref: Branch): Job
     fun copyBranchNameToClipboard(branch: Branch): Job
@@ -27,38 +26,16 @@ interface ISharedBranchesViewModel {
 
 class SharedBranchesViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val appSettings: AppSettingsService,
+    private val deleteBranchUseCase: DeleteBranchUseCase,
     private val rebaseBranchGitAction: IRebaseBranchGitAction,
-    private val mergeBranchGitAction: IMergeBranchGitAction,
-    private val deleteBranchGitAction: IDeleteBranchGitAction,
+    private val mergeBranchUseCase: MergeBranchUseCase,
     private val checkoutRefGitAction: ICheckoutRefGitAction,
     private val clipboardManager: ClipboardManager,
 ) : ISharedBranchesViewModel {
 
-    override fun mergeBranch(ref: Branch) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Branch merge",
-        subtitle = "Merging branch ${ref.simpleName}",
-        taskType = TaskType.MERGE_BRANCH,
-        refreshEvenIfCrashes = true,
-    ) { git ->
-        if (mergeBranchGitAction(git, ref, appSettings.fastForwardMerge.first(), mergeAutoStash = true)) { // TODO fix after refactor
-            warningNotification("Merge produced conflicts, please fix them to continue.")
-        } else {
-            positiveNotification("Merged from \"${ref.simpleName}\"")
-        }
-    }
+    override fun mergeBranch(branch: Branch) = mergeBranchUseCase(branch)
 
-    override fun deleteBranch(branch: Branch) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Branch delete",
-        subtitle = "Deleting branch ${branch.simpleName}",
-        taskType = TaskType.DELETE_BRANCH,
-    ) { git ->
-        deleteBranchGitAction(git, branch)
-
-        positiveNotification("\"${branch.simpleName}\" deleted")
-    }
+    override fun deleteBranch(branch: Branch) = deleteBranchUseCase(branch)
 
     override fun checkoutBranch(ref: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,

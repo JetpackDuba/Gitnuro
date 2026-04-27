@@ -63,7 +63,7 @@ class SubmoduleDialogViewModel @Inject constructor(
         taskType = TaskType.ADD_SUBMODULE,
     ) { git ->
         addSubmoduleGitAction(
-            git = git,
+            git.repository.directory.absolutePath,
             name = directory,
             path = directory,
             uri = repository,

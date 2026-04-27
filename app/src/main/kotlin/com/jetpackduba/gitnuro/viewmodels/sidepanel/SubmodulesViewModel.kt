@@ -64,7 +64,7 @@ class SubmodulesViewModel @AssistedInject constructor(
         taskType = TaskType.INIT_SUBMODULE,
     ) { git ->
         initializeSubmoduleGitAction(git, path)
-        updateSubmoduleGitAction(git, path)
+        updateSubmoduleGitAction(git.repository.directory.absolutePath, path)
 
         null
     }
@@ -104,7 +104,7 @@ class SubmodulesViewModel @AssistedInject constructor(
         subtitle = "Please wait until update has finished",
         taskType = TaskType.UPDATE_SUBMODULE,
     ) { git ->
-        updateSubmoduleGitAction(git, path)
+        updateSubmoduleGitAction(git.repository.directory.absolutePath, path)
 
         positiveNotification("Submodule updated")
     }

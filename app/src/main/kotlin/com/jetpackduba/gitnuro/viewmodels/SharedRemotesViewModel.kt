@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteRemoteBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPullFromSpecificBranchGitAction
@@ -38,7 +39,7 @@ class SharedRemotesViewModel @Inject constructor(
         subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
         taskType = TaskType.DELETE_REMOTE_BRANCH,
     ) { git ->
-        deleteRemoteBranchGitAction(git, ref)
+        deleteRemoteBranchGitAction(git.repository.directory.absolutePath, ref)
 
         positiveNotification("Remote branch \"${ref.simpleName}\" deleted")
     }
@@ -59,7 +60,7 @@ class SharedRemotesViewModel @Inject constructor(
         taskType = TaskType.PUSH_TO_BRANCH,
     ) { git ->
         pushToSpecificBranchGitAction(
-            git = git,
+            git.repository.directory.absolutePath,
             force = false,
             pushTags = false,
             remoteBranch = branch,
@@ -75,10 +76,10 @@ class SharedRemotesViewModel @Inject constructor(
         taskType = TaskType.PULL_FROM_BRANCH,
     ) { git ->
         if (pullFromSpecificBranchGitAction(
-                git = git,
+                git.repository.directory.absolutePath,
                 remoteBranch = branch,
                 pullWithRebase = true /*TODO Fix once moved to use cases*/
-            )
+            ).okOrNull()!!
         ) {
             warningNotification("Pull produced conflicts, fix them to continue")
         } else {

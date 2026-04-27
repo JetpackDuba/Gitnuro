@@ -14,6 +14,8 @@ class PopStashGitAction @Inject constructor(
 ) : IPopStashGitAction {
     override suspend operator fun invoke(git: Git, stash: Commit) = withContext(Dispatchers.IO) {
         applyStashGitAction(git, stash)
-        deleteStashGitAction(git, stash)
+        deleteStashGitAction(git.repository.directory.absolutePath, stash)
+
+        Unit
     }
 }

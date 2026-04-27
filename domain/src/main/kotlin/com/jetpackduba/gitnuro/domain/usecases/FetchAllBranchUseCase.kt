@@ -15,7 +15,7 @@ class FetchAllBranchUseCase @Inject constructor(
         useCaseExecutor.executeLaunch(
             taskType = TaskType.FETCH,
             refreshEvenIfFailed = true,
-            onSuccess = {
+            onRefresh = {
                 refreshLogUseCase()
             }
         ) { repositoryPath ->

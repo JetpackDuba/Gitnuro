@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.interfaces.IPushToSpecificBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.isRejected
@@ -13,13 +14,12 @@ import javax.inject.Inject
 class PushToSpecificBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
 ) : IPushToSpecificBranchGitAction {
-    override suspend operator fun invoke(git: Git, force: Boolean, pushTags: Boolean, remoteBranch: Branch) =
-        withContext(Dispatchers.IO) {
-            val currentBranchRefSpec = git.repository.fullBranch
+    override suspend operator fun invoke(repositoryPath: String, force: Boolean, pushTags: Boolean, remoteBranch: Branch) =
+        jgit(repositoryPath) {
+            val currentBranchRefSpec = repository.fullBranch
 
-            handleTransportGitAction(git) {
-                val pushResult = git
-                    .push()
+            handleTransportGitAction(repositoryPath) {
+                val pushResult = push()
                     .setRefSpecs(RefSpec("$currentBranchRefSpec:${remoteBranch.simpleName}"))
                     .setRemote(remoteBranch.remoteName)
                     .setForce(force)

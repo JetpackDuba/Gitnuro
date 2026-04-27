@@ -12,7 +12,7 @@ class UnstageByDirectoryUseCase @Inject constructor(
 ) {
     operator fun invoke(dir: String) = useCaseExecutor.executeLaunch(
         taskType = TaskType.STAGE_DIR,
-        onSuccess = {
+        onRefresh = {
             refreshStatusUseCase()
         }
     ) { repositoryPath ->

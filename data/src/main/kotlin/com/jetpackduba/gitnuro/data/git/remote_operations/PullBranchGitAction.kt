@@ -44,6 +44,7 @@ class PullBranchGitAction @Inject constructor(
                 val pullWithMerge = !pullWithRebase
                 var backupStash: Commit? = null
 
+                // TODO Move this logic to domain layer like in MergeBranchUseCase
                 if (mergeAutoStash && pullWithMerge) {
                     val hasUncommitedChanges = checkHasUncommittedChangesGitAction(repositoryPath).bind()
                     if (hasUncommitedChanges) {
@@ -71,7 +72,7 @@ class PullBranchGitAction @Inject constructor(
                 }
 
                 if (!pullHasConflicts && backupStash != null) {
-                    deleteStashGitAction(this, backupStash)
+                    deleteStashGitAction(this.repository.directory.absolutePath, backupStash)
                 }
 
                 pullHasConflicts

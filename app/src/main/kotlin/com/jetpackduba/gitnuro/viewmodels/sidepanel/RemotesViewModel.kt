@@ -90,7 +90,7 @@ class RemotesViewModel @AssistedInject constructor(
         taskType = TaskType.FETCH,
     ) { git ->
         val remoteConfig = remote.remoteInfo.remote
-        fetchAllRemotesGitAction(git, remoteConfig)
+        fetchAllRemotesGitAction(git.repository.directory.absolutePath, remoteConfig)
 
         positiveNotification("Fetched branches from ${remoteConfig.name}")
     }

@@ -1,9 +1,9 @@
 package com.jetpackduba.gitnuro.domain.interfaces
 
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.models.Branch
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 
 interface IDeleteBranchGitAction {
-    suspend operator fun invoke(git: Git, branch: Branch): List<String>
+    suspend operator fun invoke(repositoryPath: String, branch: Branch): Either<Unit, GitError>
 }
