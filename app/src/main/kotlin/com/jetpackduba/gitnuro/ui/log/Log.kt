@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.extensions.LOCAL_PREFIX_LENGTH
 import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
 import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.extensions.isReverting
@@ -62,6 +63,7 @@ import com.jetpackduba.gitnuro.ui.resizePointerIconEast
 import com.jetpackduba.gitnuro.viewmodels.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -1233,13 +1235,29 @@ fun BranchChip(
             orientation = Orientation.Vertical,
         ),
         color = color,
-        text = ref.simpleName,
+        text = ref.logName,
         icon = Res.drawable.branch,
         onCheckoutRef = onCheckoutBranch,
         contextMenuItemsList = contextMenuItemsList,
         endingContent = endingContent,
     )
 }
+
+val Branch.logName: String
+    get() = when {
+        this.name == Constants.HEAD -> {
+            this.name
+        }
+
+        this.isRemote -> {
+            name.replace("refs/remotes/", "")
+        }
+
+        else -> {
+            val split = this.name.split("/")
+            split.takeLast(split.size - LOCAL_PREFIX_LENGTH).joinToString("/")
+        }
+    }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
