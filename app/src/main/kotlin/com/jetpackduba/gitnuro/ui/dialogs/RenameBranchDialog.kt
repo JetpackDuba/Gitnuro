@@ -3,7 +3,6 @@ package com.jetpackduba.gitnuro.ui.dialogs
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
 import com.jetpackduba.gitnuro.ui.dialogs.base.SingleTextFieldDialog

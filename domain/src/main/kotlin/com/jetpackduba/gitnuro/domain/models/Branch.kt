@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.domain.models
 
-import com.jetpackduba.gitnuro.domain.extensions.LOCAL_PREFIX_LENGTH
-import com.jetpackduba.gitnuro.domain.extensions.REMOTE_PREFIX_LENGTH
+import com.jetpackduba.gitnuro.domain.BranchesConstants.LOCAL_PREFIX_LENGTH
+import com.jetpackduba.gitnuro.domain.BranchesConstants.REMOTE_PREFIX_LENGTH
 import org.eclipse.jgit.lib.Constants
 
 data class Branch(

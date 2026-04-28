@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.printLog
-import com.jetpackduba.gitnuro.domain.extensions.LOCAL_PREFIX_LENGTH
+import com.jetpackduba.gitnuro.domain.BranchesConstants.LOCAL_PREFIX_LENGTH
 import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
 import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.extensions.isReverting

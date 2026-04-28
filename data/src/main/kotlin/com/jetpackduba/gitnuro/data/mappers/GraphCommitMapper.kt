@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.data.mappers
 
-import com.jetpackduba.gitnuro.domain.extensions.isBranch
-import com.jetpackduba.gitnuro.domain.extensions.isTag
+import com.jetpackduba.gitnuro.data.extensions.isBranch
+import com.jetpackduba.gitnuro.data.extensions.isTag
 import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.GraphCommit

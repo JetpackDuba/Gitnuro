@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.mappers
 
-import com.jetpackduba.gitnuro.domain.extensions.isLocal
+import com.jetpackduba.gitnuro.data.extensions.isLocal
 import com.jetpackduba.gitnuro.domain.models.Branch
 import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
