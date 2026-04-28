@@ -9,12 +9,10 @@ import com.jetpackduba.gitnuro.viewmodels.ISharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedBranchesViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import org.eclipse.jgit.lib.Ref
 
 private const val TAG = "BranchesViewModel"
 

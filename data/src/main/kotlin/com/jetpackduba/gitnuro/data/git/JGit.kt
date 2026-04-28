@@ -1,8 +1,6 @@
 package com.jetpackduba.gitnuro.data.git
 
-import com.jetpackduba.gitnuro.domain.errors.Either
-import com.jetpackduba.gitnuro.domain.errors.GenericError
-import com.jetpackduba.gitnuro.domain.errors.GitError
+import com.jetpackduba.gitnuro.domain.errors.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
@@ -13,15 +11,36 @@ import java.io.File
 suspend fun <T> jgit(
     path: String,
     errorHandle: ((Exception) -> GitError)? = null,
-    block: suspend Git.() -> T,
+    block: suspend Git.(Git) -> T,
 ): Either<T, GitError> {
     return withContext(Dispatchers.IO) {
         try {
             val result = Git
                 .open(File(path))
-                .block()
+                .run {
+                    block(this)
+                }
+
 
             Either.Ok(result)
+        } catch (ex: Exception) {
+            val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty())
+            Either.Err(error)
+        }
+    }
+}
+
+suspend fun <T> jgit2(
+    path: String,
+    errorHandle: ((Exception) -> GitError)? = null,
+    block: suspend EitherContext<GitError>.(Git) -> T,
+): Either<T, GitError> {
+    return either(Dispatchers.IO) {
+        try {
+            val result = Git
+                .open(File(path))
+
+            Either.Ok(this.block(result))
         } catch (ex: Exception) {
             val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty())
             Either.Err(error)

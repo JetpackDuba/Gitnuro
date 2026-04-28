@@ -1,17 +1,10 @@
 package com.jetpackduba.gitnuro.data.repositories
 
-import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.DiffSelected
-import com.jetpackduba.gitnuro.domain.models.GraphCommits
-import com.jetpackduba.gitnuro.domain.models.Remote
-import com.jetpackduba.gitnuro.domain.models.RemoteInfo
-import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
-import com.jetpackduba.gitnuro.domain.models.Status
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRepository {
@@ -24,7 +17,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val currentBranch: Flow<Branch?>
         field = MutableStateFlow<Branch?>(null)
 
-    override val tags: Flow<List<Ref>>
+    override val tags: Flow<List<Tag>>
         field = MutableStateFlow(emptyList())
 
     override val remotes: Flow<List<RemoteInfo>>
@@ -32,6 +25,9 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override val log: Flow<GraphCommits>
         field = MutableStateFlow(GraphCommits(emptyList(), 0))
+
+    override val stashes: Flow<List<Commit>>
+        field = MutableStateFlow(emptyList())
 
     override val repositoryState: StateFlow<RepositorySelectionState>
         field = MutableStateFlow<RepositorySelectionState>(RepositorySelectionState.Unknown)
@@ -71,7 +67,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         this.currentBranch.value = branch
     }
 
-    override fun updateTags(tags: List<Ref>) {
+    override fun updateTags(tags: List<Tag>) {
         this.tags.value = tags
     }
 
@@ -85,5 +81,9 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override fun updateDiffSelected(diffSelected: DiffSelected?) {
         this.diffSelected.value = diffSelected
+    }
+
+    override fun updateStashes(stashes: List<Commit>) {
+        this.stashes.value = stashes
     }
 }

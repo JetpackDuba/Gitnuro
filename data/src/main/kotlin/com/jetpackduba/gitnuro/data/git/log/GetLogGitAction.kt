@@ -2,7 +2,7 @@ package com.jetpackduba.gitnuro.data.git.log
 
 
 import com.jetpackduba.gitnuro.data.git.jgit
-import com.jetpackduba.gitnuro.data.git.stash.JGitGetStashListGitAction
+import com.jetpackduba.gitnuro.data.git.stash.GetStashListGitAction
 import com.jetpackduba.gitnuro.data.mappers.GraphCommitMapper
 import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
@@ -16,7 +16,7 @@ import org.eclipse.jgit.lib.Constants
 import javax.inject.Inject
 
 class GetLogGitAction @Inject constructor(
-    private val getStashListGitAction: JGitGetStashListGitAction,
+    private val getStashListGitAction: GetStashListGitAction,
     private val graphCommitMapper: GraphCommitMapper,
 ) : IGetLogGitAction {
     override suspend operator fun invoke(

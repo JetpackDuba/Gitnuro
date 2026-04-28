@@ -235,9 +235,6 @@ interface GitActionsModule {
     fun bindsOpenRepositoryGitAction(action: OpenRepositoryGitAction): IOpenRepositoryGitAction
 
     @Binds
-    fun bindsPopLastStashGitAction(action: PopLastStashGitAction): IPopLastStashGitAction
-
-    @Binds
     fun bindsPopStashGitAction(action: PopStashGitAction): IPopStashGitAction
 
     @Binds

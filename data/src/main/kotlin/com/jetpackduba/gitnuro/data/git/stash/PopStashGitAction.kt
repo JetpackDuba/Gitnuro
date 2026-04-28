@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.stash
 
+import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.interfaces.IPopStashGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import kotlinx.coroutines.Dispatchers
@@ -12,7 +13,7 @@ class PopStashGitAction @Inject constructor(
     private val applyStashGitAction: ApplyStashGitAction,
     private val deleteStashGitAction: DeleteStashGitAction,
 ) : IPopStashGitAction {
-    override suspend operator fun invoke(git: Git, stash: Commit) = withContext(Dispatchers.IO) {
+    override suspend operator fun invoke(repositoryPath: String, stash: Commit) = jgit(repositoryPath) { git ->
         applyStashGitAction(git, stash)
         deleteStashGitAction(git.repository.directory.absolutePath, stash)
 

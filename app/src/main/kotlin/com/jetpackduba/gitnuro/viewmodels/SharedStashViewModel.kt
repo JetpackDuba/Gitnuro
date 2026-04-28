@@ -31,7 +31,7 @@ class SharedStashViewModel @Inject constructor(
         refreshEvenIfCrashes = true,
         taskType = TaskType.ApplyStash,
     ) { git ->
-        applyStashGitAction(git, stashInfo)
+        applyStashGitAction(git.repository.directory.absolutePath, stashInfo)
 
         positiveNotification("Stash applied")
     }
@@ -41,7 +41,7 @@ class SharedStashViewModel @Inject constructor(
         refreshEvenIfCrashes = true,
         taskType = TaskType.PopStash,
     ) { git ->
-        popStashGitAction(git, stash)
+        popStashGitAction(git.repository.directory.absolutePath, stash)
 
         stashDropped(stash)
 

@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.domain.models.Tag
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.viewmodels.ISharedTagsViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedTagsViewModel
@@ -21,14 +22,14 @@ import org.eclipse.jgit.api.Git
 
 class TagsViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
-    private val getTagsGitAction: IGetTagsGitAction,
     private val checkoutCommitGitAction: ICheckoutCommitGitAction,
+    private val repositoryDataRepository: RepositoryDataRepository,
     tabScope: TabCoroutineScope,
     sharedTagsViewModel: SharedTagsViewModel,
     @Assisted
     private val filter: StateFlow<String>,
 ) : SidePanelChildViewModel(false), ISharedTagsViewModel by sharedTagsViewModel {
-    private val tags = MutableStateFlow<List<Tag>>(listOf())
+    private val tags = repositoryDataRepository.tags
 
     val tagsState: StateFlow<TagsState> = combine(tags, isExpanded, filter) { tags, isExpanded, filter ->
         TagsState(
@@ -40,21 +41,6 @@ class TagsViewModel @AssistedInject constructor(
         started = SharingStarted.Eagerly,
         initialValue = TagsState(emptyList(), isExpanded.value)
     )
-
-    init {
-        tabScope.launch {
-            tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.STASHES)
-            {
-                refresh(tabState.git)
-            }
-        }
-    }
-
-    private suspend fun loadTags(git: Git) = withContext(Dispatchers.IO) {
-        val tagsList = getTagsGitAction(git)
-
-        tags.value = tagsList
-    }
 
     fun checkoutTagCommit(ref: Tag) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
@@ -68,10 +54,6 @@ class TagsViewModel @AssistedInject constructor(
     fun selectTag(tag: Tag) {
         // TODO Reimplement this
 //        tabState.newSelectedRef(tag, tag.objectId)
-    }
-
-    suspend fun refresh(git: Git) {
-        loadTags(git)
     }
 }
 
