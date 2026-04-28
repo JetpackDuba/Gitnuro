@@ -60,7 +60,7 @@ class SubmoduleDialogViewModel @Inject constructor(
 
     fun createSubmodule(repository: String, directory: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.ADD_SUBMODULE,
+        taskType = TaskType.AddSubmodule,
     ) { git ->
         addSubmoduleGitAction(
             git.repository.directory.absolutePath,

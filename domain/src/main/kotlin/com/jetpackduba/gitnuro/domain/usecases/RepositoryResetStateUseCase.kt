@@ -13,7 +13,7 @@ class RepositoryResetStateUseCase @Inject constructor(
 ) {
     operator fun invoke() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.RESET_REPO_STATE,
+        taskType = TaskType.ResetRepoState,
     ) { git ->
         resetRepositoryStateGitAction(git)
 

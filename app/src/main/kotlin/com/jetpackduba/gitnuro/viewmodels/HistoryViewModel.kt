@@ -19,10 +19,8 @@ import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -90,7 +88,7 @@ class HistoryViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
         title = "History",
         subtitle = "Loading file history",
-        taskType = TaskType.HISTORY_FILE,
+        taskType = TaskType.HistoryFile,
     ) { git ->
         this@HistoryViewModel.filePath = filePath
         _historyState.value = HistoryState.Loading(filePath)

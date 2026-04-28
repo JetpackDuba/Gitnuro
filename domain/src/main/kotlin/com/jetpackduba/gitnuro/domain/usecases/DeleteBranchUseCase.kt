@@ -13,7 +13,7 @@ class DeleteBranchUseCase @Inject constructor(
 ) {
     operator fun invoke(branch: Branch) {
         useCaseExecutor.executeLaunch(
-            TaskType.DELETE_BRANCH,
+            TaskType.DeleteBranch,
             onRefresh = {
                 refreshAllUseCase()
             }

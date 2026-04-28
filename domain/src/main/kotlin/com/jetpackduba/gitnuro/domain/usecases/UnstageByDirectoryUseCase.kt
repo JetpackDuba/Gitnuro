@@ -11,7 +11,7 @@ class UnstageByDirectoryUseCase @Inject constructor(
     private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
     operator fun invoke(dir: String) = useCaseExecutor.executeLaunch(
-        taskType = TaskType.STAGE_DIR,
+        taskType = TaskType.StageDir,
         onRefresh = {
             refreshStatusUseCase()
         }

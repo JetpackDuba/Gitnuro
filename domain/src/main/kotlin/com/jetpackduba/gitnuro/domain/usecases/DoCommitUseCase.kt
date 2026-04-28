@@ -23,7 +23,7 @@ class DoCommitUseCase @Inject constructor(
         author: Identity?,
     ) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.DO_COMMIT,
+            taskType = TaskType.DoCommit,
             onRefresh = {
                 refreshStatusUseCase()
                 refreshLogUseCase()

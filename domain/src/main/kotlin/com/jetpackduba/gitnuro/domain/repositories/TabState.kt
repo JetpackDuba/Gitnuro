@@ -6,7 +6,6 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.Notification
 import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -19,7 +18,6 @@ import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.ObjectId
 import org.eclipse.jgit.lib.Ref
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 private const val TAG = "TabState"
@@ -174,7 +172,7 @@ class TabInstanceRepository @Inject constructor(
                 if (!containsCancellation)
                     errorsRepository.addError(
                         newErrorNow(
-                            taskType = TaskType.UNSPECIFIED, ex
+                            taskType = TaskType.Unspecified, ex
                         )
                     )
 
@@ -210,7 +208,7 @@ class TabInstanceRepository @Inject constructor(
             if (showError)
                 errorsRepository.addError(
                     newErrorNow(
-                        taskType = TaskType.UNSPECIFIED, ex
+                        taskType = TaskType.Unspecified, ex
                     )
                 )
 
@@ -295,7 +293,7 @@ class TabInstanceRepository @Inject constructor(
                     ex.printStackTrace()
                     errorsRepository.addError(
                         newErrorNow(
-                            taskType = TaskType.UNSPECIFIED, ex
+                            taskType = TaskType.Unspecified, ex
                         )
                     )
                 }

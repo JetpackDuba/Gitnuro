@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTagsGitAction
 import com.jetpackduba.gitnuro.domain.models.Tag
@@ -14,13 +13,11 @@ import com.jetpackduba.gitnuro.viewmodels.ISharedTagsViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedTagsViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 
 class TagsViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
@@ -61,7 +58,7 @@ class TagsViewModel @AssistedInject constructor(
 
     fun checkoutTagCommit(ref: Tag) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.INIT_SUBMODULE,
+        taskType = TaskType.InitSubmodule,
     ) { git ->
         checkoutCommitGitAction(git, ref.hash)
 

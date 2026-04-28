@@ -524,7 +524,7 @@ class StatusPaneViewModel @Inject constructor(
 
     fun continueRebase(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.CONTINUE_REBASE,
+        taskType = TaskType.ContinueRebase,
     ) { git ->
         val repositoryState = sharedRepositoryStateManager.repositoryState.value
         val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState.value
@@ -549,7 +549,7 @@ class StatusPaneViewModel @Inject constructor(
 
     fun abortRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.ABORT_REBASE,
+        taskType = TaskType.AbortRebase,
     ) { git ->
         abortRebaseGitAction(git)
 
@@ -558,7 +558,7 @@ class StatusPaneViewModel @Inject constructor(
 
     fun skipRebase() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.SKIP_REBASE,
+        taskType = TaskType.SkipRebase,
     ) { git ->
         skipRebaseGitAction(git)
 
@@ -567,7 +567,7 @@ class StatusPaneViewModel @Inject constructor(
 
     fun resetRepoState() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.RESET_REPO_STATE,
+        taskType = TaskType.ResetRepoState,
     ) { git ->
         resetRepositoryStateGitAction(git)
 

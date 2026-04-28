@@ -13,7 +13,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import org.eclipse.jgit.lib.Ref
 
 class RenameBranchDialogViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
@@ -31,7 +30,7 @@ class RenameBranchDialogViewModel @AssistedInject constructor(
 
     fun renameBranch(branch: Branch, newName: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.RENAME_BRANCH,
+        taskType = TaskType.RenameBranch,
     ) { git ->
 
         val newRef = renameBranchGitAction(git, branch.name, newName)

@@ -16,7 +16,7 @@ class CreateTagUseCase @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "New tag",
         subtitle = "Creating new tag \"$tag\" on commit ${revCommit.shortHash}",
-        taskType = TaskType.CREATE_TAG,
+        taskType = TaskType.CreateTag,
     ) { git ->
         createTagGitAction(git, tag, revCommit)
 

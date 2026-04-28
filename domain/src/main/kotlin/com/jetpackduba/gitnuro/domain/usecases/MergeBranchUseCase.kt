@@ -26,7 +26,7 @@ class MergeBranchUseCase @Inject constructor(
 
     operator fun invoke(branch: Branch) {
         useCaseExecutor.executeLaunch(
-            TaskType.MERGE_BRANCH,
+            TaskType.MergeBranch,
             refreshEvenIfFailed = true,
             onRefresh = {
                 refreshAllUseCase()

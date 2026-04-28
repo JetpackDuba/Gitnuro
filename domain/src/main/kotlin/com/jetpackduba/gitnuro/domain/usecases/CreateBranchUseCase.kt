@@ -7,7 +7,6 @@ import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import org.eclipse.jgit.api.errors.CheckoutConflictException
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 class CreateBranchUseCase @Inject constructor(
@@ -17,7 +16,7 @@ class CreateBranchUseCase @Inject constructor(
     operator fun invoke(branchName: String, target: Commit?) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         refreshEvenIfCrashesInteractive = { it is CheckoutConflictException },
-        taskType = TaskType.CREATE_BRANCH,
+        taskType = TaskType.CreateBranch,
     ) { git ->
         createBranchGitAction(git, branchName, target)
 

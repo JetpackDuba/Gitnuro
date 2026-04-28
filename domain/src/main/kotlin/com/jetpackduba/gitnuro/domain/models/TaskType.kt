@@ -1,64 +1,64 @@
 package com.jetpackduba.gitnuro.domain.models
 
-enum class TaskType {
-    UNSPECIFIED,
-    STAGE_ALL_FILES,
-    UNSTAGE_ALL_FILES,
-    STAGE_FILE,
-    UNSTAGE_FILE,
-    STAGE_HUNK,
-    UNSTAGE_HUNK,
-    STAGE_LINE,
-    UNSTAGE_LINE,
-    STAGE_DIR,
-    UNSTAGE_DIR,
-    DISCARD_FILE,
-    DELETE_FILE,
-    BLAME_FILE,
-    HISTORY_FILE,
-    DO_COMMIT,
-    AMEND_COMMIT,
-    REVERT_COMMIT,
-    CHERRY_PICK_COMMIT,
-    CHECKOUT_COMMIT,
-    RESET_TO_COMMIT,
-    CHECKOUT_BRANCH,
-    CHECKOUT_REMOTE_BRANCH,
-    CREATE_BRANCH,
-    DELETE_BRANCH,
-    RENAME_BRANCH,
-    MERGE_BRANCH,
-    REBASE_BRANCH,
-    REBASE_INTERACTIVE,
-    CONTINUE_REBASE,
-    ABORT_REBASE,
-    SKIP_REBASE,
-    CHANGE_BRANCH_UPSTREAM,
-    PULL_FROM_BRANCH,
-    PUSH_TO_BRANCH,
-    DELETE_REMOTE_BRANCH,
-    PULL,
-    PUSH,
-    FETCH,
-    STASH,
-    APPLY_STASH,
-    POP_STASH,
-    DELETE_STASH,
-    CREATE_TAG,
-    CHECKOUT_TAG,
-    DELETE_TAG,
-    ADD_SUBMODULE,
-    DELETE_SUBMODULE,
-    INIT_SUBMODULE,
-    DEINIT_SUBMODULE,
-    SYNC_SUBMODULE,
-    UPDATE_SUBMODULE,
-    SAVE_CUSTOM_THEME,
-    RESET_REPO_STATE,
-    CHANGES_DETECTION,
-    REPOSITORY_OPEN,
-    REPOSITORY_CLONE,
-    ADD_REMOTE,
-    DELETE_REMOTE,
-    LOAD_AUTHOR,
+sealed interface TaskType {
+    data object Unspecified : TaskType
+    data object StageAllFiles : TaskType
+    data object UnstageAllFiles : TaskType
+    data object StageFile : TaskType
+    data object UnstageFile : TaskType
+    data object StageHunk : TaskType
+    data object UnstageHunk : TaskType
+    data object StageLine : TaskType
+    data object UnstageLine : TaskType
+    data object StageDir : TaskType
+    data object UnstageDir : TaskType
+    data object DiscardFile : TaskType
+    data object DeleteFile : TaskType
+    data object BlameFile : TaskType
+    data object HistoryFile : TaskType
+    data object DoCommit : TaskType
+    data object AmendCommit : TaskType
+    data object RevertCommit : TaskType
+    data object CherryPickCommit : TaskType
+    data object CheckoutCommit : TaskType
+    data object ResetToCommit : TaskType
+    data object CheckoutBranch : TaskType
+    data object CheckoutRemoteBranch : TaskType
+    data object CreateBranch : TaskType
+    data object DeleteBranch : TaskType
+    data object RenameBranch : TaskType
+    data object MergeBranch : TaskType
+    data object RebaseBranch : TaskType
+    data object RebaseInteractive : TaskType
+    data object ContinueRebase : TaskType
+    data object AbortRebase : TaskType
+    data object SkipRebase : TaskType
+    data object ChangeBranchUpstream : TaskType
+    data object PullFromBranch : TaskType
+    data object PushToBranch : TaskType
+    data object DeleteRemoteBranch : TaskType
+    data object Pull : TaskType
+    data object Push : TaskType
+    data object Fetch : TaskType
+    data object Stash : TaskType
+    data object ApplyStash : TaskType
+    data object PopStash : TaskType
+    data object DeleteStash : TaskType
+    data object CreateTag : TaskType
+    data object CheckoutTag : TaskType
+    data object DeleteTag : TaskType
+    data object AddSubmodule : TaskType
+    data object DeleteSubmodule : TaskType
+    data object InitSubmodule : TaskType
+    data object DeinitSubmodule : TaskType
+    data object SyncSubmodule : TaskType
+    data object UpdateSubmodule : TaskType
+    data object SaveCustomTheme : TaskType
+    data object ResetRepoState : TaskType
+    data object ChangesDetection : TaskType
+    data object RepositoryOpen : TaskType
+    data object RepositoryClone : TaskType
+    data object AddRemote : TaskType
+    data object DeleteRemote : TaskType
+    data object LoadAuthor : TaskType
 }

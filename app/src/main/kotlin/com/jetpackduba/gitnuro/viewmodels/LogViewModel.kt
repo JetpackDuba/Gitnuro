@@ -157,7 +157,7 @@ class LogViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit checkout",
         subtitle = "Checking out commit ${revCommit.hash}",
-        taskType = TaskType.CHECKOUT_COMMIT,
+        taskType = TaskType.CheckoutCommit,
     ) { git ->
         checkoutCommitGitAction(git, revCommit)
 
@@ -169,7 +169,7 @@ class LogViewModel @Inject constructor(
         title = "Commit revert",
         subtitle = "Reverting commit ${revCommit.hash}",
         refreshEvenIfCrashes = true,
-        taskType = TaskType.REVERT_COMMIT,
+        taskType = TaskType.RevertCommit,
     ) { git ->
         revertCommitGitAction(git, revCommit)
 
@@ -180,7 +180,7 @@ class LogViewModel @Inject constructor(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         title = "Cherry-pick",
         subtitle = "Cherry-picking commit ${revCommit.shortHash}",
-        taskType = TaskType.CHERRY_PICK_COMMIT,
+        taskType = TaskType.CherryPickCommit,
         refreshEvenIfCrashes = true,
     ) { git ->
         cherryPickCommitGitAction(git, revCommit)
@@ -355,7 +355,7 @@ class LogViewModel @Inject constructor(
 
     override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-        taskType = TaskType.UNSPECIFIED
+        taskType = TaskType.Unspecified
     ) {
         copyBranchNameToClipboardAndGetNotification(
             branch,

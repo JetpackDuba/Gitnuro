@@ -11,7 +11,7 @@ class StartRebaseInteractiveUseCase @Inject constructor(
     private val startRebaseInteractiveGitAction: IStartRebaseInteractiveGitAction,
 ) {
     operator fun invoke(commit: Commit) =  useCaseExecutor.executeLaunch(
-        taskType = TaskType.REBASE_INTERACTIVE,
+        taskType = TaskType.RebaseInteractive,
         onRefresh = {
             // TODO Refresh rebase interactive state?
         }

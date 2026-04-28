@@ -15,7 +15,7 @@ class PushBranchUseCase @Inject constructor(
 ) {
     operator fun invoke(force: Boolean, pushTags: Boolean) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.PUSH,
+            taskType = TaskType.Push,
             onRefresh = {
                 refreshLogUseCase()
             }

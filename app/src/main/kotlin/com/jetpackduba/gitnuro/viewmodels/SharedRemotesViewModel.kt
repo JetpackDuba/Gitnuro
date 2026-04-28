@@ -37,7 +37,7 @@ class SharedRemotesViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Deleting remote branch",
         subtitle = "Remote branch ${ref.simpleName} will be deleted from the remote",
-        taskType = TaskType.DELETE_REMOTE_BRANCH,
+        taskType = TaskType.DeleteRemoteBranch,
     ) { git ->
         deleteRemoteBranchGitAction(git.repository.directory.absolutePath, ref)
 
@@ -46,7 +46,7 @@ class SharedRemotesViewModel @Inject constructor(
 
     override fun checkoutRemoteBranch(remoteBranch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.CHECKOUT_REMOTE_BRANCH,
+        taskType = TaskType.CheckoutRemoteBranch,
     ) { git ->
         checkoutRefGitAction(git, remoteBranch)
 
@@ -57,7 +57,7 @@ class SharedRemotesViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Push",
         subtitle = "Pushing current branch to ${branch.simpleName}",
-        taskType = TaskType.PUSH_TO_BRANCH,
+        taskType = TaskType.PushToBranch,
     ) { git ->
         pushToSpecificBranchGitAction(
             git.repository.directory.absolutePath,
@@ -73,7 +73,7 @@ class SharedRemotesViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Pull",
         subtitle = "Pulling changes from ${branch.simpleName} to the current branch",
-        taskType = TaskType.PULL_FROM_BRANCH,
+        taskType = TaskType.PullFromBranch,
     ) { git ->
         if (pullFromSpecificBranchGitAction(
                 git.repository.directory.absolutePath,
@@ -89,7 +89,7 @@ class SharedRemotesViewModel @Inject constructor(
 
     override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-        taskType = TaskType.UNSPECIFIED
+        taskType = TaskType.Unspecified
     ) {
         copyBranchNameToClipboardAndGetNotification(
             branch,

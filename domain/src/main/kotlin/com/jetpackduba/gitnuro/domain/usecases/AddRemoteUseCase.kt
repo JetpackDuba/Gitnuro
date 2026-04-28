@@ -20,7 +20,7 @@ class AddRemoteUseCase @Inject constructor(
 ) {
     operator fun invoke(remote: Remote) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.ADD_REMOTE,
+            taskType = TaskType.AddRemote,
             onRefresh = {
                 refreshRemotesUseCase()
             }

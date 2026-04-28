@@ -13,7 +13,7 @@ class RebaseAbortUseCase @Inject constructor(
 ) {
     operator fun invoke() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.ABORT_REBASE,
+        taskType = TaskType.AbortRebase,
     ) { git ->
         abortRebaseGitAction(git)
 

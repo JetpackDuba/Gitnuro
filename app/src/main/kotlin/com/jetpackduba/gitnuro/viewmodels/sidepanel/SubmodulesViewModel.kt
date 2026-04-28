@@ -10,7 +10,6 @@ import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.ui.TabsManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
@@ -61,7 +60,7 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     fun initializeSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
-        taskType = TaskType.INIT_SUBMODULE,
+        taskType = TaskType.InitSubmodule,
     ) { git ->
         initializeSubmoduleGitAction(git, path)
         updateSubmoduleGitAction(git.repository.directory.absolutePath, path)
@@ -80,7 +79,7 @@ class SubmodulesViewModel @AssistedInject constructor(
     fun onDeinitializeSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.SUBMODULES,
         title = "Deinitializing submodule $path",
-        taskType = TaskType.DEINIT_SUBMODULE,
+        taskType = TaskType.DeinitSubmodule,
     ) { git ->
         deInitializeSubmoduleGitAction(git, path)
 
@@ -91,7 +90,7 @@ class SubmodulesViewModel @AssistedInject constructor(
         refreshType = RefreshType.SUBMODULES,
         title = "Syncing submodule $path",
         subtitle = "Please wait until synchronization has finished",
-        taskType = TaskType.SYNC_SUBMODULE,
+        taskType = TaskType.SyncSubmodule,
     ) { git ->
         syncSubmoduleGitAction(git, path)
 
@@ -102,7 +101,7 @@ class SubmodulesViewModel @AssistedInject constructor(
         refreshType = RefreshType.SUBMODULES,
         title = "Updating submodule $path",
         subtitle = "Please wait until update has finished",
-        taskType = TaskType.UPDATE_SUBMODULE,
+        taskType = TaskType.UpdateSubmodule,
     ) { git ->
         updateSubmoduleGitAction(git.repository.directory.absolutePath, path)
 
@@ -111,7 +110,7 @@ class SubmodulesViewModel @AssistedInject constructor(
 
     fun onDeleteSubmodule(path: String) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.DELETE_SUBMODULE,
+        taskType = TaskType.DeleteSubmodule,
     ) { git ->
         deleteSubmoduleGitAction(git, path)
 

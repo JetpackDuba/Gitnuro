@@ -12,7 +12,7 @@ class RebaseSkipUseCase @Inject constructor(
 ) {
     operator fun invoke() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.SKIP_REBASE,
+        taskType = TaskType.SkipRebase,
     ) { git ->
         skipRebaseGitAction(git)
 

@@ -13,7 +13,7 @@ class FetchAllBranchUseCase @Inject constructor(
 ) {
     operator fun invoke(specificRemote: Remote? = null) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.FETCH,
+            taskType = TaskType.Fetch,
             refreshEvenIfFailed = true,
             onRefresh = {
                 refreshLogUseCase()

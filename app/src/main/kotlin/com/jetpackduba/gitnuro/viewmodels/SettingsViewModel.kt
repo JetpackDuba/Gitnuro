@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import androidx.compose.runtime.Stable
 import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
@@ -63,7 +62,7 @@ class SettingsViewModel @Inject constructor(
         } catch (ex: Exception) {
             ex.printStackTrace()
             newErrorNow(
-                TaskType.SAVE_CUSTOM_THEME,
+                TaskType.SaveCustomTheme,
                 ex, // TODO Pass a proper exception with the commented strings
 //                "Saving theme failed",
 //                "Failed to parse selected theme JSON. Please check if it's valid and try again.",

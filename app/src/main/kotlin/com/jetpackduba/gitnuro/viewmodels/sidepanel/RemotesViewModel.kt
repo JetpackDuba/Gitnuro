@@ -17,11 +17,8 @@ import com.jetpackduba.gitnuro.viewmodels.SharedBranchesViewModel
 import com.jetpackduba.gitnuro.viewmodels.SharedRemotesViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 
 class RemotesViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
@@ -87,7 +84,7 @@ class RemotesViewModel @AssistedInject constructor(
 
     fun onFetchRemoteBranches(remote: RemoteView) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.FETCH,
+        taskType = TaskType.Fetch,
     ) { git ->
         val remoteConfig = remote.remoteInfo.remote
         fetchAllRemotesGitAction(git.repository.directory.absolutePath, remoteConfig)

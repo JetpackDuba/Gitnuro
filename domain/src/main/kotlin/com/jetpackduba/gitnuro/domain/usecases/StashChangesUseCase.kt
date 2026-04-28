@@ -17,7 +17,7 @@ class StashChangesUseCase @Inject constructor(
 ) {
     operator fun invoke(message: String) = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-        taskType = TaskType.STASH,
+        taskType = TaskType.Stash,
     ) { git ->
         stageUntrackedFileGitAction(git)
 

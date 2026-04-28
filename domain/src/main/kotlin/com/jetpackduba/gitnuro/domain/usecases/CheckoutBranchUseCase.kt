@@ -17,7 +17,7 @@ class CheckoutBranchUseCase @Inject constructor(
             refreshType = RefreshType.ALL_DATA,
             title = "Branch checkout",
             subtitle = "Checking out branch ${ref.simpleName}",
-            taskType = TaskType.CHECKOUT_BRANCH,
+            taskType = TaskType.CheckoutBranch,
         ) { git ->
             checkoutRefGitAction(git, ref)
 

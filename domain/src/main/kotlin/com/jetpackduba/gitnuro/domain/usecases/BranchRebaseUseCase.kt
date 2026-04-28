@@ -19,7 +19,7 @@ class BranchRebaseUseCase @Inject constructor(
             refreshType = RefreshType.ALL_DATA,
             title = "Branch rebase",
             subtitle = "Rebasing branch ${branch.simpleName}",
-            taskType = TaskType.REBASE_BRANCH,
+            taskType = TaskType.RebaseBranch,
             refreshEvenIfCrashes = true,
         ) { git ->
             if (rebaseBranchGitAction(git, branch)) {

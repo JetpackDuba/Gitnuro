@@ -1,15 +1,11 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.domain.interfaces.IFetchAllRemotesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IPullBranchGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IPushBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPopLastStashGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IStashChangesGitAction
 import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.errorNotification
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
-import com.jetpackduba.gitnuro.domain.models.warningNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.FetchAllBranchUseCase
@@ -45,7 +41,7 @@ class GlobalMenuActionsViewModel @Inject constructor(
 
     override fun stash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-        taskType = TaskType.STASH,
+        taskType = TaskType.Stash,
     ) { git ->
         if (stashChangesGitAction(git, null)) {
             positiveNotification("Changes stashed")
@@ -57,7 +53,7 @@ class GlobalMenuActionsViewModel @Inject constructor(
     override fun popStash() = tabState.safeProcessing(
         refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
         refreshEvenIfCrashes = true,
-        taskType = TaskType.POP_STASH,
+        taskType = TaskType.PopStash,
     ) { git ->
         popLastStashGitAction(git)
 

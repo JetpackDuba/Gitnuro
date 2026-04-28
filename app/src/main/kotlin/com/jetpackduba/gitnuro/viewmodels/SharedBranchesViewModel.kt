@@ -4,7 +4,6 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutRefGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IDeleteBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IRebaseBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.models.warningNotification
@@ -41,7 +40,7 @@ class SharedBranchesViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch checkout",
         subtitle = "Checking out branch ${ref.simpleName}",
-        taskType = TaskType.CHECKOUT_BRANCH,
+        taskType = TaskType.CheckoutBranch,
     ) { git ->
         checkoutRefGitAction(git, ref)
 
@@ -52,7 +51,7 @@ class SharedBranchesViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Branch rebase",
         subtitle = "Rebasing branch ${ref.simpleName}",
-        taskType = TaskType.REBASE_BRANCH,
+        taskType = TaskType.RebaseBranch,
         refreshEvenIfCrashes = true,
     ) { git ->
         if (rebaseBranchGitAction(git, ref)) {
@@ -64,7 +63,7 @@ class SharedBranchesViewModel @Inject constructor(
 
     override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-        taskType = TaskType.UNSPECIFIED
+        taskType = TaskType.Unspecified
     ) {
         copyBranchNameToClipboardAndGetNotification(
             branch,

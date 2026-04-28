@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.data.git.log.CheckoutCommitGitAction
-import com.jetpackduba.gitnuro.domain.extensions.simpleName
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteTagGitAction
 import com.jetpackduba.gitnuro.domain.models.Tag
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -9,7 +8,6 @@ import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import kotlinx.coroutines.Job
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 interface ISharedTagsViewModel {
@@ -26,7 +24,7 @@ class SharedTagsViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Tag delete",
         subtitle = "Deleting tag ${tag.simpleName}",
-        taskType = TaskType.DELETE_TAG,
+        taskType = TaskType.DeleteTag,
     ) { git ->
         deleteTagGitAction(git, tag)
 
@@ -36,7 +34,7 @@ class SharedTagsViewModel @Inject constructor(
         refreshType = RefreshType.ALL_DATA,
         title = "Tag checkout",
         subtitle = "Checking out commit of tag ${tag.simpleName}",
-        taskType = TaskType.DELETE_TAG,
+        taskType = TaskType.DeleteTag,
     ) { git ->
         checkoutCommitGitAction(git, tag.hash)
 

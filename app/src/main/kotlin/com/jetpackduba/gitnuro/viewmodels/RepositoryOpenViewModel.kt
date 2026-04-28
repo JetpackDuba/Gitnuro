@@ -164,7 +164,7 @@ class RepositoryOpenViewModel @Inject constructor(
                         errorsManager.addError(
                             newErrorNow(
                                 exception = Exception(message),
-                                taskType = TaskType.CHANGES_DETECTION,
+                                taskType = TaskType.ChangesDetection,
                             ),
                         )
 
@@ -238,7 +238,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun blameFile(filePath: String) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-        taskType = TaskType.BLAME_FILE,
+        taskType = TaskType.BlameFile,
     ) { git ->
         _blameState.value = BlameState.Loading(filePath)
         try {

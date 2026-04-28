@@ -15,7 +15,7 @@ class PullBranchUseCase @Inject constructor(
     private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(pullType: PullType) =  useCaseExecutor.executeLaunch(
-        taskType = TaskType.PULL,
+        taskType = TaskType.Pull,
         onRefresh = {
             refreshAllUseCase()
         }

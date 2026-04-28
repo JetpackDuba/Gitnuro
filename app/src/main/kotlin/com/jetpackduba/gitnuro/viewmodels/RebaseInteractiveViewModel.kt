@@ -65,7 +65,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     fun loadRebaseInteractiveData() = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-        taskType = TaskType.REBASE_INTERACTIVE,// TODO Perhaps this should be more specific such as TaskType.LOAD_ABORT_REBASE
+        taskType = TaskType.RebaseInteractive,// TODO Perhaps this should be more specific such as TaskType.LOAD_ABORT_REBASE
     ) { git ->
         val state = getRepositoryStateGitAction(git)
 
@@ -125,7 +125,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     fun continueRebaseInteractive() = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.REBASE_INTERACTIVE, // TODO Perhaps be more precise with the task type
+        taskType = TaskType.RebaseInteractive, // TODO Perhaps be more precise with the task type
     ) { git ->
         resumeRebaseInteractiveGitAction(git, interactiveHandlerContinue)
         _rebaseState.value = RebaseInteractiveViewState.Loading
@@ -181,7 +181,7 @@ class RebaseInteractiveViewModel @Inject constructor(
 
     fun selectLine(line: RebaseLine) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
-        taskType = TaskType.ABORT_REBASE, // TODO Perhaps be more precise with the task type
+        taskType = TaskType.AbortRebase, // TODO Perhaps be more precise with the task type
     ) { git ->
         val fullCommit = getCommitFromRebaseLineGitAction(git, line.commit, line.shortMessage)
         tabState.newSelectedCommit(fullCommit)

@@ -9,7 +9,7 @@ class GetAuthorUseCase @Inject constructor(
     private val loadAuthorGitAction: ILoadAuthorGitAction,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
-    suspend operator fun invoke() = useCaseExecutor.execute(taskType = TaskType.LOAD_AUTHOR) { repositoryPath ->
+    suspend operator fun invoke() = useCaseExecutor.execute(taskType = TaskType.LoadAuthor) { repositoryPath ->
         loadAuthorGitAction(repositoryPath)
     }
 }
