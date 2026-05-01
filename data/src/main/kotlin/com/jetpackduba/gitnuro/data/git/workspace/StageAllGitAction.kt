@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.workspace
 
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
@@ -16,11 +16,12 @@ import javax.inject.Inject
 
 class StageAllGitAction @Inject constructor(
     private val getStatusGitAction: GetStatusGitAction,
+    private val jgit: JGit,
 ) : IStageAllGitAction {
     override suspend operator fun invoke(repositoryPath: String, entries: List<StatusEntry>?) = either {
         val status = getStatusGitAction(repositoryPath).bind()
 
-        jgit(repositoryPath) {
+        jgit.provide(repositoryPath) { git ->
             val unstaged = status.unstaged
                 .run {
                     if (entries != null) {
@@ -31,8 +32,8 @@ class StageAllGitAction @Inject constructor(
                 }
 
 
-            addAllExceptNew(this, unstaged.filter { it.statusType != StatusType.ADDED })
-            addNewFiles(this, unstaged.filter { it.statusType == StatusType.ADDED })
+            addAllExceptNew(git, unstaged.filter { it.statusType != StatusType.ADDED })
+            addNewFiles(git, unstaged.filter { it.statusType == StatusType.ADDED })
         }
     }
 

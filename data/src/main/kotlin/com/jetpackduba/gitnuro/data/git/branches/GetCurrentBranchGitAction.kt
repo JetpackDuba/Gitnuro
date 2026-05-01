@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
@@ -16,16 +16,19 @@ import javax.inject.Inject
  */
 class GetCurrentBranchGitAction @Inject constructor(
     private val getBranchesGitAction: GetBranchesGitAction,
+    private val jgit: JGit,
 ) : IGetCurrentBranchGitAction {
     override suspend operator fun invoke(git: Git): Either<Branch?, AppError> {
         return invoke(git.repository.directory.absolutePath)
     }
-    override suspend operator fun invoke(path: String)= either {
-        jgit(path) {
-            val branchList = getBranchesGitAction(this).bind()
+
+    override suspend operator fun invoke(path: String) = either {
+        jgit.provide(path) { git ->
+            val branchList = getBranchesGitAction(git).bind()
             val branchName =
-                repository
-                .fullBranch
+                git
+                    .repository
+                    .fullBranch
 
             var branchFound = branchList.firstOrNull {
                 it.name == branchName
@@ -37,7 +40,7 @@ class GetCurrentBranchGitAction @Inject constructor(
                 }
             }
 
-            return@jgit branchFound
+            branchFound
         }
     }
 }

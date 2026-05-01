@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.stash
 
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.mappers.JGitCommitMapper
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStashListGitAction
 import kotlinx.coroutines.Dispatchers
@@ -11,8 +11,9 @@ import javax.inject.Inject
 
 class GetStashListGitAction @Inject constructor(
     private val commitMapper: JGitCommitMapper,
+    private val jgit: JGit,
 ) : IGetStashListGitAction {
-    override suspend operator fun invoke(repositoryPath: String) = jgit(repositoryPath) { git ->
+    override suspend operator fun invoke(repositoryPath: String) = jgit.provide(repositoryPath) { git ->
         invoke(git)
             .map { commitMapper.toDomain(it) }
     }

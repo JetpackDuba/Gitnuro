@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.data.git.submodules
 
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.remote_operations.HandleTransportGitAction
+import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IUpdateSubmoduleGitAction
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
@@ -14,11 +15,13 @@ private const val TAG = "UpdateSubmoduleGitAction"
 
 class UpdateSubmoduleGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
+    private val jgit: JGit,
 ) : IUpdateSubmoduleGitAction {
-    override suspend operator fun invoke(repositoryPath: String, path: String) = jgit(repositoryPath) {
+    override suspend operator fun invoke(repositoryPath: String, path: String) = jgit.provide(repositoryPath) { git ->
         coroutineScope {
             handleTransportGitAction(repositoryPath) {
-                submoduleUpdate()
+                git
+                    .submoduleUpdate()
                     .addPath(path)
                     .setCallback(
                         object : CloneCommand.Callback {
@@ -39,7 +42,7 @@ class UpdateSubmoduleGitAction @Inject constructor(
                     .call()
 
                 Unit
-            }
+            }.bind()
         }
     }
 }

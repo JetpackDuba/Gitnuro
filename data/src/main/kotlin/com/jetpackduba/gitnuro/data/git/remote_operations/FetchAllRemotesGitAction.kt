@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.exceptions.FetchException
 import com.jetpackduba.gitnuro.domain.interfaces.IFetchAllRemotesGitAction
 import com.jetpackduba.gitnuro.domain.models.Remote
@@ -17,9 +17,10 @@ private const val TAG = "FetchAllBranchesGitAction"
 
 class FetchAllRemotesGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
+    private val jgit: JGit,
 ) : IFetchAllRemotesGitAction {
-    override suspend operator fun invoke(repositoryPath: String, specificRemote: Remote?) = jgit(repositoryPath) {
-        val allRemotes = remoteList().call()
+    override suspend operator fun invoke(repositoryPath: String, specificRemote: Remote?) = jgit.provide(repositoryPath) { git ->
+        val allRemotes = git.remoteList().call()
         val matchingRemote = specificRemote?.let {
             allRemotes.firstOrNull {
                 it.name == specificRemote.name
@@ -36,7 +37,8 @@ class FetchAllRemotesGitAction @Inject constructor(
             try {
                 handleTransportGitAction(repositoryPath) {
                     coroutineScope {
-                        fetch()
+                        git
+                            .fetch()
                             .setRemote(remote.name)
                             .setRefSpecs(remote.fetchRefSpecs)
                             .setRemoveDeletedRefs(true)

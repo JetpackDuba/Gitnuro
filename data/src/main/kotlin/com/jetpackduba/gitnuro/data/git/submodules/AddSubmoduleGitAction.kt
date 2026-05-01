@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.data.git.submodules
 
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.remote_operations.HandleTransportGitAction
+import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IAddSubmoduleGitAction
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.isActive
@@ -11,12 +12,14 @@ import javax.inject.Inject
 
 class AddSubmoduleGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
+    private val jgit: JGit,
 ) : IAddSubmoduleGitAction {
     override suspend operator fun invoke(repositoryPath: String, name: String, path: String, uri: String) =
-        jgit(repositoryPath) {
+        jgit.provide(repositoryPath) { git ->
             coroutineScope {
                 handleTransportGitAction(repositoryPath) {
-                    submoduleAdd()
+                    git
+                        .submoduleAdd()
                         .setName(name)
                         .setPath(path)
                         .setURI(uri)
@@ -35,7 +38,7 @@ class AddSubmoduleGitAction @Inject constructor(
                         .call()
 
                     Unit
-                }
+                }.bind()
 
             }
         }

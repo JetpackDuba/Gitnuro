@@ -3,10 +3,13 @@
 package com.jetpackduba.gitnuro.domain.errors
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 
@@ -128,7 +131,7 @@ suspend inline fun <T, E> either(
         callsInPlace(callback, InvocationKind.AT_MOST_ONCE)
     }
 
-    val context = EitherContext<E>()
+    val context = EitherContext<E>(Job())
 
     return try {
         val result = context.callback()
@@ -145,7 +148,7 @@ suspend inline fun <T, E> either(
     return@withContext either(callback)
 }
 
-class EitherContext<E> {
+class EitherContext<E>(override val coroutineContext: CoroutineContext) : CoroutineScope {
     var error: E? = null
 }
 

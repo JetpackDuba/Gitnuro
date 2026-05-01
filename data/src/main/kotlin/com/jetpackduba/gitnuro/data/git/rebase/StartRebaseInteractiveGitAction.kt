@@ -1,27 +1,26 @@
 package com.jetpackduba.gitnuro.data.git.rebase
 
-import com.jetpackduba.gitnuro.data.git.jgit
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.exceptions.UncommittedChangesDetectedException
 import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand
 import org.eclipse.jgit.api.RebaseResult
 import org.eclipse.jgit.lib.RebaseTodoLine
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
 
-class StartRebaseInteractiveGitAction @Inject constructor() : IStartRebaseInteractiveGitAction {
+class StartRebaseInteractiveGitAction @Inject constructor(
+    private val jgit: JGit,
+) : IStartRebaseInteractiveGitAction {
     override suspend operator fun invoke(
         repositoryPath: String,
         commit: Commit,
-    ): Either<Unit, GitError> = jgit(repositoryPath) {
-        val base = repository
+    ): Either<Unit, GitError> = jgit.provide(repositoryPath) { git ->
+        val base = git
+            .repository
             .resolve(commit.hash) ?: throw Exception("Commit ${commit.hash} not found")
 
         val interactiveHandler = object : RebaseCommand.InteractiveHandler {
@@ -29,7 +28,8 @@ class StartRebaseInteractiveGitAction @Inject constructor() : IStartRebaseIntera
             override fun modifyCommitMessage(message: String?): String = ""
         }
 
-        val rebaseResult = rebase()
+        val rebaseResult = git
+            .rebase()
             .runInteractively(interactiveHandler, true)
             .setOperation(RebaseCommand.Operation.BEGIN)
             .setUpstream(base)

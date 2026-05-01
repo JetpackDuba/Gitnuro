@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.branches.DeleteBranchGitAction
-import com.jetpackduba.gitnuro.data.git.jgit
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteRemoteBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
@@ -13,8 +13,9 @@ import javax.inject.Inject
 class DeleteRemoteBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
     private val deleteBranchGitAction: DeleteBranchGitAction,
+    private val jgit: JGit,
 ) : IDeleteRemoteBranchGitAction {
-    override suspend operator fun invoke(repositoryPath: String, ref: Branch) = jgit(repositoryPath) {
+    override suspend operator fun invoke(repositoryPath: String, ref: Branch) = jgit.provide(repositoryPath) { git ->
         val branchSplit = ref.name.split("/").toMutableList()
         val remoteName = branchSplit[2] // Remote name
         repeat(3) {
@@ -28,7 +29,8 @@ class DeleteRemoteBranchGitAction @Inject constructor(
             .setDestination(branchName)
 
         handleTransportGitAction(repositoryPath) {
-            val pushResults = push()
+            val pushResults = git
+                .push()
                 .setTransportConfigCallback {
                     handleTransport(it)
                 }
@@ -54,8 +56,7 @@ class DeleteRemoteBranchGitAction @Inject constructor(
             }
         }
 
-        deleteBranchGitAction(repositoryPath, ref) /// TODO Handle error?
+        deleteBranchGitAction(repositoryPath, ref).bind() /// TODO Handle error?
 
-        Unit
     }
 }

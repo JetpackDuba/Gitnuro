@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.data.git.stash
-
-import com.jetpackduba.gitnuro.data.git.jgit2
+2
 import com.jetpackduba.gitnuro.domain.errors.StashChangesError
 import com.jetpackduba.gitnuro.domain.errors.raiseError
 import com.jetpackduba.gitnuro.domain.interfaces.IStashChangesGitAction
