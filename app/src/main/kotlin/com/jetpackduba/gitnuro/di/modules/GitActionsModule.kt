@@ -58,7 +58,7 @@ interface GitActionsModule {
     fun bindsCheckoutCommitGitAction(action: CheckoutCommitGitAction): ICheckoutCommitGitAction
 
     @Binds
-    fun bindsCheckoutRefGitAction(action: CheckoutRefGitAction): ICheckoutRefGitAction
+    fun bindsCheckoutRefGitAction(action: CheckoutBranchGitAction): ICheckoutBranchGitAction
 
     @Binds
     fun bindsCherryPickCommitGitAction(action: CherryPickCommitGitAction): ICherryPickCommitGitAction
@@ -244,13 +244,7 @@ interface GitActionsModule {
     fun bindsPullBranchGitAction(action: PullBranchGitAction): IPullBranchGitAction
 
     @Binds
-    fun bindsPullFromSpecificBranchGitAction(action: PullFromSpecificBranchGitAction): IPullFromSpecificBranchGitAction
-
-    @Binds
     fun bindsPushBranchGitAction(action: PushBranchGitAction): IPushBranchGitAction
-
-    @Binds
-    fun bindsPushToSpecificBranchGitAction(action: PushToSpecificBranchGitAction): IPushToSpecificBranchGitAction
 
     @Binds
     fun bindsRebaseBranchGitAction(action: RebaseBranchGitAction): IRebaseBranchGitAction

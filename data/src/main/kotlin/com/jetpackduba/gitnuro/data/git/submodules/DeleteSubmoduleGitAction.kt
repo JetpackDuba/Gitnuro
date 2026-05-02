@@ -1,20 +1,21 @@
 package com.jetpackduba.gitnuro.data.git.submodules
 
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteSubmoduleGitAction
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileBasedConfig
 import java.io.File
 import javax.inject.Inject
 
 private const val TAG = "DeleteSubmoduleGitAction"
 
-class DeleteSubmoduleGitAction @Inject constructor() : IDeleteSubmoduleGitAction {
-    override suspend operator fun invoke(git: Git, path: String): Unit = withContext(Dispatchers.IO) {
-        git.rm()
-            .addFilepattern(path)
-            .call()
+class DeleteSubmoduleGitAction @Inject constructor(
+    private val jgit: JGit,
+) : IDeleteSubmoduleGitAction {
+    override suspend operator fun invoke(
+        repositoryPath: String,
+        path: String,
+    ) = jgit.provide(repositoryPath) { git ->
+        git.rm().addFilepattern(path).call()
 
         val repository = git.repository
         val gitModules = File(repository.workTree, ".gitmodules")

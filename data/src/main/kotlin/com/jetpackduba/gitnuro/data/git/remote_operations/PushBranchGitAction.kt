@@ -3,9 +3,11 @@ package com.jetpackduba.gitnuro.data.git.remote_operations
 import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.branches.GetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.data.git.branches.SetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.domain.BranchesConstants
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsHandler
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IPushBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.TrackingBranch
 import com.jetpackduba.gitnuro.domain.models.isRejected
 import com.jetpackduba.gitnuro.domain.models.statusMessage
@@ -30,12 +32,21 @@ class PushBranchGitAction @Inject constructor(
         repositoryPath: String,
         force: Boolean,
         pushTags: Boolean,
-        pushWithLease: Boolean
+        pushWithLease: Boolean,
+        specificBranch: Branch?,
     ) = jgit.provide(repositoryPath) { git ->
         val currentBranch = git.repository.branch
         val fullCurrentBranch = git.repository.fullBranch
 
-        val tracking = getTrackingBranchGitAction(git, currentBranch)
+        val tracking = if (specificBranch == null) {
+            getTrackingBranchGitAction(git, currentBranch)
+        } else {
+            TrackingBranch(
+                remote = specificBranch.remoteName,
+                branch = specificBranch.name.removePrefix(BranchesConstants.UPSTREAM_BRANCH_CONFIG_PREFIX)
+            )
+        }
+
         val refSpecStr = if (tracking != null) {
             "$fullCurrentBranch:${Constants.R_HEADS}${tracking.branch}"
         } else {

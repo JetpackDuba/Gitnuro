@@ -106,7 +106,7 @@ suspend inline fun <T, E> handleException(
     crossinline exceptionMapper: suspend (Exception) -> E,
     crossinline callback: suspend EitherContext<E>.() -> T
 ): Either<T, E> {
-    val context = EitherContext<E>()
+    val context = EitherContext<E>(Job())
     return try {
         val res = context.callback()
 

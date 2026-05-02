@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.interfaces.IPushBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import kotlinx.coroutines.flow.first
@@ -13,7 +14,7 @@ class PushBranchUseCase @Inject constructor(
     private val refreshLogUseCase: RefreshLogUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
-    operator fun invoke(force: Boolean, pushTags: Boolean) {
+    operator fun invoke(force: Boolean, pushTags: Boolean, targetRemoteBranch: Branch? = null) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Push,
             onRefresh = {
@@ -22,7 +23,7 @@ class PushBranchUseCase @Inject constructor(
         ) { repositoryPath ->
             val pushWithLease = appSettingsService.pushWithLease.first()
 
-            pushBranchGitAction(repositoryPath, force, pushTags, pushWithLease)
+            pushBranchGitAction(repositoryPath, force, pushTags, pushWithLease, targetRemoteBranch)
         }
     }
 }

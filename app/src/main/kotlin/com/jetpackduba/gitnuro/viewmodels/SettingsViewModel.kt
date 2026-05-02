@@ -14,6 +14,7 @@ import com.jetpackduba.gitnuro.domain.models.newErrorNow
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.PickerType
 import kotlinx.coroutines.CoroutineScope
@@ -38,11 +39,7 @@ class SettingsViewModel @Inject constructor(
     @param:AppCoroutineScope private val appScope: CoroutineScope,
 ) : TabViewModel() {
     val settingsViewState = settingsState()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = emptySettingsState()
-        )
+        .stateIn(emptySettingsState())
 
     fun onAction(action: SettingsAction) {
         when (action) {

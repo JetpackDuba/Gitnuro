@@ -9,6 +9,8 @@ class RefreshAllUseCase @Inject constructor(
     private val refreshStatusUseCase: RefreshStatusUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
     private val refreshRemotesUseCase: RefreshRemotesUseCase,
+    private val refreshStashListUseCase: RefreshStashListUseCase,
+    private val refreshSubmodulesUseCase: RefreshSubmodulesUseCase,
     private val tabCoroutineScope: TabCoroutineScope,
 ) {
     operator fun invoke() = tabCoroutineScope.launch {
@@ -16,5 +18,7 @@ class RefreshAllUseCase @Inject constructor(
         refreshStatusUseCase()
         refreshLogUseCase()
         refreshRemotesUseCase()
+        refreshStashListUseCase()
+        refreshSubmodulesUseCase()
     }
 }

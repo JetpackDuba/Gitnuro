@@ -79,3 +79,4 @@ class JGit @Inject constructor() {
         repositories.remove(repositoryPath)
     }
 }
+

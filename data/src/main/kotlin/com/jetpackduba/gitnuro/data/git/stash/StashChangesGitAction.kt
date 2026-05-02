@@ -1,12 +1,15 @@
 package com.jetpackduba.gitnuro.data.git.stash
-2
+
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.errors.StashChangesError
 import com.jetpackduba.gitnuro.domain.errors.raiseError
 import com.jetpackduba.gitnuro.domain.interfaces.IStashChangesGitAction
 import javax.inject.Inject
 
-class StashChangesGitAction @Inject constructor() : IStashChangesGitAction {
-    override suspend operator fun invoke(repositoryPath: String, message: String?) = jgit2(repositoryPath) { git ->
+class StashChangesGitAction @Inject constructor(
+    private val jgit: JGit,
+) : IStashChangesGitAction {
+    override suspend operator fun invoke(repositoryPath: String, message: String?) = jgit.provide(repositoryPath) { git ->
         val commit = git
             .stashCreate()
             .setIncludeUntracked(true)

@@ -511,7 +511,7 @@ class StatusPaneViewModel @Inject constructor(
                 val authorInfo = committerData.authorInfo
 
                 if (committerData.persist) {
-                    saveAuthorGitAction(git, authorInfo)
+                    saveAuthorGitAction(git.repository.directory.absolutePath, authorInfo)
                 }
 
                 Identity(authorInfo.globalName.orEmpty(), authorInfo.globalEmail.orEmpty())

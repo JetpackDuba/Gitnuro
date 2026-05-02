@@ -18,6 +18,7 @@ class PopStashUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val refreshStatusUseCase: RefreshStatusUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
+    private val refreshStashListUseCase: RefreshStashListUseCase,
 ) {
     operator fun invoke(commit: Commit?) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Stash,
@@ -25,6 +26,7 @@ class PopStashUseCase @Inject constructor(
         onRefresh = {
             refreshStatusUseCase()
             refreshLogUseCase()
+            refreshStashListUseCase()
         }
     ) { repositoryPath ->
         val stashCommit = commit ?: getStashListGitAction(repositoryPath).bind().firstOrNull()

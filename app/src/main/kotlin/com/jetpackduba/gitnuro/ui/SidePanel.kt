@@ -40,21 +40,16 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun SidePanel(
     sidePanelViewModel: SidePanelViewModel,
-    branchesViewModel: BranchesViewModel = sidePanelViewModel.branchesViewModel,
-    remotesViewModel: RemotesViewModel = sidePanelViewModel.remotesViewModel,
-    tagsViewModel: TagsViewModel = sidePanelViewModel.tagsViewModel,
-    stashesViewModel: StashesViewModel = sidePanelViewModel.stashesViewModel,
-    submodulesViewModel: SubmodulesViewModel = sidePanelViewModel.submodulesViewModel,
     onNavigate: (Screen) -> Unit,
 ) {
     val filter by sidePanelViewModel.filter.collectAsState()
     val selectedItem by sidePanelViewModel.selectedItem.collectAsState()
 
-    val branchesState by branchesViewModel.branchesState.collectAsState()
-    val remotesState by remotesViewModel.remoteState.collectAsState()
-    val tagsState by tagsViewModel.tagsState.collectAsState()
-    val stashesState by stashesViewModel.stashesState.collectAsState()
-    val submodulesState by submodulesViewModel.submodules.collectAsState()
+    val branchesState by sidePanelViewModel.branchesState.collectAsState()
+    val remotesState by sidePanelViewModel.remoteState.collectAsState()
+    val tagsState by sidePanelViewModel.tagsState.collectAsState()
+    val stashesState by sidePanelViewModel.stashesState.collectAsState()
+    val submodulesState by sidePanelViewModel.submodules.collectAsState()
 
     val searchFocusRequester = remember { FocusRequester() }
     val tabFocusRequester = LocalTabFocusRequester.current
@@ -91,32 +86,32 @@ fun SidePanel(
             localBranches(
                 branchesState = branchesState,
                 selectedItem = selectedItem,
-                branchesViewModel = branchesViewModel,
+                viewModel = sidePanelViewModel,
                 onChangeDefaultUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
                 onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
             )
 
             remotes(
                 remotesState = remotesState,
-                remotesViewModel = remotesViewModel,
+                viewModel = sidePanelViewModel,
                 onShowAddEditRemoteDialog = { onNavigate(Screen.AddEditRemote(it)) },
             )
 
             tags(
                 tagsState = tagsState,
                 selectedItem = selectedItem,
-                tagsViewModel = tagsViewModel,
+                viewModel = sidePanelViewModel,
             )
 
             stashes(
                 stashesState = stashesState,
                 selectedItem = selectedItem,
-                stashesViewModel = stashesViewModel,
+                viewModel = sidePanelViewModel,
             )
 
             submodules(
                 submodulesState = submodulesState,
-                submodulesViewModel = submodulesViewModel,
+                viewModel = sidePanelViewModel,
                 onAddSubmodule = { onNavigate(Screen.SubmoduleAdd) },
             )
         }
@@ -169,7 +164,7 @@ fun FilterTextField(
 fun LazyListScope.localBranches(
     branchesState: BranchesState,
     selectedItem: SelectedItem,
-    branchesViewModel: BranchesViewModel,
+    viewModel: SidePanelViewModel,
     onChangeDefaultUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
 ) {
@@ -187,7 +182,7 @@ fun LazyListScope.localBranches(
                 itemsCount = branches.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
-                onExpand = { branchesViewModel.onExpand() }
+                onExpand = { viewModel.onExpandBranches() }
             )
         }
     }
@@ -198,15 +193,15 @@ fun LazyListScope.localBranches(
                 branch = branch,
                 isSelectedItem = selectedItem is SelectedItem.Ref && selectedItem.ref == branch,
                 currentBranch = currentBranch,
-                onBranchClicked = { branchesViewModel.selectBranch(branch) },
-                onBranchDoubleClicked = { branchesViewModel.checkoutBranch(branch) },
-                onCheckoutBranch = { branchesViewModel.checkoutBranch(branch) },
-                onMergeBranch = { branchesViewModel.mergeBranch(branch) },
-                onRebaseBranch = { branchesViewModel.rebaseBranch(branch) },
-                onDeleteBranch = { branchesViewModel.deleteBranch(branch) },
+                onBranchClicked = { viewModel.selectBranch(branch) },
+                onBranchDoubleClicked = { viewModel.checkoutBranch(branch) },
+                onCheckoutBranch = { viewModel.checkoutBranch(branch) },
+                onMergeBranch = { viewModel.mergeBranch(branch) },
+                onRebaseBranch = { viewModel.rebaseBranch(branch) },
+                onDeleteBranch = { viewModel.deleteBranch(branch) },
                 onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
                 onRenameBranch = { onRenameBranch(branch) },
-                onCopyBranchNameToClipboard = { branchesViewModel.copyBranchNameToClipboard(branch) },
+                onCopyBranchNameToClipboard = { viewModel.copyBranchNameToClipboard(branch) },
             )
         }
     }
@@ -214,7 +209,7 @@ fun LazyListScope.localBranches(
 
 fun LazyListScope.remotes(
     remotesState: RemotesState,
-    remotesViewModel: RemotesViewModel,
+    viewModel: SidePanelViewModel,
     onShowAddEditRemoteDialog: (Remote?) -> Unit,
 ) {
     val isExpanded = remotesState.isExpanded
@@ -243,7 +238,7 @@ fun LazyListScope.remotes(
                 }
             },
             isExpanded = isExpanded,
-            onExpand = { remotesViewModel.onExpand() }
+            onExpand = { viewModel.onExpandRemotes() }
         )
     }
 
@@ -256,9 +251,9 @@ fun LazyListScope.remotes(
                         val wrapper = remote.remoteInfo.remote
                         onShowAddEditRemoteDialog(wrapper)
                     },
-                    onDeleteRemote = { remotesViewModel.deleteRemote(remote.remoteInfo) },
-                    onRemoteClicked = { remotesViewModel.onRemoteClicked(remote) },
-                    onFetchBranches = { remotesViewModel.onFetchRemoteBranches(remote) },
+                    onDeleteRemote = { viewModel.deleteRemote(remote.remoteInfo) },
+                    onRemoteClicked = { viewModel.onRemoteClicked(remote) },
+                    onFetchBranches = { viewModel.onFetchRemoteBranches(remote) },
                 )
             }
 
@@ -267,14 +262,14 @@ fun LazyListScope.remotes(
                     RemoteBranches(
                         remoteBranch = remoteBranch,
                         currentBranch = remotesState.currentBranch,
-                        onBranchClicked = { remotesViewModel.selectBranch(remoteBranch) },
-                        onCheckoutBranch = { remotesViewModel.checkoutRemoteBranch(remoteBranch) },
-                        onDeleteBranch = { remotesViewModel.deleteRemoteBranch(remoteBranch) },
-                        onPushRemoteBranch = { remotesViewModel.pushToRemoteBranch(remoteBranch) },
-                        onPullRemoteBranch = { remotesViewModel.pullFromRemoteBranch(remoteBranch) },
-                        onRebaseRemoteBranch = { remotesViewModel.rebaseBranch(remoteBranch) },
-                        onMergeRemoteBranch = { remotesViewModel.mergeBranch(remoteBranch) },
-                        onCopyBranchNameToClipboard = { remotesViewModel.copyBranchNameToClipboard(remoteBranch) }
+                        onBranchClicked = { viewModel.selectBranch(remoteBranch) },
+                        onCheckoutBranch = { viewModel.checkoutRemoteBranch(remoteBranch) },
+                        onDeleteBranch = { viewModel.deleteRemoteBranch(remoteBranch) },
+                        onPushRemoteBranch = { viewModel.pushToRemoteBranch(remoteBranch) },
+                        onPullRemoteBranch = { viewModel.pullFromRemoteBranch(remoteBranch) },
+                        onRebaseRemoteBranch = { viewModel.rebaseBranch(remoteBranch) },
+                        onMergeRemoteBranch = { viewModel.mergeBranch(remoteBranch) },
+                        onCopyBranchNameToClipboard = { viewModel.copyBranchNameToClipboard(remoteBranch) }
                     )
                 }
             }
@@ -285,7 +280,7 @@ fun LazyListScope.remotes(
 
 fun LazyListScope.tags(
     tagsState: TagsState,
-    tagsViewModel: TagsViewModel,
+    viewModel: SidePanelViewModel,
     selectedItem: SelectedItem,
 ) {
     val isExpanded = tagsState.isExpanded
@@ -301,7 +296,7 @@ fun LazyListScope.tags(
                 itemsCount = tags.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
-                onExpand = { tagsViewModel.onExpand() }
+                onExpand = { viewModel.onExpandTags() }
             )
         }
     }
@@ -311,9 +306,9 @@ fun LazyListScope.tags(
             Tag(
                 tag,
                 isSelected = selectedItem is SelectedItem.Ref && selectedItem.ref == tag,
-                onTagClicked = { tagsViewModel.selectTag(tag) },
-                onCheckoutTag = { tagsViewModel.checkoutTagCommit(tag) },
-                onDeleteTag = { tagsViewModel.deleteTag(tag) }
+                onTagClicked = { viewModel.selectTag(tag) },
+                onCheckoutTag = { viewModel.checkoutTagCommit(tag) },
+                onDeleteTag = { viewModel.deleteTag(tag) }
             )
         }
     }
@@ -321,7 +316,7 @@ fun LazyListScope.tags(
 
 fun LazyListScope.stashes(
     stashesState: StashesState,
-    stashesViewModel: StashesViewModel,
+    viewModel: SidePanelViewModel,
     selectedItem: SelectedItem,
 ) {
     val isExpanded = stashesState.isExpanded
@@ -337,7 +332,7 @@ fun LazyListScope.stashes(
                 itemsCount = stashes.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
-                onExpand = { stashesViewModel.onExpand() }
+                onExpand = { viewModel.onExpandSubmodules() }
             )
         }
     }
@@ -347,10 +342,10 @@ fun LazyListScope.stashes(
             Stash(
                 stash,
                 isSelected = selectedItem is SelectedItem.Stash && selectedItem.commit == stash,
-                onClick = { stashesViewModel.selectStash(stash) },
-                onApply = { stashesViewModel.applyStash(stash) },
-                onPop = { stashesViewModel.popStash(stash) },
-                onDelete = { stashesViewModel.deleteStash(stash) },
+                onClick = { viewModel.selectStash(stash) },
+                onApply = { viewModel.applyStash(stash) },
+                onPop = { viewModel.popStash(stash) },
+                onDelete = { viewModel.deleteStash(stash) },
             )
         }
     }
@@ -358,7 +353,7 @@ fun LazyListScope.stashes(
 
 fun LazyListScope.submodules(
     submodulesState: SubmodulesState,
-    submodulesViewModel: SubmodulesViewModel,
+    viewModel: SidePanelViewModel,
     onAddSubmodule: () -> Unit,
 ) {
     val isExpanded = submodulesState.isExpanded
@@ -390,7 +385,7 @@ fun LazyListScope.submodules(
                     }
                 },
                 isExpanded = isExpanded,
-                onExpand = { submodulesViewModel.onExpand() }
+                onExpand = { viewModel.onExpandSubmodules() }
             )
         }
     }
@@ -399,12 +394,12 @@ fun LazyListScope.submodules(
         items(submodules, key = { it.first }) { submodule ->
             Submodule(
                 submodule = submodule,
-                onInitializeSubmodule = { submodulesViewModel.initializeSubmodule(submodule.first) },
+                onInitializeSubmodule = { viewModel.initializeSubmodule(submodule.first) },
 //                onDeinitializeSubmodule = { submodulesViewModel.onDeinitializeSubmodule(submodule.first) },
-                onSyncSubmodule = { submodulesViewModel.onSyncSubmodule(submodule.first) },
-                onUpdateSubmodule = { submodulesViewModel.onUpdateSubmodule(submodule.first) },
-                onOpenSubmoduleInTab = { submodulesViewModel.onOpenSubmoduleInTab(submodule.first) },
-                onDeleteSubmodule = { submodulesViewModel.onDeleteSubmodule(submodule.first) },
+                onSyncSubmodule = { viewModel.syncSubmodule(submodule.first) },
+                onUpdateSubmodule = { viewModel.updateSubmodule(submodule.first) },
+                onOpenSubmoduleInTab = { viewModel.onOpenSubmoduleInTab(submodule.first) },
+                onDeleteSubmodule = { viewModel.deleteSubmodule(submodule.first) },
             )
         }
     }

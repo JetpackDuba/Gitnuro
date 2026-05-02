@@ -61,4 +61,5 @@ sealed interface TaskType {
     data object AddRemote : TaskType
     data object DeleteRemote : TaskType
     data object LoadAuthor : TaskType
+    data object SaveAuthor : TaskType
 }

@@ -7,17 +7,16 @@ import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.countOrZero
-import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IStartRebaseInteractiveGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.usecases.StartRebaseInteractiveUseCase
+import com.jetpackduba.gitnuro.domain.usecases.*
+import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.ui.context_menu.copyBranchNameToClipboardAndGetNotification
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -42,24 +41,26 @@ private const val INITIAL_COMMITS_LOAD = 2000
 const val INCREMENTAL_COMMITS_LOAD = 1000
 
 class LogViewModel @Inject constructor(
-    private val checkoutCommitGitAction: ICheckoutCommitGitAction,
+    private val mergeBranchUseCase: MergeBranchUseCase,
+    private val pullBranchUseCase: PullBranchUseCase,
+    private val pushBranchUseCase: PushBranchUseCase,
+    private val rebaseBranchUseCase: RebaseBranchUseCase,
+    private val checkoutBranchUseCase: CheckoutBranchUseCase,
+    private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
     private val revertCommitGitAction: IRevertCommitGitAction,
     private val cherryPickCommitGitAction: ICherryPickCommitGitAction,
-    private val startRebaseInteractiveGitAction: IStartRebaseInteractiveGitAction,
     private val tabState: TabInstanceRepository,
     private val tabScope: TabCoroutineScope,
     private val clipboardManager: ClipboardManager,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val startRebaseInteractiveUseCase: StartRebaseInteractiveUseCase,
-    sharedStashViewModel: SharedStashViewModel,
-    sharedBranchesViewModel: SharedBranchesViewModel,
-    sharedRemotesViewModel: SharedRemotesViewModel,
-    sharedTagsViewModel: SharedTagsViewModel,
-) : ISharedStashViewModel by sharedStashViewModel,
-    ISharedBranchesViewModel by sharedBranchesViewModel,
-    ISharedRemotesViewModel by sharedRemotesViewModel,
-    ISharedTagsViewModel by sharedTagsViewModel,
-    TabViewModel() {
+    private val deleteBranchUseCase: DeleteBranchUseCase,
+    private val checkoutCommitUseCase: CheckoutCommitUseCase,
+    private val deleteTagUseCase: DeleteTagUseCase,
+    private val applyStashUseCase: ApplyStashUseCase,
+    private val popStashUseCase: PopStashUseCase,
+    private val deleteStashUseCase: DeleteStashUseCase,
+) : TabViewModel() {
 
     private val hasUncommittedChanges = repositoryDataRepository.status.map {
         it.staged.isNotEmpty() || it.unstaged.isNotEmpty()
@@ -106,11 +107,7 @@ class LogViewModel @Inject constructor(
         )
     }
         .debounce(LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD)
-        .stateIn(
-            scope = tabScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = LogState(true),
-        )
+        .stateIn(LogState(true))
 
 
     var savedSearchFilter: String = ""
@@ -153,17 +150,62 @@ class LogViewModel @Inject constructor(
         }
     }
 
-    fun checkoutCommit(revCommit: Commit) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Commit checkout",
-        subtitle = "Checking out commit ${revCommit.hash}",
-        taskType = TaskType.CheckoutCommit,
-    ) { git ->
-        checkoutCommitGitAction(git, revCommit)
 
-        positiveNotification("Commit checked out")
+    fun onAction(action: LogAction) {
+        when (action) {
+            is LogAction.ApplyStash -> applyStash(action.commit)
+            is LogAction.CheckoutCommit -> checkoutCommit(action.commit)
+            is LogAction.CheckoutBranch -> checkoutBranch(action.branch)
+            is LogAction.CheckoutRemoteBranch -> checkoutRemoteBranch(action.branch)
+            is LogAction.CheckoutTag -> checkoutTag(action.tag)
+            is LogAction.CherryPickCommit -> cherryPickCommit(action.commit)
+            is LogAction.CommitSelected -> selectCommit(action.commit)
+            is LogAction.CopyBranchNameToClipboard -> copyBranchNameToClipboard(action.branch)
+            is LogAction.DeleteBranch -> deleteBranch(action.branch)
+            is LogAction.DeleteRemoteBranch -> deleteRemoteBranch(action.branch)
+            is LogAction.DeleteStash -> deleteStash(action.commit)
+            is LogAction.DeleteTag -> deleteTag(action.tag)
+            is LogAction.Merge -> mergeBranch(action.branch)
+            is LogAction.PopStash -> popStash(action.commit)
+            is LogAction.PullFromRemoteBranch -> pullFromRemoteBranch(action.branch)
+            is LogAction.PushToRemoteBranch -> pushToRemoteBranch(action.branch)
+            is LogAction.Rebase -> rebaseBranch(action.branch)
+            is LogAction.RebaseInteractive -> rebaseInteractive(action.commit)
+            is LogAction.RevertCommit -> revertCommit(action.commit)
+            LogAction.UncommittedChangesSelected -> selectUncommittedChanges()
+            is LogAction.SearchValueChange -> onSearchValueChanged(action.filter)
+        }
     }
 
+    private fun pullFromRemoteBranch(branch: Branch) = pullBranchUseCase(PullType.DEFAULT, branch)
+    private fun pushToRemoteBranch(branch: Branch) = pushBranchUseCase(force = false, pushTags = false, branch)
+    private fun mergeBranch(branch: Branch) = mergeBranchUseCase(branch)
+    private fun rebaseBranch(branch: Branch) = rebaseBranchUseCase(branch)
+    private fun checkoutBranch(branch: Branch) = checkoutBranchUseCase(branch)
+    private fun deleteBranch(branch: Branch) = deleteBranchUseCase(branch)
+    private fun checkoutRemoteBranch(branch: Branch) = checkoutBranchUseCase(branch)
+    private fun deleteRemoteBranch(branch: Branch) = deleteRemoteBranchUseCase(branch)
+    private fun deleteTag(tag: Tag) = deleteTagUseCase(tag)
+    private fun checkoutTag(tag: Tag) = checkoutCommitUseCase(tag.hash)
+    private fun checkoutCommit(commit: Commit) = checkoutCommitUseCase(commit)
+    private fun applyStash(stash: Commit) = applyStashUseCase(stash)
+    private fun popStash(stash: Commit) = popStashUseCase(stash)
+    private fun deleteStash(stash: Commit) = deleteStashUseCase(stash)
+
+/*
+// TODO Restore this functionality?
+    fun stashDropped(stash: Commit) = tabState.runOperation(
+        refreshType = RefreshType.NONE,
+    ) {
+        val selectedValue = tabState.selectedItem.value
+        if (
+            selectedValue is SelectedItem.Stash &&
+            selectedValue.commit.hash == stash.hash
+        ) {
+            tabState.noneSelected()
+        }
+    }
+*/
     fun revertCommit(revCommit: Commit) = tabState.safeProcessing(
         refreshType = RefreshType.ALL_DATA,
         title = "Commit revert",
@@ -353,7 +395,7 @@ class LogViewModel @Inject constructor(
         }*/
     }
 
-    override fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
+    fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
         refreshType = RefreshType.NONE,
         taskType = TaskType.Unspecified
     ) {
@@ -385,32 +427,6 @@ class LogViewModel @Inject constructor(
             addedCount = addedCount,
             conflictingCount = conflictingCount,
         )
-    }
-
-    fun onAction(action: LogAction) {
-        when (action) {
-            is LogAction.ApplyStash -> applyStash(action.commit)
-            is LogAction.CheckoutCommit -> checkoutCommit(action.commit)
-            is LogAction.CheckoutBranch -> checkoutBranch(action.branch)
-            is LogAction.CheckoutRemoteBranch -> checkoutRemoteBranch(action.branch)
-            is LogAction.CheckoutTag -> checkoutTag(action.tag)
-            is LogAction.CherryPickCommit -> cherryPickCommit(action.commit)
-            is LogAction.CommitSelected -> selectCommit(action.commit)
-            is LogAction.CopyBranchNameToClipboard -> copyBranchNameToClipboard(action.branch)
-            is LogAction.DeleteBranch -> deleteBranch(action.branch)
-            is LogAction.DeleteRemoteBranch -> deleteRemoteBranch(action.branch)
-            is LogAction.DeleteStash -> deleteStash(action.commit)
-            is LogAction.DeleteTag -> deleteTag(action.tag)
-            is LogAction.Merge -> mergeBranch(action.branch)
-            is LogAction.PopStash -> popStash(action.commit)
-            is LogAction.PullFromRemoteBranch -> pullFromRemoteBranch(action.branch)
-            is LogAction.PushToRemoteBranch -> pushToRemoteBranch(action.branch)
-            is LogAction.Rebase -> rebaseBranch(action.branch)
-            is LogAction.RebaseInteractive -> rebaseInteractive(action.commit)
-            is LogAction.RevertCommit -> revertCommit(action.commit)
-            LogAction.UncommittedChangesSelected -> selectUncommittedChanges()
-            is LogAction.SearchValueChange -> onSearchValueChanged(action.filter)
-        }
     }
 }
 

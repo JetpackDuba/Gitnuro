@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.data.git.workspace.CheckHasUncommittedChangesGitA
 import com.jetpackduba.gitnuro.data.mappers.JGitCommitMapper
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IPullBranchGitAction
+import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.PullType
 import org.eclipse.jgit.lib.ConfigConstants
@@ -26,6 +27,7 @@ class PullBranchGitAction @Inject constructor(
         repositoryPath: String,
         pullType: PullType,
         mergeAutoStash: Boolean, // TODO Fix this after refactor
+        remoteBranch: Branch?,
     ) = jgit.provide(repositoryPath) { git ->
         useBuiltinLfs(git.repository) {
             val pullWithRebase = when (pullType) {
@@ -58,6 +60,14 @@ class PullBranchGitAction @Inject constructor(
                     .pull()
                     .setTransportConfigCallback { this.handleTransport(it) }
                     .setRebase(pullWithRebase)
+                    .run {
+                        if (remoteBranch != null) {
+                            this.setRemote(remoteBranch.remoteName)
+                                .setRemoteBranchName(remoteBranch.simpleName)
+                        } else {
+                            this
+                        }
+                    }
                     .setCredentialsProvider(CredentialsProvider.getDefault())
                     .call()
 

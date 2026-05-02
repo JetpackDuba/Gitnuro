@@ -1,24 +1,24 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
-import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutBranchGitAction
-import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.interfaces.IApplyStashGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
-class CheckoutBranchUseCase @Inject constructor(
-    private val checkoutBranchGitAction: ICheckoutBranchGitAction,
+class ApplyStashUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
+    private val applyStashGitAction: IApplyStashGitAction,
     private val refreshAllUseCase: RefreshAllUseCase,
 ) {
-    operator fun invoke(branch: Branch) {
+    operator fun invoke(stashCommit: Commit) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.CheckoutBranch,
+            taskType = TaskType.ApplyStash,
             onRefresh = {
                 refreshAllUseCase()
             }
         ) { repositoryPath ->
-            checkoutBranchGitAction(repositoryPath, branch)
+            applyStashGitAction(repositoryPath, stashCommit)
         }
     }
 }

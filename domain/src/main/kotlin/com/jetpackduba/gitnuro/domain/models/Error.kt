@@ -70,6 +70,7 @@ data class Error(
             TaskType.LoadAuthor -> "Loading author failed"
             TaskType.StageDir -> "Staging directory failed"
             TaskType.UnstageDir -> "Unstaging directory failed"
+            TaskType.SaveAuthor -> "Saving author failed"
         }
     }
 }

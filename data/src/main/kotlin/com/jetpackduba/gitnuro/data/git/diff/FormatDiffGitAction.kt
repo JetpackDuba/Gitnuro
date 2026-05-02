@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.models.EntryContent
 import com.jetpackduba.gitnuro.domain.models.EntryType
 import com.jetpackduba.gitnuro.data.git.submodules.GetSubmodulesGitAction
+import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.models.DiffResult
 import com.jetpackduba.gitnuro.domain.models.Hunk
@@ -34,7 +35,7 @@ class FormatDiffGitAction @Inject constructor(
         isDisplayFullFile: Boolean,
     ) = jgit.provide(repositoryPath) { git ->
         val repository = git.repository
-        val submodules = getSubmodulesGitAction(git)
+        val submodules = getSubmodulesGitAction(repositoryPath).bind()
 
         val diffEntry = getDiffEntryFromDiffTypeGitAction(git, diffType)
 
