@@ -46,6 +46,9 @@ interface GitActionsModule {
     fun bindsAuthenticateLfsServerWithSshGitAction(action: AuthenticateLfsServerWithSshGitAction): IAuthenticateLfsServerWithSshGitAction
 
     @Binds
+    fun bindsAuthenticateLfsServerWithSshGitAction(action: BlameFileGitAction): IBlameFileGitAction
+
+    @Binds
     fun bindsCanGenerateTextDiffGitAction(action: CanGenerateTextDiffGitAction): ICanGenerateTextDiffGitAction
 
     @Binds

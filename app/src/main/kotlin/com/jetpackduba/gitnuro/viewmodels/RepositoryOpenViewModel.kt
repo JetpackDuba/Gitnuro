@@ -5,16 +5,17 @@ import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IGetWorkspacePathGitAction
-import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.BlameFileUseCase
 import com.jetpackduba.gitnuro.domain.usecases.RefreshAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
 import com.jetpackduba.gitnuro.managers.AppStateManager
@@ -70,6 +71,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val dataObserversManager: DataObserversManager,
     private val refreshAllUseCase: RefreshAllUseCase,
+    private val blameFileUseCase: BlameFileUseCase,
     sharedRepositoryStateManager: SharedRepositoryStateManager,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -236,25 +238,20 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
 
-    fun blameFile(filePath: String) = tabState.safeProcessing(
-        refreshType = RefreshType.NONE,
-        taskType = TaskType.BlameFile,
-    ) { git ->
-        _blameState.value = BlameState.Loading(filePath)
-        try {
-            val result = git.blame()
-                .setFilePath(filePath)
-                .setFollowFileRenames(true)
-                .call() ?: throw Exception("File is no longer present in the workspace and can't be blamed")
+    fun blameFile(filePath: String) {
+        viewModelScope.launch {
+            _blameState.value = BlameState.Loading(filePath)
 
-            _blameState.value = BlameState.Loaded(filePath, result)
-        } catch (ex: Exception) {
-            resetBlameState()
+            when (val result = blameFileUseCase(filePath)) {
+                is Either.Err -> {
+                    resetBlameState()
+                }
 
-            throw ex
+                is Either.Ok -> {
+                    _blameState.value = BlameState.Loaded(filePath, result.value)
+                }
+            }
         }
-
-        null
     }
 
     fun resetBlameState() {

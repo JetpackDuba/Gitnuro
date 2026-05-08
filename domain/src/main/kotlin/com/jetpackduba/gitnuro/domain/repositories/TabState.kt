@@ -62,68 +62,6 @@ class TabInstanceRepository @Inject constructor(
     private val _processing = MutableStateFlow<ProcessingState>(ProcessingState.None)
     val processing: StateFlow<ProcessingState> = _processing
 
-    @Synchronized
-    fun safeProcessing(
-        refreshType: RefreshType,
-        // TODO Eventually the title and subtitles should be mandatory but for now the default it's empty to slowly
-        //  migrate the code that uses this function
-        title: String = "",
-        subtitle: String = "",
-        taskType: TaskType,
-        refreshEvenIfCrashes: Boolean = false,
-        refreshEvenIfCrashesInteractive: ((Exception) -> Boolean)? = null,
-        callback: suspend (git: Git) -> Notification?,
-    ): Job {
-        val job = scope.launch(Dispatchers.IO) {
-            var hasProcessFailed = false
-            var refreshEvenIfCrashesInteractiveResult = false
-            operationRunning = true
-
-
-            try {
-                _processing.update { processingState ->
-                    if (processingState is ProcessingState.None) {
-                        ProcessingState.Processing(title, subtitle)
-                    } else {
-                        processingState
-                    }
-                }
-                val notification = callback(git)
-
-                if (notification != null) {
-                    errorsRepository.emitNotification(notification)
-                }
-            } catch (ex: Exception) {
-                hasProcessFailed = true
-                ex.printStackTrace()
-
-                refreshEvenIfCrashesInteractiveResult = refreshEvenIfCrashesInteractive?.invoke(ex) ?: false
-
-                val containsCancellation = exceptionContainsCancellation(ex)
-
-                if (!containsCancellation) {
-                    val innerException = getInnerException(ex)
-
-                    errorsRepository.addError(newErrorNow(taskType, innerException))
-                }
-
-                printError(TAG, ex.message.orEmpty(), ex)
-            } finally {
-                _processing.value = ProcessingState.None
-                operationRunning = false
-                lastOperation = System.currentTimeMillis()
-
-                if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes || refreshEvenIfCrashesInteractiveResult)) {
-                    refreshData.emit(refreshType)
-                }
-            }
-        }
-
-        this.currentJob = job
-
-        return job
-    }
-
     private fun getInnerException(ex: Exception): Exception {
         return if (ex is GitnuroException) {
             ex
@@ -145,43 +83,6 @@ class TabInstanceRepository @Inject constructor(
             is CancellationException -> true
             else -> exceptionContainsCancellation(ex.cause)
         }
-    }
-
-    fun safeProcessingWithoutGit(
-        // TODO Eventually the title and subtitles should be mandatory but for now the default it's empty to slowly
-        //  migrate the code that uses this function
-        title: String = "",
-        subtitle: String = "",
-        callback: suspend CoroutineScope.() -> Unit,
-    ): Job {
-        val job = scope.launch(Dispatchers.IO) {
-            _processing.value = ProcessingState.Processing(title, subtitle)
-            operationRunning = true
-
-            try {
-                this.callback()
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-
-                val containsCancellation = exceptionContainsCancellation(ex)
-
-                if (!containsCancellation)
-                    errorsRepository.addError(
-                        newErrorNow(
-                            taskType = TaskType.Unspecified, ex
-                        )
-                    )
-
-                printError(TAG, ex.message.orEmpty(), ex)
-            } finally {
-                _processing.value = ProcessingState.None
-                operationRunning = false
-            }
-        }
-
-        this.currentJob = job
-
-        return job
     }
 
     fun runOperation(

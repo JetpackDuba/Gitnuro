@@ -2,8 +2,9 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.models.CloneState
 import com.jetpackduba.gitnuro.domain.interfaces.ICloneRepositoryGitAction
+import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.CloneState
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
@@ -14,6 +15,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
@@ -45,20 +47,20 @@ class CloneViewModel @Inject constructor(
     private var cloneJob: Job? = null
 
     fun clone(directoryPath: String, url: String, folder: String, cloneSubmodules: Boolean) {
-        cloneJob = tabState.safeProcessingWithoutGit {
+        cloneJob = viewModelScope.launch {
             if (directoryPath.isBlank()) {
                 _error.value = "Invalid empty directory"
-                return@safeProcessingWithoutGit
+                return@launch
             }
 
             if (url.isBlank()) {
                 _error.value = "Invalid empty URL"
-                return@safeProcessingWithoutGit
+                return@launch
             }
 
             if (folder.isBlank()) {
                 _error.value = "Invalid empty folder name"
-                return@safeProcessingWithoutGit
+                return@launch
             }
 
             val directory = File(directoryPath)
@@ -67,8 +69,7 @@ class CloneViewModel @Inject constructor(
                 directory.mkdirs()
             }
             if (_saveDirAsDefault.value) {
-                // TODO Fix this
-                // appSettings.defaultCloneDir = directoryPath
+                appSettings.setConfiguration(AppConfig.CloneDefaultDirectory(directoryPath))
             }
 
             val repoDir = File(directory, folder)
@@ -89,10 +90,12 @@ class CloneViewModel @Inject constructor(
         }
     }
 
-    fun cancelClone() = tabState.safeProcessingWithoutGit {
-        _cloneState.value = CloneState.Cancelling
-        cloneJob?.cancelAndJoin()
-        _cloneState.value = CloneState.None
+    fun cancelClone() {
+        viewModelScope.launch {
+            _cloneState.value = CloneState.Cancelling
+            cloneJob?.cancelAndJoin()
+            _cloneState.value = CloneState.None
+        }
     }
 
     fun resetStateIfError() {

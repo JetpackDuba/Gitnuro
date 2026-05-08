@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.navigation3.runtime.NavBackStack
 import com.jetpackduba.gitnuro.Screen
+import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
@@ -13,7 +14,6 @@ import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
@@ -28,9 +28,12 @@ import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.io.File
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
@@ -59,7 +62,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
     @Assisted val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
-    IGlobalMenuActionsViewModel by globalMenuActionsViewModel {
+    IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
+    TabViewModel() {
     @AssistedFactory
     interface Factory {
         fun create(initialPath: String?): RepositoryTabViewModel
@@ -90,10 +94,12 @@ class RepositoryTabViewModel @AssistedInject constructor(
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
 
 
-    fun openRepository(directory: String) = tabState.safeProcessingWithoutGit {
-        printLog(TAG, "Trying to open repository ${directory}")
+    fun openRepository(directory: String) {
+        viewModelScope.launch {
+            printLog(TAG, "Trying to open repository ${directory}")
 
-        openRepositoryUseCase(directory)
+            openRepositoryUseCase(directory)
+        }
     }
 
     fun credentialsDenied() {
@@ -129,7 +135,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
         return openFilePickerGitAction(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
 
-    fun initLocalRepository(dir: String) = tabState.safeProcessingWithoutGit {
+    fun initLocalRepository(dir: String) = viewModelScope.launch {
         val repoDir = File(dir)
         initLocalRepositoryGitAction(repoDir)
         openRepository(dir)

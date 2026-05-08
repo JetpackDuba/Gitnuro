@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.data.git.rebase.ResumeRebaseInteractiveGitAction
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.domain.exceptions.RebaseCancelledException
@@ -9,8 +10,10 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.AbortRebaseUseCase
+import com.jetpackduba.gitnuro.domain.usecases.ContinueRebaseUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetCommitFromRebaseLineUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetRepositoryStateUseCase
+import com.jetpackduba.gitnuro.domain.usecases.ResumeRebaseInteractiveUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,6 +33,7 @@ class RebaseInteractiveViewModel @Inject constructor(
     private val abortRebaseUseCase: AbortRebaseUseCase,
     private val resumeRebaseInteractiveGitAction: IResumeRebaseInteractiveGitAction,
     private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
+    private val resumeRebaseInteractiveUseCase: ResumeRebaseInteractiveUseCase,
 ) : TabViewModel() {
     private val _rebaseState = MutableStateFlow<RebaseInteractiveViewState>(RebaseInteractiveViewState.Loading)
     val rebaseState: StateFlow<RebaseInteractiveViewState> = _rebaseState
@@ -140,15 +144,7 @@ class RebaseInteractiveViewModel @Inject constructor(
         return false
     }
 
-    fun continueRebaseInteractive() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.RebaseInteractive, // TODO Perhaps be more precise with the task type
-    ) { git ->
-        resumeRebaseInteractiveGitAction(git, interactiveHandlerContinue)
-        _rebaseState.value = RebaseInteractiveViewState.Loading
-
-        null
-    }
+    fun continueRebaseInteractive() =  resumeRebaseInteractiveUseCase(interactiveHandlerContinue)
 
     fun onCommitMessageChanged(commit: AbbreviatedObjectId, message: String) {
         val rebaseState = _rebaseState.value
