@@ -1,13 +1,19 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.domain.exceptions.RebaseCancelledException
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.AbortRebaseUseCase
+import com.jetpackduba.gitnuro.domain.usecases.GetCommitFromRebaseLineUseCase
+import com.jetpackduba.gitnuro.domain.usecases.GetRepositoryStateUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.RebaseTodoLine
@@ -18,13 +24,13 @@ private const val TAG = "RebaseInteractiveViewMo"
 
 class RebaseInteractiveViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val getRebaseLinesFullMessageGitAction: IGetRebaseLinesFullMessageGitAction,
-    private val getCommitFromRebaseLineGitAction: IGetCommitFromRebaseLineGitAction,
+//    private val getRebaseLinesFullMessageGitAction: IGetRebaseLinesFullMessageGitAction,
+    private val getCommitFromRebaseLineUseCase: GetCommitFromRebaseLineUseCase,
     private val getRebaseInteractiveTodoLinesGitAction: IGetRebaseInteractiveTodoLinesGitAction,
-    private val abortRebaseGitAction: IAbortRebaseGitAction,
+    private val abortRebaseUseCase: AbortRebaseUseCase,
     private val resumeRebaseInteractiveGitAction: IResumeRebaseInteractiveGitAction,
-    private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
-) {
+    private val getRepositoryStateUseCase: GetRepositoryStateUseCase,
+) : TabViewModel() {
     private val _rebaseState = MutableStateFlow<RebaseInteractiveViewState>(RebaseInteractiveViewState.Loading)
     val rebaseState: StateFlow<RebaseInteractiveViewState> = _rebaseState
 
@@ -63,50 +69,61 @@ class RebaseInteractiveViewModel @Inject constructor(
         }
     }
 
-    fun loadRebaseInteractiveData() = tabState.safeProcessing(
-        refreshType = RefreshType.NONE,
-        taskType = TaskType.RebaseInteractive,// TODO Perhaps this should be more specific such as TaskType.LOAD_ABORT_REBASE
-    ) { git ->
-        val state = getRepositoryStateGitAction(git)
-
-        if (!state.isRebasing) {
-            _rebaseState.value = RebaseInteractiveViewState.Loading
-            return@safeProcessing null
-        }
-
-        try {
-            val lines = getRebaseInteractiveTodoLinesGitAction(git)
-            val messages = getRebaseLinesFullMessageGitAction(tabState.git, lines)
-            val rebaseLines = lines.map {
-                RebaseLine(
-                    it.action.toRebaseAction(),
-                    it.commit,
-                    it.shortMessage,
-                )
-            }
-
-            val isSameRebase = isSameRebase(rebaseLines, _rebaseState.value)
-
-            if (!isSameRebase) {
-                _rebaseState.value = RebaseInteractiveViewState.Loaded(rebaseLines, messages)
-                val firstLine = rebaseLines.firstOrNull()
-
-                if (firstLine != null) {
-                    val fullCommit = getCommitFromRebaseLineGitAction(git, firstLine.commit, firstLine.shortMessage)
-                    tabState.newSelectedCommit(fullCommit)
-                }
-            }
-
-        } catch (ex: Exception) {
-            if (ex is RebaseCancelledException) {
-                println("Rebase cancelled")
-            } else {
-                cancel()
-                throw ex
-            }
-        }
-
-        null
+    fun loadRebaseInteractiveData() {
+        // TODO Move this to use case
+//        viewModelScope.launch {
+//            val stateResult = getRepositoryStateUseCase()
+//
+//            when (stateResult) {
+//                is Either.Err -> {
+//                    _rebaseState.value = RebaseInteractiveViewState.Failed(stateResult.error.toString())
+//                }
+//
+//                is Either.Ok -> {
+//                    val state = stateResult.value
+//                    if (!state.isRebasing) {
+//                        _rebaseState.value = RebaseInteractiveViewState.Loading
+//                        return@launch
+//                    }
+//                }
+//            }
+//        }
+//
+//
+//
+//        try {
+//            val lines = getRebaseInteractiveTodoLinesGitAction(git)
+//            val messages = getRebaseLinesFullMessageGitAction(tabState.git, lines)
+//            val rebaseLines = lines.map {
+//                RebaseLine(
+//                    it.action.toRebaseAction(),
+//                    it.commit,
+//                    it.shortMessage,
+//                )
+//            }
+//
+//            val isSameRebase = isSameRebase(rebaseLines, _rebaseState.value)
+//
+//            if (!isSameRebase) {
+//                _rebaseState.value = RebaseInteractiveViewState.Loaded(rebaseLines, messages)
+//                val firstLine = rebaseLines.firstOrNull()
+//
+//                if (firstLine != null) {
+//                    val fullCommit = getCommitFromRebaseLineUseCase(firstLine.commit, firstLine.shortMessage)
+//                    tabState.newSelectedCommit(fullCommit)
+//                }
+//            }
+//
+//        } catch (ex: Exception) {
+//            if (ex is RebaseCancelledException) {
+//                println("Rebase cancelled")
+//            } else {
+//                cancel()
+//                throw ex
+//            }
+//        }
+//
+//        null
     }
 
     private fun isSameRebase(rebaseLines: List<RebaseLine>, state: RebaseInteractiveViewState): Boolean {
@@ -172,19 +189,14 @@ class RebaseInteractiveViewModel @Inject constructor(
         }
     }
 
-    fun cancel() = tabState.runOperation(
-        refreshType = RefreshType.ALL_DATA,
-    ) { git ->
-        abortRebaseGitAction(git)
+    fun cancel() {
+        abortRebaseUseCase()
         _rebaseState.value = RebaseInteractiveViewState.Loading
     }
 
-    fun selectLine(line: RebaseLine) = tabState.safeProcessing(
-        refreshType = RefreshType.NONE,
-        taskType = TaskType.AbortRebase, // TODO Perhaps be more precise with the task type
-    ) { git ->
-        val fullCommit = getCommitFromRebaseLineGitAction(git, line.commit, line.shortMessage)
-        tabState.newSelectedCommit(fullCommit)
+    fun selectLine(line: RebaseLine) = viewModelScope.launch {
+        val fullCommit = getCommitFromRebaseLineUseCase(TODO()/*line.commit*/, line.shortMessage)
+        tabState.newSelectedCommit(TODO()/*line.commit*/)
 
         null
     }

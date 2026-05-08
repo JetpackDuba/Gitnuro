@@ -7,7 +7,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
 import com.jetpackduba.gitnuro.ui.dialogs.base.SingleTextFieldDialog
 import com.jetpackduba.gitnuro.viewmodels.RenameBranchDialogViewModel
-import org.eclipse.jgit.lib.Ref
+import com.jetpackduba.gitnuro.viewmodels.RenameState
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -27,11 +27,11 @@ fun RenameBranchDialog(
         )
     }
 
-    LaunchedEffect(branch) {
-        viewModel.operationCompleted.collect { completed ->
-            if (completed) {
-                onDismiss()
-            }
+    val state by viewModel.renameState.collectAsState()
+
+    LaunchedEffect(state) {
+        if (state is RenameState.Success) {
+            onDismiss()
         }
     }
 
@@ -40,6 +40,7 @@ fun RenameBranchDialog(
         title = "Rename branch",
         subtitle = "Set a new name to the branch \"${branch.simpleName}\"",
         value = field,
+        enabled = state is RenameState.Waiting || state is RenameState.Failed,
         onValueChange = {
             field = it
         },

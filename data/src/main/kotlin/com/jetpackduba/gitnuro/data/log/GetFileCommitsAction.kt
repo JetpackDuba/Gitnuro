@@ -1,21 +1,22 @@
 package com.jetpackduba.gitnuro.data.log
 
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.mappers.JGitCommitMapper
 import com.jetpackduba.gitnuro.domain.interfaces.IGetFileCommitsAction
-import com.jetpackduba.gitnuro.domain.models.Commit
-import org.eclipse.jgit.api.Git
 import javax.inject.Inject
 
 class GetFileCommitsAction @Inject constructor(
     private val commitMapper: JGitCommitMapper,
+    private val jgit: JGit,
 ) : IGetFileCommitsAction {
     override suspend fun invoke(
-        git: Git,
+        repositoryPath: String,
         filePath: String
-    ): List<Commit> = git.log()
-        .addPath(filePath)
-        .call()
-        .toList()
-        .map { commitMapper.toDomain(it) }
-
+    ) = jgit.provide(repositoryPath) { git ->
+        git.log()
+            .addPath(filePath)
+            .call()
+            .toList()
+            .map { commitMapper.toDomain(it) }
+    }
 }

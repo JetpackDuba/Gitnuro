@@ -71,6 +71,9 @@ data class Error(
             TaskType.StageDir -> "Staging directory failed"
             TaskType.UnstageDir -> "Unstaging directory failed"
             TaskType.SaveAuthor -> "Saving author failed"
+            TaskType.GetCommitForRebase -> "Get commit for rebase failed"
+            TaskType.GetFileCommits -> "Get file commits failed"
+            TaskType.GetLinesForRebaseInteractive -> "Get lines for rebase interactive failed"
         }
     }
 }

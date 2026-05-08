@@ -73,12 +73,13 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
         val state = _setDefaultUpstreamBranchState.value
 
         if (state is SetDefaultUpstreamBranchState.Loaded) {
-            setTrackingBranchGitAction(
-                git = git,
-                branch = state.branch,
-                remoteName = state.selectedRemote?.remote?.name,
-                remoteBranch = state.selectedBranch
-            )
+            // TODO
+//            setTrackingBranchGitAction(
+//                git = git,
+//                branch = state.branch,
+//                remoteName = state.selectedRemote?.remote?.name,
+//                remoteBranch = state.selectedBranch
+//            )
 
             _setDefaultUpstreamBranchState.value = SetDefaultUpstreamBranchState.UpstreamChanged
         }

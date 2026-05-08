@@ -62,4 +62,7 @@ sealed interface TaskType {
     data object DeleteRemote : TaskType
     data object LoadAuthor : TaskType
     data object SaveAuthor : TaskType
+    data object GetCommitForRebase : TaskType
+    data object GetLinesForRebaseInteractive : TaskType
+    data object GetFileCommits : TaskType
 }

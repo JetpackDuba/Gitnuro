@@ -133,6 +133,7 @@ private fun HistoryContent(
         )
 
         is HistoryState.Loading -> Box { }
+        is HistoryState.Failed -> Box { } // TODO Show error
     }
 }
 

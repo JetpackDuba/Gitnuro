@@ -178,9 +178,6 @@ interface GitActionsModule {
     fun bindsGetRebaseInteractiveTodoLinesGitAction(action: GetRebaseInteractiveTodoLinesGitAction): IGetRebaseInteractiveTodoLinesGitAction
 
     @Binds
-    fun bindsGetRebaseLinesFullMessageGitAction(action: GetRebaseLinesFullMessageGitAction): IGetRebaseLinesFullMessageGitAction
-
-    @Binds
     fun bindsGetRemoteBranchesGitAction(action: GetRemoteBranchesGitAction): IGetRemoteBranchesGitAction
 
     @Binds

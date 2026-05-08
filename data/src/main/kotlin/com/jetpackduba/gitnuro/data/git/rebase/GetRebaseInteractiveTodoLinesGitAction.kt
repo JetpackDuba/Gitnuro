@@ -1,18 +1,19 @@
 package com.jetpackduba.gitnuro.data.git.rebase
 
 import com.jetpackduba.gitnuro.common.printDebug
+import com.jetpackduba.gitnuro.data.git.JGit
+import com.jetpackduba.gitnuro.data.mappers.JGitRebaseTodoLineMapper
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseInteractiveTodoLinesGitAction
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand
-import org.eclipse.jgit.lib.RebaseTodoLine
 import javax.inject.Inject
 
 private const val TAG = "GetRebaseInteractiveTod"
 
-class GetRebaseInteractiveTodoLinesGitAction @Inject constructor() : IGetRebaseInteractiveTodoLinesGitAction {
-    override suspend operator fun invoke(git: Git): List<RebaseTodoLine> = withContext(Dispatchers.IO) {
+class GetRebaseInteractiveTodoLinesGitAction @Inject constructor(
+    private val jgit: JGit,
+    private val rebaseTodoLineMapper: JGitRebaseTodoLineMapper,
+) : IGetRebaseInteractiveTodoLinesGitAction {
+    override suspend operator fun invoke(repositoryPath: String) = jgit.provide(repositoryPath) { git ->
         val repository = git.repository
 
         val filePath = "${RebaseCommand.REBASE_MERGE}/${RebaseConstants.GIT_REBASE_TODO}"
@@ -20,6 +21,8 @@ class GetRebaseInteractiveTodoLinesGitAction @Inject constructor() : IGetRebaseI
 
         printDebug(TAG, "There are ${lines.count()} lines")
 
-        return@withContext lines
+        lines.map { line ->
+            rebaseTodoLineMapper.toDomain(line)
+        }
     }
 }

@@ -1,32 +1,26 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
-import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
-class CheckoutCommitUseCase @Inject constructor(
-    private val checkoutCommitGitAction: ICheckoutCommitGitAction,
+class CherryPickCommitUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
+    private val cherryPickGitAction: ICherryPickCommitGitAction,
     private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshBranchUseCase: RefreshBranchesUseCase,
+    private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
     operator fun invoke(commit: Commit) {
-        invoke(commit.hash)
-    }
-
-    operator fun invoke(hash: String) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.CheckoutCommit,
+            taskType = TaskType.CherryPickCommit,
             onRefresh = {
                 refreshStatusUseCase()
                 refreshLogUseCase()
-                refreshBranchUseCase()
             }
         ) { repositoryPath ->
-            checkoutCommitGitAction(repositoryPath, hash)
+            cherryPickGitAction(repositoryPath, commit)
         }
     }
 }

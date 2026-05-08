@@ -1,32 +1,27 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
-import com.jetpackduba.gitnuro.domain.interfaces.ICheckoutCommitGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
-class CheckoutCommitUseCase @Inject constructor(
-    private val checkoutCommitGitAction: ICheckoutCommitGitAction,
+class RevertCommitUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
+    private val revertCommitGitAction: IRevertCommitGitAction,
     private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshBranchUseCase: RefreshBranchesUseCase,
+    private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
     operator fun invoke(commit: Commit) {
-        invoke(commit.hash)
-    }
-
-    operator fun invoke(hash: String) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.CheckoutCommit,
+            taskType = TaskType.RevertCommit,
+            refreshEvenIfFailed = true,
             onRefresh = {
                 refreshStatusUseCase()
                 refreshLogUseCase()
-                refreshBranchUseCase()
             }
         ) { repositoryPath ->
-            checkoutCommitGitAction(repositoryPath, hash)
+            revertCommitGitAction(repositoryPath, commit)
         }
     }
 }

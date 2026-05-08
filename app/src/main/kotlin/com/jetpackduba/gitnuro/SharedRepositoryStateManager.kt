@@ -19,46 +19,11 @@ import javax.inject.Inject
 private const val TAG = "SharedRepositoryStateMa"
 
 @TabScope
-class SharedRepositoryStateManager @Inject constructor(
-    private val tabState: TabInstanceRepository,
-    private val getRebaseInteractiveStateGitAction: IGetRebaseInteractiveStateGitAction,
-    private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
-    tabScope: TabCoroutineScope,
-) {
+class SharedRepositoryStateManager @Inject constructor() {
     private val _repositoryState = MutableStateFlow(RepositoryState.SAFE)
     val repositoryState = _repositoryState.asStateFlow()
 
     private val _rebaseInteractiveState = MutableStateFlow<RebaseInteractiveState>(RebaseInteractiveState.None)
     val rebaseInteractiveState = _rebaseInteractiveState.asStateFlow()
 
-    init {
-        tabScope.apply {
-            launch {
-                tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REBASE_INTERACTIVE_STATE) {
-                    updateRebaseInteractiveState(tabState.git)
-                }
-            }
-            launch {
-                tabState.refreshFlowFiltered(
-                    RefreshType.ALL_DATA,
-                    RefreshType.REPO_STATE,
-                    RefreshType.UNCOMMITTED_CHANGES,
-                    RefreshType.UNCOMMITTED_CHANGES_AND_LOG
-                ) {
-                    updateRepositoryState(tabState.git)
-                }
-            }
-        }
-    }
-
-    private suspend fun updateRepositoryState(git: Git) {
-        _repositoryState.value = getRepositoryStateGitAction(git)
-    }
-
-    private suspend fun updateRebaseInteractiveState(git: Git) {
-        val newRepositoryState = getRebaseInteractiveStateGitAction(git)
-        printLog(TAG, "Refreshing repository state $newRepositoryState")
-
-        _rebaseInteractiveState.value = newRepositoryState
-    }
 }

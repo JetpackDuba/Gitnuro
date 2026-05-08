@@ -62,10 +62,6 @@ class TabInstanceRepository @Inject constructor(
     private val _processing = MutableStateFlow<ProcessingState>(ProcessingState.None)
     val processing: StateFlow<ProcessingState> = _processing
 
-    fun initGit(git: Git) {
-        this.unsafeGit = git
-    }
-
     @Synchronized
     fun safeProcessing(
         refreshType: RefreshType,

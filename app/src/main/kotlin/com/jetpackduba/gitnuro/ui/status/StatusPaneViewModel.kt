@@ -22,8 +22,9 @@ import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.RepositoryState
 import java.io.File
@@ -43,10 +44,11 @@ class StatusPaneViewModel @Inject constructor(
     private val unstageByDirectoryGitAction: IUnstageByDirectoryGitAction,
     private val discardEntriesGitAction: IDiscardEntriesGitAction,
     private val getLastCommitMessageGitAction: IGetLastCommitMessageGitAction,
-    private val resetRepositoryStateGitAction: IResetRepositoryStateGitAction,
+    private val resetRepositoryStateUseCase: ResetRepositoryStateUseCase,
     private val continueRebaseGitAction: IContinueRebaseGitAction,
-    private val abortRebaseGitAction: IAbortRebaseGitAction,
-    private val skipRebaseGitAction: ISkipRebaseGitAction,
+    private val abortRebaseUseCase: AbortRebaseUseCase,
+    private val continueRebaseUseCase: ContinueRebaseUseCase,
+    private val skipRebaseUseCase: SkipRebaseUseCase,
     private val doCommitUseCase: DoCommitUseCase,
     private val getAuthorUseCase: GetAuthorUseCase,
     private val saveAuthorGitAction: ISaveAuthorGitAction,
@@ -522,57 +524,10 @@ class StatusPaneViewModel @Inject constructor(
             null
     }
 
-    fun continueRebase(message: String) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.ContinueRebase,
-    ) { git ->
-        val repositoryState = sharedRepositoryStateManager.repositoryState.value
-        val rebaseInteractiveState = sharedRepositoryStateManager.rebaseInteractiveState.value
-
-        if (
-            repositoryState == RepositoryState.REBASING_INTERACTIVE &&
-            rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits &&
-            rebaseInteractiveState.isCurrentStepAmenable &&
-            isAmendRebaseInteractive.value
-        ) {
-            val amendCommitId = rebaseInteractiveState.commitToAmendId
-
-            if (!amendCommitId.isNullOrBlank()) {
-                doCommitUseCase(message, true, getIdentity(git))
-            }
-        }
-
-        continueRebaseGitAction(git)
-
-        null
-    }
-
-    fun abortRebase() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.AbortRebase,
-    ) { git ->
-        abortRebaseGitAction(git)
-
-        positiveNotification("Rebase aborted")
-    }
-
-    fun skipRebase() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.SkipRebase,
-    ) { git ->
-        skipRebaseGitAction(git)
-
-        null
-    }
-
-    fun resetRepoState() = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.ResetRepoState,
-    ) { git ->
-        resetRepositoryStateGitAction(git)
-
-        positiveNotification("Repository state has been reset")
-    }
+    fun continueRebase(message: String) = continueRebaseUseCase(message, isAmendRebaseInteractive.value)
+    fun abortRebase() = abortRebaseUseCase()
+    fun skipRebase() = skipRebaseUseCase()
+    fun resetRepoState() = resetRepositoryStateUseCase()
 
     private fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(
         refreshType = RefreshType.UNCOMMITTED_CHANGES,

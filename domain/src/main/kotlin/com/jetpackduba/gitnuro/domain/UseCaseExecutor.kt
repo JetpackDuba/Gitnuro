@@ -1,11 +1,6 @@
 package com.jetpackduba.gitnuro.domain
 
-import com.jetpackduba.gitnuro.domain.errors.AppError
-import com.jetpackduba.gitnuro.domain.errors.Either
-import com.jetpackduba.gitnuro.domain.errors.EitherContext
-import com.jetpackduba.gitnuro.domain.errors.GenericError
-import com.jetpackduba.gitnuro.domain.errors.RepositoryPathNotSetError
-import com.jetpackduba.gitnuro.domain.errors.either
+import com.jetpackduba.gitnuro.domain.errors.*
 import com.jetpackduba.gitnuro.domain.extensions.runOperationInTabScope
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.newErrorNow
@@ -22,9 +17,15 @@ class UseCaseExecutor @Inject constructor(
 ) {
     suspend fun <T> execute(
         taskType: TaskType,
+        onRefresh: suspend () -> Unit = {},
+        refreshEvenIfFailed: Boolean = false,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ): Either<T, AppError> {
-        return executeTask(taskType, block)
+        return executeTask(taskType, block).apply {
+            if (this is Either.Ok || refreshEvenIfFailed) {
+                onRefresh()
+            }
+        }
     }
 
     fun <T> executeLaunch(

@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+// TODO Some parts of the app abuse this use case when not everything needs to be updated.
 class RefreshAllUseCase @Inject constructor(
     private val refreshBranchesUseCase: RefreshBranchesUseCase,
     private val refreshStatusUseCase: RefreshStatusUseCase,

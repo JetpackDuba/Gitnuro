@@ -35,6 +35,7 @@ class PushBranchGitAction @Inject constructor(
         pushWithLease: Boolean,
         specificBranch: Branch?,
     ) = jgit.provide(repositoryPath) { git ->
+        // TODO most of this should be part of the domain logic
         val currentBranch = git.repository.branch
         val fullCurrentBranch = git.repository.fullBranch
 
@@ -64,7 +65,7 @@ class PushBranchGitAction @Inject constructor(
             val remoteName = remoteBranchPathSplit.getOrNull(2)
             val remoteBranchName =
                 remoteBranchPathSplit.takeLast(max(0, remoteBranchPathSplit.count() - 3)).joinToString("/")
-            setTrackingBranchGitAction(git, currentBranch, remoteName, remoteBranchName)
+            setTrackingBranchGitAction(repositoryPath, currentBranch, remoteName, remoteBranchName)
         }
     }
 

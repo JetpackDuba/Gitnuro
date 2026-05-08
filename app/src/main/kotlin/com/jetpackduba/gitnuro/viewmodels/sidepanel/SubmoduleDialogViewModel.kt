@@ -1,11 +1,9 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.interfaces.IAddSubmoduleGitAction
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.AddSubmoduleUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -16,7 +14,7 @@ import javax.inject.Inject
 
 class SubmoduleDialogViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val addSubmoduleGitAction: IAddSubmoduleGitAction,
+    private val addSubmoduleUseCase: AddSubmoduleUseCase,
 ) : TabViewModel() {
     private val _error = MutableStateFlow("")
     val error = _error.asStateFlow()
@@ -58,19 +56,11 @@ class SubmoduleDialogViewModel @Inject constructor(
         _onDataIsValid.emit(Unit)
     }
 
-    fun createSubmodule(repository: String, directory: String) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        taskType = TaskType.AddSubmodule,
-    ) { git ->
-        addSubmoduleGitAction(
-            git.repository.directory.absolutePath,
-            name = directory,
-            path = directory,
-            uri = repository,
-        )
-
-        positiveNotification("Submodule created")
-    }
+    fun createSubmodule(submodulePath: String, directory: String) = addSubmoduleUseCase(
+        name = directory,
+        path = directory,
+        uri = submodulePath
+    )
 
     fun resetError() {
         _error.value = ""

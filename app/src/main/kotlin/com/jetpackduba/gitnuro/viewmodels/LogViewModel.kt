@@ -7,8 +7,6 @@ import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.countOrZero
-import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IRevertCommitGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
@@ -23,6 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import org.jetbrains.skiko.ClipboardManager
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Represents when the search filter is not being used or the results list is empty
@@ -47,8 +46,6 @@ class LogViewModel @Inject constructor(
     private val rebaseBranchUseCase: RebaseBranchUseCase,
     private val checkoutBranchUseCase: CheckoutBranchUseCase,
     private val deleteRemoteBranchUseCase: DeleteRemoteBranchUseCase,
-    private val revertCommitGitAction: IRevertCommitGitAction,
-    private val cherryPickCommitGitAction: ICherryPickCommitGitAction,
     private val tabState: TabInstanceRepository,
     private val tabScope: TabCoroutineScope,
     private val clipboardManager: ClipboardManager,
@@ -60,6 +57,8 @@ class LogViewModel @Inject constructor(
     private val applyStashUseCase: ApplyStashUseCase,
     private val popStashUseCase: PopStashUseCase,
     private val deleteStashUseCase: DeleteStashUseCase,
+    private val cherryPickCommitUseCase: CherryPickCommitUseCase,
+    private val revertCommitUseCase: RevertCommitUseCase,
 ) : TabViewModel() {
 
     private val hasUncommittedChanges = repositoryDataRepository.status.map {
@@ -106,7 +105,7 @@ class LogViewModel @Inject constructor(
             horizontalListState,
         )
     }
-        .debounce(LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD)
+        .debounce(LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD.milliseconds)
         .stateIn(LogState(true))
 
 
@@ -191,44 +190,23 @@ class LogViewModel @Inject constructor(
     private fun applyStash(stash: Commit) = applyStashUseCase(stash)
     private fun popStash(stash: Commit) = popStashUseCase(stash)
     private fun deleteStash(stash: Commit) = deleteStashUseCase(stash)
+    private fun cherryPickCommit(commit: Commit) = cherryPickCommitUseCase(commit)
+    private fun revertCommit(commit: Commit) = revertCommitUseCase(commit)
 
-/*
-// TODO Restore this functionality?
-    fun stashDropped(stash: Commit) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) {
-        val selectedValue = tabState.selectedItem.value
-        if (
-            selectedValue is SelectedItem.Stash &&
-            selectedValue.commit.hash == stash.hash
+    /*
+    // TODO Restore this functionality?
+        fun stashDropped(stash: Commit) = tabState.runOperation(
+            refreshType = RefreshType.NONE,
         ) {
-            tabState.noneSelected()
+            val selectedValue = tabState.selectedItem.value
+            if (
+                selectedValue is SelectedItem.Stash &&
+                selectedValue.commit.hash == stash.hash
+            ) {
+                tabState.noneSelected()
+            }
         }
-    }
-*/
-    fun revertCommit(revCommit: Commit) = tabState.safeProcessing(
-        refreshType = RefreshType.ALL_DATA,
-        title = "Commit revert",
-        subtitle = "Reverting commit ${revCommit.hash}",
-        refreshEvenIfCrashes = true,
-        taskType = TaskType.RevertCommit,
-    ) { git ->
-        revertCommitGitAction(git, revCommit)
-
-        positiveNotification("Commit reverted")
-    }
-
-    fun cherryPickCommit(revCommit: Commit) = tabState.safeProcessing(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-        title = "Cherry-pick",
-        subtitle = "Cherry-picking commit ${revCommit.shortHash}",
-        taskType = TaskType.CherryPickCommit,
-        refreshEvenIfCrashes = true,
-    ) { git ->
-        cherryPickCommitGitAction(git, revCommit)
-
-        positiveNotification("Commit cherry-picked")
-    }
+    */
 
     fun selectUncommittedChanges() = viewModelScope.launch {
         tabState.newSelectedItem(SelectedItem.UncommittedChanges)
@@ -395,10 +373,7 @@ class LogViewModel @Inject constructor(
         }*/
     }
 
-    fun copyBranchNameToClipboard(branch: Branch) = tabState.safeProcessing(
-        refreshType = RefreshType.NONE,
-        taskType = TaskType.Unspecified
-    ) {
+    fun copyBranchNameToClipboard(branch: Branch) = viewModelScope.launch {
         copyBranchNameToClipboardAndGetNotification(
             branch,
             clipboardManager

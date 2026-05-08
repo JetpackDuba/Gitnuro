@@ -1,17 +1,16 @@
 package com.jetpackduba.gitnuro.data.git.branches
 
 import com.jetpackduba.gitnuro.common.extensions.runIfNotNull
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.interfaces.ICreateBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
-class CreateBranchGitAction @Inject constructor() : ICreateBranchGitAction {
-    override suspend operator fun invoke(git: Git, branchName: String, targetCommit: Commit?): Ref =
-        withContext(Dispatchers.IO) {
+class CreateBranchGitAction @Inject constructor(
+    private val jgit: JGit,
+) : ICreateBranchGitAction {
+    override suspend operator fun invoke(repositoryPath: String, branchName: String, targetCommit: Commit?) =
+        jgit.provide(repositoryPath) { git ->
             git
                 .checkout()
                 .setCreateBranch(true)
@@ -20,5 +19,7 @@ class CreateBranchGitAction @Inject constructor() : ICreateBranchGitAction {
                     setStartPoint(commit.hash)
                 }
                 .call()
+
+            Unit
         }
 }

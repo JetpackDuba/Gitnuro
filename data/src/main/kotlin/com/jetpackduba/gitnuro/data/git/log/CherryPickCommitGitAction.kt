@@ -1,21 +1,21 @@
 package com.jetpackduba.gitnuro.data.git.log
 
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.interfaces.ICherryPickCommitGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.CherryPickResult
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.revwalk.RevCommit
 import javax.inject.Inject
 
-class CherryPickCommitGitAction @Inject constructor() : ICherryPickCommitGitAction {
-    override suspend operator fun invoke(git: Git, revCommit: Commit): CherryPickResult = withContext(Dispatchers.IO) {
+class CherryPickCommitGitAction @Inject constructor(
+    private val jgit: JGit,
+) : ICherryPickCommitGitAction {
+    override suspend operator fun invoke(repositoryPath: String, commit: Commit) = jgit.provide(repositoryPath) { git ->
         val base =
-            git.repository.resolve(revCommit.hash) ?: throw Exception("Commit ${revCommit.hash} not found")
+            git.repository.resolve(commit.hash) ?: throw Exception("Commit ${commit.hash} not found")
 
         git.cherryPick()
             .include(base)
             .call()
+
+        Unit
     }
 }
