@@ -126,7 +126,7 @@ fun AppTab(
             Box(modifier = Modifier.fillMaxSize()) {
                 NavDisplay(
                     backStack = backStack,
-                    onBack = { backStack.removeLastOrNull() },
+                    onBack = {},
                     sceneStrategy = dialogStrategy,
                     entryProvider = entryProvider {
                         entry<Screen.Welcome> {
