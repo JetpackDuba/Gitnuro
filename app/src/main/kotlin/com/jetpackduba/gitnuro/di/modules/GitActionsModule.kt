@@ -142,6 +142,9 @@ interface GitActionsModule {
     fun bindsGetCommitDiffEntriesGitAction(action: GetCommitDiffEntriesGitAction): IGetCommitDiffEntriesGitAction
 
     @Binds
+    fun bindsGetCommitFromHashGitAction(action: GetCommitFromHashGitAction): IGetCommitFromHashGitAction
+
+    @Binds
     fun bindsGetCommitFromRebaseLineGitAction(action: GetCommitFromRebaseLineGitAction): IGetCommitFromRebaseLineGitAction
 
     @Binds

@@ -1,13 +1,10 @@
 package com.jetpackduba.gitnuro.data.git.diff
 
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.fullData
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
@@ -16,14 +13,19 @@ import org.eclipse.jgit.treewalk.AbstractTreeIterator
 import org.eclipse.jgit.treewalk.CanonicalTreeParser
 import javax.inject.Inject
 
-class GetCommitDiffEntriesGitAction @Inject constructor() : IGetCommitDiffEntriesGitAction {
-    override suspend operator fun invoke(git: Git, commit: Commit): List<DiffEntry> = withContext(Dispatchers.IO) {
+class GetCommitDiffEntriesGitAction @Inject constructor(
+    private val jgit: JGit,
+) : IGetCommitDiffEntriesGitAction {
+    override suspend operator fun invoke(
+        repositoryPath: String,
+        commit: Commit,
+    ) = jgit.provide(repositoryPath) { git ->
         val repository = git.repository
 
         val base = repository
             .resolve(commit.hash) ?: throw Exception("Commit ${commit.hash} not found")
 
-        val fullCommit = git.repository.parseCommit(base) ?: return@withContext emptyList()
+        val fullCommit = git.repository.parseCommit(base) ?: return@provide emptyList()
 
         val parent = if (fullCommit.parentCount == 0) {
             null
@@ -38,7 +40,7 @@ class GetCommitDiffEntriesGitAction @Inject constructor() : IGetCommitDiffEntrie
 
         val newTreeParser = prepareTreeParser(repository, fullCommit)
 
-        return@withContext git.diff()
+        return@provide git.diff()
             .setNewTree(newTreeParser)
             .setOldTree(oldTreeParser)
             .call()

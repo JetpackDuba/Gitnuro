@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
@@ -138,27 +139,9 @@ class CommitChangesViewModel @Inject constructor(
                 onDelayTriggered = { _commitChangesState.value = CommitChangesState.Loading }
             ) {
 
-                val changes = getCommitDiffEntriesUseCase(commit).toMutableList()
+                val changes = getCommitDiffEntriesUseCase(commit)
 
-                // TODO Restore stashes change loading. IIRC only stashes have 3 parents, usually.
-                /*if (commit.parentCount == 3) {
-                    val untrackedFilesCommit =
-                        commit.parents?.firstOrNull {
-                            val parentCommit = it.fullData(git.repository) ?: return@firstOrNull false
-
-                            parentCommit.fullMessage.startsWith("untracked files on") && parentCommit.parentCount == 0
-                        }
-
-                    if (untrackedFilesCommit != null) {
-                        val untrackedFilesChanges = getCommitDiffEntriesGitAction(git, untrackedFilesCommit)
-
-                        if (untrackedFilesChanges.all { it.changeType == DiffEntry.ChangeType.ADD }) { // All files should be new
-                            changes.addAll(untrackedFilesChanges)
-                        }
-                    }
-                }*/
-
-                _commitChangesState.value = CommitChangesState.Loaded(commit, changes)
+                _commitChangesState.value = CommitChangesState.Loaded(commit, changes.okOrNull().orEmpty())
             }
 
             _showSearch.value = false

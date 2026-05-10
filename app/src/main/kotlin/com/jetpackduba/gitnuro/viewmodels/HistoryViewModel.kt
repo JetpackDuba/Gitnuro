@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSetti
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
@@ -15,8 +16,10 @@ import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,7 +27,7 @@ import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
-    private val getCommitDiffEntriesGitAction: IGetCommitDiffEntriesGitAction,
+    private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
     private val settings: AppSettingsService,
     private val tabScope: TabCoroutineScope,
@@ -93,30 +96,28 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun selectCommit(commit: Commit) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-        showError = true,
-    ) { git ->
+    fun selectCommit(commit: Commit) {
+        viewModelScope.launch {
+            try {
+                val diffEntries = getCommitDiffEntriesUseCase(commit).okOrNull().orEmpty()
+                val diffEntry = diffEntries.firstOrNull { entry ->
+                    entry.filePath == this@HistoryViewModel.filePath
+                }
 
-        try {
-            val diffEntries = getCommitDiffEntriesGitAction(git, commit)
-            val diffEntry = diffEntries.firstOrNull { entry ->
-                entry.filePath == this.filePath
+                if (diffEntry == null) {
+                    _viewDiffResult.value = ViewDiffResult.DiffNotFound(null)
+                    return@launch
+                }
+
+                val diffType = DiffType.CommitDiff(diffEntry)
+                _viewDiffResult.value = getDiffUseCase(diffType)
+            } catch (ex: Exception) {
+                if (ex is MissingDiffEntryException) {
+                    tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
+                    _viewDiffResult.value = ViewDiffResult.DiffNotFound(null)
+                } else
+                    ex.printStackTrace()
             }
-
-            if (diffEntry == null) {
-                _viewDiffResult.value = ViewDiffResult.DiffNotFound(null)
-                return@runOperation
-            }
-
-            val diffType = DiffType.CommitDiff(diffEntry)
-            _viewDiffResult.value = getDiffUseCase(diffType)
-        } catch (ex: Exception) {
-            if (ex is MissingDiffEntryException) {
-                tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
-                _viewDiffResult.value = ViewDiffResult.DiffNotFound(null)
-            } else
-                ex.printStackTrace()
         }
     }
 }

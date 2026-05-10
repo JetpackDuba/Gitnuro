@@ -19,7 +19,7 @@ class JGitCommitMapper @Inject constructor(
                 committer = identityMapper.toDomain(committerIdent),
                 author = identityMapper.toDomain(authorIdent),
                 date = committerIdent.whenAsInstant.epochSecond,
-                parentCount = parentCount,
+                parentsHashes = parents.map { it.name() },
             )
         }
     }

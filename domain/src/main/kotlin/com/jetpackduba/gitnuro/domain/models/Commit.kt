@@ -6,8 +6,10 @@ data class Commit(
     val committer: Identity,
     val author: Identity,
     val date: Long,
-    val parentCount: Int,
+    val parentsHashes: List<String>,
 ) {
+    val parentCount = parentsHashes.count()
+
     val shortHash: String
         get() = this.hash.orEmpty().take(7)
 
