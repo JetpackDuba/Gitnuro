@@ -46,7 +46,7 @@ interface GitActionsModule {
     fun bindsAuthenticateLfsServerWithSshGitAction(action: AuthenticateLfsServerWithSshGitAction): IAuthenticateLfsServerWithSshGitAction
 
     @Binds
-    fun bindsAuthenticateLfsServerWithSshGitAction(action: BlameFileGitAction): IBlameFileGitAction
+    fun bindsBlameFileGitAction(action: BlameFileGitAction): IBlameFileGitAction
 
     @Binds
     fun bindsCanGenerateTextDiffGitAction(action: CanGenerateTextDiffGitAction): ICanGenerateTextDiffGitAction
@@ -236,6 +236,9 @@ interface GitActionsModule {
 
     @Binds
     fun bindsPopStashGitAction(action: PopStashGitAction): IPopStashGitAction
+
+    @Binds
+    fun bindsPersistCommitMessageGitAction(action: PersistCommitMessageGitAction): IPersistCommitMessageGitAction
 
     @Binds
     fun bindsProvideLfsCredentialsGitAction(action: ProvideLfsCredentialsGitAction): IProvideLfsCredentialsGitAction

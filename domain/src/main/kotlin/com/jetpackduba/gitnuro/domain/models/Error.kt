@@ -74,6 +74,7 @@ data class Error(
             TaskType.GetCommitForRebase -> "Get commit for rebase failed"
             TaskType.GetFileCommits -> "Get file commits failed"
             TaskType.GetLinesForRebaseInteractive -> "Get lines for rebase interactive failed"
+            TaskType.PersistCommitMessage -> "Persist commit message failed"
         }
     }
 }

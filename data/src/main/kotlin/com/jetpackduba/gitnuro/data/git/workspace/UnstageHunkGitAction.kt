@@ -1,22 +1,25 @@
 package com.jetpackduba.gitnuro.data.git.workspace
 
-import com.jetpackduba.gitnuro.domain.models.EntryContent
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.RawFileManager
 import com.jetpackduba.gitnuro.domain.interfaces.IUnstageHunkGitAction
+import com.jetpackduba.gitnuro.domain.models.EntryContent
 import com.jetpackduba.gitnuro.domain.models.Hunk
 import com.jetpackduba.gitnuro.domain.models.LineType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import java.nio.ByteBuffer
 import javax.inject.Inject
 
 class UnstageHunkGitAction @Inject constructor(
+    private val jgit: JGit,
     private val rawFileManager: RawFileManager,
     private val getLinesFromRawTextGitAction: GetLinesFromRawTextGitAction,
 ) : IUnstageHunkGitAction {
-    override suspend operator fun invoke(git: Git, diffEntry: DiffEntry, hunk: Hunk) = withContext(Dispatchers.IO) {
+    override suspend operator fun invoke(
+        repositoryPath: String,
+        diffEntry: DiffEntry,
+        hunk: Hunk
+    ) = jgit.provide(repositoryPath) { git ->
         val repository = git.repository
         val dirCache = repository.lockDirCache()
         val dirCacheEditor = dirCache.editor()
@@ -32,7 +35,7 @@ class UnstageHunkGitAction @Inject constructor(
             )
 
             if (entryContent !is EntryContent.Text)
-                return@withContext
+                return@provide
 
             val textLines = getLinesFromRawTextGitAction(entryContent.rawText).toMutableList()
 

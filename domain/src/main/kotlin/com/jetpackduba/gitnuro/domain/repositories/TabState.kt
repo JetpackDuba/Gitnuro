@@ -144,39 +144,7 @@ class TabInstanceRepository @Inject constructor(
         _selectedItem.value = selectedItem
     }
 
-    fun newSelectedRef(ref: Branch, hash: String) = runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        //if (objectId == null) {
-        newSelectedItem(SelectedItem.None)
-        /*} else {
-            val commit = findCommitGitAction(git, objectId)
-
-            if (commit == null) {
-                newSelectedItem(SelectedItem.None)
-            } else {
-                val newSelectedItem = SelectedItem.Ref(ref, commit)
-                newSelectedItem(newSelectedItem)
-            }
-        }*/
-    }
-
-    fun newSelectedRef(ref: Ref, hash: ObjectId) = runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        //if (objectId == null) {
-        newSelectedItem(SelectedItem.None)
-        /*} else {
-            val commit = findCommitGitAction(git, objectId)
-
-            if (commit == null) {
-                newSelectedItem(SelectedItem.None)
-            } else {
-                val newSelectedItem = SelectedItem.Ref(ref, commit)
-                newSelectedItem(newSelectedItem)
-            }
-        }*/
-    }
+    fun newSelectedRef(ref: Branch, hash: String) {}
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun refreshFlowFiltered(vararg filters: RefreshType, callback: suspend (RefreshType) -> Unit) {

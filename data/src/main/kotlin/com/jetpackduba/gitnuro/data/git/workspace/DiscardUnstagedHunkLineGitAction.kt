@@ -1,22 +1,21 @@
 package com.jetpackduba.gitnuro.data.git.workspace
 
+import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.interfaces.IDiscardUnstagedHunkLineGitAction
 import com.jetpackduba.gitnuro.domain.models.Hunk
 import com.jetpackduba.gitnuro.domain.models.Line
 import com.jetpackduba.gitnuro.domain.models.LineType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import java.io.File
 import javax.inject.Inject
 
 class DiscardUnstagedHunkLineGitAction @Inject constructor(
+    private val jgit: JGit,
     private val getLinesFromTextGitAction: GetLinesFromTextGitAction,
 ) : IDiscardUnstagedHunkLineGitAction {
-    override suspend operator fun invoke(git: Git, diffEntry: DiffEntry, hunk: Hunk, line: Line) =
-        withContext(Dispatchers.IO) {
+    override suspend operator fun invoke(repositoryPath: String, diffEntry: DiffEntry, hunk: Hunk, line: Line) =
+        jgit.provide(repositoryPath) { git ->
             val repository = git.repository
 
             try {
@@ -38,11 +37,11 @@ class DiscardUnstagedHunkLineGitAction @Inject constructor(
                             .takeWhile { it != line }
                             .lastOrNull { it.lineType == LineType.ADDED }
 
-                        if (previousAddedLine != null) {
-                            textLines.add(previousAddedLine.newLineNumber + 1, line.text)
-                        } else {
-                            textLines.add(0, line.text)
-                        }
+                            if (previousAddedLine != null) {
+                                textLines.add(previousAddedLine.newLineNumber + 1, line.text)
+                            } else {
+                                textLines.add(0, line.text)
+                            }
                     }
                 }
 
@@ -57,4 +56,3 @@ class DiscardUnstagedHunkLineGitAction @Inject constructor(
             }
         }
 }
-

@@ -1,27 +1,32 @@
 package com.jetpackduba.gitnuro.data.git.workspace
 
+import com.jetpackduba.gitnuro.data.git.JGit
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.interfaces.IResetHunkGitAction
 import com.jetpackduba.gitnuro.domain.models.Hunk
 import com.jetpackduba.gitnuro.domain.models.LineType
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import java.io.File
 import java.io.FileWriter
 import javax.inject.Inject
 
 class ResetHunkGitAction @Inject constructor(
+    private val jgit: JGit,
     private val getLinesFromTextGitAction: GetLinesFromTextGitAction,
 ) : IResetHunkGitAction {
-    override suspend operator fun invoke(git: Git, diffEntry: DiffEntry, hunk: Hunk) = withContext(Dispatchers.IO) {
-        val repository = git.repository
+    override suspend operator fun invoke(
+        repositoryPath: String,
+        diffEntry: DiffEntry,
+        hunk: Hunk
+    ): Either<Unit, GitError> =
+        jgit.provide(repositoryPath) { git ->
+            val repository = git.repository
 
-        try {
             val file = File(repository.workTree, diffEntry.oldPath)
 
             val content = file.readText()
-            val textLines = getLinesFromTextGitAction(content).toMutableList() // TODO Test this
+            val textLines = getLinesFromTextGitAction(content).toMutableList()
             val hunkLines = hunk.lines.filter { it.lineType != LineType.CONTEXT }
 
             val addedLines = hunkLines
@@ -51,12 +56,8 @@ class ResetHunkGitAction @Inject constructor(
 
             val stagedFileText = textLines.joinToString("")
 
-
             FileWriter(file).use { fw ->
                 fw.write(stagedFileText)
             }
-        } catch (ex: Exception) {
-            throw Exception("Discard hunk failed. Check if the file still exists and has the write permissions set", ex)
         }
-    }
 }

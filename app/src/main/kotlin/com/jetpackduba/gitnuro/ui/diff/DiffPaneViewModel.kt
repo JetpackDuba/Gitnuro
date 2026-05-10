@@ -7,7 +7,6 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
@@ -29,22 +28,20 @@ private const val DIFF_MIN_TIME_IN_MS_TO_SHOW_LOAD = 200L
 class DiffViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
     private val formatDiffGitAction: IFormatDiffGitAction,
-    private val stageHunkGitAction: IStageHunkGitAction,
-    private val unstageHunkGitAction: IUnstageHunkGitAction,
-    private val stageHunkLineGitAction: IStageHunkLineGitAction,
-    private val unstageHunkLineGitAction: IUnstageHunkLineGitAction,
-    private val resetHunkGitAction: IResetHunkGitAction,
+    private val stageHunkUseCase: StageHunkUseCase,
+    private val unstageHunkUseCase: UnstageHunkUseCase,
+    private val stageHunkLineUseCase: StageHunkLineUseCase,
+    private val unstageHunkLineUseCase: UnstageHunkLineUseCase,
+    private val resetHunkUseCase: ResetHunkUseCase,
+    private val discardHunkLineUseCase: DiscardHunkLineUseCase,
     private val statusStageUseCase: StatusStageUseCase,
     private val statusUnstageUseCase: StatusUnstageUseCase,
-    private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
-    private val discardUnstagedHunkLineGitAction: IDiscardUnstagedHunkLineGitAction,
     private val openFileInExternalAppGitAction: OpenFileInExternalAppGitAction,
     private val settings: AppSettingsService,
-    private val tabsManager: TabsManager,
     private val tabScope: TabCoroutineScope,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val removeSelectedDiffUseCase: RemoveSelectedDiffUseCase,
-    private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
+    private val tabsManager: TabsManager,
     private val getDiffUseCase: GetDiffUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
 ) : TabViewModel() {
@@ -86,24 +83,11 @@ class DiffViewModel @Inject constructor(
         return getDiffUseCase(diffType)
     }
 
-    fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-    ) { git ->
-        stageHunkGitAction(git, diffEntry, hunk)
-    }
+    fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = stageHunkUseCase(diffEntry, hunk)
 
-    fun resetHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        resetHunkGitAction(git, diffEntry, hunk)
-    }
+    fun resetHunk(diffEntry: DiffEntry, hunk: Hunk) = resetHunkUseCase(diffEntry, hunk)
 
-    fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-    ) { git ->
-        unstageHunkGitAction(git, diffEntry, hunk)
-    }
+    fun unstageHunk(diffEntry: DiffEntry, hunk: Hunk) = unstageHunkUseCase(diffEntry, hunk)
 
     fun stageFile(statusEntry: StatusEntry) = statusStageUseCase(statusEntry)
 
@@ -121,33 +105,23 @@ class DiffViewModel @Inject constructor(
         settings.setConfiguration(AppConfig.DiffDisplayFullFile(isDisplayFullFile))
     }
 
-    fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        stageHunkLineGitAction(git, entry, hunk, line)
-    }
+    fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = stageHunkLineUseCase(entry, hunk, line)
 
-    fun unstageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        unstageHunkLineGitAction(git, entry, hunk, line)
-    }
+    fun unstageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = unstageHunkLineUseCase(entry, hunk, line)
 
     fun openFileWithExternalApp(path: String) {
         openFileInExternalAppGitAction(path)
     }
 
-    fun discardHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-        showError = true,
-    ) { git ->
-        discardUnstagedHunkLineGitAction(git, entry, hunk, line)
-    }
+    fun discardHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = discardHunkLineUseCase(entry, hunk, line)
 
-    fun openSubmodule(path: String) = tabState.runOperation(refreshType = RefreshType.NONE) { git ->
-        tabsManager.addNewTabFromPath("${git.repository.workTree}/$path", true)
+    fun openSubmodule(path: String) {
+        val repositoryPath = repositoryDataRepository.repositoryPath
+
+        // TODO RepositoryPath point to .git dir instead of worktree? Fix if so
+        if (repositoryPath != null) {
+            tabsManager.addNewTabFromPath("$repositoryPath/$path", true)
+        }
     }
 
     fun addToCloseables() = tabScope.launch {

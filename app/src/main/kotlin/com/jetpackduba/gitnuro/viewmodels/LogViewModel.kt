@@ -329,9 +329,7 @@ class LogViewModel @Inject constructor(
 
     private fun rebaseInteractive(commit: Commit) = startRebaseInteractiveUseCase(commit)
 
-    fun loadMoreLogItems(firstVisibleItemIndex: Int) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
+    fun loadMoreLogItems(firstVisibleItemIndex: Int) = viewModelScope.launch {
         // TODO Refactor this after refactoring
         /*val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)
             ?.plotCommitList

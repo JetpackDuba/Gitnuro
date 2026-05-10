@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.data.git.repository.PersistCommitMessageGitAction
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.*
@@ -62,6 +63,7 @@ class StatusPaneViewModel @Inject constructor(
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
     private val stageByDirectoryUseCase: StageByDirectoryUseCase,
     private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,
+    private val persistCommitMessageUseCase: PersistCommitMessageUseCase,
 ) : TabViewModel() {
     private val _showSearchUnstaged = MutableStateFlow(false)
     val showSearchUnstaged: StateFlow<Boolean> = _showSearchUnstaged
@@ -264,20 +266,7 @@ class StatusPaneViewModel @Inject constructor(
         )
     }
 
-    private fun persistMessage() = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        val messageToPersist = savedCommitMessage.message.ifBlank { null }
-
-        if (git.repository.repositoryState.isMerging ||
-            git.repository.repositoryState.isRebasing ||
-            git.repository.repositoryState.isReverting
-        ) {
-            git.repository.writeMergeCommitMsg(messageToPersist)
-        } else if (git.repository.repositoryState == RepositoryState.SAFE) {
-            git.repository.writeCommitEditMsg(messageToPersist)
-        }
-    }
+    private fun persistMessage() = persistCommitMessageUseCase(savedCommitMessage.message.ifBlank { null })
 
     private fun getDiffSelectedEntriesByEntryType(
         diffSelected: DiffSelected?,

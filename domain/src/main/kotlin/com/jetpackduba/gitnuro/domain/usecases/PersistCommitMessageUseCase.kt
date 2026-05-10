@@ -1,28 +1,23 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.extensions.isMerging
-import com.jetpackduba.gitnuro.domain.extensions.isReverting
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import org.eclipse.jgit.lib.RepositoryState
+import com.jetpackduba.gitnuro.domain.UseCaseExecutor
+import com.jetpackduba.gitnuro.domain.interfaces.IPersistCommitMessageGitAction
+import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
 class PersistCommitMessageUseCase @Inject constructor(
-    private val tabState: TabInstanceRepository,
+    private val persistCommitMessageGitAction: IPersistCommitMessageGitAction,
+    private val useCaseExecutor: UseCaseExecutor,
 ) {
-    operator fun invoke(message: String) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        val messageToPersist = message.ifBlank { null }
-
-        // TODO move logic to data layer
-        if (git.repository.repositoryState.isMerging ||
-            git.repository.repositoryState.isRebasing ||
-            git.repository.repositoryState.isReverting
-        ) {
-            git.repository.writeMergeCommitMsg(messageToPersist)
-        } else if (git.repository.repositoryState == RepositoryState.SAFE) {
-            git.repository.writeCommitEditMsg(messageToPersist)
+    operator fun invoke(message: String?) {
+        val messageToPersist = message?.ifBlank { null }
+        useCaseExecutor.executeLaunch(
+            taskType = TaskType.PersistCommitMessage,
+            onRefresh = {
+                // no refresh needed
+            }
+        ) { repositoryPath ->
+            persistCommitMessageGitAction(repositoryPath, messageToPersist)
         }
     }
 }
