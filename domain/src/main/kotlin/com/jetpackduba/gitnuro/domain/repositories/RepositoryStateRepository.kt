@@ -1,11 +1,10 @@
 package com.jetpackduba.gitnuro.domain.repositories
 
+import com.jetpackduba.gitnuro.domain.models.TaskType
 import kotlinx.coroutines.flow.StateFlow
 
 interface RepositoryStateRepository {
-    val isProcessing: StateFlow<Boolean>
+    val currentTask: StateFlow<TaskType?>
 
-    fun isProcessing(value: Boolean)
-
-    suspend fun <T> runOperation(block: suspend () -> T): T
+    suspend fun <T> runOperation(taskType: TaskType, block: suspend () -> T): T
 }

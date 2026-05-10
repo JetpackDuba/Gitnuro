@@ -9,11 +9,11 @@ import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
-import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
@@ -29,12 +29,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
 
@@ -58,6 +56,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
+    private val repositoryStateRepository: RepositoryStateRepository,
     private val setRepositorySelectionStateToNoneUseCase: SetRepositorySelectionStateToNoneUseCase,
     @Assisted val initialPath: String?,
     updatesRepository: UpdatesRepository,
@@ -82,12 +81,12 @@ class RepositoryTabViewModel @AssistedInject constructor(
         }
     )
 
-    val processing: StateFlow<ProcessingState> = tabState.processing
-        .debounce(300L)
+    val processingTask = repositoryStateRepository.currentTask
+        .debounce(300L.milliseconds)
         .stateIn(
             scope = tabScope,
             started = SharingStarted.WhileSubscribed(),
-            initialValue = ProcessingState.None
+            initialValue = null
         )
 
 

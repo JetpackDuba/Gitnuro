@@ -21,11 +21,7 @@ class UseCaseExecutor @Inject constructor(
         refreshEvenIfFailed: Boolean = false,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ): Either<T, AppError> {
-        return executeTask(taskType, block).apply {
-            if (this is Either.Ok || refreshEvenIfFailed) {
-                onRefresh()
-            }
-        }
+        return executeTask(taskType, refreshEvenIfFailed, onRefresh, block)
     }
 
     fun <T> executeLaunch(
@@ -34,20 +30,24 @@ class UseCaseExecutor @Inject constructor(
         onRefresh: suspend () -> Unit,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ) {
-        repositoryStateRepository.runOperationInTabScope(scope) {
-            if (executeTask(taskType, block) is Either.Ok || refreshEvenIfFailed) {
-                onRefresh()
-            }
+        repositoryStateRepository.runOperationInTabScope(taskType, scope) {
+            executeTask(taskType, refreshEvenIfFailed, onRefresh, block)
         }
     }
 
     private suspend fun <T> executeTask(
         taskType: TaskType,
+        refreshEvenIfFailed: Boolean,
+        onRefresh: suspend () -> Unit = {},
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>
     ): Either<T, AppError> {
         try {
             val repositoryPath = repositoryDataRepository.repositoryPath ?: return Either.Err(RepositoryPathNotSetError)
-            return either { block(repositoryPath) }
+            return either { block(repositoryPath) }.apply {
+                if (this is Either.Ok || refreshEvenIfFailed) {
+                    onRefresh()
+                }
+            }
         } catch (e: Exception) {
             errorsRepository.addError(newErrorNow(taskType, e))
 

@@ -19,7 +19,6 @@ import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.lfs
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
-import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.tabViewModel
 import com.jetpackduba.gitnuro.theme.dialogOverlay
@@ -54,7 +53,7 @@ fun AppTab(
 
     val repositorySelectionStatus = repositoryTabViewModel.repositorySelectionState.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
-    val processingState = repositoryTabViewModel.processing.collectAsState().value
+    val processingTask = repositoryTabViewModel.processingTask.collectAsState().value
 
     val backStack = repositoryTabViewModel.backStack
     val dialogStrategy = remember { DialogSceneStrategy<NavKey>() }
@@ -362,9 +361,9 @@ fun AppTab(
             }
         }
 
-        if (processingState is ProcessingState.Processing) {
+        if (processingTask != null) {
             ProcessingScreen(
-                processingState,
+                processingTask,
                 onCancelOnGoingTask = { repositoryTabViewModel.cancelOngoingTask() }
             )
         }

@@ -6,8 +6,6 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.Notification
-import com.jetpackduba.gitnuro.domain.models.ProcessingState
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.models.newErrorNow
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
@@ -16,8 +14,6 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ObjectId
-import org.eclipse.jgit.lib.Ref
 import javax.inject.Inject
 
 private const val TAG = "TabState"
@@ -58,9 +54,6 @@ class TabInstanceRepository @Inject constructor(
     var operationRunning = false
 
     private var currentJob: Job? = null
-
-    private val _processing = MutableStateFlow<ProcessingState>(ProcessingState.None)
-    val processing: StateFlow<ProcessingState> = _processing
 
     private fun getInnerException(ex: Exception): Exception {
         return if (ex is GitnuroException) {
