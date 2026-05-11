@@ -332,7 +332,7 @@ fun LazyListScope.stashes(
                 itemsCount = stashes.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
-                onExpand = { viewModel.onExpandSubmodules() }
+                onExpand = { viewModel.onExpandStashes() }
             )
         }
     }

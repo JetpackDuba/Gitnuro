@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.common.flows.invert
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
@@ -145,19 +146,23 @@ class SidePanelViewModel @Inject constructor(
     }
 
     fun onExpandBranches() {
-        isExpandedBranches.value = !isExpandedBranches.value
+        isExpandedBranches.invert()
     }
 
     fun onExpandRemotes() {
-        isExpandedRemotes.value = !isExpandedRemotes.value
+        isExpandedRemotes.invert()
     }
 
     fun onExpandSubmodules() {
-        isExpandedSubmodules.value = !isExpandedSubmodules.value
+        isExpandedSubmodules.invert()
+    }
+
+    fun onExpandStashes() {
+        isExpandedStashes.invert()
     }
 
     fun onExpandTags() {
-        isExpandedTags.value = !isExpandedTags.value
+        isExpandedTags.invert()
     }
 
 

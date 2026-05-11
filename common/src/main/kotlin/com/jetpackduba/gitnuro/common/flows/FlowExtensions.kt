@@ -1,8 +1,11 @@
 package com.jetpackduba.gitnuro.common.flows
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 
 fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,
@@ -121,3 +124,7 @@ fun <
 }
 
 inline fun <T> Flow<T?>.defaultIfNull(crossinline default: () -> T): Flow<T> = this.map { it ?: default() }
+
+fun MutableStateFlow<Boolean>.invert() {
+    this.update { !it }
+}
