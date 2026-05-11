@@ -66,6 +66,8 @@ fun QuickActionsDialog(
                 QuickActionType.REFRESH -> viewModel.refreshRepository()
                 QuickActionType.SIGN_OFF -> onShowSignOff()
             }
+            
+            onDismiss()
         },
         searchFilter = searchFilter,
         textFieldFocusRequester = textFieldFocusRequester,
