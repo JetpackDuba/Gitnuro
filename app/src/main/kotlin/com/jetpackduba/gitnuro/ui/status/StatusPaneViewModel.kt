@@ -487,8 +487,8 @@ class StatusPaneViewModel @Inject constructor(
         val author = getAuthorUseCase().okOrNull() ?: return null
 
         return if (
-            author.name.isNullOrEmpty() && author.globalName.isNullOrEmpty() ||
-            author.email.isNullOrEmpty() && author.globalEmail.isNullOrEmpty()
+            author.repositoryIdentity.name.isNullOrEmpty() && author.globalIdentity.name.isNullOrEmpty() ||
+            author.repositoryIdentity.email.isNullOrEmpty() && author.globalIdentity.email.isNullOrEmpty()
         ) {
             _committerDataRequestState.value = CommitterDataRequestState.WaitingInput(author)
 
@@ -505,7 +505,7 @@ class StatusPaneViewModel @Inject constructor(
                     saveAuthorGitAction(git.repository.directory.absolutePath, authorInfo)
                 }
 
-                Identity(authorInfo.globalName.orEmpty(), authorInfo.globalEmail.orEmpty())
+                Identity(authorInfo.globalIdentity?.name.orEmpty(), authorInfo.globalIdentity?.email.orEmpty())
             } else {
                 throw CancellationException("Author info request cancelled")
             }

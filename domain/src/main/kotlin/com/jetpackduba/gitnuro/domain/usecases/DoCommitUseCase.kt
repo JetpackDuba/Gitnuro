@@ -32,11 +32,11 @@ class DoCommitUseCase @Inject constructor(
             val signOffConfig = loadSignOffConfigGitAction(repositoryPath).bind()
 
             val finalMessage = if (signOffConfig.isEnabled) {
-                val authorToSign = author ?: getAuthorUseCase().bind().toIdentity()
+                val authorToSign = author ?: getAuthorUseCase().bind().identityToUse()
 
                 val signature = signOffConfig.format
-                    .replace(SignOffConstants.DEFAULT_SIGN_OFF_FORMAT_USER, authorToSign.name)
-                    .replace(SignOffConstants.DEFAULT_SIGN_OFF_FORMAT_EMAIL, authorToSign.email)
+                    .replace(SignOffConstants.DEFAULT_SIGN_OFF_FORMAT_USER, authorToSign.name.orEmpty())
+                    .replace(SignOffConstants.DEFAULT_SIGN_OFF_FORMAT_EMAIL, authorToSign.email.orEmpty())
 
                 "$message\n\n$signature"
             } else

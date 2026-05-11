@@ -18,6 +18,7 @@ import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.BlameFileUseCase
 import com.jetpackduba.gitnuro.domain.usecases.RefreshAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
+import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.observers.DataObserversManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
@@ -34,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
@@ -90,8 +92,10 @@ class RepositoryOpenViewModel @Inject constructor(
     private val _showHistory = MutableStateFlow(false)
     val showHistory: StateFlow<Boolean> = _showHistory
 
-    private val _authorInfoSimple = MutableStateFlow(AuthorInfoSimple(null, null))
-    val authorInfoSimple: StateFlow<AuthorInfoSimple> = _authorInfoSimple
+    val authorInfoSimple = repositoryDataRepository
+        .author
+        .map { it.identityToUse() }
+        .stateIn(emptyIdentity())
 
     var historyViewModel: HistoryViewModel? = null
         private set
@@ -102,12 +106,6 @@ class RepositoryOpenViewModel @Inject constructor(
 
     init {
         tabScope.run {
-            launch {
-                tabState.refreshFlowFiltered(RefreshType.ALL_DATA, RefreshType.REPO_STATE) {
-                    loadAuthorInfo(tabState.git)
-                }
-            }
-
             launch {
                 watchRepositoryChanges(tabState.git)
             }
@@ -122,10 +120,6 @@ class RepositoryOpenViewModel @Inject constructor(
                         minimizeBlame()
                     }
                 }
-            }
-
-            launch {
-                loadAuthorInfo(tabState.git)
             }
         }
     }
@@ -144,10 +138,6 @@ class RepositoryOpenViewModel @Inject constructor(
         refreshType = RefreshType.NONE,
     ) { git ->
         tabsManager.addNewTabFromPath(directory, true, getWorkspacePathGitAction(git))
-    }
-
-    private suspend fun loadAuthorInfo(git: Git) {
-        _authorInfoSimple.value = getAuthorInfoGitAction(git)
     }
 
     /**

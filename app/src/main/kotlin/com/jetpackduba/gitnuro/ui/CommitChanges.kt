@@ -268,10 +268,10 @@ fun CommitFooter(
             verticalArrangement = Arrangement.Center
         ) {
             TooltipText(
-                text = author.name,
+                text = author.name.orEmpty(),
                 maxLines = 1,
                 style = MaterialTheme.typography.body2,
-                tooltipTitle = author.email,
+                tooltipTitle = author.email.orEmpty(),
             )
 
             Row(verticalAlignment = Alignment.CenterVertically) {

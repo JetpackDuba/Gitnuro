@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.generic_button_continue
 import com.jetpackduba.gitnuro.app.generated.resources.person
 import com.jetpackduba.gitnuro.domain.models.AuthorInfo
+import com.jetpackduba.gitnuro.domain.models.Identity
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
@@ -28,8 +29,8 @@ fun CommitAuthorDialog(
     onClose: () -> Unit,
     onAccept: (newAuthorInfo: AuthorInfo, persist: Boolean) -> Unit,
 ) {
-    var globalName by remember(authorInfo) { mutableStateOf(authorInfo.globalName.orEmpty()) }
-    var globalEmail by remember(authorInfo) { mutableStateOf(authorInfo.globalEmail.orEmpty()) }
+    var globalName by remember(authorInfo) { mutableStateOf(authorInfo.globalIdentity.name) }
+    var globalEmail by remember(authorInfo) { mutableStateOf(authorInfo.globalIdentity.email) }
     var persist by remember { mutableStateOf(false) }
 
     IconBasedDialog(
@@ -42,7 +43,15 @@ fun CommitAuthorDialog(
         actionsFocusRequester = null,
         afterActionsFocusRequester = null,
         onDismiss = onClose,
-        onPrimaryActionClicked = { onAccept(AuthorInfo(globalName, globalEmail, null, null), persist) },
+        onPrimaryActionClicked = {
+            onAccept(
+                AuthorInfo(
+                    globalIdentity = Identity(globalName, globalEmail),
+                    repositoryIdentity = Identity(name = "", email = ""),
+                ),
+                persist,
+            )
+        },
     ) {
         Text(
             text = "What identity would you like to use for this commit?",
@@ -56,13 +65,13 @@ fun CommitAuthorDialog(
 
         TextInput(
             title = "Name",
-            value = globalName,
+            value = globalName.orEmpty(),
             onValueChange = { globalName = it },
         )
 
         TextInput(
             title = "Email",
-            value = globalEmail,
+            value = globalEmail.orEmpty(),
             onValueChange = { globalEmail = it },
         )
 

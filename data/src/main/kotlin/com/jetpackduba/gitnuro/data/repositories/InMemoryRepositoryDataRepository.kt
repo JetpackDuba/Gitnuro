@@ -36,6 +36,9 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val repositoryState: StateFlow<RepositorySelectionState>
         field = MutableStateFlow<RepositorySelectionState>(RepositorySelectionState.Unknown)
 
+    override val author: Flow<AuthorInfo>
+        field = MutableStateFlow(AuthorInfo(emptyIdentity(), emptyIdentity()))
+
     override val repositoryPath: String?
         get() {
             return when (val state = repositoryState.value) {
@@ -93,5 +96,9 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override fun updateSubmodules(value: Map<String, SubmoduleStatus>) {
         this.submodules.value = value
+    }
+
+    override fun updateAuthor(value: AuthorInfo) {
+        this.author.value = value
     }
 }

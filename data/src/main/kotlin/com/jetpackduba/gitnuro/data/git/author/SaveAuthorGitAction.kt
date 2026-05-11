@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.author
 
 import com.jetpackduba.gitnuro.data.git.JGit
+import com.jetpackduba.gitnuro.domain.extensions.nullIfEmpty
 import com.jetpackduba.gitnuro.domain.interfaces.ISaveAuthorGitAction
 import com.jetpackduba.gitnuro.domain.models.AuthorInfo
 import org.eclipse.jgit.storage.file.FileBasedConfig
@@ -21,13 +22,18 @@ class SaveAuthorGitAction @Inject constructor(
                 val globalRepoConfig = FileBasedConfig(canonicalConfigFile, git.repository.fs)
 
                 globalRepoConfig.load()
-                globalRepoConfig.setStringProperty("user", null, "name", newAuthorInfo.globalName)
-                globalRepoConfig.setStringProperty("user", null, "email", newAuthorInfo.globalEmail)
+                globalRepoConfig.setStringProperty("user", null, "name", newAuthorInfo.globalIdentity.name?.nullIfEmpty)
+                globalRepoConfig.setStringProperty(
+                    "user",
+                    null,
+                    "email",
+                    newAuthorInfo.globalIdentity.email?.nullIfEmpty
+                )
                 globalRepoConfig.save()
             }
 
-            config.setStringProperty("user", null, "name", newAuthorInfo.name)
-            config.setStringProperty("user", null, "email", newAuthorInfo.email)
+            config.setStringProperty("user", null, "name", newAuthorInfo.repositoryIdentity.name?.nullIfEmpty)
+            config.setStringProperty("user", null, "email", newAuthorInfo.repositoryIdentity.email?.nullIfEmpty)
             config.save()
         }
 }

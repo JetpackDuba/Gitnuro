@@ -30,7 +30,10 @@ fun AvatarImage(
         modifier = modifier
             .clip(CircleShape)
     ) {
-        val avatarProviderUrl = current.getAvatarUrl(personIdent.email.sha256)
+        val avatarProviderUrl = personIdent
+            .email
+            ?.let { email -> current.getAvatarUrl(email.sha256) }
+
         var isSuccessfulLoad by remember { mutableStateOf(false) }
 
         AsyncImage(
@@ -51,7 +54,7 @@ fun AvatarImage(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = personIdent.name.firstOrNull()?.uppercase() ?: "#",
+                    text = personIdent.name?.firstOrNull()?.uppercase() ?: "#",
                     color = Color.White,
                 )
             }

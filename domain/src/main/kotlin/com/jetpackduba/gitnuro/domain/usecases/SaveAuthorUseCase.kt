@@ -9,13 +9,14 @@ import javax.inject.Inject
 class SaveAuthorUseCase @Inject constructor(
     private val saveAuthorGitAction: ISaveAuthorGitAction,
     private val useCaseExecutor: UseCaseExecutor,
+    private val refreshGitConfigUseCase: RefreshGitConfigUseCase,
 ) {
     suspend operator fun invoke(authorInfo: AuthorInfo) {
         // TODO This should be "execute" and the UI should handle the error
         useCaseExecutor.executeLaunch(
             taskType = TaskType.SaveAuthor,
             onRefresh = {
-                // TODO refresh repository state
+                refreshGitConfigUseCase()
             }
         ) { repositoryPath ->
             saveAuthorGitAction(repositoryPath, authorInfo)

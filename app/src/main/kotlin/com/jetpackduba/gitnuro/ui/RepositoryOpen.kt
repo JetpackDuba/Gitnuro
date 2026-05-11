@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_name_not_
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.AuthorInfoSimple
+import com.jetpackduba.gitnuro.domain.models.Identity
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -172,7 +173,7 @@ fun RepositoryOpenPage(
 
 @Composable
 private fun RepositoryOpenBottomInfoBar(
-    userInfo: AuthorInfoSimple,
+    userInfo: Identity,
     newUpdate: Update?,
     onOpenUrlInBrowser: (String) -> Unit,
     onShowAuthorInfoDialog: () -> Unit,

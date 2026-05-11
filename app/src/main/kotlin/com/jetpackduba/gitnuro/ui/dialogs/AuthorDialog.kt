@@ -28,10 +28,10 @@ fun AuthorDialog(
 ) {
     val authorInfo by viewModel.authorInfo.collectAsState()
 
-    var globalName by remember(authorInfo) { mutableStateOf(authorInfo.globalName.orEmpty()) }
-    var globalEmail by remember(authorInfo) { mutableStateOf(authorInfo.globalEmail.orEmpty()) }
-    var name by remember(authorInfo) { mutableStateOf(authorInfo.name.orEmpty()) }
-    var email by remember(authorInfo) { mutableStateOf(authorInfo.email.orEmpty()) }
+    var globalName by remember(authorInfo) { mutableStateOf(authorInfo.globalIdentity.name) }
+    var globalEmail by remember(authorInfo) { mutableStateOf(authorInfo.globalIdentity.email) }
+    var name by remember(authorInfo) { mutableStateOf(authorInfo.repositoryIdentity.name) }
+    var email by remember(authorInfo) { mutableStateOf(authorInfo.repositoryIdentity.email) }
 
     MaterialDialog(
         onCloseRequested = onDismiss,
@@ -51,12 +51,12 @@ fun AuthorDialog(
 
             TextInput(
                 title = "Name",
-                value = globalName,
+                value = globalName.orEmpty(),
                 onValueChange = { globalName = it },
             )
             TextInput(
                 title = "Email",
-                value = globalEmail,
+                value = globalEmail.orEmpty(),
                 onValueChange = { globalEmail = it },
             )
 
@@ -69,16 +69,16 @@ fun AuthorDialog(
 
             TextInput(
                 title = "Name",
-                value = name,
+                value = name.orEmpty(),
                 onValueChange = { name = it },
             )
             TextInput(
                 title = "Email",
-                value = email,
+                value = email.orEmpty(),
                 onValueChange = { email = it },
             )
 
-            val visible = name.isNotBlank() || email.isNotBlank()
+            val visible = !name.isNullOrBlank() || !email.isNullOrBlank()
 
             val visibilityAlpha by animateFloatAsState(targetValue = if (visible) 1f else 0f)
 

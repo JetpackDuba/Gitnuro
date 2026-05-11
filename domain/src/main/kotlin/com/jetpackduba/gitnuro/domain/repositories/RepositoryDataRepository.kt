@@ -18,6 +18,7 @@ interface RepositoryDataRepository {
     val repositoryPath: String?
     val diffSelected: StateFlow<DiffSelected?>
     val submodules: Flow<Map<String, SubmoduleStatus>>
+    val author: Flow<AuthorInfo>
 
     fun setRepositoryState(state: RepositorySelectionState)
     fun clearAll()
@@ -30,4 +31,5 @@ interface RepositoryDataRepository {
     fun updateDiffSelected(diffSelected: DiffSelected?)
     fun updateStashes(stashes: List<Commit>)
     fun updateSubmodules(value: Map<String, SubmoduleStatus>)
+    fun updateAuthor(value: AuthorInfo)
 }

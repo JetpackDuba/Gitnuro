@@ -1,7 +1,5 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
-import com.jetpackduba.gitnuro.domain.TabCoroutineScope
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // TODO Some parts of the app abuse this use case when not everything needs to be updated.
@@ -12,14 +10,15 @@ class RefreshAllUseCase @Inject constructor(
     private val refreshRemotesUseCase: RefreshRemotesUseCase,
     private val refreshStashListUseCase: RefreshStashListUseCase,
     private val refreshSubmodulesUseCase: RefreshSubmodulesUseCase,
-    private val tabCoroutineScope: TabCoroutineScope,
+    private val refreshGitConfigUseCase: RefreshGitConfigUseCase,
 ) {
-    operator fun invoke() = tabCoroutineScope.launch {
+    operator fun invoke() {
         refreshBranchesUseCase()
         refreshStatusUseCase()
         refreshLogUseCase()
         refreshRemotesUseCase()
         refreshStashListUseCase()
         refreshSubmodulesUseCase()
+        refreshGitConfigUseCase()
     }
 }
