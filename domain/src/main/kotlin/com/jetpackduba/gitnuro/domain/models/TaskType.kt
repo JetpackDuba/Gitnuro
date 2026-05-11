@@ -67,4 +67,12 @@ sealed interface TaskType {
     data object GetFileCommits : TaskType
     data object PersistCommitMessage : TaskType
     data object GetCommitDiffEntries : TaskType
+    data object RefreshLog : TaskType
+    data object RefreshBranches : TaskType
+    data object RefreshStatus : TaskType
+    data object RefreshRepositoryState : TaskType
+    data object RefreshRemotes : TaskType
+    data object RefreshSubmodules : TaskType
+    data object RefreshTags : TaskType
+    data object RefreshStashes : TaskType
 }

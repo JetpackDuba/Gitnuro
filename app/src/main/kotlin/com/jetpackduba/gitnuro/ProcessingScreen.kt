@@ -129,5 +129,13 @@ fun getTitle(taskType: TaskType): String {
         TaskType.UnstageHunk -> "Unstaging hunk"
         TaskType.UnstageLine -> "Unstaging line"
         TaskType.UpdateSubmodule -> "Updating submodule"
+        TaskType.RefreshBranches -> ""
+        TaskType.RefreshLog -> ""
+        TaskType.RefreshRemotes -> ""
+        TaskType.RefreshRepositoryState -> ""
+        TaskType.RefreshStashes -> ""
+        TaskType.RefreshStatus -> ""
+        TaskType.RefreshSubmodules -> ""
+        TaskType.RefreshTags -> ""
     }
 }

@@ -76,6 +76,14 @@ data class Error(
             TaskType.GetLinesForRebaseInteractive -> "Get lines for rebase interactive failed"
             TaskType.PersistCommitMessage -> "Persist commit message failed"
             TaskType.GetCommitDiffEntries -> "Getting commit entries failed"
+            TaskType.RefreshBranches -> "Refresh branches failed"
+            TaskType.RefreshLog -> "Refresh log failed"
+            TaskType.RefreshRemotes -> "Refresh remotes failed"
+            TaskType.RefreshRepositoryState -> "Refresh repository state failed"
+            TaskType.RefreshStashes -> "Refresh stashes failed"
+            TaskType.RefreshStatus -> "Refresh status failed"
+            TaskType.RefreshSubmodules -> "Refresh submodules failed"
+            TaskType.RefreshTags -> "Refresh tags failed"
         }
     }
 }

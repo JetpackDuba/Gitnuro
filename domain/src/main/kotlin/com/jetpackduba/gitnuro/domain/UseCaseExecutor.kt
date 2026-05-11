@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.domain.models.newErrorNow
 import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class UseCaseExecutor @Inject constructor(
@@ -24,10 +25,27 @@ class UseCaseExecutor @Inject constructor(
         return executeTask(taskType, refreshEvenIfFailed, onRefresh, block)
     }
 
+    fun executeOnTabScope(
+        taskType: TaskType,
+        block: suspend EitherContext<AppError>.(String) -> Unit,
+    ) {
+        scope.launch {
+            executeTask(
+                taskType,
+                refreshEvenIfFailed = false,
+                onRefresh = {},
+                block = {
+                    block(it)
+                    Either.Ok(Unit)
+                }
+            )
+        }
+    }
+
     fun <T> executeLaunch(
         taskType: TaskType,
         refreshEvenIfFailed: Boolean = false,
-        onRefresh: suspend () -> Unit,
+        onRefresh: () -> Unit,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ) {
         repositoryStateRepository.runOperationInTabScope(taskType, scope) {
