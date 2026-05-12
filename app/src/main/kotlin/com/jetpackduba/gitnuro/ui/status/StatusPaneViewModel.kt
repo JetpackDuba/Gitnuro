@@ -24,6 +24,8 @@ import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
@@ -32,8 +34,10 @@ import java.io.File
 import javax.inject.Inject
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
+private const val PERSIST_MESSAGE_DELAY_IN_MS = 1_000L
 
 class StatusPaneViewModel @Inject constructor(
     private val tabState: TabInstanceRepository,
@@ -266,7 +270,16 @@ class StatusPaneViewModel @Inject constructor(
         )
     }
 
-    private fun persistMessage() = persistCommitMessageUseCase(savedCommitMessage.message.ifBlank { null })
+    private var persistMessageJob: Job? = null
+
+    private fun persistMessage() {
+        persistMessageJob?.cancel()
+
+        persistMessageJob = viewModelScope.launch {
+            delay(PERSIST_MESSAGE_DELAY_IN_MS.milliseconds)
+            persistCommitMessageUseCase(savedCommitMessage.message.ifBlank { null })
+        }
+    }
 
     private fun getDiffSelectedEntriesByEntryType(
         diffSelected: DiffSelected?,
