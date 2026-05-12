@@ -3,8 +3,7 @@ package com.jetpackduba.gitnuro.domain
 import com.jetpackduba.gitnuro.domain.errors.*
 import com.jetpackduba.gitnuro.domain.extensions.runOperationInTabScope
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.newErrorNow
-import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
+import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import kotlinx.coroutines.launch
@@ -13,7 +12,6 @@ import javax.inject.Inject
 class UseCaseExecutor @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val repositoryStateRepository: RepositoryStateRepository,
-    private val errorsRepository: IErrorsRepository,
     private val scope: TabCoroutineScope,
 ) {
     suspend fun <T> execute(
@@ -22,7 +20,7 @@ class UseCaseExecutor @Inject constructor(
         refreshEvenIfFailed: Boolean = false,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ): Either<T, AppError> {
-        return executeTask(taskType, refreshEvenIfFailed, onRefresh, block)
+        return executeTask(refreshEvenIfFailed, onRefresh, block)
     }
 
     fun executeOnTabScope(
@@ -31,7 +29,6 @@ class UseCaseExecutor @Inject constructor(
     ) {
         scope.launch {
             executeTask(
-                taskType,
                 refreshEvenIfFailed = false,
                 onRefresh = {},
                 block = {
@@ -49,12 +46,21 @@ class UseCaseExecutor @Inject constructor(
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ) {
         repositoryStateRepository.runOperationInTabScope(taskType, scope) {
-            executeTask(taskType, refreshEvenIfFailed, onRefresh, block)
+            executeTask(refreshEvenIfFailed, onRefresh, block).apply {
+                when (this) {
+                    is Either.Err -> repositoryStateRepository.addCompletedTaskFailed(
+                        taskType,
+                        this.error,
+                        FailureSeverity.HIGH,
+                    )
+
+                    is Either.Ok -> repositoryStateRepository.addCompletedTaskSuccessfully(taskType)
+                }
+            }
         }
     }
 
     private suspend fun <T> executeTask(
-        taskType: TaskType,
         refreshEvenIfFailed: Boolean,
         onRefresh: suspend () -> Unit = {},
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>
@@ -67,9 +73,7 @@ class UseCaseExecutor @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            errorsRepository.addError(newErrorNow(taskType, e))
-
-            return Either.Err(GenericError(e.message.orEmpty()))
+            return Either.Err(GenericError(e.message.orEmpty(), e))
         }
     }
 }

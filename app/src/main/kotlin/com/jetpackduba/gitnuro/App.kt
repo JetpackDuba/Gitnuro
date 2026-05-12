@@ -42,6 +42,7 @@ import com.jetpackduba.gitnuro.domain.models.DateTimeFormat
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -84,7 +85,7 @@ sealed interface Screen : NavKey {
     data class TagCreate(val targetCommit: Commit) : Screen
     data class BranchReset(val targetCommit: Commit) : Screen
     data class AddEditRemote(val remote: Remote?) : Screen
-    data class Error(val error: com.jetpackduba.gitnuro.domain.models.Error) : Screen
+    data class Error(val error: CompletedTask.Failure) : Screen
     data object SubmoduleAdd : Screen
     data object HttpCredentials : Screen
     data object SshCredentials : Screen

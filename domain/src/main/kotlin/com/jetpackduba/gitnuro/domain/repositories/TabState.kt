@@ -6,8 +6,6 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.newErrorNow
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -20,7 +18,6 @@ private const val TAG = "TabState"
 
 @TabScope
 class TabInstanceRepository @Inject constructor(
-    val errorsRepository: IErrorsRepository,
     private val scope: TabCoroutineScope,
 //    private val findCommitGitAction: FindCommitGitAction,
 ) {
@@ -95,13 +92,6 @@ class TabInstanceRepository @Inject constructor(
 
             hasProcessFailed = true
 
-            if (showError)
-                errorsRepository.addError(
-                    newErrorNow(
-                        taskType = TaskType.Unspecified, ex
-                    )
-                )
-
             printError(TAG, ex.message.orEmpty(), ex)
         } finally {
             if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
@@ -148,12 +138,6 @@ class TabInstanceRepository @Inject constructor(
                 try {
                     callback(it)
                 } catch (ex: Exception) {
-                    ex.printStackTrace()
-                    errorsRepository.addError(
-                        newErrorNow(
-                            taskType = TaskType.Unspecified, ex
-                        )
-                    )
                 }
             }
     }

@@ -667,10 +667,11 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     )
 
     if (errorToDisplay != null) {
-        ErrorDialog(
+     /* TODO restore this
+           ErrorDialog(
             errorToDisplay,
             onAccept = { setErrorToDisplay(null) }
-        )
+        )*/
     }
 }
 

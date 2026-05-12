@@ -5,7 +5,7 @@ sealed interface AppError
 sealed interface GitError : AppError
 
 
-data class GenericError(val message: String) : GitError
+data class GenericError(val message: String, val exception: Exception? = null) : GitError
 
 /**
  * Repository path for current tab is not set

@@ -36,7 +36,7 @@ class JGit @Inject constructor() {
         try {
             Either.Ok(block(git))
         } catch (ex: Exception) {
-            val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty())
+            val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty(), ex)
             Either.Err(error)
         }
     }
@@ -70,7 +70,7 @@ class JGit @Inject constructor() {
         try {
             Either.Ok(block(git))
         } catch (ex: Exception) {
-            val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty())
+            val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty(), ex)
             Either.Err(error)
         }
     }

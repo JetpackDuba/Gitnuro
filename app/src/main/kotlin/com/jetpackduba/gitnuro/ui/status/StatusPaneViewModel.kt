@@ -505,7 +505,7 @@ class StatusPaneViewModel @Inject constructor(
                     saveAuthorGitAction(git.repository.directory.absolutePath, authorInfo)
                 }
 
-                Identity(authorInfo.globalIdentity?.name.orEmpty(), authorInfo.globalIdentity?.email.orEmpty())
+                Identity(authorInfo.globalIdentity.name.orEmpty(), authorInfo.globalIdentity.email.orEmpty())
             } else {
                 throw CancellationException("Author info request cancelled")
             }

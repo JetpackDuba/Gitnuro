@@ -11,7 +11,6 @@ import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IGetWorkspacePathGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
@@ -79,8 +78,6 @@ class RepositoryOpenViewModel @Inject constructor(
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
     TabViewModel() {
-    private val errorsManager: IErrorsRepository = tabState.errorsRepository
-
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
     val repositoryState: StateFlow<RepositoryState> = sharedRepositoryStateManager.repositoryState
@@ -153,13 +150,13 @@ class RepositoryOpenViewModel @Inject constructor(
                     is WatcherEvent.RepositoryChanged -> repositoryChanged(watcherEvent.hasGitDirChanged)
                     is WatcherEvent.WatchInitError -> {
                         val message = codeToMessage(watcherEvent.code)
-                        errorsManager.addError(
+                 /*TODO       errorsManager.addError(
                             newErrorNow(
                                 exception = Exception(message),
                                 taskType = TaskType.ChangesDetection,
                             ),
                         )
-
+*/
                     }
                 }
             }

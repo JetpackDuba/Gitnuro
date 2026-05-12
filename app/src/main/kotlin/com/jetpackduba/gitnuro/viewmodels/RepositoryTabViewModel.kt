@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavBackStack
 import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.MAX_COMPLETED_TASKS_KEPT
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
@@ -11,12 +12,14 @@ import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.IErrorsRepository
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
+import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
+import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
@@ -68,7 +71,39 @@ class RepositoryTabViewModel @AssistedInject constructor(
         fun create(initialPath: String?): RepositoryTabViewModel
     }
 
-    val errorsManager: IErrorsRepository = tabState.errorsRepository
+    private val allErrors = repositoryStateRepository
+        .completedTasks
+        .map { it.filterIsInstance<CompletedTask.Failure>() }
+        .distinctUntilChanged()
+
+    private val alreadyDisplayedCompletedTasks = MutableStateFlow<List<CompletedTask>>(emptyList())
+
+    val severeErrors = combine(
+        allErrors,
+        alreadyDisplayedCompletedTasks.filterIsInstance<List<CompletedTask.Failure>>()
+    ) { allErrors, alreadyDisplayedErrors ->
+        allErrors - alreadyDisplayedErrors
+    }
+        .map { it.filter { it.severity == FailureSeverity.HIGH } }
+        .distinctUntilChanged()
+        .stateIn(emptyList())
+
+    val notifications = combine(
+        repositoryStateRepository.completedTasks,
+        alreadyDisplayedCompletedTasks,
+    ) { tasks, alreadyDisplayedTasks ->
+        tasks - alreadyDisplayedTasks
+    }
+        .map { tasks ->
+            tasks.filter { task ->
+                when (task) {
+                    is CompletedTask.Failure if task.severity == FailureSeverity.HIGH -> false
+                    else -> true
+                }
+            }
+        }
+        .stateIn(emptyList())
+
     val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
 
     val repositorySelectionState: StateFlow<RepositorySelectionState> = repositoryDataRepository.repositoryState
@@ -83,12 +118,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
 
     val processingTask = repositoryStateRepository.currentTask
         .debounce(300L.milliseconds)
-        .stateIn(
-            scope = tabScope,
-            started = SharingStarted.WhileSubscribed(),
-            initialValue = null
-        )
-
+        .stateIn(initialValue = null)
 
     val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
 
@@ -98,6 +128,15 @@ class RepositoryTabViewModel @AssistedInject constructor(
             printLog(TAG, "Trying to open repository ${directory}")
 
             openRepositoryUseCase(directory)
+        }
+    }
+
+    fun completedTaskAlreadyShown(task: CompletedTask) {
+        alreadyDisplayedCompletedTasks.update {
+            it
+                .toMutableList()
+                .apply { add(task) }
+                .takeLast(MAX_COMPLETED_TASKS_KEPT)
         }
     }
 

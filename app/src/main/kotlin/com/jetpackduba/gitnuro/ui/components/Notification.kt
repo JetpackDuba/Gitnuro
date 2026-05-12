@@ -20,6 +20,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.warning
 import com.jetpackduba.gitnuro.domain.models.MessageType
 import com.jetpackduba.gitnuro.domain.models.Notification
 import com.jetpackduba.gitnuro.domain.models.NotificationType
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.theme.AppTheme
 import org.jetbrains.compose.resources.painterResource
 
@@ -33,7 +34,7 @@ fun NotificationSuccessPreview() {
 }
 
 @Composable
-fun Notification(notification: Notification) {
+fun Notification(notification: CompletedTask) {
     val notificationShape = RoundedCornerShape(8.dp)
 
     Row(
@@ -47,22 +48,19 @@ fun Notification(notification: Notification) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        val backgroundColor = when (notification.type) {
-            NotificationType.Positive -> MaterialTheme.colors.primary
-            NotificationType.Warning -> MaterialTheme.colors.secondary
-            NotificationType.Error -> MaterialTheme.colors.error
+        val backgroundColor = when (notification) {
+            is CompletedTask.Success -> MaterialTheme.colors.primary
+            is CompletedTask.Failure -> MaterialTheme.colors.error
         }
 
-        val contentColor = when (notification.type) {
-            NotificationType.Positive -> MaterialTheme.colors.onPrimary
-            NotificationType.Warning -> MaterialTheme.colors.onSecondary
-            NotificationType.Error -> MaterialTheme.colors.onError
+        val contentColor = when (notification) {
+            is CompletedTask.Success -> MaterialTheme.colors.onPrimary
+            is CompletedTask.Failure -> MaterialTheme.colors.onError
         }
 
-        val icon = when (notification.type) {
-            NotificationType.Positive -> Res.drawable.info
-            NotificationType.Warning -> Res.drawable.warning
-            NotificationType.Error -> Res.drawable.error
+        val icon = when (notification) {
+            is CompletedTask.Success -> Res.drawable.info
+            is CompletedTask.Failure -> Res.drawable.error
         }
 
         Box(

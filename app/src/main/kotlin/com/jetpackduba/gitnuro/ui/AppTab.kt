@@ -20,6 +20,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.lfs
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
+import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
 import com.jetpackduba.gitnuro.tabViewModel
 import com.jetpackduba.gitnuro.theme.dialogOverlay
 import com.jetpackduba.gitnuro.ui.components.Notification
@@ -28,7 +29,9 @@ import com.jetpackduba.gitnuro.ui.dialogs.base.UserPasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
+import kotlin.time.Duration.Companion.milliseconds
 
 
 fun <T : NavKey> NavBackStack<T>.addAndRemovePrevious(item: T) {
@@ -44,12 +47,12 @@ fun <T : NavKey> NavBackStack<T>.addAndRemovePrevious(item: T) {
 fun AppTab(
     repositoryTabViewModel: RepositoryTabViewModel,
 ) {
-    val errorManager = repositoryTabViewModel.errorsManager
-    val lastError by errorManager.error.collectAsState(null)
-    val notifications = errorManager.notification.collectAsState().value
+    val errors by repositoryTabViewModel.severeErrors.collectAsState()
+    val lastError = errors.firstOrNull()
+
+    val notifications = repositoryTabViewModel.notifications.collectAsState().value
         .toList()
-        .sortedBy { it.first }
-        .map { it.second }
+        .sortedBy { it.date }
 
     val repositorySelectionStatus = repositoryTabViewModel.repositorySelectionState.collectAsState()
     val repositorySelectionStatusValue = repositorySelectionStatus.value
@@ -209,7 +212,10 @@ fun AppTab(
                         ) {
                             ErrorDialog(
                                 error = it.error,
-                                onAccept = { backStack.removeLastOrNull() },
+                                onAccept = {
+                                    backStack.removeLastOrNull()
+                                    repositoryTabViewModel.completedTaskAlreadyShown(it.error)
+                                },
                             )
                         }
                         entry<Screen.AddEditRemote>(
@@ -377,6 +383,11 @@ fun AppTab(
         ) {
             for (notification in notifications) {
                 Notification(notification)
+
+                LaunchedEffect(notification) {
+                    delay(2000L.milliseconds)
+                    repositoryTabViewModel.completedTaskAlreadyShown(notification)
+                }
             }
         }
     }
