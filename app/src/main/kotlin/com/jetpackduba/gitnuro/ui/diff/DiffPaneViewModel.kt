@@ -4,20 +4,16 @@ import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.SharedRepositoryStateManager
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
-import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.repositories.CloseableView
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.repositories.*
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenFileInExternalAppGitAction
 import com.jetpackduba.gitnuro.ui.TabsManager
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.RepositoryState
@@ -44,11 +40,34 @@ class DiffViewModel @Inject constructor(
     private val tabsManager: TabsManager,
     private val getDiffUseCase: GetDiffUseCase,
     private val sharedRepositoryStateManager: SharedRepositoryStateManager,
+    private val repositoryStateRepository: RepositoryStateRepository,
 ) : TabViewModel() {
     private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.None)
+    private val refreshDiffFlow = repositoryStateRepository
+        .completedTasks
+        .map { tasks ->
+            tasks.filter { task ->
+                task is CompletedTask.Success && (
+                        task.taskType is TaskType.StageFile ||
+                                task.taskType is TaskType.DoCommit ||
+                                task.taskType is TaskType.StageAllFiles ||
+                                task.taskType is TaskType.StageHunk ||
+                                task.taskType is TaskType.StageLine ||
+                                task.taskType is TaskType.StageDir ||
+                                task.taskType is TaskType.UnstageAllFiles ||
+                                task.taskType is TaskType.UnstageFile ||
+                                task.taskType is TaskType.UnstageHunk ||
+                                task.taskType is TaskType.UnstageDir ||
+                                task.taskType is TaskType.UnstageLine
+                        )
+            }
+        }
+        .distinctUntilChanged()
 
-    //    val diffResult: StateFlow<ViewDiffResult?> = _diffResult
-    val diffResult: StateFlow<ViewDiffResult?> = repositoryDataRepository.diffSelected.map { diffSelected ->
+    val diffResult: StateFlow<ViewDiffResult?> = combine(
+        repositoryDataRepository.diffSelected,
+        refreshDiffFlow,
+    ) { diffSelected, _ ->
         if (diffSelected?.entries?.count() == 1) {
             val diff = loadDiff(diffSelected.entries.first())
 
@@ -140,7 +159,7 @@ class DiffViewModel @Inject constructor(
 
     fun clearDiff() {
         val diff = when (val state = diffResult.value) {
-            is ViewDiffResult.DiffNotFound -> state.diff
+            is ViewDiffResult.DiffNotFound -> state.diffType
             is ViewDiffResult.Loaded -> state.diffType
             is ViewDiffResult.Loading -> state.diffType
             else -> null

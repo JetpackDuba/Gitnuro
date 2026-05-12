@@ -1,11 +1,15 @@
 package com.jetpackduba.gitnuro.domain.models
 
 sealed interface ViewDiffResult {
-    object None : ViewDiffResult
+    val diffType: DiffType?
 
-    data class Loading(val diffType: DiffType) : ViewDiffResult
+    object None : ViewDiffResult {
+        override val diffType: DiffType? = null
+    }
 
-    data class DiffNotFound(val diff: DiffType?) : ViewDiffResult
+    data class Loading(override val diffType: DiffType) : ViewDiffResult
 
-    data class Loaded(val diffType: DiffType, val diffResult: DiffResult) : ViewDiffResult
+    data class DiffNotFound(override val diffType: DiffType?) : ViewDiffResult
+
+    data class Loaded(override val diffType: DiffType, val diffResult: DiffResult) : ViewDiffResult
 }

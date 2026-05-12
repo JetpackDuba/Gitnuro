@@ -21,7 +21,6 @@ import com.jetpackduba.gitnuro.app.generated.resources.error
 import com.jetpackduba.gitnuro.app.generated.resources.error_dialog_copy_button_tooltip
 import com.jetpackduba.gitnuro.app.generated.resources.generic_button_ok
 import com.jetpackduba.gitnuro.domain.errors.GenericError
-import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.theme.secondarySurface
@@ -56,7 +55,7 @@ fun ErrorDialog(
         ) {
             Row {
                 Text(
-                    text = error.taskTask.errorTitle(),
+                    text = error.taskType.errorTitle(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colors.onBackground,

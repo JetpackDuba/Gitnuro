@@ -3,15 +3,15 @@ package com.jetpackduba.gitnuro.domain.models
 sealed interface TaskType {
     data object Unspecified : TaskType
     data object StageAllFiles : TaskType
-    data object UnstageAllFiles : TaskType
-    data object StageFile : TaskType
-    data object UnstageFile : TaskType
-    data object StageHunk : TaskType
-    data object UnstageHunk : TaskType
-    data object StageLine : TaskType
-    data object UnstageLine : TaskType
     data object StageDir : TaskType
+    data object StageFile : TaskType
+    data object StageHunk : TaskType
+    data object StageLine : TaskType
+    data object UnstageAllFiles : TaskType
     data object UnstageDir : TaskType
+    data object UnstageFile : TaskType
+    data object UnstageHunk : TaskType
+    data object UnstageLine : TaskType
     data object DiscardFile : TaskType
     data object DeleteFile : TaskType
     data object BlameFile : TaskType

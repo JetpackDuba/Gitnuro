@@ -1,9 +1,7 @@
 package com.jetpackduba.gitnuro.domain.repositories
 
 import com.jetpackduba.gitnuro.domain.errors.AppError
-import com.jetpackduba.gitnuro.domain.exceptions.GitnuroException
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import jdk.internal.org.jline.utils.ShutdownHooks
 import kotlinx.coroutines.flow.StateFlow
 
 interface RepositoryStateRepository {
@@ -17,15 +15,16 @@ interface RepositoryStateRepository {
 
 sealed interface CompletedTask {
     val date: Long
+    val taskType: TaskType
 
     data class Success(
         override val date: Long,
-        val taskType: TaskType
+        override val taskType: TaskType
     ) : CompletedTask
 
     data class Failure(
         override val date: Long,
-        val taskTask: TaskType,
+        override val taskType: TaskType,
         val reason: AppError,
         val severity: FailureSeverity,
     ) : CompletedTask
