@@ -115,7 +115,7 @@ enum class OS {
 tasks.test {
     useJUnitPlatform()
     testLogging {
-        events("passed", "skipped", "faile  d")
+        events("passed", "skipped", "failed")
     }
 }
 
