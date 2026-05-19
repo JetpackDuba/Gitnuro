@@ -8,13 +8,16 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
-import com.jetpackduba.gitnuro.domain.interfaces.IGetWorkspacePathGitAction
-import com.jetpackduba.gitnuro.domain.models.*
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.models.WatcherEvent
+import com.jetpackduba.gitnuro.domain.models.emptyIdentity
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.BlameFileUseCase
+import com.jetpackduba.gitnuro.domain.usecases.GetWorktreeUseCase
 import com.jetpackduba.gitnuro.domain.usecases.RefreshAllUseCase
 import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
@@ -54,7 +57,7 @@ private const val TAG = "TabViewModel"
  * across full app recompositions), therefore, tab's content can be recreated with these view models.
  */
 class RepositoryOpenViewModel @Inject constructor(
-    private val getWorkspacePathGitAction: IGetWorkspacePathGitAction,
+    private val getWorktreeUseCase: GetWorktreeUseCase,
     val diffViewModel: DiffViewModel,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     private val tabState: TabInstanceRepository,
@@ -130,11 +133,14 @@ class RepositoryOpenViewModel @Inject constructor(
      * instead of opening the repo in the same ViewModel we simply create a new tab with a new TabViewModel
      * replacing the current tab
      */
-    fun openAnotherRepository(directory: String) = tabState.runOperation(
-        showError = true,
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        tabsManager.addNewTabFromPath(directory, true, getWorkspacePathGitAction(git))
+    fun openAnotherRepository(directory: String) {
+        viewModelScope.launch {
+            val worktree = getWorktreeUseCase()
+
+            if (worktree is Either.Ok) {
+                tabsManager.addNewTabFromPath(directory, true, worktree.value)
+            }
+        }
     }
 
     /**
@@ -150,13 +156,13 @@ class RepositoryOpenViewModel @Inject constructor(
                     is WatcherEvent.RepositoryChanged -> repositoryChanged(watcherEvent.hasGitDirChanged)
                     is WatcherEvent.WatchInitError -> {
                         val message = codeToMessage(watcherEvent.code)
-                 /*TODO       errorsManager.addError(
-                            newErrorNow(
-                                exception = Exception(message),
-                                taskType = TaskType.ChangesDetection,
-                            ),
-                        )
-*/
+                        /*TODO       errorsManager.addError(
+                                   newErrorNow(
+                                       exception = Exception(message),
+                                       taskType = TaskType.ChangesDetection,
+                                   ),
+                               )
+       */
                     }
                 }
             }

@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.di.modules
 
-import com.jetpackduba.gitnuro.data.git.GetWorkspacePathGitAction
+import com.jetpackduba.gitnuro.data.git.GetWorktreePathGitAction
 import com.jetpackduba.gitnuro.data.git.author.LoadAuthorGitAction
 import com.jetpackduba.gitnuro.data.git.author.SaveAuthorGitAction
 import com.jetpackduba.gitnuro.data.git.branches.*
@@ -205,7 +205,7 @@ interface GitActionsModule {
     fun bindsGetTagsGitAction(action: GetTagsGitAction): IGetTagsGitAction
 
     @Binds
-    fun bindsGetWorkspacePathGitAction(action: GetWorkspacePathGitAction): IGetWorkspacePathGitAction
+    fun bindsGetWorktreePathGitAction(action: GetWorktreePathGitAction): IGetWorktreePathGitAction
 
     @Binds
     fun bindsGetSubmodulesGitAction(action: GetSubmodulesGitAction): IGetSubmodulesGitAction
