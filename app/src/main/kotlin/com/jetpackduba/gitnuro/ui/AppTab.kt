@@ -20,7 +20,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.lfs
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
-import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenPage
 import com.jetpackduba.gitnuro.tabViewModel
 import com.jetpackduba.gitnuro.theme.dialogOverlay
 import com.jetpackduba.gitnuro.ui.components.Notification
@@ -148,17 +148,17 @@ fun AppTab(
 
                         }
                         entry<Screen.RepositoryOpen> { entry ->
-                            val viewModel = tabViewModel(entry) { it.repositoryOpenViewModel }
+                            val repositoryOpenViewModel = tabViewModel(entry) { it.repositoryOpenViewModel() }
 
                             RepositoryOpenPage(
-                                repositoryOpenViewModel = viewModel,
+                                repositoryOpenViewModel = repositoryOpenViewModel,
                                 onNavigate = { backStack.add(it) }
                             )
                         }
                         entry<Screen.Settings>(
                             metadata = dialogsMetadata
                         ) { entry ->
-                            val viewModel = tabViewModel(entry, { it.settingsViewModel })
+                            val viewModel = tabViewModel(entry, { it.settingsViewModel() })
                             SettingsDialog(
                                 settingsViewModel = viewModel,
                                 onDismiss = { backStack.removeLastOrNull() },
@@ -168,7 +168,7 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             CloneDialog(
-                                cloneViewModel = tabViewModel(entry) { it.cloneViewModel },
+                                cloneViewModel = tabViewModel(entry) { it.cloneViewModel() },
                                 onClose = { backStack.removeLastOrNull() },
                                 onOpenRepository = { dir ->
                                     repositoryTabViewModel.openRepository(dir.absolutePath)
@@ -181,7 +181,7 @@ fun AppTab(
                             RenameBranchDialog(
                                 viewModel = tabViewModel(entry) { viewModelsProvider ->
                                     viewModelsProvider
-                                        .renameBranchDialogViewModelFactory
+                                        .renameBranchDialogViewModelFactory()
                                         .create(entry.ref)
                                 },
                                 onDismiss = { backStack.removeLastOrNull() },
@@ -191,7 +191,7 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             CreateBranchDialog(
-                                viewModel = tabViewModel(entry) { it.createBranchViewModelFactory.create(entry.targetCommit) },
+                                viewModel = tabViewModel(entry) { it.createBranchViewModelFactory().create(entry.targetCommit) },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
@@ -201,7 +201,7 @@ fun AppTab(
                             SetDefaultUpstreamBranchDialog(
                                 viewModel = tabViewModel(entry) { viewModelsProvider ->
                                     viewModelsProvider
-                                        .setUpstreamBranchDialogViewModelFactory
+                                        .setUpstreamBranchDialogViewModelFactory()
                                         .create(entry.ref)
                                 },
                                 onDismiss = { backStack.removeLastOrNull() },
@@ -224,7 +224,7 @@ fun AppTab(
                             AddEditRemoteDialog(
                                 viewModel = tabViewModel(entry) { viewModelsProvider ->
                                     viewModelsProvider
-                                        .addEditRemoteViewModelFactory
+                                        .addEditRemoteViewModelFactory()
                                         .create(entry.remote)
                                 },
                                 onDismiss = { backStack.removeLastOrNull() },
@@ -234,7 +234,7 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             AddSubmodulesDialog(
-                                viewModel = tabViewModel(entry) { it.submoduleDialogViewModel },
+                                viewModel = tabViewModel(entry) { it.submoduleDialogViewModel() },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
@@ -303,7 +303,7 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             SignOffDialog(
-                                viewModel = tabViewModel(entry) { it.signOffDialogViewModel },
+                                viewModel = tabViewModel(entry) { it.signOffDialogViewModel() },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
@@ -312,7 +312,7 @@ fun AppTab(
                         ) { entry ->
                             CreateTagDialog(
                                 viewModel = tabViewModel(entry) { viewModelsProvider ->
-                                    viewModelsProvider.createTagViewModelFactory.create(entry.targetCommit)
+                                    viewModelsProvider.createTagViewModelFactory().create(entry.targetCommit)
                                 },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
@@ -322,7 +322,7 @@ fun AppTab(
                         ) { entry ->
                             ResetBranchDialog(
                                 viewModel = tabViewModel(entry) { viewModelsProvider ->
-                                    viewModelsProvider.resetBranchViewModelFactory.create(entry.targetCommit)
+                                    viewModelsProvider.resetBranchViewModelFactory().create(entry.targetCommit)
                                 },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
@@ -331,7 +331,7 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             QuickActionsDialog(
-                                viewModel = tabViewModel(entry) { it.quickActionsViewModel },
+                                viewModel = tabViewModel(entry) { it.quickActionsViewModel() },
                                 onDismiss = { backStack.removeLastOrNull() },
                                 onShowSignOff = {
                                     backStack.removeLastOrNull()
@@ -346,7 +346,7 @@ fun AppTab(
                         entry<Screen.Author>(
                             metadata = dialogsMetadata
                         ) { entry ->
-                            val viewModel = tabViewModel(entry) { it.authorViewModel }
+                            val viewModel = tabViewModel(entry) { it.authorViewModel() }
 
                             AuthorDialog(
                                 viewModel = viewModel,
@@ -356,7 +356,7 @@ fun AppTab(
                         entry<Screen.StashWithMessage>(
                             metadata = dialogsMetadata
                         ) { entry ->
-                            val viewModel = tabViewModel(entry) { it.stashWithMessageViewModel }
+                            val viewModel = tabViewModel(entry) { it.stashWithMessageViewModel() }
                             StashWithMessageDialog(
                                 viewModel = viewModel,
                                 onDismiss = { backStack.removeLastOrNull() },

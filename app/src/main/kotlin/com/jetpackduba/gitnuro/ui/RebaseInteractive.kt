@@ -31,22 +31,22 @@ import com.jetpackduba.gitnuro.ui.drag_sorting.VerticalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberVerticalDragDropState
 import com.jetpackduba.gitnuro.ui.drag_sorting.verticalDragContainer
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
-import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.RebaseLine
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RebaseInteractive(
-    rebaseInteractiveViewModel: RebaseInteractiveViewModel,
+    viewModel: RepositoryOpenViewModel,
 ) {
-    val rebaseState = rebaseInteractiveViewModel.rebaseState.collectAsState()
+    val rebaseState = viewModel.rebaseState.collectAsState()
     val rebaseStateValue = rebaseState.value
-    val selectedItem = rebaseInteractiveViewModel.selectedItem.collectAsState().value
+    val selectedItem = viewModel.selectedItem.collectAsState().value
 
-    LaunchedEffect(rebaseInteractiveViewModel) {
-        rebaseInteractiveViewModel.loadRebaseInteractiveData()
+    LaunchedEffect(viewModel) {
+        viewModel.loadRebaseInteractiveData()
     }
 
     Box(
@@ -58,7 +58,7 @@ fun RebaseInteractive(
             is RebaseInteractiveViewState.Failed -> {}
             is RebaseInteractiveViewState.Loaded -> {
                 RebaseStateLoaded(
-                    rebaseInteractiveViewModel,
+                    viewModel,
                     rebaseStateValue,
                     selectedItem,
                     onFocusLine = {
@@ -66,14 +66,14 @@ fun RebaseInteractive(
                             selectedItem !is SelectedItem.Commit ||
                             !selectedItem.commit.hash.startsWith(it.commit.name())
                         ) {
-                            rebaseInteractiveViewModel.selectLine(it)
+                            viewModel.selectLine(it)
                         }
                     },
                     onCancel = {
-                        rebaseInteractiveViewModel.cancel()
+                        viewModel.cancel()
                     },
                     onMoveCommit = { from, to ->
-                        rebaseInteractiveViewModel.moveCommit(from, to)
+                        viewModel.moveCommit(from, to)
                     }
                 )
             }
@@ -88,7 +88,7 @@ fun RebaseInteractive(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun RebaseStateLoaded(
-    rebaseInteractiveViewModel: RebaseInteractiveViewModel,
+    viewModel: RepositoryOpenViewModel,
     rebaseState: RebaseInteractiveViewState.Loaded,
     selectedItem: SelectedItem,
     onFocusLine: (RebaseLine) -> Unit,
@@ -137,10 +137,10 @@ fun RebaseStateLoaded(
                         isFirst = stepsList.first() == rebaseTodoLine,
                         onFocusLine = { onFocusLine(rebaseTodoLine) },
                         onActionChanged = { newAction ->
-                            rebaseInteractiveViewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
+                            viewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
                         },
                         onMessageChanged = { newMessage ->
-                            rebaseInteractiveViewModel.onCommitMessageChanged(rebaseTodoLine.commit, newMessage)
+                            viewModel.onCommitMessageChanged(rebaseTodoLine.commit, newMessage)
                         },
                     )
                 }
@@ -165,7 +165,7 @@ fun RebaseStateLoaded(
                 modifier = Modifier.padding(end = 16.dp),
                 enabled = true, // TODO Moving commits may also affect stepsList.any { it.rebaseAction != RebaseAction.PICK },
                 onClick = {
-                    rebaseInteractiveViewModel.continueRebaseInteractive()
+                    viewModel.continueRebaseInteractive()
                 },
                 text = stringResource(Res.string.rebase_interactive_view_button_complete_rebase)
             )

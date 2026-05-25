@@ -117,9 +117,15 @@ class PushBranchGitAction @Inject constructor(
             }
             .setTransportConfigCallback { handleTransport(it) }
             .setProgressMonitor(object : ProgressMonitor {
-                override fun start(totalTasks: Int) {}
-                override fun beginTask(title: String?, totalWork: Int) {}
-                override fun update(completed: Int) {}
+                override fun start(totalTasks: Int) {
+                    println("Push total tasks: $totalTasks")
+                }
+                override fun beginTask(title: String?, totalWork: Int) {
+                    println("Push begin task: $title, totalWork: $totalWork")
+                }
+                override fun update(completed: Int) {
+                    println("Push completed task: $completed")
+                }
                 override fun endTask() {}
                 override fun isCancelled() = !isActive
                 override fun showDuration(enabled: Boolean) {}

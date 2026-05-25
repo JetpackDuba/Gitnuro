@@ -4,14 +4,14 @@ import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.usecases.GetWorktreeUseCase
 import com.jetpackduba.gitnuro.domain.usecases.RefreshAllUseCase
-import com.jetpackduba.gitnuro.system.OpenPathInSystemGitAction
+import com.jetpackduba.gitnuro.domain.usecases.OpenPathInSystemUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class QuickActionsViewModel @Inject constructor(
     private val refreshAllUseCase: RefreshAllUseCase,
     private val getWorktreeUseCase: GetWorktreeUseCase,
-    private val openPathInSystemGitAction: OpenPathInSystemGitAction,
+    private val openPathInSystemUseCase: OpenPathInSystemUseCase,
 ) : TabViewModel() {
 
     // TODO Implement bunch of methods
@@ -23,7 +23,7 @@ class QuickActionsViewModel @Inject constructor(
             val worktree = getWorktreeUseCase()
 
             if (worktree is Either.Ok) {
-                openPathInSystemGitAction(worktree.value)
+                openPathInSystemUseCase(worktree.value)
             }
         }
     }

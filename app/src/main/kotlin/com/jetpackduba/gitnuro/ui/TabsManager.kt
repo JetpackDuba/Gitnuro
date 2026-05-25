@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import com.jetpackduba.gitnuro.di.AppComponent
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.ui.components.TabInformation
@@ -48,6 +47,7 @@ class TabsManager @Inject constructor(
 
     fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplacedPath: String? = null) {
         val tabToBeReplaced = tabsFlow.value.firstOrNull { it.path == tabToBeReplacedPath }
+
         val newTab = newAppTab(
             tabName = mutableStateOf(""),
             path = path,
@@ -144,6 +144,7 @@ class TabsManager @Inject constructor(
             .tabInformationFactory().create(
                 tabName = tabName,
                 initialPath = path,
+                tabComponent = tabComponent,
                 onTabPathChanged = { updatePersistedTabs() }
             )
 

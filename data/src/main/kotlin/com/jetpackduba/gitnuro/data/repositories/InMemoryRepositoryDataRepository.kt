@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import javax.inject.Inject
 
@@ -33,25 +34,28 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val submodules: Flow<Map<String, SubmoduleStatus>>
         field = MutableStateFlow(emptyMap())
 
-    override val repositoryState: StateFlow<RepositorySelectionState>
+    override val repositorySelectionState: StateFlow<RepositorySelectionState>
         field = MutableStateFlow<RepositorySelectionState>(RepositorySelectionState.Unknown)
+
+    override val repositoryState: StateFlow<RepositoryState>
+        field = MutableStateFlow<RepositoryState>(RepositoryState.SAFE)
+
+    override val rebaseInteractiveState: StateFlow<RebaseInteractiveState>
+        field = MutableStateFlow<RebaseInteractiveState>(RebaseInteractiveState.None)
 
     override val author: Flow<AuthorInfo>
         field = MutableStateFlow(AuthorInfo(emptyIdentity(), emptyIdentity()))
 
     override val repositoryPath: String?
         get() {
-            return when (val state = repositoryState.value) {
+            return when (val state = repositorySelectionState.value) {
                 is RepositorySelectionState.Open -> state.path
                 else -> null
             }
         }
 
-    override val diffSelected: StateFlow<DiffSelected?>
-        field = MutableStateFlow<DiffSelected?>(null)
-
     override fun setRepositoryState(state: RepositorySelectionState) {
-        repositoryState.value = state
+        repositorySelectionState.value = state
     }
 
     override fun clearAll() {
@@ -84,10 +88,6 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override fun updateRemotes(remotes: List<RemoteInfo>) {
         this.remotes.value = remotes
-    }
-
-    override fun updateDiffSelected(diffSelected: DiffSelected?) {
-        this.diffSelected.value = diffSelected
     }
 
     override fun updateStashes(stashes: List<Commit>) {

@@ -21,8 +21,6 @@ class TabInstanceRepository @Inject constructor(
     private val scope: TabCoroutineScope,
 //    private val findCommitGitAction: FindCommitGitAction,
 ) {
-    private val _selectedItem = MutableStateFlow<SelectedItem>(SelectedItem.UncommittedChanges)
-    val selectedItem: StateFlow<SelectedItem> = _selectedItem
 
     var lastOperation: Long = 0
         private set
@@ -104,27 +102,6 @@ class TabInstanceRepository @Inject constructor(
 
     suspend fun refreshData(refreshType: RefreshType) {
         refreshData.emit(refreshType)
-    }
-
-    suspend fun newSelectedStash(stash: Commit) {
-        newSelectedItem(SelectedItem.Stash(stash))
-    }
-
-    suspend fun noneSelected() {
-        newSelectedItem(SelectedItem.None)
-    }
-
-    fun newSelectedCommit(revCommit: Commit?) {
-        if (revCommit == null) {
-            newSelectedItem(SelectedItem.None)
-        } else {
-            val newSelectedItem = SelectedItem.Commit(revCommit)
-            newSelectedItem(newSelectedItem)
-        }
-    }
-
-    fun newSelectedItem(selectedItem: SelectedItem) {
-        _selectedItem.value = selectedItem
     }
 
     fun newSelectedRef(ref: Branch, hash: String) {}

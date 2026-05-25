@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.system
+package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
@@ -12,7 +12,7 @@ private const val TAG = "OpenPathInSystemGitAction"
  * Open a directory in the file explorer.
  * A use case for this is opening a repository's folder in the file explorer to view or modify the files
  */
-class OpenPathInSystemGitAction @Inject constructor(
+class OpenPathInSystemUseCase @Inject constructor(
     /**
      * We want specifically [ShellManager] implementation and not [com.jetpackduba.gitnuro.domain.IShellManager],
      * to run commands without any modification

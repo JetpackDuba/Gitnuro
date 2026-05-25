@@ -104,9 +104,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
         }
         .stateIn(emptyList())
 
-    val selectedItem: StateFlow<SelectedItem> = tabState.selectedItem
-
-    val repositorySelectionState: StateFlow<RepositorySelectionState> = repositoryDataRepository.repositoryState
+    val repositorySelectionState: StateFlow<RepositorySelectionState> = repositoryDataRepository.repositorySelectionState
 
     val backStack = NavBackStack<Screen>(
         if (initialPath == null) {

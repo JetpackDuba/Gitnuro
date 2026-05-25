@@ -15,7 +15,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -31,17 +34,16 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
-import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.compose.rememberInTab
+import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.models.EntryType
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.StatusEntry
-import com.jetpackduba.gitnuro.domain.extensions.fileName
-import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
-import com.jetpackduba.gitnuro.domain.extensions.isMerging
-import com.jetpackduba.gitnuro.domain.extensions.isReverting
-import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.icon
+import com.jetpackduba.gitnuro.extensions.iconColor
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.abortButton
@@ -53,7 +55,6 @@ import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntryContextMenuItems
 import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.DrawableResource
@@ -61,72 +62,65 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun StatusPane(
-    statusPaneViewModel: StatusPaneViewModel,
-    repositoryState: RepositoryState,
+    statusState: StatusState,
+    onAction: (StatusAction) -> Unit,
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
 ) {
-    val stageStateUi = statusPaneViewModel.statusStateUi.collectAsState().value
-    val swapUncommittedChanges by statusPaneViewModel.swapUncommittedChanges.collectAsState(false)
-    val (commitMessage, setCommitMessage) = remember(statusPaneViewModel) { mutableStateOf(statusPaneViewModel.savedCommitMessage.message) }
-    val stagedListState by statusPaneViewModel.stagedLazyListState.collectAsState()
-    val unstagedListState by statusPaneViewModel.unstagedLazyListState.collectAsState()
-    val isAmend by statusPaneViewModel.isAmend.collectAsState()
-    val isAmendRebaseInteractive by statusPaneViewModel.isAmendRebaseInteractive.collectAsState()
-    val committerDataRequestState = statusPaneViewModel.committerDataRequestState.collectAsState()
-    val committerDataRequestStateValue = committerDataRequestState.value
-    val rebaseInteractiveState = statusPaneViewModel.rebaseInteractiveState.collectAsState().value
-    val selectedUnstagedDiffEntries by statusPaneViewModel.selectedUnstagedDiffEntries.collectAsState()
-    val selectedStagedDiffEntries by statusPaneViewModel.selectedStagedDiffEntries.collectAsState()
+    val swapUncommittedChanges = statusState.swapUncommittedChanges
+    val (commitMessage, setCommitMessage) = remember() { mutableStateOf("") }
+    val stagedListState = rememberInTab("statusStagedListState", statusState.staged) {
+        LazyListState()
+    }
+    val unstagedListState = rememberInTab("statusUnstagedListState", statusState.unstaged) {
+        LazyListState()
+    }
+    val isAmend = statusState.isAmend
+    val isAmendRebaseInteractive = statusState.isAmendRebaseInteractive
+    val committerDataRequestState = statusState.committerDataRequestState
+    val rebaseInteractiveState = statusState.rebaseInteractiveState
+    val selectedUnstagedDiffEntries = statusState.selectedUnstagedDiffEntries
+    val selectedStagedDiffEntries = statusState.selectedStagedDiffEntries
 
-    val showSearchStaged by statusPaneViewModel.showSearchStaged.collectAsState()
-    val showAsTree by statusPaneViewModel.showAsTree.collectAsState(false)
-    val searchFilterStaged by statusPaneViewModel.searchFilterStaged.collectAsState()
-    val showSearchUnstaged by statusPaneViewModel.showSearchUnstaged.collectAsState()
-    val searchFilterUnstaged by statusPaneViewModel.searchFilterUnstaged.collectAsState()
+    val showAsTree = statusState.showAsTree
+    val showSearchStaged = statusState.showSearchStaged
+    val searchFilterStaged = statusState.searchFilterStaged
+    val showSearchUnstaged = statusState.showSearchUnstaged
+    val searchFilterUnstaged = statusState.searchFilterUnstaged
 
     val isAmenableRebaseInteractive =
-        repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits && rebaseInteractiveState.isCurrentStepAmenable
+        statusState.repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits && rebaseInteractiveState.isCurrentStepAmenable
 
     val doCommit = {
-        statusPaneViewModel.commit(commitMessage)
+        onAction(StatusAction.Commit(commitMessage))
         Unit
     }
 
-    val canCommit = commitMessage.isNotEmpty() && stageStateUi.hasStagedFiles
-    val canAmend = commitMessage.isNotEmpty() && statusPaneViewModel.hasPreviousCommits
+    val canCommit = commitMessage.isNotEmpty() && statusState.hasStagedFiles
+    val canAmend = commitMessage.isNotEmpty() && statusState.hasPreviousCommits
     val tabFocusRequester = LocalTabFocusRequester.current
 
-    LaunchedEffect(statusPaneViewModel) {
-        launch {
-            statusPaneViewModel.commitMessageChangesFlow.collect { newCommitMessage ->
-                setCommitMessage(newCommitMessage)
-            }
-        }
+    LaunchedEffect(statusState) {
+        // TODO Restore this functionality?
+//        launch {
+//            viewModel.commitMessageChangesFlow.collect { newCommitMessage ->
+//                setCommitMessage(newCommitMessage)
+//            }
+//        }
 
         launch {
-            statusPaneViewModel.showSearchUnstaged.collectLatest { show ->
-                if (!show) {
-                    tabFocusRequester.requestFocus()
-                }
-            }
-        }
-
-        launch {
-            statusPaneViewModel.showSearchStaged.collectLatest { show ->
-                if (!show) {
-                    tabFocusRequester.requestFocus()
-                }
+            if (statusState.showSearchUnstaged || statusState.showSearchStaged) {
+                tabFocusRequester.requestFocus()
             }
         }
     }
 
-    if (committerDataRequestStateValue is CommitterDataRequestState.WaitingInput) {
+    if (committerDataRequestState is CommitterDataRequestState.WaitingInput) {
         CommitAuthorDialog(
-            committerDataRequestStateValue.authorInfo,
-            onClose = { statusPaneViewModel.onRejectCommitterData() },
+            committerDataRequestState.authorInfo,
+            onClose = { onAction(StatusAction.RejectCommitterData) },
             onAccept = { newAuthorInfo, persist ->
-                statusPaneViewModel.onAcceptCommitterData(newAuthorInfo, persist)
+                onAction(StatusAction.AcceptCommitterData(newAuthorInfo, persist))
             },
         )
     }
@@ -137,7 +131,7 @@ fun StatusPane(
             .fillMaxWidth(),
     ) {
         AnimatedVisibility(
-            visible = stageStateUi is StatusStateUi.Loading || (stageStateUi is StatusStateUi.Loaded && stageStateUi.isPartiallyReloading),
+            visible = statusState.isLoading,
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -147,50 +141,48 @@ fun StatusPane(
         Column(
             modifier = Modifier.weight(1f),
         ) {
-            if (stageStateUi is StatusStateUi.Loaded) {
-                @Composable
-                fun staged() {
-                    StatusChangesList(
-                        entryType = EntryType.STAGED,
-                        stageStateUi,
-                        showSearchStaged,
-                        showAsTree = showAsTree,
-                        searchFilter = searchFilterStaged,
-                        listState = stagedListState,
-                        selectedEntries = selectedStagedDiffEntries,
-                        onSearchFilterToggled = { statusPaneViewModel.onSearchFilterToggledStaged(it) },
-                        onSearchFocused = { statusPaneViewModel.addStagedSearchToCloseableView() },
-                        onBlameFile = onBlameFile,
-                        onHistoryFile = onHistoryFile,
-                        onAction = { statusPaneViewModel.onAction(it) },
-                    )
-                }
+            @Composable
+            fun staged() {
+                StatusChangesList(
+                    entryType = EntryType.STAGED,
+                    statusState,
+                    showSearchStaged,
+                    showAsTree = showAsTree,
+                    searchFilter = searchFilterStaged,
+                    listState = stagedListState,
+                    selectedEntries = selectedStagedDiffEntries,
+                    onSearchFilterToggled = { onAction(StatusAction.SearchFilterToggledStaged(it)) },
+                    onSearchFocused = { onAction(StatusAction.AddStagedSearchToCloseableView) },
+                    onBlameFile = onBlameFile,
+                    onHistoryFile = onHistoryFile,
+                    onAction = { onAction(it) },
+                )
+            }
 
-                @Composable
-                fun unstaged() {
-                    StatusChangesList(
-                        entryType = EntryType.UNSTAGED,
-                        statusStateUi = stageStateUi,
-                        showSearch = showSearchUnstaged,
-                        showAsTree = showAsTree,
-                        searchFilter = searchFilterUnstaged,
-                        listState = unstagedListState,
-                        selectedEntries = selectedUnstagedDiffEntries,
-                        onSearchFilterToggled = { statusPaneViewModel.onSearchFilterToggledUnstaged(it) },
-                        onSearchFocused = { statusPaneViewModel.addUnstagedSearchToCloseableView() },
-                        onBlameFile = onBlameFile,
-                        onHistoryFile = onHistoryFile,
-                        onAction = { statusPaneViewModel.onAction(it) },
-                    )
-                }
+            @Composable
+            fun unstaged() {
+                StatusChangesList(
+                    entryType = EntryType.UNSTAGED,
+                    statusStateUi = statusState,
+                    showSearch = showSearchUnstaged,
+                    showAsTree = showAsTree,
+                    searchFilter = searchFilterUnstaged,
+                    listState = unstagedListState,
+                    selectedEntries = selectedUnstagedDiffEntries,
+                    onSearchFilterToggled = { onAction(StatusAction.SearchFilterToggledUnstaged(it)) },
+                    onSearchFocused = { onAction(StatusAction.AddUnstagedSearchToCloseableView) },
+                    onBlameFile = onBlameFile,
+                    onHistoryFile = onHistoryFile,
+                    onAction = { onAction(it) },
+                )
+            }
 
-                if (swapUncommittedChanges) {
-                    unstaged()
-                    staged()
-                } else {
-                    staged()
-                    unstaged()
-                }
+            if (swapUncommittedChanges) {
+                unstaged()
+                staged()
+            } else {
+                staged()
+                unstaged()
             }
         }
 
@@ -200,29 +192,29 @@ fun StatusPane(
             canAmend,
             doCommit,
             commitMessage,
-            repositoryState,
+            statusState.repositoryState,
             isAmenableRebaseInteractive,
-            stageStateUi.hasUnstagedFiles,
+            statusState.hasUnstagedFiles,
             rebaseInteractiveState,
-            stageStateUi.hasStagedFiles,
+            statusState.hasStagedFiles,
             isAmendRebaseInteractive,
-            stageStateUi is StatusStateUi.Loaded && stageStateUi.haveConflictsBeenSolved,
+            !statusState.isLoading && statusState.haveConflictsBeenSolved,
             setCommitMessage = {
                 setCommitMessage(it)
-                statusPaneViewModel.updateCommitMessage(it)
+                onAction(StatusAction.UpdateCommitMessage(it))
             },
             onResetRepoState = {
-                statusPaneViewModel.resetRepoState()
-                statusPaneViewModel.updateCommitMessage("")
+                onAction(StatusAction.ResetRepositoryState)
+                onAction(StatusAction.UpdateCommitMessage(""))
             },
             onAbortRebase = {
-                statusPaneViewModel.abortRebase()
-                statusPaneViewModel.updateCommitMessage("")
+                onAction(StatusAction.AbortRebase)
+                onAction(StatusAction.UpdateCommitMessage(""))
             },
-            onAmendChecked = { statusPaneViewModel.amend(it) },
-            onContinueRebase = { statusPaneViewModel.continueRebase(commitMessage) },
-            onSkipRebase = { statusPaneViewModel.skipRebase() },
-            onAmendRebaseInteractiveChecked = { statusPaneViewModel.amendRebaseInteractive(it) }
+            onAmendChecked = { onAction(StatusAction.ToggleAmend(it)) },
+            onContinueRebase = { onAction(StatusAction.ContinueRebase(commitMessage)) },
+            onSkipRebase = { onAction(StatusAction.SkipRebase) },
+            onAmendRebaseInteractiveChecked = { onAction(StatusAction.ToggleAmendRebaseInteractive(it)) }
         )
     }
 }
@@ -230,7 +222,7 @@ fun StatusPane(
 @Composable
 fun ColumnScope.StatusChangesList(
     entryType: EntryType,
-    statusStateUi: StatusStateUi.Loaded,
+    statusStateUi: StatusState,
     showSearch: Boolean,
     showAsTree: Boolean,
     searchFilter: TextFieldValue,
@@ -240,7 +232,7 @@ fun ColumnScope.StatusChangesList(
     onSearchFocused: () -> Unit,
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
-    onAction: (StatusPaneAction) -> Unit,
+    onAction: (StatusAction) -> Unit,
 ) {
     val title = when (entryType) {
         EntryType.STAGED -> stringResource(Res.string.uncommited_changes_staged_title)
@@ -293,7 +285,7 @@ fun ColumnScope.ChangesList(
     onSearchFocused: () -> Unit,
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
-    onAction: (StatusPaneAction) -> Unit,
+    onAction: (StatusAction) -> Unit,
 ) {
     fun entriesContextMenu(): (StatusEntry) -> List<ContextMenuElement> = { statusEntry ->
         statusEntryContextMenuItems(
@@ -301,12 +293,12 @@ fun ColumnScope.ChangesList(
             entryType = entryType,
             onBlame = { onBlameFile(statusEntry.filePath) },
             onHistory = { onHistoryFile(statusEntry.filePath) },
-            onReset = { onAction(StatusPaneAction.Reset(statusEntry)) },
-            onDelete = { onAction(StatusPaneAction.Delete(statusEntry)) },
-            onOpenFileInFolder = { onAction(StatusPaneAction.OpenInFolder(statusEntry.parentDirectoryPath)) },
+            onReset = { onAction(StatusAction.Reset(statusEntry)) },
+            onDelete = { onAction(StatusAction.Delete(statusEntry)) },
+            onOpenFileInFolder = { onAction(StatusAction.OpenInFolder(statusEntry.parentDirectoryPath)) },
             onCopyFilePath = { relative ->
                 onAction(
-                    StatusPaneAction.CopyPath(
+                    StatusAction.CopyPath(
                         relative = relative,
                         entries = listOf(statusEntry),
                     )
@@ -319,12 +311,12 @@ fun ColumnScope.ChangesList(
         statusEntriesContextMenuItems(
             selectedEntriesCount = selectedEntries.count(),
             entryType = entryType,
-            onDiscard = { onAction(StatusPaneAction.DiscardSelected(entryType)) },
-            onStageSelected = { onAction(StatusPaneAction.SelectedEntriesAction(EntryType.UNSTAGED)) },
-            onUnstageSelected = { onAction(StatusPaneAction.SelectedEntriesAction(EntryType.STAGED)) },
+            onDiscard = { onAction(StatusAction.DiscardSelected(entryType)) },
+            onStageSelected = { onAction(StatusAction.SelectedEntriesAction(EntryType.UNSTAGED)) },
+            onUnstageSelected = { onAction(StatusAction.SelectedEntriesAction(EntryType.STAGED)) },
             onCopyFilesPath = { relative ->
                 onAction(
-                    StatusPaneAction.CopyPath(
+                    StatusAction.CopyPath(
                         relative = relative,
                         entries = selectedEntries.map { it.statusEntry },
                     )
@@ -345,10 +337,10 @@ fun ColumnScope.ChangesList(
         searchFilter = searchFilter,
         onSearchFilterToggled = onSearchFilterToggled,
         onSearchFocused = onSearchFocused,
-        onSearchFilterChanged = { onAction(StatusPaneAction.SearchFilterChanged(it, entryType)) },
+        onSearchFilterChanged = { onAction(StatusAction.SearchFilterChanged(it, entryType)) },
         listState = listState,
-        onAllAction = { onAction(StatusPaneAction.AllEntriesAction(entryType)) },
-        onAlternateShowAsTree = { onAction(StatusPaneAction.ToggleShowAsTree) },
+        onAllAction = { onAction(StatusAction.AllEntriesAction(entryType)) },
+        onAlternateShowAsTree = { onAction(StatusAction.ToggleShowAsTree) },
     ) {
         items(entries, key = { it.fullPath }) { treeEntry ->
             val isEntrySelected = treeEntry is TreeItem.File<StatusEntry> &&
@@ -366,7 +358,7 @@ fun ColumnScope.ChangesList(
                 onClick = {
                     if (treeEntry is TreeItem.File<StatusEntry>) {
                         onAction(
-                            StatusPaneAction.SelectEntry(
+                            StatusAction.SelectEntry(
                                 statusEntry = treeEntry.data,
                                 isCtrlPressed = keyboardModifiers.isCtrlPressed,
                                 isMetaPressed = keyboardModifiers.isMetaPressed,
@@ -377,7 +369,7 @@ fun ColumnScope.ChangesList(
                         )
                     } else if (treeEntry is TreeItem.Dir) {
                         onAction(
-                            StatusPaneAction.TreeDirectoryToggle(
+                            StatusAction.TreeDirectoryToggle(
                                 treeEntry.fullPath
                             )
                         )
@@ -385,7 +377,7 @@ fun ColumnScope.ChangesList(
                 },
                 onButtonClick = {
                     if (treeEntry is TreeItem.File<StatusEntry>) {
-                        onAction(StatusPaneAction.EntryAction(treeEntry.data))
+                        onAction(StatusAction.EntryAction(treeEntry.data))
                     }
                 },
                 onGenerateContextMenu = if (isEntrySelected && selectedEntries.count() > 1)
@@ -395,7 +387,7 @@ fun ColumnScope.ChangesList(
                 onGenerateDirectoryContextMenu = { dir ->
                     statusDirEntriesContextMenuItems(
                         entryType = entryType,
-                        onStageChanges = { onAction(StatusPaneAction.DirectoryAction(dir.fullPath, entryType)) },
+                        onStageChanges = { onAction(StatusAction.DirectoryAction(dir.fullPath, entryType)) },
                         onDiscardDirectoryChanges = {},
                     )
                 },

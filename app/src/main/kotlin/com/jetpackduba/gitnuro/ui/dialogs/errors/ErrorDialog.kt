@@ -238,5 +238,6 @@ fun TaskType.errorTitle(): String {
         TaskType.RefreshSubmodules -> "Refresh submodules failed"
         TaskType.RefreshTags -> "Refresh tags failed"
         TaskType.GetWorktree -> "Get worktree failed"
+        TaskType.UpdateRemote -> "Update remote failed"
     }
 }

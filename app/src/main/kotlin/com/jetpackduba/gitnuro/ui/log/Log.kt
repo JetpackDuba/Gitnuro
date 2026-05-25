@@ -53,6 +53,10 @@ import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.repositoryopen.LogAction
+import com.jetpackduba.gitnuro.repositoryopen.LogSearch
+import com.jetpackduba.gitnuro.repositoryopen.LogState
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.AvatarImage
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
@@ -60,7 +64,6 @@ import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltipPosition
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.ui.resizePointerIconEast
-import com.jetpackduba.gitnuro.viewmodels.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Constants
@@ -92,14 +95,14 @@ private const val DIVIDER_WIDTH = 8
 
 private const val LOG_BOTTOM_PADDING = 80
 
-private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = INCREMENTAL_COMMITS_LOAD
+private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = 1000
 
 private const val TAG = "LogView"
 
 // TODO Min size for message column
 @Composable
 fun Log(
-    viewModel: LogViewModel,
+    viewModel: RepositoryOpenViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     onCreateBranch: (Commit) -> Unit,
@@ -357,7 +360,7 @@ suspend fun scrollToUncommittedChanges(
 
 @Composable
 fun SearchFilter(
-    logViewModel: LogViewModel,
+    logViewModel: RepositoryOpenViewModel,
     searchFilterResults: LogSearch.SearchResults,
     searchFocused: () -> Unit,
 ) {

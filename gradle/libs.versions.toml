@@ -1,10 +1,10 @@
 [versions]
 
-kotlin = "2.3.20-RC2"
+kotlin = "2.3.20"
 compose-plugin = "1.10.0"
-ksp = "2.3.4"
+ksp = "2.3.8"
 jgit = "7.4.0.202509020913-r"
-dagger = "2.57.2"
+dagger = "2.59.2"
 kotlinx-serialization = "1.9.0"
 junit-bom = "5.9.2"
 mockk = "1.14.6"
@@ -17,7 +17,8 @@ compose = "1.10.0"
 composeNav = "1.1.0-alpha03"
 materialExtended = "1.7.3"
 coroutines = "1.10.2"
-datastore = "1.2.0"
+datastore = "1.2.1"
+androidx-viewmodel = "2.10.0"
 
 [libraries]
 compose-desktop-linux-arm64 = { group = "org.jetbrains.compose.desktop", name = "desktop-jvm-linux-arm64", version.ref = "compose" }
@@ -65,6 +66,9 @@ kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", ver
 
 datastore = { group = "androidx.datastore", name = "datastore", version.ref = "datastore" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+androidx-lifecycle-viewmodel-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-viewmodel" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-viewmodel" }
 
 [plugins]
 

@@ -31,6 +31,7 @@ import com.jetpackduba.gitnuro.ui.components.SideMenuHeader
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
 import org.eclipse.jgit.submodule.SubmoduleStatus
@@ -39,23 +40,23 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SidePanel(
-    sidePanelViewModel: SidePanelViewModel,
+    viewModel: RepositoryOpenViewModel,
     onNavigate: (Screen) -> Unit,
 ) {
-    val filter by sidePanelViewModel.filter.collectAsState()
-    val selectedItem by sidePanelViewModel.selectedItem.collectAsState()
+    val filter by viewModel.filter.collectAsState()
+    val selectedItem by viewModel.selectedItem.collectAsState()
 
-    val branchesState by sidePanelViewModel.branchesState.collectAsState()
-    val remotesState by sidePanelViewModel.remoteState.collectAsState()
-    val tagsState by sidePanelViewModel.tagsState.collectAsState()
-    val stashesState by sidePanelViewModel.stashesState.collectAsState()
-    val submodulesState by sidePanelViewModel.submodules.collectAsState()
+    val branchesState by viewModel.branchesState.collectAsState()
+    val remotesState by viewModel.remoteState.collectAsState()
+    val tagsState by viewModel.tagsState.collectAsState()
+    val stashesState by viewModel.stashesState.collectAsState()
+    val submodulesState by viewModel.submodulesState.collectAsState()
 
     val searchFocusRequester = remember { FocusRequester() }
     val tabFocusRequester = LocalTabFocusRequester.current
 
-    LaunchedEffect(sidePanelViewModel) {
-        sidePanelViewModel.freeSearchFocusFlow.collectLatest {
+    LaunchedEffect(viewModel) {
+        viewModel.freeSearchFocusFlow.collectLatest {
             tabFocusRequester.requestFocus()
         }
     }
@@ -64,16 +65,16 @@ fun SidePanel(
         FilterTextField(
             value = filter,
             onValueChange = { newValue ->
-                sidePanelViewModel.newFilter(newValue)
+                viewModel.newFilter(newValue)
             },
             modifier = Modifier
                 .padding(start = 8.dp)
                 .focusRequester(searchFocusRequester)
                 .onFocusChanged {
                     if (it.isFocused) {
-                        sidePanelViewModel.addSidePanelSearchToCloseables()
+                        viewModel.addSidePanelSearchToCloseables()
                     } else {
-                        sidePanelViewModel.removeSidePanelSearchFromCloseables()
+                        viewModel.removeSidePanelSearchFromCloseables()
                     }
                 }
         )
@@ -86,32 +87,32 @@ fun SidePanel(
             localBranches(
                 branchesState = branchesState,
                 selectedItem = selectedItem,
-                viewModel = sidePanelViewModel,
+                viewModel = viewModel,
                 onChangeDefaultUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
                 onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
             )
 
             remotes(
                 remotesState = remotesState,
-                viewModel = sidePanelViewModel,
+                viewModel = viewModel,
                 onShowAddEditRemoteDialog = { onNavigate(Screen.AddEditRemote(it)) },
             )
 
             tags(
                 tagsState = tagsState,
                 selectedItem = selectedItem,
-                viewModel = sidePanelViewModel,
+                viewModel = viewModel,
             )
 
             stashes(
                 stashesState = stashesState,
                 selectedItem = selectedItem,
-                viewModel = sidePanelViewModel,
+                viewModel = viewModel,
             )
 
             submodules(
                 submodulesState = submodulesState,
-                viewModel = sidePanelViewModel,
+                viewModel = viewModel,
                 onAddSubmodule = { onNavigate(Screen.SubmoduleAdd) },
             )
         }
@@ -164,7 +165,7 @@ fun FilterTextField(
 fun LazyListScope.localBranches(
     branchesState: BranchesState,
     selectedItem: SelectedItem,
-    viewModel: SidePanelViewModel,
+    viewModel: RepositoryOpenViewModel,
     onChangeDefaultUpstreamBranch: (Branch) -> Unit,
     onRenameBranch: (Branch) -> Unit,
 ) {
@@ -209,7 +210,7 @@ fun LazyListScope.localBranches(
 
 fun LazyListScope.remotes(
     remotesState: RemotesState,
-    viewModel: SidePanelViewModel,
+    viewModel: RepositoryOpenViewModel,
     onShowAddEditRemoteDialog: (Remote?) -> Unit,
 ) {
     val isExpanded = remotesState.isExpanded
@@ -280,7 +281,7 @@ fun LazyListScope.remotes(
 
 fun LazyListScope.tags(
     tagsState: TagsState,
-    viewModel: SidePanelViewModel,
+    viewModel: RepositoryOpenViewModel,
     selectedItem: SelectedItem,
 ) {
     val isExpanded = tagsState.isExpanded
@@ -316,7 +317,7 @@ fun LazyListScope.tags(
 
 fun LazyListScope.stashes(
     stashesState: StashesState,
-    viewModel: SidePanelViewModel,
+    viewModel: RepositoryOpenViewModel,
     selectedItem: SelectedItem,
 ) {
     val isExpanded = stashesState.isExpanded
@@ -353,7 +354,7 @@ fun LazyListScope.stashes(
 
 fun LazyListScope.submodules(
     submodulesState: SubmodulesState,
-    viewModel: SidePanelViewModel,
+    viewModel: RepositoryOpenViewModel,
     onAddSubmodule: () -> Unit,
 ) {
     val isExpanded = submodulesState.isExpanded

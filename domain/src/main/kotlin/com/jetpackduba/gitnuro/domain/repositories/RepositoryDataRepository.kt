@@ -3,7 +3,7 @@ package com.jetpackduba.gitnuro.domain.repositories
 import com.jetpackduba.gitnuro.domain.models.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import org.eclipse.jgit.lib.Ref
+import org.eclipse.jgit.lib.RepositoryState
 import org.eclipse.jgit.submodule.SubmoduleStatus
 
 interface RepositoryDataRepository {
@@ -14,9 +14,10 @@ interface RepositoryDataRepository {
     val remotes: Flow<List<RemoteInfo>>
     val log: Flow<GraphCommits>
     val stashes: Flow<List<Commit>>
-    val repositoryState: StateFlow<RepositorySelectionState>
+    val repositorySelectionState: StateFlow<RepositorySelectionState>
+    val repositoryState: StateFlow<RepositoryState>
+    val rebaseInteractiveState: StateFlow<RebaseInteractiveState>
     val repositoryPath: String?
-    val diffSelected: StateFlow<DiffSelected?>
     val submodules: Flow<Map<String, SubmoduleStatus>>
     val author: Flow<AuthorInfo>
 
@@ -28,7 +29,6 @@ interface RepositoryDataRepository {
     fun updateTags(tags: List<Tag>)
     fun updateLog(graphCommits: GraphCommits)
     fun updateRemotes(remotes: List<RemoteInfo>)
-    fun updateDiffSelected(diffSelected: DiffSelected?)
     fun updateStashes(stashes: List<Commit>)
     fun updateSubmodules(value: Map<String, SubmoduleStatus>)
     fun updateAuthor(value: AuthorInfo)

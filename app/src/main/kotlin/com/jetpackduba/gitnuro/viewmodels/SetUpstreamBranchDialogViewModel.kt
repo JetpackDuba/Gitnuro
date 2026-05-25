@@ -6,8 +6,8 @@ import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ISetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.TrackingBranch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
+import com.jetpackduba.gitnuro.domain.models.TrackingBranch
 import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import dagger.assisted.Assisted
@@ -15,6 +15,7 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
     private val tabState: TabInstanceRepository,
@@ -67,9 +68,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
 //            )
     }
 
-    fun changeDefaultUpstreamBranch() = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
+    fun changeDefaultUpstreamBranch() = viewModelScope.launch {
         val state = _setDefaultUpstreamBranchState.value
 
         if (state is SetDefaultUpstreamBranchState.Loaded) {

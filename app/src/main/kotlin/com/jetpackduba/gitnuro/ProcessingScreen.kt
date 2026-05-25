@@ -138,5 +138,6 @@ fun getTitle(taskType: TaskType): String {
         TaskType.RefreshSubmodules -> ""
         TaskType.RefreshTags -> ""
         TaskType.GetWorktree -> ""
+        TaskType.UpdateRemote -> ""
     }
 }

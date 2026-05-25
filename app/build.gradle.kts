@@ -94,6 +94,9 @@ dependencies {
 
     implementation(libs.datastore)
     implementation(libs.datastore.preferences)
+
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
 }
 
 fun currentOs(): OS {

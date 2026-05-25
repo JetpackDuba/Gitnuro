@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.system
 
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.domain.usecases.OpenPathInSystemUseCase
 import java.awt.Desktop
 import java.net.URI
 import javax.inject.Inject
@@ -11,10 +12,10 @@ private const val TAG = "SystemUtils"
  * Opens a URL in the default system browser
  */
 class OpenUrlInBrowserGitAction @Inject constructor(
-    private val openPathInSystemGitAction: OpenPathInSystemGitAction,
+    private val openPathInSystemUseCase: OpenPathInSystemUseCase,
 ) {
     operator fun invoke(url: String) {
-        if (!openPathInSystemGitAction(url)) {
+        if (!openPathInSystemUseCase(url)) {
             openUrlInBrowserJdk(url)
         }
     }

@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.ui
+package com.jetpackduba.gitnuro.repositoryopen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -19,22 +19,20 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_email_not_set
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_name_and_email
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_name_not_set
-import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.models.PullType
-import com.jetpackduba.gitnuro.domain.models.AuthorInfoSimple
 import com.jetpackduba.gitnuro.domain.models.Identity
+import com.jetpackduba.gitnuro.domain.models.PullType
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
+import com.jetpackduba.gitnuro.ui.*
 import com.jetpackduba.gitnuro.ui.components.BottomInfoBar
 import com.jetpackduba.gitnuro.ui.components.TripleVerticalSplitPanel
 import com.jetpackduba.gitnuro.ui.diff.DiffPane
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.ui.status.StatusPane
 import com.jetpackduba.gitnuro.updates.Update
-import com.jetpackduba.gitnuro.viewmodels.BlameState
-import com.jetpackduba.gitnuro.viewmodels.RepositoryOpenViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
@@ -114,7 +112,7 @@ fun RepositoryOpenPage(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Menu(
-                    menuViewModel = repositoryOpenViewModel.tabViewModelsProvider.menuViewModel,
+                    viewModel = repositoryOpenViewModel,
                     modifier = Modifier
                         .padding(
                             vertical = 4.dp
@@ -223,7 +221,7 @@ fun RepoContent(
         }
     } else {
         MainContentView(
-            repositoryOpenViewModel = repositoryOpenViewModel,
+            viewModel = repositoryOpenViewModel,
             selectedItem = selectedItem,
             repositoryState = repositoryState,
             blameState = blameState,
@@ -234,26 +232,28 @@ fun RepoContent(
 
 @Composable
 fun MainContentView(
-    repositoryOpenViewModel: RepositoryOpenViewModel,
+    viewModel: RepositoryOpenViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
     blameState: BlameState,
     onNavigate: (Screen) -> Unit,
 ) {
-    val diffSelected by repositoryOpenViewModel.diffSelected.collectAsState()
-    val rebaseInteractiveState by repositoryOpenViewModel.rebaseInteractiveState.collectAsState()
+    val diffSelected by viewModel.diffSelected.collectAsState()
+    val rebaseInteractiveState by viewModel.rebaseInteractiveState.collectAsState()
     val density = LocalDensity.current.density
     val scope = rememberCoroutineScope()
 
+    val statusState by viewModel.statusState.collectAsState()
+
     // We create 2 mutableStates here because using directly the flow makes compose lose some drag events for some reason
-    var firstWidth by remember(repositoryOpenViewModel) { mutableStateOf(repositoryOpenViewModel.firstPaneWidth.value) }
-    var thirdWidth by remember(repositoryOpenViewModel) { mutableStateOf(repositoryOpenViewModel.thirdPaneWidth.value) }
+    var firstWidth by remember(viewModel) { mutableStateOf(viewModel.firstPaneWidth.value) }
+    var thirdWidth by remember(viewModel) { mutableStateOf(viewModel.thirdPaneWidth.value) }
 
     LaunchedEffect(Unit) {
         // Update the pane widths if they have been changed in a different tab
-        repositoryOpenViewModel.onPanelsWidthPersisted.collectLatest {
-            firstWidth = repositoryOpenViewModel.firstPaneWidth.value
-            thirdWidth = repositoryOpenViewModel.thirdPaneWidth.value
+        viewModel.onPanelsWidthPersisted.collectLatest {
+            firstWidth = viewModel.firstPaneWidth.value
+            thirdWidth = viewModel.thirdPaneWidth.value
         }
     }
 
@@ -263,7 +263,7 @@ fun MainContentView(
         thirdWidth = thirdWidth,
         first = {
             SidePanel(
-                sidePanelViewModel = repositoryOpenViewModel.tabViewModelsProvider.sidePanelViewModel,
+                viewModel = viewModel,
                 onNavigate = onNavigate,
             )
         },
@@ -273,30 +273,29 @@ fun MainContentView(
                     .fillMaxSize()
             ) {
                 if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction /*&& diffSelected == null*/) {
-                    RebaseInteractive(repositoryOpenViewModel.tabViewModelsProvider.rebaseInteractiveViewModel)
+                    RebaseInteractive(viewModel)
                 } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                     Blame(
                         filePath = blameState.filePath,
                         blameResult = blameState.blameResult,
-                        onClose = { repositoryOpenViewModel.resetBlameState() },
-                        onSelectCommit = { repositoryOpenViewModel.selectCommit(it) }
+                        onClose = { viewModel.resetBlameState() },
+                        onSelectCommit = { viewModel.selectCommit(it) }
                     )
                 } else {
                     Column {
                         Box(modifier = Modifier.weight(1f, true)) {
                             if (diffSelected?.entries?.count() == 1) {
-                                val diffViewModel = repositoryOpenViewModel.diffViewModel
                                 val tabFocusRequester = LocalTabFocusRequester.current
 
                                 DiffPane(
-                                    diffViewModel = diffViewModel,
+                                    viewModel = viewModel,
                                     onCloseDiffView = {
                                         tabFocusRequester.requestFocus()
                                     }
                                 )
                             } else {
                                 Log(
-                                    viewModel = repositoryOpenViewModel.tabViewModelsProvider.logViewModel,
+                                    viewModel = viewModel,
                                     selectedItem = selectedItem,
                                     repositoryState = repositoryState,
                                     // TODO Move nav outside of this? Applies to next lines
@@ -312,8 +311,8 @@ fun MainContentView(
                         if (blameState is BlameState.Loaded) { // BlameState.isMinimized is true here
                             MinimizedBlame(
                                 filePath = blameState.filePath,
-                                onExpand = { repositoryOpenViewModel.expandBlame() },
-                                onClose = { repositoryOpenViewModel.resetBlameState() }
+                                onExpand = { viewModel.expandBlame() },
+                                onClose = { viewModel.resetBlameState() }
                             )
                         }
                     }
@@ -325,44 +324,41 @@ fun MainContentView(
                 modifier = Modifier
                     .fillMaxHeight()
             ) {
-                when (selectedItem) {
-                    SelectedItem.UncommittedChanges -> {
-                        StatusPane(
-                            statusPaneViewModel = repositoryOpenViewModel.tabViewModelsProvider.statusPaneViewModel,
-                            repositoryState = repositoryState,
-                            onBlameFile = { repositoryOpenViewModel.blameFile(it) },
-                            onHistoryFile = { repositoryOpenViewModel.fileHistory(it) }
-                        )
-                    }
+                val commitChangesState = viewModel.commitChangesState.collectAsState().value
 
-                    is SelectedItem.CommitBasedItem -> {
-                        CommitChanges(
-                            commitChangesViewModel = repositoryOpenViewModel.tabViewModelsProvider.commitChangesViewModel,
-                            selectedItem = selectedItem,
-                            onBlame = { repositoryOpenViewModel.blameFile(it) },
-                            onHistory = { repositoryOpenViewModel.fileHistory(it) },
-                        )
-                    }
 
-                    SelectedItem.None -> {}
+                if (commitChangesState != null) {
+                    CommitChanges(
+                        viewModel = viewModel,
+                        onBlame = { viewModel.blameFile(it) },
+                        onHistory = { viewModel.fileHistory(it) },
+                        commitChangesState = commitChangesState,
+                    )
+                } else {
+                    StatusPane(
+                        statusState = statusState,
+                        onAction = { viewModel.onAction(it) },
+                        onBlameFile = { viewModel.blameFile(it) },
+                        onHistoryFile = { viewModel.fileHistory(it) }
+                    )
                 }
             }
         },
         onFirstSizeDragStarted = { currentWidth ->
             firstWidth = currentWidth
-            repositoryOpenViewModel.setFirstPaneWidth(currentWidth)
+            viewModel.setFirstPaneWidth(currentWidth)
         },
         onFirstSizeChange = {
             val newWidth = firstWidth + it / density
 
             if (newWidth > 150 && rebaseInteractiveState !is RebaseInteractiveState.AwaitingInteraction) {
                 firstWidth = newWidth
-                repositoryOpenViewModel.setFirstPaneWidth(newWidth)
+                viewModel.setFirstPaneWidth(newWidth)
             }
         },
         onFirstSizeDragStopped = {
             scope.launch {
-                repositoryOpenViewModel.persistFirstPaneWidth()
+                viewModel.persistFirstPaneWidth()
             }
         },
         onThirdSizeChange = {
@@ -370,16 +366,16 @@ fun MainContentView(
 
             if (newWidth > 150) {
                 thirdWidth = newWidth
-                repositoryOpenViewModel.setThirdPaneWidth(newWidth)
+                viewModel.setThirdPaneWidth(newWidth)
             }
         },
         onThirdSizeDragStarted = { currentWidth ->
             thirdWidth = currentWidth
-            repositoryOpenViewModel.setThirdPaneWidth(currentWidth)
+            viewModel.setThirdPaneWidth(currentWidth)
         },
         onThirdSizeDragStopped = {
             scope.launch {
-                repositoryOpenViewModel.persistThirdPaneWidth()
+                viewModel.persistThirdPaneWidth()
             }
         },
     )

@@ -1,12 +1,13 @@
 package com.jetpackduba.gitnuro.ui.components
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.runtime.MutableState
 import androidx.navigation3.runtime.NavKey
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
-import com.jetpackduba.gitnuro.viewmodels.ViewModelsProvider
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -15,28 +16,35 @@ import kotlin.io.path.name
 
 class TabInformation @AssistedInject constructor(
     private val appStateManager: AppStateManager,
-    val tabViewModelsProvider: ViewModelsProvider,
     @Assisted val tabName: MutableState<String>,
     @Assisted val initialPath: String?,
     @Assisted val onTabPathChanged: () -> Unit,
+    @Assisted val tabComponent: TabComponent,
     repositoryTabViewModelFactory: RepositoryTabViewModel.Factory,
 ) {
     private val tag = "TabInformation"
 
+    val savedStates = mutableMapOf<String, Pair<Any?, Any?>>()
+
     @AssistedFactory
     interface Factory {
-        fun create(tabName: MutableState<String>, initialPath: String?, onTabPathChanged: () -> Unit): TabInformation
+        fun create(
+            tabName: MutableState<String>,
+            initialPath: String?,
+            onTabPathChanged: () -> Unit,
+            tabComponent: TabComponent
+        ): TabInformation
     }
 
     val repositoryTabViewModel = repositoryTabViewModelFactory.create(initialPath)
 
     val viewModelsMap = mutableMapOf<NavKey, TabViewModel>()
 
-    inline fun <T : TabViewModel> getViewModel(key: NavKey, provideVM: (ViewModelsProvider) -> T): T {
+    inline fun <T : TabViewModel> getViewModel(key: NavKey, provideVM: (TabComponent) -> T): T {
         repositoryTabViewModel.backStack
 
         if (!viewModelsMap.contains(key)) {
-            viewModelsMap[key] = provideVM(tabViewModelsProvider)
+            viewModelsMap[key] = provideVM(tabComponent)
         }
 
         return viewModelsMap.getValue(key) as T

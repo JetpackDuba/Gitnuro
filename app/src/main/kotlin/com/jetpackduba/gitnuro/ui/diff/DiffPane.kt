@@ -66,6 +66,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.SelectionAwareTextContextMenu
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.SyntaxHighlighter
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
@@ -92,23 +93,23 @@ private fun <T> loadOrNull(key: Any, action: suspend () -> T?): T? {
 
 @Composable
 fun DiffPane(
-    diffViewModel: DiffViewModel,
+    viewModel: RepositoryOpenViewModel,
     onCloseDiffView: () -> Unit,
 ) {
-    val diffResultState = diffViewModel.diffResult.collectAsState()
-    val textDiffType by diffViewModel.diffTypeFlow.collectAsState(DiffTextViewType.Unified)
-    val isDisplayFullFile by diffViewModel.isDisplayFullFile.collectAsState(false)
+    val diffResultState = viewModel.diffResult.collectAsState()
+    val textDiffType by viewModel.diffTypeFlow.collectAsState(DiffTextViewType.Unified)
+    val isDisplayFullFile by viewModel.isDisplayFullFile.collectAsState(false)
     val viewDiffResult = diffResultState.value ?: return
-    val isRepositoryInSafeState by diffViewModel.isRepositoryInSafeState.collectAsState(false)
+    val isRepositoryInSafeState by viewModel.isRepositoryInSafeState.collectAsState(false)
     val focusRequester = remember { FocusRequester() }
 
     fun closeDiffView() {
-        diffViewModel.clearDiff()
+        viewModel.clearDiff()
         onCloseDiffView()
     }
 
     LaunchedEffect(Unit) {
-        diffViewModel.closeViewFlow.collectLatest {
+        viewModel.closeViewFlow.collectLatest {
             if (it == CloseableView.DIFF) closeDiffView()
         }
     }
@@ -121,7 +122,7 @@ fun DiffPane(
             .focusRequester(focusRequester)
             .onFocusChanged {
                 if (it.isFocused) {
-                    diffViewModel.addToCloseables()
+                    viewModel.addToCloseables()
                 }
             }
     ) {
@@ -142,13 +143,13 @@ fun DiffPane(
                     textDiffViewType = textDiffType,
                     isTextDiff = diffResult is DiffResult.TextDiff,
                     isDisplayFullFile = isDisplayFullFile,
-                    onStageFile = { diffViewModel.stageFile(it) },
-                    onUnstageFile = { diffViewModel.unstageFile(it) },
-                    onChangeDiffType = { diffViewModel.changeTextDiffType(it) },
-                    onDisplayFullFile = { diffViewModel.changeDisplayFullFile(it) },
+                    onStageFile = { viewModel.stageFile(it) },
+                    onUnstageFile = { viewModel.unstageFile(it) },
+                    onChangeDiffType = { viewModel.changeTextDiffType(it) },
+                    onDisplayFullFile = { viewModel.changeDisplayFullFile(it) },
                 )
 
-                val scrollState by diffViewModel.lazyListState.collectAsState()
+                val scrollState by viewModel.lazyListState.collectAsState()
 
                 when (diffResult) {
                     is DiffResult.TextSplit -> HunkSplitTextDiff(
@@ -157,25 +158,25 @@ fun DiffPane(
                         diffResult = diffResult,
                         canUseHunkActions = isRepositoryInSafeState,
                         onUnstageHunk = { entry, hunk ->
-                            diffViewModel.unstageHunk(entry, hunk)
+                            viewModel.unstageHunk(entry, hunk)
                         },
                         onStageHunk = { entry, hunk ->
-                            diffViewModel.stageHunk(entry, hunk)
+                            viewModel.stageHunk(entry, hunk)
                         },
                         onResetHunk = { entry, hunk ->
-                            diffViewModel.resetHunk(entry, hunk)
+                            viewModel.resetHunk(entry, hunk)
                         },
                         onUnStageLine = { entry, hunk, line ->
                             if (diffType is DiffType.UncommittedDiff) {
                                 if (diffType.entryType == EntryType.STAGED)
-                                    diffViewModel.unstageHunkLine(entry, hunk, line)
+                                    viewModel.unstageHunkLine(entry, hunk, line)
                                 else {
-                                    diffViewModel.stageHunkLine(entry, hunk, line)
+                                    viewModel.stageHunkLine(entry, hunk, line)
                                 }
                             }
                         },
                         onDiscardLine = { entry, hunk, line ->
-                            diffViewModel.discardHunkLine(entry, hunk, line)
+                            viewModel.discardHunkLine(entry, hunk, line)
                         }
                     )
 
@@ -185,38 +186,38 @@ fun DiffPane(
                         diffResult = diffResult,
                         canUseHunkActions = isRepositoryInSafeState,
                         onUnstageHunk = { entry, hunk ->
-                            diffViewModel.unstageHunk(entry, hunk)
+                            viewModel.unstageHunk(entry, hunk)
                         },
                         onStageHunk = { entry, hunk ->
-                            diffViewModel.stageHunk(entry, hunk)
+                            viewModel.stageHunk(entry, hunk)
                         },
                         onResetHunk = { entry, hunk ->
-                            diffViewModel.resetHunk(entry, hunk)
+                            viewModel.resetHunk(entry, hunk)
                         },
                         onUnStageLine = { entry, hunk, line ->
                             if (diffType is DiffType.UncommittedDiff) {
                                 if (diffType.entryType == EntryType.STAGED)
-                                    diffViewModel.unstageHunkLine(entry, hunk, line)
+                                    viewModel.unstageHunkLine(entry, hunk, line)
                                 else {
-                                    diffViewModel.stageHunkLine(entry, hunk, line)
+                                    viewModel.stageHunkLine(entry, hunk, line)
                                 }
                             }
                         },
                         onDiscardLine = { entry, hunk, line ->
-                            diffViewModel.discardHunkLine(entry, hunk, line)
+                            viewModel.discardHunkLine(entry, hunk, line)
                         }
                     )
 
                     is DiffResult.NonText -> {
                         NonTextDiff(
                             diffResult,
-                            onOpenFileWithExternalApp = { path -> diffViewModel.openFileWithExternalApp(path) })
+                            onOpenFileWithExternalApp = { path -> viewModel.openFileWithExternalApp(path) })
                     }
 
                     is DiffResult.Submodule -> {
                         SubmoduleDiff(
                             diffResult,
-                            onOpenSubmodule = { diffViewModel.openSubmodule(diffResult.diffEntry.filePath) }
+                            onOpenSubmodule = { viewModel.openSubmodule(diffResult.diffEntry.filePath) }
                         )
                     }
                 }

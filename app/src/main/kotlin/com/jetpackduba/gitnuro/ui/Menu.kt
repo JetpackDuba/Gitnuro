@@ -40,7 +40,7 @@ import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
-import com.jetpackduba.gitnuro.viewmodels.MenuViewModel
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -48,7 +48,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun Menu(
     modifier: Modifier,
-    menuViewModel: MenuViewModel,
+    viewModel: RepositoryOpenViewModel,
     onCreateBranch: () -> Unit,
     onOpenAnotherRepository: (String) -> Unit,
     onOpenAnotherRepositoryFromPicker: () -> Unit,
@@ -58,8 +58,8 @@ fun Menu(
     showOpenPopup: Boolean,
     onShowOpenPopupChange: (Boolean) -> Unit,
 ) {
-    val isPullWithRebaseDefault by menuViewModel.isPullWithRebaseDefault.collectAsState(false)
-    val lastLoadedTabs by menuViewModel.lastLoadedTabs.collectAsState()
+    val isPullWithRebaseDefault by viewModel.isPullWithRebaseDefault.collectAsState(false)
+    val lastLoadedTabs by viewModel.lastLoadedTabs.collectAsState()
     val (position, setPosition) = remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     Row(
@@ -94,7 +94,7 @@ fun Menu(
             tooltipText = pullTooltip,
             icon = painterResource(Res.drawable.download),
             keybinding = KeybindingOption.PULL.keyBinding,
-            onClick = { menuViewModel.pull(PullType.DEFAULT) },
+            onClick = { viewModel.pull(PullType.DEFAULT) },
             extendedListItems = pullContextMenuItems(
                 isPullWithRebaseDefault = isPullWithRebaseDefault,
                 onPullWith = {
@@ -105,10 +105,10 @@ fun Menu(
                         PullType.REBASE
                     }
 
-                    menuViewModel.pull(pullType = pullType)
+                    viewModel.pull(pullType = pullType)
                 },
                 onFetchAll = {
-                    menuViewModel.fetchAll()
+                    viewModel.fetchAll()
                 }
             )
         )
@@ -117,14 +117,14 @@ fun Menu(
             title = stringResource(Res.string.menu_push),
             tooltipText = stringResource(Res.string.menu_push_tooltip),
             icon = painterResource(Res.drawable.upload),
-            onClick = { menuViewModel.push() },
+            onClick = { viewModel.push() },
             keybinding = KeybindingOption.PUSH.keyBinding,
             extendedListItems = pushContextMenuItems(
                 onPushWithTags = {
-                    menuViewModel.push(force = false, pushTags = true)
+                    viewModel.push(force = false, pushTags = true)
                 },
                 onForcePush = {
-                    menuViewModel.push(force = true)
+                    viewModel.push(force = true)
                 }
             )
         )
@@ -150,7 +150,7 @@ fun Menu(
             tooltipText = stringResource(Res.string.menu_stash_tooltip),
             icon = painterResource(Res.drawable.stash),
             keybinding = KeybindingOption.STASH.keyBinding,
-            onClick = { menuViewModel.stash() },
+            onClick = { viewModel.stash() },
             extendedListItems = stashContextMenuItems(
                 onStashWithMessage = onStashWithMessage
             )
@@ -161,7 +161,7 @@ fun Menu(
             icon = painterResource(Res.drawable.apply_stash),
             keybinding = KeybindingOption.STASH_POP.keyBinding,
             tooltip = stringResource(Res.string.menu_pop_stash_tooltip),
-        ) { menuViewModel.popStash() }
+        ) { viewModel.popStash() }
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -169,7 +169,7 @@ fun Menu(
             modifier = Modifier.padding(end = 4.dp),
             title = stringResource(Res.string.menu_terminal),
             icon = painterResource(Res.drawable.terminal),
-            onClick = { menuViewModel.openTerminal() },
+            onClick = { viewModel.openTerminal() },
             tooltip = stringResource(Res.string.menu_terminal_tooltip),
             keybinding = null,
         )
