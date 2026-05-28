@@ -180,7 +180,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
 
     fun cancelOngoingTask() {
-        tabState.cancelCurrentTask()
+        // TODO Do something at some point?
     }
 
     fun openUrlInBrowser(url: String) {

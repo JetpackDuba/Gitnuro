@@ -26,7 +26,7 @@ class PullBranchGitAction @Inject constructor(
     override suspend operator fun invoke(
         repositoryPath: String,
         pullType: PullType,
-        mergeAutoStash: Boolean, // TODO Fix this after refactor
+        mergeAutoStash: Boolean,
         remoteBranch: Branch?,
     ) = jgit.provide(repositoryPath) { git ->
         useBuiltinLfs(git.repository) {

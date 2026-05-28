@@ -10,7 +10,7 @@ interface IPullBranchGitAction {
     suspend operator fun invoke(
         repositoryPath: String,
         pullType: PullType,
-        mergeAutoStash: Boolean = true, // TODO Fix this after refactor
+        mergeAutoStash: Boolean,
         remoteBranch: Branch?,
     ): Either<PullHasConflicts, GitError>
 }

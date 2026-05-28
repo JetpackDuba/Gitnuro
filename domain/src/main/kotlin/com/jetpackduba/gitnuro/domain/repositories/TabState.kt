@@ -48,8 +48,6 @@ class TabInstanceRepository @Inject constructor(
     @set:Synchronized
     var operationRunning = false
 
-    private var currentJob: Job? = null
-
     private fun getInnerException(ex: Exception): Exception {
         return if (ex is GitnuroException) {
             ex
@@ -134,10 +132,6 @@ class TabInstanceRepository @Inject constructor(
         if (last != null) {
             _closeView.emit(last)
         }
-    }
-
-    fun cancelCurrentTask() {
-        currentJob?.cancel()
     }
 }
 
