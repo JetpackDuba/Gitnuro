@@ -88,6 +88,9 @@ interface GitActionsModule {
     fun bindsDeleteBranchGitAction(action: DeleteBranchGitAction): IDeleteBranchGitAction
 
     @Binds
+    fun bindsDeleteFileGitAction(action: DeleteFileGitAction): IDeleteFileGitAction
+
+    @Binds
     fun bindsDeleteLocallyRemoteBranchesGitAction(action: DeleteLocallyRemoteBranchesGitAction): IDeleteLocallyRemoteBranchesGitAction
 
     @Binds

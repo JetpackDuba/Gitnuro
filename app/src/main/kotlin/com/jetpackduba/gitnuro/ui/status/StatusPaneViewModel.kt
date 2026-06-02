@@ -45,12 +45,10 @@ class StatusPaneViewModel @Inject constructor(
     private val stageUseCase: StatusStageUseCase,
     private val stageAllUseCase: StatusStageAllUseCase,
     private val unstageAllUseCase: StatusUnstageAllUseCase,
-    private val stageByDirectoryGitAction: IStageByDirectoryGitAction,
-    private val unstageByDirectoryGitAction: IUnstageByDirectoryGitAction,
-    private val discardEntriesGitAction: IDiscardEntriesGitAction,
+    private val discardEntriesUseCase: DiscardEntriesUseCase,
+    private val deleteFileUseCase: DeleteFileUseCase,
     private val getLastCommitMessageGitAction: IGetLastCommitMessageGitAction,
     private val resetRepositoryStateUseCase: ResetRepositoryStateUseCase,
-    private val continueRebaseGitAction: IContinueRebaseGitAction,
     private val abortRebaseUseCase: AbortRebaseUseCase,
     private val continueRebaseUseCase: ContinueRebaseUseCase,
     private val skipRebaseUseCase: SkipRebaseUseCase,
@@ -394,16 +392,12 @@ class StatusPaneViewModel @Inject constructor(
         stageAllUseCase(entries)
     }
 
-    private fun discardStaged(statusEntries: List<StatusEntry>) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-    ) { git ->
-        discardEntriesGitAction(git, statusEntries, staged = true)
+    private fun discardStaged(statusEntries: List<StatusEntry>) {
+        discardEntriesUseCase(statusEntries, isStaged = true)
     }
 
-    private fun discardUnstaged(statusEntries: List<StatusEntry>) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES_AND_LOG,
-    ) { git ->
-        discardEntriesGitAction(git, statusEntries, staged = false)
+    private fun discardUnstaged(statusEntries: List<StatusEntry>) {
+        discardEntriesUseCase(statusEntries, isStaged = false)
     }
 
     // TODO Load message somehow in the data+domain layer?
@@ -531,15 +525,7 @@ class StatusPaneViewModel @Inject constructor(
     fun skipRebase() = skipRebaseUseCase()
     fun resetRepoState() = resetRepositoryStateUseCase()
 
-    private fun deleteFile(statusEntry: StatusEntry) = tabState.runOperation(
-        refreshType = RefreshType.UNCOMMITTED_CHANGES,
-    ) { git ->
-        val path = statusEntry.filePath
-
-        val fileToDelete = File(git.repository.workTree, path)
-
-        fileToDelete.deleteRecursively()
-    }
+    private fun deleteFile(statusEntry: StatusEntry) = deleteFileUseCase(statusEntry.filePath)
 
     fun openFileInFolder(folderPath: String?) = tabState.runOperation(
         refreshType = RefreshType.NONE,
