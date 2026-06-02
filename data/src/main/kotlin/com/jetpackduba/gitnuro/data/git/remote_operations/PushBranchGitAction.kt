@@ -21,6 +21,7 @@ import org.eclipse.jgit.transport.RefLeaseSpec
 import org.eclipse.jgit.transport.RefSpec
 import javax.inject.Inject
 import kotlin.math.max
+import kotlin.math.min
 
 class PushBranchGitAction @Inject constructor(
     private val handleTransportGitAction: HandleTransportGitAction,
@@ -77,6 +78,8 @@ class PushBranchGitAction @Inject constructor(
         pushTags: Boolean,
         pushWithLease: Boolean,
     ) = withContext(Dispatchers.IO) {
+        var currentTotalWork = 0
+        var worked = 0
         val pushResult = git
             .push()
             .setRefSpecs(RefSpec(refSpecStr))
@@ -122,9 +125,15 @@ class PushBranchGitAction @Inject constructor(
                 }
                 override fun beginTask(title: String?, totalWork: Int) {
                     println("Push begin task: $title, totalWork: $totalWork")
+                    currentTotalWork = totalWork
+                    worked = 0
                 }
                 override fun update(completed: Int) {
-                    println("Push completed task: $completed")
+//                    println("Push completed task: $completed")
+
+                    worked += completed
+                    println("Progress: ${worked.toDouble()/ min(1, currentTotalWork)}")
+
                 }
                 override fun endTask() {}
                 override fun isCancelled() = !isActive
