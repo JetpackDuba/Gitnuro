@@ -1,9 +1,12 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.domain.MAX_COMPLETED_TASKS_KEPT
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
@@ -11,12 +14,7 @@ import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
-import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
-import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.repositories.*
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
@@ -26,6 +24,7 @@ import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
+import com.jetpackduba.gitnuro.ui.components.TabInformationProvider
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import dagger.assisted.Assisted
@@ -35,11 +34,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.collections.get
+import kotlin.collections.remove
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
 
-private const val TAG = "TabViewModel"
+private const val TAG = "RepositoryTabViewModel"
 
 /**
  * Contains all the information related to a tab and its subcomponents (smaller composables like the log, branches,
@@ -61,15 +62,39 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val repositoryStateRepository: RepositoryStateRepository,
     private val setRepositorySelectionStateToNoneUseCase: SetRepositorySelectionStateToNoneUseCase,
+    private val tabComponent: TabComponent,
     @Assisted val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
-    TabViewModel() {
+    TabViewModel(),
+    TabInformationProvider {
     @AssistedFactory
     interface Factory {
         fun create(initialPath: String?): RepositoryTabViewModel
     }
+
+    val savedStates = mutableMapOf<String, Pair<Any?, Any?>>()
+
+    val viewModelsMap = mutableMapOf<NavKey, TabViewModel>()
+
+    fun <T : TabViewModel> getViewModel(key: NavKey, provideVM: (TabComponent) -> T): T {
+        if (!viewModelsMap.contains(key)) {
+            viewModelsMap[key] = provideVM(tabComponent)
+        }
+
+        return viewModelsMap.getValue(key) as T
+    }
+    fun removeViewModel(key: NavKey) {
+        if (!backStack.contains(key)) {
+            printLog(TAG, "TAB ${tabName.value} - Removing view model for key $key")
+            viewModelsMap[key]?.onClear()
+            viewModelsMap.remove(key)
+        } else {
+            printLog(TAG, "TAB ${tabName.value} - Keeping view model for key $key")
+        }
+    }
+
 
     private val allErrors = repositoryStateRepository
         .completedTasks
@@ -104,7 +129,31 @@ class RepositoryTabViewModel @AssistedInject constructor(
         }
         .stateIn(emptyList())
 
-    val repositorySelectionState: StateFlow<RepositorySelectionState> = repositoryDataRepository.repositorySelectionState
+    val repositorySelectionState: StateFlow<RepositorySelectionState> =
+        repositoryDataRepository.repositorySelectionState
+
+
+    val repositoryPath = repositoryDataRepository
+        .repositorySelectionState
+        .map { state ->
+            (state as? RepositorySelectionState.Open)?.path
+        }
+        .stateIn(null)
+
+    override val tabName: StateFlow<String?> = repositoryDataRepository
+        .repositorySelectionState
+        .map { state ->
+            val path = ((state as? RepositorySelectionState.Open)?.path ?: initialPath)
+                ?.removeSuffix(systemSeparator)
+                ?.removeSuffix(".git")
+                ?.removeSuffix(systemSeparator)
+
+
+            path?.split(systemSeparator)?.lastOrNull()
+        }
+        .stateIn(null)
+
+    override val extraInfo: StateFlow<String?> = repositoryPath
 
     val backStack = NavBackStack<Screen>(
         if (initialPath == null) {
@@ -160,7 +209,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
 
     var onRepositoryChanged: (path: String?) -> Unit = {}
 
-    fun dispose() {
+    override fun dispose() {
         fileChangesWatcher.close()
         tabScope.cancel()
     }

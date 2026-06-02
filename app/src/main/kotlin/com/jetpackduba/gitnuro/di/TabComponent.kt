@@ -5,7 +5,6 @@ import com.jetpackduba.gitnuro.di.modules.FileWatcherModule
 import com.jetpackduba.gitnuro.di.modules.TabModule
 import com.jetpackduba.gitnuro.di.modules.TabRepositoriesModule
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
-import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.viewmodels.*
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
@@ -20,8 +19,6 @@ import dagger.Subcomponent
     ],
 )
 interface TabComponent {
-    fun tabInformationFactory(): TabInformation.Factory
-
     @Subcomponent.Factory
     interface Factory {
         fun create(): TabComponent
@@ -29,6 +26,7 @@ interface TabComponent {
 
     fun cloneViewModel(): CloneViewModel
     fun settingsViewModel(): SettingsViewModel
+    fun repositoryTabViewModelFactory(): RepositoryTabViewModel.Factory
     fun repositoryOpenViewModel(): RepositoryOpenViewModel
     fun historyViewModel(): HistoryViewModel
     fun authorViewModel(): AuthorViewModel

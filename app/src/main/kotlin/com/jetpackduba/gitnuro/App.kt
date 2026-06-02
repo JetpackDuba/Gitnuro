@@ -33,15 +33,10 @@ import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.data.git.signers.AppGpgSigner
 import com.jetpackduba.gitnuro.data.git.signers.SshSigner
+import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
-import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
-import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.DateTimeFormat
-import com.jetpackduba.gitnuro.domain.models.Remote
-import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
-import com.jetpackduba.gitnuro.domain.models.ui.Theme
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -51,17 +46,15 @@ import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
-import com.jetpackduba.gitnuro.ui.TabsManager
-import com.jetpackduba.gitnuro.ui.components.RepositoriesTabPanel
+import com.jetpackduba.gitnuro.ui.AppViewModel
+import com.jetpackduba.gitnuro.ui.components.TabsRow
 import com.jetpackduba.gitnuro.ui.components.TabInformation
-import com.jetpackduba.gitnuro.ui.components.TabInformation.Companion.NEW_TAB_DEFAULT_NAME
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
+import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import org.eclipse.jgit.lib.GpgConfig
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Signers
-import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.util.LfsFactory
 import org.jetbrains.compose.resources.painterResource
 import java.io.File
@@ -71,6 +64,7 @@ import javax.inject.Inject
 
 private const val TAG = "App"
 private const val MAX_CHARS_CURRENT_TAB_NAME = 250
+private const val NEW_TAB_DEFAULT_NAME = "New tab"
 
 sealed interface Screen : NavKey {
     data object Welcome : Screen
@@ -102,7 +96,7 @@ class App @Inject constructor(
     private val appStateManager: AppStateManager,
     private val appSettings: AppSettingsService,
     private val appEnvInfo: AppEnvInfo,
-    private val tabsManager: TabsManager,
+    private val appViewModel: AppViewModel,
     private val tempFilesManager: TempFilesManager,
     private val logsRepository: LogsRepository,
     private val gpgSigner: AppGpgSigner,
@@ -133,7 +127,7 @@ class App @Inject constructor(
             ex.printStackTrace()
         }
 
-        tabsManager.loadPersistedTabs()
+        appViewModel.loadPersistedTabs()
         LfsFactory.setInstance(lfsFactory)
 
         if (dirToOpen != null)
@@ -149,8 +143,6 @@ class App @Inject constructor(
         val dateFormatIs24hInitial = appSettings.dateFormatIs24h.first()
         val dateFormatUseRelativeInitial = appSettings.dateFormatUseRelative.first()
 
-
-
         application {
             var isOpen by remember { mutableStateOf(true) }
             val theme by appSettings.theme.collectAsState(themeInitial)
@@ -159,7 +151,9 @@ class App @Inject constructor(
             val linesHeightType by appSettings.linesHeightType.collectAsState(linesHeightTypeInitial)
             val avatarProviderType by appSettings.avatarProvider.collectAsState(avatarProviderTypeInitial)
             val dateFormatUseDefault by appSettings.dateFormatUseDefault.collectAsState(dateFormatUseDefaultInitial)
-            val dateFormatCustomFormat by appSettings.dateFormatCustomFormat.collectAsState(dateFormatCustomFormatInitial)
+            val dateFormatCustomFormat by appSettings.dateFormatCustomFormat.collectAsState(
+                dateFormatCustomFormatInitial
+            )
             val dateFormatIs24h by appSettings.dateFormatIs24h.collectAsState(dateFormatIs24hInitial)
             val dateFormatUseRelative by appSettings.dateFormatUseRelative.collectAsState(dateFormatUseRelativeInitial)
 
@@ -180,9 +174,9 @@ class App @Inject constructor(
             // Save window state for next time the Window is started
             // TODO appSettings.windowPlacement = windowState.placement.preferenceValue
 
-            val currentTab = tabsManager.currentTab.collectAsState().value
-
-            val currentTabName = (currentTab?.tabName?.value ?: NEW_TAB_DEFAULT_NAME).take(MAX_CHARS_CURRENT_TAB_NAME)
+            val currentTab = appViewModel.currentTab.collectAsState().value
+            val tabName = currentTab?.name?.collectAsState()?.value
+            val currentTabName = (tabName ?: NEW_TAB_DEFAULT_NAME).take(MAX_CHARS_CURRENT_TAB_NAME)
 
             LaunchedEffect(isOpen) {
                 if (!isOpen) {
@@ -271,19 +265,19 @@ class App @Inject constructor(
         }*/
     }
 
-    private fun addDirTab(dirToOpen: File) {
+    private suspend fun addDirTab(dirToOpen: File) {
         val absolutePath = dirToOpen.normalize().absolutePath
             .removeSuffix(systemSeparator)
             .removeSuffix("$systemSeparator.git")
 
-        tabsManager.addNewTabFromPath(absolutePath, true)
+        appViewModel.addNewTabFromPath(absolutePath, true)
     }
 
 
     @Composable
     fun AppTabs() {
-        val tabs by tabsManager.tabsFlow.collectAsState()
-        val currentTab = tabsManager.currentTab.collectAsState().value
+        val tabs by appViewModel.tabs.collectAsState()
+        val currentTab = appViewModel.currentTab.collectAsState().value
 
         if (currentTab != null) {
             Column(
@@ -292,19 +286,19 @@ class App @Inject constructor(
                     .onPreviewKeyEvent {
                         when {
                             it.matchesBinding(KeybindingOption.OPEN_NEW_TAB) -> {
-                                tabsManager.addNewEmptyTab()
+                                appViewModel.addNewEmptyTab()
                                 true
                             }
 
                             it.matchesBinding(KeybindingOption.CLOSE_CURRENT_TAB) -> {
-                                tabsManager.closeTab(currentTab)
+                                appViewModel.closeTab(currentTab)
                                 true
                             }
 
                             it.matchesBinding(KeybindingOption.CHANGE_CURRENT_TAB_LEFT) -> {
                                 val tabToSelect = tabs.getOrNull(tabs.indexOf(currentTab) - 1)
                                 if (tabToSelect != null) {
-                                    tabsManager.selectTab(tabToSelect)
+                                    appViewModel.selectTab(tabToSelect)
                                 }
                                 true
                             }
@@ -312,7 +306,7 @@ class App @Inject constructor(
                             it.matchesBinding(KeybindingOption.CHANGE_CURRENT_TAB_RIGHT) -> {
                                 val tabToSelect = tabs.getOrNull(tabs.indexOf(currentTab) + 1)
                                 if (tabToSelect != null) {
-                                    tabsManager.selectTab(tabToSelect)
+                                    appViewModel.selectTab(tabToSelect)
                                 }
                                 true
                             }
@@ -325,15 +319,15 @@ class App @Inject constructor(
                     tabsInformationList = tabs,
                     currentTab = currentTab,
                     onAddedTab = {
-                        tabsManager.addNewEmptyTab()
+                        appViewModel.addNewEmptyTab()
                     },
                     onCloseTab = { tab ->
-                        tabsManager.closeTab(tab)
+                        appViewModel.closeTab(tab)
                     }
                 )
 
-                CompositionLocalProvider(LocalTab provides currentTab) {
-                    TabContent(currentTab)
+                CompositionLocalProvider(LocalTab provides currentTab.data) {
+                    TabContent(currentTab.data)
                 }
             }
         }
@@ -341,26 +335,27 @@ class App @Inject constructor(
 
     @Composable
     fun Tabs(
-        tabsInformationList: List<TabInformation>,
-        currentTab: TabInformation?,
+        tabsInformationList: List<TabInformation<RepositoryTabViewModel>>,
+        currentTab: TabInformation<RepositoryTabViewModel>?,
         onAddedTab: () -> Unit,
-        onCloseTab: (TabInformation) -> Unit,
+        onCloseTab: (TabInformation<RepositoryTabViewModel>) -> Unit,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            RepositoriesTabPanel(
+            TabsRow(
                 tabs = tabsInformationList,
+                defaultTabName = NEW_TAB_DEFAULT_NAME,
                 currentTab = currentTab,
                 onTabSelected = { selectedTab ->
-                    tabsManager.selectTab(selectedTab)
+                    appViewModel.selectTab(selectedTab)
                 },
                 onTabClosed = onCloseTab,
                 onAddNewTab = onAddedTab,
                 onMoveTab = { fromIndex, toIndex ->
-                    tabsManager.onMoveTab(fromIndex, toIndex)
+                    appViewModel.onMoveTab(fromIndex, toIndex)
                 },
             )
         }
@@ -387,15 +382,13 @@ class App @Inject constructor(
 }
 
 @Composable
-private fun TabContent(currentTab: TabInformation?) {
+private fun TabContent(viewModel: RepositoryTabViewModel) {
     Box(
         modifier = Modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize(),
     ) {
-        if (currentTab != null) {
-            AppTab(currentTab.repositoryTabViewModel)
-        }
+        AppTab(viewModel)
     }
 }
 

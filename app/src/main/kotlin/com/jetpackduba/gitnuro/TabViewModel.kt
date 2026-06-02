@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-open class TabViewModel {
+open class TabViewModel : ViewModel() {
     val viewModelScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     open fun onClear() {
@@ -38,7 +38,7 @@ fun <T> Flow<T>.collectLatestInCoroutineScope(action: suspend (value: T) -> Unit
 }
 
 @Composable
-inline fun <reified T : TabViewModel> tabViewModel(key: NavKey, provideVM: (TabComponent) -> T): T {
+inline fun <reified T : TabViewModel> tabViewModel(key: NavKey, noinline provideVM: (TabComponent) -> T): T {
     val tab = LocalTab.current
 
     DisposableEffect(Unit) {

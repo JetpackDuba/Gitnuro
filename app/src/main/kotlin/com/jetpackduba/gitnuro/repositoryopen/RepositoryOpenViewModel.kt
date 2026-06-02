@@ -27,7 +27,7 @@ import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
-import com.jetpackduba.gitnuro.ui.TabsManager
+import com.jetpackduba.gitnuro.ui.AppViewModel
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.status.StatusAction
 import com.jetpackduba.gitnuro.updates.Update
@@ -84,7 +84,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val fileChangesWatcher: IFileChangesWatcher,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
-    private val tabsManager: TabsManager,
+    private val appViewModel: AppViewModel,
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
@@ -396,7 +396,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
         if (repositoryPath != null) {
             // TODO Repository path may point to git dir and not workdir? If so, add use case
-            tabsManager.addNewTabFromPath("$repositoryPath/$path", true)
+            appViewModel.addNewTabFromPath("$repositoryPath/$path", true)
         }
     }
 
@@ -468,7 +468,7 @@ class RepositoryOpenViewModel @Inject constructor(
             val worktree = getWorktreeUseCase()
 
             if (worktree is Either.Ok) {
-                tabsManager.addNewTabFromPath(directory, true, worktree.value)
+                appViewModel.addNewTabFromPath(directory, true, worktree.value)
             }
         }
     }
@@ -958,7 +958,9 @@ class RepositoryOpenViewModel @Inject constructor(
 
         // TODO RepositoryPath point to .git dir instead of worktree? Fix if so
         if (repositoryPath != null) {
-            tabsManager.addNewTabFromPath("$repositoryPath/$path", true)
+            viewModelScope.launch {
+                appViewModel.addNewTabFromPath("$repositoryPath/$path", true)
+            }
         }
     }
 

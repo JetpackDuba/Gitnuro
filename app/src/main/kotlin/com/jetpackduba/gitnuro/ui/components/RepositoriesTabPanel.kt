@@ -32,16 +32,18 @@ import com.jetpackduba.gitnuro.ui.drag_sorting.HorizontalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.horizontalDragContainer
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberHorizontalDragDropState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun RepositoriesTabPanel(
-    tabs: List<TabInformation>,
-    currentTab: TabInformation?,
-    onTabSelected: (TabInformation) -> Unit,
-    onTabClosed: (TabInformation) -> Unit,
+fun <T : TabInformationProvider> TabsRow(
+    tabs: List<TabInformation<T>>,
+    defaultTabName: String,
+    currentTab: TabInformation<T>?,
+    onTabSelected: (TabInformation<T>) -> Unit,
+    onTabClosed: (TabInformation<T>) -> Unit,
     onMoveTab: (Int, Int) -> Unit,
     onAddNewTab: () -> Unit,
 ) {
@@ -107,13 +109,17 @@ fun RepositoriesTabPanel(
             ) {
                 itemsIndexed(
                     items = tabs,
-                    key = { _, tab -> tab.repositoryTabViewModel }
+                    key = { _, tab -> tab.data }
                 ) { index, tab ->
                     HorizontalDraggableItem(dragDropState, index) { _ ->
-                        InstantTooltip(tab.path) {
+                        val tooltip by tab.extraInfo.collectAsState()
+                        val tabName by tab.name.collectAsState()
+
+
+                        InstantTooltip(tooltip) {
                             Tab(
                                 modifier = Modifier,
-                                title = tab.tabName,
+                                title = tabName ?: defaultTabName,
                                 isSelected = currentTab == tab,
                                 onClick = {
                                     onTabSelected(tab)
@@ -147,7 +153,8 @@ fun RepositoriesTabPanel(
 
     LaunchedEffect(tabs.count()) {
         // Scroll to the end if a new tab has been added & it's empty (so it's not a new submodule tab)
-        if (latestTabCount < tabs.count() && currentTab?.path == null) {
+        // TODO Use TabInformationProvider to know if the app should scroll to the tab or not instead of relying on extra info
+        if (latestTabCount < tabs.count() && currentTab?.extraInfo?.firstOrNull() == null) {
             scope.launch {
                 delay(50) // add small delay to wait until [scrollAdapter.maxScrollOffset] is recalculated. Seems more like a hack of some kind...
                 scrollAdapter.scrollTo(scrollAdapter.maxScrollOffset)
@@ -161,7 +168,7 @@ fun RepositoriesTabPanel(
 @Composable
 fun Tab(
     modifier: Modifier,
-    title: MutableState<String>,
+    title: String,
     isSelected: Boolean,
     onClick: () -> Unit,
     onCloseTab: () -> Unit,
@@ -193,7 +200,7 @@ fun Tab(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = title.value,
+                text = title,
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .weight(1f)
