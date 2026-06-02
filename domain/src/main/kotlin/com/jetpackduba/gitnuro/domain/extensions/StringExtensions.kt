@@ -67,4 +67,8 @@ fun String.throwIfSshMessage() {
     }
 }
 
+fun String.removeGitSuffix() = this.removeSuffix(systemSeparator)
+    .removeSuffix(".git")
+    .removeSuffix(systemSeparator)
+
 fun String.isHttpOrHttps() = this.startsWith("http://") or this.startsWith("https://")

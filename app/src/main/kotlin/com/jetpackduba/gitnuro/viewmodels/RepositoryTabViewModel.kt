@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.domain.MAX_COMPLETED_TASKS_KEPT
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.domain.extensions.removeGitSuffix
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
@@ -136,18 +137,14 @@ class RepositoryTabViewModel @AssistedInject constructor(
     val repositoryPath = repositoryDataRepository
         .repositorySelectionState
         .map { state ->
-            (state as? RepositorySelectionState.Open)?.path
+            ((state as? RepositorySelectionState.Open)?.path ?: initialPath)?.removeGitSuffix()
         }
         .stateIn(null)
 
     override val tabName: StateFlow<String?> = repositoryDataRepository
         .repositorySelectionState
         .map { state ->
-            val path = ((state as? RepositorySelectionState.Open)?.path ?: initialPath)
-                ?.removeSuffix(systemSeparator)
-                ?.removeSuffix(".git")
-                ?.removeSuffix(systemSeparator)
-
+            val path = ((state as? RepositorySelectionState.Open)?.path ?: initialPath)?.removeGitSuffix()
 
             path?.split(systemSeparator)?.lastOrNull()
         }
@@ -206,8 +203,6 @@ class RepositoryTabViewModel @AssistedInject constructor(
     fun lfsCredentialsAccepted(user: String, password: String) {
         credentialsStateManager.lfsCredentialsAccepted(user, password)
     }
-
-    var onRepositoryChanged: (path: String?) -> Unit = {}
 
     override fun dispose() {
         fileChangesWatcher.close()
