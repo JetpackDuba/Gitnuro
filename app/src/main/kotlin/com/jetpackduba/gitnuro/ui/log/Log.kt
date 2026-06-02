@@ -188,7 +188,7 @@ private fun LogView(
                 if (
                     commitsList.commits.isNotEmpty() &&
                     commitsList.commits.count() - it < MIN_COMMITS_BEFORE_REQUESTING_MORE &&
-                    commitsList.commits.last().commit.parentCount > 0
+                    commitsList.commits.entries.last().value.commit.parentCount > 0
                 ) {
                     printLog(TAG, "Requesting more items")
                     onRequestMoreLogItems(verticalScrollState.firstVisibleItemIndex)
@@ -343,7 +343,7 @@ suspend fun scrollToCommit(
     commitList: GraphCommits,
     commit: Commit?,
 ) {
-    val index = commitList.commits.indexOfFirst { it.hash == commit?.hash }
+    val index = commitList.commits.entries.indexOfFirst { it.value.hash == commit?.hash }
     // TODO Show a message informing the user why we aren't scrolling
     // Index can be -1 if the ref points to a commit that is not shown in the graph due to the limited
     // number of displayed commits.
@@ -526,7 +526,8 @@ fun CommitsList(
 
         // Setting a key makes the graph preserve the scroll position when a new line has been added on top (uncommitted changes)
         // Therefore, after popping a stash, the uncommitted changes wouldn't be visible and requires the user scrolling.
-        items(items = commitList) { graphNode ->
+        // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
+        items(items = commitList.values.toList()) { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
                 graphNode = graphNode,

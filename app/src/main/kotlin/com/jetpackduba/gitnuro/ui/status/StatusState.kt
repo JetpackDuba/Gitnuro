@@ -39,9 +39,11 @@ data class StatusState(
     val showSearchUnstaged: Boolean = false,
     val searchFilterUnstaged: TextFieldValue = TextFieldValue(""),
     val showAsTree: Boolean = false,
-    val hasPreviousCommits: Boolean = false,
+    val previousCommitMessage: String? = null,
     val repositoryState: RepositoryState = RepositoryState.SAFE,
 ) {
+    val hasPreviousCommits: Boolean = previousCommitMessage != null
+
     val haveConflictsBeenSolved: Boolean = unstaged.none {
         it is TreeItem.File && it.data.statusType == StatusType.CONFLICTING
     }
@@ -66,15 +68,13 @@ fun combineStatusState(
     showAsTree: Flow<Boolean>,
     treeContractedDirectories: MutableStateFlow<List<String>>,
     swapUncommittedChanges: Flow<Boolean>,
-    stagedListState: Flow<LazyListState>,
-    unstagedListState: Flow<LazyListState>,
     isAmend: Flow<Boolean>,
     isAmendRebaseInteractive: Flow<Boolean>,
     committerDataRequestState: Flow<CommitterDataRequestState>,
     rebaseInteractiveState: Flow<RebaseInteractiveState>,
     selectedUnstagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
     selectedStagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
-    hasPreviousCommits: Flow<Boolean>,
+    previousCommitMessage: Flow<String?>,
     repositoryState: Flow<RepositoryState>,
 ): Flow<StatusState> {
     return combine(
@@ -92,7 +92,7 @@ fun combineStatusState(
         rebaseInteractiveState,
         selectedUnstagedDiffEntries,
         selectedStagedDiffEntries,
-        hasPreviousCommits,
+        previousCommitMessage,
         repositoryState,
     ) {
             status,
@@ -109,7 +109,7 @@ fun combineStatusState(
             rebaseInteractiveState,
             selectedUnstagedDiffEntries,
             selectedStagedDiffEntries,
-            hasPreviousCommits,
+            previousCommitMessage,
             repositoryState,
         ->
         val filteredUnstaged = if (showSearchUnstaged && searchFilterUnstaged.text.isNotBlank()) {
@@ -157,7 +157,7 @@ fun combineStatusState(
             showSearchUnstaged = showSearchUnstaged,
             searchFilterUnstaged = searchFilterUnstaged,
             showAsTree = showAsTree,
-            hasPreviousCommits = hasPreviousCommits,
+            previousCommitMessage = previousCommitMessage,
             repositoryState = repositoryState,
         )
     }

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 data class LogState(
     val isLoading: Boolean,
     val hasUncommittedChanges: Boolean = false,
-    val commitList: GraphCommits = GraphCommits(emptyList(), 0),
+    val commitList: GraphCommits = GraphCommits(LinkedHashMap(), 0),
     val currentBranch: Branch? = null,
     val statusSummary: StatusSummary = StatusSummary(0, 0, 0, 0),
     val searchFilter: LogSearch = LogSearch.NotSearching,

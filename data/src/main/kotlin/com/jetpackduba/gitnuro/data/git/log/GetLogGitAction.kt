@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
 import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import kotlinx.coroutines.ensureActive
 import org.eclipse.jgit.lib.Constants
@@ -58,8 +59,14 @@ class GetLogGitAction @Inject constructor(
 
         commitList.calcMaxLine()
 
+        val commits = LinkedHashMap<String, GraphCommit>(commitList.size)
+
+        for (entry in commitList) {
+            commits[entry.name] = graphCommitMapper.toDomain(entry)
+        }
+
         GraphCommits(
-            commits = commitList.map { graphCommitMapper.toDomain(it) },
+            commits = commits,
             maxLane = commitList.maxLane,
         )
     }

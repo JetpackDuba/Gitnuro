@@ -26,7 +26,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         field = MutableStateFlow(emptyList())
 
     override val log: Flow<GraphCommits>
-        field = MutableStateFlow(GraphCommits(emptyList(), 0))
+        field = MutableStateFlow(GraphCommits(LinkedHashMap(), 0))
 
     override val stashes: Flow<List<Commit>>
         field = MutableStateFlow(emptyList())
@@ -63,7 +63,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         this.localBranches.value = emptyList()
         this.tags.value = emptyList()
         this.remotes.value = emptyList()
-        this.log.value = GraphCommits(emptyList(), 0)
+        this.log.value = GraphCommits(LinkedHashMap(), 0)
     }
 
     override fun updateStatus(status: Status) {

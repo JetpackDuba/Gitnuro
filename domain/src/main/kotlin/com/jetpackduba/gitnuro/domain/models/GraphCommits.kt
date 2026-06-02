@@ -1,6 +1,8 @@
 package com.jetpackduba.gitnuro.domain.models
 
+import java.util.*
+
 data class GraphCommits(
-    val commits: List<GraphCommit>,
+    val commits: LinkedHashMap<String, GraphCommit>,
     val maxLane: Int,
-): List<GraphCommit> by commits
+): SequencedMap<String, GraphCommit> by commits

@@ -730,20 +730,21 @@ class RepositoryOpenViewModel @Inject constructor(
             val plotCommitList = logStatusValue.commitList
 
             val matchingCommits = plotCommitList.commits.filter {
-                it.message.lowercase().contains(lowercaseValue) ||
-                        it.author.name.orEmpty().lowercase().contains(lowercaseValue) ||
-                        it.committer.name.orEmpty().lowercase().contains(lowercaseValue) ||
-                        it.hash.lowercase().contains(lowercaseValue)
+                it.value.message.lowercase().contains(lowercaseValue) ||
+                        it.value.author.name.orEmpty().lowercase().contains(lowercaseValue) ||
+                        it.value.committer.name.orEmpty().lowercase().contains(lowercaseValue) ||
+                        it.value.hash.lowercase().contains(lowercaseValue)
             }
 
             var startingUiIndex = NONE_MATCHING_INDEX
 
             if (matchingCommits.isNotEmpty()) {
-                _focusCommit.emit(matchingCommits.first())
+                _focusCommit.emit(matchingCommits.entries.first().value)
                 startingUiIndex = FIRST_INDEX
             }
 
-            logSearchFilterResults.value = LogSearch.SearchResults(matchingCommits, startingUiIndex)
+            // TODO Instead of casting commits to list, use LinkedHashMap everywhere
+            logSearchFilterResults.value = LogSearch.SearchResults(matchingCommits.values.toList(), startingUiIndex)
         } else {
             logSearchFilterResults.value = LogSearch.SearchResults(emptyList(), NONE_MATCHING_INDEX)
         }

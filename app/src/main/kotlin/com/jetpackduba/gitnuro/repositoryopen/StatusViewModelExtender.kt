@@ -105,7 +105,16 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     // When false, disable "amend previous commit"
     // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
-    var hasPreviousCommits = repositoryDataRepository.log.map { it.isNotEmpty() }
+    val previousCommitMessage = combine(
+        repositoryDataRepository.currentBranch,
+        repositoryDataRepository.log,
+    ) { branch, log ->
+        if (branch == null)
+            return@combine null
+
+        log.commits[branch.hash]?.message
+    }
+//    var hasPreviousCommits = repositoryDataRepository.log.map { it.isNotEmpty() }
 
     val stagedLazyListState = MutableStateFlow(LazyListState(0, 0))
     val unstagedLazyListState = MutableStateFlow(LazyListState(0, 0))
@@ -151,15 +160,13 @@ class StatusViewModelExtender @AssistedInject constructor(
         showAsTree,
         treeContractedDirectories,
         swapUncommittedChanges,
-        stagedLazyListState,
-        unstagedLazyListState,
         isAmend,
         isAmendRebaseInteractive,
         committerDataRequestState,
         rebaseInteractiveState,
         selectedUnstagedDiffEntries,
         selectedStagedDiffEntries,
-        hasPreviousCommits,
+        previousCommitMessage,
         repositoryDataRepository.repositoryState,
     )
         .stateIn(StatusState())
