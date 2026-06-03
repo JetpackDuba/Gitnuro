@@ -6,7 +6,6 @@ import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusGitAction
-import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import javax.inject.Inject
 
@@ -20,7 +19,7 @@ class RefreshLogUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke() {
-        useCaseExecutor.executeOnTabScope(TaskType.RefreshLog) { repositoryPath ->
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             val log = loadLog(repositoryPath).bind()
             repositoryDataRepository.updateLog(log)
         }

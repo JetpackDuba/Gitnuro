@@ -32,17 +32,20 @@ class GetLfsUrlGitAction @Inject constructor(
     }
 
     private suspend fun getLfsUrlFromRemote(git: Git, remoteName: String?): String? {
+        val repositoryPath = git.repository.directory.absolutePath
+
         val remotePath = if (remoteName != null) {
             remoteName
         } else {
-            val currentBranch = getCurrentBranchGitAction(git).okOrNull() // TODO Proper error handling?
+            val currentBranch = getCurrentBranchGitAction(repositoryPath).okOrNull() // TODO Proper error handling?
 
             if (currentBranch == null) {
                 printError(TAG, "Current branch is null and couldn't obtain tracking branch remote.")
                 return null
             }
 
-            val trackingBranch = getTrackingBranchGitAction(git, currentBranch.name)
+            val trackingBranch =
+                getTrackingBranchGitAction(repositoryPath, currentBranch.name).okOrNull() // TODO Proper error handling?
             val currentBranchTracedRemote = trackingBranch?.remote
 
             if (currentBranchTracedRemote != null) {

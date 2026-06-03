@@ -40,7 +40,7 @@ class PushBranchGitAction @Inject constructor(
         val fullCurrentBranch = git.repository.fullBranch
 
         val tracking = if (specificBranch == null) {
-            getTrackingBranchGitAction(git, currentBranch)
+            getTrackingBranchGitAction(repositoryPath, currentBranch).bind()
         } else {
             TrackingBranch(
                 remote = specificBranch.remoteName,

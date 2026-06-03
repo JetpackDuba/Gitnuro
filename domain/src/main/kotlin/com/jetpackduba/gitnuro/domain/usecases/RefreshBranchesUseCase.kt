@@ -4,7 +4,6 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IGetBranchesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
-import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import javax.inject.Inject
 
@@ -15,7 +14,7 @@ class RefreshBranchesUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke() {
-        useCaseExecutor.executeOnTabScope(TaskType.RefreshBranches) { repositoryPath ->
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             val branches = getBranchesGitAction(repositoryPath).bind()
             repositoryDataRepository.updateLocalBranches(branches)
 

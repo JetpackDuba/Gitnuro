@@ -1,13 +1,11 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
-import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitFromHashGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.TaskType
 import org.eclipse.jgit.diff.DiffEntry
 import javax.inject.Inject
 
@@ -17,7 +15,6 @@ class GetCommitDiffEntriesUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     suspend operator fun invoke(commit: Commit) = useCaseExecutor.execute<List<DiffEntry>>(
-        taskType = TaskType.GetCommitDiffEntries,
     ) { repositoryPath ->
         // TODO Restore stashes change loading. IIRC only stashes have 3 parents, usually.
         val entries = getCommitDiffEntriesGitAction(repositoryPath, commit).bind().toMutableList()

@@ -1,20 +1,26 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.common.flows.combine
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRemoteBranchesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.ISetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.models.TrackingBranch
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
 import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
+import com.jetpackduba.gitnuro.domain.usecases.GetRemotesUseCase
+import com.jetpackduba.gitnuro.domain.usecases.GetTrackingBranchUseCase
+import com.jetpackduba.gitnuro.domain.usecases.SetTrackingBranchUseCase
+import com.jetpackduba.gitnuro.extensions.stateIn
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
@@ -22,7 +28,9 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
     private val getRemoteBranchesGitAction: IGetRemoteBranchesGitAction,
     private val getRemotesGitAction: IGetRemotesGitAction,
     private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
-    private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
+    private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
+    private val setTrackingBranchUseCase: SetTrackingBranchUseCase,
+    private val getRemotesUseCase: GetRemotesUseCase,
     @Assisted private val branch: Branch,
 ) : TabViewModel() {
 
@@ -31,65 +39,78 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
         fun create(branch: Branch): SetUpstreamBranchDialogViewModel
     }
 
-    private val _setDefaultUpstreamBranchState =
-        MutableStateFlow<SetDefaultUpstreamBranchState>(SetDefaultUpstreamBranchState.Loading)
-    val setDefaultUpstreamBranchState: StateFlow<SetDefaultUpstreamBranchState> =
-        _setDefaultUpstreamBranchState
+    val selectedRemote: StateFlow<SelectedUiValue<RemoteInfo?>>
+        field = MutableStateFlow<SelectedUiValue<RemoteInfo?>>(SelectedUiValue.Default)
 
-    init {
-        loadData(branch)
+    val selectedBranch: StateFlow<SelectedUiValue<Branch?>>
+        field = MutableStateFlow<SelectedUiValue<Branch?>>(SelectedUiValue.Default)
+
+    val isCompleted: StateFlow<Boolean>
+        field = MutableStateFlow<Boolean>(false)
+
+    val setDefaultUpstreamBranchState: StateFlow<SetDefaultUpstreamBranchState> = flow {
+        // TODO Show error instead of empty for both calls?
+        val remotes = getRemotesUseCase().okOrNull().orEmpty()
+        val trackingBranch = getTrackingBranchUseCase(branch).okOrNull()
+
+        val remote: RemoteInfo?
+        val remoteBranch: Branch?
+
+        if (trackingBranch != null) {
+            remote = remotes.firstOrNull { it.remote.name == trackingBranch.remote }
+            remoteBranch = remote?.branchesList?.firstOrNull { it.name == trackingBranch.branch }
+        } else {
+            remote = null
+            remoteBranch = null
+        }
+
+        val state = SetDefaultUpstreamBranchState.Loaded(
+            branch = branch,
+            trackingBranch = trackingBranch,
+            remotes = remotes,
+            selectedRemote = remote,
+            selectedBranch = remoteBranch,
+            isCompleted = false,
+        )
+
+        emit(state)
     }
+        .combine(selectedRemote, selectedBranch) { data, remote, branch ->
+            val dataWithSelectedBranch = if (branch is SelectedUiValue.Selected) {
+                data.copy(selectedBranch = branch.value)
+            } else {
+                data
+            }
 
-    // TODO Refactor this to a flow that is initialized later instead of being a side effect at object construction time
-    private fun loadData(branch: Branch) = tabState.runOperation(
-        refreshType = RefreshType.NONE
-    ) { git ->
-        _setDefaultUpstreamBranchState.value = SetDefaultUpstreamBranchState.Loading
+            val dataWithSelectedBranchAndRemote = if (remote is SelectedUiValue.Selected) {
+                dataWithSelectedBranch.copy(selectedRemote = remote.value)
+            } else {
+                dataWithSelectedBranch
+            }
 
-        val trackingBranch = getTrackingBranchGitAction(git, branch)
-        val remoteBranches = getRemoteBranchesGitAction(git.repository.directory.absolutePath)
-        val remotes = getRemotesGitAction(git.repository.directory.absolutePath)
+            dataWithSelectedBranchAndRemote
+        }
+        .combine(isCompleted) { data, isCompleted ->
+            data.copy(isCompleted = isCompleted)
+        }
+        .stateIn(SetDefaultUpstreamBranchState.Loading)
 
-        var remote: RemoteInfo? = null
-        var remoteBranch: Branch? = null
-// TODO Fix this
-//        if (trackingBranch != null) {
-//            remote = remotes.firstOrNull { it.remoteConfig.name == trackingBranch.remote }
-//            remoteBranch = remote?.branchesList?.firstOrNull { it.simpleName == trackingBranch.branch }
-//        }
-//
-//        _setDefaultUpstreamBranchState.value =
-//            SetDefaultUpstreamBranchState.Loaded(
-//                branch = branch,
-//                trackingBranch = trackingBranch,
-//                remotes = remotes,
-//                selectedRemote = remote,
-//                selectedBranch = remoteBranch
-//            )
-    }
 
     fun changeDefaultUpstreamBranch() = viewModelScope.launch {
-        val state = _setDefaultUpstreamBranchState.value
+        val state = setDefaultUpstreamBranchState.value
 
         if (state is SetDefaultUpstreamBranchState.Loaded) {
-            // TODO
-//            setTrackingBranchGitAction(
-//                git = git,
-//                branch = state.branch,
-//                remoteName = state.selectedRemote?.remote?.name,
-//                remoteBranch = state.selectedBranch
-//            )
-
-            _setDefaultUpstreamBranchState.value = SetDefaultUpstreamBranchState.UpstreamChanged
+            // TODO Handle error in dialog instead of generic view
+            setTrackingBranchUseCase(
+                branch,
+                state.selectedRemote?.remote?.name,
+                state.selectedBranch,
+            )
         }
     }
 
     fun setSelectedBranch(branchOption: Branch) {
-        val state = _setDefaultUpstreamBranchState.value
-
-        if (state is SetDefaultUpstreamBranchState.Loaded) {
-            _setDefaultUpstreamBranchState.value = state.copy(selectedBranch = branchOption)
-        }
+        selectedBranch.value = SelectedUiValue.Selected(branchOption)
     }
 
     fun setSelectedRemote(remote: RemoteInfo) {
@@ -103,12 +124,15 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
                 null
             }
 
-            _setDefaultUpstreamBranchState.value = state.copy(
-                selectedRemote = remote,
-                selectedBranch = branch,
-            )
+            selectedRemote.value = SelectedUiValue.Selected(remote)
+            selectedBranch.value = SelectedUiValue.Selected(branch)
         }
     }
+}
+
+sealed interface SelectedUiValue<out T> {
+    data object Default : SelectedUiValue<Nothing>
+    data class Selected<T>(val value: T) : SelectedUiValue<T>
 }
 
 sealed interface SetDefaultUpstreamBranchState {
@@ -119,7 +143,6 @@ sealed interface SetDefaultUpstreamBranchState {
         val remotes: List<RemoteInfo>,
         val selectedRemote: RemoteInfo?,
         val selectedBranch: Branch?,
+        val isCompleted: Boolean,
     ) : SetDefaultUpstreamBranchState
-
-    object UpstreamChanged : SetDefaultUpstreamBranchState
 }

@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.interfaces.IGetFileCommitsAction
-import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
 class GetFileCommitsUseCase @Inject constructor(
@@ -10,7 +9,6 @@ class GetFileCommitsUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     suspend operator fun invoke(filePath: String) = useCaseExecutor.execute(
-        taskType = TaskType.GetFileCommits,
     ) { repositoryPath ->
         getFileCommitsAction(repositoryPath, filePath)
     }

@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -19,8 +21,8 @@ import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
-import com.jetpackduba.gitnuro.viewmodels.SetUpstreamBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
+import com.jetpackduba.gitnuro.viewmodels.SetUpstreamBranchDialogViewModel
 import org.jetbrains.compose.resources.painterResource
 
 @Preview
@@ -32,7 +34,8 @@ fun SetDefaultUpstreamBranchDialogPreview() {
             null,
             emptyList(),
             null,
-            null
+            null,
+            isCompleted = false,
         ),
         onDismiss = {},
         setSelectedRemote = {},
@@ -46,16 +49,16 @@ fun SetDefaultUpstreamBranchDialog(
     viewModel: SetUpstreamBranchDialogViewModel,
     onDismiss: () -> Unit,
 ) {
-    val setDefaultUpstreamBranchState = viewModel.setDefaultUpstreamBranchState.collectAsState().value
-    LaunchedEffect(setDefaultUpstreamBranchState) {
-        if (setDefaultUpstreamBranchState is SetDefaultUpstreamBranchState.UpstreamChanged) {
+    val state = viewModel.setDefaultUpstreamBranchState.collectAsState().value
+    LaunchedEffect(state) {
+        if (state is SetDefaultUpstreamBranchState.Loaded && state.isCompleted) {
             onDismiss()
         }
     }
 
     MaterialDialog(onCloseRequested = onDismiss) {
         SetDefaultUpstreamBranchDialogView(
-            state = setDefaultUpstreamBranchState,
+            state = state,
             onDismiss = onDismiss,
             setSelectedRemote = { viewModel.setSelectedRemote(it) },
             setSelectedBranch = { viewModel.setSelectedBranch(it) },

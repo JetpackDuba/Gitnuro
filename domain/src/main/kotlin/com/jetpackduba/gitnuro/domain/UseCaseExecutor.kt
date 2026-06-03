@@ -15,7 +15,6 @@ class UseCaseExecutor @Inject constructor(
     private val scope: TabCoroutineScope,
 ) {
     suspend fun <T> execute(
-        taskType: TaskType,
         onRefresh: suspend () -> Unit = {},
         refreshEvenIfFailed: Boolean = false,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
@@ -24,7 +23,6 @@ class UseCaseExecutor @Inject constructor(
     }
 
     fun executeOnTabScope(
-        taskType: TaskType,
         block: suspend EitherContext<AppError>.(String) -> Unit,
     ) {
         scope.launch {
