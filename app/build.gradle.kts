@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.jgit.lfs)
 
     implementation(libs.coroutines)
+    implementation(libs.kotlinx.coroutines.jvm)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.dagger)
