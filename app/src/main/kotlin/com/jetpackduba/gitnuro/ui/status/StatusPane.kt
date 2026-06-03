@@ -211,15 +211,21 @@ fun StatusPane(
                 onAction(StatusAction.AbortRebase)
                 onAction(StatusAction.UpdateCommitMessage(""))
             },
-            onAmendChecked = {
-                if (commitMessage.isEmpty()) {
+            onAmendChecked = { amend ->
+                if (amend && commitMessage.isEmpty()) {
                     setCommitMessage(statusState.previousCommitMessage.orEmpty())
                 }
-                onAction(StatusAction.ToggleAmend(it))
+                onAction(StatusAction.ToggleAmend(amend))
             },
             onContinueRebase = { onAction(StatusAction.ContinueRebase(commitMessage)) },
             onSkipRebase = { onAction(StatusAction.SkipRebase) },
-            onAmendRebaseInteractiveChecked = { onAction(StatusAction.ToggleAmendRebaseInteractive(it)) }
+            onAmendRebaseInteractiveChecked = { amend ->
+                if (amend && commitMessage.isEmpty()) {
+                    setCommitMessage(statusState.previousCommitMessage.orEmpty())
+                }
+
+                onAction(StatusAction.ToggleAmendRebaseInteractive(amend))
+            }
         )
     }
 }

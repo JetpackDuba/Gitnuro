@@ -71,33 +71,6 @@ class TabInstanceRepository @Inject constructor(
         }
     }
 
-    fun runOperation(
-        showError: Boolean = false,
-        refreshType: RefreshType,
-        refreshEvenIfCrashes: Boolean = false,
-        block: suspend (git: Git) -> Unit,
-    ) = scope.launch(Dispatchers.IO) {
-        var hasProcessFailed = false
-
-        operationRunning = true
-
-        try {
-            block(git)
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-
-            hasProcessFailed = true
-
-            printError(TAG, ex.message.orEmpty(), ex)
-        } finally {
-            if (refreshType != RefreshType.NONE && (!hasProcessFailed || refreshEvenIfCrashes))
-                refreshData.emit(refreshType)
-
-            operationRunning = false
-            lastOperation = System.currentTimeMillis()
-        }
-    }
-
     suspend fun refreshData(refreshType: RefreshType) {
         refreshData.emit(refreshType)
     }

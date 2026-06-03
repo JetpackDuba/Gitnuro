@@ -62,6 +62,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,
     private val persistCommitMessageUseCase: PersistCommitMessageUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
+    private val getWorktreeUseCase: GetWorktreeUseCase,
     @Assisted private val viewModelScope: CoroutineScope,
     @Assisted private val showAsTree: Flow<Boolean>,
     @Assisted private val diffSelected: StateFlow<DiffSelected?>,
@@ -301,23 +302,6 @@ class StatusViewModelExtender @AssistedInject constructor(
         setClipboardContentUseCase(pathsToCopy)
     }
 
-
-    private fun takeMessageFromAmendCommit() = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        val rebaseInteractiveState = rebaseInteractiveState.value
-        if (rebaseInteractiveState !is RebaseInteractiveState.ProcessingCommits) {
-            return@runOperation
-        }
-
-        val commitId = rebaseInteractiveState.commitToAmendId ?: return@runOperation
-        val message = getSpecificCommitMessageGitAction(git, commitId)
-
-        savedCommitMessage = savedCommitMessage.copy(message = message)
-        persistMessage()
-        commitMessageChangesFlow.emit(savedCommitMessage.message)
-    }
-
     fun rejectCommitterData() {
         this.committerDataRequestState.value = CommitterDataRequestState.Reject
     }
@@ -326,11 +310,10 @@ class StatusViewModelExtender @AssistedInject constructor(
         this.committerDataRequestState.value = CommitterDataRequestState.Accepted(newAuthorInfo, persist)
     }
 
-    fun openFileInFolder(folderPath: String?) = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
+    fun openFileInFolder(folderPath: String?) = viewModelScope.launch {
         if (folderPath != null) {
-            val file = File(git.repository.workTree.absolutePath + File.separator + folderPath)
+            val worktreeDir = getWorktreeUseCase().okOrNull() ?: return@launch
+            val file = File(worktreeDir + File.separator + folderPath)
             file.openFileInFolder()
         }
     }
@@ -338,14 +321,6 @@ class StatusViewModelExtender @AssistedInject constructor(
     fun updateCommitMessage(message: String) {
         savedCommitMessage = savedCommitMessage.copy(message = message)
         persistMessage()
-    }
-
-    private fun takeMessageFromPreviousCommit() = tabState.runOperation(
-        refreshType = RefreshType.NONE,
-    ) { git ->
-        savedCommitMessage = savedCommitMessage.copy(message = getLastCommitMessageGitAction(git))
-        persistMessage()
-        commitMessageChangesFlow.emit(savedCommitMessage.message)
     }
 
     private fun persistMessage() {
@@ -639,18 +614,10 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     fun amend(isAmend: Boolean) {
         this.isAmend.value = isAmend
-
-        if (isAmend && savedCommitMessage.message.isEmpty()) {
-            takeMessageFromPreviousCommit()
-        }
     }
 
     fun amendRebaseInteractive(isAmend: Boolean) {
         _isAmendRebaseInteractive.value = isAmend
-
-        if (isAmend && savedCommitMessage.message.isEmpty()) {
-            takeMessageFromAmendCommit()
-        }
     }
 
     fun commit(message: String) = viewModelScope.launch {
