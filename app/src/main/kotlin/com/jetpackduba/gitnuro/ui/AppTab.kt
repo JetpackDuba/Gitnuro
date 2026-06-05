@@ -19,7 +19,10 @@ import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.lfs
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
+import com.jetpackduba.gitnuro.domain.models.NotificationData
+import com.jetpackduba.gitnuro.domain.models.NotificationType
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenPage
 import com.jetpackduba.gitnuro.tabViewModel
 import com.jetpackduba.gitnuro.theme.dialogOverlay
@@ -50,7 +53,7 @@ fun AppTab(
     val errors by repositoryTabViewModel.severeErrors.collectAsState()
     val lastError = errors.firstOrNull()
 
-    val notifications = repositoryTabViewModel.notifications.collectAsState().value
+    val tasks = repositoryTabViewModel.notifications.collectAsState().value
         .toList()
         .sortedBy { it.date }
 
@@ -191,7 +194,9 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             CreateBranchDialog(
-                                viewModel = tabViewModel(entry) { it.createBranchViewModelFactory().create(entry.targetCommit) },
+                                viewModel = tabViewModel(entry) {
+                                    it.createBranchViewModelFactory().create(entry.targetCommit)
+                                },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
@@ -381,14 +386,27 @@ fun AppTab(
                 .padding(bottom = 48.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            for (notification in notifications) {
-                Notification(notification)
+            for (task in tasks) {
 
-                LaunchedEffect(notification) {
+                Notification(task.toNotificationData())
+
+                LaunchedEffect(task) {
                     delay(2000L.milliseconds)
-                    repositoryTabViewModel.completedTaskAlreadyShown(notification)
+                    repositoryTabViewModel.completedTaskAlreadyShown(task)
                 }
             }
         }
     }
+}
+
+fun CompletedTask.toNotificationData(): NotificationData {
+    val type = when (this) {
+        is CompletedTask.Failure -> NotificationType.Error
+        is CompletedTask.Success -> NotificationType.Positive
+    }
+
+    val message = this.taskType.toString() // TODO fix this
+
+    return NotificationData(type, message)
+
 }

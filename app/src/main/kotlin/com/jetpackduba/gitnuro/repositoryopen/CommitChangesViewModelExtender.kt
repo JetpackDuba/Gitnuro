@@ -54,12 +54,6 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
     val searchFilter: StateFlow<TextFieldValue>
         field = MutableStateFlow(TextFieldValue(""))
 
-    val changesLazyListState = MutableStateFlow(
-        LazyListState(firstVisibleItemIndex = 0, firstVisibleItemScrollOffset = 0)
-    )
-
-    val textScroll = MutableStateFlow(ScrollState(0))
-
     private val commitChangesTreeContractedDirectories = MutableStateFlow(emptyList<String>())
 
 
@@ -107,29 +101,32 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
                 emit(null)
             }
         }
-    }.flattenConcat().combine(showSearch, searchFilter) { state, showSearch, searchFilter ->
-        when (state) {
-            is CommitChangesStateUi.Loaded -> {
-                val changesFiltered = if (showSearch && searchFilter.text.isNotBlank()) {
-                    state.changes.filter { it.filePath.lowercaseContains(searchFilter.text) }
-                } else {
-                    emptyList()
+    }
+        .flattenConcat()
+        .combine(showSearch, searchFilter) { state, showSearch, searchFilter ->
+            when (state) {
+                is CommitChangesStateUi.Loaded -> {
+                    val changesFiltered = if (showSearch && searchFilter.text.isNotBlank()) {
+                        state.changes.filter { it.filePath.lowercaseContains(searchFilter.text) }
+                    } else {
+                        emptyList()
+                    }
+
+                    state.copy(
+                        showSearch = showSearch,
+                        searchFilter = searchFilter,
+                        changesFiltered = changesFiltered,
+                        changesTreeFiltered = entriesToTreeEntry(
+                            showAsTree = state.showAsTree,
+                            changesFiltered,
+                            state.treeContractedDirectories,
+                        ) { it.filePath },
+                    )
                 }
 
-                state.copy(
-                    showSearch = showSearch,
-                    changesFiltered = changesFiltered,
-                    changesTreeFiltered = entriesToTreeEntry(
-                        showAsTree = state.showAsTree,
-                        changesFiltered,
-                        state.treeContractedDirectories,
-                    ) { it.filePath },
-                )
+                else -> state
             }
-
-            else -> state
         }
-    }
         .stateIn(CommitChangesStateUi.Loading)
 
     init {

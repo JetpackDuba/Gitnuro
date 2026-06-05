@@ -419,7 +419,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun onFetchRemoteBranches(remote: RemoteView) = fetchRemotesUseCase(remote.remoteInfo.remote)
     fun copyBranchNameToClipboard(branch: Branch) = viewModelScope.launch {
-        setClipboardContentUseCase(branch.simpleName, MessageType.BranchCopied(branch.simpleName))
+        setClipboardContentUseCase(branch.simpleName)
     }
 
     fun checkoutTagCommit(tag: Tag) = checkoutCommitUseCase(tag.hash)

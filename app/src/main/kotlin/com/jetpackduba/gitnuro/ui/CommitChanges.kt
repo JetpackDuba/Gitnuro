@@ -159,7 +159,11 @@ private fun CommitChangesView(
                 TreeCommitLogChanges(
                     diffSelected = diffSelected,
                     changesListScroll = changesListScroll,
-                    treeItems = commitChangesState.changesTree,
+                    treeItems = if (showSearch && searchFilter.text.isNotBlank()) {
+                        commitChangesState.changesTreeFiltered
+                    } else {
+                        commitChangesState.changesTree
+                    },
                     onDiffSelected = onDiffSelected,
                     onGenerateContextMenu = { diffEntry ->
                         committedChangesEntriesContextMenuItems(
@@ -175,7 +179,11 @@ private fun CommitChangesView(
                 ListCommitLogChanges(
                     diffSelected = diffSelected,
                     changesListScroll = changesListScroll,
-                    diffEntries = commitChangesState.changes,
+                    diffEntries = if (showSearch && searchFilter.text.isNotBlank()) {
+                        commitChangesState.changesFiltered
+                    } else {
+                        commitChangesState.changes
+                    },
                     onDiffSelected = onDiffSelected,
                     onGenerateContextMenu = { diffEntry ->
                         committedChangesEntriesContextMenuItems(
