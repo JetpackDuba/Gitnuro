@@ -12,7 +12,7 @@ interface RepositoryDataRepository {
     val currentBranch: Flow<Branch?>
     val tags: Flow<List<Tag>>
     val remotes: Flow<List<RemoteInfo>>
-    val log: Flow<GraphCommits>
+    val log: StateFlow<GraphCommits>
     val stashes: Flow<List<Commit>>
     val repositorySelectionState: StateFlow<RepositorySelectionState>
     val repositoryState: StateFlow<RepositoryState>

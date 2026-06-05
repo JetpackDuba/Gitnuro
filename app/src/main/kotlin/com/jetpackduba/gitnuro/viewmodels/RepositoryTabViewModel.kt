@@ -50,7 +50,6 @@ private const val TAG = "RepositoryTabViewModel"
  */
 class RepositoryTabViewModel @AssistedInject constructor(
     private val initLocalRepositoryGitAction: IInitLocalRepositoryGitAction,
-    private val tabState: TabInstanceRepository,
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: IFileChangesWatcher,
     private val credentialsStateManager: CredentialsStateManager,

@@ -192,7 +192,7 @@ fun LazyListScope.localBranches(
         items(branches, key = { it.name }) { branch ->
             Branch(
                 branch = branch,
-                isSelectedItem = selectedItem is SelectedItem.Ref && selectedItem.ref == branch,
+                isSelectedItem = selectedItem is SelectedItem.BranchItem && selectedItem.branch == branch,
                 currentBranch = currentBranch,
                 onBranchClicked = { viewModel.selectBranch(branch) },
                 onBranchDoubleClicked = { viewModel.checkoutBranch(branch) },
@@ -306,7 +306,7 @@ fun LazyListScope.tags(
         items(tags, key = { it.name }) { tag ->
             Tag(
                 tag,
-                isSelected = selectedItem is SelectedItem.Ref && selectedItem.ref == tag,
+                isSelected = selectedItem is SelectedItem.TagItem && selectedItem.tag == tag,
                 onTagClicked = { viewModel.selectTag(tag) },
                 onCheckoutTag = { viewModel.checkoutTagCommit(tag) },
                 onDeleteTag = { viewModel.deleteTag(tag) }
@@ -342,7 +342,7 @@ fun LazyListScope.stashes(
         items(stashes, key = { it.hash }) { stash ->
             Stash(
                 stash,
-                isSelected = selectedItem is SelectedItem.Stash && selectedItem.commit == stash,
+                isSelected = selectedItem is SelectedItem.CommitItem && selectedItem.isStash && selectedItem.commit.hash == stash.hash,
                 onClick = { viewModel.selectStash(stash) },
                 onApply = { viewModel.applyStash(stash) },
                 onPop = { viewModel.popStash(stash) },

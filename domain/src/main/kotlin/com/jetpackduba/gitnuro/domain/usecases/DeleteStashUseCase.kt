@@ -4,11 +4,9 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.interfaces.IDeleteStashGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import javax.inject.Inject
 
 class DeleteStashUseCase @Inject constructor(
-    val tabState: TabInstanceRepository,
     private val deleteStashGitAction: IDeleteStashGitAction,
     private val useCaseExecutor: UseCaseExecutor,
     private val refreshLogUseCase: RefreshLogUseCase,

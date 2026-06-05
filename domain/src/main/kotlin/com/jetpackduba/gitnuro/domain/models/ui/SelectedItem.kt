@@ -1,10 +1,17 @@
 package com.jetpackduba.gitnuro.domain.models.ui
 
+import com.jetpackduba.gitnuro.domain.models.Branch
+import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.models.Tag
+
 sealed interface SelectedItem {
     data object None : SelectedItem
     data object UncommittedChanges : SelectedItem
-    sealed class CommitBasedItem(val commit: com.jetpackduba.gitnuro.domain.models.Commit) : SelectedItem
-    class Ref(val ref: org.eclipse.jgit.lib.Ref, revCommit: com.jetpackduba.gitnuro.domain.models.Commit) : CommitBasedItem(revCommit)
-    class Commit(revCommit: com.jetpackduba.gitnuro.domain.models.Commit) : CommitBasedItem(revCommit)
-    class Stash(revCommit: com.jetpackduba.gitnuro.domain.models.Commit) : CommitBasedItem(revCommit)
+    sealed interface CommitBasedItem : SelectedItem {
+        val commit: Commit
+    }
+
+    data class BranchItem(val branch: Branch, override val commit: Commit) : CommitBasedItem
+    data class TagItem(val tag: Tag, override val commit: Commit) : CommitBasedItem
+    data class CommitItem(override val commit: Commit, val isStash: Boolean) : CommitBasedItem
 }

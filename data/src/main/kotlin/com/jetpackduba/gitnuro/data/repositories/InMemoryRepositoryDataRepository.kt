@@ -25,7 +25,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val remotes: Flow<List<RemoteInfo>>
         field = MutableStateFlow(emptyList())
 
-    override val log: Flow<GraphCommits>
+    override val log: StateFlow<GraphCommits>
         field = MutableStateFlow(GraphCommits(LinkedHashMap(), 0))
 
     override val stashes: Flow<List<Commit>>

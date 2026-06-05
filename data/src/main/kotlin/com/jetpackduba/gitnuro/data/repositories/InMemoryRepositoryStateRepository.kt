@@ -6,8 +6,10 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -16,6 +18,13 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
         field = MutableStateFlow(null)
     override val completedTasks: StateFlow<List<CompletedTask>>
         field = MutableStateFlow(emptyList())
+    override val lastOperationTimestamp: Flow<Long> = completedTasks.map {
+        if (completedTasks.value.isEmpty()) {
+            0L
+        } else {
+            System.currentTimeMillis()
+        }
+    }
 
     override suspend fun <T> runOperation(taskType: TaskType, block: suspend () -> T): T {
         try {

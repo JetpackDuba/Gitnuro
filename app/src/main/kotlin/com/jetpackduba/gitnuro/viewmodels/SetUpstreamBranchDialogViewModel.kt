@@ -3,13 +3,9 @@ package com.jetpackduba.gitnuro.viewmodels
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
-import com.jetpackduba.gitnuro.domain.interfaces.IGetRemoteBranchesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.domain.models.TrackingBranch
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.GetRemotesUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetTrackingBranchUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetTrackingBranchUseCase
@@ -24,10 +20,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
-    private val tabState: TabInstanceRepository,
-    private val getRemoteBranchesGitAction: IGetRemoteBranchesGitAction,
-    private val getRemotesGitAction: IGetRemotesGitAction,
-    private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
     private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
     private val setTrackingBranchUseCase: SetTrackingBranchUseCase,
     private val getRemotesUseCase: GetRemotesUseCase,

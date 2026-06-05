@@ -8,11 +8,9 @@ import com.jetpackduba.gitnuro.domain.interfaces.IGetStashListGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IPopStashGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import javax.inject.Inject
 
 class PopStashUseCase @Inject constructor(
-    val tabState: TabInstanceRepository,
     private val popStashGitAction: IPopStashGitAction,
     private val getStashListGitAction: IGetStashListGitAction,
     private val useCaseExecutor: UseCaseExecutor,

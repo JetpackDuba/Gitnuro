@@ -1,22 +1,8 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
-import com.jetpackduba.gitnuro.domain.interfaces.*
-import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.usecases.AbortRebaseUseCase
-import com.jetpackduba.gitnuro.domain.usecases.GetCommitFromRebaseLineUseCase
-import com.jetpackduba.gitnuro.domain.usecases.GetRepositoryStateUseCase
-import com.jetpackduba.gitnuro.domain.usecases.ResumeRebaseInteractiveUseCase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.RebaseTodoLine
 import org.eclipse.jgit.lib.RebaseTodoLine.Action
-import javax.inject.Inject
 
 private const val TAG = "RebaseInteractiveViewMo"
 

@@ -38,8 +38,6 @@ private const val PERSIST_MESSAGE_DELAY_IN_MS = 1_000L
 
 
 class StatusViewModelExtender @AssistedInject constructor(
-    val appStateManager: AppStateManager,
-    private val tabState: TabInstanceRepository,
     private val setClipboardContentUseCase: SetClipboardContentUseCase,
     private val unstageUseCase: StatusUnstageUseCase,
     private val stageUseCase: StatusStageUseCase,
@@ -47,7 +45,6 @@ class StatusViewModelExtender @AssistedInject constructor(
     private val unstageAllUseCase: StatusUnstageAllUseCase,
     private val discardEntriesUseCase: DiscardEntriesUseCase,
     private val deleteFileUseCase: DeleteFileUseCase,
-    private val getLastCommitMessageGitAction: IGetLastCommitMessageGitAction,
     private val resetRepositoryStateUseCase: ResetRepositoryStateUseCase,
     private val abortRebaseUseCase: AbortRebaseUseCase,
     private val continueRebaseUseCase: ContinueRebaseUseCase,
@@ -55,7 +52,6 @@ class StatusViewModelExtender @AssistedInject constructor(
     private val doCommitUseCase: DoCommitUseCase,
     private val getAuthorUseCase: GetAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
-    private val getSpecificCommitMessageGitAction: IGetSpecificCommitMessageGitAction,
     private val appSettings: AppSettingsService,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
     private val stageByDirectoryUseCase: StageByDirectoryUseCase,
@@ -70,6 +66,8 @@ class StatusViewModelExtender @AssistedInject constructor(
     @Assisted private val onDiffSelected: (DiffSelected) -> Unit,
     @Assisted private val onRemoveEntriesFromSelection: (Set<DiffType.UncommittedDiff>, EntryType) -> Unit,
     @Assisted private val onAlternateShowAsTree: () -> Unit,
+    @Assisted("addCloseableView") private val addCloseableView: (CloseableView) -> Unit,
+    @Assisted("removeCloseableView") private val removeCloseableView: (CloseableView) -> Unit,
 ) : CoroutineScope by viewModelScope {
 
     @AssistedFactory
@@ -82,6 +80,8 @@ class StatusViewModelExtender @AssistedInject constructor(
             onDiffSelected: (DiffSelected) -> Unit,
             onRemoveEntriesFromSelection: (Set<DiffType.UncommittedDiff>, EntryType) -> Unit,
             onAlternateShowAsTree: () -> Unit,
+            @Assisted("addCloseableView") addCloseableView: (CloseableView) -> Unit,
+            @Assisted("removeCloseableView") removeCloseableView: (CloseableView) -> Unit,
         ): StatusViewModelExtender
     }
 
@@ -543,7 +543,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     }
 
     private fun removeSearchFromCloseView(view: CloseableView) = viewModelScope.launch {
-        tabState.removeCloseableView(view)
+        removeCloseableView(view)
     }
 
     fun toggleTreeDirectoryVisibility(directoryPath: String) {
@@ -558,7 +558,7 @@ class StatusViewModelExtender @AssistedInject constructor(
 
 
     private fun addSearchToCloseView(view: CloseableView) = viewModelScope.launch {
-        tabState.addCloseableView(view)
+        addCloseableView(view)
     }
 
     private fun continueRebase(message: String) = continueRebaseUseCase(message, isAmendRebaseInteractive.value)

@@ -2,31 +2,24 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.TabViewModel
-import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.domain.extensions.filePath
-import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(
-    private val tabState: TabInstanceRepository,
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
     private val settings: AppSettingsService,
@@ -113,7 +106,7 @@ class HistoryViewModel @Inject constructor(
                 _viewDiffResult.value = getDiffUseCase(diffType)
             } catch (ex: Exception) {
                 if (ex is MissingDiffEntryException) {
-                    tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
+                    //TODO Call refreshStatusUseCase ? tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)
                     _viewDiffResult.value = ViewDiffResult.DiffNotFound(null)
                 } else
                     ex.printStackTrace()

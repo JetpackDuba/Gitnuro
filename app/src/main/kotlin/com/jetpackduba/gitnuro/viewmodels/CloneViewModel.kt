@@ -5,7 +5,6 @@ import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.interfaces.ICloneRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.CloneState
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.PickerType
@@ -20,7 +19,6 @@ import java.io.File
 import javax.inject.Inject
 
 class CloneViewModel @Inject constructor(
-    private val tabState: TabInstanceRepository,
     private val cloneRepositoryGitAction: ICloneRepositoryGitAction,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val appSettings: AppSettingsService,

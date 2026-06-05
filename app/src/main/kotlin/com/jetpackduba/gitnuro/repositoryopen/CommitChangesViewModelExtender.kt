@@ -12,7 +12,6 @@ import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
@@ -25,13 +24,14 @@ import kotlinx.coroutines.launch
 
 class CommitChangesViewModelExtender @AssistedInject constructor(
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
-    private val tabState: TabInstanceRepository,
     @Assisted private val viewModelScope: CoroutineScope,
     @Assisted private val showAsTree: Flow<Boolean>,
     @Assisted private val selectedItem: StateFlow<SelectedItem>,
     @Assisted private val diffSelected: StateFlow<DiffSelected?>,
     @Assisted private val onDiffSelected: (DiffSelected) -> Unit,
     @Assisted private val onAlternateShowAsTree: () -> Unit,
+    @Assisted("addCloseableView") private val addCloseableView: (CloseableView) -> Unit,
+    @Assisted("removeCloseableView") private val removeCloseableView: (CloseableView) -> Unit,
 ) : CoroutineScope by viewModelScope {
 
     @AssistedFactory
@@ -43,6 +43,8 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
             diffSelected: StateFlow<DiffSelected?>,
             onDiffSelected: (DiffSelected) -> Unit,
             onAlternateShowAsTree: () -> Unit,
+            @Assisted("addCloseableView") addCloseableView: (CloseableView) -> Unit,
+            @Assisted("removeCloseableView") removeCloseableView: (CloseableView) -> Unit,
         ): CommitChangesViewModelExtender
     }
 
@@ -77,7 +79,7 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
 //            )
 //            textScroll.value = ScrollState(0)
 
-            if (item is SelectedItem.Commit) {
+            if (item is SelectedItem.CommitItem) {
                 val changes = getCommitDiffEntriesUseCase(item.commit)
 
                 val state = when (changes) {
@@ -106,28 +108,28 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
             }
         }
     }.flattenConcat().combine(showSearch, searchFilter) { state, showSearch, searchFilter ->
-            when (state) {
-                is CommitChangesStateUi.Loaded -> {
-                    val changesFiltered = if (showSearch && searchFilter.text.isNotBlank()) {
-                        state.changes.filter { it.filePath.lowercaseContains(searchFilter.text) }
-                    } else {
-                        emptyList()
-                    }
-
-                    state.copy(
-                        showSearch = showSearch,
-                        changesFiltered = changesFiltered,
-                        changesTreeFiltered = entriesToTreeEntry(
-                            showAsTree = state.showAsTree,
-                            changesFiltered,
-                            state.treeContractedDirectories,
-                        ) { it.filePath },
-                    )
+        when (state) {
+            is CommitChangesStateUi.Loaded -> {
+                val changesFiltered = if (showSearch && searchFilter.text.isNotBlank()) {
+                    state.changes.filter { it.filePath.lowercaseContains(searchFilter.text) }
+                } else {
+                    emptyList()
                 }
 
-                else -> state
+                state.copy(
+                    showSearch = showSearch,
+                    changesFiltered = changesFiltered,
+                    changesTreeFiltered = entriesToTreeEntry(
+                        showAsTree = state.showAsTree,
+                        changesFiltered,
+                        state.treeContractedDirectories,
+                    ) { it.filePath },
+                )
             }
+
+            else -> state
         }
+    }
         .stateIn(CommitChangesStateUi.Loading)
 
     init {
@@ -156,12 +158,12 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
     }
 
     private fun addSearchToCloseableView() = viewModelScope.launch {
-        tabState.addCloseableView(CloseableView.COMMIT_CHANGES_SEARCH)
+        addCloseableView(CloseableView.COMMIT_CHANGES_SEARCH)
     }
 
 
     private fun removeCommitChangesSearchFromCloseableView() = viewModelScope.launch {
-        tabState.removeCloseableView(CloseableView.COMMIT_CHANGES_SEARCH)
+        removeCloseableView(CloseableView.COMMIT_CHANGES_SEARCH)
     }
 
     fun onDirectoryVisibilityToggle(directoryPath: String) {

@@ -4,9 +4,6 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.interfaces.ICreateTagGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import javax.inject.Inject
 
 class CreateTagUseCase @Inject constructor(

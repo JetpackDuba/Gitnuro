@@ -7,12 +7,10 @@ import com.jetpackduba.gitnuro.domain.interfaces.IAddRemoteGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IUpdateRemoteGitAction
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import org.eclipse.jgit.api.RemoteSetUrlCommand
 import javax.inject.Inject
 
 class AddRemoteUseCase @Inject constructor(
-    val tabState: TabInstanceRepository,
     private val addRemoteGitAction: IAddRemoteGitAction,
     private val updateRemoteGitAction: IUpdateRemoteGitAction,
     private val useCaseExecutor: UseCaseExecutor,

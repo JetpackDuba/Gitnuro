@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
@@ -22,7 +23,6 @@ import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.managers.AppStateManager
-import com.jetpackduba.gitnuro.observers.DataObserversManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
@@ -39,6 +39,7 @@ import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
 import org.eclipse.jgit.blame.BlameResult
@@ -88,13 +89,11 @@ class RepositoryOpenViewModel @Inject constructor(
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
-    private val dataObserversManager: DataObserversManager,
     private val refreshAllUseCase: RefreshAllUseCase,
     private val refreshStatusUseCase: RefreshStatusUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
     private val blameFileUseCase: BlameFileUseCase,
     updatesRepository: UpdatesRepository,
-    private val tabState: TabInstanceRepository,
     private val fetchRemotesUseCase: FetchRemotesUseCase,
     private val setClipboardContentUseCase: SetClipboardContentUseCase,
     private val deleteRemoteInfoUseCase: DeleteRemoteInfoUseCase,
@@ -139,6 +138,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val statusViewModelExtenderFactory: StatusViewModelExtender.Factory,
     private val commitChangesViewModelExtenderFactory: CommitChangesViewModelExtender.Factory,
+    private val getCommitFromHashUseCase: GetCommitFromHashUseCase,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
     TabViewModel() {
@@ -177,6 +177,41 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val diffSelected: StateFlow<DiffSelected?>
         field = MutableStateFlow<DiffSelected?>(null)
+
+    private val closeableViews = ArrayDeque<CloseableView>()
+    private val closeableViewsMutex = Mutex()
+
+    private val _closeView = MutableSharedFlow<CloseableView>()
+    val closeViewFlow = _closeView.asSharedFlow()
+
+    fun addCloseableView(view: CloseableView) {
+        viewModelScope.launch {
+            closeableViewsMutex.withLock {
+                closeableViews.remove(view) // Remove any previous elements if present
+                closeableViews.add(view)
+            }
+        }
+    }
+
+    fun removeCloseableView(view: CloseableView) {
+        viewModelScope.launch {
+            closeableViewsMutex.withLock {
+                closeableViews.remove(view)
+            }
+        }
+    }
+
+    fun closeLastView() {
+        viewModelScope.launch {
+            closeableViewsMutex.withLock {
+                val last = closeableViews.removeLastOrNull()
+
+                if (last != null) {
+                    _closeView.emit(last)
+                }
+            }
+        }
+    }
 
     private val branches = repositoryDataRepository.localBranches
     private val currentBranch = repositoryDataRepository.currentBranch
@@ -262,6 +297,8 @@ class RepositoryOpenViewModel @Inject constructor(
             removeSelectedDiff(entries, entryType)
         },
         onAlternateShowAsTree = ::alternateShowAsTree,
+        addCloseableView = ::addCloseableView,
+        removeCloseableView = ::removeCloseableView,
     )
     private val commitChangesViewModelExtender = commitChangesViewModelExtenderFactory.create(
         viewModelScope,
@@ -272,6 +309,8 @@ class RepositoryOpenViewModel @Inject constructor(
             diffSelected.value = it
         },
         onAlternateShowAsTree = ::alternateShowAsTree,
+        addCloseableView = ::addCloseableView,
+        removeCloseableView = ::removeCloseableView,
     )
 
     val commitChangesState = commitChangesViewModelExtender.commitChangesState
@@ -279,7 +318,7 @@ class RepositoryOpenViewModel @Inject constructor(
     val statusState = statusViewModelExtender.statusState
 
     init {
-        tabState.closeViewFlow.collectLatestInViewModel {
+        closeViewFlow.collectLatestInViewModel {
             when (it) {
                 CloseableView.SIDE_PANE_SEARCH -> {
                     newFilter("")
@@ -309,11 +348,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
         tabScope.run {
             launch {
-                watchRepositoryChanges(tabState.git)
-            }
-
-            launch {
-                dataObserversManager.start()
+                //watchRepositoryChanges(tabState.git)
             }
         }
 
@@ -336,11 +371,11 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun addSidePanelSearchToCloseables() = tabScope.launch {
-        tabState.addCloseableView(CloseableView.SIDE_PANE_SEARCH)
+        addCloseableView(CloseableView.SIDE_PANE_SEARCH)
     }
 
     fun removeSidePanelSearchFromCloseables() = tabScope.launch {
-        tabState.removeCloseableView(CloseableView.SIDE_PANE_SEARCH)
+        removeCloseableView(CloseableView.SIDE_PANE_SEARCH)
     }
 
     fun onExpandBranches() {
@@ -372,8 +407,12 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun selectBranch(ref: Branch) {
-        tabState.newSelectedRef(ref, ref.hash)
+    fun selectBranch(branch: Branch) = viewModelScope.launch {
+        val commit = getCommitFromHashUseCase(branch.hash).okOrNull()
+
+        if (commit != null) {
+            selectedItem.value = SelectedItem.BranchItem(branch, commit)
+        }
     }
 
     fun deleteRemote(remoteInfo: RemoteInfo) = deleteRemoteInfoUseCase(remoteInfo)
@@ -385,10 +424,12 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun checkoutTagCommit(tag: Tag) = checkoutCommitUseCase(tag.hash)
 
-    fun selectTag(tag: Tag) {
-        // TODO Reimplement this
-//        selectCommit(tag.hash)
-//        tabState.newSelectedRef(tag, tag.objectId)
+    fun selectTag(tag: Tag) = viewModelScope.launch {
+        val commit = getCommitFromHashUseCase(tag.hash).okOrNull()
+
+        if (commit != null) {
+            selectedItem.value = SelectedItem.TagItem(tag, commit)
+        }
     }
 
     fun onOpenSubmoduleInTab(path: String) = viewModelScope.launch {
@@ -455,7 +496,6 @@ class RepositoryOpenViewModel @Inject constructor(
 
 
     override fun onClear() {
-        dataObserversManager.stop()
     }
 
     /**
@@ -502,16 +542,16 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     private suspend fun CoroutineScope.repositoryChanged(hasGitDirChanged: Boolean) {
-        val isOperationRunning = tabState.operationRunning
+        val isOperationRunning = repositoryStateRepository.currentTask.value != null
 
         if (!isOperationRunning) { // Only update if there isn't any process running
             printDebug(TAG, "Detected changes in the repository's directory")
 
             val currentTimeMillis = System.currentTimeMillis()
-
+            val lastOperationTimestamp = repositoryStateRepository.lastOperationTimestamp.firstOrNull() ?: 0L
             if (
                 hasGitDirChanged &&
-                currentTimeMillis - tabState.lastOperation < MIN_TIME_AFTER_GIT_OPERATION
+                currentTimeMillis - lastOperationTimestamp < MIN_TIME_AFTER_GIT_OPERATION
             ) {
                 printDebug(TAG, "Git operation was executed recently, ignoring file system change")
                 return
@@ -608,8 +648,10 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun refreshAll() = tabScope.launch {
-        printLog(TAG, "Manual refresh triggered. IS OPERATION RUNNING ${tabState.operationRunning}")
-        if (!tabState.operationRunning) {
+        val currentTask = repositoryStateRepository.currentTask
+        printLog(TAG, "Manual refresh triggered. Current task: $currentTask")
+
+        if (repositoryStateRepository.currentTask.value == null) {
             refreshRepositoryInfo()
         }
     }
@@ -617,11 +659,6 @@ class RepositoryOpenViewModel @Inject constructor(
     fun openUrlInBrowser(url: String) {
         openUrlInBrowserGitAction(url)
     }
-
-    fun closeLastView() = tabScope.launch {
-        tabState.closeLastView()
-    }
-
 
     var savedSearchFilter: String = ""
     var graphPadding = 0f
@@ -705,7 +742,7 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun selectCommit(commit: Commit) = viewModelScope.launch {
-        selectedItem.value = SelectedItem.Commit(commit)
+        selectedItem.value = SelectedItem.CommitItem(commit, isStash = false)
 
         val searchValue = logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {
@@ -797,11 +834,11 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun addSearchToCloseableView() = tabScope.launch {
-        tabState.addCloseableView(CloseableView.LOG_SEARCH)
+        addCloseableView(CloseableView.LOG_SEARCH)
     }
 
     private fun removeSearchFromCloseableView() = tabScope.launch {
-        tabState.removeCloseableView(CloseableView.LOG_SEARCH)
+        removeCloseableView(CloseableView.LOG_SEARCH)
     }
 
     private fun rebaseInteractive(commit: Commit) = startRebaseInteractiveUseCase(commit)
@@ -901,8 +938,6 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }.stateIn(initialValue = null as ViewDiffResult?)
 
-    val closeViewFlow = tabState.closeViewFlow
-
     val diffTypeFlow = settings.diffTextViewType
     val isDisplayFullFile = settings.diffDisplayFullFile
 
@@ -966,11 +1001,11 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun addToCloseables() = tabScope.launch {
-        tabState.addCloseableView(CloseableView.DIFF)
+        addCloseableView(CloseableView.DIFF)
     }
 
     private fun removeFromCloseables() = tabScope.launch {
-        tabState.removeCloseableView(CloseableView.DIFF)
+        removeCloseableView(CloseableView.DIFF)
     }
 
     fun reset() {

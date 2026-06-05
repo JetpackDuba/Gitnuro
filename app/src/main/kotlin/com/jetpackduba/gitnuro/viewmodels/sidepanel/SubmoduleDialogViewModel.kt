@@ -2,7 +2,6 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
 import com.jetpackduba.gitnuro.domain.usecases.AddSubmoduleUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetWorktreeUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow

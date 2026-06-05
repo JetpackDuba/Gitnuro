@@ -4,10 +4,6 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.interfaces.ICreateBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import org.eclipse.jgit.api.errors.CheckoutConflictException
 import javax.inject.Inject
 
 class CreateBranchUseCase @Inject constructor(

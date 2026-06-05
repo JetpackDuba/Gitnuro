@@ -63,7 +63,7 @@ fun RebaseInteractive(
                     selectedItem,
                     onFocusLine = {
                         if (
-                            selectedItem !is SelectedItem.Commit ||
+                            selectedItem !is SelectedItem.CommitItem ||
                             !selectedItem.commit.hash.startsWith(it.commit.name())
                         ) {
                             viewModel.selectLine(it)
@@ -131,7 +131,7 @@ fun RebaseStateLoaded(
                     RebaseCommit(
                         rebaseLine = rebaseTodoLine,
                         message = rebaseState.messages[rebaseTodoLine.commit.name()],
-                        isSelected = selectedItem is SelectedItem.Commit && selectedItem.commit.hash.startsWith(
+                        isSelected = selectedItem is SelectedItem.CommitItem && selectedItem.commit.hash.startsWith(
                             rebaseTodoLine.commit.name()
                         ),
                         isFirst = stepsList.first() == rebaseTodoLine,

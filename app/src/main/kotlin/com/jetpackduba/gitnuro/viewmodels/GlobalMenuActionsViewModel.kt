@@ -1,15 +1,7 @@
 package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.domain.models.PullType
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.positiveNotification
-import com.jetpackduba.gitnuro.domain.repositories.RefreshType
-import com.jetpackduba.gitnuro.domain.repositories.TabInstanceRepository
-import com.jetpackduba.gitnuro.domain.usecases.FetchAllBranchUseCase
-import com.jetpackduba.gitnuro.domain.usecases.PopStashUseCase
-import com.jetpackduba.gitnuro.domain.usecases.PullBranchUseCase
-import com.jetpackduba.gitnuro.domain.usecases.PushBranchUseCase
-import com.jetpackduba.gitnuro.domain.usecases.StashChangesUseCase
+import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalGitAction
 import javax.inject.Inject
 
