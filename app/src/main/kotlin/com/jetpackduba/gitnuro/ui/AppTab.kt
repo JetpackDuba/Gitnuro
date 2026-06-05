@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.NotificationData
 import com.jetpackduba.gitnuro.domain.models.NotificationType
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
+import com.jetpackduba.gitnuro.domain.models.successTitle
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenPage
 import com.jetpackduba.gitnuro.tabViewModel
@@ -388,7 +389,11 @@ fun AppTab(
         ) {
             for (task in tasks) {
 
-                Notification(task.toNotificationData())
+                val notificationData = task.toNotificationData()
+
+                if (notificationData != null) {
+                    Notification(notificationData)
+                }
 
                 LaunchedEffect(task) {
                     delay(2000L.milliseconds)
@@ -399,14 +404,15 @@ fun AppTab(
     }
 }
 
-fun CompletedTask.toNotificationData(): NotificationData {
+fun CompletedTask.toNotificationData(): NotificationData? {
+    val message = this.taskType.successTitle() ?: return null
+
+
     val type = when (this) {
         is CompletedTask.Failure -> NotificationType.Error
         is CompletedTask.Success -> NotificationType.Positive
     }
 
-    val message = this.taskType.toString() // TODO fix this
 
     return NotificationData(type, message)
-
 }
