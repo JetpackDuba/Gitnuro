@@ -85,7 +85,7 @@ fun AdjustableOutlinedTextField(
                             color = indicatorColor,
                             shape = shape
                         )
-                        .padding(horizontal = 12.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (leadingIcon != null) {

@@ -126,6 +126,12 @@ For the latest stable version, you can use this JSON as an example:
     "hoverScrollbar": "FF0070D8",
     "diffLineAdded": "FF0070D8",
     "diffLineRemoved": "FF0070D8",
+    "onSecondary": "FF000000",
+    "diffContentAdded": "FF000000",
+    "diffContentRemoved": "FF000000",
+    "diffKeyword": "FF000000", 
+    "diffAnnotation": "FF000000",
+    "diffComment": "FF000000",
     "isLight": true
 }
 ```

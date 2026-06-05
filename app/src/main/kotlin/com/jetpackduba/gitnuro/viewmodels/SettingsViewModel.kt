@@ -52,21 +52,6 @@ class SettingsViewModel @Inject constructor(
         appSettingsService.setConfiguration(appConfig)
     }
 
-    fun saveCustomTheme(filePath: String): Error? {
-        return try {
-            //appSettingsService.saveCustomTheme(filePath)
-            null
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            newErrorNow(
-                TaskType.SaveCustomTheme,
-                ex, // TODO Pass a proper exception with the commented strings
-//                "Saving theme failed",
-//                "Failed to parse selected theme JSON. Please check if it's valid and try again.",
-            )
-        }
-    }
-
     fun openFileDialog(): String? {
         return openFilePickerGitAction(PickerType.FILES, null)
     }

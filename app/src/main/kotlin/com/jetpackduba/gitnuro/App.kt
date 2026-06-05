@@ -44,6 +44,7 @@ import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
 import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.theme.AppTheme
+import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.AppViewModel
@@ -53,6 +54,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.serialization.json.Json
 import org.eclipse.jgit.lib.GpgConfig
 import org.eclipse.jgit.lib.Signers
 import org.eclipse.jgit.util.LfsFactory
@@ -103,6 +105,8 @@ class App @Inject constructor(
     private val sshSigner: SshSigner,
     private val lfsFactory: AppLfsFactory,
 ) {
+    private val json = Json { ignoreUnknownKeys = true }
+
     @OptIn(ExperimentalFoundationApi::class)
     suspend fun start(args: Array<String>) {
         initNativeDependencies()
@@ -118,15 +122,6 @@ class App @Inject constructor(
         appEnvInfo.isFlatpak = args.contains("--flatpak")
         appStateManager.loadRepositoriesTabs()
 
-        try {
-            /* if (appSettingsRepository.theme == Theme.CUSTOM) {
-                 appSettingsRepository.loadCustomTheme()
-             }*/
-        } catch (ex: Exception) {
-            printError(TAG, "Failed to load custom theme")
-            ex.printStackTrace()
-        }
-
         appViewModel.loadPersistedTabs()
         LfsFactory.setInstance(lfsFactory)
 
@@ -134,7 +129,7 @@ class App @Inject constructor(
             addDirTab(dirToOpen)
 
         val themeInitial = appSettings.theme.first()
-        val customThemeInitial = null //by appSettingsRepository.customThemeFlow.collectAsState()
+        val customThemeInitial = appSettings.customTheme.firstOrNull()
         val scaleInitial = appSettings.scaleUi.firstOrNull()
         val linesHeightTypeInitial = appSettings.linesHeightType.first()
         val avatarProviderTypeInitial = appSettings.avatarProvider.first()
@@ -146,7 +141,21 @@ class App @Inject constructor(
         application {
             var isOpen by remember { mutableStateOf(true) }
             val theme by appSettings.theme.collectAsState(themeInitial)
-            val customTheme = null //by appSettingsRepository.customThemeFlow.collectAsState()
+            val customThemeRaw by appSettings.customTheme.collectAsState(customThemeInitial)
+            val customTheme = remember(customThemeRaw) {
+                val customThemeRaw = customThemeRaw
+                if (customThemeRaw != null) {
+                    // TODO move to use case, this is only a temporary solution
+                    try {
+                        json.decodeFromString<ColorsScheme>(customThemeRaw)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                } else {
+                    null
+                }
+            }
             val scale = appSettings.scaleUi.collectAsState(scaleInitial).value
             val linesHeightType by appSettings.linesHeightType.collectAsState(linesHeightTypeInitial)
             val avatarProviderType by appSettings.avatarProvider.collectAsState(avatarProviderTypeInitial)

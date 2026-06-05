@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -43,6 +44,7 @@ import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsAction
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
@@ -50,6 +52,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.time.Instant
+import kotlin.time.Duration.Companion.seconds
 
 sealed interface SettingsEntry {
     data class Section(val name: StringResource) : SettingsEntry
@@ -562,6 +565,7 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
 @Composable
 private fun Appearance(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
     val currentTheme = settingsViewState.theme
+    val customTheme = settingsViewState.customTheme
     val currentLinesHeightType = settingsViewState.linesHeightType
     val avatarProvider = settingsViewState.avatarProvider
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
@@ -577,24 +581,27 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     )
 
     if (currentTheme == Theme.Custom) {
-        SettingButton(
+        val scope = rememberCoroutineScope()
+        var themeJson by remember { mutableStateOf(customTheme.orEmpty()) }
+        var themeJob: Job? = null
+
+        SettingTextInput(
             title = "Custom theme",
-            subtitle = "Select a JSON file to load the custom theme",
-            buttonText = "Open file",
-            onClick = {
-                /*TODO
-                val filePath = settingsViewModel.openFileDialog()
+            subtitle = "Add a JSON to load the custom theme",
+            value = themeJson,
+            singleLine = false,
+            onValueChanged = { value ->
+                themeJson = value
 
-                if (filePath != null) {
-                    val error = settingsViewModel.saveCustomTheme(filePath)
+                themeJob?.cancel()
 
-                    // We check if it's null because setting errorToDisplay to null could possibly hide
-                    // other errors that are being displayed
-                    if (error != null) {
-                        setErrorToDisplay(error)
-                    }
-                }*/
-            }
+                themeJob = scope.launch {
+                    delay(1.seconds)
+                    onAction(SettingsAction.SetConfig(AppConfig.CustomTheme(value)))
+                }
+
+            },
+            fieldHeight = 120.dp
         )
     }
 
@@ -840,10 +847,12 @@ fun SettingTextInput(
     isPassword: Boolean = false,
     onValueChanged: (String) -> Unit,
     isError: Boolean = false,
+    fieldHeight: Dp? = null,
+    singleLine: Boolean = true,
 ) {
     Row(
         modifier = Modifier.padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = if (singleLine) Alignment.CenterVertically else Alignment.Top,
     ) {
         FieldTitles(title, subtitle, enabled)
 
@@ -855,7 +864,15 @@ fun SettingTextInput(
 
         AdjustableOutlinedTextField(
             value = text,
-            modifier = Modifier.width(240.dp),
+            modifier = Modifier
+                .width(240.dp)
+                .run {
+                    if (fieldHeight != null) {
+                        this.height(fieldHeight)
+                    } else {
+                        this
+                    }
+                },
             isError = isError,
             enabled = enabled,
             onValueChange = {
@@ -864,7 +881,7 @@ fun SettingTextInput(
             },
             visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
             colors = outlinedTextFieldColors(),
-            singleLine = true,
+            singleLine = singleLine,
         )
     }
 }
