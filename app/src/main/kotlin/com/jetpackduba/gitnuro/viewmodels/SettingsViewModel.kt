@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
+import androidx.compose.runtime.Stable
 import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
@@ -61,18 +62,6 @@ class SettingsViewModel @Inject constructor(
             Desktop.getDesktop().open(logsRepository.logsDirectory)
         } catch (ex: Exception) {
             printError(TAG, ex.message.orEmpty(), ex)
-        }
-    }
-
-    fun isValidDateFormat(value: String): Boolean {
-        return try {
-            val zoneId = ZoneId.systemDefault()
-            val sdf = DateTimeFormatter.ofPattern(value)
-            sdf.format(Instant.now().atZone(zoneId).toLocalDate())
-            true
-        } catch (ex: Exception) {
-            printError(TAG, "Is valid format date: ${ex.message}", ex)
-            false
         }
     }
 
@@ -190,6 +179,7 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
+@Stable
 data class SettingsViewState(
     val scaleUi: Float?,
     val theme: Theme,

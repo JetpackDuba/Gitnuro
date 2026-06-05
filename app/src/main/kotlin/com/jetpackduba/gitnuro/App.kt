@@ -146,6 +146,7 @@ class App @Inject constructor(
                 val customThemeRaw = customThemeRaw
                 if (customThemeRaw != null) {
                     // TODO move to use case, this is only a temporary solution
+                    // TODO 2: Perhaps serialize in a UI module class as it's related to UI logic and not domain
                     try {
                         json.decodeFromString<ColorsScheme>(customThemeRaw)
                     } catch (e: Exception) {

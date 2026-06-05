@@ -21,17 +21,21 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.models.AppConfig
-import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
+import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
-import com.jetpackduba.gitnuro.theme.*
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.toSmartSystemString
+import com.jetpackduba.gitnuro.theme.backgroundSelected
+import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
+import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
+import com.jetpackduba.gitnuro.theme.themeLists
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.AppSwitch
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -39,7 +43,6 @@ import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
-import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsAction
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
@@ -52,7 +55,11 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.seconds
+
+private const val TAG = "SettingsDialog"
 
 sealed interface SettingsEntry {
     data class Section(val name: StringResource) : SettingsEntry
@@ -489,7 +496,9 @@ private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsActi
 @Composable
 private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
     val useDefault = settingsViewState.dateFormatUseDefault
-    val customFormat = settingsViewState.dateFormatCustomFormat
+    var customFormat by remember(settingsViewState.dateFormatCustomFormat) {
+        mutableStateOf(settingsViewState.dateFormatCustomFormat)
+    }
     val is24h = settingsViewState.dateFormatIs24h
     val useRelative = settingsViewState.dateFormatUseRelative
 
@@ -523,15 +532,13 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         value = customFormat,
         isError = isError,
         onValueChanged = { value ->
-            /*TODO
             customFormat = value
-            if (settingsViewModel.isValidDateFormat(value)) {
-                settingsViewModel.dateFormat = dateFormat.copy(customFormat = value)
+            if (isValidDateFormat(value)) {
+                onAction(SettingsAction.SetConfig(AppConfig.DateFormatCustomFormat(value)))
                 isError = false
             } else {
                 isError = true
             }
-            */
         },
         enabled = !useDefault,
     )
@@ -674,11 +681,11 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     )
 
     if (errorToDisplay != null) {
-     /* TODO restore this
-           ErrorDialog(
-            errorToDisplay,
-            onAccept = { setErrorToDisplay(null) }
-        )*/
+        /* TODO restore this
+              ErrorDialog(
+               errorToDisplay,
+               onAccept = { setErrorToDisplay(null) }
+           )*/
     }
 }
 
@@ -929,3 +936,14 @@ private fun isValidFloat(value: String): Boolean {
     }
 }
 
+fun isValidDateFormat(value: String): Boolean {
+    return try {
+        val zoneId = ZoneId.systemDefault()
+        val sdf = DateTimeFormatter.ofPattern(value)
+        sdf.format(Instant.now().atZone(zoneId).toLocalDate())
+        true
+    } catch (ex: Exception) {
+        printError(TAG, "Is valid format date: ${ex.message}", ex)
+        false
+    }
+}
