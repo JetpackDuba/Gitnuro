@@ -130,6 +130,12 @@ fun Log(
         }
     }
 
+    LaunchedEffect(selectedItem) {
+        if (!(selectedItem is SelectedItem.CommitItem && !selectedItem.isStash) && selectedItem is SelectedItem.CommitBasedItem) {
+            scrollToCommit(logStatus.verticalScrollState, logStatus.commitList, selectedItem.commit)
+        }
+    }
+
     LogView(
         logState = logStatus,
         selectedItem = selectedItem,
