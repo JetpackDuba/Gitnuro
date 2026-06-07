@@ -142,6 +142,7 @@ class RepositoryOpenViewModel @Inject constructor(
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
     TabViewModel() {
     val showAsTree = appSettings.showChangesAsTree
+        .stateIn(false)
 
     val isPullWithRebaseDefault = settings.pullWithRebase
 

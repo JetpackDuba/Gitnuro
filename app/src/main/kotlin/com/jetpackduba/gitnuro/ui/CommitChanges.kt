@@ -27,9 +27,12 @@ import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.DiffSelected
 import com.jetpackduba.gitnuro.domain.models.Identity
-import com.jetpackduba.gitnuro.extensions.*
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.icon
+import com.jetpackduba.gitnuro.extensions.iconColor
+import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.repositoryopen.CommitChangesAction
-import com.jetpackduba.gitnuro.repositoryopen.CommitChangesStateUi
+import com.jetpackduba.gitnuro.repositoryopen.CommitChangesState
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.tertiarySurface
@@ -45,7 +48,7 @@ import org.eclipse.jgit.diff.DiffEntry
 @Composable
 fun CommitChanges(
     viewModel: RepositoryOpenViewModel,
-    commitChangesState: CommitChangesStateUi,
+    commitChangesState: CommitChangesState,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
 ) {
@@ -54,44 +57,32 @@ fun CommitChanges(
         .filterIsInstance<DiffSelected.CommitedChanges>()
         .collectAsState(null)
 
-    when (commitChangesState) {
-        CommitChangesStateUi.Loading -> {
-            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colors.primaryVariant)
-        }
-
-        is CommitChangesStateUi.Loaded -> {
-            CommitChangesView(
-                diffSelected = diffSelected,
-                commitChangesState = commitChangesState,
-                onBlame = onBlame,
-                onHistory = onHistory,
-                onOpenFileInFolder = { viewModel.openFileInFolder(it) },
-                onDiffSelected = {
-                    viewModel.selectEntries(listOf(it)) // TODO pass proper list
-                },
-                onSearchFilterToggled = { visible ->
-                    viewModel.onAction(CommitChangesAction.SearchFilterToggle(visible))
-                },
-                onSearchFocused = {
-                    viewModel.onAction(CommitChangesAction.AddSearchToCloseables)
-                },
-                onSearchFilterChanged = { filter ->
-                    viewModel.onAction(CommitChangesAction.SearchFilterChanged(filter))
-                },
-                onDirectoryClicked = { viewModel.onAction(CommitChangesAction.TreeDirectoryToggle(it.fullPath)) },
-                onAlternateShowAsTree = { viewModel.onAction(CommitChangesAction.ToggleShowAsTree) },
-            )
-        }
-
-        is CommitChangesStateUi.Error -> {
-            // TODO
-        }
-    }
+    CommitChangesView(
+        diffSelected = diffSelected,
+        commitChangesState = commitChangesState,
+        onBlame = onBlame,
+        onHistory = onHistory,
+        onOpenFileInFolder = { viewModel.openFileInFolder(it) },
+        onDiffSelected = {
+            viewModel.selectEntries(listOf(it)) // TODO pass proper list
+        },
+        onSearchFilterToggled = { visible ->
+            viewModel.onAction(CommitChangesAction.SearchFilterToggle(visible))
+        },
+        onSearchFocused = {
+            viewModel.onAction(CommitChangesAction.AddSearchToCloseables)
+        },
+        onSearchFilterChanged = { filter ->
+            viewModel.onAction(CommitChangesAction.SearchFilterChanged(filter))
+        },
+        onDirectoryClicked = { viewModel.onAction(CommitChangesAction.TreeDirectoryToggle(it.fullPath)) },
+        onAlternateShowAsTree = { viewModel.onAction(CommitChangesAction.ToggleShowAsTree) },
+    )
 }
 
 @Composable
 private fun CommitChangesView(
-    commitChangesState: CommitChangesStateUi.Loaded,
+    commitChangesState: CommitChangesState,
     diffSelected: DiffSelected.CommitedChanges?,
     onBlame: (String) -> Unit,
     onHistory: (String) -> Unit,
@@ -135,7 +126,6 @@ private fun CommitChangesView(
             .padding(end = 8.dp, bottom = 8.dp)
             .fillMaxSize(),
     ) {
-
         Column(
             modifier = Modifier
                 .padding(bottom = 4.dp)
@@ -154,6 +144,10 @@ private fun CommitChangesView(
                 onSearchFilterChanged = onSearchFilterChanged,
                 showActionForSelected = false,
             )
+
+            if (commitChangesState.isLoading) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
 
             if (commitChangesState.showAsTree) {
                 TreeCommitLogChanges(

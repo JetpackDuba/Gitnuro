@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitFromHashGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
+import kotlinx.coroutines.delay
 import org.eclipse.jgit.diff.DiffEntry
 import javax.inject.Inject
 

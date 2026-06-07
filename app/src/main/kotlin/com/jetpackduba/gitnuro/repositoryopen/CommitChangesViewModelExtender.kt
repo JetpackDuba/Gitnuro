@@ -1,11 +1,12 @@
 package com.jetpackduba.gitnuro.repositoryopen
 
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
 import com.jetpackduba.gitnuro.common.flows.combine
+import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.errOrNull
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.models.DiffSelected
@@ -19,13 +20,17 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.diff.DiffEntry
+import kotlin.time.Duration.Companion.milliseconds
 
 class CommitChangesViewModelExtender @AssistedInject constructor(
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     @Assisted private val viewModelScope: CoroutineScope,
-    @Assisted private val showAsTree: Flow<Boolean>,
+    @Assisted private val showAsTree: StateFlow<Boolean>,
     @Assisted private val selectedItem: StateFlow<SelectedItem>,
     @Assisted private val diffSelected: StateFlow<DiffSelected?>,
     @Assisted private val onDiffSelected: (DiffSelected) -> Unit,
@@ -38,7 +43,7 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
     interface Factory {
         fun create(
             viewModelScope: CoroutineScope,
-            showAsTree: Flow<Boolean>,
+            showAsTree: StateFlow<Boolean>,
             selectedItem: StateFlow<SelectedItem>,
             diffSelected: StateFlow<DiffSelected?>,
             onDiffSelected: (DiffSelected) -> Unit,
@@ -56,78 +61,103 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
 
     private val commitChangesTreeContractedDirectories = MutableStateFlow(emptyList<String>())
 
+    // Preserve the last loaded changes (from the previously selected commit) to prevent the UI from flickering while loading the data
+    private val lastLoadedCommitsChanges = MutableStateFlow<List<DiffEntry>>(emptyList())
 
     val commitChangesState = combine(
         selectedItem,
         showAsTree,
         commitChangesTreeContractedDirectories,
     ) { item, showAsTree, treeContractedDirectories ->
-        flow<CommitChangesStateUi?> {
-            emit(CommitChangesStateUi.Loading)
-// TODO
-//            showSearch.value = false
-//            searchFilter.value = TextFieldValue("")
-//            changesLazyListState.value = LazyListState(
-//                0,
-//                0
-//            )
-//            textScroll.value = ScrollState(0)
-
-            if (item is SelectedItem.CommitItem) {
-                val changes = getCommitDiffEntriesUseCase(item.commit)
-
-                val state = when (changes) {
-                    is Either.Err -> {
-                        CommitChangesStateUi.Error(changes.error)
-                    }
-
-                    is Either.Ok -> {
-                        CommitChangesStateUi.Loaded(
-                            commit = item.commit,
-                            changes = changes.value,
-                            changesTree = entriesToTreeEntry(
-                                showAsTree = showAsTree, changes.value, treeContractedDirectories
-                            ) { it.filePath },
-                            showAsTree = showAsTree,
-                            showSearch = false,
-                            searchFilter = TextFieldValue(""),
-                            treeContractedDirectories = treeContractedDirectories,
-                        )
-                    }
-                }
-
-                emit(state)
-            } else {
-                emit(null)
-            }
-        }
+        loadCommitChangesFlow(item, showAsTree, treeContractedDirectories)
     }
         .flattenConcat()
         .combine(showSearch, searchFilter) { state, showSearch, searchFilter ->
-            when (state) {
-                is CommitChangesStateUi.Loaded -> {
-                    val changesFiltered = if (showSearch && searchFilter.text.isNotBlank()) {
-                        state.changes.filter { it.filePath.lowercaseContains(searchFilter.text) }
-                    } else {
-                        emptyList()
-                    }
+            val changesFiltered = if (showSearch && searchFilter.text.isNotBlank()) {
+                state?.changes?.filter { it.filePath.lowercaseContains(searchFilter.text) }.orEmpty()
+            } else {
+                emptyList()
+            }
 
-                    state.copy(
-                        showSearch = showSearch,
-                        searchFilter = searchFilter,
-                        changesFiltered = changesFiltered,
-                        changesTreeFiltered = entriesToTreeEntry(
-                            showAsTree = state.showAsTree,
-                            changesFiltered,
-                            state.treeContractedDirectories,
-                        ) { it.filePath },
-                    )
-                }
-
-                else -> state
+            state?.copy(
+                showSearch = showSearch,
+                searchFilter = searchFilter,
+                changesFiltered = changesFiltered,
+                changesTreeFiltered = entriesToTreeEntry(
+                    showAsTree = state.showAsTree,
+                    changesFiltered,
+                    state.treeContractedDirectories,
+                ) { it.filePath },
+            )
+        }
+        .onEach {
+            if (it != null && !it.isLoading && it.changes.isNotEmpty()) {
+                lastLoadedCommitsChanges.value = it.changes
             }
         }
-        .stateIn(CommitChangesStateUi.Loading)
+        .stateIn(null as CommitChangesState?)
+
+    private fun loadCommitChangesFlow(
+        item: SelectedItem,
+        showAsTree: Boolean,
+        treeContractedDirectories: List<String>
+    ) = channelFlow {
+        if (item is SelectedItem.CommitItem) {
+            send(
+                CommitChangesState(
+                    isLoading = false,
+                    commit = item.commit,
+                    showAsTree = showAsTree,
+                    showSearch = false,
+                    searchFilter = TextFieldValue(""),
+                    changes = lastLoadedCommitsChanges.value
+                )
+            )
+
+            val changesResultDeferred = async { getCommitDiffEntriesUseCase(item.commit) }
+
+            val loadingJob = launch {
+                delay(150.milliseconds)
+
+                if (!changesResultDeferred.isCompleted) {
+                    send(
+                        CommitChangesState(
+                            isLoading = true,
+                            commit = item.commit,
+                            showAsTree = showAsTree,
+                            showSearch = false,
+                            searchFilter = TextFieldValue(""),
+                        )
+                    )
+                }
+            }
+
+            val changesResult: Either<List<DiffEntry>, AppError> = changesResultDeferred.await()
+            loadingJob.cancel()
+
+            val error = changesResult.errOrNull()
+            val changes = changesResult.okOrNull()
+
+            val state = CommitChangesState(
+                commit = item.commit,
+                changes = changes.orEmpty(),
+                changesTree = entriesToTreeEntry(
+                    showAsTree = showAsTree, changes.orEmpty(), treeContractedDirectories
+                ) { it.filePath },
+                showAsTree = showAsTree,
+                showSearch = false,
+                searchFilter = TextFieldValue(""),
+                treeContractedDirectories = treeContractedDirectories,
+                error = error,
+                isLoading = false,
+            )
+
+            send(state)
+        } else {
+            send(null)
+        }
+    }
+
 
     init {
         showSearch.collectLatestInCoroutineScope {
