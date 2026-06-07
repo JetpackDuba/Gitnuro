@@ -12,16 +12,12 @@ import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
 import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.extensions.isReverting
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
-import com.jetpackduba.gitnuro.domain.interfaces.IGetLastCommitMessageGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetSpecificCommitMessageGitAction
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.*
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.ui.status.*
-import com.jetpackduba.gitnuro.ui.status.MessageType
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -38,7 +34,6 @@ private const val PERSIST_MESSAGE_DELAY_IN_MS = 1_000L
 
 
 class StatusViewModelExtender @AssistedInject constructor(
-    private val setClipboardContentUseCase: SetClipboardContentUseCase,
     private val unstageUseCase: StatusUnstageUseCase,
     private val stageUseCase: StatusStageUseCase,
     private val stageAllUseCase: StatusStageAllUseCase,
@@ -152,6 +147,16 @@ class StatusViewModelExtender @AssistedInject constructor(
         .stateIn(emptyList())
 
 
+    private val repositoryPath = repositoryDataRepository
+        .repositorySelectionState
+        .map {
+            if (it is RepositorySelectionState.Open) {
+                it.path
+            } else {
+                null
+            }
+        }
+
     val statusState = combineStatusState(
         repositoryDataRepository.status,
         showSearchStaged,
@@ -169,6 +174,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         selectedStagedDiffEntries,
         previousCommitMessage,
         repositoryDataRepository.repositoryState,
+        repositoryPath,
     )
         .stateIn(StatusState())
 
@@ -258,7 +264,6 @@ class StatusViewModelExtender @AssistedInject constructor(
 
         StatusAction.ToggleShowAsTree -> onAlternateShowAsTree()
         is StatusAction.TreeDirectoryToggle -> toggleTreeDirectoryVisibility(action.path)
-        is StatusAction.CopyPath -> copyEntriesPath(action.entries, action.relative)
         is StatusAction.DiscardSelected -> when (action.entryType) {
             EntryType.STAGED -> discardSelectedStaged()
             EntryType.UNSTAGED -> discardSelectedUnstaged()
@@ -283,23 +288,6 @@ class StatusViewModelExtender @AssistedInject constructor(
         is StatusAction.ToggleAmend -> amend(action.toggle)
         is StatusAction.ToggleAmendRebaseInteractive -> amendRebaseInteractive(action.toggle)
         is StatusAction.UpdateCommitMessage -> updateCommitMessage(action.message)
-    }
-
-
-    private fun copyEntriesPath(
-        entries: List<StatusEntry>,
-        relative: Boolean
-    ) = viewModelScope.launch {
-        val repoAbsolutPath = repositoryDataRepository.repositoryPath ?: return@launch
-        val pathsToCopy = entries.joinToString("\n") { entry ->
-            if (relative) {
-                entry.filePath
-            } else {
-                repoAbsolutPath + systemSeparator + entry.filePath
-            }
-        }
-
-        setClipboardContentUseCase(pathsToCopy)
     }
 
     fun rejectCommitterData() {

@@ -22,7 +22,6 @@ sealed interface StatusAction {
     ) : StatusAction
     data class DiscardSelected(val entryType: EntryType) : StatusAction
     data class SelectedEntriesAction(val entryType: EntryType) : StatusAction
-    data class CopyPath(val relative: Boolean, val entries: List<StatusEntry>) : StatusAction
     data class OpenInFolder(val path: String) : StatusAction
     data class TreeDirectoryToggle(val path: String) : StatusAction
     data object ToggleShowAsTree : StatusAction

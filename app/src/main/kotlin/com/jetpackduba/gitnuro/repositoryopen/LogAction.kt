@@ -24,6 +24,5 @@ sealed interface LogAction {
     data class DeleteTag(val tag: Tag) : LogAction
     data class PushToRemoteBranch(val branch: Branch) : LogAction
     data class PullFromRemoteBranch(val branch: Branch) : LogAction
-    data class CopyBranchNameToClipboard(val branch: Branch) : LogAction
     data class SearchValueChange(val filter: String) : LogAction
 }

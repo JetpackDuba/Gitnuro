@@ -95,7 +95,6 @@ class RepositoryOpenViewModel @Inject constructor(
     private val blameFileUseCase: BlameFileUseCase,
     updatesRepository: UpdatesRepository,
     private val fetchRemotesUseCase: FetchRemotesUseCase,
-    private val setClipboardContentUseCase: SetClipboardContentUseCase,
     private val deleteRemoteInfoUseCase: DeleteRemoteInfoUseCase,
     private val checkoutCommitUseCase: CheckoutCommitUseCase,
     private val deleteBranchUseCase: DeleteBranchUseCase,
@@ -418,9 +417,6 @@ class RepositoryOpenViewModel @Inject constructor(
     fun deleteRemote(remoteInfo: RemoteInfo) = deleteRemoteInfoUseCase(remoteInfo)
 
     fun onFetchRemoteBranches(remote: RemoteView) = fetchRemotesUseCase(remote.remoteInfo.remote)
-    fun copyBranchNameToClipboard(branch: Branch) = viewModelScope.launch {
-        setClipboardContentUseCase(branch.simpleName)
-    }
 
     fun checkoutTagCommit(tag: Tag) = checkoutCommitUseCase(tag.hash)
 
@@ -699,7 +695,6 @@ class RepositoryOpenViewModel @Inject constructor(
             is LogAction.CheckoutTag -> checkoutTag(action.tag)
             is LogAction.CherryPickCommit -> cherryPickCommit(action.commit)
             is LogAction.CommitSelected -> selectCommit(action.commit)
-            is LogAction.CopyBranchNameToClipboard -> copyBranchNameToClipboard(action.branch)
             is LogAction.DeleteBranch -> deleteBranch(action.branch)
             is LogAction.DeleteRemoteBranch -> deleteRemoteBranch(action.branch)
             is LogAction.DeleteStash -> deleteStash(action.commit)

@@ -15,10 +15,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,11 +27,15 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.isCtrlPressed
 import androidx.compose.ui.input.pointer.isMetaPressed
 import androidx.compose.ui.input.pointer.isShiftPressed
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.compose.rememberInTab
 import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.models.DiffType
@@ -163,7 +164,7 @@ fun StatusPane(
             fun unstaged() {
                 StatusChangesList(
                     entryType = EntryType.UNSTAGED,
-                    statusStateUi = statusState,
+                    statusState = statusState,
                     showSearch = showSearchUnstaged,
                     showAsTree = showAsTree,
                     searchFilter = searchFilterUnstaged,
@@ -233,7 +234,7 @@ fun StatusPane(
 @Composable
 fun ColumnScope.StatusChangesList(
     entryType: EntryType,
-    statusStateUi: StatusState,
+    statusState: StatusState,
     showSearch: Boolean,
     showAsTree: Boolean,
     searchFilter: TextFieldValue,
@@ -245,6 +246,9 @@ fun ColumnScope.StatusChangesList(
     onHistoryFile: (String) -> Unit,
     onAction: (StatusAction) -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboard.current
+
     val title = when (entryType) {
         EntryType.STAGED -> stringResource(Res.string.uncommited_changes_staged_title)
         EntryType.UNSTAGED -> stringResource(Res.string.uncommited_changes_unstaged_title)
@@ -253,13 +257,13 @@ fun ColumnScope.StatusChangesList(
     val actionInfo = getActionInfo(entryType)
     val entries = if (searchFilter.text.trim().isEmpty()) {
         when (entryType) {
-            EntryType.STAGED -> statusStateUi.staged
-            EntryType.UNSTAGED -> statusStateUi.unstaged
+            EntryType.STAGED -> statusState.staged
+            EntryType.UNSTAGED -> statusState.unstaged
         }
     } else {
         when (entryType) {
-            EntryType.STAGED -> statusStateUi.filteredStaged
-            EntryType.UNSTAGED -> statusStateUi.filteredUnstaged
+            EntryType.STAGED -> statusState.filteredStaged
+            EntryType.UNSTAGED -> statusState.filteredUnstaged
         }
     }
 
@@ -278,6 +282,11 @@ fun ColumnScope.StatusChangesList(
         onBlameFile = onBlameFile,
         onHistoryFile = onHistoryFile,
         onAction = onAction,
+        onCopy = { relative, entries ->
+            scope.launch {
+                copyEntriesPath(clipboard, entries, relative, statusState.repositoryPath)
+            }
+        }
     )
 }
 
@@ -297,6 +306,7 @@ fun ColumnScope.ChangesList(
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
     onAction: (StatusAction) -> Unit,
+    onCopy: (relative: Boolean, entries: List<StatusEntry>) -> Unit,
 ) {
     fun entriesContextMenu(): (StatusEntry) -> List<ContextMenuElement> = { statusEntry ->
         statusEntryContextMenuItems(
@@ -308,11 +318,9 @@ fun ColumnScope.ChangesList(
             onDelete = { onAction(StatusAction.Delete(statusEntry)) },
             onOpenFileInFolder = { onAction(StatusAction.OpenInFolder(statusEntry.parentDirectoryPath)) },
             onCopyFilePath = { relative ->
-                onAction(
-                    StatusAction.CopyPath(
-                        relative = relative,
-                        entries = listOf(statusEntry),
-                    )
+                onCopy(
+                    relative,
+                    listOf(statusEntry),
                 )
             },
         )
@@ -326,11 +334,9 @@ fun ColumnScope.ChangesList(
             onStageSelected = { onAction(StatusAction.SelectedEntriesAction(EntryType.UNSTAGED)) },
             onUnstageSelected = { onAction(StatusAction.SelectedEntriesAction(EntryType.STAGED)) },
             onCopyFilesPath = { relative ->
-                onAction(
-                    StatusAction.CopyPath(
-                        relative = relative,
-                        entries = selectedEntries.map { it.statusEntry },
-                    )
+                onCopy(
+                    relative,
+                    selectedEntries.map { it.statusEntry },
                 )
             },
         )
@@ -932,4 +938,22 @@ fun getActionInfo(entryType: EntryType): ActionInfo {
         color = color,
         textColor = textColor,
     )
+}
+
+
+private suspend fun copyEntriesPath(
+    clipboard: Clipboard,
+    entries: List<StatusEntry>,
+    relative: Boolean,
+    repositoryPath: String?,
+) {
+    val pathsToCopy = entries.joinToString("\n") { entry ->
+        if (relative) {
+            entry.filePath
+        } else {
+            repositoryPath.orEmpty() + systemSeparator + entry.filePath
+        }
+    }
+
+    clipboard.setClipEntry(ClipEntry(pathsToCopy))
 }

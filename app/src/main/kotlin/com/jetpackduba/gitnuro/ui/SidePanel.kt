@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalComposeUiApi::class)
+
 package com.jetpackduba.gitnuro.ui
 
 import androidx.compose.foundation.layout.Column
@@ -8,10 +10,13 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
@@ -34,6 +39,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -162,6 +168,7 @@ fun FilterTextField(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 fun LazyListScope.localBranches(
     branchesState: BranchesState,
     selectedItem: SelectedItem,
@@ -190,6 +197,9 @@ fun LazyListScope.localBranches(
 
     if (isExpanded) {
         items(branches, key = { it.name }) { branch ->
+            val scope = rememberCoroutineScope()
+            val clipboard = LocalClipboard.current
+
             Branch(
                 branch = branch,
                 isSelectedItem = selectedItem is SelectedItem.BranchItem && selectedItem.branch == branch,
@@ -202,7 +212,11 @@ fun LazyListScope.localBranches(
                 onDeleteBranch = { viewModel.deleteBranch(branch) },
                 onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
                 onRenameBranch = { onRenameBranch(branch) },
-                onCopyBranchNameToClipboard = { viewModel.copyBranchNameToClipboard(branch) },
+                onCopyBranchNameToClipboard = {
+                    scope.launch {
+                        clipboard.setClipEntry(ClipEntry(branch.simpleName))
+                    }
+                },
             )
         }
     }
@@ -260,6 +274,8 @@ fun LazyListScope.remotes(
 
             if (remote.isExpanded) {
                 items(remote.remoteInfo.branchesList) { remoteBranch ->
+                    val scope = rememberCoroutineScope()
+                    val clipboard = LocalClipboard.current
                     RemoteBranches(
                         remoteBranch = remoteBranch,
                         currentBranch = remotesState.currentBranch,
@@ -270,7 +286,11 @@ fun LazyListScope.remotes(
                         onPullRemoteBranch = { viewModel.pullFromRemoteBranch(remoteBranch) },
                         onRebaseRemoteBranch = { viewModel.rebaseBranch(remoteBranch) },
                         onMergeRemoteBranch = { viewModel.mergeBranch(remoteBranch) },
-                        onCopyBranchNameToClipboard = { viewModel.copyBranchNameToClipboard(remoteBranch) }
+                        onCopyBranchNameToClipboard = {
+                            scope.launch {
+                                clipboard.setClipEntry(ClipEntry(remoteBranch.simpleName))
+                            }
+                        }
                     )
                 }
             }

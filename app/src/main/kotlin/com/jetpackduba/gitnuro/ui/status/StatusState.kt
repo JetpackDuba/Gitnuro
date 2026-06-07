@@ -41,6 +41,7 @@ data class StatusState(
     val showAsTree: Boolean = false,
     val previousCommitMessage: String? = null,
     val repositoryState: RepositoryState = RepositoryState.SAFE,
+    val repositoryPath: String? = null,
 ) {
     val hasPreviousCommits: Boolean = previousCommitMessage != null
 
@@ -76,6 +77,7 @@ fun combineStatusState(
     selectedStagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
     previousCommitMessage: Flow<String?>,
     repositoryState: Flow<RepositoryState>,
+    repositoryPath: Flow<String?>,
 ): Flow<StatusState> {
     return combine(
         status,
@@ -94,6 +96,7 @@ fun combineStatusState(
         selectedStagedDiffEntries,
         previousCommitMessage,
         repositoryState,
+        repositoryPath,
     ) {
             status,
             showSearchStaged,
@@ -111,6 +114,7 @@ fun combineStatusState(
             selectedStagedDiffEntries,
             previousCommitMessage,
             repositoryState,
+            repositoryPath,
         ->
         val filteredUnstaged = if (showSearchUnstaged && searchFilterUnstaged.text.isNotBlank()) {
             status.unstaged.filter { it.filePath.lowercaseContains(searchFilterUnstaged.text) }
@@ -159,6 +163,7 @@ fun combineStatusState(
             showAsTree = showAsTree,
             previousCommitMessage = previousCommitMessage,
             repositoryState = repositoryState,
+            repositoryPath = repositoryPath,
         )
     }
 }

@@ -34,6 +34,8 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -480,6 +482,7 @@ fun CommitsList(
     horizontalScrollState: ScrollState,
 ) {
     val scope = rememberCoroutineScope()
+    val clipboard = LocalClipboard.current
 
     ScrollableLazyColumn(
         state = scrollState,
@@ -558,7 +561,11 @@ fun CommitsList(
                 onCherryPickCommit = { onAction(LogAction.CherryPickCommit(graphNode.commit)) },
                 onCheckoutRemoteBranch = { onAction(LogAction.CheckoutRemoteBranch(it)) },
                 onCheckoutBranch = { onAction(LogAction.CheckoutBranch(it)) },
-                onCopyBranchNameToClipboard = { onAction(LogAction.CopyBranchNameToClipboard(it)) },
+                onCopyBranchNameToClipboard = {
+                    scope.launch {
+                        clipboard.setClipEntry(ClipEntry(it.simpleName))
+                    }
+                },
             )
         }
 
