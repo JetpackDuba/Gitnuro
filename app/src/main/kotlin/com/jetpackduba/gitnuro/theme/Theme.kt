@@ -13,7 +13,7 @@ import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import kotlinx.coroutines.flow.MutableStateFlow
 
-private val defaultAppTheme: ColorsScheme = darkBlueTheme
+private val defaultAppTheme: ColorsScheme = darkTheme
 private var appTheme: MutableStateFlow<ColorsScheme> = MutableStateFlow(defaultAppTheme)
 internal val LocalLinesHeight = compositionLocalOf { spacedLineHeight }
 
@@ -44,7 +44,7 @@ fun AppTheme(
 ) {
     val theme = when (selectedTheme) {
         Theme.Light -> lightTheme
-        Theme.Dark -> darkBlueTheme
+        Theme.Dark -> darkTheme
         Theme.Custom -> customTheme ?: defaultAppTheme
     }
 

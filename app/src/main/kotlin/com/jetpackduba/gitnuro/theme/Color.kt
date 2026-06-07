@@ -35,7 +35,7 @@ val lightTheme = ColorsScheme(
 )
 
 
-val darkBlueTheme = ColorsScheme(
+val darkTheme = ColorsScheme(
     primary = Color(0xFF0169cb),
     primaryVariant = Color(0xFF9FD1FF),
     onPrimary = Color(0xFFFFFFFFF),
@@ -45,9 +45,9 @@ val darkBlueTheme = ColorsScheme(
     onBackgroundSecondary = Color(0xFFCCCBCB),
     error = Color(0xFFc93838),
     onError = Color(0xFFFFFFFF),
-    background = Color(0xFF10161e),
+    background = Color(0xff0F0F0F),
     backgroundSelected = Color(0xFF2f3640),
-    surface = Color(0xff1d2630),
+    surface = Color(0xFF1F1F22),
     secondarySurface = Color(0xFF1a2b3d),
     tertiarySurface = Color(0xFF0a335c),
     addFile = Color(0xFF32A852),

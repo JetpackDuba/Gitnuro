@@ -253,8 +253,8 @@ fun Separator() {
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 4.dp)
             .fillMaxWidth()
-            .height(1.dp)
-            .background(MaterialTheme.colors.onBackground.copy(alpha = 0.4f))
+            .height(2.dp)
+            .background(MaterialTheme.colors.onBackground.copy(alpha = 0.2f))
     )
 }
 
