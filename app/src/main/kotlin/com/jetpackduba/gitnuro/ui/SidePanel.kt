@@ -21,14 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.Screen
-import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.domain.extensions.isValid
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.domain.extensions.isValid
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.models.Remote
 import com.jetpackduba.gitnuro.domain.models.Tag
+import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.setClipboardText
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
@@ -36,13 +38,13 @@ import com.jetpackduba.gitnuro.ui.components.SideMenuHeader
 import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
-import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import java.awt.datatransfer.StringSelection
 
 @Composable
 fun SidePanel(
@@ -214,7 +216,7 @@ fun LazyListScope.localBranches(
                 onRenameBranch = { onRenameBranch(branch) },
                 onCopyBranchNameToClipboard = {
                     scope.launch {
-                        clipboard.setClipEntry(ClipEntry(branch.simpleName))
+                        clipboard.setClipboardText(branch.simpleName)
                     }
                 },
             )
@@ -288,7 +290,7 @@ fun LazyListScope.remotes(
                         onMergeRemoteBranch = { viewModel.mergeBranch(remoteBranch) },
                         onCopyBranchNameToClipboard = {
                             scope.launch {
-                                clipboard.setClipEntry(ClipEntry(remoteBranch.simpleName))
+                                clipboard.setClipboardText(remoteBranch.simpleName)
                             }
                         }
                     )

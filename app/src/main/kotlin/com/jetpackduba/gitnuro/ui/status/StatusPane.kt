@@ -27,7 +27,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.isCtrlPressed
 import androidx.compose.ui.input.pointer.isMetaPressed
 import androidx.compose.ui.input.pointer.isShiftPressed
-import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -45,6 +44,7 @@ import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.icon
 import com.jetpackduba.gitnuro.extensions.iconColor
+import com.jetpackduba.gitnuro.extensions.setClipboardText
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.abortButton
@@ -955,5 +955,5 @@ private suspend fun copyEntriesPath(
         }
     }
 
-    clipboard.setClipEntry(ClipEntry(pathsToCopy))
+    clipboard.setClipboardText(pathsToCopy)
 }

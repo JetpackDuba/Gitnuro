@@ -52,6 +52,7 @@ import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.setClipboardText
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -569,7 +570,7 @@ fun CommitsList(
                 onCheckoutBranch = { onAction(LogAction.CheckoutBranch(it)) },
                 onCopyBranchNameToClipboard = {
                     scope.launch {
-                        clipboard.setClipEntry(ClipEntry(it.simpleName))
+                        clipboard.setClipboardText(it.simpleName)
                     }
                 },
             )
