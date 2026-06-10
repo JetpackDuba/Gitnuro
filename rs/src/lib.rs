@@ -1,26 +1,29 @@
 extern crate notify;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io::Write;
 use std::path::Path;
-use std::sync::mpsc::{channel, RecvTimeoutError};
+use std::sync::mpsc::{channel, Receiver, RecvTimeoutError};
 use std::sync::RwLock;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use kotars::{jni_class, jni_data_class, jni_interface, jni_struct_impl};
 use kotars::jni_init;
-use libssh_rs::{PollStatus, SshOption, SshKey, SignAlgorithm, ssh_sign};
+use kotars::{jni_class, jni_data_class, jni_interface, jni_struct_impl};
+use libssh_rs::{ssh_sign, PollStatus, SignAlgorithm, SshKey, SshOption};
 
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
-use notify::{Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use notify::event::CreateKind;
+use notify::{Config, Error, ErrorKind, Event, EventKind, INotifyWatcher, RecommendedWatcher, RecursiveMode, Watcher};
 
 jni_init!("");
 
 #[jni_class]
 struct FileWatcher {
     keep_watching: bool,
+    watched_directories: HashSet<String>,
+    watcher: Option<INotifyWatcher>,
+    receiver: Option<Receiver<notify::Result<Event>>>
 }
 
 impl Drop for FileWatcher {
@@ -42,64 +45,55 @@ impl From<String> for FileChanged {
 
 #[jni_struct_impl]
 impl FileWatcher {
-    fn watch(
-        &self,
-        path: String,
-        git_dir_path: String,
-        notifier: &impl WatchDirectoryNotifier,
-    ) {
-        println!("Starting to watch directory {path}");
+    fn init(&mut self) -> i32 {
+        println!("initializing file watcher");
 
         // Create a channel to receive the events.
-        let (tx, rx) = channel();
+        let (sender, receiver) = channel();
 
         // Create a watcher object, delivering debounced events.
         // The notification back-end is selected based on the platform.
         let config = Config::default();
         config.with_poll_interval(Duration::from_secs(3600));
 
-        let watcher =
-            RecommendedWatcher::new(tx, config);
+        let watcher = RecommendedWatcher::new(sender, config);
 
-        let mut watcher = match watcher {
-            Ok(watcher) => watcher,
+        match watcher {
+            Ok(watcher) => {
+                self.watcher = Some(watcher);
+                self.receiver = Some(receiver);
+                0
+            },
             Err(e) => {
                 // TODO Hardcoded nums should be changed to an enum or sth similar once Kotars supports them
                 let code = error_to_code(e.kind);
-                notifier.on_error(code);
+                code
+            }
+        }
+    }
+
+    fn watch(&self, notifier: &impl WatchDirectoryNotifier) {
+        let receiver = match &self.receiver {
+            None => {
+                println!("Receiver not initialized");
                 return;
             }
+            Some(receiver) => receiver,
         };
-
-        // Add a path to be watched. All files and directories at that path and
-        // below will be monitored for changes.
-        let res = watcher
-            .watch(Path::new(path.as_str()), RecursiveMode::Recursive);
-
-        if let Err(e) = res {
-
-            // TODO Hardcoded nums should be changed to an enum or sth similar once Kotars supports them
-            let code = error_to_code(e.kind);
-            notifier.on_error(code);
-            return;
-        }
 
         let mut paths_cached = HashMap::<String, Vec<EventKind>>::new();
 
         let mut last_update: u128 = 0;
+
         while notifier.should_keep_looping() {
-            match rx.recv_timeout(Duration::from_millis(WATCH_TIMEOUT)) {
+            match receiver.recv_timeout(Duration::from_millis(WATCH_TIMEOUT)) {
                 Ok(e) => {
-                    if let Some(paths) = get_paths_from_event_result(&e, &git_dir_path) {
-                        let paths_without_dirs: Vec<FileChangeEvent> = paths
-                            .into_iter()
-                            .collect();
+                    if let Some(paths) = get_paths_from_event_result(&e) {
+                        let paths_without_dirs: Vec<FileChangeEvent> = paths.into_iter().collect();
 
                         for path in paths_without_dirs.into_iter() {
                             match paths_cached.get_mut(&path.path) {
-                                Some(v) => {
-                                    v.push(path.event_kind)
-                                }
+                                Some(v) => v.push(path.event_kind),
                                 None => {
                                     paths_cached.insert(path.path, vec![path.event_kind]);
                                 }
@@ -108,39 +102,91 @@ impl FileWatcher {
 
                         let current_time = current_time_as_millis();
 
-                        if last_update != 0 &&
-                            current_time - last_update > MIN_TIME_IN_MS_BETWEEN_REFRESHES {
+                        if last_update != 0
+                            && current_time - last_update > MIN_TIME_IN_MS_BETWEEN_REFRESHES
+                        {
                             process_paths_cached(&mut paths_cached, notifier);
                             last_update = current_time_as_millis();
                         }
-
-                        // println!("Event: {e:?}");
                     }
                 }
-                Err(e) => {
-                    match e {
-                        RecvTimeoutError::Timeout => {
-                            process_paths_cached(&mut paths_cached, notifier);
-                            last_update = current_time_as_millis();
-                        }
-                        RecvTimeoutError::Disconnected => {
-                            println!("Watch error: {:?}", e);
-                        }
+                Err(e) => match e {
+                    RecvTimeoutError::Timeout => {
+                        process_paths_cached(&mut paths_cached, notifier);
+                        last_update = current_time_as_millis();
                     }
-                }
+                    RecvTimeoutError::Disconnected => {
+                        println!("Watch error: {:?}", e);
+                    }
+                },
             };
         }
 
-        // TODO If unwatch fails it's probably because we no longer have access to it. We probably don't care about it but double check in the future
-        let _ = watcher
-            .unwatch(Path::new(path.as_str()));
+        // // TODO If unwatch fails it's probably because we no longer have access to it. We probably don't care about it but double check in the future
+        // let _ = watcher.unwatch(Path::new(path.as_str()));
 
         println!("Watch finishing...");
+    }
+
+    fn add_watch(&mut self, path: String, is_recursive: bool) -> i32 {
+        println!("Adding watch: {path}");
+        let watcher = match &mut self.watcher {
+            None => {
+                println!("Watcher not initialized");
+                return 1; // TODO Provide better error
+            }
+            Some(watcher) => watcher,
+        };
+
+
+        // Add a path to be watched. All files and directories at that path and
+        // below will be monitored for changes.
+
+        let recursive_mode = if is_recursive {
+            RecursiveMode::Recursive
+        } else {
+            RecursiveMode::NonRecursive
+        };
+
+        let res = watcher.watch(Path::new(path.as_str()), recursive_mode);
+
+        if let Err(e) = res {
+            // TODO Hardcoded nums should be changed to an enum or sth similar once Kotars supports them
+            error_to_code(e.kind)
+        } else {
+            0
+        }
+    }
+
+    fn remove_watch(&mut self, path: String) -> i32 {
+        println!("Removing watch: {path}");
+        let watcher = match &mut self.watcher {
+            None => {
+                println!("Watcher not initialized");
+                return 1; // TODO Provide better error
+            }
+            Some(watcher) => watcher,
+        };
+
+
+        // Add a path to be watched. All files and directories at that path and
+        // below will be monitored for changes.
+        let res = watcher.unwatch(Path::new(path.as_str()));
+
+        if let Err(e) = res {
+            // TODO Hardcoded nums should be changed to an enum or sth similar once Kotars supports them
+            error_to_code(e.kind)
+        } else {
+            0
+        }
     }
 
     fn new() -> FileWatcher {
         FileWatcher {
             keep_watching: true,
+            watched_directories: HashSet::new(),
+            watcher: None,
+            receiver: None,
         }
     }
 
@@ -172,12 +218,18 @@ fn remove_temporary_files(changes: &mut HashMap<String, Vec<EventKind>>) -> Vec<
     paths
 }
 
-fn process_paths_cached(paths_cached: &mut HashMap<String, Vec<EventKind>>, notifier: &impl WatchDirectoryNotifier) {
+fn process_paths_cached(
+    paths_cached: &mut HashMap<String, Vec<EventKind>>,
+    notifier: &impl WatchDirectoryNotifier,
+) {
     let paths_to_send: Vec<String> = remove_temporary_files(paths_cached);
     paths_cached.clear();
 
     if !paths_to_send.is_empty() {
-        println!("Sending a total of {} paths cached to Kotlin side", paths_to_send.len());
+        println!(
+            "Sending a total of {} paths cached to Kotlin side",
+            paths_to_send.len()
+        );
         notifier.detected_change(paths_to_send);
     }
 }
@@ -192,7 +244,6 @@ fn current_time_as_millis() -> u128 {
 const MIN_TIME_IN_MS_BETWEEN_REFRESHES: u128 = 500;
 const WATCH_TIMEOUT: u64 = 500;
 
-
 fn error_to_code(error_kind: ErrorKind) -> i32 {
     match error_kind {
         ErrorKind::Generic(_) => 1,
@@ -204,22 +255,22 @@ fn error_to_code(error_kind: ErrorKind) -> i32 {
     }
 }
 
-pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_path: &str) -> Option<Vec<FileChangeEvent>> {
+pub fn get_paths_from_event_result(
+    event_result: &Result<Event, Error>,
+) -> Option<Vec<FileChangeEvent>> {
     match event_result {
-        Ok(event) => {
-            match event.kind {
-                EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) => {
-                    let events: Vec<FileChangeEvent> = get_event_paths(event, git_dir_path);
+        Ok(event) => match event.kind {
+            EventKind::Create(_) | EventKind::Modify(_) | EventKind::Remove(_) => {
+                let events: Vec<FileChangeEvent> = get_event_paths(event);
 
-                    if events.is_empty() {
-                        None
-                    } else {
-                        Some(events)
-                    }
+                if events.is_empty() {
+                    None
+                } else {
+                    Some(events)
                 }
-                _ => { None }
             }
-        }
+            _ => None,
+        },
         Err(err) => {
             println!("{:?}", err);
             None
@@ -227,35 +278,20 @@ pub fn get_paths_from_event_result(event_result: &Result<Event, Error>, git_dir_
     }
 }
 
-fn get_event_paths(event: &Event, git_dir_path: &str) -> Vec<FileChangeEvent> {
+fn get_event_paths(event: &Event) -> Vec<FileChangeEvent> {
     event
         .paths
         .clone()
         .into_iter()
         .filter_map(|path| {
-            // Directories are not tracked by Git so we don't care about them (just about their content)
-            // We won't be able to check if it's a dir if it has been deleted but that's good enough
-            // if path.is_dir() {
-            //     println!("Ignoring directory {path:#?}");
-            //     None
-            // } else {
-            let path_str = path.into_os_string()
-                .into_string()
-                .ok()?;
+            let path_str = path.into_os_string().into_string().ok()?;
 
-            // JGit may create .probe-UUID files for its internal stuff, we don't care about it
-            let probe_prefix = format!("{git_dir_path}.probe-");
-            if path_str.starts_with(probe_prefix.as_str()) {
-                None
-            } else {
-                let file_change_event = FileChangeEvent {
-                    path: path_str,
-                    event_kind: event.kind,
-                };
+            let file_change_event = FileChangeEvent {
+                path: path_str,
+                event_kind: event.kind,
+            };
 
-                Some(file_change_event)
-            }
-            // }
+            Some(file_change_event)
         })
         .collect()
 }
@@ -284,11 +320,9 @@ impl Session {
     pub fn new() -> Option<Session> {
         let session = libssh_rs::Session::new().ok()?;
 
-        Some(
-            Session {
-                session: RwLock::new(session)
-            }
-        )
+        Some(Session {
+            session: RwLock::new(session),
+        })
     }
 
     pub fn setup(&self, host: String, user: String, port: Option<i32>) -> String {
@@ -318,7 +352,9 @@ impl Session {
             }
         }
 
-        if let Err(e) = session.set_option(SshOption::PublicKeyAcceptedTypes(ACCEPTED_SSH_TYPES.to_string())) {
+        if let Err(e) = session.set_option(SshOption::PublicKeyAcceptedTypes(
+            ACCEPTED_SSH_TYPES.to_string(),
+        )) {
             let message = libssh_error_to_message(&e);
             return format!("SSH Public keys option failed: {message}");
         }
@@ -336,7 +372,8 @@ impl Session {
         String::new()
     }
 
-    pub fn public_key_auth(&self, password: String) -> i32 { //AuthStatus {
+    pub fn public_key_auth(&self, password: String) -> i32 {
+        //AuthStatus {
         println!("Public key auth");
 
         let session = match self.session.write() {
@@ -361,7 +398,8 @@ impl Session {
         to_int(status) // TODO remove this cast
     }
 
-    pub fn password_auth(&self, password: String) -> i32 { //AuthStatus {
+    pub fn password_auth(&self, password: String) -> i32 {
+        //AuthStatus {
         let session = match self.session.write() {
             Ok(s) => s,
             Err(e) => {
@@ -400,17 +438,15 @@ impl Channel {
         let session = session.session.write().ok()?;
         let channel = session.new_channel().ok()?;
 
-        Some(
-            Channel {
-                channel: RwLock::new(channel)
-            }
-        )
+        Some(Channel {
+            channel: RwLock::new(channel),
+        })
     }
 
     pub fn open_session(&self) -> String {
         let channel = match self.channel.write() {
             Ok(c) => c,
-            Err(e) => return format!("{e:#}")
+            Err(e) => return format!("{e:#}"),
         };
 
         if let Err(e) = channel.open_session() {
@@ -440,7 +476,6 @@ impl Channel {
                 return format!("Something failed obtaining write channel: {e:?}");
             }
         };
-
 
         match channel.close() {
             Ok(_) => String::new(),
@@ -488,7 +523,7 @@ impl Channel {
 
         match poll_timeout {
             PollStatus::AvailableBytes(count) => count > 0,
-            PollStatus::EndOfFile => false
+            PollStatus::EndOfFile => false,
         }
     }
 
@@ -513,12 +548,10 @@ impl Channel {
             }
         };
 
-        Some(
-            ReadResult {
-                read_count: read as u64,
-                data: buffer,
-            }
-        )
+        Some(ReadResult {
+            read_count: read as u64,
+            data: buffer,
+        })
     }
 
     pub fn write_byte(&self, byte: i32) -> String {
@@ -588,9 +621,10 @@ pub struct Signing;
 
 #[jni_struct_impl]
 impl Signing {
-    fn sign_data(data: &Vec<u8>, key: String, password: String) -> String  {
-        let key = SshKey::from_privkey_file(&key, Some(&password)).expect("Unable to load private key");
-        ssh_sign(&data, key, SignAlgorithm::SHA512, None, "git".to_string()).expect("Unable to sign data")
+    fn sign_data(data: &Vec<u8>, key: String, password: String) -> String {
+        let key =
+            SshKey::from_privkey_file(&key, Some(&password)).expect("Unable to load private key");
+        ssh_sign(&data, key, SignAlgorithm::SHA512, None, "git".to_string())
+            .expect("Unable to sign data")
     }
 }
-

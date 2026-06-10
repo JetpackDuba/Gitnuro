@@ -22,3 +22,7 @@ data class HookRejectionError(val message: String): GitError
 sealed interface StashChangesError: GitError {
     data object NoDataToStash: StashChangesError
 }
+
+sealed interface FSWatchError: AppError {
+
+}

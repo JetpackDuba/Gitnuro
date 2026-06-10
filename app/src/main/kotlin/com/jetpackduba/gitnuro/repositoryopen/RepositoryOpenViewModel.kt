@@ -82,7 +82,6 @@ class RepositoryOpenViewModel @Inject constructor(
     private val getWorktreeUseCase: GetWorktreeUseCase,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     val appStateManager: AppStateManager,
-    private val fileChangesWatcher: IFileChangesWatcher,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
     private val appViewModel: AppViewModel,
@@ -338,7 +337,6 @@ class RepositoryOpenViewModel @Inject constructor(
                 }
 
                 CloseableView.DIFF -> {
-                    _diffResult.value = ViewDiffResult.None
                 }
 
                 CloseableView.COMMIT_CHANGES_SEARCH -> commitChangesViewModelExtender.searchFilterToggled(false)
@@ -508,34 +506,6 @@ class RepositoryOpenViewModel @Inject constructor(
                 appViewModel.addNewTabFromPath(directory, true, worktree.value)
             }
         }
-    }
-
-    /**
-     * Sometimes external apps can run filesystem multiple operations in a fraction of a second.
-     * To prevent excessive updates, we add a slight delay between updates emission to prevent slowing down
-     * the app by constantly running "git status" or even full refreshes.
-     *
-     */
-    private suspend fun watchRepositoryChanges(git: Git) = tabScope.launch(Dispatchers.IO) {
-        launch {
-            fileChangesWatcher.changesNotifier.collect { watcherEvent ->
-                when (watcherEvent) {
-                    is WatcherEvent.RepositoryChanged -> repositoryChanged(watcherEvent.hasGitDirChanged)
-                    is WatcherEvent.WatchInitError -> {
-                        val message = codeToMessage(watcherEvent.code)
-                        /*TODO       errorsManager.addError(
-                                   newErrorNow(
-                                       exception = Exception(message),
-                                       taskType = TaskType.ChangesDetection,
-                                   ),
-                               )
-       */
-                    }
-                }
-            }
-        }
-
-        fileChangesWatcher.watchDirectoryPath(git.repository)
     }
 
     private suspend fun CoroutineScope.repositoryChanged(hasGitDirChanged: Boolean) {
@@ -895,7 +865,6 @@ class RepositoryOpenViewModel @Inject constructor(
         )
     }
 
-    private val _diffResult = MutableStateFlow<ViewDiffResult>(ViewDiffResult.None)
     private val refreshDiffFlow = repositoryStateRepository
         .completedTasks
         .map { tasks ->
@@ -1007,7 +976,6 @@ class RepositoryOpenViewModel @Inject constructor(
     fun reset() {
         cancelRunningJobs()
         removeFromCloseables()
-        _diffResult.value = ViewDiffResult.None
     }
 
     fun clearDiff() {

@@ -9,6 +9,7 @@ class OpenRepositoryUseCase @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val openRepositoryGitAction: IOpenRepositoryGitAction,
     private val refreshAllUseCase: RefreshAllUseCase,
+    private val observeRepositoryToRefreshUseCase: ObserveRepositoryToRefreshUseCase,
 ) {
     suspend operator fun invoke(directory: String) {
         val repositoryPath = openRepositoryGitAction(directory)
@@ -16,6 +17,7 @@ class OpenRepositoryUseCase @Inject constructor(
         if (repositoryPath != null) {
             repositoryDataRepository.setRepositoryState(RepositorySelectionState.Open(repositoryPath))
             refreshAllUseCase()
+            observeRepositoryToRefreshUseCase()
         } else {
             // TODO Add error to ErrorRepository?
             repositoryDataRepository.setRepositoryState(RepositorySelectionState.None)
