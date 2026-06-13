@@ -118,6 +118,8 @@ class SettingsViewModel @Inject constructor(
             cacheCredentialsInMemory,
             terminalPath ->
 
+            println("Settings combine updated")
+
             SettingsViewState(
                 scaleUi,
                 theme,

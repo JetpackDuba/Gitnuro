@@ -1,10 +1,11 @@
 extern crate notify;
 
 use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
 use std::io::Write;
 use std::path::Path;
 use std::sync::mpsc::{channel, Receiver, RecvTimeoutError};
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use kotars::jni_init;
@@ -14,17 +15,33 @@ use libssh_rs::{ssh_sign, PollStatus, SignAlgorithm, SshKey, SshOption};
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
 use notify::event::CreateKind;
-use notify::{Config, Error, ErrorKind, Event, EventKind, INotifyWatcher, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{
+    Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
+};
 
-jni_init!("");
+uniffi::setup_scaffolding!();
 
-#[jni_class]
+#[derive(uniffi::Object)]
 struct FileWatcher {
-    keep_watching: bool,
-    watched_directories: HashSet<String>,
-    watcher: Option<INotifyWatcher>,
-    receiver: Option<Receiver<notify::Result<Event>>>
+    keep_watching: RwLock<bool>,
+    watched_directories: RwLock<HashSet<String>>,
+    // watcher: Option<Box<dyn Watcher>>,
+    watcher: RwLock<Option<WatcherHolder>>,
+    receiver: RwLock<Option<ReceiverHolder>>,
 }
+
+struct WatcherHolder {
+    watcher: Box<dyn Watcher>,
+}
+
+struct ReceiverHolder {
+    receiver: Receiver<notify::Result<Event>>,
+}
+
+unsafe impl Send for WatcherHolder {}
+unsafe impl Sync for WatcherHolder {}
+unsafe impl Send for ReceiverHolder {}
+unsafe impl Sync for ReceiverHolder {}
 
 impl Drop for FileWatcher {
     fn drop(&mut self) {
@@ -32,7 +49,7 @@ impl Drop for FileWatcher {
     }
 }
 
-#[jni_data_class]
+#[derive(uniffi::Record)]
 struct FileChanged {
     path: String,
 }
@@ -43,9 +60,9 @@ impl From<String> for FileChanged {
     }
 }
 
-#[jni_struct_impl]
+#[uniffi::export]
 impl FileWatcher {
-    fn init(&mut self) -> i32 {
+    fn init(&self) -> i32 {
         println!("initializing file watcher");
 
         // Create a channel to receive the events.
@@ -60,10 +77,17 @@ impl FileWatcher {
 
         match watcher {
             Ok(watcher) => {
-                self.watcher = Some(watcher);
-                self.receiver = Some(receiver);
+                let mut watcher_holder = self.watcher.write().unwrap();
+                let mut receiver_holder = self.receiver.write().unwrap();
+
+                *watcher_holder = Some(WatcherHolder {
+                    watcher: Box::new(watcher),
+                });
+                *receiver_holder = Some(ReceiverHolder {
+                    receiver,
+                });
                 0
-            },
+            }
             Err(e) => {
                 // TODO Hardcoded nums should be changed to an enum or sth similar once Kotars supports them
                 let code = error_to_code(e.kind);
@@ -72,13 +96,15 @@ impl FileWatcher {
         }
     }
 
-    fn watch(&self, notifier: &impl WatchDirectoryNotifier) {
-        let receiver = match &self.receiver {
+    fn watch(&self, notifier: Box<dyn WatchDirectoryNotifier>) {
+        let receiver = self.receiver.read().unwrap();
+
+        let receiver = match receiver.as_ref() {
             None => {
                 println!("Receiver not initialized");
                 return;
             }
-            Some(receiver) => receiver,
+            Some(receiver) => &receiver.receiver,
         };
 
         let mut paths_cached = HashMap::<String, Vec<EventKind>>::new();
@@ -105,14 +131,14 @@ impl FileWatcher {
                         if last_update != 0
                             && current_time - last_update > MIN_TIME_IN_MS_BETWEEN_REFRESHES
                         {
-                            process_paths_cached(&mut paths_cached, notifier);
+                            process_paths_cached(&mut paths_cached, &notifier);
                             last_update = current_time_as_millis();
                         }
                     }
                 }
                 Err(e) => match e {
                     RecvTimeoutError::Timeout => {
-                        process_paths_cached(&mut paths_cached, notifier);
+                        process_paths_cached(&mut paths_cached, &notifier);
                         last_update = current_time_as_millis();
                     }
                     RecvTimeoutError::Disconnected => {
@@ -128,16 +154,16 @@ impl FileWatcher {
         println!("Watch finishing...");
     }
 
-    fn add_watch(&mut self, path: String, is_recursive: bool) -> i32 {
+    fn add_watch(&self, path: String, is_recursive: bool) -> i32 {
         println!("Adding watch: {path}");
-        let watcher = match &mut self.watcher {
+        let mut watcher_holder = self.watcher.write().unwrap();
+        let watcher = match watcher_holder.as_mut() {
             None => {
                 println!("Watcher not initialized");
                 return 1; // TODO Provide better error
             }
-            Some(watcher) => watcher,
+            Some(watcher) => &mut watcher.watcher,
         };
-
 
         // Add a path to be watched. All files and directories at that path and
         // below will be monitored for changes.
@@ -158,16 +184,16 @@ impl FileWatcher {
         }
     }
 
-    fn remove_watch(&mut self, path: String) -> i32 {
+    fn remove_watch(&self, path: String) -> i32 {
         println!("Removing watch: {path}");
-        let watcher = match &mut self.watcher {
+        let mut watcher_holder = self.watcher.write().unwrap();
+        let watcher = match watcher_holder.as_mut() {
             None => {
                 println!("Watcher not initialized");
                 return 1; // TODO Provide better error
             }
-            Some(watcher) => watcher,
+            Some(watcher) => &mut watcher.watcher,
         };
-
 
         // Add a path to be watched. All files and directories at that path and
         // below will be monitored for changes.
@@ -180,19 +206,19 @@ impl FileWatcher {
             0
         }
     }
-
+    #[uniffi::constructor]
     fn new() -> FileWatcher {
         FileWatcher {
-            keep_watching: true,
-            watched_directories: HashSet::new(),
-            watcher: None,
-            receiver: None,
+            keep_watching: RwLock::from(true),
+            watched_directories: RwLock::from(HashSet::new()),
+            watcher: RwLock::from(None),
+            receiver: RwLock::from(None),
         }
     }
 
-    fn stop_watching(&mut self) {
+    fn stop_watching(&self) {
         println!("Keep watching set to false");
-        self.keep_watching = false
+        *self.keep_watching.write().unwrap() = false
     }
 }
 
@@ -220,7 +246,7 @@ fn remove_temporary_files(changes: &mut HashMap<String, Vec<EventKind>>) -> Vec<
 
 fn process_paths_cached(
     paths_cached: &mut HashMap<String, Vec<EventKind>>,
-    notifier: &impl WatchDirectoryNotifier,
+    notifier: &Box<dyn WatchDirectoryNotifier>,
 ) {
     let paths_to_send: Vec<String> = remove_temporary_files(paths_cached);
     paths_cached.clear();
@@ -301,8 +327,8 @@ pub struct FileChangeEvent {
     pub event_kind: EventKind,
 }
 
-#[jni_interface]
-pub trait WatchDirectoryNotifier {
+#[uniffi::export(callback_interface)]
+pub trait WatchDirectoryNotifier: Send + Sync + Debug {
     fn should_keep_looping(&self) -> bool;
     fn detected_change(&self, paths: Vec<String>);
     fn on_error(&self, code: i32);
@@ -310,23 +336,33 @@ pub trait WatchDirectoryNotifier {
 
 const ACCEPTED_SSH_TYPES: &str = "ssh-ed25519,ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-rsa,rsa-sha2-512,rsa-sha2-256,ssh-dss";
 
-#[jni_class]
+#[derive(uniffi::Object)]
 pub struct Session {
+    session_holder: Option<SessionHolder>,
+}
+
+pub struct SessionHolder {
     pub session: RwLock<libssh_rs::Session>,
 }
 
-#[jni_struct_impl]
+#[uniffi::export]
 impl Session {
-    pub fn new() -> Option<Session> {
-        let session = libssh_rs::Session::new().ok()?;
+    #[uniffi::constructor]
+    pub fn new() -> Session {
+        let session = libssh_rs::Session::new().unwrap();
 
-        Some(Session {
+        let session_holder = SessionHolder {
             session: RwLock::new(session),
-        })
+        };
+
+        Session {
+            session_holder: Some(session_holder),
+        }
     }
 
     pub fn setup(&self, host: String, user: String, port: Option<i32>) -> String {
-        let session = match self.session.write() {
+        let session_holder = self.session_holder.as_ref().unwrap();
+        let session = match session_holder.session.write() {
             Ok(s) => s,
             Err(e) => {
                 return format!("Something failed obtaining write session: {e:?}");
@@ -375,8 +411,8 @@ impl Session {
     pub fn public_key_auth(&self, password: String) -> i32 {
         //AuthStatus {
         println!("Public key auth");
-
-        let session = match self.session.write() {
+        let session_holder = self.session_holder.as_ref().unwrap();
+        let session = match session_holder.session.write() {
             Ok(s) => s,
             Err(e) => {
                 println!("Something failed obtaining write session: {e:?}");
@@ -400,7 +436,8 @@ impl Session {
 
     pub fn password_auth(&self, password: String) -> i32 {
         //AuthStatus {
-        let session = match self.session.write() {
+        let session_holder = self.session_holder.as_ref().unwrap();
+        let session = match session_holder.session.write() {
             Ok(s) => s,
             Err(e) => {
                 println!("Something failed obtaining write session: {e:?}");
@@ -420,31 +457,46 @@ impl Session {
     }
 
     pub fn disconnect(&self) {
-        match self.session.write() {
+        let session_holder = self.session_holder.as_ref().unwrap();
+        match session_holder.session.write() {
             Ok(session) => session.disconnect(),
             Err(e) => println!("Session disconnection failed due to: {e:#?}"),
         };
     }
 }
 
-#[jni_class]
-pub struct Channel {
+pub struct ChannelHolder {
     channel: RwLock<libssh_rs::Channel>,
 }
 
-#[jni_struct_impl]
-impl Channel {
-    pub fn new(session: &mut Session) -> Option<Channel> {
-        let session = session.session.write().ok()?;
-        let channel = session.new_channel().ok()?;
+unsafe impl Send for ChannelHolder {}
+unsafe impl Sync for ChannelHolder {}
 
-        Some(Channel {
+#[derive(uniffi::Object)]
+pub struct Channel {
+    channel: Option<ChannelHolder>,
+}
+
+#[uniffi::export]
+impl Channel {
+    #[uniffi::constructor]
+    pub fn new(session: Arc<Session>) -> Channel {
+        let session_holder = session.as_ref().session_holder.as_ref().unwrap();
+        let session = session_holder.session.read().unwrap();
+        let channel = session.new_channel().unwrap();
+
+        let channel_holder = ChannelHolder {
             channel: RwLock::new(channel),
-        })
+        };
+
+        Channel {
+            channel: Some(channel_holder),
+        }
     }
 
     pub fn open_session(&self) -> String {
-        let channel = match self.channel.write() {
+        let channel_holder = self.channel.as_ref().unwrap();
+        let channel = match channel_holder.channel.write() {
             Ok(c) => c,
             Err(e) => return format!("{e:#}"),
         };
@@ -458,7 +510,8 @@ impl Channel {
     }
 
     pub fn is_open(&self) -> bool {
-        let channel = match self.channel.write() {
+        let channel_holder = self.channel.as_ref().unwrap();
+        let channel = match channel_holder.channel.write() {
             Ok(s) => s,
             Err(e) => {
                 println!("Something failed obtaining write channel: {e:?}");
@@ -470,7 +523,8 @@ impl Channel {
     }
 
     pub fn close_channel(&self) -> String {
-        let channel = match self.channel.write() {
+        let channel_holder = self.channel.as_ref().unwrap();
+        let channel = match channel_holder.channel.write() {
             Ok(s) => s,
             Err(e) => {
                 return format!("Something failed obtaining write channel: {e:?}");
@@ -487,7 +541,8 @@ impl Channel {
     }
 
     pub fn request_exec(&self, command: String) -> String {
-        let channel = match self.channel.write() {
+        let channel_holder = self.channel.as_ref().unwrap();
+        let channel = match channel_holder.channel.write() {
             Ok(s) => s,
             Err(e) => {
                 return format!("Something failed obtaining write channel: {e:?}");
@@ -504,7 +559,8 @@ impl Channel {
     }
 
     pub fn poll_has_bytes(&self, is_stderr: bool) -> bool {
-        let channel = match self.channel.write() {
+        let channel_holder = self.channel.as_ref().unwrap();
+        let channel = match channel_holder.channel.write() {
             Ok(s) => s,
             Err(e) => {
                 println!("Something failed obtaining write channel: {e:?}");
@@ -530,7 +586,7 @@ impl Channel {
     pub fn read(&self, is_stderr: bool, len: u64) -> Option<ReadResult> {
         let ulen = len as usize;
 
-        let channel = match self.channel.write() {
+        let channel = match self.channel.as_ref()?.channel.write() {
             Ok(s) => s,
             Err(e) => {
                 println!("Something failed obtaining write channel: {e:?}");
@@ -555,7 +611,7 @@ impl Channel {
     }
 
     pub fn write_byte(&self, byte: i32) -> String {
-        let channel = match self.channel.write() {
+        let channel = match self.channel.as_ref().unwrap().channel.write() {
             Ok(c) => c,
             Err(e) => {
                 return format!("Something failed obtaining write channel: {e:?}");
@@ -573,7 +629,7 @@ impl Channel {
     }
 
     pub fn write_bytes(&self, data: &Vec<u8>) -> String {
-        let channel = match self.channel.write() {
+        let channel = match self.channel.as_ref().unwrap().channel.write() {
             Ok(c) => c,
             Err(e) => {
                 return format!("Something failed obtaining write channel: {e:?}");
@@ -610,18 +666,18 @@ fn libssh_error_to_message(err: &libssh_rs::Error) -> String {
     }
 }
 
-#[jni_data_class]
+#[derive(uniffi::Record)]
 pub struct ReadResult {
     pub read_count: u64,
     pub data: Vec<u8>,
 }
 
-#[jni_class]
+#[derive(uniffi::Object)]
 pub struct Signing;
 
-#[jni_struct_impl]
+#[uniffi::export]
 impl Signing {
-    fn sign_data(data: &Vec<u8>, key: String, password: String) -> String {
+    fn sign_data(&self, data: &Vec<u8>, key: String, password: String) -> String {
         let key =
             SshKey::from_privkey_file(&key, Some(&password)).expect("Unable to load private key");
         ssh_sign(&data, key, SignAlgorithm::SHA512, None, "git".to_string())
