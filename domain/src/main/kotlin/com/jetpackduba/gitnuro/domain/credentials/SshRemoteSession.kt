@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.credentials
 
-import Session
+import com.jetpackduba.gitnuro.Session
 import com.jetpackduba.gitnuro.domain.exceptions.SshException
 import com.jetpackduba.gitnuro.domain.extensions.throwIfSshMessage
 import org.eclipse.jgit.transport.CredentialItem
@@ -31,7 +31,7 @@ class SshRemoteSession @Inject constructor() : RemoteSession {
     }
 
     fun setup(uri: URIish, sshCredentialsProvider: CredentialsProvider) {
-        val session = Session.new()
+        val session = Session()
             ?: throw SshException("Could not obtain the session, this is likely a bug. Please file a report.")
 
         val port = if (uri.port == NOT_EXPLICIT_PORT) {

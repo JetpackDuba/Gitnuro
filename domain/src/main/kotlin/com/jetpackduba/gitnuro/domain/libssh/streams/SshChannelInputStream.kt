@@ -1,15 +1,15 @@
 package com.jetpackduba.gitnuro.domain.libssh.streams
 
-import Channel
+import com.jetpackduba.gitnuro.Channel
 import com.jetpackduba.gitnuro.domain.exceptions.SshException
 import java.io.InputStream
 
 class SshChannelInputStream(private val sshChannel: Channel) : InputStream() {
     override fun read(b: ByteArray, off: Int, len: Int): Int {
-        val result = sshChannel.read(false, len.toLong())
+        val result = sshChannel.read(false, len.toULong())
             ?: throw SshException("Could not read result from SSH channel. Please check your network connectivity and try again.")
 
-        if (result.readCount == 0L) {
+        if (result.readCount == 0.toULong()) {
             return -1
         }
 
@@ -25,10 +25,10 @@ class SshChannelInputStream(private val sshChannel: Channel) : InputStream() {
 
     override fun read(): Int {
 
-        val result = sshChannel.read(false, 1L)
+        val result = sshChannel.read(false, 1L.toULong())
             ?: throw SshException("Could not read result from SSH channel. Please check your network connectivity and try again.")
 
-        if (result.readCount == 0L) {
+        if (result.readCount == 0.toULong()) {
             return -1
         }
 

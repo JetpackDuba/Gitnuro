@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.domain.libssh
 
-import Channel
-import Session
+import com.jetpackduba.gitnuro.Channel
+import com.jetpackduba.gitnuro.Session
 import com.jetpackduba.gitnuro.domain.exceptions.SshException
 import com.jetpackduba.gitnuro.domain.extensions.throwIfSshMessage
 import com.jetpackduba.gitnuro.domain.libssh.streams.SshChannelInputErrStream
@@ -10,7 +10,7 @@ import com.jetpackduba.gitnuro.domain.libssh.streams.SshChannelOutputStream
 import java.util.concurrent.Semaphore
 
 class ChannelWrapper internal constructor(sshSession: Session) {
-    private val channel = Channel.new(sshSession)
+    private val channel = Channel(sshSession)
         ?: throw SshException("Could not obtain the channel, this is likely a bug. Please file a report.")
 
     private var isClosed = false

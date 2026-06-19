@@ -21,6 +21,9 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         super.sort(RevSort.TOPO, true)
     }
 
+    val markedRoots: List<RevCommit>
+        field = mutableListOf<RevCommit>()
+
     override fun dispose() {
         super.dispose()
         if (reverseRefMap != null) {
@@ -119,6 +122,7 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
                 is RevTag -> {
                     if (refTarget.`object` is RevCommit) {
                         val commit = lookupCommit(refTarget.`object`)
+                        markedRoots.add(commit)
                         markStart(commit)
                     } else {
                         println("Tag ${refTarget.tagName} is pointing to ${refTarget.`object`::class.simpleName}")

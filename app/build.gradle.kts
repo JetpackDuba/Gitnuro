@@ -241,14 +241,24 @@ fun generateKotlinFromRs() {
         outDirFile.mkdirs()
     }
 
-    val binaryName = "cargo-kotars"
+    val binaryName = "cargo"
     val kotarsBin = findBinaryInPath(binaryName) ?: binaryName
 
     // cargo-kotars must be preinstalled
     val command = listOf(
         kotarsBin,
-        "--kotlin-output",
+        "run",
+        "--bin",
+        "uniffi-bindgen",
+        "generate",
+        "--language",
+        "kotlin",
+        "--out-dir",
         outDir,
+        "--library",
+        "${rustProjectDir.absolutePath}/target/release/$libName",
+        "--config",
+        "uniffi.toml",
     )
 
     println(command.joinToString(" "))
@@ -324,11 +334,7 @@ fun copyRustBuild() {
     val directory = File(outputDir)
     directory.mkdirs()
 
-    val lib = when (currentOs()) {
-        OS.LINUX -> "libgitnuro_rs.so"
-        OS.WINDOWS -> "gitnuro_rs.dll"
-        OS.MAC -> "libgitnuro_rs.dylib"
-    }
+    val lib = libName
 
     val originFile = File(workingDir, lib)
     val destinyFile = File(directory, lib)
@@ -341,6 +347,13 @@ fun copyRustBuild() {
 fun findBinaryInPath(binaryName: String): String? {
     return findBinary(System.getenv("PATH").split(":"), binaryName)
 }
+
+val libName = when (currentOs()) {
+    OS.LINUX -> "libgitnuro_rs.so"
+    OS.WINDOWS -> "gitnuro_rs.dll"
+    OS.MAC -> "libgitnuro_rs.dylib"
+}
+
 
 fun findBinary(paths: List<String>, binaryName: String): String? {
     for (path in paths) {

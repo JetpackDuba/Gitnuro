@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.credentials
 
-import Session
+import com.jetpackduba.gitnuro.Session
 import com.jetpackduba.gitnuro.domain.libssh.ChannelWrapper
 import java.io.InputStream
 import java.io.OutputStream

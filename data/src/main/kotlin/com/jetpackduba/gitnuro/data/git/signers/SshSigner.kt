@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.data.git.signers
 
-import Signing
+import com.jetpackduba.gitnuro.Signing
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.use
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.lib.*
@@ -27,7 +28,9 @@ class SshSigner @Inject constructor(
         val credentials = runBlocking { // TODO Run blocking perhaps could be replaced?
             credentialsStateManager.requestSshCredentials()
         }
-        val result = Signing.signData(data, signingKey, credentials.password)
+        val result = Signing().use {
+            it.signData(data, signingKey, credentials.password)
+        }
 
         return GpgSignature(result.toByteArray(Charsets.UTF_8))
     }

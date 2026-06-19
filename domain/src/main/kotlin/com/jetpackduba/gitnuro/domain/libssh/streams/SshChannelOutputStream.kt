@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.libssh.streams
 
-import Channel
+import com.jetpackduba.gitnuro.Channel
 import com.jetpackduba.gitnuro.domain.extensions.throwIfSshMessage
 import java.io.OutputStream
 

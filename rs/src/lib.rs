@@ -1,20 +1,17 @@
 extern crate notify;
 
-use std::collections::{HashMap, HashSet};
+use std::collections::{HashMap};
 use std::fmt::Debug;
 use std::io::Write;
 use std::path::Path;
 use std::sync::mpsc::{channel, Receiver, RecvTimeoutError};
-use std::sync::{Arc, RwLock};
+use std::sync::{Arc, LockResult, RwLock, RwLockWriteGuard};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use kotars::jni_init;
-use kotars::{jni_class, jni_data_class, jni_interface, jni_struct_impl};
 use libssh_rs::{ssh_sign, PollStatus, SignAlgorithm, SshKey, SshOption};
 
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
-use notify::event::CreateKind;
 use notify::{
     Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
 };
@@ -24,8 +21,6 @@ uniffi::setup_scaffolding!();
 #[derive(uniffi::Object)]
 struct FileWatcher {
     keep_watching: RwLock<bool>,
-    watched_directories: RwLock<HashSet<String>>,
-    // watcher: Option<Box<dyn Watcher>>,
     watcher: RwLock<Option<WatcherHolder>>,
     receiver: RwLock<Option<ReceiverHolder>>,
 }
@@ -210,7 +205,6 @@ impl FileWatcher {
     fn new() -> FileWatcher {
         FileWatcher {
             keep_watching: RwLock::from(true),
-            watched_directories: RwLock::from(HashSet::new()),
             watcher: RwLock::from(None),
             receiver: RwLock::from(None),
         }
@@ -611,7 +605,7 @@ impl Channel {
     }
 
     pub fn write_byte(&self, byte: i32) -> String {
-        let channel = match self.channel.as_ref().unwrap().channel.write() {
+        let channel = match self.get_channel() {
             Ok(c) => c,
             Err(e) => {
                 return format!("Something failed obtaining write channel: {e:?}");
@@ -629,7 +623,7 @@ impl Channel {
     }
 
     pub fn write_bytes(&self, data: &Vec<u8>) -> String {
-        let channel = match self.channel.as_ref().unwrap().channel.write() {
+        let channel = match self.get_channel() {
             Ok(c) => c,
             Err(e) => {
                 return format!("Something failed obtaining write channel: {e:?}");
@@ -644,6 +638,12 @@ impl Channel {
                 format!("Something failed writing to channel STDIN: {e:?}")
             }
         }
+    }
+}
+
+impl Channel {
+    fn get_channel(&'_ self) -> LockResult<RwLockWriteGuard<'_, libssh_rs::Channel>> {
+        self.channel.as_ref().unwrap().channel.write()
     }
 }
 
@@ -677,6 +677,11 @@ pub struct Signing;
 
 #[uniffi::export]
 impl Signing {
+    #[uniffi::constructor]
+    fn new() -> Signing {
+        Signing {}
+    }
+
     fn sign_data(&self, data: &Vec<u8>, key: String, password: String) -> String {
         let key =
             SshKey::from_privkey_file(&key, Some(&password)).expect("Unable to load private key");
