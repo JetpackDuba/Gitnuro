@@ -31,9 +31,10 @@ class GetLogGitAction @Inject constructor(
 
         val pair = graphsCache[repositoryPath]
 
+        /*
         if (pair != null) {
             val (walkCached, commitListCached) = pair
-            //if (walkCached.markedRoots == walk.markedRoots) {
+            if (walkCached.markedRoots == walk.markedRoots) {
                 val commits = LinkedHashMap<String, GraphCommit>(commitListCached.size)
 
                 for (entry in commitListCached) {
@@ -44,8 +45,8 @@ class GetLogGitAction @Inject constructor(
                     commits = commits,
                     maxLane = commitListCached.maxLane,
                 )
-            //}
-        }
+            }
+        }*/
 
 
         val repositoryState = git.repository.repositoryState
