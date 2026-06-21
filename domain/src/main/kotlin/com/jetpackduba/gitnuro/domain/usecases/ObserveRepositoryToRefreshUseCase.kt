@@ -86,7 +86,12 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
 
             val worktreeDirFile = File(worktreeDir)
 
-            val dirs = getDirsToWatch(worktreeDir + systemSeparator, worktreeDirFile, status?.ignored.orEmpty())
+            val dirs = getDirsToWatch(
+                worktreeDir = worktreeDir + systemSeparator,
+                excludedRelativePaths = HashSet(listOf(".git")),
+                dirFile = worktreeDirFile,
+                ignoreList = status?.ignored.orEmpty()
+            )
 
             if (status != null) {
                 for (child in dirs) {
@@ -135,15 +140,31 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
         }
     }
 
-    private fun getDirsToWatch(worktreeDir: String, dirFile: File, ignoreList: List<String>): List<File> {
+    private fun getDirsToWatch(
+        worktreeDir: String,
+        excludedRelativePaths: HashSet<String>,
+        dirFile: File,
+        ignoreList: List<String>
+    ): List<File> {
         val childrenDirs = try {
             dirFile.listFiles { file -> file.isDirectory }
         } catch (e: Exception) {
             printError(TAG, e.message.orEmpty(), e)
             emptyArray()
         }
-            .filter { !ignoreList.contains(it.absolutePath.removePrefix(worktreeDir)) }
+            .filter {
+                val relativePath = it.absolutePath.removePrefix(worktreeDir)
+                !ignoreList.contains(relativePath) &&
+                        !excludedRelativePaths.contains(relativePath)
+            }
 
-        return childrenDirs + childrenDirs.flatMap { getDirsToWatch(worktreeDir, it, ignoreList) }
+        return childrenDirs + childrenDirs.flatMap {
+            getDirsToWatch(
+                worktreeDir,
+                excludedRelativePaths,
+                it,
+                ignoreList
+            )
+        }
     }
 }
