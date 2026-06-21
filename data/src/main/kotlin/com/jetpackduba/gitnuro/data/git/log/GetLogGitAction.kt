@@ -31,23 +31,6 @@ class GetLogGitAction @Inject constructor(
 
         val pair = graphsCache[repositoryPath]
 
-        /*
-        if (pair != null) {
-            val (walkCached, commitListCached) = pair
-            if (walkCached.markedRoots == walk.markedRoots) {
-                val commits = LinkedHashMap<String, GraphCommit>(commitListCached.size)
-
-                for (entry in commitListCached) {
-                    commits[entry.name] = graphCommitMapper.toDomain(entry)
-                }
-
-                return@provide GraphCommits(
-                    commits = commits,
-                    maxLane = commitListCached.maxLane,
-                )
-            }
-        }*/
-
 
         val repositoryState = git.repository.repositoryState
         val commitList = cachedCommitList ?: GraphCommitList()
@@ -68,11 +51,40 @@ class GetLogGitAction @Inject constructor(
                     walk.markStartAllRefs(Constants.R_TAGS)
                     walk.markStartStashes(getStashListGitAction(git))
 
-                    //if (hasUncommittedChanges) {
-                    commitList.addUncommittedChangesGraphCommit(logList.first())
-                    //}
+                    if (hasUncommittedChanges) {
+                        commitList.addUncommittedChangesGraphCommit(logList.first())
+                    }
 
                     commitList.walker = walk
+
+                    if (pair != null) {
+                        val (walkCached, commitListCached) = pair
+                        val markedRoots = walk
+                            .markedRoots
+                            .asSequence()
+                            .map { it.name }
+                            .toSet()
+
+                        val cachedMarkedRoots = walkCached
+                            .markedRoots
+                            .asSequence()
+                            .map { it.name }
+                            .toSet()
+
+
+                        if (markedRoots == cachedMarkedRoots) {
+                            val commits = LinkedHashMap<String, GraphCommit>(commitListCached.size)
+
+                            for (entry in commitListCached) {
+                                commits[entry.name] = graphCommitMapper.toDomain(entry)
+                            }
+
+                            return@provide GraphCommits(
+                                commits = commits,
+                                maxLane = commitListCached.maxLane,
+                            )
+                        }
+                    }
                 }
 
                 graphsCache[repositoryPath] = walk to commitList

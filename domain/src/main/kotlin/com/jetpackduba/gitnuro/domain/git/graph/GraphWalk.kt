@@ -117,7 +117,10 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
             val refTarget = parseAny(objectId)
 
             when (refTarget) {
-                is RevCommit -> markStart(refTarget)
+                is RevCommit -> {
+                    markStart(refTarget)
+                    markedRoots.add(refTarget)
+                }
                 // RevTag case handles commits without branches but only tags.
                 is RevTag -> {
                     if (refTarget.`object` is RevCommit) {
