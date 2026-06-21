@@ -1,15 +1,19 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
+import com.jetpackduba.gitnuro.FileType
 import com.jetpackduba.gitnuro.common.printDebug
+import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
+import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusGitAction
 import com.jetpackduba.gitnuro.domain.models.WatcherEvent
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 private const val TAG = "ObserveRepositoryToRefreshUseCase"
@@ -25,6 +29,7 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
     private val refreshStatusUseCase: RefreshStatusUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
     private val repositoryStateRepository: RepositoryStateRepository,
+    private val getStatusGitAction: IGetStatusGitAction,
 ) {
     /**
      * Sometimes external apps can run filesystem multiple operations in a fraction of a second.
@@ -52,7 +57,9 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                                     System.currentTimeMillis() - repositoryStateRepository.lastOperationTimestamp.first()
 
                                 if (timeDiffInMs > REFRESH_TIME_SINCE_LAST_OPERATION) {
-                                    val hasGitDirChanged = event.changes.any { it.startsWith(repositoryPath) }
+                                    val hasGitDirChanged = event.changes.any { it.path.startsWith(repositoryPath) }
+
+                                    updateWatchedDirectories(event, repositoryPath, worktreeDir + systemSeparator)
 
                                     if (hasGitDirChanged) {
                                         refreshAllUseCase()
@@ -74,8 +81,69 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
             fileChangesWatcher.addPathToWatch(repositoryPath, false)
             fileChangesWatcher.addPathToWatch("$repositoryPath${systemSeparator}refs", true)
             fileChangesWatcher.addPathToWatch("$repositoryPath${systemSeparator}modules", true)
+
+            val status = getStatusGitAction(repositoryPath).okOrNull()
+
+            val worktreeDirFile = File(worktreeDir)
+
+            val dirs = getDirsToWatch(worktreeDir + systemSeparator, worktreeDirFile, status?.ignored.orEmpty())
+
+            if (status != null) {
+                for (child in dirs) {
+                    if (!status.ignored.contains(child.absolutePath.removePrefix(repositoryPath))) {
+                        fileChangesWatcher.addPathToWatch(child.absolutePath, false)
+                    }
+                }
+            }
         }.invokeOnCompletion {
             fileChangesWatcher.close()
         }
+    }
+
+    private suspend fun updateWatchedDirectories(
+        event: WatcherEvent.ChangesDetected,
+        repositoryPath: String,
+        worktreeDirPath: String,
+    ) {
+        val directories = event
+            .changes
+            .filter { it.fileType == FileType.DIRECTORY }
+
+        if (directories.isNotEmpty()) {
+            val groupedDirs = directories
+                .groupBy { File(it.path).exists() }
+
+            val newDirs = groupedDirs[true].orEmpty()
+            val removedDirs = groupedDirs[false].orEmpty()
+
+            if (newDirs.isNotEmpty()) {
+                val status = getStatusGitAction(
+                    repositoryPath,
+                    newDirs.map { it.path.removePrefix(worktreeDirPath) },
+                ).okOrNull()
+
+                for (dir in newDirs) {
+                    if (status != null && !status.ignored.contains(dir.path.removePrefix(worktreeDirPath))) {
+                        fileChangesWatcher.addPathToWatch(worktreeDirPath + systemSeparator + dir.path, false)
+                    }
+                }
+
+                for (dir in removedDirs) {
+                    fileChangesWatcher.removePathFromWatch(worktreeDirPath + systemSeparator + dir.path)
+                }
+            }
+        }
+    }
+
+    private fun getDirsToWatch(worktreeDir: String, dirFile: File, ignoreList: List<String>): List<File> {
+        val childrenDirs = try {
+            dirFile.listFiles { file -> file.isDirectory }
+        } catch (e: Exception) {
+            printError(TAG, e.message.orEmpty(), e)
+            emptyArray()
+        }
+            .filter { !ignoreList.contains(it.absolutePath.removePrefix(worktreeDir)) }
+
+        return childrenDirs + childrenDirs.flatMap { getDirsToWatch(worktreeDir, it, ignoreList) }
     }
 }

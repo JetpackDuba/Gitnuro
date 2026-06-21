@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git
 
+import com.jetpackduba.gitnuro.FileChanged
 import com.jetpackduba.gitnuro.FileWatcher
 import com.jetpackduba.gitnuro.WatchDirectoryNotifier
 import com.jetpackduba.gitnuro.common.TabScope
@@ -35,7 +36,7 @@ class FileChangesWatcher @Inject constructor() : AutoCloseable, IFileChangesWatc
         fileWatcher.watch(
             notifier = object : WatchDirectoryNotifier {
                 override fun shouldKeepLooping(): Boolean = coroutineContext.isActive && shouldKeepLooping
-                override fun detectedChange(paths: List<String>) {
+                override fun detectedChange(paths: List<FileChanged>) {
                     trySendBlocking(WatcherEvent.ChangesDetected(paths))
                 }
 

@@ -1,17 +1,18 @@
 extern crate notify;
 
-use std::collections::{HashMap};
+use std::collections::HashMap;
 use std::fmt::Debug;
 use std::io::Write;
 use std::path::Path;
-use std::sync::mpsc::{channel, Receiver, RecvTimeoutError};
+use std::sync::mpsc::{Receiver, RecvTimeoutError, channel};
 use std::sync::{Arc, LockResult, RwLock, RwLockWriteGuard};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use libssh_rs::{ssh_sign, PollStatus, SignAlgorithm, SshKey, SshOption};
+use libssh_rs::{PollStatus, SignAlgorithm, SshKey, SshOption, ssh_sign};
 
 #[allow(unused_imports)]
 use libssh_rs::AuthStatus;
+use notify::event::{CreateKind, RemoveKind};
 use notify::{
     Config, Error, ErrorKind, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher,
 };
@@ -44,15 +45,16 @@ impl Drop for FileWatcher {
     }
 }
 
-#[derive(uniffi::Record)]
-struct FileChanged {
+#[derive(uniffi::Record, Debug, Clone, Eq, PartialEq, Hash)]
+pub struct FileChanged {
     path: String,
+    file_type: FileType,
 }
 
-impl From<String> for FileChanged {
-    fn from(value: String) -> Self {
-        FileChanged { path: value }
-    }
+#[derive(uniffi::Enum, Debug, Clone, Eq, PartialEq, Hash)]
+pub enum FileType {
+    File,
+    Directory,
 }
 
 #[uniffi::export]
@@ -78,9 +80,7 @@ impl FileWatcher {
                 *watcher_holder = Some(WatcherHolder {
                     watcher: Box::new(watcher),
                 });
-                *receiver_holder = Some(ReceiverHolder {
-                    receiver,
-                });
+                *receiver_holder = Some(ReceiverHolder { receiver });
                 0
             }
             Err(e) => {
@@ -102,7 +102,7 @@ impl FileWatcher {
             Some(receiver) => &receiver.receiver,
         };
 
-        let mut paths_cached = HashMap::<String, Vec<EventKind>>::new();
+        let mut paths_cached = HashMap::<FileChanged, Vec<EventKind>>::new();
 
         let mut last_update: u128 = 0;
 
@@ -113,10 +113,22 @@ impl FileWatcher {
                         let paths_without_dirs: Vec<FileChangeEvent> = paths.into_iter().collect();
 
                         for path in paths_without_dirs.into_iter() {
-                            match paths_cached.get_mut(&path.path) {
+                            let is_dir = is_directory_event(&path.event_kind);
+                            let file_type = if is_dir {
+                                FileType::Directory
+                            } else {
+                                FileType::File
+                            };
+
+                            let file_changed = FileChanged {
+                                path: path.path,
+                                file_type,
+                            };
+
+                            match paths_cached.get_mut(&file_changed) {
                                 Some(v) => v.push(path.event_kind),
                                 None => {
-                                    paths_cached.insert(path.path, vec![path.event_kind]);
+                                    paths_cached.insert(file_changed, vec![path.event_kind]);
                                 }
                             }
                         }
@@ -216,18 +228,29 @@ impl FileWatcher {
     }
 }
 
-fn remove_temporary_files(changes: &mut HashMap<String, Vec<EventKind>>) -> Vec<String> {
-    let paths: Vec<String> = changes
+fn remove_temporary_files(changes: &mut HashMap<FileChanged, Vec<EventKind>>) -> Vec<FileChanged> {
+    let paths: Vec<FileChanged> = changes
         .iter()
         .filter_map(|(key, value)| {
-            // TODO If a file was removed and then created, then it shouldn't be marked as temporary file
-            let is_created = value.iter().any(|v| matches!(v, EventKind::Create(_)));
-            let is_removed = value.iter().any(|v| matches!(v, EventKind::Remove(_)));
+            let index_created = value
+                .iter()
+                .position(|v| matches!(v, EventKind::Create(_)));
 
-            // If a file has been created and removed before passing it to kotlin,
-            // filter it out, we don't care about it as it's a temporary file
-            if is_created && is_removed {
-                println!("Removing entry {key} as it looks like a temporary file.");
+            let index_removed = value
+                .iter()
+                .position(|v| matches!(v, EventKind::Remove(_)));
+
+            // If a file has been created and removed before passing it to kotlin,  filter it out,
+            // we don't care about it as it's a temporary file.
+            // If a file has been first removed and then created, then it shouldn't be marked as
+            // temporary file.
+            if let (Some(index_created), Some(index_removed)) = (index_created, index_removed)
+                && index_created < index_removed
+            {
+                println!(
+                    "Removing entry {} as it looks like a temporary file.",
+                    key.path
+                );
                 None
             } else {
                 Some(key.clone())
@@ -238,11 +261,18 @@ fn remove_temporary_files(changes: &mut HashMap<String, Vec<EventKind>>) -> Vec<
     paths
 }
 
+fn is_directory_event(kind: &EventKind) -> bool {
+    match kind {
+        EventKind::Create(CreateKind::Folder) | EventKind::Remove(RemoveKind::Folder) => true,
+        _ => false,
+    }
+}
+
 fn process_paths_cached(
-    paths_cached: &mut HashMap<String, Vec<EventKind>>,
+    paths_cached: &mut HashMap<FileChanged, Vec<EventKind>>,
     notifier: &Box<dyn WatchDirectoryNotifier>,
 ) {
-    let paths_to_send: Vec<String> = remove_temporary_files(paths_cached);
+    let paths_to_send: Vec<FileChanged> = remove_temporary_files(paths_cached);
     paths_cached.clear();
 
     if !paths_to_send.is_empty() {
@@ -324,7 +354,7 @@ pub struct FileChangeEvent {
 #[uniffi::export(callback_interface)]
 pub trait WatchDirectoryNotifier: Send + Sync + Debug {
     fn should_keep_looping(&self) -> bool;
-    fn detected_change(&self, paths: Vec<String>);
+    fn detected_change(&self, paths: Vec<FileChanged>);
     fn on_error(&self, code: i32);
 }
 

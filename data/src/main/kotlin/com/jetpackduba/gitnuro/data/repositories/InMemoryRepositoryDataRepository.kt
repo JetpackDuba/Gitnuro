@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRepository {
     override val status: Flow<Status>
-        field = MutableStateFlow<Status>(Status(emptyList(), emptyList()))
+        field = MutableStateFlow<Status>(Status(emptyList(), emptyList(), emptyList()))
 
     override val localBranches: Flow<List<Branch>>
         field = MutableStateFlow<List<Branch>>(emptyList())
@@ -59,7 +59,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     }
 
     override fun clearAll() {
-        this.status.value = Status(emptyList(), emptyList())
+        this.status.value = Status(emptyList(), emptyList(), emptyList())
         this.localBranches.value = emptyList()
         this.tags.value = emptyList()
         this.remotes.value = emptyList()

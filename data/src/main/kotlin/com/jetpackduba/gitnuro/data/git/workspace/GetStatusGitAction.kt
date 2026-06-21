@@ -18,11 +18,16 @@ import org.eclipse.jgit.api.Status as JGitStatus
 class GetStatusGitAction @Inject constructor(
     private val jgit: JGit,
 ) : IGetStatusGitAction {
-    override suspend operator fun invoke(repository: String) = either {
+    override suspend operator fun invoke(repository: String, paths: List<String>) = either {
         val status = withContext(Dispatchers.IO) {
             jgit.provide(repository) { git ->
                 git
                     .status()
+                    .apply {
+                        for (path in paths) {
+                            addPath(path)
+                        }
+                    }
                     .call()
             }
         }.bind()
@@ -30,7 +35,7 @@ class GetStatusGitAction @Inject constructor(
         val staged = getStaged(status)
         val unstaged = getUnstaged(status)
 
-        Either.Ok(Status(staged, unstaged))
+        Either.Ok(Status(staged, unstaged, status.ignoredNotInIndex.toList()))
     }
 
     private fun getUnstaged(status: JGitStatus): List<StatusEntry> {

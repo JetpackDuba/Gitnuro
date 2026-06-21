@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.domain.models
 data class Status(
     val staged: List<StatusEntry>,
     val unstaged: List<StatusEntry>,
+    val ignored: List<String>,
 )
 
 
