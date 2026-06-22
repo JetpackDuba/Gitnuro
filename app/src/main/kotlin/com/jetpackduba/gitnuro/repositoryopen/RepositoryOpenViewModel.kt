@@ -228,7 +228,7 @@ class RepositoryOpenViewModel @Inject constructor(
             .distinctUntilChanged()
 
     private val tagsByCommitHash = repositoryDataRepository.tags.map {
-        it.groupBy { tag -> tag.hash }
+        it.groupBy { tag -> tag.commitHash }
     }
 
     private val stashesHashes = repositoryDataRepository.stashes
@@ -444,10 +444,10 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun onFetchRemoteBranches(remote: RemoteView) = fetchRemotesUseCase(remote.remoteInfo.remote)
 
-    fun checkoutTagCommit(tag: Tag) = checkoutCommitUseCase(tag.hash)
+    fun checkoutTagCommit(tag: Tag) = checkoutCommitUseCase(tag.commitHash)
 
     fun selectTag(tag: Tag) = viewModelScope.launch {
-        val commit = getCommitFromHashUseCase(tag.hash).okOrNull()
+        val commit = getCommitFromHashUseCase(tag.commitHash).okOrNull()
 
         if (commit != null) {
             selectedItem.value = SelectedItem.TagItem(tag, commit)
@@ -709,7 +709,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    private fun checkoutTag(tag: Tag) = checkoutCommitUseCase(tag.hash)
+    private fun checkoutTag(tag: Tag) = checkoutCommitUseCase(tag.commitHash)
     private fun checkoutCommit(commit: Commit) = checkoutCommitUseCase(commit)
     private fun cherryPickCommit(commit: Commit) = cherryPickCommitUseCase(commit)
     private fun revertCommit(commit: Commit) = revertCommitUseCase(commit)

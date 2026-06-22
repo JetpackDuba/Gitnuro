@@ -13,6 +13,7 @@ class JGitTagMapper @Inject constructor(): DataMapper<Tag?, Ref?> {
         val value = value ?: return null
 
         return Tag(
+            commitHash = value.peeledObjectId.name,
             hash = value.objectId.name,
             name = value.name,
         )
