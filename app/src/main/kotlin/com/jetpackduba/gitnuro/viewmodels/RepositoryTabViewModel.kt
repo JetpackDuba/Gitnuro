@@ -15,7 +15,10 @@ import com.jetpackduba.gitnuro.domain.extensions.removeGitSuffix
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
-import com.jetpackduba.gitnuro.domain.repositories.*
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
+import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
@@ -35,8 +38,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.collections.get
-import kotlin.collections.remove
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
@@ -63,7 +64,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val repositoryStateRepository: RepositoryStateRepository,
     private val setRepositorySelectionStateToNoneUseCase: SetRepositorySelectionStateToNoneUseCase,
     private val tabComponent: TabComponent,
-    @Assisted val initialPath: String?,
+    @Assisted private val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
@@ -73,6 +74,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
     interface Factory {
         fun create(initialPath: String?): RepositoryTabViewModel
     }
+
+    private var alreadyLoaded = false
 
     val savedStates = mutableMapOf<String, Pair<Any?, Any?>>()
 
@@ -85,6 +88,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
 
         return viewModelsMap.getValue(key) as T
     }
+
     fun removeViewModel(key: NavKey) {
         if (!backStack.contains(key)) {
             printLog(TAG, "TAB ${tabName.value} - Removing view model for key $key")
@@ -234,7 +238,14 @@ class RepositoryTabViewModel @AssistedInject constructor(
         appStateManager.removeRepositoryFromRecent(repository)
     }
 
-    fun newTab() {
-        setRepositorySelectionStateToNoneUseCase()
+    fun loadTab() {
+        if (!alreadyLoaded) {
+            alreadyLoaded = true
+            if (initialPath != null) {
+                openRepository(initialPath)
+            } else {
+                setRepositorySelectionStateToNoneUseCase()
+            }
+        }
     }
 }
