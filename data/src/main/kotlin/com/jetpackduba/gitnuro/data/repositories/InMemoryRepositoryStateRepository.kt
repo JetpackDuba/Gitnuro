@@ -19,11 +19,7 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
     override val completedTasks: StateFlow<List<CompletedTask>>
         field = MutableStateFlow(emptyList())
     override val lastOperationTimestamp: Flow<Long> = completedTasks.map {
-        if (completedTasks.value.isEmpty()) {
-            0L
-        } else {
-            System.currentTimeMillis()
-        }
+        completedTasks.value.lastOrNull()?.date ?: 0L
     }
 
     override suspend fun <T> runOperation(taskType: TaskType, block: suspend () -> T): T {

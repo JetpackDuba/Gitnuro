@@ -67,6 +67,8 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                                         refreshStatusUseCase()
                                         refreshLogUseCase()
                                     }
+                                } else {
+                                    printDebug(TAG, "Ignoring detected changes because the time diff since last change is $timeDiffInMs ms")
                                 }
                             }
 
