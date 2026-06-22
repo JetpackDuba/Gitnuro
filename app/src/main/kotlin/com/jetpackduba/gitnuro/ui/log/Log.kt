@@ -506,32 +506,25 @@ fun CommitsList(
                 }
             },
     ) {
-        if (
-            hasUncommittedChanges ||
-            repositoryState.isMerging ||
-            repositoryState.isRebasing ||
-            repositoryState.isCherryPicking
-        ) {
-            item {
-                Box(
-                    modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
-                        .clipToBounds()
-                        .fillMaxWidth()
-                        .handMouseClickable { onAction(LogAction.UncommittedChangesSelected) }
-                ) {
-                    UncommittedChangesGraphNode(
-                        hasPreviousCommits = commitList.commits.isNotEmpty(),
-                        isSelected = selectedItem is SelectedItem.UncommittedChanges,
-                        modifier = Modifier.offset(-horizontalScrollState.value.dp)
-                    )
+        item {
+            Box(
+                modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
+                    .clipToBounds()
+                    .fillMaxWidth()
+                    .handMouseClickable { onAction(LogAction.UncommittedChangesSelected) }
+            ) {
+                UncommittedChangesGraphNode(
+                    hasPreviousCommits = commitList.commits.isNotEmpty(),
+                    isSelected = selectedItem is SelectedItem.UncommittedChanges,
+                    modifier = Modifier.offset(-horizontalScrollState.value.dp)
+                )
 
-                    UncommittedChangesLine(
-                        graphWidth = graphWidth,
-                        isSelected = selectedItem == SelectedItem.UncommittedChanges,
-                        statusSummary = logState.statusSummary,
-                        repositoryState = repositoryState,
-                    )
-                }
+                UncommittedChangesLine(
+                    graphWidth = graphWidth,
+                    isSelected = selectedItem == SelectedItem.UncommittedChanges,
+                    statusSummary = logState.statusSummary,
+                    repositoryState = repositoryState,
+                )
             }
         }
 
@@ -540,7 +533,8 @@ fun CommitsList(
         // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
         items(
             items = commitList.values.toList(),
-            /*key = { commit ->
+            /*TODO restore at some point. When enabled, adding a new commit doesn't automatically scroll to the top
+               key = { commit ->
                 commit.hash + branches[commit.hash].orEmpty().joinToString() + tags[commit.hash].orEmpty().joinToString()
             },*/
         )

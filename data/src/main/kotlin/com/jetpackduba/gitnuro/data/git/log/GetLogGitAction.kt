@@ -51,9 +51,9 @@ class GetLogGitAction @Inject constructor(
                     walk.markStartAllRefs(Constants.R_TAGS)
                     walk.markStartStashes(getStashListGitAction(git))
 
-                    if (hasUncommittedChanges) {
-                        commitList.addUncommittedChangesGraphCommit(logList.first())
-                    }
+//                    if (hasUncommittedChanges) {
+                    commitList.addUncommittedChangesGraphCommit(logList.first())
+//                    }
 
                     commitList.walker = walk
 
