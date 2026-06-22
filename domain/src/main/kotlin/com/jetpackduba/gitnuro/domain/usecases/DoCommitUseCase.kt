@@ -11,6 +11,7 @@ import javax.inject.Inject
 
 class DoCommitUseCase @Inject constructor(
     private val refreshStatusUseCase: RefreshStatusUseCase,
+    private val refreshBranchesUseCase: RefreshBranchesUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
     private val doCommitGitAction: IDoCommitGitAction,
     private val useCaseExecutor: UseCaseExecutor,
@@ -25,6 +26,7 @@ class DoCommitUseCase @Inject constructor(
         useCaseExecutor.executeLaunch(
             taskType = TaskType.DoCommit,
             onRefresh = {
+                refreshBranchesUseCase()
                 refreshStatusUseCase()
                 refreshLogUseCase()
             }
