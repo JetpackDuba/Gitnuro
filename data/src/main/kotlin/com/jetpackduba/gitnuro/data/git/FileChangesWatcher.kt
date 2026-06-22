@@ -6,6 +6,7 @@ import com.jetpackduba.gitnuro.WatchDirectoryNotifier
 import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.models.WatcherEvent
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -45,6 +46,8 @@ class FileChangesWatcher @Inject constructor() : AutoCloseable, IFileChangesWatc
                 }
             }
         )
+
+        awaitClose { fileWatcher.close() }
     }
 
 

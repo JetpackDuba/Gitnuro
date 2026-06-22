@@ -126,7 +126,7 @@ fun AppTab(
                 NavDisplay(
                     backStack = backStack,
                     onBack = {},
-                    sceneStrategy = dialogStrategy,
+                    sceneStrategies = listOf(dialogStrategy),
                     entryProvider = entryProvider {
                         entry<Screen.Welcome> {
                             WelcomePage(

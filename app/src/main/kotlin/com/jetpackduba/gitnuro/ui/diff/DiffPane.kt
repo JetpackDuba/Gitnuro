@@ -76,6 +76,7 @@ import org.jetbrains.compose.animatedimage.Blank
 import org.jetbrains.compose.animatedimage.animate
 import org.jetbrains.compose.animatedimage.loadAnimatedImage
 import org.jetbrains.compose.resources.DrawableResource
+import org.jetbrains.compose.resources.decodeToImageBitmap
 import org.jetbrains.compose.resources.painterResource
 import java.io.FileInputStream
 import kotlin.math.max
@@ -405,7 +406,7 @@ private fun StaticImage(
     LaunchedEffect(tempImagePath) {
         withContext(Dispatchers.IO) {
             FileInputStream(tempImagePath).use { inputStream ->
-                image = loadImageBitmap(inputStream = inputStream)
+                image = inputStream.readAllBytes().decodeToImageBitmap()
             }
         }
     }
