@@ -17,7 +17,6 @@ sealed interface TaskType {
     data object BlameFile : TaskType
     data object HistoryFile : TaskType
     data object DoCommit : TaskType
-    data object AmendCommit : TaskType
     data object RevertCommit : TaskType
     data object CherryPickCommit : TaskType
     data object CheckoutCommit : TaskType

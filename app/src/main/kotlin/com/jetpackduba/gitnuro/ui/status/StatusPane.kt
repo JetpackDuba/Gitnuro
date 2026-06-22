@@ -37,10 +37,8 @@ import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.compose.rememberInTab
 import com.jetpackduba.gitnuro.domain.extensions.*
-import com.jetpackduba.gitnuro.domain.models.DiffType
-import com.jetpackduba.gitnuro.domain.models.EntryType
-import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
-import com.jetpackduba.gitnuro.domain.models.StatusEntry
+import com.jetpackduba.gitnuro.domain.models.*
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.icon
 import com.jetpackduba.gitnuro.extensions.iconColor
@@ -56,6 +54,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntryContextMenuItems
 import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.DrawableResource
@@ -67,6 +66,7 @@ fun StatusPane(
     onAction: (StatusAction) -> Unit,
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
+    completedTasks: StateFlow<List<CompletedTask>>,
 ) {
     val swapUncommittedChanges = statusState.swapUncommittedChanges
     val (commitMessage, setCommitMessage) = remember() { mutableStateOf("") }
@@ -112,6 +112,15 @@ fun StatusPane(
         launch {
             if (statusState.showSearchUnstaged || statusState.showSearchStaged) {
                 tabFocusRequester.requestFocus()
+            }
+        }
+    }
+
+    LaunchedEffect(completedTasks) {
+        completedTasks.collect { tasks ->
+            val lastCompletedTask = tasks.lastOrNull()
+            if (lastCompletedTask is CompletedTask.Success && lastCompletedTask.taskType is TaskType.DoCommit) {
+                setCommitMessage("")
             }
         }
     }

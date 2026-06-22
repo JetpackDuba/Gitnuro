@@ -52,7 +52,6 @@ import org.eclipse.jgit.lib.RebaseTodoLine
 import org.eclipse.jgit.lib.RepositoryState
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlin.time.Duration.Companion.milliseconds
 
 
 private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
@@ -141,6 +140,8 @@ class RepositoryOpenViewModel @Inject constructor(
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
     TabViewModel() {
+    val completedTasks = repositoryStateRepository.completedTasks
+
     val showAsTree = appSettings.showChangesAsTree
         .stateIn(false)
 

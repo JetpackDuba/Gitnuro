@@ -66,7 +66,6 @@ fun getTitle(taskType: TaskType): String {
         TaskType.AbortRebase -> "Aborting rebase"
         TaskType.AddRemote -> "Adding remote"
         TaskType.AddSubmodule -> "Adding submodule"
-        TaskType.AmendCommit -> "Amending commit"
         TaskType.ApplyStash -> "Applying stash"
         TaskType.BlameFile -> "Blaming file"
         TaskType.ChangeBranchUpstream -> "Changing branch upstream"

@@ -177,7 +177,6 @@ fun TaskType.errorTitle(): String {
         TaskType.BlameFile -> "File blaming failed"
         TaskType.HistoryFile -> "Could not load file history"
         TaskType.DoCommit -> "Commit failed"
-        TaskType.AmendCommit -> "Commit amend failed"
         TaskType.RevertCommit -> "Commit revert failed"
         TaskType.CherryPickCommit -> "Commit cherry-pick failed"
         TaskType.CheckoutCommit -> "Checkout commit failed"

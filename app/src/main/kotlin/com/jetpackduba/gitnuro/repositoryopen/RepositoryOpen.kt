@@ -337,6 +337,7 @@ fun MainContentView(
                 } else {
                     StatusPane(
                         statusState = statusState,
+                        completedTasks = viewModel.completedTasks,
                         onAction = { viewModel.onAction(it) },
                         onBlameFile = { viewModel.blameFile(it) },
                         onHistoryFile = { viewModel.fileHistory(it) }
