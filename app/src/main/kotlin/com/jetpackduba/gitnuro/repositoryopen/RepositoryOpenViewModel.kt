@@ -72,8 +72,6 @@ private const val NONE_MATCHING_INDEX = 0
  */
 private const val FIRST_INDEX = 1
 
-private const val LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
-
 private const val TAG = "TabViewModel"
 
 /**
@@ -309,7 +307,6 @@ class RepositoryOpenViewModel @Inject constructor(
         verticalListState,
         horizontalListState,
     )
-        .debounce(LOG_MIN_TIME_IN_MS_TO_SHOW_LOAD.milliseconds)
         .stateIn(LogState(true))
 
 

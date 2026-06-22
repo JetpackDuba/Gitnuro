@@ -540,9 +540,9 @@ fun CommitsList(
         // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
         items(
             items = commitList.values.toList(),
-            key = { commit ->
+            /*key = { commit ->
                 commit.hash + branches[commit.hash].orEmpty().joinToString() + tags[commit.hash].orEmpty().joinToString()
-            },
+            },*/
         )
         { graphNode ->
             CommitLine(
