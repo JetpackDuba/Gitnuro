@@ -6,10 +6,7 @@ data class GraphCommit(
     val passingLanes: List<Int>,
     val mergingLanes: List<Int>,
     val forkingOffLanes: List<Int>,
-    val isStash: Boolean,
     val childCount: Int,
-    val branches: List<Branch>,
-    val tags: List<Tag>,
 ) {
     val hash get() = commit.hash
     val message get() = commit.message

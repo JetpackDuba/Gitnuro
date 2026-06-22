@@ -19,31 +19,13 @@ class GraphCommitMapper @Inject constructor(
 
     override fun toDomain(value: GraphNode): GraphCommit {
         with (value) {
-            val branches = mutableListOf<Branch>()
-            val tags = mutableListOf<Tag>()
-
-            for (ref in refs) {
-                if (ref.isBranch) {
-                    branchMapper
-                        .toDomain(ref)
-                        ?.let { branches.add(it) }
-                } else if (ref.isTag) {
-                    tagMapper
-                        .toDomain(ref)
-                        ?.let { tags.add(it) }
-                }
-            }
-
             return GraphCommit(
                 commit = commitMapper.toDomain(value),
                 lane = lane.position,
                 passingLanes = passingLanes.map { it.position },
                 mergingLanes = mergingLanes.map { it.position },
                 forkingOffLanes = forkingOffLanes.map { it.position },
-                isStash = value.isStash,
                 childCount = childCount,
-                branches = branches,
-                tags = tags,
             )
         }
     }

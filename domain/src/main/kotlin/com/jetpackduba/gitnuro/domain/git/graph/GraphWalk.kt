@@ -53,9 +53,6 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
         val graphNode = super.next() as GraphNode?
 
         if (graphNode != null) {
-            val refs = getRefs(graphNode)
-            graphNode.refs = refs
-
             graphNode.isStash = stashes.contains(graphNode)
         }
 

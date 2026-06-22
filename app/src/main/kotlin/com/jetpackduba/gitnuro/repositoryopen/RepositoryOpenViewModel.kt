@@ -11,14 +11,15 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
-import com.jetpackduba.gitnuro.domain.exceptions.codeToMessage
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
-import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.*
+import com.jetpackduba.gitnuro.domain.repositories.CloseableView
+import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
@@ -26,8 +27,8 @@ import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
-import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.AppViewModel
+import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.status.StatusAction
 import com.jetpackduba.gitnuro.updates.Update
@@ -36,11 +37,13 @@ import com.jetpackduba.gitnuro.viewmodels.*
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
 import com.jetpackduba.gitnuro.viewmodels.RebaseLine
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.RebaseCommand.InteractiveHandler
 import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.diff.DiffEntry
@@ -215,6 +218,29 @@ class RepositoryOpenViewModel @Inject constructor(
     private val branches = repositoryDataRepository.localBranches
     private val currentBranch = repositoryDataRepository.currentBranch
 
+    private val logBranchesByCommitHash =
+        combine(branches, repositoryDataRepository.remotes, currentBranch) { branches, remotes, currentBranch ->
+            (branches + remotes.flatMap { it.branchesList })
+                .filter { branch ->
+                    currentBranch?.name == "HEAD" || branch.simpleName != "HEAD"
+                }
+                .groupBy { branch -> branch.hash }
+        }
+            .distinctUntilChanged()
+
+    private val tagsByCommitHash = repositoryDataRepository.tags.map {
+        it.groupBy { tag -> tag.hash }
+    }
+
+    private val stashesHashes = repositoryDataRepository.stashes
+        .map {
+            it
+                .map { commit ->
+                    commit.hash
+                }
+                .toHashSet()
+        }
+
     val branchesState =
         combineBranchesState(branches, currentBranch, isExpandedBranches, filter)
             .stateIn(BranchesState(emptyList(), isExpandedBranches.value, null))
@@ -275,6 +301,9 @@ class RepositoryOpenViewModel @Inject constructor(
         log,
         hasUncommittedChanges,
         currentBranch,
+        branches = logBranchesByCommitHash,
+        tags = tagsByCommitHash,
+        stashes = stashesHashes,
         statusSummary,
         logSearchFilterResults,
         verticalListState,

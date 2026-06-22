@@ -34,7 +34,6 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
@@ -49,11 +48,7 @@ import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.extensions.isReverting
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.extensions.backgroundIf
-import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.extensions.setClipboardText
-import com.jetpackduba.gitnuro.extensions.toSmartSystemString
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.repositoryopen.LogAction
@@ -274,6 +269,9 @@ private fun LogView(
                 repositoryState = repositoryState,
                 selectedItem = selectedItem,
                 commitList = commitList,
+                branches = logState.branches,
+                tags = logState.tags,
+                stashes = logState.stashes,
                 graphWidth = graphWidth,
                 onCreateBranch = onCreateBranch,
                 onResetBranch = onResetBranch,
@@ -479,6 +477,9 @@ fun CommitsList(
     repositoryState: RepositoryState,
     selectedItem: SelectedItem,
     commitList: GraphCommits,
+    branches: Map<String, List<Branch>>,
+    tags: Map<String, List<Tag>>,
+    stashes: HashSet<String>,
     onAction: (LogAction) -> Unit,
     onCreateBranch: (Commit) -> Unit,
     onResetBranch: (Commit) -> Unit,
@@ -537,11 +538,20 @@ fun CommitsList(
         // Setting a key makes the graph preserve the scroll position when a new line has been added on top (uncommitted changes)
         // Therefore, after popping a stash, the uncommitted changes wouldn't be visible and requires the user scrolling.
         // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
-        items(items = commitList.values.toList()) { graphNode ->
+        items(
+            items = commitList.values.toList(),
+            key = { commit ->
+                commit.hash + branches[commit.hash].orEmpty().joinToString() + tags[commit.hash].orEmpty().joinToString()
+            },
+        )
+        { graphNode ->
             CommitLine(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
                 isSelected = selectedCommit?.hash == graphNode.hash,
+                isStash = stashes.contains(graphNode.hash),
+                branches = branches[graphNode.hash].orEmpty(),
+                tags = tags[graphNode.hash].orEmpty(),
                 currentBranch = logState.currentBranch,
                 matchesSearchFilter = searchFilter?.contains(graphNode),
                 horizontalScrollState = horizontalScrollState,
@@ -752,6 +762,7 @@ private fun CommitLine(
     graphNode: GraphCommit,
     isSelected: Boolean,
     currentBranch: Branch?,
+    isStash: Boolean,
     matchesSearchFilter: Boolean?,
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
@@ -778,12 +789,14 @@ private fun CommitLine(
     onRenameBranch: (Branch) -> Unit,
     onCopyBranchNameToClipboard: (Branch) -> Unit,
     horizontalScrollState: ScrollState,
+    branches: List<Branch>,
+    tags: List<Tag>,
 ) {
     val isLastCommitOfCurrentBranch = currentBranch?.hash == graphNode.hash
 
     ContextMenu(
         items = {
-            if (graphNode.isStash) {
+            if (isStash) {
                 stashesContextMenuItems(
                     onApply = onApplyStash,
                     onPop = onPopStash,
@@ -822,6 +835,7 @@ private fun CommitLine(
                         modifier = Modifier
                             .fillMaxHeight(),
                         plotCommit = graphNode,
+                        isStash = isStash,
                         nodeColor = nodeColor,
                         isSelected = isSelected,
                     )
@@ -856,6 +870,9 @@ private fun CommitLine(
                         nodeColor = nodeColor,
                         matchesSearchFilter = matchesSearchFilter,
                         currentBranch = currentBranch,
+                        isStash = isStash,
+                        branches = branches,
+                        tags = tags,
                         onCheckoutBranch = { ref ->
                             if (ref.isRemote) {
                                 onCheckoutRemoteBranch(ref)
@@ -885,6 +902,9 @@ private fun CommitLine(
 fun CommitMessage(
     graphCommit: GraphCommit,
     currentBranch: Branch?,
+    isStash: Boolean,
+    tags: List<Tag>,
+    branches: List<Branch>,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
     onCheckoutBranch: (ref: Branch) -> Unit,
@@ -911,9 +931,9 @@ fun CommitMessage(
         Row(
             modifier = Modifier.padding(start = 16.dp)
         ) {
-            if (!graphCommit.isStash) {
+            if (!isStash) {
                 // TODO Enable this once commits list is migrated to new structure
-                for (tag in graphCommit.tags) {
+                for (tag in tags) {
                     TagChip(
                         tag = tag,
                         color = nodeColor,
@@ -921,7 +941,7 @@ fun CommitMessage(
                         onDeleteTag = { onDeleteTag(tag) },
                     )
                 }
-                for (branch in graphCommit.branches) {
+                for (branch in branches) {
                     BranchChip(
                         ref = branch,
                         color = nodeColor,
@@ -1035,6 +1055,7 @@ fun SimpleDividerLog(modifier: Modifier) {
 fun CommitsGraph(
     modifier: Modifier = Modifier,
     plotCommit: GraphCommit,
+    isStash: Boolean,
     nodeColor: Color,
     isSelected: Boolean,
 ) {
@@ -1110,7 +1131,8 @@ fun CommitsGraph(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = ((itemPosition + 1) * 30 - 15).dp),
-            plotCommit = plotCommit,
+            commit = plotCommit,
+            isStash = isStash,
             color = nodeColor,
         )
     }
@@ -1119,11 +1141,12 @@ fun CommitsGraph(
 @Composable
 fun CommitNode(
     modifier: Modifier = Modifier,
-    plotCommit: GraphCommit,
+    commit: GraphCommit,
+    isStash: Boolean,
     color: Color,
 ) {
-    val author = plotCommit.author
-    if (plotCommit.isStash) {
+    val author = commit.author
+    if (isStash) {
         Box(
             modifier = modifier
                 .size(30.dp)
@@ -1152,7 +1175,7 @@ fun CommitNode(
             ) {
                 AvatarImage(
                     modifier = Modifier.fillMaxSize(),
-                    personIdent = plotCommit.author,
+                    personIdent = commit.author,
                     color = color,
                 )
             }
