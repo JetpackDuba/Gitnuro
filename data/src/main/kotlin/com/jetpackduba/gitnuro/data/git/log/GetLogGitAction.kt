@@ -14,8 +14,6 @@ import kotlinx.coroutines.ensureActive
 import org.eclipse.jgit.lib.Constants
 import javax.inject.Inject
 
-private val graphsCache = mutableMapOf<String, Pair<GraphWalk, GraphCommitList>>()
-
 class GetLogGitAction @Inject constructor(
     private val getStashListGitAction: GetStashListGitAction,
     private val graphCommitMapper: GraphCommitMapper,
@@ -28,10 +26,6 @@ class GetLogGitAction @Inject constructor(
         commitsLimit: Int,
         cachedCommitList: GraphCommitList?,
     ) = jgit.provide(repositoryPath) { git ->
-
-        val pair = graphsCache[repositoryPath]
-
-
         val repositoryState = git.repository.repositoryState
         val commitList = cachedCommitList ?: GraphCommitList()
         if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
@@ -56,38 +50,7 @@ class GetLogGitAction @Inject constructor(
                     }
 
                     commitList.walker = walk
-
-                    if (pair != null) {
-                        val (walkCached, commitListCached) = pair
-                        val markedRoots = walk
-                            .markedRoots
-                            .asSequence()
-                            .map { it.name }
-                            .toSet()
-
-                        val cachedMarkedRoots = walkCached
-                            .markedRoots
-                            .asSequence()
-                            .map { it.name }
-                            .toSet()
-
-
-                        if (markedRoots == cachedMarkedRoots) {
-                            val commits = LinkedHashMap<String, GraphCommit>(commitListCached.size)
-
-                            for (entry in commitListCached) {
-                                commits[entry.name] = graphCommitMapper.toDomain(entry)
-                            }
-
-                            return@provide GraphCommits(
-                                commits = commits,
-                                maxLane = commitListCached.maxLane,
-                            )
-                        }
-                    }
                 }
-
-                graphsCache[repositoryPath] = walk to commitList
             }
 
             commitList.fillTo(commitsLimit)
