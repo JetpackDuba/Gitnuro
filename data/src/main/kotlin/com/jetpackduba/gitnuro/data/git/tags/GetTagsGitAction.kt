@@ -13,6 +13,14 @@ class GetTagsGitAction @Inject constructor(
         git
             .tagList()
             .call()
-            .mapNotNull { tagMapper.toDomain(it) }
+            .mapNotNull { tag ->
+                val tag = if (!tag.isPeeled) {
+                    git.repository.refDatabase.peel(tag)
+                } else {
+                    tag
+                }
+
+                tagMapper.toDomain(tag)
+            }
     }
 }
