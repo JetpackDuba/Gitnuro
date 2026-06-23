@@ -49,21 +49,6 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun loadPersistedTabs2() {
-        val repositoriesSaved = appSettingsRepository.latestTabsOpened
-
-        val repositoriesList = if (repositoriesSaved.isNotEmpty())
-            Json.decodeFromString<List<String>>(repositoriesSaved)
-        else
-            listOf()
-
-        //
-//        val tabs = repositoriesList.map { path ->
-//            val tabComponent = tabComponentFactory.create()
-//            TabInformation2<RepositoryTabViewModel>()
-//        }
-    }
-
     suspend fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplacedPath: String? = null) {
         val tabToBeReplaced = tabs
             .value
@@ -100,7 +85,6 @@ class AppViewModel @Inject constructor(
     }
 
     private fun persistTabSelected(tab: TabInformation<RepositoryTabViewModel>) {
-
         appSettingsRepository.latestRepositoryTabSelected = tabs.value.indexOf(tab)
     }
 
@@ -137,7 +121,7 @@ class AppViewModel @Inject constructor(
         updatePersistedTabs()
     }
 
-    private suspend fun updatePersistedTabs() {
+    suspend fun updatePersistedTabs() {
         val tabs = tabs
             .value
             .filter { it.data.repositorySelectionState.value is RepositorySelectionState.Open }

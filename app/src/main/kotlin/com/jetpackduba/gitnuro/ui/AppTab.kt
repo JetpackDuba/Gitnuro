@@ -41,7 +41,7 @@ import kotlin.time.Duration.Companion.milliseconds
 fun <T : NavKey> NavBackStack<T>.addAndRemovePrevious(item: T) {
     this.add(item)
 
-    repeat(lastIndex - 1) {
+    repeat(lastIndex) {
         this.removeFirst()
     }
 }

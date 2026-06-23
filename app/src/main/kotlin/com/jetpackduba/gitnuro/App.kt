@@ -196,6 +196,10 @@ class App @Inject constructor(
                 }
             }
 
+            LaunchedEffect(currentTab, tabName) {
+                appViewModel.updatePersistedTabs()
+            }
+
             Window(
                 title = "${System.getenv("title") ?: AppConstants.APP_NAME} - $currentTabName",
                 onCloseRequest = {
