@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.IGetRemotesGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetTrackingBranchGitAction
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.Constants
@@ -17,6 +18,7 @@ private const val TAG = "LfsRepository"
 class GetLfsUrlGitAction @Inject constructor(
     private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
     private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
+    private val getRemotesGitAction: IGetRemotesGitAction,
 ) {
     suspend operator fun invoke(repository: Repository, remoteName: String?): String? {
         val git = Git(repository)
@@ -51,8 +53,14 @@ class GetLfsUrlGitAction @Inject constructor(
             if (currentBranchTracedRemote != null) {
                 Constants.R_REMOTES + currentBranchTracedRemote
             } else {
-                printError(TAG, "Remote name is null and couldn't obtain tracking branch remote.")
-                return null
+                val remotes = getRemotesGitAction(repositoryPath).okOrNull().orEmpty()
+
+                return if (remotes.count() == 1) {
+                    remotes[0].fetchUri
+                } else {
+                    printError(TAG, "Remote name is null and couldn't obtain tracking branch remote.")
+                    null
+                }
             }
         }
 

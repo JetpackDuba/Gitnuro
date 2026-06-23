@@ -28,6 +28,7 @@ class SshRemoteSession @Inject constructor() : RemoteSession {
     override fun disconnect() {
         process.closeChannel()
         session.disconnect()
+        session.close()
     }
 
     fun setup(uri: URIish, sshCredentialsProvider: CredentialsProvider) {
