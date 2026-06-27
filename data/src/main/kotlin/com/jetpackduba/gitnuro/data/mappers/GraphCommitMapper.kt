@@ -1,16 +1,10 @@
 package com.jetpackduba.gitnuro.data.mappers
 
-import com.jetpackduba.gitnuro.data.extensions.isBranch
-import com.jetpackduba.gitnuro.data.extensions.isTag
 import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
-import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.GraphCommit
-import com.jetpackduba.gitnuro.domain.models.Tag
 import javax.inject.Inject
 
 class GraphCommitMapper @Inject constructor(
-    private val branchMapper: JGitBranchMapper,
-    private val tagMapper: JGitTagMapper,
     private val commitMapper: JGitCommitMapper,
 ): DataMapper<GraphCommit, GraphNode> {
     override fun toData(value: GraphCommit): Nothing {

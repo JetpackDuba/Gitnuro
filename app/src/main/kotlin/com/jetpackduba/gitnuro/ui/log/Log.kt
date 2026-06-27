@@ -93,7 +93,7 @@ private const val DIVIDER_WIDTH = 8
 
 private const val LOG_BOTTOM_PADDING = 80
 
-private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = 1000
+private const val MIN_COMMITS_BEFORE_REQUESTING_MORE = 200
 
 private const val TAG = "LogView"
 

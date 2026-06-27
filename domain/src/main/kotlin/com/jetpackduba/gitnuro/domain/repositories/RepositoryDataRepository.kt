@@ -20,6 +20,7 @@ interface RepositoryDataRepository {
     val repositoryPath: String?
     val submodules: Flow<Map<String, SubmoduleStatus>>
     val author: Flow<AuthorInfo>
+    var maxCommitsToLoadLimit: Int
 
     fun setRepositoryState(state: RepositorySelectionState)
     fun clearAll()

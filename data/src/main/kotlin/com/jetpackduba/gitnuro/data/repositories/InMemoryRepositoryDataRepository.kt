@@ -46,6 +46,8 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val author: Flow<AuthorInfo>
         field = MutableStateFlow(AuthorInfo(emptyIdentity(), emptyIdentity()))
 
+    override var maxCommitsToLoadLimit: Int = 0
+
     override val repositoryPath: String?
         get() {
             return when (val state = repositorySelectionState.value) {

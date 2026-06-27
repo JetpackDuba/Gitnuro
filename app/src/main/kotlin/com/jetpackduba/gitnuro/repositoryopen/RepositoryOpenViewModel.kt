@@ -58,6 +58,7 @@ private const val MIN_TIME_IN_MS_TO_SHOW_LOAD = 500L
 
 
 private const val MIN_TIME_AFTER_GIT_OPERATION = 2000L
+private const val INCREMENTAL_COMMITS_LOAD = 500
 
 
 /**
@@ -91,6 +92,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val refreshAllUseCase: RefreshAllUseCase,
     private val refreshStatusUseCase: RefreshStatusUseCase,
     private val refreshLogUseCase: RefreshLogUseCase,
+    private val increaseLogCountUseCase: IncreaseLogCountUseCase,
     private val blameFileUseCase: BlameFileUseCase,
     updatesRepository: UpdatesRepository,
     private val fetchRemotesUseCase: FetchRemotesUseCase,
@@ -837,47 +839,27 @@ class RepositoryOpenViewModel @Inject constructor(
     private fun rebaseInteractive(commit: Commit) = startRebaseInteractiveUseCase(commit)
 
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = viewModelScope.launch {
-        // TODO Refactor this after refactoring
-        /*val numberOfCommitsDisplayed = (_logStatus.value as? LogStatus.Loaded)
-            ?.plotCommitList
-            ?.commits
-            .orEmpty()
+        val logState = this@RepositoryOpenViewModel.logState.value
+
+        val numberOfCommitsDisplayed = logState
+            .commitList
             .count()
 
         if (
             loadItemsMutex.isLocked ||
             lastIndexUsedToLoadData in firstVisibleItemIndex..numberOfCommitsDisplayed // TODO what happens if the number of commits has been somehow reduced?
         ) {
-            return@runOperation
+            return@launch
         }
         loadItemsMutex.withLock {
             lastIndexUsedToLoadData = firstVisibleItemIndex
-            val logStatusValue = logStatus.value
 
-            if (logStatusValue !is LogStatus.Loaded)
-                return@runOperation
+            if (logState.isLoading)
+                return@launch
 
-            val currentBranch = getCurrentBranchGitAction(git)
-
-            val statusSummary = getStatusSummaryGitAction(
-                git = git,
-            )
-
-            val hasUncommittedChanges = statusSummary.total > 0
-
-            val log = getLogGitAction(
-                git = git,
-                currentBranch = currentBranch,
-                hasUncommittedChanges = hasUncommittedChanges,
-                commitsLimit = logStatusValue.plotCommitList.commits.count() + INCREMENTAL_COMMITS_LOAD,
-                // TODO Reenable lazy loading later: cachedCommitList = logStatusValue.plotCommitList,
-            )
-
-            _logStatus.value =
-                LogStatus.Loaded(hasUncommittedChanges, log, currentBranch, statusSummary)
-        }*/
+            increaseLogCountUseCase(numberOfCommitsDisplayed + INCREMENTAL_COMMITS_LOAD)
+        }
     }
-
 
     private fun alternateShowAsTree() = tabScope.launch {
         appSettings.setConfiguration(AppConfig.ShowChangesAsTree(!appSettings.showChangesAsTree.first()))

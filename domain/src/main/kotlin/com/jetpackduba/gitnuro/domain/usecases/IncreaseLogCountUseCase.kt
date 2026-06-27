@@ -1,6 +1,8 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
+import com.jetpackduba.gitnuro.domain.errors.AppError
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
@@ -12,17 +14,22 @@ import kotlin.math.max
 
 private const val INITIAL_COMMITS_LOAD = 2000
 
-class RefreshLogUseCase @Inject constructor(
+class IncreaseLogCountUseCase @Inject constructor(
     private val getLogGitAction: IGetLogGitAction,
     private val getCurrentBranchAction: IGetCurrentBranchGitAction,
     private val getStatusGitAction: IGetStatusGitAction,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
-    operator fun invoke() {
-        useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val log = loadLog(repositoryPath).bind()
-            repositoryDataRepository.updateLog(log)
+    suspend operator fun invoke(newLimit: Int): Either<Unit, AppError> {
+        return useCaseExecutor.execute { repositoryPath ->
+            if (newLimit > repositoryDataRepository.maxCommitsToLoadLimit) {
+                repositoryDataRepository.maxCommitsToLoadLimit = newLimit
+                val log = loadLog(repositoryPath).bind()
+                repositoryDataRepository.updateLog(log)
+            }
+
+            Either.Ok(Unit)
         }
     }
 
@@ -35,7 +42,8 @@ class RefreshLogUseCase @Inject constructor(
             currentBranch,
             hasUncommittedChanges = status.staged.isNotEmpty() || status.unstaged.isNotEmpty(),
             commitsLimit = max(repositoryDataRepository.maxCommitsToLoadLimit, INITIAL_COMMITS_LOAD),
-            isPaginated = false,
+            currentData = repositoryDataRepository.log.value,
+            isPaginated = true,
         )
     }
 }

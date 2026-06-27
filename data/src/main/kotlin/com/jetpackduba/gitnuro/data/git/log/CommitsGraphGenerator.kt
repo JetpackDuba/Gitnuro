@@ -1,56 +1,36 @@
-package com.jetpackduba.gitnuro.domain.git.graph
+package com.jetpackduba.gitnuro.data.git.log
 
+import com.jetpackduba.gitnuro.data.mappers.GraphCommitMapper
+import com.jetpackduba.gitnuro.domain.git.graph.GraphLane
+import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
+import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
+import com.jetpackduba.gitnuro.domain.git.graph.INVALID_LANE_POSITION
+import com.jetpackduba.gitnuro.domain.git.graph.UncommittedChangesGraphNode
+import com.jetpackduba.gitnuro.domain.models.GraphCommit
+import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import org.eclipse.jgit.lib.AnyObjectId
 import org.eclipse.jgit.revwalk.RevCommit
-import java.util.*
+import java.util.BitSet
+import java.util.LinkedHashMap
 
-/**
- * An ordered list of [GraphNode] subclasses.
- *
- *
- * Commits are allocated into lanes as they enter the list, based upon their
- * connections between descendant (child) commits and ancestor (parent) commits.
- *
- *
- * The source of the list must be a [GraphWalk]
- * and [.fillTo] must be used to populate the list.
- *
- * type of lane used by the application.
-</L> */
-class GraphCommitList(
-    private val commits: MutableList<GraphNode> = mutableListOf(),
-) : MutableList<GraphNode> by commits {
-    var walker: GraphWalk? = null
-    private var positionsAllocated = 0
-    private val freePositions = TreeSet<Int>()
-    private val activeLanes = HashSet<GraphLane>(32)
-
+class CommitsGraphGenerator(
+    private val walker: GraphWalk,
+    private val previousData: GraphCommits?,
+    private val commitMapper: GraphCommitMapper,
+) {
+    private val data = previousData ?: GraphCommits(commits = LinkedHashMap(), maxLane = 0)
+    private val commits = LinkedHashMap(data.commits)
+    private var maxLane = data.maxLane
     private var parentId: AnyObjectId? = null
 
     private val graphCommit = UncommittedChangesGraphNode()
 
-    var maxLane = 0
-        private set
-
-    /** number of (child) commits on a lane  */
-    private val laneLength = HashMap<GraphLane, Int?>(
-        32
-    )
-
-    override fun clear() {
-        positionsAllocated = 0
-        freePositions.clear()
-        activeLanes.clear()
-        laneLength.clear()
-        commits.clear()
-    }
-
-    fun fillTo(highMark: Int) {
-        if (this.size <= highMark) {
+    fun generateUpTo(maxNumberOfCommits: Int): GraphCommits {
+        return if (commits.count() <= maxNumberOfCommits) {
             var c: GraphNode? = null
 
             do {
-                c = this.walker?.next()
+                c = this.walker.next()
 
                 if (c != null) {
                     val stashChild = c.children.firstOrNull { it.isStash }
@@ -59,15 +39,18 @@ class GraphCommitList(
                         stashChild == null ||
                         stashChild.parents.firstOrNull() == c
                     ) {
-                        this.enter(this.size, c)
-                        this.add(c)
+                        this.enter(commits.count(), c)
+                        commits[c.name] = commitMapper.toDomain(c)
                     }
                 }
-            } while (c != null && size <= highMark)
+            } while (c != null && commits.count() <= maxNumberOfCommits)
 
-            if (c == null) {
-                this.walker = null
-            }
+            GraphCommits(
+                commits,
+                maxLane,
+            )
+        } else {
+            data
         }
     }
 
@@ -85,6 +68,7 @@ class GraphCommitList(
         }
 
         setupChildren(currCommit)
+
         val nChildren = currCommit.childCount
         if (nChildren == 0) {
             currCommit.lane = nextFreeLane()
@@ -95,11 +79,11 @@ class GraphCommitList(
             // Stay in the same lane as the child.
             val graphNode: GraphNode = currCommit.children[0]
             currCommit.lane = graphNode.lane
-            var len = laneLength[currCommit.lane]
-            len = if (len != null) Integer.valueOf(len.toInt() + 1) else Integer.valueOf(0)
+            var len = walker.laneLength[currCommit.lane]
+            len = if (len != null) Integer.valueOf(len + 1) else Integer.valueOf(0)
 
             if (currCommit.lane.position != INVALID_LANE_POSITION)
-                laneLength[currCommit.lane] = len
+                walker.laneLength[currCommit.lane] = len
         } else {
             // We look for the child lane the current commit should continue.
             // Candidate lanes for this are those with children, that have the
@@ -119,7 +103,7 @@ class GraphCommitList(
 
 
             if (isUncommittedChangesNodeParent) {
-                val length = laneLength[graphCommit.lane]
+                val length = walker.laneLength[graphCommit.lane]
                 if (length != null) {
                     reservedLane = graphCommit.lane
                     childOnReservedLane = graphCommit
@@ -132,7 +116,7 @@ class GraphCommitList(
                         if (child.lane.position < 0)
                             println("child.lane.position is invalid (${child.lane.position})")
 
-                        val length = laneLength[child.lane]
+                        val length = walker.laneLength[child.lane]
 
                         // we may be the first parent for multiple lines of
                         // development, try to continue the longest one
@@ -148,7 +132,7 @@ class GraphCommitList(
             }
             if (reservedLane != null) {
                 currCommit.lane = reservedLane
-                laneLength[reservedLane] = Integer.valueOf(lengthOfReservedLane + 1)
+                walker.laneLength[reservedLane] = Integer.valueOf(lengthOfReservedLane + 1)
                 handleBlockedLanes(index, currCommit, childOnReservedLane)
             } else {
                 currCommit.lane = nextFreeLane()
@@ -183,7 +167,7 @@ class GraphCommitList(
     }
 
     private fun continueActiveLanes(currCommit: GraphNode) {
-        for (lane in activeLanes) {
+        for (lane in walker.activeLanes) {
             if (lane !== currCommit.lane) {
                 currCommit.addPassingLane(lane)
             }
@@ -219,7 +203,12 @@ class GraphCommitList(
                     index, currentNode, childOnLane, child,
                     laneToUse
                 )
-                child.addMergingLane(laneToUse)
+
+                val graphCommit = commits[child.name]
+
+                if (graphCommit != null) {
+                    commits[child.name] = graphCommit.copy(mergingLanes = graphCommit.mergingLanes + laneToUse.position)
+                }
             } else {
                 // We want to draw a forking arc in the child's lane.
                 // As an active lane, the child lane already continues
@@ -245,13 +234,14 @@ class GraphCommitList(
         var childIndex = index // useless initialization, should
         // always be set in the loop below
         val blockedPositions = BitSet()
+        val commits = commits.toList()
         for (r in index - 1 downTo 0) {
-            val graphNode: GraphNode? = get(r)
-            if (graphNode === child) {
+            val graphCommit = commits.elementAtOrNull(r)?.second
+            if (graphCommit?.hash == child.name) {
                 childIndex = r
                 break
             }
-            addBlockedPosition(blockedPositions, graphNode)
+            addBlockedPosition(blockedPositions, graphCommit)
         }
 
         // handle blockades
@@ -264,8 +254,8 @@ class GraphCommitList(
             var needDetour = false
             if (childOnLane != null) {
                 for (r in index - 1 downTo childIndex + 1) {
-                    val graphNode: GraphNode? = get(r)
-                    if (graphNode === childOnLane) {
+                    val graphCommit = commits.elementAtOrNull(r)?.second
+                    if (graphCommit?.hash == child.name) {
                         needDetour = true
                         break
                     }
@@ -289,7 +279,7 @@ class GraphCommitList(
                 // kept other lanes from blocking us. Since we are the
                 // first commit, we can freely reposition.
                 val newPos = getFreePosition(blockedPositions)
-                freePositions.add(newLaneToUse.position)
+                walker.freePositions.add(newLaneToUse.position)
 
                 newLaneToUse.position = newPos
             }
@@ -309,20 +299,26 @@ class GraphCommitList(
      * @param laneToContinue
      */
     private fun drawLaneToChild(
-        commitIndex: Int, child: GraphNode,
+        commitIndex: Int,
+        child: GraphNode,
         laneToContinue: GraphLane,
     ) {
         for (index in commitIndex - 1 downTo 0) {
-            val graphNode: GraphNode? = get(index)
-            if (graphNode === child) break
-            graphNode?.addPassingLane(laneToContinue)
+            val commits = commits.toList()
+            val graphCommit = commits.elementAtOrNull(index)?.second
+            if (graphCommit?.hash == child.name) break
+
+            if (graphCommit != null) {
+                val newGraphCommit = graphCommit.copy(passingLanes = graphCommit.passingLanes + laneToContinue.position)
+                this.commits[graphCommit.hash] = newGraphCommit
+            }
         }
     }
 
     private fun closeLane(lane: GraphLane) {
-        if (activeLanes.remove(lane)) {
-            laneLength.remove(lane)
-            freePositions.add(Integer.valueOf(lane.position))
+        if (walker.activeLanes.remove(lane)) {
+            walker.laneLength.remove(lane)
+            walker.freePositions.add(Integer.valueOf(lane.position))
         }
     }
 
@@ -334,8 +330,8 @@ class GraphCommitList(
 
     private fun nextFreeLane(blockedPositions: BitSet? = null): GraphLane {
         val newPlotLane = GraphLane(position = getFreePosition(blockedPositions))
-        activeLanes.add(newPlotLane)
-        laneLength[newPlotLane] = Integer.valueOf(1)
+        walker.activeLanes.add(newPlotLane)
+        walker.laneLength[newPlotLane] = Integer.valueOf(1)
 
         return newPlotLane
     }
@@ -346,47 +342,41 @@ class GraphCommitList(
      * @return a free lane position
      */
     private fun getFreePosition(blockedPositions: BitSet?): Int {
-        if (freePositions.isEmpty()) return positionsAllocated++
+        if (walker.freePositions.isEmpty()) return walker.positionsAllocated++
         if (blockedPositions != null) {
-            for (pos in freePositions) if (!blockedPositions[pos]) {
-                freePositions.remove(pos)
+            for (pos in walker.freePositions) if (!blockedPositions[pos]) {
+                walker.freePositions.remove(pos)
                 return pos
             }
-            return positionsAllocated++
+            return walker.positionsAllocated++
         }
-        val min = freePositions.first()
-        freePositions.remove(min)
+        val min = walker.freePositions.first()
+        walker.freePositions.remove(min)
         return min.toInt()
     }
 
     private fun addBlockedPosition(
         blockedPositions: BitSet,
-        graphNode: GraphNode?,
+        graphNode: GraphCommit?,
     ) {
         if (graphNode != null) {
             val lane = graphNode.lane
 
             // Positions may be blocked by a commit on a lane.
-            if (lane.position != INVALID_LANE_POSITION) {
-                blockedPositions.set(lane.position)
+            if (lane != INVALID_LANE_POSITION) {
+                blockedPositions.set(lane)
             }
 
             // Positions may also be blocked by forking off and merging lanes.
             // We don't consider passing lanes, because every passing lane forks
             // off and merges at it ends.
             for (graphLane in graphNode.forkingOffLanes) {
-                blockedPositions.set(graphLane.position)
+                blockedPositions.set(graphLane)
             }
 
             for (graphLane in graphNode.mergingLanes) {
-                blockedPositions.set(graphLane.position)
+                blockedPositions.set(graphLane)
             }
-        }
-    }
-
-    fun calcMaxLine() {
-        if (this.isNotEmpty()) {
-            maxLane = this.maxOf { it.lane.position }
         }
     }
 }

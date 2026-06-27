@@ -4,15 +4,16 @@ package com.jetpackduba.gitnuro.data.git.log
 import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.stash.GetStashListGitAction
 import com.jetpackduba.gitnuro.data.mappers.GraphCommitMapper
-import com.jetpackduba.gitnuro.domain.git.graph.GraphCommitList
-import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
+import com.jetpackduba.gitnuro.domain.git.graph.*
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import kotlinx.coroutines.ensureActive
 import org.eclipse.jgit.lib.Constants
+import java.util.*
 import javax.inject.Inject
+
+val cachedGraphWalks = mutableMapOf<String, GraphWalk>()
 
 class GetLogGitAction @Inject constructor(
     private val getStashListGitAction: GetStashListGitAction,
@@ -24,18 +25,24 @@ class GetLogGitAction @Inject constructor(
         currentBranch: Branch?,
         hasUncommittedChanges: Boolean,
         commitsLimit: Int,
-        cachedCommitList: GraphCommitList?,
+        currentData: GraphCommits?,
+        isPaginated: Boolean,
     ) = jgit.provide(repositoryPath) { git ->
         val repositoryState = git.repository.repositoryState
-        val commitList = cachedCommitList ?: GraphCommitList()
+        val cachedWalk = cachedGraphWalks[repositoryPath]
         if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(1).call().toList()
 
 
-            if (cachedCommitList == null) {
-                val walk = GraphWalk(git.repository)
+            val walk = if (isPaginated && cachedWalk != null) {
+                checkNotNull(cachedGraphWalks[repositoryPath])
+            } else {
+                if (!isPaginated) {
+                    cachedWalk?.close()
+                }
 
-                walk.use {
+                GraphWalk(git.repository).apply {
+                    val walk = this
                     // Without this, during rebase conflicts the graph won't show the HEAD commits (new commits created
                     // by the rebase)
                     walk.markStart(walk.lookupCommit(logList.first()))
@@ -44,31 +51,26 @@ class GetLogGitAction @Inject constructor(
                     walk.markStartAllRefs(Constants.R_REMOTES)
                     walk.markStartAllRefs(Constants.R_TAGS)
                     walk.markStartStashes(getStashListGitAction(git))
-
-                    if (hasUncommittedChanges) {
-                        commitList.addUncommittedChangesGraphCommit(logList.first())
-                    }
-
-                    commitList.walker = walk
                 }
             }
 
-            commitList.fillTo(commitsLimit)
+            val commitList = CommitsGraphGenerator(walk, currentData, graphCommitMapper)
+
+            if (hasUncommittedChanges) {
+                commitList.addUncommittedChangesGraphCommit(logList.first())
+            }
 
             ensureActive()
+            cachedGraphWalks[repositoryPath] = walk
+
+            commitList.generateUpTo(commitsLimit)
+        } else {
+            GraphCommits(
+                commits = LinkedHashMap(),
+                maxLane = 0,
+            )
         }
 
-        commitList.calcMaxLine()
-
-        val commits = LinkedHashMap<String, GraphCommit>(commitList.size)
-
-        for (entry in commitList) {
-            commits[entry.name] = graphCommitMapper.toDomain(entry)
-        }
-
-        GraphCommits(
-            commits = commits,
-            maxLane = commitList.maxLane,
-        )
     }
 }
+

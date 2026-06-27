@@ -8,6 +8,9 @@ import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.*
 import java.io.IOException
+import java.util.HashMap
+import java.util.HashSet
+import java.util.TreeSet
 
 /**
  * Specialized RevWalk to be used for load data in a structured way to be displayed in a graph of commits.
@@ -16,6 +19,13 @@ class GraphWalk(private var repository: Repository?) : RevWalk(repository) {
     private var additionalRefMap: MutableMap<AnyObjectId, Set<Ref>>? = HashMap()
     private var reverseRefMap: MutableMap<AnyObjectId, Set<Ref>>? = null
     private var stashes = emptySet<AnyObjectId>()
+
+    var positionsAllocated = 0
+    val freePositions = TreeSet<Int>()
+    val activeLanes = HashSet<GraphLane>(32)
+    val laneLength = HashMap<GraphLane, Int?>(
+        32
+    )
 
     init {
         super.sort(RevSort.TOPO, true)
