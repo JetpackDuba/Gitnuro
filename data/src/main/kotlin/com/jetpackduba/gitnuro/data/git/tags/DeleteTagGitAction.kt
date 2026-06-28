@@ -11,7 +11,7 @@ class DeleteTagGitAction @Inject constructor(
     override suspend operator fun invoke(repositoryPath: String, tag: Tag) = jgit.provide(repositoryPath) { git ->
         git
             .tagDelete()
-            .setTags(tag.hash)
+            .setTags(tag.name)
             .call()
 
         Unit
