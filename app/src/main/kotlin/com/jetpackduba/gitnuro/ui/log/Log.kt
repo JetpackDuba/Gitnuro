@@ -305,7 +305,7 @@ private fun LogView(
                 adapter = rememberScrollbarAdapter(horizontalScrollState)
             )
 
-            val isFirstItemVisible by remember {
+            val isFirstItemVisible by remember(verticalScrollState) {
                 derivedStateOf { verticalScrollState.firstVisibleItemIndex > 0 }
             }
 
