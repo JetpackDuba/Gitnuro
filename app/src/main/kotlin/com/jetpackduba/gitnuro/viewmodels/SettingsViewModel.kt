@@ -45,7 +45,7 @@ class SettingsViewModel @Inject constructor(
     fun onAction(action: SettingsAction) {
         when (action) {
             is SettingsAction.SetConfig -> setAppConfiguration(action.configuration)
-            SettingsAction.OpenLogsFolder -> TODO() // TODO implement this
+            SettingsAction.OpenLogsFolder -> openLogsFolderInFileExplorer()
         }
     }
 
