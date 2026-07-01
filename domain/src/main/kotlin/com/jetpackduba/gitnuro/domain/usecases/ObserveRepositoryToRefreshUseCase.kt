@@ -131,12 +131,12 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
 
                 for (dir in newDirs) {
                     if (status != null && !status.ignored.contains(dir.path.removePrefix(worktreeDirPath))) {
-                        fileChangesWatcher.addPathToWatch(worktreeDirPath + systemSeparator + dir.path, false)
+                        fileChangesWatcher.addPathToWatch(dir.path, false)
                     }
                 }
 
                 for (dir in removedDirs) {
-                    fileChangesWatcher.removePathFromWatch(worktreeDirPath + systemSeparator + dir.path)
+                    fileChangesWatcher.removePathFromWatch(dir.path)
                 }
             }
         }
