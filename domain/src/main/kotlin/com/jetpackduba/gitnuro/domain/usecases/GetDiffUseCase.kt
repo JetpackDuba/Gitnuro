@@ -23,10 +23,8 @@ class GetDiffUseCase @Inject constructor(
     private val settings: AppSettingsService,
     private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
-    suspend operator fun invoke(diffType: DiffType): ViewDiffResult {
+    suspend operator fun invoke(diffType: DiffType, diffViewType: DiffTextViewType, isDisplayFullFile: Boolean): ViewDiffResult {
         val repositoryPath = repositoryDataRepository.repositoryPath ?: return ViewDiffResult.None
-        val diffViewType = settings.diffTextViewType.first()
-        val isDisplayFullFile = settings.diffDisplayFullFile.first()
 
         return try {
             val diffFormat = formatDiffGitAction(repositoryPath, diffType, isDisplayFullFile).okOrNull()!!

@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -103,7 +104,7 @@ class HistoryViewModel @Inject constructor(
                 }
 
                 val diffType = DiffType.CommitDiff(diffEntry)
-                _viewDiffResult.value = getDiffUseCase(diffType)
+                _viewDiffResult.value = getDiffUseCase(diffType, settings.diffTextViewType.first(), settings.diffDisplayFullFile.first())
             } catch (ex: Exception) {
                 if (ex is MissingDiffEntryException) {
                     //TODO Call refreshStatusUseCase ? tabState.refreshData(refreshType = RefreshType.UNCOMMITTED_CHANGES)

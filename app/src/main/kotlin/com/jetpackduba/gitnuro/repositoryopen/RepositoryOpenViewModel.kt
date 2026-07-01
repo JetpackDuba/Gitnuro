@@ -895,12 +895,17 @@ class RepositoryOpenViewModel @Inject constructor(
         }
         .distinctUntilChanged()
 
+    val diffTypeFlow = settings.diffTextViewType
+    val isDisplayFullFile = settings.diffDisplayFullFile
+
     val diffResult: StateFlow<ViewDiffResult?> = combine(
         diffSelected,
         refreshDiffFlow,
-    ) { diffSelected, _ ->
+        diffTypeFlow,
+        isDisplayFullFile,
+    ) { diffSelected, _, diffType, isDisplayFullFile ->
         if (diffSelected?.entries?.count() == 1) {
-            val diff = loadDiff(diffSelected.entries.first())
+            val diff = loadDiff(diffSelected.entries.first(), diffType, isDisplayFullFile)
 
             if (diff is ViewDiffResult.Loaded) {
                 addToCloseables()
@@ -911,9 +916,6 @@ class RepositoryOpenViewModel @Inject constructor(
             ViewDiffResult.DiffNotFound(null)
         }
     }.stateIn(initialValue = null as ViewDiffResult?)
-
-    val diffTypeFlow = settings.diffTextViewType
-    val isDisplayFullFile = settings.diffDisplayFullFile
 
     val isRepositoryInSafeState = repositoryDataRepository.repositoryState
         .map { it == RepositoryState.SAFE }
@@ -927,8 +929,8 @@ class RepositoryOpenViewModel @Inject constructor(
         )
     )
 
-    private suspend fun loadDiff(diffType: DiffType): ViewDiffResult {
-        return getDiffUseCase(diffType)
+    private suspend fun loadDiff(diffType: DiffType, diffTextType: DiffTextViewType, isDisplayFullFile: Boolean): ViewDiffResult {
+        return getDiffUseCase(diffType, diffTextType, isDisplayFullFile)
     }
 
     fun stageHunk(diffEntry: DiffEntry, hunk: Hunk) = stageHunkUseCase(diffEntry, hunk)
