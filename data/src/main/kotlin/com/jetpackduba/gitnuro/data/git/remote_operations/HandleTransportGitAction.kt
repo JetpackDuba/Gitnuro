@@ -1,8 +1,12 @@
 package com.jetpackduba.gitnuro.data.git.remote_operations
 
 import com.jetpackduba.gitnuro.data.git.JGit
+import com.jetpackduba.gitnuro.data.git.credentials.CredentialsCache
+import com.jetpackduba.gitnuro.data.git.credentials.CredentialsHandler
+import com.jetpackduba.gitnuro.data.git.credentials.GSessionManager
+import com.jetpackduba.gitnuro.data.git.credentials.HttpCredentialsFactory
+import com.jetpackduba.gitnuro.data.git.credentials.SshCredentialsProvider
 import com.jetpackduba.gitnuro.domain.credentials.*
-import com.jetpackduba.gitnuro.domain.interfaces.IHandleTransportGitAction
 import org.eclipse.jgit.transport.HttpTransport
 import org.eclipse.jgit.transport.SshTransport
 import org.eclipse.jgit.transport.Transport
@@ -14,8 +18,8 @@ class HandleTransportGitAction @Inject constructor(
     private val httpCredentialsProvider: HttpCredentialsFactory,
     private val sshCredentialsProvider: Provider<SshCredentialsProvider>,
     private val jgit: JGit,
-) : IHandleTransportGitAction {
-    override suspend operator fun <R> invoke(repositoryPath: String?, block: suspend CredentialsHandler.() -> R) =
+) {
+    suspend operator fun <R> invoke(repositoryPath: String?, block: suspend CredentialsHandler.() -> R) =
         jgit.provideOptional(repositoryPath) { git ->
             var cache: CredentialsCache? = null
             val credentialsHandler = object : CredentialsHandler {

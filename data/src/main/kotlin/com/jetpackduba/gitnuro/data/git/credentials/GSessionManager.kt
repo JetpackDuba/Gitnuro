@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.domain.credentials
+package com.jetpackduba.gitnuro.data.git.credentials
 
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.RemoteSession

@@ -1,5 +1,6 @@
-package com.jetpackduba.gitnuro.domain.credentials
+package com.jetpackduba.gitnuro.data.git.credentials
 
+import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.CredentialsProvider

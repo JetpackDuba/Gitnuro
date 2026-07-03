@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.domain.git.graph
+package com.jetpackduba.gitnuro.data.git.log.graph
 
 const val INVALID_LANE_POSITION = -1
 

@@ -2,9 +2,9 @@ package com.jetpackduba.gitnuro.data.git.log
 
 
 import com.jetpackduba.gitnuro.data.git.JGit
+import com.jetpackduba.gitnuro.data.git.log.graph.GraphWalk
 import com.jetpackduba.gitnuro.data.git.stash.GetStashListGitAction
 import com.jetpackduba.gitnuro.data.mappers.GraphCommitMapper
-import com.jetpackduba.gitnuro.domain.git.graph.*
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.GraphCommits

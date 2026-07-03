@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.domain.models
 
 import org.eclipse.jgit.diff.DiffEntry
-import org.eclipse.jgit.submodule.SubmoduleStatus
 
 sealed class DiffResult(
     val diffEntry: DiffEntry,
@@ -26,6 +25,6 @@ sealed class DiffResult(
 
     class Submodule(
         diffEntry: DiffEntry,
-        val submoduleStatus: SubmoduleStatus?,
+        val submodule: com.jetpackduba.gitnuro.domain.models.Submodule?,
     ) : DiffResult(diffEntry)
 }

@@ -7,8 +7,8 @@ import com.jetpackduba.gitnuro.domain.interfaces.IContinueRebaseGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseInteractiveStateGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRepositoryStateGitAction
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import org.eclipse.jgit.lib.RepositoryState
 import javax.inject.Inject
 
 class ContinueRebaseUseCase @Inject constructor(

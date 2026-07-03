@@ -1,5 +1,6 @@
-package com.jetpackduba.gitnuro.domain.credentials
+package com.jetpackduba.gitnuro.data.git.credentials
 
+import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.models.CredentialsType
 import com.jetpackduba.gitnuro.domain.repositories.CredentialsRepository
 import kotlinx.coroutines.runBlocking
@@ -13,7 +14,7 @@ class SshCredentialsProvider @Inject constructor(
     private val credentialsStateManager: CredentialsStateManager,
     private val credentialsCacheRepository: CredentialsRepository,
     //private val appSettingsRepository: AppSettingsRepository,
-) : CredentialsProvider(), CredentialsCache {
+) : CredentialsProvider(),  CredentialsCache {
     private var credentialsCached: CredentialsType.SshCredentials? = null
 
     override fun isInteractive() = true

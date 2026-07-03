@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.domain.git.graph
+package com.jetpackduba.gitnuro.data.git.log.graph
 
 import org.eclipse.jgit.errors.MissingObjectException
 import org.eclipse.jgit.internal.JGitText

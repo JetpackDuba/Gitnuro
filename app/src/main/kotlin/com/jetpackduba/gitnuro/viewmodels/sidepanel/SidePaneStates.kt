@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import org.eclipse.jgit.submodule.SubmoduleStatus
 
-data class SubmodulesState(val submodules: List<Pair<String, SubmoduleStatus>>, val isExpanded: Boolean)
+data class SubmodulesState(val submodules: List<Pair<String, Submodule>>, val isExpanded: Boolean)
 
 data class TagsState(val tags: List<Tag>, val isExpanded: Boolean)
 

@@ -26,6 +26,7 @@ import com.jetpackduba.gitnuro.domain.extensions.isValid
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.Remote
+import com.jetpackduba.gitnuro.domain.models.Submodule
 import com.jetpackduba.gitnuro.domain.models.Tag
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -612,7 +613,7 @@ private fun Stash(
 
 @Composable
 private fun Submodule(
-    submodule: Pair<String, SubmoduleStatus>,
+    submodule: Pair<String, Submodule>,
     onInitializeSubmodule: () -> Unit,
 //    onDeinitializeSubmodule: () -> Unit,
     onSyncSubmodule: () -> Unit,
@@ -638,12 +639,12 @@ private fun Submodule(
             iconResourcePath = Res.drawable.topic,
             isSelected = false,
             onClick = {
-                if (submodule.second.type.isValid()) {
+                if (submodule.second.state.isValid) {
                     onOpenSubmoduleInTab()
                 }
             },
         ) {
-            val stateName = submodule.second.type.toString()
+            val stateName = submodule.second.state.toString()
             DelayedTooltip(stateName) {
                 Text(
                     text = stateName.first().toString(),

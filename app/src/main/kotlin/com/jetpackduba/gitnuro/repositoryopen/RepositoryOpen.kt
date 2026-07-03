@@ -22,6 +22,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_name_not_
 import com.jetpackduba.gitnuro.domain.models.Identity
 import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
+import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -35,7 +36,6 @@ import com.jetpackduba.gitnuro.ui.status.StatusPane
 import com.jetpackduba.gitnuro.updates.Update
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

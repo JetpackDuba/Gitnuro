@@ -5,8 +5,6 @@ import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.eclipse.jgit.lib.RepositoryState
-import org.eclipse.jgit.submodule.SubmoduleStatus
 import javax.inject.Inject
 
 class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRepository {
@@ -31,7 +29,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val stashes: Flow<List<Commit>>
         field = MutableStateFlow(emptyList())
 
-    override val submodules: Flow<Map<String, SubmoduleStatus>>
+    override val submodules: Flow<Map<String, Submodule>>
         field = MutableStateFlow(emptyMap())
 
     override val repositorySelectionState: StateFlow<RepositorySelectionState>
@@ -56,7 +54,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
             }
         }
 
-    override fun setRepositoryState(state: RepositorySelectionState) {
+    override fun setRepositorySelectionState(state: RepositorySelectionState) {
         repositorySelectionState.value = state
     }
 
@@ -96,7 +94,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         this.stashes.value = stashes
     }
 
-    override fun updateSubmodules(value: Map<String, SubmoduleStatus>) {
+    override fun updateSubmodules(value: Map<String, Submodule>) {
         this.submodules.value = value
     }
 

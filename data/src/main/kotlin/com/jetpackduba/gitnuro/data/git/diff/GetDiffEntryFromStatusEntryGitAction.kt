@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.diff
 
 import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
-import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.data.git.branches.GetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.data.git.repository.GetRepositoryStateGitAction
 import com.jetpackduba.gitnuro.domain.errors.okOrNull

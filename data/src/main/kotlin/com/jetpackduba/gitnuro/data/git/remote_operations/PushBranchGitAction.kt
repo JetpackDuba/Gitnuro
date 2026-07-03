@@ -4,7 +4,7 @@ import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.branches.GetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.data.git.branches.SetTrackingBranchGitAction
 import com.jetpackduba.gitnuro.domain.BranchesConstants
-import com.jetpackduba.gitnuro.domain.credentials.CredentialsHandler
+import com.jetpackduba.gitnuro.data.git.credentials.CredentialsHandler
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IPushBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch

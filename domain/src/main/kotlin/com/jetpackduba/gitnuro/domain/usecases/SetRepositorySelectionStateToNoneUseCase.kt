@@ -8,6 +8,6 @@ class SetRepositorySelectionStateToNoneUseCase @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
 ) {
     operator fun invoke() {
-        repositoryDataRepository.setRepositoryState(RepositorySelectionState.None)
+        repositoryDataRepository.setRepositorySelectionState(RepositorySelectionState.None)
     }
 }

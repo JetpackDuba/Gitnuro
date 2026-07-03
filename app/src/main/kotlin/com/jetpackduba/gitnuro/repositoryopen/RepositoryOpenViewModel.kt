@@ -49,7 +49,6 @@ import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.RebaseTodoLine
-import org.eclipse.jgit.lib.RepositoryState
 import javax.inject.Inject
 import javax.inject.Provider
 

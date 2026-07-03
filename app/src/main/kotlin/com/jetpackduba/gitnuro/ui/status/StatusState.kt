@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.ui.status
 
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.common.flows.combine
@@ -10,7 +9,6 @@ import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.eclipse.jgit.lib.RepositoryState
 
 sealed interface SelectionType<T> {
     data class SetSingleEntry<T>(val entry: T) : SelectionType<T>

@@ -4,8 +4,8 @@ import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.errors.RepositoryPathNotSetError
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRepositoryStateGitAction
+import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import org.eclipse.jgit.lib.RepositoryState
 import javax.inject.Inject
 
 class GetRepositoryStateUseCase @Inject constructor(

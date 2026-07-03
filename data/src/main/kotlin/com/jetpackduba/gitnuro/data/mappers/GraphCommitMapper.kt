@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.mappers
 
-import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
+import com.jetpackduba.gitnuro.data.git.log.graph.GraphNode
 import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import javax.inject.Inject
 

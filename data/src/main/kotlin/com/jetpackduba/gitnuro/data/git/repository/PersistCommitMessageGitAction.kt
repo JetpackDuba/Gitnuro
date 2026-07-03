@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.data.git.repository
 
+import com.jetpackduba.gitnuro.data.extensions.isMerging
+import com.jetpackduba.gitnuro.data.extensions.isReverting
 import com.jetpackduba.gitnuro.data.git.JGit
-import com.jetpackduba.gitnuro.domain.extensions.isMerging
-import com.jetpackduba.gitnuro.domain.extensions.isReverting
 import com.jetpackduba.gitnuro.domain.interfaces.IPersistCommitMessageGitAction
 import org.eclipse.jgit.lib.RepositoryState
 import javax.inject.Inject

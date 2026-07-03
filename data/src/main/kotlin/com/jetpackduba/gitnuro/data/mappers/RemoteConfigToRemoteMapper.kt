@@ -5,7 +5,7 @@ import org.eclipse.jgit.transport.RemoteConfig
 import javax.inject.Inject
 
 class RemoteConfigToRemoteMapper @Inject constructor(): DataMapper<Remote, RemoteConfig> {
-    override fun toData(value: Remote): RemoteConfig {
+    override fun toData(value: Remote): Nothing {
         throw NotImplementedError("Remote to RemoteWrapper not implemented")
     }
 

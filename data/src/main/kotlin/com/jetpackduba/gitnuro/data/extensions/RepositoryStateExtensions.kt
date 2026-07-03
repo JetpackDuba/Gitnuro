@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.domain.extensions
+package com.jetpackduba.gitnuro.data.extensions
 
 import org.eclipse.jgit.lib.RepositoryState
 

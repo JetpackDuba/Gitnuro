@@ -1,7 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.lfs
 
-import com.jetpackduba.gitnuro.domain.credentials.SshCredentialsProvider
-import com.jetpackduba.gitnuro.domain.credentials.SshRemoteSession
+import com.jetpackduba.gitnuro.data.git.credentials.SshCredentialsProvider
+import com.jetpackduba.gitnuro.data.git.credentials.SshRemoteSession
 import com.jetpackduba.gitnuro.domain.extensions.readUntilValue
 import com.jetpackduba.gitnuro.domain.interfaces.IAuthenticateLfsServerWithSshGitAction
 import com.jetpackduba.gitnuro.domain.lfs.LfsSshAuthenticateResult

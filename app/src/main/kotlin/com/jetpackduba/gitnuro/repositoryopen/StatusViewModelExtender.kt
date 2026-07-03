@@ -6,11 +6,7 @@ import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
-import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
-import com.jetpackduba.gitnuro.domain.extensions.isCherryPicking
-import com.jetpackduba.gitnuro.domain.extensions.isMerging
-import com.jetpackduba.gitnuro.domain.extensions.isReverting
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.*
@@ -555,50 +551,6 @@ class StatusViewModelExtender @AssistedInject constructor(
     private fun resetRepoState() = resetRepositoryStateUseCase()
 
     private fun deleteFile(statusEntry: StatusEntry) = deleteFileUseCase(statusEntry.filePath)
-
-    // TODO Load message somehow in the data+domain layer?
-    private suspend fun loadStatus(git: Git) {
-        val type = if (
-            git.repository.repositoryState.isRebasing ||
-            git.repository.repositoryState.isMerging ||
-            git.repository.repositoryState.isReverting ||
-            git.repository.repositoryState.isCherryPicking
-        ) {
-            MessageType.MERGE
-        } else {
-            MessageType.NORMAL
-        }
-
-        if (type != savedCommitMessage.type) {
-            savedCommitMessage = CommitMessage(messageByRepoState(git), type)
-            commitMessageChangesFlow.emit(savedCommitMessage.message)
-        }
-    }
-
-    private fun messageByRepoState(git: Git): String {
-        val message: String? =
-            if (git.repository.repositoryState.isRebasing) {
-                val rebaseMergeDir = File(git.repository.directory, "rebase-merge")
-                val messageFile = File(rebaseMergeDir, "message")
-
-                if (messageFile.exists()) {
-                    runCatching { messageFile.readText() }.getOrNull() ?: ""
-                } else {
-                    ""
-                }
-            } else if (
-                git.repository.repositoryState.isMerging ||
-                git.repository.repositoryState.isReverting ||
-                git.repository.repositoryState.isCherryPicking
-            ) {
-                git.repository.readMergeCommitMsg()
-            } else {
-                git.repository.readCommitEditMsg()
-            }
-
-        //TODO this replace is a workaround until this issue gets fixed https://github.com/JetBrains/compose-jb/issues/615
-        return message.orEmpty().replace("\t", "    ")
-    }
 
     fun amend(isAmend: Boolean) {
         this.isAmend.value = isAmend

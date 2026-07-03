@@ -36,6 +36,9 @@ import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.compose.rememberInTab
+import com.jetpackduba.gitnuro.data.extensions.isCherryPicking
+import com.jetpackduba.gitnuro.data.extensions.isMerging
+import com.jetpackduba.gitnuro.data.extensions.isReverting
 import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
@@ -56,7 +59,6 @@ import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.lib.RepositoryState
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.stringResource
 

@@ -1,8 +1,10 @@
-package com.jetpackduba.gitnuro.domain.credentials
+package com.jetpackduba.gitnuro.data.git.credentials
 
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.IShellManager
+import com.jetpackduba.gitnuro.domain.credentials.CredentialsAccepted
+import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.credentials.external.IGitCredentialsManagerProvider
 import com.jetpackduba.gitnuro.domain.exceptions.NotSupportedHelper
 import com.jetpackduba.gitnuro.domain.models.CredentialsType

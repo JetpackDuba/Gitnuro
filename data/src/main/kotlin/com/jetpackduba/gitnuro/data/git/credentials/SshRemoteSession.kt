@@ -1,6 +1,7 @@
-package com.jetpackduba.gitnuro.domain.credentials
+package com.jetpackduba.gitnuro.data.git.credentials
 
 import com.jetpackduba.gitnuro.Session
+import com.jetpackduba.gitnuro.domain.credentials.SshProcess
 import com.jetpackduba.gitnuro.domain.exceptions.SshException
 import com.jetpackduba.gitnuro.domain.extensions.throwIfSshMessage
 import org.eclipse.jgit.transport.CredentialItem

@@ -2,13 +2,15 @@ package com.jetpackduba.gitnuro.ui.context_menu
 
 import com.jetpackduba.gitnuro.domain.extensions.isValid
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.domain.models.Submodule
+import com.jetpackduba.gitnuro.domain.models.SubmoduleState
 import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.eclipse.jgit.submodule.SubmoduleStatusType
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 fun submoduleContextMenuItems(
-    submoduleStatus: SubmoduleStatus,
+    submoduleStatus: Submodule,
     onInitializeSubmodule: () -> Unit,
     onSyncSubmodule: () -> Unit,
     onUpdateSubmodule: () -> Unit,
@@ -16,13 +18,13 @@ fun submoduleContextMenuItems(
     onDeleteSubmodule: () -> Unit,
 ): List<ContextMenuElement> {
     return mutableListOf<ContextMenuElement>().apply {
-        if (submoduleStatus.type == SubmoduleStatusType.UNINITIALIZED) {
+        if (submoduleStatus.state == SubmoduleState.UNINITIALIZED) {
             addContextMenu(
                 composableLabel = { stringResource(Res.string.submodules_context_menu_initialize_submodule) },
                 onClick = onInitializeSubmodule,
             )
         }
-        if (submoduleStatus.type.isValid()) {
+        if (submoduleStatus.state.isValid) {
             addContextMenu(
                 composableLabel = { stringResource(Res.string.submodules_context_menu_open_submodule_in_tab) },
                 icon = { painterResource(Res.drawable.open) },

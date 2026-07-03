@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.signers
 
-import com.jetpackduba.gitnuro.domain.credentials.GpgCredentialsProvider
+import com.jetpackduba.gitnuro.data.git.credentials.GpgCredentialsProvider
 import org.bouncycastle.openpgp.PGPException
 import org.eclipse.jgit.api.errors.CanceledException
 import org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSigner

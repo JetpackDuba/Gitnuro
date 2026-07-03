@@ -15,12 +15,12 @@ class OpenRepositoryUseCase @Inject constructor(
         val repositoryPath = openRepositoryGitAction(directory)
 
         if (repositoryPath != null) {
-            repositoryDataRepository.setRepositoryState(RepositorySelectionState.Open(repositoryPath))
+            repositoryDataRepository.setRepositorySelectionState(RepositorySelectionState.Open(repositoryPath))
             refreshAllUseCase()
             observeRepositoryToRefreshUseCase()
         } else {
             // TODO Add error to ErrorRepository?
-            repositoryDataRepository.setRepositoryState(RepositorySelectionState.None)
+            repositoryDataRepository.setRepositorySelectionState(RepositorySelectionState.None)
         }
 
     }

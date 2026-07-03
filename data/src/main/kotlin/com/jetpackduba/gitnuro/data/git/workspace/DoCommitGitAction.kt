@@ -10,7 +10,6 @@ import com.jetpackduba.gitnuro.domain.errors.GenericError
 import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.errors.HookRejectionError
 import com.jetpackduba.gitnuro.domain.errors.bind
-import com.jetpackduba.gitnuro.domain.extensions.isMerging
 import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.Identity

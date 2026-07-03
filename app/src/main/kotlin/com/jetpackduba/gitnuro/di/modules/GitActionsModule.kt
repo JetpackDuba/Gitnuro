@@ -214,9 +214,6 @@ interface GitActionsModule {
     fun bindsGetTrackingBranchGitAction(action: GetTrackingBranchGitAction): IGetTrackingBranchGitAction
 
     @Binds
-    fun bindsHandleTransportGitAction(action: HandleTransportGitAction): IHandleTransportGitAction
-
-    @Binds
     fun bindsHasPullResultConflictsGitAction(action: HasPullResultConflictsGitAction): IHasPullResultConflictsGitAction
 
     @Binds

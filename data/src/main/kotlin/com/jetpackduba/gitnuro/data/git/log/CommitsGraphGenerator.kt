@@ -1,11 +1,11 @@
 package com.jetpackduba.gitnuro.data.git.log
 
 import com.jetpackduba.gitnuro.data.mappers.GraphCommitMapper
-import com.jetpackduba.gitnuro.domain.git.graph.GraphLane
-import com.jetpackduba.gitnuro.domain.git.graph.GraphNode
-import com.jetpackduba.gitnuro.domain.git.graph.GraphWalk
-import com.jetpackduba.gitnuro.domain.git.graph.INVALID_LANE_POSITION
-import com.jetpackduba.gitnuro.domain.git.graph.UncommittedChangesGraphNode
+import com.jetpackduba.gitnuro.data.git.log.graph.GraphLane
+import com.jetpackduba.gitnuro.data.git.log.graph.GraphNode
+import com.jetpackduba.gitnuro.data.git.log.graph.GraphWalk
+import com.jetpackduba.gitnuro.data.git.log.graph.INVALID_LANE_POSITION
+import com.jetpackduba.gitnuro.data.git.log.graph.UncommittedChangesGraphNode
 import com.jetpackduba.gitnuro.domain.models.GraphCommit
 import com.jetpackduba.gitnuro.domain.models.GraphCommits
 import org.eclipse.jgit.lib.AnyObjectId

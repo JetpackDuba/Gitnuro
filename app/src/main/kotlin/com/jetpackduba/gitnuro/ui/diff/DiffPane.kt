@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +53,7 @@ import com.jetpackduba.gitnuro.domain.models.Hunk
 import com.jetpackduba.gitnuro.domain.models.Line
 import com.jetpackduba.gitnuro.domain.models.LineType
 import com.jetpackduba.gitnuro.domain.models.MatchLine
+import com.jetpackduba.gitnuro.domain.models.SubmoduleState
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.theme.*
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -337,15 +337,15 @@ fun SubmoduleDiff(diffResult: DiffResult.Submodule, onOpenSubmodule: () -> Unit)
             }
         }
 
-        val submoduleStatus = diffResult.submoduleStatus
+        val submoduleStatus = diffResult.submodule
 
         if (
             submoduleStatus != null &&
             listOf(
-                SubmoduleStatusType.INITIALIZED,
-                SubmoduleStatusType.REV_CHECKED_OUT
-            ).contains(submoduleStatus.type) &&
-            submoduleStatus.indexId == diffResult.diffEntry.newId?.toObjectId()
+                SubmoduleState.INITIALIZED,
+                SubmoduleState.REV_CHECKED_OUT
+            ).contains(submoduleStatus.state) &&
+            submoduleStatus.indexId == diffResult.diffEntry.newId?.toObjectId()?.name
         ) {
             PrimaryButton(
                 modifier = Modifier.padding(top = 8.dp),
