@@ -9,9 +9,6 @@ import javax.inject.Inject
 class CheckoutCommitUseCase @Inject constructor(
     private val checkoutCommitGitAction: ICheckoutCommitGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshBranchUseCase: RefreshBranchesUseCase,
 ) {
     operator fun invoke(commit: Commit) {
         invoke(commit.hash)
@@ -20,11 +17,7 @@ class CheckoutCommitUseCase @Inject constructor(
     operator fun invoke(hash: String) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.CheckoutCommit,
-            onRefresh = {
-                refreshStatusUseCase()
-                refreshLogUseCase()
-                refreshBranchUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG, DataToRefresh.BRANCHES),
         ) { repositoryPath ->
             checkoutCommitGitAction(repositoryPath, hash)
         }

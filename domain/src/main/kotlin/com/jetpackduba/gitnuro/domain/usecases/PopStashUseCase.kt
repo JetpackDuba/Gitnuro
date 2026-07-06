@@ -14,18 +14,11 @@ class PopStashUseCase @Inject constructor(
     private val popStashGitAction: IPopStashGitAction,
     private val getStashListGitAction: IGetStashListGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshStashListUseCase: RefreshStashListUseCase,
 ) {
     operator fun invoke(commit: Commit?) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Stash,
         refreshEvenIfFailed = true,
-        onRefresh = {
-            refreshStatusUseCase()
-            refreshLogUseCase()
-            refreshStashListUseCase()
-        }
+        dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG, DataToRefresh.STASHES),
     ) { repositoryPath ->
         val stashCommit = commit ?: getStashListGitAction(repositoryPath).bind().firstOrNull()
 

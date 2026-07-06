@@ -8,15 +8,12 @@ import javax.inject.Inject
 
 class UpdateSubmoduleUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
     private val updateSubmoduleGitAction: IUpdateSubmoduleGitAction,
 ) {
     operator fun invoke(path: String) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.UpdateSubmodule,
-            onRefresh = {
-                refreshAllUseCase()
-            },
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             updateSubmoduleGitAction(repositoryPath, path)
         }

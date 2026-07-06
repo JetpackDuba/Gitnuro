@@ -9,14 +9,11 @@ import javax.inject.Inject
 class ResetRepositoryStateUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val resetRepositoryStateGitAction: IResetRepositoryStateGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke() {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.ResetRepoState,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             resetRepositoryStateGitAction(repositoryPath)
         }

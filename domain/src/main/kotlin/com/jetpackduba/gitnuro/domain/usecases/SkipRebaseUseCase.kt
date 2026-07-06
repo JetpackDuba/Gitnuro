@@ -9,14 +9,11 @@ import javax.inject.Inject
 class SkipRebaseUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val skipRebaseGitAction: ISkipRebaseGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke() {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.SkipRebase,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             skipRebaseGitAction(repositoryPath)
         }

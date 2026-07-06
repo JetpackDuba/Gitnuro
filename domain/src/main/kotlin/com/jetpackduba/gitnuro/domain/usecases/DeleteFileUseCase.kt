@@ -12,16 +12,11 @@ import javax.inject.Inject
 class DeleteFileUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val deleteFileGitAction: IDeleteFileGitAction,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
 ) {
     operator fun invoke(filePath: String) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.DiscardFile,
-            onRefresh = {
-                refreshStatusUseCase()
-                refreshLogUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
         ) { repositoryPath ->
             deleteFileGitAction(repositoryPath, filePath)
         }

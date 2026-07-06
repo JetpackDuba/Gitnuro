@@ -10,13 +10,12 @@ private const val TAG = "StatusStageAllUseCase"
 
 class StatusStageAllUseCase @Inject constructor(
     private val stageAllGitAction: IStageAllGitAction,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(entries: List<StatusEntry>?) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.StageAllFiles,
-            onRefresh = { refreshStatusUseCase() }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS),
         ) { repositoryPath ->
             stageAllGitAction(repositoryPath, entries)
         }

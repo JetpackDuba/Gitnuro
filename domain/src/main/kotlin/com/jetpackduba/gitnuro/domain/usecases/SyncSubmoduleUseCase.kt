@@ -8,14 +8,11 @@ import javax.inject.Inject
 class SyncSubmoduleUseCase @Inject constructor(
     private val syncSubmoduleGitAction: ISyncSubmoduleGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshSubmodulesUseCase: RefreshSubmodulesUseCase,
 ) {
     operator fun invoke(submodulePath: String) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.SyncSubmodule,
-            onRefresh = {
-                refreshSubmodulesUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.SUBMODULES),
         ) { repository ->
             syncSubmoduleGitAction(repository, submodulePath)
         }

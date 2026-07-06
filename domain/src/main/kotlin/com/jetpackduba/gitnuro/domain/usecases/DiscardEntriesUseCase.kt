@@ -9,16 +9,11 @@ import javax.inject.Inject
 class DiscardEntriesUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val discardEntriesGitAction: IDiscardEntriesGitAction,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
 ) {
     operator fun invoke(statusEntries: List<StatusEntry>, isStaged: Boolean) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.DiscardFile,
-            onRefresh = {
-                refreshStatusUseCase()
-                refreshLogUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
         ) { repositoryPath ->
             discardEntriesGitAction(repositoryPath, statusEntries, isStaged)
         }

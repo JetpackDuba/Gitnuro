@@ -25,9 +25,7 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
     private val fileChangesWatcher: IFileChangesWatcher,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val getWorktreeUseCase: GetWorktreeUseCase,
-    private val refreshAllUseCase: RefreshAllUseCase,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase,
     private val repositoryStateRepository: RepositoryStateRepository,
     private val getStatusGitAction: IGetStatusGitAction,
 ) {
@@ -62,10 +60,9 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                                     updateWatchedDirectories(event, repositoryPath, worktreeDir + systemSeparator)
 
                                     if (hasGitDirChanged) {
-                                        refreshAllUseCase()
+                                        refreshDataUseCase(DataToRefresh.ALL)
                                     } else {
-                                        refreshStatusUseCase()
-                                        refreshLogUseCase()
+                                        refreshDataUseCase(DataToRefresh.STATUS, DataToRefresh.LOG)
                                     }
                                 } else {
                                     printDebug(TAG, "Ignoring detected changes because the time diff since last change is $timeDiffInMs ms")

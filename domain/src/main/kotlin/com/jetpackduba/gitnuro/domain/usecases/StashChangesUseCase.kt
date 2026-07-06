@@ -12,15 +12,10 @@ class StashChangesUseCase @Inject constructor(
     private val stageUntrackedFileGitAction: IStageUntrackedFileGitAction,
     private val stashChangesGitAction: IStashChangesGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
 ) {
     operator fun invoke(message: String?) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Stash,
-        onRefresh = {
-            refreshStatusUseCase()
-            refreshLogUseCase()
-        }
+        dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
     ) { repositoryPath ->
         stageUntrackedFileGitAction(repositoryPath).bind()
 

@@ -8,13 +8,12 @@ import javax.inject.Inject
 
 class StatusUnstageAllUseCase @Inject constructor(
     private val unstageAllGitAction: IUnstageAllGitAction,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(statusEntries: List<StatusEntry>?) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.UnstageAllFiles,
-            onRefresh = { refreshStatusUseCase() }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS),
         ) { repositoryPath ->
             unstageAllGitAction(repositoryPath, statusEntries)
         }

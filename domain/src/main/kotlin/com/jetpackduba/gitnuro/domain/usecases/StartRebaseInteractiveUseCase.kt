@@ -12,9 +12,7 @@ class StartRebaseInteractiveUseCase @Inject constructor(
 ) {
     operator fun invoke(commit: Commit) =  useCaseExecutor.executeLaunch(
         taskType = TaskType.RebaseInteractive,
-        onRefresh = {
-            // TODO Refresh rebase interactive state?
-        }
+        dataToRefresh = emptyArray(),
     ) { repositoryPath ->
         startRebaseInteractiveGitAction(repositoryPath, commit)
     }

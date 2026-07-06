@@ -9,14 +9,11 @@ import javax.inject.Inject
 class DeleteBranchUseCase @Inject constructor(
     private val deleteBranchGitAction: IDeleteBranchGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(branch: Branch) {
         useCaseExecutor.executeLaunch(
             TaskType.DeleteBranch,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             deleteBranchGitAction(repositoryPath, branch)
         }

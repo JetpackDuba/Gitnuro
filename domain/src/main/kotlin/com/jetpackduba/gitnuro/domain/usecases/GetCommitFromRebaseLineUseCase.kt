@@ -10,9 +10,7 @@ class GetCommitFromRebaseLineUseCase @Inject constructor(
     private val getCommitFromRebaseGitAction: IGetCommitFromRebaseLineGitAction,
 ) {
     suspend operator fun invoke(commit: Commit, shortMessage: String) {
-        useCaseExecutor.execute(
-            onRefresh = {}
-        ) { repositoryPath ->
+        useCaseExecutor.execute { repositoryPath ->
             getCommitFromRebaseGitAction(repositoryPath, commit.hash, shortMessage)
         }
 

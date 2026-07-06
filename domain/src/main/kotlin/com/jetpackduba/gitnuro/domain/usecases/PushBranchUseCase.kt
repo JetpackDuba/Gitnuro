@@ -11,17 +11,12 @@ import javax.inject.Inject
 class PushBranchUseCase @Inject constructor(
     private val pushBranchGitAction: IPushBranchGitAction,
     private val appSettingsService: AppSettingsService,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshRemotesUseCase: RefreshRemotesUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(force: Boolean, pushTags: Boolean, targetRemoteBranch: Branch? = null) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Push,
-            onRefresh = {
-                refreshRemotesUseCase()
-                refreshLogUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.LOG, DataToRefresh.REMOTES),
         ) { repositoryPath ->
             val pushWithLease = appSettingsService.pushWithLease.first()
 

@@ -12,15 +12,12 @@ import javax.inject.Inject
 
 class RebaseBranchUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
     private val rebaseBranchGitAction: IRebaseBranchGitAction,
 ) {
     operator fun invoke(branch: Branch) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.RebaseBranch,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             rebaseBranchGitAction(repositoryPath, branch)
         }

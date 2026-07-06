@@ -88,9 +88,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
-    private val refreshAllUseCase: RefreshAllUseCase,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase,
     private val increaseLogCountUseCase: IncreaseLogCountUseCase,
     private val blameFileUseCase: BlameFileUseCase,
     updatesRepository: UpdatesRepository,
@@ -536,55 +534,9 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun CoroutineScope.repositoryChanged(hasGitDirChanged: Boolean) {
-        val isOperationRunning = repositoryStateRepository.currentTask.value != null
 
-        if (!isOperationRunning) { // Only update if there isn't any process running
-            printDebug(TAG, "Detected changes in the repository's directory")
-
-            val currentTimeMillis = System.currentTimeMillis()
-            val lastOperationTimestamp = repositoryStateRepository.lastOperationTimestamp.firstOrNull() ?: 0L
-            if (
-                hasGitDirChanged &&
-                currentTimeMillis - lastOperationTimestamp < MIN_TIME_AFTER_GIT_OPERATION
-            ) {
-                printDebug(TAG, "Git operation was executed recently, ignoring file system change")
-                return
-            }
-
-            if (hasGitDirChanged) {
-                this@RepositoryOpenViewModel.hasGitDirChanged = true
-            }
-
-            if (isActive) {
-                updateApp(hasGitDirChanged)
-            }
-
-            this@RepositoryOpenViewModel.hasGitDirChanged = false
-        } else {
-            printDebug(TAG, "Ignored file events during operation")
-        }
-    }
-
-    private suspend fun updateApp(hasGitDirChanged: Boolean) {
-        if (hasGitDirChanged) {
-            printLog(TAG, "Changes detected in git directory, full refresh")
-
-            refreshRepositoryInfo()
-        } else {
-            printLog(TAG, "Changes detected, partial refresh")
-
-            checkUncommittedChanges()
-        }
-    }
-
-    private suspend fun checkUncommittedChanges() {
-        refreshStatusUseCase()
-        refreshLogUseCase()
-    }
-
-    private suspend fun refreshRepositoryInfo() {
-        refreshAllUseCase()
+    private fun refreshRepositoryInfo() {
+        refreshDataUseCase(DataToRefresh.ALL)
     }
 
     fun openDirectoryPicker(): String? {

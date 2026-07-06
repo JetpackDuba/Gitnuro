@@ -7,15 +7,12 @@ import javax.inject.Inject
 
 class DeleteSubmoduleUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
     private val deleteSubmoduleGitAction: IDeleteSubmoduleGitAction,
 ) {
     operator fun invoke(path: String) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.DeleteSubmodule,
-            onRefresh = {
-                refreshAllUseCase()
-            },
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             deleteSubmoduleGitAction(repositoryPath, path)
         }

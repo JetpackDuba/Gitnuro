@@ -10,13 +10,12 @@ import javax.inject.Inject
 
 class DiscardHunkLineUseCase @Inject constructor(
     private val discardUnstagedHunkLineGitAction: IDiscardUnstagedHunkLineGitAction,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(diffEntry: DiffEntry, hunk: Hunk, line: Line) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Unspecified,
-            onRefresh = { refreshStatusUseCase() }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS),
         ) { repositoryPath ->
             discardUnstagedHunkLineGitAction(repositoryPath, diffEntry, hunk, line)
         }

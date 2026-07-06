@@ -9,14 +9,11 @@ import javax.inject.Inject
 class ApplyStashUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val applyStashGitAction: IApplyStashGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(stashCommit: Commit) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.ApplyStash,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             applyStashGitAction(repositoryPath, stashCommit)
         }

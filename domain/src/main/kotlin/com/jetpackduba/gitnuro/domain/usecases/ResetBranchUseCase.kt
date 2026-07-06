@@ -9,14 +9,11 @@ import javax.inject.Inject
 class ResetBranchUseCase @Inject constructor(
     private val resetToCommitGitAction: IResetToCommitGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(revCommit: Commit, resetType: ResetType) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.ResetToCommit,
-            onRefresh = {
-                refreshAllUseCase()
-            },
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             resetToCommitGitAction(repositoryPath, revCommit, resetType = resetType)
         }

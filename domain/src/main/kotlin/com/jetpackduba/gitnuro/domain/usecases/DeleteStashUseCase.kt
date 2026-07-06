@@ -9,16 +9,11 @@ import javax.inject.Inject
 class DeleteStashUseCase @Inject constructor(
     private val deleteStashGitAction: IDeleteStashGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshStashListUseCase: RefreshStashListUseCase,
 ) {
     operator fun invoke(stash: Commit) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Stash,
         refreshEvenIfFailed = true,
-        onRefresh = {
-            refreshLogUseCase()
-            refreshStashListUseCase()
-        }
+        dataToRefresh = arrayOf(DataToRefresh.STASHES, DataToRefresh.LOG),
     ) { repositoryPath ->
         deleteStashGitAction(repositoryPath, stash)
     }

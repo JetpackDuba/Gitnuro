@@ -14,14 +14,11 @@ class AddRemoteUseCase @Inject constructor(
     private val addRemoteGitAction: IAddRemoteGitAction,
     private val updateRemoteGitAction: IUpdateRemoteGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshRemotesUseCase: RefreshRemotesUseCase,
 ) {
     operator fun invoke(remote: Remote) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.AddRemote,
-            onRefresh = {
-                refreshRemotesUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.REMOTES),
         ) { repositoryPath ->
             if (remote.fetchUri.isBlank()) {
                 throw InvalidRemoteUrlException("Invalid empty fetch URI")

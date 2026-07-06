@@ -11,14 +11,11 @@ import javax.inject.Inject
 class PullBranchUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val pullBranchGitAction: IPullBranchGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
     private val appSettingsService: AppSettingsService,
 ) {
     operator fun invoke(pullType: PullType, remoteBranch: Branch? = null) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Pull,
-        onRefresh = {
-            refreshAllUseCase()
-        }
+        dataToRefresh = arrayOf(DataToRefresh.ALL),
     ) { repositoryPath ->
         val autoStashOnMerge = appSettingsService.autoStashOnMerge.first()
 

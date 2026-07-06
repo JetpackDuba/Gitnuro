@@ -11,16 +11,11 @@ import javax.inject.Inject
 class RenameBranchUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val renameBranchGitAction: IRenameBranchGitAction,
-    private val refreshBranchUseCase: RefreshBranchesUseCase,
-    private val refreshLogUseCase: RefreshLogUseCase,
     private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
 ) {
     suspend operator fun invoke(oldName: String, newName: String): Either<Unit, AppError> {
         return useCaseExecutor.execute(
-            onRefresh = {
-                refreshBranchUseCase()
-                refreshLogUseCase()
-            },
+            dataToRefresh = arrayOf(DataToRefresh.BRANCHES, DataToRefresh.LOG),
         ) { repositoryPath ->
             val branch = renameBranchGitAction(repositoryPath, oldName, newName).bind()
 

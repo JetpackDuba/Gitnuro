@@ -10,14 +10,11 @@ import javax.inject.Inject
 class DeleteRemoteBranchUseCase @Inject constructor(
     private val deleteRemoteBranchGitAction: IDeleteRemoteBranchGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(branch: Branch) {
         useCaseExecutor.executeLaunch(
             TaskType.DeleteBranch,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL), // TODO Refresh only log?
         ) { repositoryPath ->
             deleteRemoteBranchGitAction(repositoryPath, branch)
         }

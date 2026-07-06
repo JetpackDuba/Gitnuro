@@ -9,16 +9,11 @@ import javax.inject.Inject
 class CreateTagUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val createTagGitAction: ICreateTagGitAction,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshTagsUseCase: RefreshTagsUseCase,
 ) {
     operator fun invoke(tag: String, revCommit: Commit) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.CreateTag,
-            onRefresh = {
-                refreshLogUseCase()
-                refreshTagsUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.LOG, DataToRefresh.TAGS),
         ) { repositoryPath ->
             createTagGitAction(repositoryPath, tag, revCommit)
         }

@@ -8,7 +8,7 @@ import javax.inject.Inject
 class OpenRepositoryUseCase @Inject constructor(
     private val repositoryDataRepository: RepositoryDataRepository,
     private val openRepositoryGitAction: IOpenRepositoryGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
+    private val refreshDataUseCase: RefreshDataUseCase,
     private val observeRepositoryToRefreshUseCase: ObserveRepositoryToRefreshUseCase,
 ) {
     suspend operator fun invoke(directory: String) {
@@ -16,12 +16,11 @@ class OpenRepositoryUseCase @Inject constructor(
 
         if (repositoryPath != null) {
             repositoryDataRepository.setRepositorySelectionState(RepositorySelectionState.Open(repositoryPath))
-            refreshAllUseCase()
+            refreshDataUseCase(DataToRefresh.ALL)
             observeRepositoryToRefreshUseCase()
         } else {
             // TODO Add error to ErrorRepository?
             repositoryDataRepository.setRepositorySelectionState(RepositorySelectionState.None)
         }
-
     }
 }

@@ -8,14 +8,11 @@ import javax.inject.Inject
 class AbortRebaseUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val abortRebaseGitAction: IAbortRebaseGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke() {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.AbortRebase,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             abortRebaseGitAction(repositoryPath)
         }

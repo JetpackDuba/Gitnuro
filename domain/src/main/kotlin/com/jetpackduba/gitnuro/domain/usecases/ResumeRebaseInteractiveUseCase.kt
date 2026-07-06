@@ -9,14 +9,11 @@ import javax.inject.Inject
 class ResumeRebaseInteractiveUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val resumeRebaseInteractiveGitAction: IResumeRebaseInteractiveGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(interactiveHandler: RebaseCommand.InteractiveHandler) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.RebaseInteractive,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             resumeRebaseInteractiveGitAction(repositoryPath, interactiveHandler)
         }

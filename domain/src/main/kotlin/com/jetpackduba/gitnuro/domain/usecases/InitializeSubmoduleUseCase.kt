@@ -11,14 +11,11 @@ class InitializeSubmoduleUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val initializeSubmoduleGitAction: IInitializeSubmoduleGitAction,
     private val updateSubmoduleGitAction: IUpdateSubmoduleGitAction,
-    private val refreshSubmodulesUseCase: RefreshSubmodulesUseCase,
 ) {
     operator fun invoke(path: String) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.InitSubmodule,
-            onRefresh = {
-                refreshSubmodulesUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.SUBMODULES),
         ) { repositoryPath ->
             initializeSubmoduleGitAction(repositoryPath, path).bind()
             updateSubmoduleGitAction(repositoryPath, path)

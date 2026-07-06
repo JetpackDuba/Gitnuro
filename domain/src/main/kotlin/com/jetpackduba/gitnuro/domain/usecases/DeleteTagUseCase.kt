@@ -9,13 +9,10 @@ import javax.inject.Inject
 class DeleteTagUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val deleteTagGitAction: IDeleteTagGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(tag: Tag) = useCaseExecutor.executeLaunch(
         taskType = TaskType.CreateTag,
-        onRefresh = {
-            refreshAllUseCase()
-        }
+        dataToRefresh = arrayOf(DataToRefresh.TAGS, DataToRefresh.LOG),
     ) { repositoryPath ->
         deleteTagGitAction(repositoryPath, tag)
     }

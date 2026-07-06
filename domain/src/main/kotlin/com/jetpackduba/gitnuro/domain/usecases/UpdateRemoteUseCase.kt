@@ -15,8 +15,7 @@ class UpdateRemoteUseCase @Inject constructor(
     operator fun invoke(remote: Remote) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.UpdateRemote,
-            onRefresh = {
-            }
+            dataToRefresh = emptyArray(),
         ) { repositoryPath ->
             if (remote.fetchUri.isBlank()) {
                 throw InvalidRemoteUrlException("Invalid empty fetch URI")

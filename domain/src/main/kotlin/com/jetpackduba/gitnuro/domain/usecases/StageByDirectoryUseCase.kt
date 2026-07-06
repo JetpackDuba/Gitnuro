@@ -8,13 +8,10 @@ import javax.inject.Inject
 class StageByDirectoryUseCase @Inject constructor(
     private val stageByDirectoryGitAction: IStageByDirectoryGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
     operator fun invoke(dir: String) = useCaseExecutor.executeLaunch(
         taskType = TaskType.StageDir,
-        onRefresh = {
-            refreshStatusUseCase()
-        }
+        dataToRefresh = arrayOf(DataToRefresh.STATUS),
     ) { repositoryPath ->
         stageByDirectoryGitAction(repositoryPath, dir)
     }

@@ -8,7 +8,6 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import javax.inject.Inject
 
 class DeleteRemoteInfoUseCase @Inject constructor(
-    private val refreshAllUseCase: RefreshAllUseCase,
     private val deleteRemoteGitAction: IDeleteRemoteGitAction,
     private val deleteLocallyRemoteBranchesGitAction: IDeleteLocallyRemoteBranchesGitAction,
     private val useCaseExecutor: UseCaseExecutor,
@@ -17,7 +16,7 @@ class DeleteRemoteInfoUseCase @Inject constructor(
     operator fun invoke(remoteInfo: RemoteInfo) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.DeleteRemote,
-            onRefresh = { refreshAllUseCase() }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             deleteRemoteGitAction(repositoryPath, remoteInfo.remote.name)
 

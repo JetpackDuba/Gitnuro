@@ -8,16 +8,13 @@ import javax.inject.Inject
 
 class FetchAllBranchUseCase @Inject constructor(
     private val fetchAllGitAction: IFetchAllRemotesGitAction,
-    private val refreshLogUseCase: RefreshLogUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(specificRemote: Remote? = null) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Fetch,
             refreshEvenIfFailed = true,
-            onRefresh = {
-                refreshLogUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.LOG),
         ) { repositoryPath ->
             fetchAllGitAction(repositoryPath, specificRemote)
         }

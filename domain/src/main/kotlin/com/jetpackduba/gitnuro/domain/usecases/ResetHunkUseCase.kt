@@ -9,13 +9,12 @@ import javax.inject.Inject
 
 class ResetHunkUseCase @Inject constructor(
     private val resetHunkGitAction: IResetHunkGitAction,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(diffEntry: DiffEntry, hunk: Hunk) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Unspecified,
-            onRefresh = { refreshStatusUseCase() }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS),
         ) { repositoryPath ->
             resetHunkGitAction(repositoryPath, diffEntry, hunk)
         }

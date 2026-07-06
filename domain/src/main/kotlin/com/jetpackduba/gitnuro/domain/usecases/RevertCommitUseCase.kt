@@ -9,17 +9,12 @@ import javax.inject.Inject
 class RevertCommitUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val revertCommitGitAction: IRevertCommitGitAction,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
     operator fun invoke(commit: Commit) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.RevertCommit,
             refreshEvenIfFailed = true,
-            onRefresh = {
-                refreshStatusUseCase()
-                refreshLogUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
         ) { repositoryPath ->
             revertCommitGitAction(repositoryPath, commit)
         }

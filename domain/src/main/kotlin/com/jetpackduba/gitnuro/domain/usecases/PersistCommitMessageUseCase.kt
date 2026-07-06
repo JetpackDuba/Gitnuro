@@ -13,9 +13,7 @@ class PersistCommitMessageUseCase @Inject constructor(
         val messageToPersist = message?.ifBlank { null }
         useCaseExecutor.executeLaunch(
             taskType = TaskType.PersistCommitMessage,
-            onRefresh = {
-                // no refresh needed
-            }
+            dataToRefresh = emptyArray(),
         ) { repositoryPath ->
             persistCommitMessageGitAction(repositoryPath, messageToPersist)
         }

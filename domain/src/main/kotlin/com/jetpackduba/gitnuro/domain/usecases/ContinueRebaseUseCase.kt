@@ -14,7 +14,6 @@ import javax.inject.Inject
 class ContinueRebaseUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val continueRebaseGitAction: IContinueRebaseGitAction,
-    private val refreshAllUseCase: RefreshAllUseCase,
     private val getRepositoryStateGitAction: IGetRepositoryStateGitAction,
     private val getRebaseInteractiveStateGitAction: IGetRebaseInteractiveStateGitAction,
     private val doCommitUseCase: DoCommitUseCase,
@@ -22,9 +21,7 @@ class ContinueRebaseUseCase @Inject constructor(
     operator fun invoke(message: String, isAmendRebaseInteractive: Boolean) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.ContinueRebase,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             val repositoryState = getRepositoryStateGitAction(repositoryPath).bind()
             val rebaseInteractiveState = getRebaseInteractiveStateGitAction(repositoryPath).bind()

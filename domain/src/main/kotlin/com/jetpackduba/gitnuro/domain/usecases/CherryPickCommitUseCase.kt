@@ -9,16 +9,11 @@ import javax.inject.Inject
 class CherryPickCommitUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val cherryPickGitAction: ICherryPickCommitGitAction,
-    private val refreshLogUseCase: RefreshLogUseCase,
-    private val refreshStatusUseCase: RefreshStatusUseCase,
 ) {
     operator fun invoke(commit: Commit) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.CherryPickCommit,
-            onRefresh = {
-                refreshStatusUseCase()
-                refreshLogUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
         ) { repositoryPath ->
             cherryPickGitAction(repositoryPath, commit)
         }

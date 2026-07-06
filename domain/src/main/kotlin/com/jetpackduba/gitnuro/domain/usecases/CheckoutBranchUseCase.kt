@@ -9,14 +9,11 @@ import javax.inject.Inject
 class CheckoutBranchUseCase @Inject constructor(
     private val checkoutBranchGitAction: ICheckoutBranchGitAction,
     private val useCaseExecutor: UseCaseExecutor,
-    private val refreshAllUseCase: RefreshAllUseCase,
 ) {
     operator fun invoke(branch: Branch) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.CheckoutBranch,
-            onRefresh = {
-                refreshAllUseCase()
-            }
+            dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
             checkoutBranchGitAction(repositoryPath, branch)
         }
