@@ -19,9 +19,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.domain.models.RebaseLine
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.extensions.backgroundIf
+import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -32,39 +34,32 @@ import com.jetpackduba.gitnuro.ui.drag_sorting.rememberVerticalDragDropState
 import com.jetpackduba.gitnuro.ui.drag_sorting.verticalDragContainer
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
-import com.jetpackduba.gitnuro.viewmodels.RebaseLine
-import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RebaseInteractive(
     viewModel: RepositoryOpenViewModel,
+    state: RebaseInteractiveViewState,
 ) {
-    val rebaseState = viewModel.rebaseState.collectAsState()
-    val rebaseStateValue = rebaseState.value
     val selectedItem = viewModel.selectedItem.collectAsState().value
-
-    LaunchedEffect(viewModel) {
-        viewModel.loadRebaseInteractiveData()
-    }
 
     Box(
         modifier = Modifier
             .background(MaterialTheme.colors.surface)
             .fillMaxSize(),
     ) {
-        when (rebaseStateValue) {
-            is RebaseInteractiveViewState.Failed -> {}
+        when (state) {
+            is RebaseInteractiveViewState.None, is RebaseInteractiveViewState.Failed -> {}
             is RebaseInteractiveViewState.Loaded -> {
                 RebaseStateLoaded(
                     viewModel,
-                    rebaseStateValue,
+                    state,
                     selectedItem,
                     onFocusLine = {
                         if (
                             selectedItem !is SelectedItem.CommitItem ||
-                            !selectedItem.commit.hash.startsWith(it.commit.name())
+                            !selectedItem.commit.hash.startsWith(it.commit)
                         ) {
                             viewModel.selectLine(it)
                         }
@@ -130,9 +125,8 @@ fun RebaseStateLoaded(
                 VerticalDraggableItem(state, index) {
                     RebaseCommit(
                         rebaseLine = rebaseTodoLine,
-                        message = rebaseState.messages[rebaseTodoLine.commit.name()],
                         isSelected = selectedItem is SelectedItem.CommitItem && selectedItem.commit.hash.startsWith(
-                            rebaseTodoLine.commit.name()
+                            rebaseTodoLine.commit
                         ),
                         isFirst = stepsList.first() == rebaseTodoLine,
                         onFocusLine = { onFocusLine(rebaseTodoLine) },
@@ -140,7 +134,7 @@ fun RebaseStateLoaded(
                             viewModel.onCommitActionChanged(rebaseTodoLine.commit, newAction)
                         },
                         onMessageChanged = { newMessage ->
-                            viewModel.onCommitMessageChanged(rebaseTodoLine.commit, newMessage)
+                            viewModel.onCommitMessageChanged(rebaseTodoLine, newMessage)
                         },
                     )
                 }
@@ -178,19 +172,22 @@ fun RebaseCommit(
     rebaseLine: RebaseLine,
     isFirst: Boolean,
     isSelected: Boolean,
-    message: String?,
     onFocusLine: () -> Unit,
-    onActionChanged: (RebaseAction) -> Unit,
+    onActionChanged: (RebaseLine.Action) -> Unit,
     onMessageChanged: (String) -> Unit,
 ) {
-    val action = rebaseLine.rebaseAction
+    val action = rebaseLine.action
     val focusRequester = remember { FocusRequester() }
 
-    var newMessage by remember(rebaseLine.commit.name(), action) {
-        if (action == RebaseAction.REWORD) {
-            mutableStateOf(message ?: rebaseLine.shortMessage) /* if reword, use the value from the map (if possible)*/
-        } else
-            mutableStateOf(rebaseLine.shortMessage) // If it's not reword, use the original shortMessage
+
+    var newMessage by remember(rebaseLine.commit, action) {
+        val message = if (rebaseLine.action == RebaseLine.Action.REWORD && rebaseLine.modifiedMessage != null) {
+            rebaseLine.modifiedMessage.orEmpty()
+        } else {
+            rebaseLine.fullMessage
+        }
+
+        mutableStateOf(message)
     }
 
     Row(
@@ -208,7 +205,7 @@ fun RebaseCommit(
             action,
             isFirst = isFirst,
             onActionDropDownClicked = onFocusLine,
-            onActionChanged = onActionChanged,
+            onActionChanged = { onActionChanged(it) },
         )
 
         AdjustableOutlinedTextField(
@@ -222,14 +219,14 @@ fun RebaseCommit(
                         onFocusLine()
                     }
                 },
-            enabled = action == RebaseAction.REWORD,
+            enabled = action == RebaseLine.Action.REWORD,
             value = newMessage,
             onValueChange = {
                 newMessage = it
                 onMessageChanged(it)
             },
             textStyle = MaterialTheme.typography.body2,
-            backgroundColor = if (action == RebaseAction.REWORD) {
+            backgroundColor = if (action == RebaseLine.Action.REWORD) {
                 MaterialTheme.colors.background
             } else
                 MaterialTheme.colors.surface
@@ -240,10 +237,10 @@ fun RebaseCommit(
 
 @Composable
 fun ActionDropdown(
-    action: RebaseAction,
+    action: RebaseLine.Action,
     isFirst: Boolean,
     onActionDropDownClicked: () -> Unit,
-    onActionChanged: (RebaseAction) -> Unit,
+    onActionChanged: (RebaseLine.Action) -> Unit,
 ) {
     var showDropDownMenu by remember { mutableStateOf(false) }
     Box(
@@ -264,7 +261,7 @@ fun ActionDropdown(
                 .height(40.dp),
         ) {
             Text(
-                action.displayName,
+                getActionDisplayName(action),
                 color = MaterialTheme.colors.onBackground,
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.weight(1f)
@@ -293,7 +290,7 @@ fun ActionDropdown(
                 DropdownMenuItem(
                     onClick = {
                         showDropDownMenu = false
-                        onActionChanged(dropDownOption)
+                        onActionChanged(dropDownOption.value)
                     }
                 ) {
                     Text(
@@ -303,6 +300,18 @@ fun ActionDropdown(
                 }
             }
         }
+    }
+}
+
+fun getActionDisplayName(action: RebaseLine.Action): String {
+    return when (action) {
+        RebaseLine.Action.PICK -> "Pick"
+        RebaseLine.Action.REWORD -> "Reword"
+        RebaseLine.Action.SQUASH -> "Squash"
+        RebaseLine.Action.FIXUP -> "Fixup"
+        RebaseLine.Action.EDIT -> "Edit"
+        RebaseLine.Action.DROP -> "Drop"
+        RebaseLine.Action.COMMENT -> "Comment"
     }
 }
 

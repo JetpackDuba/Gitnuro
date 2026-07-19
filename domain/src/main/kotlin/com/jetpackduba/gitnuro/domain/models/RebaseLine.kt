@@ -1,19 +1,23 @@
 package com.jetpackduba.gitnuro.domain.models
 
-import org.eclipse.jgit.lib.AbbreviatedObjectId
+import androidx.compose.runtime.Immutable
 
+@Immutable
 data class RebaseLine(
-    val action: RebaseAction,
+    val action: Action,
     val commit: String,
     val shortMessage: String,
-)
-
-enum class RebaseAction {
-    PICK,
-    REWORD,
-    SQUASH,
-    FIXUP,
-    EDIT,
-    DROP,
-    COMMENT;
+    val fullMessage: String,
+    val modifiedMessage: String? = null,
+) {
+    enum class Action {
+        PICK,
+        REWORD,
+        SQUASH,
+        FIXUP,
+        EDIT,
+        DROP,
+        COMMENT;
+    }
 }
+

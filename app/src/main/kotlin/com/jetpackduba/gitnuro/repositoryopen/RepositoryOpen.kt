@@ -34,6 +34,7 @@ import com.jetpackduba.gitnuro.ui.diff.DiffPane
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.ui.status.StatusPane
 import com.jetpackduba.gitnuro.updates.Update
+import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -239,7 +240,7 @@ fun MainContentView(
     onNavigate: (Screen) -> Unit,
 ) {
     val diffSelected by viewModel.diffSelected.collectAsState()
-    val rebaseInteractiveState by viewModel.rebaseInteractiveState.collectAsState()
+    val rebaseInteractiveState by viewModel.rebaseInteractiveViewState.collectAsState()
     val density = LocalDensity.current.density
     val scope = rememberCoroutineScope()
 
@@ -272,8 +273,8 @@ fun MainContentView(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                if (rebaseInteractiveState == RebaseInteractiveState.AwaitingInteraction /*&& diffSelected == null*/) {
-                    RebaseInteractive(viewModel)
+                if (rebaseInteractiveState != RebaseInteractiveViewState.None /*&& diffSelected == null*/) {
+                    RebaseInteractive(viewModel, rebaseInteractiveState)
                 } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                     Blame(
                         filePath = blameState.filePath,

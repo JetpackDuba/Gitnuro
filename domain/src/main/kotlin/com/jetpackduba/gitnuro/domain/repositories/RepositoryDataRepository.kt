@@ -14,7 +14,7 @@ interface RepositoryDataRepository {
     val stashes: Flow<List<Commit>>
     val repositorySelectionState: StateFlow<RepositorySelectionState>
     val repositoryState: StateFlow<RepositoryState>
-    val rebaseInteractiveState: StateFlow<RebaseInteractiveState>
+    val rebaseInteractiveState: StateFlow<List<RebaseLine>>
     val repositoryPath: String?
     val submodules: Flow<Map<String, Submodule>>
     val author: Flow<AuthorInfo>
@@ -31,4 +31,6 @@ interface RepositoryDataRepository {
     fun updateStashes(stashes: List<Commit>)
     fun updateSubmodules(value: Map<String, Submodule>)
     fun updateAuthor(value: AuthorInfo)
+    fun updateRepositoryState(value: RepositoryState)
+    fun updateRebaseInteractiveState(value: List<RebaseLine>)
 }

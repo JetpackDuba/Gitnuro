@@ -38,8 +38,8 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val repositoryState: StateFlow<RepositoryState>
         field = MutableStateFlow<RepositoryState>(RepositoryState.SAFE)
 
-    override val rebaseInteractiveState: StateFlow<RebaseInteractiveState>
-        field = MutableStateFlow<RebaseInteractiveState>(RebaseInteractiveState.None)
+    override val rebaseInteractiveState: StateFlow<List<RebaseLine>>
+        field = MutableStateFlow<List<RebaseLine>>(emptyList())
 
     override val author: Flow<AuthorInfo>
         field = MutableStateFlow(AuthorInfo(emptyIdentity(), emptyIdentity()))
@@ -100,5 +100,13 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override fun updateAuthor(value: AuthorInfo) {
         this.author.value = value
+    }
+
+    override fun updateRepositoryState(value: RepositoryState) {
+        this.repositoryState.value = value
+    }
+
+    override fun updateRebaseInteractiveState(value: List<RebaseLine>) {
+        this.rebaseInteractiveState.value = value
     }
 }

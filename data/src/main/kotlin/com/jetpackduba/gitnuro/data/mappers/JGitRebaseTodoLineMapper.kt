@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.data.mappers
 
-import com.jetpackduba.gitnuro.domain.models.RebaseAction
 import com.jetpackduba.gitnuro.domain.models.RebaseLine
 import org.eclipse.jgit.lib.RebaseTodoLine
 import javax.inject.Inject
@@ -15,17 +14,18 @@ class JGitRebaseTodoLineMapper @Inject constructor() : DataMapper<RebaseLine, Re
             action = toDomainRebaseAction(value.action),
             commit = value.commit.name(),
             shortMessage = value.shortMessage,
+            fullMessage = "",
         )
     }
 
-    private fun toDomainRebaseAction(value: RebaseTodoLine.Action): RebaseAction {
+    private fun toDomainRebaseAction(value: RebaseTodoLine.Action): RebaseLine.Action {
         return when (value) {
-            RebaseTodoLine.Action.PICK -> RebaseAction.PICK
-            RebaseTodoLine.Action.REWORD -> RebaseAction.REWORD
-            RebaseTodoLine.Action.EDIT -> RebaseAction.EDIT
-            RebaseTodoLine.Action.SQUASH -> RebaseAction.SQUASH
-            RebaseTodoLine.Action.FIXUP -> RebaseAction.FIXUP
-            RebaseTodoLine.Action.COMMENT -> RebaseAction.COMMENT
+            RebaseTodoLine.Action.PICK -> RebaseLine.Action.PICK
+            RebaseTodoLine.Action.REWORD -> RebaseLine.Action.REWORD
+            RebaseTodoLine.Action.EDIT -> RebaseLine.Action.EDIT
+            RebaseTodoLine.Action.SQUASH -> RebaseLine.Action.SQUASH
+            RebaseTodoLine.Action.FIXUP -> RebaseLine.Action.FIXUP
+            RebaseTodoLine.Action.COMMENT -> RebaseLine.Action.COMMENT
         }
     }
 }

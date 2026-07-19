@@ -4,14 +4,9 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.errors.either
-import com.jetpackduba.gitnuro.domain.interfaces.IGetBranchesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetStashListGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetSubmodulesGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.IGetTagsGitAction
-import com.jetpackduba.gitnuro.domain.interfaces.ILoadAuthorGitAction
+import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.models.RebaseLine
+import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import javax.inject.Inject
 import kotlin.math.max
@@ -31,6 +26,9 @@ class RefreshDataUseCase @Inject constructor(
     private val getRemotesUseCase: GetRemotesUseCase,
     private val getSubmodulesGitAction: IGetSubmodulesGitAction,
     private val getTagsGitAction: IGetTagsGitAction,
+    private val getRepositoryState: IGetRepositoryStateGitAction,
+    private val getRebaseInteractiveTodoLinesUseCase: GetRebaseInteractiveTodoLinesUseCase,
+    private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
 ) {
     operator fun invoke(vararg dataToRefresh: DataToRefresh) {
         val isRefreshAll = dataToRefresh.contains(DataToRefresh.ALL)
@@ -65,6 +63,10 @@ class RefreshDataUseCase @Inject constructor(
 
         if (isRefreshAll || dataToRefresh.contains(DataToRefresh.TAGS)) {
             refreshTags()
+        }
+
+        if (isRefreshAll || dataToRefresh.contains(DataToRefresh.REPO_STATE)) {
+            refreshRepositoryState()
         }
     }
 
@@ -140,6 +142,38 @@ class RefreshDataUseCase @Inject constructor(
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
             val tags = getTagsGitAction(repositoryPath).bind()
             repositoryDataRepository.updateTags(tags)
+        }
+    }
+
+    private fun refreshRepositoryState() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
+            val state = getRepositoryState(repositoryPath).bind()
+
+            repositoryDataRepository.updateRepositoryState(state)
+
+            if (state == RepositoryState.REBASING_INTERACTIVE) {
+                // TODO Error local handling or keep as it is?
+                val originalLines = getRebaseInteractiveTodoLinesUseCase().bind()
+
+                val fullLines = getRebaseLinesFullMessageUseCase(originalLines).bind()
+
+                // TODO is this check necessary with this newer arch?
+//            val isSameRebase = isSameRebase(rebaseLines, _rebaseState.value)
+
+//            if (!isSameRebase) {
+//                return@either Either.Ok(RebaseInteractiveViewState.Loaded(rebaseLines, messages))
+//                val firstLine = rebaseLines.firstOrNull()
+// TODO Check what is this logic for and if still necessary
+//                if (firstLine != null) {
+//                    val fullCommit = getCommitFromRebaseLineUseCase(firstLine.commit, firstLine.shortMessage)
+//                    tabState.newSelectedCommit(fullCommit)
+//                }
+//            }
+
+                repositoryDataRepository.updateRebaseInteractiveState(fullLines)
+            } else {
+                repositoryDataRepository.updateRebaseInteractiveState(emptyList())
+            }
         }
     }
 }
