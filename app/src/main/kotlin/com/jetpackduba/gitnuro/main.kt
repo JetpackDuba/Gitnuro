@@ -7,6 +7,12 @@ import java.security.Security
 
 
 suspend fun main(args: Array<String>) {
+    if (args.contains("--graalvm")) {
+        val currentDir = System.getProperty("user.dir")
+
+        System.setProperty("java.home", currentDir)
+    }
+
     Security.addProvider(BouncyCastleProvider())
 
     initPreferencesPath()

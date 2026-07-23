@@ -1,0 +1,7324 @@
+{
+  "reflection": [
+    {
+      "type": "android.os.Build"
+    },
+    {
+      "type": "androidx.compose.ui.awt.ComposeWindow"
+    },
+    {
+      "type": "androidx.compose.ui.awt.ComposeWindowPanel"
+    },
+    {
+      "type": "androidx.compose.ui.awt.JLayeredPaneWithTransparencyHack"
+    },
+    {
+      "type": "androidx.compose.ui.scene.ComposeSceneMediator$InvisibleComponent"
+    },
+    {
+      "type": "androidx.compose.ui.scene.skia.WindowSkiaLayerComponent$hierarchyRoot$1"
+    },
+    {
+      "type": "androidx.datastore.preferences.PreferencesProto$PreferenceMap",
+      "fields": [
+        {
+          "name": "preferences_"
+        }
+      ]
+    },
+    {
+      "type": "androidx.datastore.preferences.PreferencesProto$Value",
+      "fields": [
+        {
+          "name": "valueCase_"
+        },
+        {
+          "name": "value_"
+        }
+      ]
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.DescriptorMessageInfoFactory"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.ExtensionRegistry"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.ExtensionSchemaFull"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.GeneratedMessage"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.ListFieldSchemaFull"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.MapFieldSchemaFull"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.NewInstanceSchemaFull"
+    },
+    {
+      "type": "androidx.datastore.preferences.protobuf.UnknownFieldSetSchema"
+    },
+    {
+      "type": "byte"
+    },
+    {
+      "type": "coil3.RealImageLoader"
+    },
+    {
+      "type": "coil3.compose.internal.DeferredDispatchCoroutineDispatcher"
+    },
+    {
+      "type": "coil3.network.okhttp.internal.OkHttpNetworkFetcherServiceLoaderTarget"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.ForeignBytes",
+      "fields": [
+        {
+          "name": "data"
+        },
+        {
+          "name": "len"
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.ForeignBytes$ByValue",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.RustBuffer",
+      "fields": [
+        {
+          "name": "capacity"
+        },
+        {
+          "name": "data"
+        },
+        {
+          "name": "len"
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.RustBuffer$ByValue",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiCallbackInterfaceClone"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiCallbackInterfaceFree"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiCallbackInterfaceWatchDirectoryNotifierMethod0",
+      "methods": [
+        {
+          "name": "callback",
+          "parameterTypes": [
+            "long",
+            "com.sun.jna.ptr.ByteByReference",
+            "com.jetpackduba.gitnuro.UniffiRustCallStatus"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiCallbackInterfaceWatchDirectoryNotifierMethod1",
+      "methods": [
+        {
+          "name": "callback",
+          "parameterTypes": [
+            "long",
+            "com.jetpackduba.gitnuro.RustBuffer$ByValue",
+            "com.sun.jna.Pointer",
+            "com.jetpackduba.gitnuro.UniffiRustCallStatus"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiCallbackInterfaceWatchDirectoryNotifierMethod2"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiLib"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiRustCallStatus",
+      "fields": [
+        {
+          "name": "code"
+        },
+        {
+          "name": "error_buf"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiVTableCallbackInterfaceWatchDirectoryNotifier",
+      "fields": [
+        {
+          "name": "detectedChange"
+        },
+        {
+          "name": "onError"
+        },
+        {
+          "name": "shouldKeepLooping"
+        },
+        {
+          "name": "uniffiClone"
+        },
+        {
+          "name": "uniffiFree"
+        }
+      ]
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.UniffiVTableCallbackInterfaceWatchDirectoryNotifier$UniffiByValue"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.uniffiCallbackInterfaceWatchDirectoryNotifier$detectedChange"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.uniffiCallbackInterfaceWatchDirectoryNotifier$onError"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.uniffiCallbackInterfaceWatchDirectoryNotifier$shouldKeepLooping"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.uniffiCallbackInterfaceWatchDirectoryNotifier$uniffiClone"
+    },
+    {
+      "type": "com.jetpackduba.gitnuro.uniffiCallbackInterfaceWatchDirectoryNotifier$uniffiFree"
+    },
+    {
+      "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.Callback",
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.jna.CallbackProxy",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "callback",
+          "parameterTypes": [
+            "java.lang.Object[]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.CallbackReference",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getCallback",
+          "parameterTypes": [
+            "java.lang.Class",
+            "com.sun.jna.Pointer",
+            "boolean"
+          ]
+        },
+        {
+          "name": "getFunctionPointer",
+          "parameterTypes": [
+            "com.sun.jna.Callback",
+            "boolean"
+          ]
+        },
+        {
+          "name": "getNativeString",
+          "parameterTypes": [
+            "java.lang.Object",
+            "boolean"
+          ]
+        },
+        {
+          "name": "initializeThread",
+          "parameterTypes": [
+            "com.sun.jna.Callback",
+            "com.sun.jna.CallbackReference$AttachOptions"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.CallbackReference$AttachOptions",
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.jna.FromNativeConverter",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "nativeType",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.IntegerType",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "value"
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.JNIEnv",
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.jna.Native",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "dispose",
+          "parameterTypes": []
+        },
+        {
+          "name": "fromNative",
+          "parameterTypes": [
+            "com.sun.jna.FromNativeConverter",
+            "java.lang.Object",
+            "java.lang.reflect.Method"
+          ]
+        },
+        {
+          "name": "fromNative",
+          "parameterTypes": [
+            "java.lang.Class",
+            "java.lang.Object"
+          ]
+        },
+        {
+          "name": "fromNative",
+          "parameterTypes": [
+            "java.lang.reflect.Method",
+            "java.lang.Object"
+          ]
+        },
+        {
+          "name": "nativeType",
+          "parameterTypes": [
+            "java.lang.Class"
+          ]
+        },
+        {
+          "name": "toNative",
+          "parameterTypes": [
+            "com.sun.jna.ToNativeConverter",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.Native$ffi_callback",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "invoke",
+          "parameterTypes": [
+            "long",
+            "long",
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.NativeMapped",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "toNative",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.Pointer",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "peer"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.PointerType",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "pointer"
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.SecurityManagerExposer"
+    },
+    {
+      "type": "com.sun.jna.Structure",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "memory"
+        },
+        {
+          "name": "typeInfo"
+        }
+      ],
+      "methods": [
+        {
+          "name": "autoRead",
+          "parameterTypes": []
+        },
+        {
+          "name": "autoWrite",
+          "parameterTypes": []
+        },
+        {
+          "name": "getTypeInfo",
+          "parameterTypes": []
+        },
+        {
+          "name": "newInstance",
+          "parameterTypes": [
+            "java.lang.Class",
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.Structure$ByValue",
+      "jniAccessible": true
+    },
+    {
+      "type": "com.sun.jna.Structure$FFIType",
+      "fields": [
+        {
+          "name": "alignment"
+        },
+        {
+          "name": "elements"
+        },
+        {
+          "name": "size"
+        },
+        {
+          "name": "type"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.Structure$FFIType$FFITypes",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "ffi_type_double"
+        },
+        {
+          "name": "ffi_type_float"
+        },
+        {
+          "name": "ffi_type_longdouble"
+        },
+        {
+          "name": "ffi_type_pointer"
+        },
+        {
+          "name": "ffi_type_sint16"
+        },
+        {
+          "name": "ffi_type_sint32"
+        },
+        {
+          "name": "ffi_type_sint64"
+        },
+        {
+          "name": "ffi_type_sint8"
+        },
+        {
+          "name": "ffi_type_uint16"
+        },
+        {
+          "name": "ffi_type_uint32"
+        },
+        {
+          "name": "ffi_type_uint64"
+        },
+        {
+          "name": "ffi_type_uint8"
+        },
+        {
+          "name": "ffi_type_void"
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.Structure$FFIType$size_t",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.WString",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "com.sun.jna.ptr.ByteByReference",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.swing.internal.plaf.basic.resources.basic"
+    },
+    {
+      "type": "com.sun.swing.internal.plaf.metal.resources.metal"
+    },
+    {
+      "type": "double"
+    },
+    {
+      "type": "float"
+    },
+    {
+      "type": "int"
+    },
+    {
+      "type": "io.ktor.client.HttpClient"
+    },
+    {
+      "type": "io.ktor.client.call.HttpClientCall"
+    },
+    {
+      "type": "io.ktor.client.engine.HttpClientEngineBase"
+    },
+    {
+      "type": "io.ktor.client.engine.cio.Endpoint"
+    },
+    {
+      "type": "io.ktor.client.plugins.logging.HttpClientCallLogger"
+    },
+    {
+      "type": "io.ktor.network.selector.InterestSuspensionsMap"
+    },
+    {
+      "type": "io.ktor.network.selector.LockFreeMPSCQueue"
+    },
+    {
+      "type": "io.ktor.network.selector.LockFreeMPSCQueueCore"
+    },
+    {
+      "type": "io.ktor.network.selector.SelectInterest[]"
+    },
+    {
+      "type": "io.ktor.network.selector.SelectableBase"
+    },
+    {
+      "type": "io.ktor.network.sockets.SocketBase"
+    },
+    {
+      "type": "io.ktor.util.collections.CopyOnWriteHashMap"
+    },
+    {
+      "type": "io.ktor.utils.io.ByteChannel"
+    },
+    {
+      "type": "io.ktor.utils.io.pool.DefaultPool"
+    },
+    {
+      "type": "java.awt.AlphaComposite",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "extraAlpha"
+        },
+        {
+          "name": "rule"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.Color",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getRGB",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.awt.Component",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "appContext"
+        },
+        {
+          "name": "background"
+        },
+        {
+          "name": "foreground"
+        },
+        {
+          "name": "graphicsConfig"
+        },
+        {
+          "name": "height"
+        },
+        {
+          "name": "isPacked"
+        },
+        {
+          "name": "name"
+        },
+        {
+          "name": "peer"
+        },
+        {
+          "name": "width"
+        },
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getLocationOnScreen_NoTreeLock",
+          "parameterTypes": []
+        },
+        {
+          "name": "getParent_NoClientCode",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.awt.GraphicsEnvironment",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "isHeadless",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.awt.Image"
+    },
+    {
+      "type": "java.awt.Rectangle",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.awt.SequencedEvent"
+    },
+    {
+      "type": "java.awt.event.KeyEvent",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "VK_CONTEXT_MENU"
+        },
+        {
+          "name": "VK_F10"
+        },
+        {
+          "name": "isProxyActive"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.geom.AffineTransform",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "m00"
+        },
+        {
+          "name": "m01"
+        },
+        {
+          "name": "m02"
+        },
+        {
+          "name": "m10"
+        },
+        {
+          "name": "m11"
+        },
+        {
+          "name": "m12"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.geom.Path2D",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "numTypes"
+        },
+        {
+          "name": "pointTypes"
+        },
+        {
+          "name": "windingRule"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.geom.Path2D$Float",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "floatCoords"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.BufferedImage",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "colorModel"
+        },
+        {
+          "name": "imageType"
+        },
+        {
+          "name": "raster"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getRGB",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "int[]",
+            "int",
+            "int"
+          ]
+        },
+        {
+          "name": "setRGB",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "int[]",
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.ColorModel",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "colorSpace"
+        },
+        {
+          "name": "colorSpaceType"
+        },
+        {
+          "name": "isAlphaPremultiplied"
+        },
+        {
+          "name": "is_sRGB"
+        },
+        {
+          "name": "nBits"
+        },
+        {
+          "name": "numComponents"
+        },
+        {
+          "name": "supportsAlpha"
+        },
+        {
+          "name": "transparency"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getRGBdefault",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.DirectColorModel",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.IndexColorModel",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "allgrayopaque"
+        },
+        {
+          "name": "colorData"
+        },
+        {
+          "name": "map_size"
+        },
+        {
+          "name": "rgb"
+        },
+        {
+          "name": "transparent_index"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.Raster",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "dataBuffer"
+        },
+        {
+          "name": "height"
+        },
+        {
+          "name": "minX"
+        },
+        {
+          "name": "minY"
+        },
+        {
+          "name": "numBands"
+        },
+        {
+          "name": "numDataElements"
+        },
+        {
+          "name": "sampleModel"
+        },
+        {
+          "name": "sampleModelTranslateX"
+        },
+        {
+          "name": "sampleModelTranslateY"
+        },
+        {
+          "name": "width"
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.SampleModel",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "height"
+        },
+        {
+          "name": "width"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getPixels",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "int[]",
+            "java.awt.image.DataBuffer"
+          ]
+        },
+        {
+          "name": "setPixels",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "int[]",
+            "java.awt.image.DataBuffer"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.awt.image.SinglePixelPackedSampleModel",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "bitMasks"
+        },
+        {
+          "name": "bitOffsets"
+        },
+        {
+          "name": "bitSizes"
+        },
+        {
+          "name": "maxBitSize"
+        }
+      ]
+    },
+    {
+      "type": "java.io.InputStream"
+    },
+    {
+      "type": "java.io.OutputStream",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "flush",
+          "parameterTypes": []
+        },
+        {
+          "name": "write",
+          "parameterTypes": [
+            "byte[]",
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Boolean",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "boolean"
+          ]
+        },
+        {
+          "name": "booleanValue",
+          "parameterTypes": []
+        },
+        {
+          "name": "getBoolean",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Byte",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "byte"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Character",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "char"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Class",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getComponentType",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Double",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "double"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Float",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Integer",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Long",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Object",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "toString",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Object[]"
+    },
+    {
+      "type": "java.lang.RuntimeException",
+      "jniAccessible": true
+    },
+    {
+      "type": "java.lang.Short",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "short"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.StackWalker"
+    },
+    {
+      "type": "java.lang.StackWalker$Option"
+    },
+    {
+      "type": "java.lang.StackWalker$StackFrame"
+    },
+    {
+      "type": "java.lang.String",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "byte[]"
+          ]
+        },
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "byte[]",
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "getBytes",
+          "parameterTypes": []
+        },
+        {
+          "name": "getBytes",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "toCharArray",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.System",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getProperty",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        },
+        {
+          "name": "load",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Thread",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getContextClassLoader",
+          "parameterTypes": []
+        },
+        {
+          "name": "yield",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Throwable",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "printStackTrace",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.lang.UnsatisfiedLinkError",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "java.lang.Void",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "TYPE"
+        }
+      ]
+    },
+    {
+      "type": "java.lang.ref.Cleaner"
+    },
+    {
+      "type": "java.lang.reflect.Method",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getParameterTypes",
+          "parameterTypes": []
+        },
+        {
+          "name": "getReturnType",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.net.StandardSocketOptions"
+    },
+    {
+      "type": "java.nio.Buffer",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "address"
+        }
+      ],
+      "methods": [
+        {
+          "name": "position",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.ByteBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.CharBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.DoubleBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.FloatBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.IntBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.LongBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.ShortBuffer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "array",
+          "parameterTypes": []
+        },
+        {
+          "name": "arrayOffset",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.nio.file.Files"
+    },
+    {
+      "type": "java.security.AccessController"
+    },
+    {
+      "type": "java.security.AlgorithmParametersSpi"
+    },
+    {
+      "type": "java.security.cert.PKIXRevocationChecker"
+    },
+    {
+      "type": "java.security.interfaces.ECPrivateKey"
+    },
+    {
+      "type": "java.security.interfaces.ECPublicKey"
+    },
+    {
+      "type": "java.security.interfaces.RSAPrivateKey"
+    },
+    {
+      "type": "java.security.interfaces.RSAPublicKey"
+    },
+    {
+      "type": "java.util.Iterator",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "hasNext",
+          "parameterTypes": []
+        },
+        {
+          "name": "next",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "java.util.List"
+    },
+    {
+      "type": "java.util.concurrent.ScheduledThreadPoolExecutor"
+    },
+    {
+      "type": "javax.swing.plaf.basic.BasicPanelUI",
+      "methods": [
+        {
+          "name": "createUI",
+          "parameterTypes": [
+            "javax.swing.JComponent"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "javax.swing.plaf.metal.MetalRootPaneUI",
+      "methods": [
+        {
+          "name": "createUI",
+          "parameterTypes": [
+            "javax.swing.JComponent"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "kotlin.SafePublicationLazyImpl"
+    },
+    {
+      "type": "kotlin.coroutines.SafeContinuation"
+    },
+    {
+      "type": "kotlin.jvm.functions.Function0",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "invoke",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "kotlin.reflect.jvm.internal.ReflectionFactoryImpl"
+    },
+    {
+      "type": "kotlinx.atomicfu.AtomicInt"
+    },
+    {
+      "type": "kotlinx.atomicfu.AtomicRef"
+    },
+    {
+      "type": "kotlinx.coroutines.CancellableContinuationImpl"
+    },
+    {
+      "type": "kotlinx.coroutines.CancelledContinuation"
+    },
+    {
+      "type": "kotlinx.coroutines.CompletedExceptionally"
+    },
+    {
+      "type": "kotlinx.coroutines.DispatchedCoroutine"
+    },
+    {
+      "type": "kotlinx.coroutines.EventLoopImplBase"
+    },
+    {
+      "type": "kotlinx.coroutines.InvokeOnCancelling"
+    },
+    {
+      "type": "kotlinx.coroutines.JobSupport"
+    },
+    {
+      "type": "kotlinx.coroutines.JobSupport$Finishing"
+    },
+    {
+      "type": "kotlinx.coroutines.channels.BufferedChannel"
+    },
+    {
+      "type": "kotlinx.coroutines.flow.StateFlowImpl"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.ConcurrentLinkedListNode"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.DispatchedContinuation"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.LimitedDispatcher"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.LockFreeLinkedListNode"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.LockFreeTaskQueue"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.LockFreeTaskQueueCore"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.Segment"
+    },
+    {
+      "type": "kotlinx.coroutines.internal.ThreadSafeHeap"
+    },
+    {
+      "type": "kotlinx.coroutines.scheduling.CoroutineScheduler"
+    },
+    {
+      "type": "kotlinx.coroutines.scheduling.CoroutineScheduler$Worker"
+    },
+    {
+      "type": "kotlinx.coroutines.scheduling.WorkQueue"
+    },
+    {
+      "type": "kotlinx.coroutines.selects.SelectImplementation"
+    },
+    {
+      "type": "kotlinx.coroutines.swing.SwingDispatcherFactory",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "kotlinx.coroutines.sync.MutexImpl"
+    },
+    {
+      "type": "kotlinx.coroutines.sync.SemaphoreAndMutexImpl"
+    },
+    {
+      "type": "kotlinx.io.RefCountingCopyTracker"
+    },
+    {
+      "type": "libcore.io.Memory"
+    },
+    {
+      "type": "long"
+    },
+    {
+      "type": "org.apache.log4j.Log4jLoggerFactory"
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.COMPOSITE$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.CONTEXT$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.CompositeSignatures$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.DH$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.DSA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.DSTU4145$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.Dilithium$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.EC$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.ECGOST$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.EXTERNAL$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.EdEC$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.ElGamal$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.Falcon$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.GM$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.GOST$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.IES$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.LMS$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.MLDSA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.MLKEM$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.NTRU$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.NoSig$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.RSA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.SLHDSA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.SPHINCSPlus$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.asymmetric.X509$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Blake2b$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Blake2s$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Blake3$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.DSTU7564$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.GOST3411$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Haraka$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Keccak$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.MD2$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.MD4$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.MD5$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.RIPEMD128$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.RIPEMD160$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.RIPEMD256$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.RIPEMD320$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SHA1$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SHA224$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SHA256$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SHA3$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SHA384$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SHA512$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.SM3$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Skein$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Tiger$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.digest.Whirlpool$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.drbg.DRBG$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.kdf.HKDF$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.kdf.PBKDF2$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.kdf.SCRYPT$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.keystore.BC$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.keystore.BCFKS$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.keystore.PKCS12$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.AES$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.ARC4$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.ARIA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Blowfish$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.CAST5$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.CAST6$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Camellia$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.ChaCha$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.DES$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.DESede$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.DSTU7624$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.GOST28147$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.GOST3412_2015$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Grain128$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Grainv1$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.HC128$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.HC256$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.HKDF$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.IDEA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Noekeon$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.OpenSSLPBKDF$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF1$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.PBEPBKDF2$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.PBEPKCS12$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Poly1305$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.RC2$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.RC5$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.RC6$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Rijndael$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.SCRYPT$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.SEED$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.SM4$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Salsa20$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Serpent$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Shacal2$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.SipHash$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.SipHash128$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Skipjack$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.TEA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.TLSKDF$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Threefish$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Twofish$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.VMPC$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.VMPCKSA3$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.XSalsa20$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.XTEA$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.bouncycastle.jcajce.provider.symmetric.Zuc$Mappings",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.diff.DiffAlgorithm$SupportedAlgorithm",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.gpg.bc.internal.BouncyCastleGpgSignerFactory"
+    },
+    {
+      "type": "org.eclipse.jgit.internal.JGitText",
+      "fields": [
+        {
+          "name": "DIRCChecksumMismatch"
+        },
+        {
+          "name": "DIRCCorruptLength"
+        },
+        {
+          "name": "DIRCCorruptLengthFirst"
+        },
+        {
+          "name": "DIRCExtensionIsTooLargeAt"
+        },
+        {
+          "name": "DIRCExtensionNotSupportedByThisVersion"
+        },
+        {
+          "name": "DIRCHasTooManyEntries"
+        },
+        {
+          "name": "DIRCUnrecognizedExtendedFlags"
+        },
+        {
+          "name": "JRELacksMD5Implementation"
+        },
+        {
+          "name": "URINotSupported"
+        },
+        {
+          "name": "aNewObjectIdIsRequired"
+        },
+        {
+          "name": "abbreviationLengthMustBeNonNegative"
+        },
+        {
+          "name": "abortingRebase"
+        },
+        {
+          "name": "abortingRebaseFailed"
+        },
+        {
+          "name": "abortingRebaseFailedNoOrigHead"
+        },
+        {
+          "name": "advertisementCameBefore"
+        },
+        {
+          "name": "advertisementOfCameBefore"
+        },
+        {
+          "name": "amazonS3ActionFailed"
+        },
+        {
+          "name": "amazonS3ActionFailedGivingUp"
+        },
+        {
+          "name": "ambiguousObjectAbbreviation"
+        },
+        {
+          "name": "anExceptionOccurredWhileTryingToAddTheIdOfHEAD"
+        },
+        {
+          "name": "anSSHSessionHasBeenAlreadyCreated"
+        },
+        {
+          "name": "applyBinaryBaseOidWrong"
+        },
+        {
+          "name": "applyBinaryForInCoreNotSupported"
+        },
+        {
+          "name": "applyBinaryOidTooShort"
+        },
+        {
+          "name": "applyBinaryPatchTypeNotSupported"
+        },
+        {
+          "name": "applyBinaryResultOidWrong"
+        },
+        {
+          "name": "applyPatchDestInvalid"
+        },
+        {
+          "name": "applyPatchSourceInvalid"
+        },
+        {
+          "name": "applyPatchWithCreationOverAlreadyExistingDestination"
+        },
+        {
+          "name": "applyPatchWithSourceOnNonExistentSource"
+        },
+        {
+          "name": "applyPatchWithoutSourceOnAlreadyExistingSource"
+        },
+        {
+          "name": "applyTextPatchCannotApplyHunk"
+        },
+        {
+          "name": "applyTextPatchSingleClearingHunk"
+        },
+        {
+          "name": "applyTextPatchUnorderedHunkApplications"
+        },
+        {
+          "name": "applyTextPatchUnorderedHunks"
+        },
+        {
+          "name": "applyingCommit"
+        },
+        {
+          "name": "archiveFormatAlreadyAbsent"
+        },
+        {
+          "name": "archiveFormatAlreadyRegistered"
+        },
+        {
+          "name": "argumentIsNotAValidCommentString"
+        },
+        {
+          "name": "assumeAtomicCreateNewFile"
+        },
+        {
+          "name": "atLeastOnePathIsRequired"
+        },
+        {
+          "name": "atLeastOnePatternIsRequired"
+        },
+        {
+          "name": "atLeastTwoFiltersNeeded"
+        },
+        {
+          "name": "atomicPushNotSupported"
+        },
+        {
+          "name": "atomicRefUpdatesNotSupported"
+        },
+        {
+          "name": "atomicSymRefNotSupported"
+        },
+        {
+          "name": "authenticationNotSupported"
+        },
+        {
+          "name": "badBase64InputCharacterAt"
+        },
+        {
+          "name": "badEntryDelimiter"
+        },
+        {
+          "name": "badEntryName"
+        },
+        {
+          "name": "badEscape"
+        },
+        {
+          "name": "badGroupHeader"
+        },
+        {
+          "name": "badIgnorePattern"
+        },
+        {
+          "name": "badIgnorePatternFull"
+        },
+        {
+          "name": "badObjectType"
+        },
+        {
+          "name": "badRef"
+        },
+        {
+          "name": "badSectionEntry"
+        },
+        {
+          "name": "badShallowLine"
+        },
+        {
+          "name": "bareRepositoryNoWorkdirAndIndex"
+        },
+        {
+          "name": "base85invalidChar"
+        },
+        {
+          "name": "base85length"
+        },
+        {
+          "name": "base85overflow"
+        },
+        {
+          "name": "base85tooLong"
+        },
+        {
+          "name": "base85tooShort"
+        },
+        {
+          "name": "baseLengthIncorrect"
+        },
+        {
+          "name": "binaryDeltaBaseLengthMismatch"
+        },
+        {
+          "name": "binaryDeltaInvalidOffset"
+        },
+        {
+          "name": "binaryDeltaInvalidResultLength"
+        },
+        {
+          "name": "binaryHunkDecodeError"
+        },
+        {
+          "name": "binaryHunkInvalidLength"
+        },
+        {
+          "name": "binaryHunkLineTooShort"
+        },
+        {
+          "name": "binaryHunkMissingNewline"
+        },
+        {
+          "name": "bitmapMissingObject"
+        },
+        {
+          "name": "bitmapUseNoopNoListener"
+        },
+        {
+          "name": "bitmapsMustBePrepared"
+        },
+        {
+          "name": "blameNotCommittedYet"
+        },
+        {
+          "name": "blameRegionCoverAllLines"
+        },
+        {
+          "name": "blockLimitNotMultipleOfBlockSize"
+        },
+        {
+          "name": "blockLimitNotPositive"
+        },
+        {
+          "name": "blockSizeNotPowerOf2"
+        },
+        {
+          "name": "bothRefTargetsMustNotBeNull"
+        },
+        {
+          "name": "branchNameInvalid"
+        },
+        {
+          "name": "buildingBitmaps"
+        },
+        {
+          "name": "cacheRegionAllOrNoneNull"
+        },
+        {
+          "name": "cachedPacksPreventsIndexCreation"
+        },
+        {
+          "name": "cachedPacksPreventsListingObjects"
+        },
+        {
+          "name": "canOnlyCherryPickCommitsWithOneParent"
+        },
+        {
+          "name": "canOnlyRevertCommitsWithOneParent"
+        },
+        {
+          "name": "cannotAccessLastModifiedForSafeDeletion"
+        },
+        {
+          "name": "cannotBeCombined"
+        },
+        {
+          "name": "cannotBeRecursiveWhenTreesAreIncluded"
+        },
+        {
+          "name": "cannotChangeActionOnComment"
+        },
+        {
+          "name": "cannotCheckoutFromUnbornBranch"
+        },
+        {
+          "name": "cannotCheckoutOursSwitchBranch"
+        },
+        {
+          "name": "cannotCombineSquashWithNoff"
+        },
+        {
+          "name": "cannotCombineTopoSortWithTopoKeepBranchTogetherSort"
+        },
+        {
+          "name": "cannotCombineTreeFilterWithRevFilter"
+        },
+        {
+          "name": "cannotCommitOnARepoWithState"
+        },
+        {
+          "name": "cannotCommitWriteTo"
+        },
+        {
+          "name": "cannotConnectPipes"
+        },
+        {
+          "name": "cannotConvertScriptToText"
+        },
+        {
+          "name": "cannotCreateConfig"
+        },
+        {
+          "name": "cannotCreateDirectory"
+        },
+        {
+          "name": "cannotCreateHEAD"
+        },
+        {
+          "name": "cannotCreateIndexfile"
+        },
+        {
+          "name": "cannotCreateTempDir"
+        },
+        {
+          "name": "cannotDeleteCheckedOutBranch"
+        },
+        {
+          "name": "cannotDeleteFile"
+        },
+        {
+          "name": "cannotDeleteObjectsPath"
+        },
+        {
+          "name": "cannotDetermineProxyFor"
+        },
+        {
+          "name": "cannotDownload"
+        },
+        {
+          "name": "cannotEnterObjectsPath"
+        },
+        {
+          "name": "cannotEnterPathFromParent"
+        },
+        {
+          "name": "cannotExecute"
+        },
+        {
+          "name": "cannotFindMergeBaseUsingFirstParent"
+        },
+        {
+          "name": "cannotGet"
+        },
+        {
+          "name": "cannotGetObjectsPath"
+        },
+        {
+          "name": "cannotListObjectsPath"
+        },
+        {
+          "name": "cannotListPackPath"
+        },
+        {
+          "name": "cannotListRefs"
+        },
+        {
+          "name": "cannotLock"
+        },
+        {
+          "name": "cannotLockPackIn"
+        },
+        {
+          "name": "cannotMatchOnEmptyString"
+        },
+        {
+          "name": "cannotMkdirObjectPath"
+        },
+        {
+          "name": "cannotMoveIndexTo"
+        },
+        {
+          "name": "cannotMovePackTo"
+        },
+        {
+          "name": "cannotOpenMidx"
+        },
+        {
+          "name": "cannotOpenService"
+        },
+        {
+          "name": "cannotParseDate"
+        },
+        {
+          "name": "cannotParseGitURIish"
+        },
+        {
+          "name": "cannotPullOnARepoWithState"
+        },
+        {
+          "name": "cannotRead"
+        },
+        {
+          "name": "cannotReadBackDelta"
+        },
+        {
+          "name": "cannotReadBlob"
+        },
+        {
+          "name": "cannotReadByte"
+        },
+        {
+          "name": "cannotReadCommit"
+        },
+        {
+          "name": "cannotReadFile"
+        },
+        {
+          "name": "cannotReadHEAD"
+        },
+        {
+          "name": "cannotReadIndex"
+        },
+        {
+          "name": "cannotReadObject"
+        },
+        {
+          "name": "cannotReadObjectsPath"
+        },
+        {
+          "name": "cannotReadTree"
+        },
+        {
+          "name": "cannotRebaseWithoutCurrentHead"
+        },
+        {
+          "name": "cannotResolveUniquelyAbbrevObjectId"
+        },
+        {
+          "name": "cannotSaveConfig"
+        },
+        {
+          "name": "cannotSquashFixupWithoutPreviousCommit"
+        },
+        {
+          "name": "cannotStoreObjects"
+        },
+        {
+          "name": "cannotUpdateUnbornBranch"
+        },
+        {
+          "name": "cannotWriteObjectsPath"
+        },
+        {
+          "name": "cantFindObjectInReversePackIndexForTheSpecifiedOffset"
+        },
+        {
+          "name": "channelMustBeInRange1_255"
+        },
+        {
+          "name": "characterClassIsNotSupported"
+        },
+        {
+          "name": "checkingOutFiles"
+        },
+        {
+          "name": "checkoutConflictWithFile"
+        },
+        {
+          "name": "checkoutConflictWithFiles"
+        },
+        {
+          "name": "checkoutUnexpectedResult"
+        },
+        {
+          "name": "classCastNotA"
+        },
+        {
+          "name": "cloneNonEmptyDirectory"
+        },
+        {
+          "name": "closeLockTokenFailed"
+        },
+        {
+          "name": "closePidLockFailed"
+        },
+        {
+          "name": "closed"
+        },
+        {
+          "name": "collisionOn"
+        },
+        {
+          "name": "commandClosedStderrButDidntExit"
+        },
+        {
+          "name": "commandRejectedByHook"
+        },
+        {
+          "name": "commandWasCalledInTheWrongState"
+        },
+        {
+          "name": "commitAmendOnInitialNotPossible"
+        },
+        {
+          "name": "commitDoesNotHaveGivenParent"
+        },
+        {
+          "name": "commitGraphChunkNeeded"
+        },
+        {
+          "name": "commitGraphChunkRepeated"
+        },
+        {
+          "name": "commitGraphChunkUnknown"
+        },
+        {
+          "name": "commitGraphFileIsTooLargeForJgit"
+        },
+        {
+          "name": "commitGraphUnexpectedSize"
+        },
+        {
+          "name": "commitGraphWritingCancelled"
+        },
+        {
+          "name": "commitMessageNotSpecified"
+        },
+        {
+          "name": "commitOnRepoWithoutHEADCurrentlyNotSupported"
+        },
+        {
+          "name": "commitsHaveAlreadyBeenMarkedAsStart"
+        },
+        {
+          "name": "compressingObjects"
+        },
+        {
+          "name": "computingCommitGeneration"
+        },
+        {
+          "name": "computingPathBloomFilters"
+        },
+        {
+          "name": "configHandleIsStale"
+        },
+        {
+          "name": "configHandleMayBeLocked"
+        },
+        {
+          "name": "configSubsectionContainsNewline"
+        },
+        {
+          "name": "configSubsectionContainsNullByte"
+        },
+        {
+          "name": "configValueContainsNullByte"
+        },
+        {
+          "name": "connectionFailed"
+        },
+        {
+          "name": "connectionTimeOut"
+        },
+        {
+          "name": "contextMustBeNonNegative"
+        },
+        {
+          "name": "cookieFilePathRelative"
+        },
+        {
+          "name": "copyFileFailedNullFiles"
+        },
+        {
+          "name": "corruptCommitGraph"
+        },
+        {
+          "name": "corruptObjectBadDate"
+        },
+        {
+          "name": "corruptObjectBadEmail"
+        },
+        {
+          "name": "corruptObjectBadStream"
+        },
+        {
+          "name": "corruptObjectBadTimezone"
+        },
+        {
+          "name": "corruptObjectDuplicateEntryNames"
+        },
+        {
+          "name": "corruptObjectGarbageAfterSize"
+        },
+        {
+          "name": "corruptObjectIncorrectLength"
+        },
+        {
+          "name": "corruptObjectIncorrectSorting"
+        },
+        {
+          "name": "corruptObjectInvalidMode2"
+        },
+        {
+          "name": "corruptObjectInvalidMode3"
+        },
+        {
+          "name": "corruptObjectInvalidModeChar"
+        },
+        {
+          "name": "corruptObjectInvalidModeStartsZero"
+        },
+        {
+          "name": "corruptObjectInvalidName"
+        },
+        {
+          "name": "corruptObjectInvalidNameAux"
+        },
+        {
+          "name": "corruptObjectInvalidNameCom"
+        },
+        {
+          "name": "corruptObjectInvalidNameCon"
+        },
+        {
+          "name": "corruptObjectInvalidNameEnd"
+        },
+        {
+          "name": "corruptObjectInvalidNameIgnorableUnicode"
+        },
+        {
+          "name": "corruptObjectInvalidNameInvalidUtf8"
+        },
+        {
+          "name": "corruptObjectInvalidNameLpt"
+        },
+        {
+          "name": "corruptObjectInvalidNameNul"
+        },
+        {
+          "name": "corruptObjectInvalidNamePrn"
+        },
+        {
+          "name": "corruptObjectInvalidObject"
+        },
+        {
+          "name": "corruptObjectInvalidParent"
+        },
+        {
+          "name": "corruptObjectInvalidTree"
+        },
+        {
+          "name": "corruptObjectInvalidType"
+        },
+        {
+          "name": "corruptObjectInvalidType2"
+        },
+        {
+          "name": "corruptObjectMissingEmail"
+        },
+        {
+          "name": "corruptObjectNameContainsByte"
+        },
+        {
+          "name": "corruptObjectNameContainsChar"
+        },
+        {
+          "name": "corruptObjectNameContainsNullByte"
+        },
+        {
+          "name": "corruptObjectNameContainsSlash"
+        },
+        {
+          "name": "corruptObjectNameDot"
+        },
+        {
+          "name": "corruptObjectNameDotDot"
+        },
+        {
+          "name": "corruptObjectNameZeroLength"
+        },
+        {
+          "name": "corruptObjectNegativeSize"
+        },
+        {
+          "name": "corruptObjectNoAuthor"
+        },
+        {
+          "name": "corruptObjectNoCommitter"
+        },
+        {
+          "name": "corruptObjectNoHeader"
+        },
+        {
+          "name": "corruptObjectNoObjectHeader"
+        },
+        {
+          "name": "corruptObjectNoTagHeader"
+        },
+        {
+          "name": "corruptObjectNoTypeHeader"
+        },
+        {
+          "name": "corruptObjectNotreeHeader"
+        },
+        {
+          "name": "corruptObjectPackfileChecksumIncorrect"
+        },
+        {
+          "name": "corruptObjectTruncatedInMode"
+        },
+        {
+          "name": "corruptObjectTruncatedInName"
+        },
+        {
+          "name": "corruptObjectTruncatedInObjectId"
+        },
+        {
+          "name": "corruptObjectZeroId"
+        },
+        {
+          "name": "corruptPack"
+        },
+        {
+          "name": "corruptReverseIndexChecksumIncorrect"
+        },
+        {
+          "name": "corruptUseCnt"
+        },
+        {
+          "name": "corruptionDetectedReReadingAt"
+        },
+        {
+          "name": "couldNotFindSixTabsInLine"
+        },
+        {
+          "name": "couldNotFindTabInLine"
+        },
+        {
+          "name": "couldNotGetAdvertisedRef"
+        },
+        {
+          "name": "couldNotGetRepoStatistics"
+        },
+        {
+          "name": "couldNotHashByteArrayWithSha256"
+        },
+        {
+          "name": "couldNotLockHEAD"
+        },
+        {
+          "name": "couldNotPersistCookies"
+        },
+        {
+          "name": "couldNotReadCookieFile"
+        },
+        {
+          "name": "couldNotReadIndexInOneGo"
+        },
+        {
+          "name": "couldNotReadObjectWhileParsingCommit"
+        },
+        {
+          "name": "couldNotRewindToUpstreamCommit"
+        },
+        {
+          "name": "couldNotSignStringWithKey"
+        },
+        {
+          "name": "couldNotURLEncodeToUTF8"
+        },
+        {
+          "name": "countingObjects"
+        },
+        {
+          "name": "createBranchFailedUnknownReason"
+        },
+        {
+          "name": "createBranchUnexpectedResult"
+        },
+        {
+          "name": "createNewFileFailed"
+        },
+        {
+          "name": "createRequiresZeroOldId"
+        },
+        {
+          "name": "credentialPassphrase"
+        },
+        {
+          "name": "credentialPassword"
+        },
+        {
+          "name": "credentialUsername"
+        },
+        {
+          "name": "daemonAlreadyRunning"
+        },
+        {
+          "name": "daysAgo"
+        },
+        {
+          "name": "deepenNotWithDeepen"
+        },
+        {
+          "name": "deepenSinceWithDeepen"
+        },
+        {
+          "name": "deleteBranchUnexpectedResult"
+        },
+        {
+          "name": "deleteFileFailed"
+        },
+        {
+          "name": "deleteRequiresZeroNewId"
+        },
+        {
+          "name": "deleteTagUnexpectedResult"
+        },
+        {
+          "name": "deletedOrphanInPackDir"
+        },
+        {
+          "name": "deletingBranches"
+        },
+        {
+          "name": "deletingNotSupported"
+        },
+        {
+          "name": "deprecatedTrustFolderStat"
+        },
+        {
+          "name": "depthMustBeAt1"
+        },
+        {
+          "name": "depthWithUnshallow"
+        },
+        {
+          "name": "destinationIsNotAWildcard"
+        },
+        {
+          "name": "detachedHeadDetected"
+        },
+        {
+          "name": "diffToolNotGivenError"
+        },
+        {
+          "name": "diffToolNotSpecifiedInGitAttributesError"
+        },
+        {
+          "name": "diffToolNullError"
+        },
+        {
+          "name": "dirCacheDoesNotHaveABackingFile"
+        },
+        {
+          "name": "dirCacheFileIsNotLocked"
+        },
+        {
+          "name": "dirCacheIsNotLocked"
+        },
+        {
+          "name": "downloadCancelled"
+        },
+        {
+          "name": "downloadCancelledDuringIndexing"
+        },
+        {
+          "name": "duplicateAdvertisementsOf"
+        },
+        {
+          "name": "duplicateCacheTablesGiven"
+        },
+        {
+          "name": "duplicatePackExtensionsForCacheTables"
+        },
+        {
+          "name": "duplicatePackExtensionsSet"
+        },
+        {
+          "name": "duplicateRef"
+        },
+        {
+          "name": "duplicateRefAttribute"
+        },
+        {
+          "name": "duplicateRemoteRefUpdateIsIllegal"
+        },
+        {
+          "name": "duplicateStagesNotAllowed"
+        },
+        {
+          "name": "eitherGitDirOrWorkTreeRequired"
+        },
+        {
+          "name": "emptyCommit"
+        },
+        {
+          "name": "emptyPathNotPermitted"
+        },
+        {
+          "name": "emptyRef"
+        },
+        {
+          "name": "encryptionError"
+        },
+        {
+          "name": "encryptionOnlyPBE"
+        },
+        {
+          "name": "endOfFileInEscape"
+        },
+        {
+          "name": "entryNotFoundByPath"
+        },
+        {
+          "name": "enumValueNotSupported0"
+        },
+        {
+          "name": "enumValueNotSupported2"
+        },
+        {
+          "name": "enumValueNotSupported3"
+        },
+        {
+          "name": "enumValuesNotAvailable"
+        },
+        {
+          "name": "errorInPackedRefs"
+        },
+        {
+          "name": "errorInvalidProtocolWantedOldNewRef"
+        },
+        {
+          "name": "errorListing"
+        },
+        {
+          "name": "errorOccurredDuringUnpackingOnTheRemoteEnd"
+        },
+        {
+          "name": "errorReadingInfoRefs"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfAddCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfArchiveCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfCherryPickCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfCommitCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfFetchCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfHook"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfLsRemoteCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfMergeCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfPullCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfPushCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfResetCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfRevertCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfRmCommand"
+        },
+        {
+          "name": "exceptionCaughtDuringExecutionOfTagCommand"
+        },
+        {
+          "name": "exceptionHookExecutionInterrupted"
+        },
+        {
+          "name": "exceptionOccurredDuringAddingOfOptionToALogCommand"
+        },
+        {
+          "name": "exceptionOccurredDuringReadingOfGIT_DIR"
+        },
+        {
+          "name": "exceptionWhileFindingUserHome"
+        },
+        {
+          "name": "exceptionWhileLoadingCommitGraph"
+        },
+        {
+          "name": "exceptionWhileReadingPack"
+        },
+        {
+          "name": "expectedACKNAKFoundEOF"
+        },
+        {
+          "name": "expectedACKNAKGot"
+        },
+        {
+          "name": "expectedBooleanStringValue"
+        },
+        {
+          "name": "expectedCharacterEncodingGuesses"
+        },
+        {
+          "name": "expectedDirectoryNotSubmodule"
+        },
+        {
+          "name": "expectedEOFReceived"
+        },
+        {
+          "name": "expectedGot"
+        },
+        {
+          "name": "expectedLessThanGot"
+        },
+        {
+          "name": "expectedPktLineWithService"
+        },
+        {
+          "name": "expectedReceivedContentType"
+        },
+        {
+          "name": "expectedReportForRefNotReceived"
+        },
+        {
+          "name": "failedAtomicFileCreation"
+        },
+        {
+          "name": "failedCreateLockFile"
+        },
+        {
+          "name": "failedPidLock"
+        },
+        {
+          "name": "failedReadHttpsProtocols"
+        },
+        {
+          "name": "failedToConvert"
+        },
+        {
+          "name": "failedToDetermineFilterDefinition"
+        },
+        {
+          "name": "failedUpdatingRefs"
+        },
+        {
+          "name": "failureDueToOneOfTheFollowing"
+        },
+        {
+          "name": "failureUpdatingFETCH_HEAD"
+        },
+        {
+          "name": "failureUpdatingTrackingRef"
+        },
+        {
+          "name": "fileAlreadyExists"
+        },
+        {
+          "name": "fileCannotBeDeleted"
+        },
+        {
+          "name": "fileIsTooLarge"
+        },
+        {
+          "name": "fileModeNotSetForPath"
+        },
+        {
+          "name": "filterExecutionFailed"
+        },
+        {
+          "name": "filterExecutionFailedRc"
+        },
+        {
+          "name": "filterRequiresCapability"
+        },
+        {
+          "name": "findingCommitsForCommitGraph"
+        },
+        {
+          "name": "findingGarbage"
+        },
+        {
+          "name": "flagIsDisposed"
+        },
+        {
+          "name": "flagNotFromThis"
+        },
+        {
+          "name": "flagsAlreadyCreated"
+        },
+        {
+          "name": "funnyRefname"
+        },
+        {
+          "name": "gcAlreadyRunning"
+        },
+        {
+          "name": "gcFailed"
+        },
+        {
+          "name": "gcTooManyUnpruned"
+        },
+        {
+          "name": "headRequiredToStash"
+        },
+        {
+          "name": "hoursAgo"
+        },
+        {
+          "name": "httpConfigCannotNormalizeURL"
+        },
+        {
+          "name": "httpConfigInvalidURL"
+        },
+        {
+          "name": "httpFactoryInUse"
+        },
+        {
+          "name": "httpPreAuthTooLate"
+        },
+        {
+          "name": "httpUserInfoDecodeError"
+        },
+        {
+          "name": "httpWrongConnectionType"
+        },
+        {
+          "name": "hugeIndexesAreNotSupportedByJgitYet"
+        },
+        {
+          "name": "hunkBelongsToAnotherFile"
+        },
+        {
+          "name": "hunkDisconnectedFromFile"
+        },
+        {
+          "name": "hunkHeaderDoesNotMatchBodyLineCountOf"
+        },
+        {
+          "name": "illegalArgumentNotA"
+        },
+        {
+          "name": "illegalCombinationOfArguments"
+        },
+        {
+          "name": "illegalHookName"
+        },
+        {
+          "name": "illegalPackingPhase"
+        },
+        {
+          "name": "illegalTernarySearchTreeKey"
+        },
+        {
+          "name": "illegalTernarySearchTreeValue"
+        },
+        {
+          "name": "inMemoryBufferLimitExceeded"
+        },
+        {
+          "name": "inTheFuture"
+        },
+        {
+          "name": "incorrectHashFor"
+        },
+        {
+          "name": "incorrectOBJECT_ID_LENGTH"
+        },
+        {
+          "name": "indexFileCorruptedNegativeBucketCount"
+        },
+        {
+          "name": "indexFileIsTooLargeForJgit"
+        },
+        {
+          "name": "indexNumbersNotIncreasing"
+        },
+        {
+          "name": "indexWriteException"
+        },
+        {
+          "name": "initFailedBareRepoDifferentDirs"
+        },
+        {
+          "name": "initFailedDirIsNoDirectory"
+        },
+        {
+          "name": "initFailedGitDirIsNoDirectory"
+        },
+        {
+          "name": "initFailedNonBareRepoSameDirs"
+        },
+        {
+          "name": "inputDidntMatchLength"
+        },
+        {
+          "name": "inputStreamClosed"
+        },
+        {
+          "name": "inputStreamMustSupportMark"
+        },
+        {
+          "name": "integerValueNotInRange"
+        },
+        {
+          "name": "integerValueNotInRangeSubSection"
+        },
+        {
+          "name": "integerValueOutOfRange"
+        },
+        {
+          "name": "internalRevisionError"
+        },
+        {
+          "name": "internalServerError"
+        },
+        {
+          "name": "interruptedWriting"
+        },
+        {
+          "name": "invalidAdvertisementOf"
+        },
+        {
+          "name": "invalidAncestryLength"
+        },
+        {
+          "name": "invalidAwsApiSignatureVersion"
+        },
+        {
+          "name": "invalidBooleanValue"
+        },
+        {
+          "name": "invalidChannel"
+        },
+        {
+          "name": "invalidCommitParentNumber"
+        },
+        {
+          "name": "invalidCoreAbbrev"
+        },
+        {
+          "name": "invalidDepth"
+        },
+        {
+          "name": "invalidEncoding"
+        },
+        {
+          "name": "invalidEncryption"
+        },
+        {
+          "name": "invalidExpandWildcard"
+        },
+        {
+          "name": "invalidExtraEdgeListPosition"
+        },
+        {
+          "name": "invalidFilter"
+        },
+        {
+          "name": "invalidGitModules"
+        },
+        {
+          "name": "invalidGitType"
+        },
+        {
+          "name": "invalidGitdirRef"
+        },
+        {
+          "name": "invalidHeaderFormat"
+        },
+        {
+          "name": "invalidHeaderKey"
+        },
+        {
+          "name": "invalidHeaderValue"
+        },
+        {
+          "name": "invalidHexString"
+        },
+        {
+          "name": "invalidHomeDirectory"
+        },
+        {
+          "name": "invalidHooksPath"
+        },
+        {
+          "name": "invalidId"
+        },
+        {
+          "name": "invalidId0"
+        },
+        {
+          "name": "invalidIdLength"
+        },
+        {
+          "name": "invalidIgnoreParamSubmodule"
+        },
+        {
+          "name": "invalidIgnoreRule"
+        },
+        {
+          "name": "invalidIntegerValue"
+        },
+        {
+          "name": "invalidKey"
+        },
+        {
+          "name": "invalidLineInConfigFile"
+        },
+        {
+          "name": "invalidLineInConfigFileWithParam"
+        },
+        {
+          "name": "invalidModeFor"
+        },
+        {
+          "name": "invalidModeForPath"
+        },
+        {
+          "name": "invalidNameContainsDotDot"
+        },
+        {
+          "name": "invalidNegativeAndForce"
+        },
+        {
+          "name": "invalidObject"
+        },
+        {
+          "name": "invalidOldIdSent"
+        },
+        {
+          "name": "invalidPacketLineHeader"
+        },
+        {
+          "name": "invalidPath"
+        },
+        {
+          "name": "invalidPurgeFactor"
+        },
+        {
+          "name": "invalidRedirectLocation"
+        },
+        {
+          "name": "invalidRefAdvertisementLine"
+        },
+        {
+          "name": "invalidRefName"
+        },
+        {
+          "name": "invalidRefSpec"
+        },
+        {
+          "name": "invalidReflogRevision"
+        },
+        {
+          "name": "invalidReftableBlock"
+        },
+        {
+          "name": "invalidReftableCRC"
+        },
+        {
+          "name": "invalidReftableFile"
+        },
+        {
+          "name": "invalidRemote"
+        },
+        {
+          "name": "invalidRepositoryStateNoHead"
+        },
+        {
+          "name": "invalidShallowObject"
+        },
+        {
+          "name": "invalidStageForPath"
+        },
+        {
+          "name": "invalidSystemProperty"
+        },
+        {
+          "name": "invalidTagOption"
+        },
+        {
+          "name": "invalidTimeUnitValue2"
+        },
+        {
+          "name": "invalidTimeUnitValue3"
+        },
+        {
+          "name": "invalidTimeout"
+        },
+        {
+          "name": "invalidTimestamp"
+        },
+        {
+          "name": "invalidTreeZeroLengthName"
+        },
+        {
+          "name": "invalidTrustStat"
+        },
+        {
+          "name": "invalidURL"
+        },
+        {
+          "name": "invalidWildcards"
+        },
+        {
+          "name": "invalidWindowSize"
+        },
+        {
+          "name": "isAStaticFlagAndHasNorevWalkInstance"
+        },
+        {
+          "name": "kNotInRange"
+        },
+        {
+          "name": "largeObjectExceedsByteArray"
+        },
+        {
+          "name": "largeObjectExceedsLimit"
+        },
+        {
+          "name": "largeObjectException"
+        },
+        {
+          "name": "largeObjectOutOfMemory"
+        },
+        {
+          "name": "lengthExceedsMaximumArraySize"
+        },
+        {
+          "name": "lfsHookConflict"
+        },
+        {
+          "name": "listingAlternates"
+        },
+        {
+          "name": "listingPacks"
+        },
+        {
+          "name": "localObjectsIncomplete"
+        },
+        {
+          "name": "localRefIsMissingObjects"
+        },
+        {
+          "name": "localRepository"
+        },
+        {
+          "name": "lockAlreadyHeld"
+        },
+        {
+          "name": "lockCountMustBeGreaterOrEqual1"
+        },
+        {
+          "name": "lockError"
+        },
+        {
+          "name": "lockFailedRetry"
+        },
+        {
+          "name": "lockOnNotClosed"
+        },
+        {
+          "name": "lockOnNotHeld"
+        },
+        {
+          "name": "lockStreamClosed"
+        },
+        {
+          "name": "lockStreamMultiple"
+        },
+        {
+          "name": "logInconsistentFiletimeDiff"
+        },
+        {
+          "name": "logInvalidDefaultCharset"
+        },
+        {
+          "name": "logLargerFiletimeDiff"
+        },
+        {
+          "name": "logSmallerFiletime"
+        },
+        {
+          "name": "logXDGCacheHomeInvalid"
+        },
+        {
+          "name": "logXDGConfigHomeInvalid"
+        },
+        {
+          "name": "looseObjectHandleIsStale"
+        },
+        {
+          "name": "maxCountMustBeNonNegative"
+        },
+        {
+          "name": "mergeConflictOnNonNoteEntries"
+        },
+        {
+          "name": "mergeConflictOnNotes"
+        },
+        {
+          "name": "mergeRecursiveConflictsWhenMergingCommonAncestors"
+        },
+        {
+          "name": "mergeRecursiveTooManyMergeBasesFor"
+        },
+        {
+          "name": "mergeStrategyAlreadyExistsAsDefault"
+        },
+        {
+          "name": "mergeStrategyDoesNotSupportHeads"
+        },
+        {
+          "name": "mergeToolNotGivenError"
+        },
+        {
+          "name": "mergeToolNullError"
+        },
+        {
+          "name": "mergeUsingStrategyResultedInDescription"
+        },
+        {
+          "name": "messageAndTaggerNotAllowedInUnannotatedTags"
+        },
+        {
+          "name": "midxChunkNeeded"
+        },
+        {
+          "name": "midxChunkRepeated"
+        },
+        {
+          "name": "midxChunkTooBig"
+        },
+        {
+          "name": "midxChunkUnknown"
+        },
+        {
+          "name": "minutesAgo"
+        },
+        {
+          "name": "mismatchCRC"
+        },
+        {
+          "name": "mismatchOffset"
+        },
+        {
+          "name": "missingAccesskey"
+        },
+        {
+          "name": "missingAwsRegion"
+        },
+        {
+          "name": "missingCRC"
+        },
+        {
+          "name": "missingConfigurationForKey"
+        },
+        {
+          "name": "missingCookieFile"
+        },
+        {
+          "name": "missingDeltaBase"
+        },
+        {
+          "name": "missingForwardImageInGITBinaryPatch"
+        },
+        {
+          "name": "missingObject"
+        },
+        {
+          "name": "missingPrerequisiteCommits"
+        },
+        {
+          "name": "missingRequiredParameter"
+        },
+        {
+          "name": "missingSecretkey"
+        },
+        {
+          "name": "mixedStagesNotAllowed"
+        },
+        {
+          "name": "mkDirFailed"
+        },
+        {
+          "name": "mkDirsFailed"
+        },
+        {
+          "name": "month"
+        },
+        {
+          "name": "months"
+        },
+        {
+          "name": "monthsAgo"
+        },
+        {
+          "name": "multiPackIndexFileIsTooLargeForJgit"
+        },
+        {
+          "name": "multiPackIndexPackCountMismatch"
+        },
+        {
+          "name": "multiPackIndexUnexpectedSize"
+        },
+        {
+          "name": "multiPackIndexWritingCancelled"
+        },
+        {
+          "name": "multipleMergeBasesFor"
+        },
+        {
+          "name": "nameMustNotBeNullOrEmpty"
+        },
+        {
+          "name": "need2Arguments"
+        },
+        {
+          "name": "newIdMustNotBeNull"
+        },
+        {
+          "name": "newlineInQuotesNotAllowed"
+        },
+        {
+          "name": "noApplyInDelete"
+        },
+        {
+          "name": "noClosingBracket"
+        },
+        {
+          "name": "noCommitsSelectedForShallow"
+        },
+        {
+          "name": "noCredentialsProvider"
+        },
+        {
+          "name": "noHEADExistsAndNoExplicitStartingRevisionWasSpecified"
+        },
+        {
+          "name": "noHMACsupport"
+        },
+        {
+          "name": "noMergeBase"
+        },
+        {
+          "name": "noMergeHeadSpecified"
+        },
+        {
+          "name": "noPackExtConfigurationGiven"
+        },
+        {
+          "name": "noPackExtGivenForConfiguration"
+        },
+        {
+          "name": "noPathAttributesFound"
+        },
+        {
+          "name": "noSuchRef"
+        },
+        {
+          "name": "noSuchRefKnown"
+        },
+        {
+          "name": "noSuchSubmodule"
+        },
+        {
+          "name": "noXMLParserAvailable"
+        },
+        {
+          "name": "nonBareLinkFilesNotSupported"
+        },
+        {
+          "name": "nonCommitToHeads"
+        },
+        {
+          "name": "notABoolean"
+        },
+        {
+          "name": "notABundle"
+        },
+        {
+          "name": "notACommitGraph"
+        },
+        {
+          "name": "notADIRCFile"
+        },
+        {
+          "name": "notAGitDirectory"
+        },
+        {
+          "name": "notAMIDX"
+        },
+        {
+          "name": "notAPACKFile"
+        },
+        {
+          "name": "notARef"
+        },
+        {
+          "name": "notASCIIString"
+        },
+        {
+          "name": "notAValidPack"
+        },
+        {
+          "name": "notAuthorized"
+        },
+        {
+          "name": "notFound"
+        },
+        {
+          "name": "notMergedExceptionMessage"
+        },
+        {
+          "name": "notShallowedUnshallow"
+        },
+        {
+          "name": "nothingToFetch"
+        },
+        {
+          "name": "nothingToPush"
+        },
+        {
+          "name": "nullRevCommit"
+        },
+        {
+          "name": "numberDoesntFit"
+        },
+        {
+          "name": "objectAtHasBadZlibStream"
+        },
+        {
+          "name": "objectIsCorrupt"
+        },
+        {
+          "name": "objectIsCorrupt3"
+        },
+        {
+          "name": "objectIsNotA"
+        },
+        {
+          "name": "objectNotFound"
+        },
+        {
+          "name": "objectNotFoundIn"
+        },
+        {
+          "name": "obtainingCommitsForCherryPick"
+        },
+        {
+          "name": "oldIdMustNotBeNull"
+        },
+        {
+          "name": "onlyOneFetchSupported"
+        },
+        {
+          "name": "onlyOneOperationCallPerConnectionIsSupported"
+        },
+        {
+          "name": "openFilesMustBeAtLeast1"
+        },
+        {
+          "name": "openingConnection"
+        },
+        {
+          "name": "operationCanceled"
+        },
+        {
+          "name": "outputHasAlreadyBeenStarted"
+        },
+        {
+          "name": "overflowedReftableBlock"
+        },
+        {
+          "name": "packChecksumMismatch"
+        },
+        {
+          "name": "packCorruptedWhileWritingToFilesystem"
+        },
+        {
+          "name": "packFileInvalid"
+        },
+        {
+          "name": "packHandleIsStale"
+        },
+        {
+          "name": "packHasUnresolvedDeltas"
+        },
+        {
+          "name": "packInaccessible"
+        },
+        {
+          "name": "packObjectCountMismatch"
+        },
+        {
+          "name": "packRefs"
+        },
+        {
+          "name": "packRefsFailed"
+        },
+        {
+          "name": "packRefsSuccessful"
+        },
+        {
+          "name": "packSizeNotSetYet"
+        },
+        {
+          "name": "packTooLargeForIndexVersion1"
+        },
+        {
+          "name": "packWasDeleted"
+        },
+        {
+          "name": "packWriterStatistics"
+        },
+        {
+          "name": "packedRefsCorruptionDetected"
+        },
+        {
+          "name": "packedRefsHandleIsStale"
+        },
+        {
+          "name": "packetSizeMustBeAtLeast"
+        },
+        {
+          "name": "packetSizeMustBeAtMost"
+        },
+        {
+          "name": "packfileCorruptionDetected"
+        },
+        {
+          "name": "packfileIsTruncated"
+        },
+        {
+          "name": "packfileIsTruncatedNoParam"
+        },
+        {
+          "name": "packingCancelledDuringObjectsWriting"
+        },
+        {
+          "name": "panicCantRenameIndexFile"
+        },
+        {
+          "name": "patchApplyErrorWithHunk"
+        },
+        {
+          "name": "patchApplyErrorWithoutHunk"
+        },
+        {
+          "name": "patchApplyException"
+        },
+        {
+          "name": "patchFormatException"
+        },
+        {
+          "name": "pathNotConfigured"
+        },
+        {
+          "name": "peeledLineBeforeRef"
+        },
+        {
+          "name": "peeledRefIsRequired"
+        },
+        {
+          "name": "peerDidNotSupplyACompleteObjectGraph"
+        },
+        {
+          "name": "personIdentEmailNonNull"
+        },
+        {
+          "name": "personIdentNameNonNull"
+        },
+        {
+          "name": "postCommitHookFailed"
+        },
+        {
+          "name": "precedenceTrustConfig"
+        },
+        {
+          "name": "prefixRemote"
+        },
+        {
+          "name": "problemWithResolvingPushRefSpecsLocally"
+        },
+        {
+          "name": "progressMonUploading"
+        },
+        {
+          "name": "propertyIsAlreadyNonNull"
+        },
+        {
+          "name": "pruneLoosePackedObjects"
+        },
+        {
+          "name": "pruneLooseUnreferencedObjects"
+        },
+        {
+          "name": "pullTaskName"
+        },
+        {
+          "name": "pushCancelled"
+        },
+        {
+          "name": "pushCertificateInconsistentPushOptions"
+        },
+        {
+          "name": "pushCertificateInvalidField"
+        },
+        {
+          "name": "pushCertificateInvalidFieldValue"
+        },
+        {
+          "name": "pushCertificateInvalidHeader"
+        },
+        {
+          "name": "pushCertificateInvalidSignature"
+        },
+        {
+          "name": "pushDefaultNoUpstream"
+        },
+        {
+          "name": "pushDefaultNothing"
+        },
+        {
+          "name": "pushDefaultSimple"
+        },
+        {
+          "name": "pushDefaultTriangularUpstream"
+        },
+        {
+          "name": "pushDefaultUnknown"
+        },
+        {
+          "name": "pushIsNotSupportedForBundleTransport"
+        },
+        {
+          "name": "pushNotPermitted"
+        },
+        {
+          "name": "pushOptionsNotSupported"
+        },
+        {
+          "name": "rawLogMessageDoesNotParseAsLogEntry"
+        },
+        {
+          "name": "readConfigFailed"
+        },
+        {
+          "name": "readFileStoreAttributesFailed"
+        },
+        {
+          "name": "readLastModifiedFailed"
+        },
+        {
+          "name": "readShallowFailed"
+        },
+        {
+          "name": "readTimedOut"
+        },
+        {
+          "name": "readerIsRequired"
+        },
+        {
+          "name": "readingObjectsFromLocalRepositoryFailed"
+        },
+        {
+          "name": "receivePackInvalidLimit"
+        },
+        {
+          "name": "receivePackObjectTooLarge1"
+        },
+        {
+          "name": "receivePackObjectTooLarge2"
+        },
+        {
+          "name": "receivePackTooLarge"
+        },
+        {
+          "name": "receivingObjects"
+        },
+        {
+          "name": "redirectBlocked"
+        },
+        {
+          "name": "redirectHttp"
+        },
+        {
+          "name": "redirectLimitExceeded"
+        },
+        {
+          "name": "redirectLocationMissing"
+        },
+        {
+          "name": "redirectsOff"
+        },
+        {
+          "name": "refAlreadyExists"
+        },
+        {
+          "name": "refAlreadyExists1"
+        },
+        {
+          "name": "refNotResolved"
+        },
+        {
+          "name": "refUpdateReturnCodeWas"
+        },
+        {
+          "name": "reflogEntryNotFound"
+        },
+        {
+          "name": "reftableDirExists"
+        },
+        {
+          "name": "reftableRecordsMustIncrease"
+        },
+        {
+          "name": "remoteBranchNotFound"
+        },
+        {
+          "name": "remoteConfigHasNoURIAssociated"
+        },
+        {
+          "name": "remoteDoesNotHaveSpec"
+        },
+        {
+          "name": "remoteDoesNotSupportSmartHTTPPush"
+        },
+        {
+          "name": "remoteHungUpUnexpectedly"
+        },
+        {
+          "name": "remoteNameCannotBeNull"
+        },
+        {
+          "name": "renameBranchFailedAmbiguous"
+        },
+        {
+          "name": "renameBranchFailedNotABranch"
+        },
+        {
+          "name": "renameBranchFailedUnknownReason"
+        },
+        {
+          "name": "renameBranchUnexpectedResult"
+        },
+        {
+          "name": "renameCancelled"
+        },
+        {
+          "name": "renameFileFailed"
+        },
+        {
+          "name": "renameFileFailedNullFiles"
+        },
+        {
+          "name": "renamesAlreadyFound"
+        },
+        {
+          "name": "renamesBreakingModifies"
+        },
+        {
+          "name": "renamesFindingByContent"
+        },
+        {
+          "name": "renamesFindingExact"
+        },
+        {
+          "name": "renamesRejoiningModifies"
+        },
+        {
+          "name": "repositoryAlreadyExists"
+        },
+        {
+          "name": "repositoryConfigFileInvalid"
+        },
+        {
+          "name": "repositoryIsRequired"
+        },
+        {
+          "name": "repositoryNotFound"
+        },
+        {
+          "name": "repositoryState_applyMailbox"
+        },
+        {
+          "name": "repositoryState_bare"
+        },
+        {
+          "name": "repositoryState_bisecting"
+        },
+        {
+          "name": "repositoryState_conflicts"
+        },
+        {
+          "name": "repositoryState_merged"
+        },
+        {
+          "name": "repositoryState_normal"
+        },
+        {
+          "name": "repositoryState_rebase"
+        },
+        {
+          "name": "repositoryState_rebaseInteractive"
+        },
+        {
+          "name": "repositoryState_rebaseOrApplyMailbox"
+        },
+        {
+          "name": "repositoryState_rebaseWithMerge"
+        },
+        {
+          "name": "requiredHashFunctionNotAvailable"
+        },
+        {
+          "name": "resettingHead"
+        },
+        {
+          "name": "resolvingDeltas"
+        },
+        {
+          "name": "resultLengthIncorrect"
+        },
+        {
+          "name": "rewinding"
+        },
+        {
+          "name": "s3ActionDeletion"
+        },
+        {
+          "name": "s3ActionReading"
+        },
+        {
+          "name": "s3ActionWriting"
+        },
+        {
+          "name": "saveFileStoreAttributesFailed"
+        },
+        {
+          "name": "searchForReachableBranches"
+        },
+        {
+          "name": "searchForReuse"
+        },
+        {
+          "name": "searchForReuseTimeout"
+        },
+        {
+          "name": "searchForSizes"
+        },
+        {
+          "name": "secondsAgo"
+        },
+        {
+          "name": "selectingCommits"
+        },
+        {
+          "name": "sequenceTooLargeForDiffAlgorithm"
+        },
+        {
+          "name": "serviceNotEnabledNoName"
+        },
+        {
+          "name": "serviceNotPermitted"
+        },
+        {
+          "name": "sha1CollisionDetected"
+        },
+        {
+          "name": "shallowCommitsAlreadyInitialized"
+        },
+        {
+          "name": "shallowNotSupported"
+        },
+        {
+          "name": "shallowPacksRequireDepthWalk"
+        },
+        {
+          "name": "shortCompressedStreamAt"
+        },
+        {
+          "name": "shortReadOfBlock"
+        },
+        {
+          "name": "shortReadOfOptionalDIRCExtensionExpectedAnotherBytes"
+        },
+        {
+          "name": "shortSkipOfBlock"
+        },
+        {
+          "name": "shutdownCleanup"
+        },
+        {
+          "name": "shutdownCleanupFailed"
+        },
+        {
+          "name": "shutdownCleanupListenerFailed"
+        },
+        {
+          "name": "signatureServiceConflict"
+        },
+        {
+          "name": "signatureTypeUnknown"
+        },
+        {
+          "name": "signatureVerificationError"
+        },
+        {
+          "name": "signatureVerificationUnavailable"
+        },
+        {
+          "name": "signedTagMessageNoLf"
+        },
+        {
+          "name": "signingServiceUnavailable"
+        },
+        {
+          "name": "similarityScoreMustBeWithinBounds"
+        },
+        {
+          "name": "skipMustBeNonNegative"
+        },
+        {
+          "name": "skipNotAccessiblePath"
+        },
+        {
+          "name": "smartHTTPPushDisabled"
+        },
+        {
+          "name": "sourceDestinationMustMatch"
+        },
+        {
+          "name": "sourceIsNotAWildcard"
+        },
+        {
+          "name": "sourceRefDoesntResolveToAnyObject"
+        },
+        {
+          "name": "sourceRefNotSpecifiedForRefspec"
+        },
+        {
+          "name": "squashCommitNotUpdatingHEAD"
+        },
+        {
+          "name": "sshCommandFailed"
+        },
+        {
+          "name": "sshCommandTimeout"
+        },
+        {
+          "name": "sslFailureCause"
+        },
+        {
+          "name": "sslFailureExceptionMessage"
+        },
+        {
+          "name": "sslFailureInfo"
+        },
+        {
+          "name": "sslFailureTrustExplanation"
+        },
+        {
+          "name": "sslTrustAlways"
+        },
+        {
+          "name": "sslTrustForRepo"
+        },
+        {
+          "name": "sslTrustNow"
+        },
+        {
+          "name": "sslVerifyCannotSave"
+        },
+        {
+          "name": "stalePidLock"
+        },
+        {
+          "name": "staleRevFlagsOn"
+        },
+        {
+          "name": "startingReadStageWithoutWrittenRequestDataPendingIsNotSupported"
+        },
+        {
+          "name": "stashApplyConflict"
+        },
+        {
+          "name": "stashApplyFailed"
+        },
+        {
+          "name": "stashApplyOnUnsafeRepository"
+        },
+        {
+          "name": "stashApplyWithoutHead"
+        },
+        {
+          "name": "stashCommitIncorrectNumberOfParents"
+        },
+        {
+          "name": "stashDropDeleteRefFailed"
+        },
+        {
+          "name": "stashDropFailed"
+        },
+        {
+          "name": "stashDropMissingReflog"
+        },
+        {
+          "name": "stashDropNotSupported"
+        },
+        {
+          "name": "stashFailed"
+        },
+        {
+          "name": "stashResolveFailed"
+        },
+        {
+          "name": "statelessRPCRequiresOptionToBeEnabled"
+        },
+        {
+          "name": "storePushCertMultipleRefs"
+        },
+        {
+          "name": "storePushCertOneRef"
+        },
+        {
+          "name": "storePushCertReflog"
+        },
+        {
+          "name": "submoduleExists"
+        },
+        {
+          "name": "submoduleNameInvalid"
+        },
+        {
+          "name": "submoduleParentRemoteUrlInvalid"
+        },
+        {
+          "name": "submodulePathInvalid"
+        },
+        {
+          "name": "submoduleUrlInvalid"
+        },
+        {
+          "name": "supportOnlyPackIndexVersion2"
+        },
+        {
+          "name": "systemConfigFileInvalid"
+        },
+        {
+          "name": "tSizeMustBeGreaterOrEqual1"
+        },
+        {
+          "name": "tagAlreadyExists"
+        },
+        {
+          "name": "tagNameInvalid"
+        },
+        {
+          "name": "tagOnRepoWithoutHEADCurrentlyNotSupported"
+        },
+        {
+          "name": "temporaryBufferIsDestroyed"
+        },
+        {
+          "name": "theFactoryMustNotBeNull"
+        },
+        {
+          "name": "threadInterruptedWhileRunning"
+        },
+        {
+          "name": "timeIsUncertain"
+        },
+        {
+          "name": "timeoutMeasureFsTimestampResolution"
+        },
+        {
+          "name": "timerAlreadyTerminated"
+        },
+        {
+          "name": "tooManyCommands"
+        },
+        {
+          "name": "tooManyFilters"
+        },
+        {
+          "name": "tooManyIncludeRecursions"
+        },
+        {
+          "name": "topologicalSortRequired"
+        },
+        {
+          "name": "transactionAborted"
+        },
+        {
+          "name": "transportExceptionBadRef"
+        },
+        {
+          "name": "transportExceptionEmptyRef"
+        },
+        {
+          "name": "transportExceptionInvalid"
+        },
+        {
+          "name": "transportExceptionMissingAssumed"
+        },
+        {
+          "name": "transportExceptionReadRef"
+        },
+        {
+          "name": "transportNeedsRepository"
+        },
+        {
+          "name": "transportProtoBundleFile"
+        },
+        {
+          "name": "transportProtoFTP"
+        },
+        {
+          "name": "transportProtoGitAnon"
+        },
+        {
+          "name": "transportProtoHTTP"
+        },
+        {
+          "name": "transportProtoLocal"
+        },
+        {
+          "name": "transportProtoSFTP"
+        },
+        {
+          "name": "transportProtoSSH"
+        },
+        {
+          "name": "transportProtoTest"
+        },
+        {
+          "name": "transportProvidedRefWithNoObjectId"
+        },
+        {
+          "name": "treeEntryAlreadyExists"
+        },
+        {
+          "name": "treeFilterMarkerTooManyFilters"
+        },
+        {
+          "name": "treeWalkMustHaveExactlyTwoTrees"
+        },
+        {
+          "name": "truncatedHunkLinesMissingForAncestor"
+        },
+        {
+          "name": "truncatedHunkNewLinesMissing"
+        },
+        {
+          "name": "truncatedHunkOldLinesMissing"
+        },
+        {
+          "name": "unableToCheckConnectivity"
+        },
+        {
+          "name": "unableToCreateNewObject"
+        },
+        {
+          "name": "unableToReadFullArray"
+        },
+        {
+          "name": "unableToReadFullInt"
+        },
+        {
+          "name": "unableToReadPackfile"
+        },
+        {
+          "name": "unableToRemovePath"
+        },
+        {
+          "name": "unableToSignCommitNoSecretKey"
+        },
+        {
+          "name": "unableToWrite"
+        },
+        {
+          "name": "unauthorized"
+        },
+        {
+          "name": "unencodeableFile"
+        },
+        {
+          "name": "unexpectedAwsApiSignatureVersion"
+        },
+        {
+          "name": "unexpectedCompareResult"
+        },
+        {
+          "name": "unexpectedEndOfConfigFile"
+        },
+        {
+          "name": "unexpectedEndOfInput"
+        },
+        {
+          "name": "unexpectedEofInPack"
+        },
+        {
+          "name": "unexpectedHunkTrailer"
+        },
+        {
+          "name": "unexpectedOddResult"
+        },
+        {
+          "name": "unexpectedPacketLine"
+        },
+        {
+          "name": "unexpectedRefReport"
+        },
+        {
+          "name": "unexpectedReportLine"
+        },
+        {
+          "name": "unexpectedReportLine2"
+        },
+        {
+          "name": "unexpectedSubmoduleStatus"
+        },
+        {
+          "name": "unknownDIRCVersion"
+        },
+        {
+          "name": "unknownHost"
+        },
+        {
+          "name": "unknownObject"
+        },
+        {
+          "name": "unknownObjectInIndex"
+        },
+        {
+          "name": "unknownObjectType"
+        },
+        {
+          "name": "unknownObjectType2"
+        },
+        {
+          "name": "unknownOrUnsupportedCommand"
+        },
+        {
+          "name": "unknownPackExtension"
+        },
+        {
+          "name": "unknownPositionEncoding"
+        },
+        {
+          "name": "unknownRefStorageFormat"
+        },
+        {
+          "name": "unknownRepositoryFormat"
+        },
+        {
+          "name": "unknownRepositoryFormat2"
+        },
+        {
+          "name": "unknownTransportCommand"
+        },
+        {
+          "name": "unknownZlibError"
+        },
+        {
+          "name": "unlockLockFileFailed"
+        },
+        {
+          "name": "unmergedPath"
+        },
+        {
+          "name": "unmergedPaths"
+        },
+        {
+          "name": "unpackException"
+        },
+        {
+          "name": "unreadableCommitGraph"
+        },
+        {
+          "name": "unreadableMIDX"
+        },
+        {
+          "name": "unreadableObjectSizeIndex"
+        },
+        {
+          "name": "unreadablePackIndex"
+        },
+        {
+          "name": "unrecognizedPackExtension"
+        },
+        {
+          "name": "unrecognizedRef"
+        },
+        {
+          "name": "unsetMark"
+        },
+        {
+          "name": "unsupportedAlternates"
+        },
+        {
+          "name": "unsupportedArchiveFormat"
+        },
+        {
+          "name": "unsupportedCommand0"
+        },
+        {
+          "name": "unsupportedCommitGraphVersion"
+        },
+        {
+          "name": "unsupportedEncryptionAlgorithm"
+        },
+        {
+          "name": "unsupportedEncryptionVersion"
+        },
+        {
+          "name": "unsupportedGC"
+        },
+        {
+          "name": "unsupportedMIDXVersion"
+        },
+        {
+          "name": "unsupportedMark"
+        },
+        {
+          "name": "unsupportedObjectIdVersion"
+        },
+        {
+          "name": "unsupportedObjectSizeIndexVersion"
+        },
+        {
+          "name": "unsupportedOperationNotAddAtEnd"
+        },
+        {
+          "name": "unsupportedPackIndexVersion"
+        },
+        {
+          "name": "unsupportedPackReverseIndexVersion"
+        },
+        {
+          "name": "unsupportedPackVersion"
+        },
+        {
+          "name": "unsupportedReftableVersion"
+        },
+        {
+          "name": "unsupportedRepositoryDescription"
+        },
+        {
+          "name": "unsupportedSizesObjSizeIndex"
+        },
+        {
+          "name": "updateRequiresOldIdAndNewId"
+        },
+        {
+          "name": "updatingConfig"
+        },
+        {
+          "name": "updatingHeadFailed"
+        },
+        {
+          "name": "updatingRefFailed"
+        },
+        {
+          "name": "updatingReferences"
+        },
+        {
+          "name": "upstreamBranchName"
+        },
+        {
+          "name": "uriNotConfigured"
+        },
+        {
+          "name": "uriNotFound"
+        },
+        {
+          "name": "uriNotFoundWithMessage"
+        },
+        {
+          "name": "userConfigInvalid"
+        },
+        {
+          "name": "validatingGitModules"
+        },
+        {
+          "name": "valueExceedsRange"
+        },
+        {
+          "name": "verifySignatureBad"
+        },
+        {
+          "name": "verifySignatureExpired"
+        },
+        {
+          "name": "verifySignatureGood"
+        },
+        {
+          "name": "verifySignatureIssuer"
+        },
+        {
+          "name": "verifySignatureKey"
+        },
+        {
+          "name": "verifySignatureMade"
+        },
+        {
+          "name": "verifySignatureTrust"
+        },
+        {
+          "name": "walkFailure"
+        },
+        {
+          "name": "wantNoSpaceWithCapabilities"
+        },
+        {
+          "name": "wantNotValid"
+        },
+        {
+          "name": "weeksAgo"
+        },
+        {
+          "name": "windowSizeMustBeLesserThanLimit"
+        },
+        {
+          "name": "windowSizeMustBePowerOf2"
+        },
+        {
+          "name": "writeTimedOut"
+        },
+        {
+          "name": "writerAlreadyInitialized"
+        },
+        {
+          "name": "writingNotPermitted"
+        },
+        {
+          "name": "writingNotSupported"
+        },
+        {
+          "name": "writingObjects"
+        },
+        {
+          "name": "writingOutCommitGraph"
+        },
+        {
+          "name": "wrongDecompressedLength"
+        },
+        {
+          "name": "wrongRepositoryState"
+        },
+        {
+          "name": "year"
+        },
+        {
+          "name": "years"
+        },
+        {
+          "name": "years0MonthsAgo"
+        },
+        {
+          "name": "yearsAgo"
+        },
+        {
+          "name": "yearsMonthsAgo"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.CoreConfig$AutoCRLF",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.CoreConfig$CheckStat",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.CoreConfig$EOL",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.CoreConfig$HideDotFiles",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.CoreConfig$SymLinks",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.CoreConfig$TrustStat",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.util.sha1.SHA1$Sha1Implementation",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.AnimationFrameInfo",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int",
+            "boolean",
+            "int",
+            "boolean",
+            "int",
+            "int",
+            "org.jetbrains.skia.IRect"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.Color4f",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.Drawable",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "_onDraw",
+          "parameterTypes": [
+            "long"
+          ]
+        },
+        {
+          "name": "onGetBounds",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.FontFamilyName",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String",
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.FontFeature",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "_tag"
+        },
+        {
+          "name": "end"
+        },
+        {
+          "name": "start"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.FontMetrics",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "java.lang.Float",
+            "java.lang.Float",
+            "java.lang.Float",
+            "java.lang.Float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.FontVariation",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "_tag"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.FontVariationAxis",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "float",
+            "float",
+            "float",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.IPoint",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.IRect",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "bottom"
+        },
+        {
+          "name": "left"
+        },
+        {
+          "name": "right"
+        },
+        {
+          "name": "top"
+        }
+      ],
+      "methods": [
+        {
+          "name": "makeLTRB",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.ImageInfo",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.PaintFilterCanvas",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "onFilter",
+          "parameterTypes": [
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.Path",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.PathSegment",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        },
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "boolean"
+          ]
+        },
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "boolean"
+          ]
+        },
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "boolean"
+          ]
+        },
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "boolean",
+            "boolean"
+          ]
+        },
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "float",
+            "float",
+            "boolean"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.Point",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.RRect",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "radii"
+        }
+      ],
+      "methods": [
+        {
+          "name": "makeComplexLTRB",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float[]"
+          ]
+        },
+        {
+          "name": "makeLTRB",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        },
+        {
+          "name": "makeLTRB",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        },
+        {
+          "name": "makeLTRB",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        },
+        {
+          "name": "makeNinePatchLTRB",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.RSXform",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.Rect",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "bottom"
+        },
+        {
+          "name": "left"
+        },
+        {
+          "name": "right"
+        },
+        {
+          "name": "top"
+        }
+      ],
+      "methods": [
+        {
+          "name": "makeLTRB",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.impl.Native",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "_ptr"
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.paragraph.DecorationStyle",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "boolean",
+            "boolean",
+            "boolean",
+            "boolean",
+            "int",
+            "int",
+            "float"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.paragraph.LineMetrics",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int",
+            "int",
+            "int",
+            "boolean",
+            "double",
+            "double",
+            "double",
+            "double",
+            "double",
+            "double",
+            "double",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.paragraph.LineMetrics[]"
+    },
+    {
+      "type": "org.jetbrains.skia.paragraph.Shadow",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "float",
+            "float",
+            "double"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.paragraph.TextBox",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "float",
+            "float",
+            "float",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.paragraph.TextBox[]"
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.BidiRun",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "end"
+        },
+        {
+          "name": "level"
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.FontMgrRunIterator",
+      "jniAccessible": true
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.FontRun",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "end"
+        }
+      ],
+      "methods": [
+        {
+          "name": "_getFontPtr",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.HbIcuScriptRunIterator",
+      "jniAccessible": true
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.IcuBidiRunIterator",
+      "jniAccessible": true
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.LanguageRun",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "end"
+        },
+        {
+          "name": "language"
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.RunHandler",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "beginLine",
+          "parameterTypes": []
+        },
+        {
+          "name": "commitLine",
+          "parameterTypes": []
+        },
+        {
+          "name": "commitRun",
+          "parameterTypes": [
+            "org.jetbrains.skia.shaper.RunInfo",
+            "short[]",
+            "org.jetbrains.skia.Point[]",
+            "int[]"
+          ]
+        },
+        {
+          "name": "commitRunInfo",
+          "parameterTypes": []
+        },
+        {
+          "name": "runInfo",
+          "parameterTypes": [
+            "org.jetbrains.skia.shaper.RunInfo"
+          ]
+        },
+        {
+          "name": "runOffset",
+          "parameterTypes": [
+            "org.jetbrains.skia.shaper.RunInfo"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.RunInfo",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "_fontPtr"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "int",
+            "float",
+            "float",
+            "int",
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.ScriptRun",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "end"
+        },
+        {
+          "name": "scriptTag"
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.ShapingOptions",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "features"
+        },
+        {
+          "name": "fontMgr"
+        },
+        {
+          "name": "isApproximatePunctuation"
+        },
+        {
+          "name": "isApproximateSpaces"
+        },
+        {
+          "name": "isLeftToRight"
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.shaper.TextBlobBuilderRunHandler",
+      "jniAccessible": true
+    },
+    {
+      "type": "org.jetbrains.skia.skottie.LogLevel",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "ERROR"
+        },
+        {
+          "name": "WARNING"
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.skottie.Logger",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "log",
+          "parameterTypes": [
+            "org.jetbrains.skia.skottie.LogLevel",
+            "java.lang.String",
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.svg.SVGLength",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "float",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skia.svg.SVGPreserveAspectRatio",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "int",
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "org.jetbrains.skiko.HardwareLayer"
+    },
+    {
+      "type": "org.jetbrains.skiko.SkiaLayer"
+    },
+    {
+      "type": "org.jetbrains.skiko.SkiaLayer$1"
+    },
+    {
+      "type": "org.robolectric.Robolectric"
+    },
+    {
+      "type": "org.slf4j.reload4j.Reload4jServiceProvider"
+    },
+    {
+      "type": "short"
+    },
+    {
+      "type": "sun.awt.SunHints",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "INTVAL_STROKE_PURE"
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.SunToolkit",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "awtLock",
+          "parameterTypes": []
+        },
+        {
+          "name": "awtLockNotify",
+          "parameterTypes": []
+        },
+        {
+          "name": "awtLockNotifyAll",
+          "parameterTypes": []
+        },
+        {
+          "name": "awtLockWait",
+          "parameterTypes": [
+            "long"
+          ]
+        },
+        {
+          "name": "awtUnlock",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11.XBaseWindow",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "window"
+        }
+      ],
+      "methods": [
+        {
+          "name": "getWindow",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11.XCanvasPeer"
+    },
+    {
+      "type": "sun.awt.X11.XContentWindow"
+    },
+    {
+      "type": "sun.awt.X11.XErrorHandlerUtil",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "globalErrorHandler",
+          "parameterTypes": [
+            "long",
+            "long"
+          ]
+        },
+        {
+          "name": "init",
+          "parameterTypes": [
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11.XFramePeer"
+    },
+    {
+      "type": "sun.awt.X11.XToolkit",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "modLockIsShiftLock"
+        },
+        {
+          "name": "numLockMask"
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11.XWindow",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "drawState"
+        },
+        {
+          "name": "graphicsConfig"
+        },
+        {
+          "name": "target"
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11GraphicsConfig",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "aData"
+        },
+        {
+          "name": "bitsPerPixel"
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11GraphicsDevice",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "addDoubleBufferVisual",
+          "parameterTypes": [
+            "int"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.X11InputMethodBase",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "pData"
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.image.BufImgSurfaceData$ICMColorData",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "pData"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.awt.image.IntegerComponentRaster",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "data"
+        },
+        {
+          "name": "dataOffsets"
+        },
+        {
+          "name": "pixelStride"
+        },
+        {
+          "name": "scanlineStride"
+        },
+        {
+          "name": "type"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.Disposer",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "addRecord",
+          "parameterTypes": [
+            "java.lang.Object",
+            "long",
+            "long"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.InvalidPipeException",
+      "jniAccessible": true
+    },
+    {
+      "type": "sun.java2d.NullSurfaceData",
+      "jniAccessible": true
+    },
+    {
+      "type": "sun.java2d.SunGraphics2D",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "clipRegion"
+        },
+        {
+          "name": "composite"
+        },
+        {
+          "name": "eargb"
+        },
+        {
+          "name": "lcdTextContrast"
+        },
+        {
+          "name": "pixel"
+        },
+        {
+          "name": "strokeHint"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.SurfaceData",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "pData"
+        },
+        {
+          "name": "valid"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.Blit",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.BlitBg",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.CompositeType",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "AnyAlpha"
+        },
+        {
+          "name": "Src"
+        },
+        {
+          "name": "SrcNoEa"
+        },
+        {
+          "name": "SrcOver"
+        },
+        {
+          "name": "SrcOverNoEa"
+        },
+        {
+          "name": "Xor"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawGlyphList",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawGlyphListAA",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawGlyphListLCD",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawLine",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawParallelogram",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawPath",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawPolygons",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.DrawRect",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.FillParallelogram",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.FillPath",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.FillRect",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.FillSpans",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.GraphicsPrimitive",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "pNativePrim"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.GraphicsPrimitiveMgr",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "register",
+          "parameterTypes": [
+            "sun.java2d.loops.GraphicsPrimitive[]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.GraphicsPrimitive[]"
+    },
+    {
+      "type": "sun.java2d.loops.MaskBlit",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.MaskFill",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.ScaledBlit",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.SurfaceType",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "Any3Byte"
+        },
+        {
+          "name": "Any4Byte"
+        },
+        {
+          "name": "AnyByte"
+        },
+        {
+          "name": "AnyColor"
+        },
+        {
+          "name": "AnyInt"
+        },
+        {
+          "name": "AnyShort"
+        },
+        {
+          "name": "ByteBinary1Bit"
+        },
+        {
+          "name": "ByteBinary2Bit"
+        },
+        {
+          "name": "ByteBinary4Bit"
+        },
+        {
+          "name": "ByteGray"
+        },
+        {
+          "name": "ByteIndexed"
+        },
+        {
+          "name": "ByteIndexedBm"
+        },
+        {
+          "name": "FourByteAbgr"
+        },
+        {
+          "name": "FourByteAbgrPre"
+        },
+        {
+          "name": "Index12Gray"
+        },
+        {
+          "name": "Index8Gray"
+        },
+        {
+          "name": "IntArgb"
+        },
+        {
+          "name": "IntArgbBm"
+        },
+        {
+          "name": "IntArgbPre"
+        },
+        {
+          "name": "IntBgr"
+        },
+        {
+          "name": "IntRgb"
+        },
+        {
+          "name": "IntRgbx"
+        },
+        {
+          "name": "OpaqueColor"
+        },
+        {
+          "name": "ThreeByteBgr"
+        },
+        {
+          "name": "Ushort4444Argb"
+        },
+        {
+          "name": "Ushort555Rgb"
+        },
+        {
+          "name": "Ushort555Rgbx"
+        },
+        {
+          "name": "Ushort565Rgb"
+        },
+        {
+          "name": "UshortGray"
+        },
+        {
+          "name": "UshortIndexed"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.TransformHelper",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "long",
+            "sun.java2d.loops.SurfaceType",
+            "sun.java2d.loops.CompositeType",
+            "sun.java2d.loops.SurfaceType"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.loops.XORComposite",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "alphaMask"
+        },
+        {
+          "name": "xorColor"
+        },
+        {
+          "name": "xorPixel"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.marlin.DMarlinRenderingEngine",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.pipe.Region",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "bands"
+        },
+        {
+          "name": "endIndex"
+        },
+        {
+          "name": "hix"
+        },
+        {
+          "name": "hiy"
+        },
+        {
+          "name": "lox"
+        },
+        {
+          "name": "loy"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.pipe.RegionIterator",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "curIndex"
+        },
+        {
+          "name": "numXbands"
+        },
+        {
+          "name": "region"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.xr.XRBackendNative",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "FMTPTR_A8"
+        },
+        {
+          "name": "FMTPTR_ARGB32"
+        },
+        {
+          "name": "MASK_XIMG"
+        }
+      ]
+    },
+    {
+      "type": "sun.java2d.xr.XRSurfaceData",
+      "jniAccessible": true,
+      "fields": [
+        {
+          "name": "picture"
+        },
+        {
+          "name": "xid"
+        }
+      ]
+    },
+    {
+      "type": "sun.misc.Unsafe",
+      "fields": [
+        {
+          "name": "theUnsafe"
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.NativePRNG",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.security.SecureRandomParameters"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.SHA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.SHA2$SHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.X509Factory",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.rsa.RSAKeyFactory$Legacy",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.rsa.RSASignature$SHA256withRSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.AuthorityInfoAccessExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.AuthorityKeyIdentifierExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.BasicConstraintsExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.CRLDistributionPointsExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.CertificatePoliciesExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.ExtendedKeyUsageExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.KeyUsageExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.SubjectAlternativeNameExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.SubjectKeyIdentifierExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.text.resources.FormatData"
+    },
+    {
+      "type": "sun.text.resources.JavaTimeSupplementary"
+    },
+    {
+      "type": "sun.text.resources.cldr.FormatData"
+    },
+    {
+      "type": "sun.util.resources.cldr.CalendarData"
+    },
+    {
+      "type": "void"
+    }
+  ],
+  "resources": [
+    {
+      "glob": "META-INF/services/coil3.util.DecoderServiceLoaderTarget"
+    },
+    {
+      "glob": "META-INF/services/coil3.util.FetcherServiceLoaderTarget"
+    },
+    {
+      "glob": "META-INF/services/java.awt.im.spi.InputMethodDescriptor"
+    },
+    {
+      "glob": "META-INF/services/java.net.spi.InetAddressResolverProvider"
+    },
+    {
+      "glob": "META-INF/services/java.net.spi.URLStreamHandlerProvider"
+    },
+    {
+      "glob": "META-INF/services/java.nio.channels.spi.SelectorProvider"
+    },
+    {
+      "glob": "META-INF/services/java.nio.charset.spi.CharsetProvider"
+    },
+    {
+      "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
+    },
+    {
+      "glob": "META-INF/services/java.util.prefs.PreferencesFactory"
+    },
+    {
+      "glob": "META-INF/services/java.util.spi.ResourceBundleControlProvider"
+    },
+    {
+      "glob": "META-INF/services/javax.xml.parsers.DocumentBuilderFactory"
+    },
+    {
+      "glob": "META-INF/services/javax.xml.transform.TransformerFactory"
+    },
+    {
+      "glob": "META-INF/services/kotlinx.coroutines.internal.MainDispatcherFactory"
+    },
+    {
+      "glob": "META-INF/services/org.eclipse.jgit.lib.SignerFactory"
+    },
+    {
+      "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
+    },
+    {
+      "glob": "com/sun/jna/linux-x86-64/libjnidispatch.so"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/align_top.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/apply_stash.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/bolt.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/branch.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/bug.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/chevron_right.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/close.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/cloud.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/code.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/done.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/download.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/dropdown.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/expand_more.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/folder.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/info.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/layout.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/location.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/logo.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/network.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/open.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/palette.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/password.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/remove_done.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/schedule.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/search.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/security.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/settings.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/stash.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/tag.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/terminal.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/topic.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/tree.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/upload.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/values/strings.main.cvr"
+    },
+    {
+      "glob": "fonts/Inter/Inter_18pt-Bold.ttf"
+    },
+    {
+      "glob": "fonts/Inter/Inter_18pt-Italic.ttf"
+    },
+    {
+      "glob": "fonts/Inter/Inter_18pt-Medium.ttf"
+    },
+    {
+      "glob": "fonts/Inter/Inter_18pt-Regular.ttf"
+    },
+    {
+      "glob": "fonts/Inter/Inter_18pt-SemiBold.ttf"
+    },
+    {
+      "glob": "fonts/NotoSansMono/NotoSansMono-Medium.ttf"
+    },
+    {
+      "glob": "libgitnuro_rs.so"
+    },
+    {
+      "glob": "libskiko-linux-x64.so.sha256"
+    },
+    {
+      "glob": "linux-x86-64/libgitnuro_rs.so"
+    },
+    {
+      "glob": "log4j.properties"
+    },
+    {
+      "glob": "log4j.xml"
+    },
+    {
+      "glob": "org/eclipse/jgit/internal/JGitText.properties"
+    },
+    {
+      "glob": "org/eclipse/jgit/internal/JGitText_es.properties"
+    },
+    {
+      "glob": "org/eclipse/jgit/internal/JGitText_es_ES.properties"
+    },
+    {
+      "module": "java.desktop",
+      "glob": "com/sun/swing/internal/plaf/basic/resources/basic_es_ES.properties"
+    },
+    {
+      "module": "java.desktop",
+      "glob": "com/sun/swing/internal/plaf/metal/resources/metal_es_ES.properties"
+    },
+    {
+      "module": "java.desktop",
+      "glob": "sun/awt/resources/awt_es_ES.properties"
+    },
+    {
+      "module": "java.xml",
+      "glob": "com/sun/org/apache/xml/internal/serializer/Encodings.properties"
+    },
+    {
+      "module": "java.xml",
+      "glob": "com/sun/org/apache/xml/internal/serializer/XMLEntities.properties"
+    },
+    {
+      "module": "java.xml",
+      "glob": "com/sun/org/apache/xml/internal/serializer/XMLEntities_es.properties"
+    },
+    {
+      "module": "java.xml",
+      "glob": "com/sun/org/apache/xml/internal/serializer/XMLEntities_es_ES.properties"
+    },
+    {
+      "bundle": "com.sun.org.apache.xml.internal.serializer.XMLEntities"
+    },
+    {
+      "bundle": "com.sun.swing.internal.plaf.basic.resources.basic"
+    },
+    {
+      "bundle": "com.sun.swing.internal.plaf.metal.resources.metal"
+    },
+    {
+      "bundle": "org.eclipse.jgit.internal.JGitText"
+    },
+    {
+      "bundle": "sun.awt.resources.awt"
+    }
+  ]
+}
