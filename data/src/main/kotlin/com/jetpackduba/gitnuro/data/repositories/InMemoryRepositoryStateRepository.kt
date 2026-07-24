@@ -6,11 +6,8 @@ import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import com.jetpackduba.gitnuro.domain.usecases.DataToRefresh
+import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateRepository {
@@ -21,6 +18,8 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
     override val lastOperationTimestamp: Flow<Long> = completedTasks.map {
         completedTasks.value.lastOrNull()?.date ?: 0L
     }
+    override val refreshTriggered: StateFlow<List<DataToRefresh>>
+        field = MutableStateFlow(emptyList())
 
     override suspend fun <T> runOperation(taskType: TaskType, block: suspend () -> T): T {
         try {
@@ -50,6 +49,10 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
                 severity
             )
         )
+    }
+
+    override suspend fun refreshTriggered(dataToRefresh: List<DataToRefresh>) {
+        refreshTriggered.value = dataToRefresh
     }
 
     private fun addCompletedTask(completedTask: CompletedTask) {

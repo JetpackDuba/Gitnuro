@@ -1,13 +1,15 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
+import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.*
-import com.jetpackduba.gitnuro.domain.models.RebaseLine
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.max
 
@@ -18,6 +20,7 @@ class RefreshDataUseCase @Inject constructor(
     private val getBranchesGitAction: IGetBranchesGitAction,
     private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
     private val repositoryDataRepository: RepositoryDataRepository,
+    private val repositoryStateRepository: RepositoryStateRepository,
     private val getLogGitAction: IGetLogGitAction,
     private val getCurrentBranchAction: IGetCurrentBranchGitAction,
     private val getStashListGitAction: IGetStashListGitAction,
@@ -29,9 +32,14 @@ class RefreshDataUseCase @Inject constructor(
     private val getRepositoryState: IGetRepositoryStateGitAction,
     private val getRebaseInteractiveTodoLinesUseCase: GetRebaseInteractiveTodoLinesUseCase,
     private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
+    private val scope: TabCoroutineScope,
 ) {
     operator fun invoke(vararg dataToRefresh: DataToRefresh) {
         val isRefreshAll = dataToRefresh.contains(DataToRefresh.ALL)
+
+        scope.launch {
+            repositoryStateRepository.refreshTriggered(dataToRefresh.toList())
+        }
 
         if (isRefreshAll || dataToRefresh.contains(DataToRefresh.BRANCHES)) {
             refreshBranches()

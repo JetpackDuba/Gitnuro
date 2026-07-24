@@ -870,12 +870,18 @@ class RepositoryOpenViewModel @Inject constructor(
     val diffTypeFlow = settings.diffTextViewType
     val isDisplayFullFile = settings.diffDisplayFullFile
 
+    val diffRefreshTrigger = repositoryStateRepository
+        .refreshTriggered
+        .filter { it.contains(DataToRefresh.ALL) || it.contains(DataToRefresh.STATUS) }
+        .onStart { emit(emptyList()) }
+
     val diffResult: StateFlow<ViewDiffResult?> = combine(
         diffSelected,
         refreshDiffFlow,
         diffTypeFlow,
         isDisplayFullFile,
-    ) { diffSelected, _, diffType, isDisplayFullFile ->
+        diffRefreshTrigger,
+    ) { diffSelected, _, diffType, isDisplayFullFile, _ ->
         if (diffSelected?.entries?.count() == 1) {
             val diff = loadDiff(diffSelected.entries.first(), diffType, isDisplayFullFile)
 

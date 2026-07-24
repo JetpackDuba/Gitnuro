@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.domain.repositories
 
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.models.TaskType
+import com.jetpackduba.gitnuro.domain.usecases.DataToRefresh
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -9,10 +10,12 @@ interface RepositoryStateRepository {
     val currentTask: StateFlow<TaskType?>
     val completedTasks: StateFlow<List<CompletedTask>>
     val lastOperationTimestamp: Flow<Long>
+    val refreshTriggered: StateFlow<List<DataToRefresh>>
 
     suspend fun <T> runOperation(taskType: TaskType, block: suspend () -> T): T
     suspend fun addCompletedTaskSuccessfully(completedTask: TaskType)
     suspend fun addCompletedTaskFailed(completedTask: TaskType, reason: AppError, severity: FailureSeverity)
+    suspend fun refreshTriggered(dataToRefresh: List<DataToRefresh>)
 }
 
 sealed interface CompletedTask {
