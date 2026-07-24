@@ -56,15 +56,13 @@ fun SetDefaultUpstreamBranchDialog(
         }
     }
 
-    MaterialDialog(onCloseRequested = onDismiss) {
-        SetDefaultUpstreamBranchDialogView(
-            state = state,
-            onDismiss = onDismiss,
-            setSelectedRemote = { viewModel.setSelectedRemote(it) },
-            setSelectedBranch = { viewModel.setSelectedBranch(it) },
-            changeDefaultUpstreamBranch = { viewModel.changeDefaultUpstreamBranch() }
-        )
-    }
+    SetDefaultUpstreamBranchDialogView(
+        state = state,
+        onDismiss = onDismiss,
+        setSelectedRemote = { viewModel.setSelectedRemote(it) },
+        setSelectedBranch = { viewModel.setSelectedBranch(it) },
+        changeDefaultUpstreamBranch = { viewModel.changeDefaultUpstreamBranch() }
+    )
 }
 
 
