@@ -4,6 +4,9 @@
       "type": "android.os.Build"
     },
     {
+      "type": "android.os.Build$VERSION"
+    },
+    {
       "type": "androidx.compose.ui.awt.ComposeWindow"
     },
     {
@@ -65,6 +68,12 @@
       "type": "byte"
     },
     {
+      "type": "byte[]"
+    },
+    {
+      "type": "char[]"
+    },
+    {
       "type": "coil3.RealImageLoader"
     },
     {
@@ -72,6 +81,15 @@
     },
     {
       "type": "coil3.network.okhttp.internal.OkHttpNetworkFetcherServiceLoaderTarget"
+    },
+    {
+      "type": "com.google.gson.internal.bind.JavaTimeTypeAdapters",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
     },
     {
       "type": "com.jetpackduba.gitnuro.ForeignBytes",
@@ -211,6 +229,60 @@
       "type": "com.jetpackduba.gitnuro.uniffiCallbackInterfaceWatchDirectoryNotifier$uniffiFree"
     },
     {
+      "type": "com.sun.crypto.provider.AESCipher$General",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.ARCFOURCipher",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.ChaCha20Cipher$ChaCha20Poly1305",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.DESCipher",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.DESedeCipher",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.DHParameters",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.sun.crypto.provider.GaloisCounterMode$AESGCM",
       "methods": [
         {
@@ -220,7 +292,27 @@
       ]
     },
     {
+      "type": "com.sun.crypto.provider.HKDFKeyDerivation$HKDFSHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "javax.crypto.KDFParameters"
+          ]
+        }
+      ]
+    },
+    {
       "type": "com.sun.crypto.provider.HmacCore$HmacSHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "com.sun.crypto.provider.TlsMasterSecretGenerator",
       "methods": [
         {
           "name": "<init>",
@@ -984,6 +1076,17 @@
       ]
     },
     {
+      "type": "java.io.IOException",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
       "type": "java.io.InputStream"
     },
     {
@@ -1003,6 +1106,9 @@
           ]
         }
       ]
+    },
+    {
+      "type": "java.io.Reader"
     },
     {
       "type": "java.lang.Boolean",
@@ -1080,6 +1186,10 @@
       "methods": [
         {
           "name": "getComponentType",
+          "parameterTypes": []
+        },
+        {
+          "name": "isRecord",
           "parameterTypes": []
         }
       ]
@@ -1324,6 +1434,20 @@
       ]
     },
     {
+      "type": "java.lang.reflect.RecordComponent"
+    },
+    {
+      "type": "java.net.ConnectException",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
       "type": "java.net.StandardSocketOptions"
     },
     {
@@ -1443,10 +1567,19 @@
       "type": "java.nio.file.Files"
     },
     {
+      "type": "java.rmi.MarshalledObject"
+    },
+    {
+      "type": "java.rmi.Remote"
+    },
+    {
       "type": "java.security.AccessController"
     },
     {
       "type": "java.security.AlgorithmParametersSpi"
+    },
+    {
+      "type": "java.security.KeyStoreSpi"
     },
     {
       "type": "java.security.cert.PKIXRevocationChecker"
@@ -1462,6 +1595,9 @@
     },
     {
       "type": "java.security.interfaces.RSAPublicKey"
+    },
+    {
+      "type": "java.sql.Date"
     },
     {
       "type": "java.util.Iterator",
@@ -2551,7 +2687,34 @@
       ]
     },
     {
+      "type": "org.eclipse.jgit.api.MergeCommand$ConflictStyle",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.api.MergeCommand$FastForwardMode$Merge",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "org.eclipse.jgit.diff.DiffAlgorithm$SupportedAlgorithm",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.dircache.DirCache$DirCacheVersion",
       "methods": [
         {
           "name": "values",
@@ -5349,6 +5512,93 @@
       ]
     },
     {
+      "type": "org.eclipse.jgit.lfs.Protocol$ObjectSpec",
+      "fields": [
+        {
+          "name": "oid"
+        },
+        {
+          "name": "size"
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lfs.Protocol$Request",
+      "fields": [
+        {
+          "name": "objects"
+        },
+        {
+          "name": "operation"
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lfs.internal.LfsText",
+      "fields": [
+        {
+          "name": "corruptLongObject"
+        },
+        {
+          "name": "dotLfsConfigReadFailed"
+        },
+        {
+          "name": "inconsistentContentLength"
+        },
+        {
+          "name": "inconsistentMediafileLength"
+        },
+        {
+          "name": "incorrectLONG_OBJECT_ID_LENGTH"
+        },
+        {
+          "name": "invalidLongId"
+        },
+        {
+          "name": "invalidLongIdLength"
+        },
+        {
+          "name": "lfsFailedToGetRepository"
+        },
+        {
+          "name": "lfsNoDownloadUrl"
+        },
+        {
+          "name": "lfsUnauthorized"
+        },
+        {
+          "name": "lfsUnavailable"
+        },
+        {
+          "name": "missingLocalObject"
+        },
+        {
+          "name": "protocolError"
+        },
+        {
+          "name": "repositoryNotFound"
+        },
+        {
+          "name": "repositoryReadOnly"
+        },
+        {
+          "name": "requiredHashFunctionNotAvailable"
+        },
+        {
+          "name": "serverFailure"
+        },
+        {
+          "name": "wrongAmountOfDataReceived"
+        }
+      ],
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "org.eclipse.jgit.lib.CoreConfig$AutoCRLF",
       "methods": [
         {
@@ -5385,6 +5635,15 @@
       ]
     },
     {
+      "type": "org.eclipse.jgit.lib.CoreConfig$LogRefUpdates",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "org.eclipse.jgit.lib.CoreConfig$SymLinks",
       "methods": [
         {
@@ -5395,6 +5654,33 @@
     },
     {
       "type": "org.eclipse.jgit.lib.CoreConfig$TrustStat",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.GcConfig$PackRefsMode",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.lib.GpgConfig$GpgFormat",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "org.eclipse.jgit.transport.HttpConfig$HttpRedirectMode",
       "methods": [
         {
           "name": "values",
@@ -6237,6 +6523,16 @@
       "type": "sun.awt.X11.XFramePeer"
     },
     {
+      "type": "sun.awt.X11.XRootWindow",
+      "jniAccessible": true,
+      "methods": [
+        {
+          "name": "getXRootWindow",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "sun.awt.X11.XToolkit",
       "jniAccessible": true,
       "fields": [
@@ -6905,6 +7201,69 @@
       ]
     },
     {
+      "type": "sun.net.www.protocol.http.ntlm.NTLMAuthentication",
+      "methods": [
+        {
+          "name": "supportsTransparentAuth",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.pkcs12.PKCS12KeyStore",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.pkcs12.PKCS12KeyStore$DualFormatPKCS12",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.DSA$SHA224withDSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.DSA$SHA256withDSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.JavaKeyStore$DualFormatJKS",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.JavaKeyStore$JKS",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "sun.security.provider.NativePRNG",
       "methods": [
         {
@@ -6925,7 +7284,34 @@
       ]
     },
     {
+      "type": "sun.security.provider.SHA2$SHA224",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "sun.security.provider.SHA2$SHA256",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.SHA5$SHA384",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.provider.SHA5$SHA512",
       "methods": [
         {
           "name": "<init>",
@@ -6943,6 +7329,24 @@
       ]
     },
     {
+      "type": "sun.security.provider.certpath.PKIXCertPathValidator",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.rsa.PSSParameters",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "sun.security.rsa.RSAKeyFactory$Legacy",
       "methods": [
         {
@@ -6952,7 +7356,52 @@
       ]
     },
     {
+      "type": "sun.security.rsa.RSAPSSSignature",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.rsa.RSASignature$SHA224withRSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "sun.security.rsa.RSASignature$SHA256withRSA",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.ssl.KeyManagerFactoryImpl$SunX509",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.ssl.SSLContextImpl$DefaultSSLContext",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory",
       "methods": [
         {
           "name": "<init>",
@@ -7045,6 +7494,30 @@
       ]
     },
     {
+      "type": "sun.security.x509.NetscapeCertTypeExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "sun.security.x509.PrivateKeyUsageExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.Boolean",
+            "java.lang.Object"
+          ]
+        }
+      ]
+    },
+    {
       "type": "sun.security.x509.SubjectAlternativeNameExtension",
       "methods": [
         {
@@ -7107,6 +7580,9 @@
       "glob": "META-INF/services/java.nio.charset.spi.CharsetProvider"
     },
     {
+      "glob": "META-INF/services/java.nio.file.spi.FileTypeDetector"
+    },
+    {
       "glob": "META-INF/services/java.time.zone.ZoneRulesProvider"
     },
     {
@@ -7128,10 +7604,19 @@
       "glob": "META-INF/services/org.eclipse.jgit.lib.SignerFactory"
     },
     {
+      "glob": "META-INF/services/org.eclipse.jgit.transport.SshSessionFactory"
+    },
+    {
+      "glob": "META-INF/services/org.eclipse.jgit.transport.Transport"
+    },
+    {
       "glob": "META-INF/services/org.slf4j.spi.SLF4JServiceProvider"
     },
     {
       "glob": "com/sun/jna/linux-x86-64/libjnidispatch.so"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/add.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/align_top.svg"
@@ -7161,6 +7646,9 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/code.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/description.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/done.svg"
     },
     {
@@ -7176,6 +7664,9 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/folder.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/horizontal_split.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/info.svg"
     },
     {
@@ -7183,6 +7674,9 @@
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/location.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/lock.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/logo.svg"
@@ -7230,7 +7724,16 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/tree.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/unified.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/upload.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/vertical_split.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/visibility.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/values/strings.main.cvr"
@@ -7252,6 +7755,9 @@
     },
     {
       "glob": "fonts/NotoSansMono/NotoSansMono-Medium.ttf"
+    },
+    {
+      "glob": "fonts/NotoSansMono/NotoSansMono-Regular.ttf"
     },
     {
       "glob": "libgitnuro_rs.so"
@@ -7276,6 +7782,31 @@
     },
     {
       "glob": "org/eclipse/jgit/internal/JGitText_es_ES.properties"
+    },
+    {
+      "glob": "org/eclipse/jgit/lfs/internal/LfsText.properties"
+    },
+    {
+      "glob": "org/eclipse/jgit/lfs/internal/LfsText_es.properties"
+    },
+    {
+      "glob": "org/eclipse/jgit/lfs/internal/LfsText_es_ES.properties"
+    },
+    {
+      "module": "java.base",
+      "glob": "jdk/internal/icu/impl/data/icudt76b/nfkc.nrm"
+    },
+    {
+      "module": "java.base",
+      "glob": "jdk/internal/icu/impl/data/icudt76b/uprops.icu"
+    },
+    {
+      "module": "java.base",
+      "glob": "sun/net/idn/uidna.spp"
+    },
+    {
+      "module": "java.datatransfer",
+      "glob": "sun/datatransfer/resources/flavormap.properties"
     },
     {
       "module": "java.desktop",
@@ -7316,6 +7847,9 @@
     },
     {
       "bundle": "org.eclipse.jgit.internal.JGitText"
+    },
+    {
+      "bundle": "org.eclipse.jgit.lfs.internal.LfsText"
     },
     {
       "bundle": "sun.awt.resources.awt"
