@@ -18,18 +18,23 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.clone_error_invalid_directory
+import com.jetpackduba.gitnuro.app.generated.resources.clone_error_invalid_folder_name
+import com.jetpackduba.gitnuro.app.generated.resources.clone_error_invalid_url
 import com.jetpackduba.gitnuro.app.generated.resources.generic_save_as_default
 import com.jetpackduba.gitnuro.app.generated.resources.search
 import com.jetpackduba.gitnuro.domain.models.CloneState
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.CheckboxText
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
+import com.jetpackduba.gitnuro.ui.getErrorText
+import com.jetpackduba.gitnuro.viewmodels.CloneUiError
 import com.jetpackduba.gitnuro.viewmodels.CloneViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -236,7 +241,7 @@ private fun CloneDialogView(
             )
         }
 
-        AnimatedVisibility(error.isNotBlank()) {
+        AnimatedVisibility(error != null) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -245,7 +250,7 @@ private fun CloneDialogView(
                     .background(MaterialTheme.colors.error)
             ) {
                 Text(
-                    error,
+                    error?.toUiString().orEmpty(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp, horizontal = 8.dp),
@@ -288,6 +293,16 @@ private fun CloneDialogView(
         LaunchedEffect(Unit) {
             urlFocusRequester.requestFocus()
         }
+    }
+}
+
+@Composable
+private fun CloneUiError.toUiString(): String {
+    return when (this) {
+        is CloneUiError.CloneError -> this.error.getErrorText()
+        CloneUiError.EmptyDirectory -> stringResource(Res.string.clone_error_invalid_directory)
+        CloneUiError.EmptyFolderName -> stringResource(Res.string.clone_error_invalid_folder_name)
+        CloneUiError.EmptyUrl -> stringResource(Res.string.clone_error_invalid_url)
     }
 }
 

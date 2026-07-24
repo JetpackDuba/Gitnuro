@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.domain.models
 
+import com.jetpackduba.gitnuro.domain.errors.AppError
 import org.eclipse.jgit.transport.RemoteRefUpdate
 import java.io.File
 
@@ -7,7 +8,7 @@ sealed interface CloneState {
     data object None : CloneState
     data class Cloning(val taskName: String, val progress: Int, val total: Int) : CloneState
     data object Cancelling : CloneState
-    data class Fail(val reason: String) : CloneState
+    data class Fail(val reason: AppError) : CloneState
     data class Completed(val repoDir: File) : CloneState
 }
 

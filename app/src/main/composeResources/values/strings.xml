@@ -190,4 +190,10 @@
     <!-- Error dialog -->
     <string name="error_dialog_copy_button_tooltip">Copy error</string>
 
+    <!-- Clone -->
+    <string name="clone_error_invalid_directory">Invalid empty directory</string>
+    <string name="clone_error_invalid_url">Invalid empty URL</string>
+    <string name="clone_error_invalid_folder_name">Invalid empty folder name</string>
+
+
 </resources>
