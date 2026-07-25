@@ -5599,6 +5599,15 @@
       ]
     },
     {
+      "type": "org.eclipse.jgit.lib.CommitConfig$CleanupMode",
+      "methods": [
+        {
+          "name": "values",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "org.eclipse.jgit.lib.CoreConfig$AutoCRLF",
       "methods": [
         {
@@ -7625,6 +7634,9 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/apply_stash.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/blame.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/bolt.svg"
     },
     {
@@ -7646,6 +7658,15 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/code.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/copy.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/copy_all.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/delete.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/description.svg"
     },
     {
@@ -7658,10 +7679,22 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/dropdown.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/edit.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/error.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/expand_more.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/folder.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/folder_open.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/history.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/horizontal_split.svg"
@@ -7697,6 +7730,9 @@
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/remove_done.svg"
     },
     {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/revert.svg"
+    },
+    {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/schedule.svg"
     },
     {
@@ -7707,6 +7743,9 @@
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/settings.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/start.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/stash.svg"
@@ -7722,6 +7761,9 @@
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/tree.svg"
+    },
+    {
+      "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/undo.svg"
     },
     {
       "glob": "composeResources/com.jetpackduba.gitnuro.app.generated.resources/drawable/unified.svg"
