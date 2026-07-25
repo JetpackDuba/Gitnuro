@@ -42,7 +42,15 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
 
     val setDefaultUpstreamBranchState: StateFlow<SetDefaultUpstreamBranchState> = flow {
         // TODO Show error instead of empty for both calls?
-        val remotes = getRemotesUseCase().okOrNull().orEmpty()
+        val remotes = getRemotesUseCase()
+            .okOrNull()
+            .orEmpty()
+            .map {
+                val branchesWithoutHead = it.branchesList.filter { branch ->
+                    branch.simpleName != "HEAD"
+                }
+                it.copy(branchesList = branchesWithoutHead)
+            }
         val trackingBranch = getTrackingBranchUseCase(branch).okOrNull()
 
         val remote: RemoteInfo?
@@ -50,7 +58,7 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
 
         if (trackingBranch != null) {
             remote = remotes.firstOrNull { it.remote.name == trackingBranch.remote }
-            remoteBranch = remote?.branchesList?.firstOrNull { it.name == trackingBranch.branch }
+            remoteBranch = remote?.branchesList?.firstOrNull { it.simpleName == trackingBranch.branch }
         } else {
             remote = null
             remoteBranch = null
