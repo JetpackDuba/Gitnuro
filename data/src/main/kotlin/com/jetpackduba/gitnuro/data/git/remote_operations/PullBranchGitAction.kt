@@ -45,10 +45,7 @@ class PullBranchGitAction @Inject constructor(
                 if (hasUncommitedChanges) {
                     val snapshotStashCreateCommand = SnapshotStashCreateCommand(
                         repository = git.repository,
-                        workingDirectoryMessage = String.format(
-                            automaticStashDescription,
-                            git.repository.branch
-                        ),
+                        workingDirectoryMessage = automaticStashDescription,
                         includeUntracked = true
                     )
 

@@ -43,6 +43,14 @@ data class Branch(
                 return remoteName
         }
 
+    val simpleNameWithRemote: String
+        get() {
+            return when {
+                this.isRemote -> "$remoteName/$simpleName"
+                else -> simpleName
+            }
+        }
+
     // TODO Override equals?
     fun isSameBranch(otherRef: Branch?): Boolean {
         if (this.name == Constants.HEAD && otherRef == null)

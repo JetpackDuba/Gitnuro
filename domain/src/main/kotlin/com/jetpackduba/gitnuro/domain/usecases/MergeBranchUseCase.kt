@@ -23,7 +23,7 @@ class MergeBranchUseCase @Inject constructor(
     private val createSnapshotStashGitAction: ICreateSnapshotStashGitAction,
 ) {
 
-    operator fun invoke(branch: Branch) {
+    operator fun invoke(branch: Branch, automaticStashDescription: String) {
         useCaseExecutor.executeLaunch(
             TaskType.MergeBranch,
             refreshEvenIfFailed = true,
@@ -38,7 +38,7 @@ class MergeBranchUseCase @Inject constructor(
                 if (hasUncommitedChanges) {
                     backupStash = createSnapshotStashGitAction(
                         repositoryPath,
-                        message = "TMP MESSAGE",
+                        message = automaticStashDescription,
                         includeUntracked = true
                     ).bind()
                 }

@@ -4,7 +4,9 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.merge_automatic_stash_description
 import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_automatic_stash_description
+import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_from_specific_branch_automatic_stash_description
 import com.jetpackduba.gitnuro.collectLatestInViewModel
 import com.jetpackduba.gitnuro.common.flows.invert
 import com.jetpackduba.gitnuro.common.printLog
@@ -238,7 +240,9 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     private val branches = repositoryDataRepository.localBranches
-    private val currentBranch = repositoryDataRepository.currentBranch
+    private val currentBranch = repositoryDataRepository
+        .currentBranch
+        .stateIn(null)
 
     private val logBranchesByCommitHash =
         combine(branches, repositoryDataRepository.remotes, currentBranch) { branches, remotes, currentBranch ->
@@ -494,7 +498,18 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun deleteSubmodule(path: String) = deleteSubmoduleUseCase(path)
 
-    fun mergeBranch(branch: Branch) = mergeBranchUseCase(branch)
+    fun mergeBranch(branch: Branch) {
+        viewModelScope.launch {
+            mergeBranchUseCase(
+                branch,
+                automaticStashDescription = getString(
+                    Res.string.merge_automatic_stash_description,
+                    branch.simpleNameWithRemote,
+                    currentBranch.value?.simpleName.orEmpty(),
+                ),
+            )
+        }
+    }
 
     fun deleteBranch(branch: Branch) = deleteBranchUseCase(branch)
 
@@ -536,10 +551,22 @@ class RepositoryOpenViewModel @Inject constructor(
 
     private fun pullBranch(pullType: PullType, remoteBranch: Branch? = null) {
         viewModelScope.launch {
+            val currentBranch = currentBranch.value?.simpleName.orEmpty()
+
+            val automaticStashDescription = if (remoteBranch != null) {
+                getString(
+                    Res.string.pull_with_merge_from_specific_branch_automatic_stash_description,
+                    remoteBranch.simpleNameWithRemote,
+                    currentBranch
+                )
+            } else {
+                getString(Res.string.pull_with_merge_automatic_stash_description, currentBranch)
+            }
+
             pullBranchUseCase(
                 pullType,
                 remoteBranch,
-                automaticStashDescription = getString(Res.string.pull_with_merge_automatic_stash_description)
+                automaticStashDescription = automaticStashDescription,
             )
         }
     }

@@ -15,16 +15,11 @@ class CreateSnapshotStashGitAction @Inject constructor(
     override suspend fun invoke(
         repositoryPath: String,
         message: String,
-        includeUntracked: Boolean
+        includeUntracked: Boolean,
     ): Either<Commit?, GitError> = jgit.provide(repositoryPath) { git ->
         SnapshotStashCreateCommand(
             repository = git.repository,
-            // TODO Fix this
-            workingDirectoryMessage = "TMP MESSAGE"/* TODO getString(
-                        Res.string.merge_automatic_stash_description,
-                        branch.simpleName,
-                        git.repository.branch
-                    )*/,
+            workingDirectoryMessage = message,
             includeUntracked = true
         )
             .call()

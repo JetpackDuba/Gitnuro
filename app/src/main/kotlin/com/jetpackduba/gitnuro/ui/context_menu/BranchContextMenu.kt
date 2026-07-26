@@ -47,8 +47,8 @@ fun branchContextMenuItems(
                 composableLabel = {
                     stringResource(
                         Res.string.branch_context_menu_push_current_to_target,
-                        currentBranch.name,
-                        branch.name,
+                        currentBranch.simpleName,
+                        branch.simpleNameWithRemote,
                     )
                 },
                 onClick = onPushToRemoteBranch
@@ -57,8 +57,8 @@ fun branchContextMenuItems(
                 composableLabel = {
                     stringResource(
                         Res.string.branch_context_menu_pull_target_to_current,
-                        branch.name,
-                        currentBranch.name,
+                        branch.simpleNameWithRemote,
+                        currentBranch.simpleName,
                     )
                 },
                 onClick = onPullFromRemoteBranch,
