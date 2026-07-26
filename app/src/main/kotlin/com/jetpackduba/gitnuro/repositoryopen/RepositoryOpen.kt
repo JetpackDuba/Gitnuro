@@ -64,7 +64,7 @@ fun RepositoryOpenPage(
                     }
 
                     it.matchesBinding(KeybindingOption.PUSH) -> {
-                        repositoryOpenViewModel.push()
+                        repositoryOpenViewModel.push(force = false, pushTags = false)
                         true
                     }
 

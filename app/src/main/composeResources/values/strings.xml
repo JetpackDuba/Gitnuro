@@ -85,7 +85,7 @@
 
     <!-- Merge automatic stash -->
     <string name="merge_automatic_stash_description">Automatic stash before merge of "%1$s" to "%2$s"</string>
-    <string name="pull_with_merge_automatic_stash_description">Automatic stash before pull of "%1$s"</string>
+    <string name="pull_with_merge_automatic_stash_description">Automatic stash before pull of "%s"</string>
 
     <!-- Status entries context menu -->
     <string name="status_entries_context_menu_delete_file">Delete file</string>

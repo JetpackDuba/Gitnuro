@@ -13,13 +13,17 @@ class PullBranchUseCase @Inject constructor(
     private val pullBranchGitAction: IPullBranchGitAction,
     private val appSettingsService: AppSettingsService,
 ) {
-    operator fun invoke(pullType: PullType, remoteBranch: Branch? = null) = useCaseExecutor.executeLaunch(
+    operator fun invoke(
+        pullType: PullType,
+        remoteBranch: Branch? = null,
+        automaticStashDescription: String,
+    ) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Pull,
         dataToRefresh = arrayOf(DataToRefresh.ALL),
     ) { repositoryPath ->
         val autoStashOnMerge = appSettingsService.autoStashOnMerge.first()
 
-        val result = pullBranchGitAction(repositoryPath, pullType, autoStashOnMerge, remoteBranch)
+        val result = pullBranchGitAction(repositoryPath, pullType, autoStashOnMerge, remoteBranch, automaticStashDescription)
 
         if (result is Either.Ok) {
             if (result.value) {

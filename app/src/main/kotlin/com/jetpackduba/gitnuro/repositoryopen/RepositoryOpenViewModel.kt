@@ -3,6 +3,8 @@ package com.jetpackduba.gitnuro.repositoryopen
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
 import com.jetpackduba.gitnuro.TabViewModel
+import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_automatic_stash_description
 import com.jetpackduba.gitnuro.collectLatestInViewModel
 import com.jetpackduba.gitnuro.common.flows.invert
 import com.jetpackduba.gitnuro.common.printLog
@@ -26,15 +28,14 @@ import com.jetpackduba.gitnuro.managers.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
+import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalGitAction
 import com.jetpackduba.gitnuro.ui.AppViewModel
 import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.status.StatusAction
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
-import com.jetpackduba.gitnuro.viewmodels.GlobalMenuActionsViewModel
 import com.jetpackduba.gitnuro.viewmodels.HistoryViewModel
-import com.jetpackduba.gitnuro.viewmodels.IGlobalMenuActionsViewModel
 import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +49,7 @@ import org.eclipse.jgit.blame.BlameResult
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.RebaseTodoLine
+import org.jetbrains.compose.resources.getString
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -86,7 +88,6 @@ class RepositoryOpenViewModel @Inject constructor(
     private val appViewModel: AppViewModel,
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
-    private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val refreshDataUseCase: RefreshDataUseCase,
     private val increaseLogCountUseCase: IncreaseLogCountUseCase,
     private val blameFileUseCase: BlameFileUseCase,
@@ -134,8 +135,10 @@ class RepositoryOpenViewModel @Inject constructor(
     private val statusViewModelExtenderFactory: StatusViewModelExtender.Factory,
     private val commitChangesViewModelExtenderFactory: CommitChangesViewModelExtender.Factory,
     private val getCommitFromHashUseCase: GetCommitFromHashUseCase,
+    private val fetchAllUseCase: FetchAllBranchUseCase,
+    private val stashChangesUseCase: StashChangesUseCase,
+    private val openRepositoryInTerminalGitAction: OpenRepositoryInTerminalGitAction,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
-    IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
     TabViewModel() {
     val completedTasks = repositoryStateRepository.completedTasks
 
@@ -513,7 +516,33 @@ class RepositoryOpenViewModel @Inject constructor(
         targetRemoteBranch = branch
     )
 
-    fun pullFromRemoteBranch(branch: Branch) = pullBranchUseCase(PullType.DEFAULT, branch)
+    fun pull(pullType: PullType) = pullBranch(pullType)
+
+    fun push(force: Boolean, pushTags: Boolean) = pushBranchUseCase(force, pushTags)
+
+    fun fetchAll() = fetchAllUseCase()
+
+    fun stash() = stashChangesUseCase(null)
+
+    fun popStash() = popStashUseCase(null)
+
+    fun openTerminal() {
+        openRepositoryInTerminalGitAction()
+    }
+
+    fun pullFromRemoteBranch(branch: Branch) {
+        pullBranch(PullType.DEFAULT, branch)
+    }
+
+    private fun pullBranch(pullType: PullType, remoteBranch: Branch? = null) {
+        viewModelScope.launch {
+            pullBranchUseCase(
+                pullType,
+                remoteBranch,
+                automaticStashDescription = getString(Res.string.pull_with_merge_automatic_stash_description)
+            )
+        }
+    }
 
     fun deleteTag(tag: Tag) = deleteTagUseCase(tag)
     fun selectStash(stash: Commit) {

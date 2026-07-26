@@ -12,5 +12,6 @@ interface IPullBranchGitAction {
         pullType: PullType,
         mergeAutoStash: Boolean,
         remoteBranch: Branch?,
+        automaticStashDescription: String,
     ): Either<PullHasConflicts, GitError>
 }

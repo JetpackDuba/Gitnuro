@@ -58,7 +58,6 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
-    private val globalMenuActionsViewModel: GlobalMenuActionsViewModel,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val repositoryStateRepository: RepositoryStateRepository,
@@ -67,7 +66,6 @@ class RepositoryTabViewModel @AssistedInject constructor(
     @Assisted private val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
-    IGlobalMenuActionsViewModel by globalMenuActionsViewModel,
     TabViewModel(),
     TabInformationProvider {
     @AssistedFactory

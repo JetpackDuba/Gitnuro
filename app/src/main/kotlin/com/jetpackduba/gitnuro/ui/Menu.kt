@@ -117,14 +117,14 @@ fun Menu(
             title = stringResource(Res.string.menu_push),
             tooltipText = stringResource(Res.string.menu_push_tooltip),
             icon = painterResource(Res.drawable.upload),
-            onClick = { viewModel.push() },
+            onClick = { viewModel.push(force = false, pushTags = false) },
             keybinding = KeybindingOption.PUSH.keyBinding,
             extendedListItems = pushContextMenuItems(
                 onPushWithTags = {
                     viewModel.push(force = false, pushTags = true)
                 },
                 onForcePush = {
-                    viewModel.push(force = true)
+                    viewModel.push(force = true, pushTags = false)
                 }
             )
         )

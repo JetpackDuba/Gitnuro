@@ -28,6 +28,7 @@ class PullBranchGitAction @Inject constructor(
         pullType: PullType,
         mergeAutoStash: Boolean,
         remoteBranch: Branch?,
+        automaticStashDescription: String,
     ) = jgit.provide(repositoryPath) { git ->
         useBuiltinLfs(git.repository) {
             val pullWithRebase = when (pullType) {
@@ -44,10 +45,10 @@ class PullBranchGitAction @Inject constructor(
                 if (hasUncommitedChanges) {
                     val snapshotStashCreateCommand = SnapshotStashCreateCommand(
                         repository = git.repository,
-                        workingDirectoryMessage = "FIX THIS AFTER REFACTOR"/*getString(
-                            Res.string.pull_with_merge_automatic_stash_description,
+                        workingDirectoryMessage = String.format(
+                            automaticStashDescription,
                             git.repository.branch
-                        )*/,
+                        ),
                         includeUntracked = true
                     )
 
