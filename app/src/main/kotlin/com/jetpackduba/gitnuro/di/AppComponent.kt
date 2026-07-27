@@ -9,7 +9,6 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        AppModule::class,
         ShellModule::class,
         NetworkModule::class,
         GitCredentialsManagerModule::class,

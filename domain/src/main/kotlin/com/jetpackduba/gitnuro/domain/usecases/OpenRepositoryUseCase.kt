@@ -1,5 +1,7 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
+import com.jetpackduba.gitnuro.domain.AppStateManager
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.IOpenRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
@@ -10,12 +12,20 @@ class OpenRepositoryUseCase @Inject constructor(
     private val openRepositoryGitAction: IOpenRepositoryGitAction,
     private val refreshDataUseCase: RefreshDataUseCase,
     private val observeRepositoryToRefreshUseCase: ObserveRepositoryToRefreshUseCase,
+    private val getWorktreeUseCase: GetWorktreeUseCase,
+    private val appStateManager: AppStateManager,
 ) {
     suspend operator fun invoke(directory: String) {
         val repositoryPath = openRepositoryGitAction(directory)
 
         if (repositoryPath != null) {
             repositoryDataRepository.setRepositorySelectionState(RepositorySelectionState.Open(repositoryPath))
+ 
+            val worktree = getWorktreeUseCase().okOrNull()
+            if (worktree != null) {
+                appStateManager.repositoryTabChanged(worktree)
+            }
+
             refreshDataUseCase(DataToRefresh.ALL)
             observeRepositoryToRefreshUseCase()
         } else {

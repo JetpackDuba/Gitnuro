@@ -172,25 +172,25 @@ class DataStoreAppSettingsRepository @Inject constructor(
 
     private val preferencesLegacy: LegacyPreferences = LegacyPreferences.userRoot().node(PREFERENCES_NAME)
 
-    var latestTabsOpened: String
+    override var latestTabsOpened: String
         get() = preferencesLegacy.get(PREF_LATEST_REPOSITORIES_TABS_OPENED, "")
         set(value) {
             preferencesLegacy.put(PREF_LATEST_REPOSITORIES_TABS_OPENED, value)
         }
 
-    var latestRepositoryTabSelected: Int
+    override var latestRepositoryTabSelected: Int
         get() = preferencesLegacy.getInt(PREF_LATEST_REPOSITORY_TAB_SELECTED, -1)
         set(value) {
             preferencesLegacy.putInt(PREF_LATEST_REPOSITORY_TAB_SELECTED, value)
         }
 
-    var latestOpenedRepositoriesPath: String
+    override var latestOpenedRepositoriesPath: String
         get() = preferencesLegacy.get(PREF_LAST_OPENED_REPOSITORIES_PATH, "")
         set(value) {
             preferencesLegacy.put(PREF_LAST_OPENED_REPOSITORIES_PATH, value)
         }
 
-    var firstPaneWidth: Float
+    override var firstPaneWidth: Float
         get() {
             return preferencesLegacy.getFloat(PREF_FIRST_PANE_WIDTH, DEFAULT_FIRST_PANE_WIDTH)
         }
@@ -198,7 +198,7 @@ class DataStoreAppSettingsRepository @Inject constructor(
             preferencesLegacy.putFloat(PREF_FIRST_PANE_WIDTH, value)
         }
 
-    var thirdPaneWidth: Float
+    override var thirdPaneWidth: Float
         get() {
             return preferencesLegacy.getFloat(PREF_THIRD_PANE_WIDTH, DEFAULT_THIRD_PANE_WIDTH)
         }

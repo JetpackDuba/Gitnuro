@@ -29,11 +29,9 @@ import com.jetpackduba.gitnuro.avatarproviders.GravatarAvatarProvider
 import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
-import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.data.git.signers.AppGpgSigner
 import com.jetpackduba.gitnuro.data.git.signers.SshSigner
-import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.*
@@ -42,7 +40,7 @@ import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
-import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -139,7 +137,6 @@ class App @Inject constructor(
         val dateFormatUseRelativeInitial = appSettings.dateFormatUseRelative.first()
 
         application {
-            var isOpen by remember { mutableStateOf(true) }
             val theme by appSettings.theme.collectAsState(themeInitial)
             val customThemeRaw by appSettings.customTheme.collectAsState(customThemeInitial)
             val customTheme = remember(customThemeRaw) {
@@ -188,14 +185,6 @@ class App @Inject constructor(
             val tabName = currentTab?.name?.collectAsState()?.value
             val currentTabName = (tabName ?: NEW_TAB_DEFAULT_NAME).take(MAX_CHARS_CURRENT_TAB_NAME)
 
-            LaunchedEffect(isOpen) {
-                if (!isOpen) {
-                    tempFilesManager.clearAll()
-                    appStateManager.cancelCoroutines()
-                    this@application.exitApplication()
-                }
-            }
-
             LaunchedEffect(currentTab, tabName) {
                 appViewModel.updatePersistedTabs()
             }
@@ -203,7 +192,8 @@ class App @Inject constructor(
             Window(
                 title = "${System.getenv("title") ?: AppConstants.APP_NAME} - $currentTabName",
                 onCloseRequest = {
-                    isOpen = false
+                    tempFilesManager.clearAll()
+                    this@application.exitApplication()
                 },
                 state = windowState,
                 icon = painterResource(Res.drawable.logo),

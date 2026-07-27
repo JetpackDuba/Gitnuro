@@ -26,7 +26,7 @@ import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
@@ -622,7 +622,7 @@ class RepositoryOpenViewModel @Inject constructor(
         return openFilePickerGitAction(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
 
-    val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
+    val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow.stateIn(null)
 
     fun blameFile(filePath: String) {
         viewModelScope.launch {

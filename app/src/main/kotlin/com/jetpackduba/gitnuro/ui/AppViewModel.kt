@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
+import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppViewModel @Inject constructor(
-    private val appSettingsRepository: DataStoreAppSettingsRepository,
+    private val appSettingsRepository: AppSettingsRepository,
     private val tabComponentFactory: TabComponent.Factory,
 ) : ViewModel() {
     val tabs: StateFlow<List<TabInformation<RepositoryTabViewModel>>>

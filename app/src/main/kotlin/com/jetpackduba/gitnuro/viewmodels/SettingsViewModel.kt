@@ -5,30 +5,19 @@ import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
-import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.ProxyType
-import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.models.newErrorNow
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.PickerType
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.awt.Desktop
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val TAG = "SettingsViewModel"
 
@@ -36,7 +25,6 @@ class SettingsViewModel @Inject constructor(
     private val appSettingsService: AppSettingsService,
     private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val logsRepository: LogsRepository,
-    @param:AppCoroutineScope private val appScope: CoroutineScope,
 ) : TabViewModel() {
     val settingsViewState = settingsState()
         .stateIn(emptySettingsState())
@@ -48,7 +36,7 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    private fun setAppConfiguration(appConfig: AppConfig) = appScope.launch {
+    private fun setAppConfiguration(appConfig: AppConfig) = viewModelScope.launch {
         appSettingsService.setConfiguration(appConfig)
     }
 

@@ -22,7 +22,7 @@ import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.managers.AppStateManager
+import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
@@ -222,7 +222,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
         openRepository(dir)
     }
 
-    val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow
+    val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow.stateIn(null)
 
     fun cancelOngoingTask() {
         // TODO Do something at some point?
@@ -232,7 +232,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
         openUrlInBrowserGitAction(url)
     }
 
-    fun removeRepositoryFromRecent(repository: String) {
+    fun removeRepositoryFromRecent(repository: String) = viewModelScope.launch {
         appStateManager.removeRepositoryFromRecent(repository)
     }
 

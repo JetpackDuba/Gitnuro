@@ -46,4 +46,10 @@ interface AppSettingsRepository {
     val terminalPath: Flow<String?>
 
     suspend fun setConfiguration(appConfig: AppConfig)
+
+    var latestTabsOpened: String
+    var latestRepositoryTabSelected: Int
+    var latestOpenedRepositoriesPath: String
+    var firstPaneWidth: Float
+    var thirdPaneWidth: Float
 }

@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.ui
 
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
+import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -20,7 +21,7 @@ interface IVerticalSplitPaneConfig {
 
 @Singleton
 class VerticalSplitPaneConfig @Inject constructor(
-    private val appSettingsRepository: DataStoreAppSettingsRepository,
+    private val appSettingsRepository: AppSettingsRepository,
 ) : IVerticalSplitPaneConfig {
     private val _firstPaneWidth = MutableStateFlow<Float>(appSettingsRepository.firstPaneWidth)
     override val firstPaneWidth: StateFlow<Float> = _firstPaneWidth

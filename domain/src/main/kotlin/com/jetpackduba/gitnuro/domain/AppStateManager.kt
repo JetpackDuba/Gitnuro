@@ -1,22 +1,19 @@
-package com.jetpackduba.gitnuro.managers
+package com.jetpackduba.gitnuro.domain
 
-import com.jetpackduba.gitnuro.di.qualifiers.AppCoroutineScope
-import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
-import kotlinx.coroutines.CoroutineScope
+import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
+// TODO Split this class into individual use cases
 @Singleton
 class AppStateManager @Inject constructor(
-    private val appSettingsRepository: DataStoreAppSettingsRepository,
-    @AppCoroutineScope val appScope: CoroutineScope,
+    private val appSettingsRepository: AppSettingsRepository,
 ) {
     private val mutex = Mutex()
 
@@ -26,7 +23,7 @@ class AppStateManager @Inject constructor(
     val latestOpenedRepositoryPath: String
         get() = _latestOpenedRepositoriesPaths.value.firstOrNull() ?: ""
 
-    fun repositoryTabChanged(path: String) = appScope.launch(Dispatchers.IO) {
+    suspend fun repositoryTabChanged(path: String) = withContext(Dispatchers.IO) {
         mutex.lock()
         try {
             val repoPaths = _latestOpenedRepositoriesPaths.value.toMutableList()
@@ -56,11 +53,7 @@ class AppStateManager @Inject constructor(
         }
     }
 
-    fun cancelCoroutines() {
-        appScope.cancel("Closing app")
-    }
-
-    fun removeRepositoryFromRecent(path: String) = appScope.launch {
+    suspend fun removeRepositoryFromRecent(path: String) {
         mutex.lock()
         try {
             val repoPaths = _latestOpenedRepositoriesPaths.value.toMutableList()
