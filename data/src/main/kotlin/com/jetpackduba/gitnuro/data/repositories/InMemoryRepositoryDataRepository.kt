@@ -59,11 +59,13 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     }
 
     override fun clearAll() {
-        this.status.value = Status(emptyList(), emptyList(), emptyList())
-        this.localBranches.value = emptyList()
-        this.tags.value = emptyList()
-        this.remotes.value = emptyList()
-        this.log.value = GraphCommits(LinkedHashMap(), 0)
+        localBranches.value = emptyList()
+        tags.value = emptyList()
+        remotes.value = emptyList()
+        log.value = GraphCommits(LinkedHashMap(), 0)
+        stashes.value = emptyList()
+        rebaseInteractiveState.value = emptyList()
+        submodules.value = emptyMap()
     }
 
     override fun updateStatus(status: Status) {

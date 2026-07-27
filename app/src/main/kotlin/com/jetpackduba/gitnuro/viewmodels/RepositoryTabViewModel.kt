@@ -208,6 +208,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     override fun dispose() {
         fileChangesWatcher.close()
         tabScope.cancel()
+        repositoryDataRepository.clearAll()
     }
 
     fun openDirectoryPicker(): String? {
