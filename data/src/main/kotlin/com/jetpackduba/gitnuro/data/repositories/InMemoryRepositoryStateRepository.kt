@@ -21,12 +21,16 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
     override val refreshTriggered: StateFlow<List<DataToRefresh>>
         field = MutableStateFlow(emptyList())
 
-    override suspend fun <T> runOperation(taskType: TaskType, block: suspend () -> T): T {
+    override suspend fun <T> runOperation(taskType: TaskType, isForegroundTask: Boolean, block: suspend () -> T): T {
         try {
-            currentTask.value = taskType
+            if (isForegroundTask) {
+                currentTask.value = taskType
+            }
             return block()
         } finally {
-            currentTask.value = null
+            if (isForegroundTask) {
+                currentTask.value = null
+            }
         }
     }
 

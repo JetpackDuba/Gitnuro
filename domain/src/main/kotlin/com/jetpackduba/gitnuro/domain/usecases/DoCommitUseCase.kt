@@ -2,11 +2,15 @@ package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.SignOffConstants
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
+import com.jetpackduba.gitnuro.domain.errors.AppError
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
 import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ILoadSignOffConfigGitAction
+import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.Identity
 import com.jetpackduba.gitnuro.domain.models.TaskType
+import kotlinx.coroutines.Deferred
 import javax.inject.Inject
 
 class DoCommitUseCase @Inject constructor(
@@ -19,8 +23,8 @@ class DoCommitUseCase @Inject constructor(
         message: String,
         amend: Boolean,
         author: Identity?,
-    ) {
-        useCaseExecutor.executeLaunch(
+    ): Deferred<Either<Commit, AppError>> {
+        return useCaseExecutor.executeLaunchAsync(
             taskType = TaskType.DoCommit,
             dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.BRANCHES, DataToRefresh.LOG),
         ) { repositoryPath ->

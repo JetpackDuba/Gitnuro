@@ -6,10 +6,12 @@ import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.repositories.*
+import com.jetpackduba.gitnuro.domain.repositories.CloseableView
+import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
@@ -20,7 +22,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import org.eclipse.jgit.api.Git
 import java.io.File
 import kotlin.math.max
 import kotlin.math.min
@@ -565,13 +566,23 @@ class StatusViewModelExtender @AssistedInject constructor(
 
         val personIdent = getIdentity()
 
-        doCommitUseCase(message, amend, personIdent)
+        // If someone clicks on commit before persisting the message (as it has a delay), cancel it.
+        val hadOngoingPersistJob = persistMessageJob?.isActive == true
+        persistMessageJob?.cancel()
 
-        updateCommitMessage("")
-        commitMessageChangesFlow.emit("")
-        isAmend.value = false
+        val doCommitResult = doCommitUseCase(message, amend, personIdent).await()
 
-        positiveNotification(if (isAmend.value) "Commit amended" else "New commit created")
+        if (doCommitResult is Either.Ok) {
+            updateCommitMessage("")
+            commitMessageChangesFlow.emit("")
+            isAmend.value = false
+        } else {
+            // If committing failed and the message was going to be persisted before the commit, restart the
+            // persistence task
+            if (hadOngoingPersistJob) {
+                persistMessage()
+            }
+        }
     }
 
     private suspend fun getIdentity(): Identity? {
