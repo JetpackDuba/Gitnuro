@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.repositories
 
+import com.jetpackduba.gitnuro.data.git.log.GraphWalkCache
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import kotlinx.coroutines.flow.Flow
@@ -7,7 +8,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRepository {
+class InMemoryRepositoryDataRepository @Inject constructor(
+    private val graphWalkCache: GraphWalkCache,
+) : RepositoryDataRepository {
     override val status: Flow<Status>
         field = MutableStateFlow<Status>(Status(emptyList(), emptyList(), emptyList()))
 
@@ -66,6 +69,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         stashes.value = emptyList()
         rebaseInteractiveState.value = emptyList()
         submodules.value = emptyMap()
+        graphWalkCache.cachedGraphWalks.clear()
     }
 
     override fun updateStatus(status: Status) {

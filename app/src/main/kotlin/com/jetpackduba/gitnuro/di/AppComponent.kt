@@ -14,7 +14,6 @@ import javax.inject.Singleton
         GitCredentialsManagerModule::class,
         RepositoriesModule::class,
         DatastoreModule::class,
-        GitActionsModule::class,
     ]
 )
 interface AppComponent {

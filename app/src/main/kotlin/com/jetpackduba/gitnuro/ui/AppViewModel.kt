@@ -120,6 +120,7 @@ class AppViewModel @Inject constructor(
         }
 
         updatePersistedTabs()
+        System.gc()
     }
 
     suspend fun updatePersistedTabs() {

@@ -1,6 +1,9 @@
 package com.jetpackduba.gitnuro.lfs
 
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.data.git.branches.GetCurrentBranchGitAction
+import com.jetpackduba.gitnuro.data.git.branches.GetTrackingBranchGitAction
+import com.jetpackduba.gitnuro.data.git.remotes.GetRemotesGitAction
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.extensions.isHttpOrHttps
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
@@ -16,9 +19,9 @@ import javax.inject.Inject
 private const val TAG = "LfsRepository"
 
 class GetLfsUrlGitAction @Inject constructor(
-    private val getTrackingBranchGitAction: IGetTrackingBranchGitAction,
-    private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
-    private val getRemotesGitAction: IGetRemotesGitAction,
+    private val getTrackingBranchGitAction: GetTrackingBranchGitAction,
+    private val getCurrentBranchGitAction: GetCurrentBranchGitAction,
+    private val getRemotesGitAction: GetRemotesGitAction,
 ) {
     suspend operator fun invoke(repository: Repository, remoteName: String?): String? {
         val git = Git(repository)

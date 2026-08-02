@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.di.modules.FileWatcherModule
 import com.jetpackduba.gitnuro.di.modules.TabModule
 import com.jetpackduba.gitnuro.di.modules.TabRepositoriesModule
+import com.jetpackduba.gitnuro.di.modules.TabScopeGitActionsModule
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.viewmodels.*
@@ -16,6 +17,7 @@ import dagger.Subcomponent
         TabModule::class,
         TabRepositoriesModule::class,
         FileWatcherModule::class,
+        TabScopeGitActionsModule::class,
     ],
 )
 interface TabComponent {

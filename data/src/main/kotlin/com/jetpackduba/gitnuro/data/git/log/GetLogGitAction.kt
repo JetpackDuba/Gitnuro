@@ -1,6 +1,7 @@
 package com.jetpackduba.gitnuro.data.git.log
 
 
+import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.git.log.graph.GraphWalk
 import com.jetpackduba.gitnuro.data.git.stash.GetStashListGitAction
@@ -13,12 +14,17 @@ import org.eclipse.jgit.lib.Constants
 import java.util.*
 import javax.inject.Inject
 
-val cachedGraphWalks = mutableMapOf<String, GraphWalk>()
+
+@TabScope
+class GraphWalkCache @Inject constructor() {
+    val cachedGraphWalks = mutableMapOf<String, GraphWalk>()
+}
 
 class GetLogGitAction @Inject constructor(
     private val getStashListGitAction: GetStashListGitAction,
     private val graphCommitMapper: GraphCommitMapper,
     private val jgit: JGit,
+    private val graphWalkCache: GraphWalkCache,
 ) : IGetLogGitAction {
     override suspend operator fun invoke(
         repositoryPath: String,
@@ -29,10 +35,10 @@ class GetLogGitAction @Inject constructor(
         isPaginated: Boolean,
     ) = jgit.provide(repositoryPath) { git ->
         val repositoryState = git.repository.repositoryState
+        val cachedGraphWalks = graphWalkCache.cachedGraphWalks
         val cachedWalk = cachedGraphWalks[repositoryPath]
         if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(1).call().toList()
-
 
             val walk = if (isPaginated && cachedWalk != null) {
                 checkNotNull(cachedGraphWalks[repositoryPath])
