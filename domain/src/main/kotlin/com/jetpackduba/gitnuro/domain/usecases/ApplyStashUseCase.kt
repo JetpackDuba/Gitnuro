@@ -14,6 +14,7 @@ class ApplyStashUseCase @Inject constructor(
         useCaseExecutor.executeLaunch(
             taskType = TaskType.ApplyStash,
             dataToRefresh = arrayOf(DataToRefresh.ALL),
+            refreshEvenIfFailed = true,
         ) { repositoryPath ->
             applyStashGitAction(repositoryPath, stashCommit)
         }
