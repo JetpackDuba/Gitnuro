@@ -5,6 +5,6 @@ import java.util.*
 
 @Stable
 data class GraphCommits(
-    val commits: LinkedHashMap<String, GraphCommit>,
-    val maxLane: Int,
+    val commits: LinkedHashMap<String, GraphCommit> = LinkedHashMap(),
+    val maxLane: Int = 0,
 ): SequencedMap<String, GraphCommit> by commits

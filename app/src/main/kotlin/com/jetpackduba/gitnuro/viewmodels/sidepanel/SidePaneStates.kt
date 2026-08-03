@@ -2,12 +2,13 @@ package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.models.*
+import com.jetpackduba.gitnuro.ui.UiDataState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import org.eclipse.jgit.submodule.SubmoduleStatus
 
-data class SubmodulesState(val submodules: List<Pair<String, Submodule>>, val isExpanded: Boolean)
+data class SubmodulesState(val isLoading: Boolean, val submodules: List<Pair<String, Submodule>>, val isExpanded: Boolean)
 
 data class TagsState(val tags: List<Tag>, val isExpanded: Boolean)
 
@@ -15,22 +16,24 @@ data class StashesState(val stashes: List<Commit>, val isExpanded: Boolean)
 
 
 data class BranchesState(
+    val isLoading: Boolean,
     val branches: List<Branch>,
     val isExpanded: Boolean,
     val currentBranch: Branch?,
 )
 
 fun combineBranchesState(
-    branches: Flow<List<Branch>>,
-    currentBranch: Flow<Branch?>,
+    branches: Flow<UiDataState<List<Branch>>>,
+    currentBranch: Flow<UiDataState<Branch?>>,
     isExpandedBranches: MutableStateFlow<Boolean>,
     filter: MutableStateFlow<String>
 ): Flow<BranchesState> {
     return combine(branches, currentBranch, isExpandedBranches, filter) { branches, currentBranch, isExpanded, filter ->
         BranchesState(
-            branches = branches.filter { it.name.lowercaseContains(filter) },
+            isLoading = branches.isLoading || currentBranch.isLoading,
+            branches = branches.data.orEmpty().filter { it.name.lowercaseContains(filter) },
             isExpanded = isExpanded,
-            currentBranch = currentBranch
+            currentBranch = currentBranch.data
         )
     }
 }
@@ -45,10 +48,10 @@ data class RemotesState(
 )
 
 fun combineRemotesState(
-    remotes: Flow<List<RemoteInfo>>,
+    remotes: StateFlow<UiDataState<List<RemoteInfo>>>,
     isExpandedRemotes: MutableStateFlow<Boolean>,
     filter: MutableStateFlow<String>,
-    currentBranch: Flow<Branch?>,
+    currentBranch: Flow<UiDataState<Branch?>>,
     remotesContracted: MutableStateFlow<Set<Remote>>,
 ): Flow<RemotesState> {
     return combine(
@@ -58,7 +61,7 @@ fun combineRemotesState(
         currentBranch,
         remotesContracted,
     ) { remotes, isExpanded, filter, currentBranch, remotesContracted ->
-        val remotesFiltered = remotes.map { remoteInfo ->
+        val remotesFiltered = remotes.data.orEmpty().map { remoteInfo ->
             val newRemoteInfo = remoteInfo.copy(
                 branchesList = remoteInfo.branchesList.filter { branch ->
                     branch.simpleName.lowercaseContains(filter)
@@ -71,7 +74,7 @@ fun combineRemotesState(
         RemotesState(
             remotesFiltered,
             isExpanded,
-            currentBranch
+            currentBranch.data,
         )
     }
 }

@@ -1,7 +1,10 @@
 package com.jetpackduba.gitnuro.data.repositories
 
 import com.jetpackduba.gitnuro.data.git.log.GraphWalkCache
+import com.jetpackduba.gitnuro.domain.errors.AppError
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.models.*
+import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,41 +14,41 @@ import javax.inject.Inject
 class InMemoryRepositoryDataRepository @Inject constructor(
     private val graphWalkCache: GraphWalkCache,
 ) : RepositoryDataRepository {
-    override val status: Flow<Status>
-        field = MutableStateFlow<Status>(Status(emptyList(), emptyList(), emptyList()))
+    override val status: Flow<DataState<Status>>
+        field = MutableStateFlow<DataState<Status>>(DataState.Loading)
 
-    override val localBranches: Flow<List<Branch>>
-        field = MutableStateFlow<List<Branch>>(emptyList())
+    override val localBranches: Flow<DataState<List<Branch>>>
+        field = MutableStateFlow<DataState<List<Branch>>>(DataState.Loading)
 
-    override val currentBranch: Flow<Branch?>
-        field = MutableStateFlow<Branch?>(null)
+    override val currentBranch: Flow<DataState<Branch?>>
+        field = MutableStateFlow<DataState<Branch?>>(DataState.Loading)
 
-    override val tags: Flow<List<Tag>>
-        field = MutableStateFlow(emptyList())
+    override val tags: Flow<DataState<List<Tag>>>
+        field = MutableStateFlow<DataState<List<Tag>>>(DataState.Loading)
 
-    override val remotes: Flow<List<RemoteInfo>>
-        field = MutableStateFlow(emptyList())
+    override val remotes: Flow<DataState<List<RemoteInfo>>>
+        field = MutableStateFlow<DataState<List<RemoteInfo>>>(DataState.Loading)
 
-    override val log: StateFlow<GraphCommits>
-        field = MutableStateFlow(GraphCommits(LinkedHashMap(), 0))
+    override val log: StateFlow<DataState<GraphCommits>>
+        field = MutableStateFlow<DataState<GraphCommits>>(DataState.Loading)
 
-    override val stashes: Flow<List<Commit>>
-        field = MutableStateFlow(emptyList())
+    override val stashes: Flow<DataState<List<Commit>>>
+        field = MutableStateFlow<DataState<List<Commit>>>(DataState.Loading)
 
-    override val submodules: Flow<Map<String, Submodule>>
-        field = MutableStateFlow(emptyMap())
+    override val submodules: Flow<DataState<Map<String, Submodule>>>
+        field = MutableStateFlow<DataState<Map<String, Submodule>>>(DataState.Loading)
 
     override val repositorySelectionState: StateFlow<RepositorySelectionState>
         field = MutableStateFlow<RepositorySelectionState>(RepositorySelectionState.Unknown)
 
-    override val repositoryState: StateFlow<RepositoryState>
-        field = MutableStateFlow<RepositoryState>(RepositoryState.SAFE)
+    override val repositoryState: StateFlow<DataState<RepositoryState>>
+        field = MutableStateFlow<DataState<RepositoryState>>(DataState.Loading)
 
-    override val rebaseInteractiveState: StateFlow<List<RebaseLine>>
-        field = MutableStateFlow<List<RebaseLine>>(emptyList())
+    override val rebaseInteractiveState: StateFlow<DataState<List<RebaseLine>>>
+        field = MutableStateFlow<DataState<List<RebaseLine>>>(DataState.Loading)
 
-    override val author: Flow<AuthorInfo>
-        field = MutableStateFlow(AuthorInfo(emptyIdentity(), emptyIdentity()))
+    override val author: Flow<DataState<AuthorInfo>>
+        field = MutableStateFlow<DataState<AuthorInfo>>(DataState.Loading)
 
     override var maxCommitsToLoadLimit: Int = 0
 
@@ -62,57 +65,71 @@ class InMemoryRepositoryDataRepository @Inject constructor(
     }
 
     override fun clearAll() {
-        localBranches.value = emptyList()
-        tags.value = emptyList()
-        remotes.value = emptyList()
-        log.value = GraphCommits(LinkedHashMap(), 0)
-        stashes.value = emptyList()
-        rebaseInteractiveState.value = emptyList()
-        submodules.value = emptyMap()
-        graphWalkCache.cachedGraphWalks.clear()
+        localBranches.value = DataState.Loading
+        tags.value = DataState.Loading
+        remotes.value = DataState.Loading
+        log.value = DataState.Loading
+        stashes.value = DataState.Loading
+        rebaseInteractiveState.value = DataState.Loading
+        submodules.value = DataState.Loading
+        graphWalkCache.cachedGraphWalks?.close()
+        graphWalkCache.cachedGraphWalks = null
     }
 
-    override fun updateStatus(status: Status) {
-        this.status.value = status
+    override suspend fun updateStatus(block: suspend () -> Either<Status, AppError>) {
+        handleDataState(status, block)
     }
 
-    override fun updateLocalBranches(branches: List<Branch>) {
-        this.localBranches.value = branches
+    override suspend fun updateLocalBranches(block: suspend () -> Either<List<Branch>, AppError>) {
+        handleDataState(localBranches, block)
     }
 
-    override fun updateCurrentBranch(branch: Branch?) {
-        this.currentBranch.value = branch
+    override suspend fun updateCurrentBranch(block: suspend () -> Either<Branch?, AppError>) {
+        handleDataState(currentBranch, block)
     }
 
-    override fun updateTags(tags: List<Tag>) {
-        this.tags.value = tags
+    override suspend fun updateTags(block: suspend () -> Either<List<Tag>, AppError>) {
+        handleDataState(tags, block)
     }
 
-    override fun updateLog(graphCommits: GraphCommits) {
-        this.log.value = graphCommits
+    override suspend fun updateLog(block: suspend () -> Either<GraphCommits, AppError>) {
+        handleDataState(log, block)
     }
 
-    override fun updateRemotes(remotes: List<RemoteInfo>) {
-        this.remotes.value = remotes
+    override suspend fun updateRemotes(block: suspend () -> Either<List<RemoteInfo>, AppError>) {
+        handleDataState(remotes, block)
     }
 
-    override fun updateStashes(stashes: List<Commit>) {
-        this.stashes.value = stashes
+    override suspend fun updateStashes(block: suspend () -> Either<List<Commit>, AppError>) {
+        handleDataState(stashes, block)
     }
 
-    override fun updateSubmodules(value: Map<String, Submodule>) {
-        this.submodules.value = value
+    override suspend fun updateSubmodules(block: suspend () -> Either<Map<String, Submodule>, AppError>) {
+        handleDataState(submodules, block)
     }
 
-    override fun updateAuthor(value: AuthorInfo) {
-        this.author.value = value
+    override suspend fun updateAuthor(block: suspend () -> Either<AuthorInfo, AppError>) {
+        handleDataState(author, block)
     }
 
-    override fun updateRepositoryState(value: RepositoryState) {
-        this.repositoryState.value = value
+    override suspend fun updateRepositoryState(block: suspend () -> Either<RepositoryState, AppError>) {
+        handleDataState(repositoryState, block)
     }
 
-    override fun updateRebaseInteractiveState(value: List<RebaseLine>) {
-        this.rebaseInteractiveState.value = value
+    override suspend fun updateRebaseInteractiveState(block: suspend () -> Either<List<RebaseLine>, AppError>) {
+        handleDataState(rebaseInteractiveState, block)
+    }
+
+    private suspend inline fun <T> handleDataState(
+        flow: MutableStateFlow<DataState<T>>,
+        block: suspend () -> Either<T, AppError>
+    ) {
+        flow.value = DataState.Loading
+        val result = block()
+
+        flow.value = when (result) {
+            is Either.Err -> DataState.Error(result.error)
+            is Either.Ok -> DataState.Loaded(result.value)
+        }
     }
 }

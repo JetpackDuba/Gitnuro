@@ -2,11 +2,10 @@ package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
-import com.jetpackduba.gitnuro.domain.errors.Either
-import com.jetpackduba.gitnuro.domain.errors.bind
-import com.jetpackduba.gitnuro.domain.errors.either
+import com.jetpackduba.gitnuro.domain.errors.*
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
+import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import kotlinx.coroutines.launch
@@ -79,26 +78,28 @@ class RefreshDataUseCase @Inject constructor(
     }
 
     private fun refreshBranches() {
-        useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val branches = getBranchesGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateLocalBranches(branches)
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
+            repositoryDataRepository.updateLocalBranches {
+                getBranchesGitAction(repositoryPath)
+            }
 
-            val currentBranch = getCurrentBranchGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateCurrentBranch(currentBranch)
+            repositoryDataRepository.updateCurrentBranch {
+                getCurrentBranchGitAction(repositoryPath)
+            }
         }
     }
 
     private fun refreshStashes() {
-        useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val stashes = getStashListGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateStashes(stashes)
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
+            repositoryDataRepository.updateStashes { getStashListGitAction(repositoryPath) }
         }
     }
 
     private fun refreshLog() {
-        useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val log = loadLog(repositoryPath).bind()
-            repositoryDataRepository.updateLog(log)
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
+            repositoryDataRepository.updateLog {
+                loadLog(repositoryPath)
+            }
         }
     }
 
@@ -117,53 +118,52 @@ class RefreshDataUseCase @Inject constructor(
 
     private fun refreshStatus() {
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val status = getStatusGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateStatus(status)
+            repositoryDataRepository.updateStatus {
+                getStatusGitAction(repositoryPath)
+            }
         }
     }
 
     private fun refreshGitConfig() {
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val author = loadAuthorGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateAuthor(author)
+            repositoryDataRepository.updateAuthor {
+                loadAuthorGitAction(repositoryPath)
+            }
         }
     }
 
     private fun refreshRemotes() {
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val remotes = getRemotesUseCase()
-
-            if (remotes is Either.Ok) {
-                repositoryDataRepository.updateRemotes(remotes.value)
-            }
+            repositoryDataRepository.updateRemotes { getRemotesUseCase() }
         }
     }
 
     private fun refreshSubmodules() {
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val submodules = getSubmodulesGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateSubmodules(submodules)
+            repositoryDataRepository.updateSubmodules {
+                getSubmodulesGitAction(repositoryPath)
+            }
         }
     }
 
     private fun refreshTags() {
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val tags = getTagsGitAction(repositoryPath).bind()
-            repositoryDataRepository.updateTags(tags)
+            repositoryDataRepository.updateTags {
+                getTagsGitAction(repositoryPath)
+            }
         }
     }
 
     private fun refreshRepositoryState() {
         useCaseExecutor.executeOnTabScope() { repositoryPath ->
-            val state = getRepositoryState(repositoryPath).bind()
+            repositoryDataRepository.updateRepositoryState {
+                getRepositoryState(repositoryPath)
+            }
 
-            repositoryDataRepository.updateRepositoryState(state)
+            val state = (repositoryDataRepository.repositoryState.value as? DataState.Loaded<RepositoryState>)?.data
 
             if (state == RepositoryState.REBASING_INTERACTIVE) {
                 // TODO Error local handling or keep as it is?
-                val originalLines = getRebaseInteractiveTodoLinesUseCase().bind()
-
-                val fullLines = getRebaseLinesFullMessageUseCase(originalLines).bind()
 
                 // TODO is this check necessary with this newer arch?
 //            val isSameRebase = isSameRebase(rebaseLines, _rebaseState.value)
@@ -178,9 +178,18 @@ class RefreshDataUseCase @Inject constructor(
 //                }
 //            }
 
-                repositoryDataRepository.updateRebaseInteractiveState(fullLines)
+                repositoryDataRepository.updateRebaseInteractiveState {
+                    getRebaseInteractiveTodoLinesUseCase()
+                        .mapOk { originalLines ->
+                            getRebaseLinesFullMessageUseCase(originalLines)
+                        }
+                        .flatten()
+
+                }
             } else {
-                repositoryDataRepository.updateRebaseInteractiveState(emptyList())
+                repositoryDataRepository.updateRebaseInteractiveState {
+                    Either.Ok(emptyList())
+                }
             }
         }
     }

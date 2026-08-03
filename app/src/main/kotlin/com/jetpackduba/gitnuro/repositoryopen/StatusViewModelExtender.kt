@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.ui.status.*
+import com.jetpackduba.gitnuro.ui.toUiDataState
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -99,18 +100,14 @@ class StatusViewModelExtender @AssistedInject constructor(
     // When false, disable "amend previous commit"
     // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
     val previousCommitMessage = combine(
-        repositoryDataRepository.currentBranch,
-        repositoryDataRepository.log,
-    ) { branch, log ->
-        if (branch == null)
-            return@combine null
+        repositoryDataRepository.currentBranch.toUiDataState(),
+        repositoryDataRepository.log.toUiDataState(),
+    ) { branchState, log ->
+        val branch = branchState.data ?: return@combine null
 
-        log.commits[branch.hash]?.message
+        val commits = log.data ?: GraphCommits()
+        commits[branch.hash]?.message
     }
-//    var hasPreviousCommits = repositoryDataRepository.log.map { it.isNotEmpty() }
-
-    val stagedLazyListState = MutableStateFlow(LazyListState(0, 0))
-    val unstagedLazyListState = MutableStateFlow(LazyListState(0, 0))
 
     val committerDataRequestState: StateFlow<CommitterDataRequestState>
         field = MutableStateFlow<CommitterDataRequestState>(CommitterDataRequestState.None)
@@ -155,7 +152,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         }
 
     val statusState = combineStatusState(
-        repositoryDataRepository.status,
+        repositoryDataRepository.status.toUiDataState(),
         showSearchStaged,
         searchFilterStaged,
         showSearchUnstaged,
@@ -170,7 +167,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         selectedUnstagedDiffEntries,
         selectedStagedDiffEntries,
         previousCommitMessage,
-        repositoryDataRepository.repositoryState,
+        repositoryDataRepository.repositoryState.toUiDataState(),
         repositoryPath,
     )
         .stateIn(StatusState())

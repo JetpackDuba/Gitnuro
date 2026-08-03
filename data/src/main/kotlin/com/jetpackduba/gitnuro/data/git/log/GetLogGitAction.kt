@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 @TabScope
 class GraphWalkCache @Inject constructor() {
-    val cachedGraphWalks = mutableMapOf<String, GraphWalk>()
+    var cachedGraphWalks: GraphWalk? = null
 }
 
 class GetLogGitAction @Inject constructor(
@@ -35,13 +35,12 @@ class GetLogGitAction @Inject constructor(
         isPaginated: Boolean,
     ) = jgit.provide(repositoryPath) { git ->
         val repositoryState = git.repository.repositoryState
-        val cachedGraphWalks = graphWalkCache.cachedGraphWalks
-        val cachedWalk = cachedGraphWalks[repositoryPath]
+        val cachedWalk =  graphWalkCache.cachedGraphWalks
         if (currentBranch != null || repositoryState.isRebasing) { // Current branch is null when there is no log (new repo) or rebasing
             val logList = git.log().setMaxCount(1).call().toList()
 
             val walk = if (isPaginated && cachedWalk != null) {
-                checkNotNull(cachedGraphWalks[repositoryPath])
+                cachedWalk
             } else {
                 if (!isPaginated) {
                     cachedWalk?.close()
@@ -67,7 +66,7 @@ class GetLogGitAction @Inject constructor(
             }
 
             ensureActive()
-            cachedGraphWalks[repositoryPath] = walk
+            graphWalkCache.cachedGraphWalks = walk
 
             commitList.generateUpTo(commitsLimit)
         } else {

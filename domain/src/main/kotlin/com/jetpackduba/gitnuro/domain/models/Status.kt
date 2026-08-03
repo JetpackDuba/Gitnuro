@@ -3,9 +3,9 @@ package com.jetpackduba.gitnuro.domain.models
 import androidx.compose.runtime.Stable
 
 data class Status(
-    val staged: List<StatusEntry>,
-    val unstaged: List<StatusEntry>,
-    val ignored: List<String>,
+    val staged: List<StatusEntry> = emptyList(),
+    val unstaged: List<StatusEntry> = emptyList(),
+    val ignored: List<String> = emptyList(),
 )
 
 

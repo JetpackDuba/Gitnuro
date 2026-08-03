@@ -10,6 +10,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_from_spec
 import com.jetpackduba.gitnuro.collectLatestInViewModel
 import com.jetpackduba.gitnuro.common.flows.invert
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
@@ -19,21 +20,15 @@ import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.CloseableView
-import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
+import com.jetpackduba.gitnuro.domain.repositories.*
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalGitAction
-import com.jetpackduba.gitnuro.ui.AppViewModel
-import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
-import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
+import com.jetpackduba.gitnuro.ui.*
 import com.jetpackduba.gitnuro.ui.status.StatusAction
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
@@ -151,7 +146,10 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val lastLoadedTabs = appStateManager.latestOpenedRepositoriesPaths
 
-    val repositoryState: StateFlow<RepositoryState> = repositoryDataRepository.repositoryState
+    val repositoryState: StateFlow<RepositoryState> =
+        repositoryDataRepository.repositoryState.toUiDataState()
+            .map { it.data ?: RepositoryState.SAFE } // TODO: Instead of using safe as default, it should show some kind of feedback while data is null
+            .stateIn(RepositoryState.SAFE)
 
     val rebaseInteractiveState = repositoryState.map {
         if (it == RepositoryState.REBASING_INTERACTIVE) {
@@ -165,12 +163,14 @@ class RepositoryOpenViewModel @Inject constructor(
         repositoryDataRepository.repositoryState,
         repositoryDataRepository.rebaseInteractiveState
     ) { repositoryState, rebaseLines ->
-        if (repositoryState == RepositoryState.REBASING_INTERACTIVE) {
-            if (rebaseLines.isNotEmpty()) {
-                RebaseInteractiveViewState.Loaded(rebaseLines)
-            } else {
-                RebaseInteractiveViewState.Loading
-            }
+        if (repositoryState is DataState.Loading || rebaseLines is DataState.Loading) {
+            RebaseInteractiveViewState.Loading
+        } else if (
+            repositoryState is DataState.Loaded &&
+            repositoryState.data == RepositoryState.REBASING_INTERACTIVE &&
+            rebaseLines is DataState.Loaded
+        ) {
+            RebaseInteractiveViewState.Loaded(rebaseLines.data)
         } else {
             RebaseInteractiveViewState.None
         }
@@ -239,13 +239,19 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    private val branches = repositoryDataRepository.localBranches
+    private val branches = repositoryDataRepository.localBranches.toUiDataState()
     private val currentBranch = repositoryDataRepository
         .currentBranch
-        .stateIn(null)
+        .toUiDataState()
+
+    private val remotes = repositoryDataRepository.remotes.toUiDataState()
 
     private val logBranchesByCommitHash =
-        combine(branches, repositoryDataRepository.remotes, currentBranch) { branches, remotes, currentBranch ->
+        combine(branches, remotes, currentBranch) { branches, remotes, currentBranch ->
+            val branches = branches.data.orEmpty()
+            val remotes = remotes.data.orEmpty()
+            val currentBranch = currentBranch.data
+
             (branches + remotes.flatMap { it.branchesList })
                 .filter { branch ->
                     currentBranch?.name == "HEAD" || branch.simpleName != "HEAD"
@@ -255,12 +261,20 @@ class RepositoryOpenViewModel @Inject constructor(
             .distinctUntilChanged()
 
     private val tagsByCommitHash = repositoryDataRepository.tags.map {
-        it.groupBy { tag -> tag.commitHash }
+        if (it is DataState.Loaded) {
+            it.data.groupBy { tag -> tag.commitHash }
+        } else {
+            emptyMap()
+        }
     }
 
-    private val stashesHashes = repositoryDataRepository.stashes
+    private val stashesHashes = repositoryDataRepository
+        .stashes
+        .toUiDataState()
         .map {
             it
+                .data
+                .orEmpty()
                 .map { commit ->
                     commit.hash
                 }
@@ -269,12 +283,12 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val branchesState =
         combineBranchesState(branches, currentBranch, isExpandedBranches, filter)
-            .stateIn(BranchesState(emptyList(), isExpandedBranches.value, null))
+            .stateIn(BranchesState(isLoading = true, emptyList(), isExpandedBranches.value, null))
 
     private val remotesContracted = MutableStateFlow<Set<Remote>>(emptySet())
     val remoteState: StateFlow<RemotesState> =
         combineRemotesState(
-            repositoryDataRepository.remotes,
+            remotes,
             isExpandedRemotes,
             filter,
             currentBranch,
@@ -282,39 +296,60 @@ class RepositoryOpenViewModel @Inject constructor(
         ).stateIn(RemotesState())
 
     val stashesState: StateFlow<StashesState> =
-        combine(repositoryDataRepository.stashes, isExpandedStashes, filter) { stashes, isExpanded, filter ->
+        combine(
+            repositoryDataRepository.stashes.toUiDataState(),
+            isExpandedStashes,
+            filter
+        ) { stashes, isExpanded, filter ->
             StashesState(
-                stashes = stashes.filter { it.message.lowercaseContains(filter) },
+                stashes = stashes.data.orEmpty().filter { it.message.lowercaseContains(filter) },
                 isExpanded,
             )
         }.stateIn(StashesState(emptyList(), isExpandedStashes.value))
 
     val tagsState: StateFlow<TagsState> =
-        combine(repositoryDataRepository.tags, isExpandedTags, filter) { tags, isExpanded, filter ->
+        combine(
+            repositoryDataRepository.tags.toUiDataState(),
+            isExpandedTags,
+            filter,
+        ) { tags, isExpanded, filter ->
             TagsState(
-                tags.filter { tag -> tag.simpleName.lowercaseContains(filter) },
+                tags.data.orEmpty().filter { tag -> tag.simpleName.lowercaseContains(filter) },
                 isExpanded,
             )
         }.stateIn(TagsState(emptyList(), isExpandedTags.value))
 
 
     val submodulesState: StateFlow<SubmodulesState> =
-        combine(repositoryDataRepository.submodules, isExpandedSubmodules, filter) { submodules, isExpanded, filter ->
+        combine(
+            repositoryDataRepository.submodules.toUiDataState(),
+            isExpandedSubmodules,
+            filter
+        ) { submodules, isExpanded, filter ->
             SubmodulesState(
-                submodules = submodules.filter { it.key.lowercaseContains(filter) }.toList(),
+                isLoading = submodules.isLoading,
+                submodules = submodules.data.orEmpty().filter { it.key.lowercaseContains(filter) }.toList(),
                 isExpanded = isExpanded
             )
-        }.stateIn(SubmodulesState(emptyList(), isExpandedSubmodules.value))
+        }.stateIn(SubmodulesState(isLoading = true, emptyList(), isExpandedSubmodules.value))
 
-    private val hasUncommittedChanges = repositoryDataRepository.status.map {
-        it.staged.isNotEmpty() || it.unstaged.isNotEmpty()
-    }
+    private val hasUncommittedChanges = repositoryDataRepository
+        .status
+        .toUiDataState()
+        .map { data ->
+            val status = data.data ?: Status()
 
-    private val log = repositoryDataRepository.log
-    private val statusSummary = repositoryDataRepository.status.map {
-        getSummaryFromStatusUseCase(it)
-    }
+            status.staged.isNotEmpty() || status.unstaged.isNotEmpty()
+        }
 
+    private val log = repositoryDataRepository.log.toUiDataState()
+    private val statusSummary = repositoryDataRepository
+        .status
+        .toUiDataState()
+        .map {
+            val status = it.data ?: Status()
+            getSummaryFromStatusUseCase(status)
+        }
 
     private val verticalListState = MutableStateFlow(LazyListState(0, 0))
     private val horizontalListState = MutableStateFlow(ScrollState(0))
@@ -505,7 +540,7 @@ class RepositoryOpenViewModel @Inject constructor(
                 automaticStashDescription = getString(
                     Res.string.merge_automatic_stash_description,
                     branch.simpleNameWithRemote,
-                    currentBranch.value?.simpleName.orEmpty(),
+                    currentBranch.value.data?.simpleName.orEmpty(),
                 ),
             )
         }
@@ -551,7 +586,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
     private fun pullBranch(pullType: PullType, remoteBranch: Branch? = null) {
         viewModelScope.launch {
-            val currentBranch = currentBranch.value?.simpleName.orEmpty()
+            val currentBranch = currentBranch.value.data?.simpleName.orEmpty()
 
             val automaticStashDescription = if (remoteBranch != null) {
                 getString(
@@ -584,7 +619,8 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val authorInfoSimple = repositoryDataRepository
         .author
-        .map { it.identityToUse() }
+        .toUiDataState()
+        .map { it.data?.identityToUse() ?: Identity(null, null) }
         .stateIn(emptyIdentity())
 
     var historyViewModel: HistoryViewModel? = null
@@ -951,7 +987,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }.stateIn(initialValue = null as ViewDiffResult?)
 
-    val isRepositoryInSafeState = repositoryDataRepository.repositoryState
+    val isRepositoryInSafeState = repositoryState
         .map { it == RepositoryState.SAFE }
 
     private var diffJob: Job? = null

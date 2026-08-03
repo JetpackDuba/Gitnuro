@@ -3,12 +3,17 @@ package com.jetpackduba.gitnuro.ui.status
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.common.flows.combine
+import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.models.*
+import com.jetpackduba.gitnuro.domain.repositories.DataState
+import com.jetpackduba.gitnuro.ui.UiDataState
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+
+private const val TAG = "StatusState"
 
 sealed interface SelectionType<T> {
     data class SetSingleEntry<T>(val entry: T) : SelectionType<T>
@@ -59,7 +64,7 @@ data class StatusState(
 }
 
 fun combineStatusState(
-    status: Flow<Status>,
+    status: Flow<UiDataState<Status>>,
     showSearchStaged: MutableStateFlow<Boolean>,
     searchFilterStaged: MutableStateFlow<TextFieldValue>,
     showSearchUnstaged: MutableStateFlow<Boolean>,
@@ -74,7 +79,7 @@ fun combineStatusState(
     selectedUnstagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
     selectedStagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
     previousCommitMessage: Flow<String?>,
-    repositoryState: Flow<RepositoryState>,
+    repositoryState: Flow<UiDataState<RepositoryState>>,
     repositoryPath: Flow<String?>,
 ): Flow<StatusState> {
     return combine(
@@ -96,7 +101,7 @@ fun combineStatusState(
         repositoryState,
         repositoryPath,
     ) {
-            status,
+            statusDataState,
             showSearchStaged,
             searchFilterStaged,
             showSearchUnstaged,
@@ -111,9 +116,11 @@ fun combineStatusState(
             selectedUnstagedDiffEntries,
             selectedStagedDiffEntries,
             previousCommitMessage,
-            repositoryState,
+            repositoryStateDateState,
             repositoryPath,
         ->
+        val status = statusDataState.data ?: Status()
+        val repositoryState = repositoryStateDateState.data ?: RepositoryState.SAFE
         val filteredUnstaged = if (showSearchUnstaged && searchFilterUnstaged.text.isNotBlank()) {
             status.unstaged.filter { it.filePath.lowercaseContains(searchFilterUnstaged.text) }
         } else {
@@ -125,8 +132,12 @@ fun combineStatusState(
         } else {
             status.staged
         }.prioritizeConflicts()
+
+        val isLoading = statusDataState.isLoading || repositoryStateDateState.isLoading
+        printLog(TAG, "Status is loading: $isLoading -> $statusDataState || $repositoryStateDateState")
+
         StatusState(
-            isLoading = false,
+            isLoading = isLoading,
             staged = statusEntriesToTreeEntry(
                 showAsTree,
                 status.staged,

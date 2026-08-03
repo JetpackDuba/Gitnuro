@@ -196,6 +196,16 @@ suspend inline fun <T, E> T?.raiseErrorIfNull(
     }
 }
 
+fun <T, E> Either<Either<T, E>, E>.flatten(): Either<T, E> {
+    return when (this) {
+        is Either.Err -> Either.Err(this.error)
+        is Either.Ok -> when(val innerValue = this.value) {
+            is Either.Err -> Either.Err(innerValue.error)
+            is Either.Ok -> Either.Ok(innerValue.value)
+        }
+    }
+}
+
 /**
  * Returns the current function in an [EitherContext] with the error value if [this] is [Either.Err]
  */

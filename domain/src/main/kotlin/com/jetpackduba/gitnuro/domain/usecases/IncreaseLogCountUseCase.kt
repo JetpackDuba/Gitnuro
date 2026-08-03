@@ -8,6 +8,8 @@ import com.jetpackduba.gitnuro.domain.errors.either
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetLogGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGetStatusGitAction
+import com.jetpackduba.gitnuro.domain.models.GraphCommits
+import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import javax.inject.Inject
 import kotlin.math.max
@@ -23,17 +25,19 @@ class IncreaseLogCountUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(newLimit: Int): Either<Unit, AppError> {
         return useCaseExecutor.execute { repositoryPath ->
+            // If the data is being loaded or failed, do not try to load more items
+            val log = (repositoryDataRepository.log.value as? DataState.Loaded)?.data ?: return@execute Either.Ok(Unit)
+
             if (newLimit > repositoryDataRepository.maxCommitsToLoadLimit) {
                 repositoryDataRepository.maxCommitsToLoadLimit = newLimit
-                val log = loadLog(repositoryPath).bind()
-                repositoryDataRepository.updateLog(log)
+                repositoryDataRepository.updateLog { loadLog(repositoryPath, log) }
             }
 
             Either.Ok(Unit)
         }
     }
 
-    private suspend fun loadLog(repository: String) = either {
+    private suspend fun loadLog(repository: String, log: GraphCommits) = either {
         val status = getStatusGitAction(repository).bind()
         val currentBranch = getCurrentBranchAction(repository).bind()
 
@@ -42,7 +46,7 @@ class IncreaseLogCountUseCase @Inject constructor(
             currentBranch,
             hasUncommittedChanges = status.staged.isNotEmpty() || status.unstaged.isNotEmpty(),
             commitsLimit = max(repositoryDataRepository.maxCommitsToLoadLimit, INITIAL_COMMITS_LOAD),
-            currentData = repositoryDataRepository.log.value,
+            currentData = log,
             isPaginated = true,
         )
     }

@@ -2,6 +2,7 @@
 
 package com.jetpackduba.gitnuro.ui.log
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -128,30 +129,36 @@ fun Log(
         }
     }
 
-    LogView(
-        logState = logStatus,
-        selectedItem = selectedItem,
-        repositoryState = repositoryState,
-        graphPadding = graphPadding,
-        onRequestMoreLogItems = { firstVisibleItemIndex -> viewModel.loadMoreLogItems(firstVisibleItemIndex) },
-        onCreateBranch = onCreateBranch,
-        onResetBranch = onResetBranch,
-        onCreateTag = onCreateTag,
-        onChangeUpstreamBranch = onChangeUpstreamBranch,
-        onRenameBranch = onRenameBranch,
-        onGraphPaddingChange = { newGraphPadding ->
-            graphPadding = newGraphPadding
-            viewModel.graphPadding = newGraphPadding
-        },
-        onAction = { viewModel.onAction(it) },
-        searchView = {
-            SearchFilter(
-                logViewModel = viewModel,
-                searchFilterResults = it,
-                searchFocused = { viewModel.addSearchToCloseableView() },
-            )
+    Box {
+        LogView(
+            logState = logStatus,
+            selectedItem = selectedItem,
+            repositoryState = repositoryState,
+            graphPadding = graphPadding,
+            onRequestMoreLogItems = { firstVisibleItemIndex -> viewModel.loadMoreLogItems(firstVisibleItemIndex) },
+            onCreateBranch = onCreateBranch,
+            onResetBranch = onResetBranch,
+            onCreateTag = onCreateTag,
+            onChangeUpstreamBranch = onChangeUpstreamBranch,
+            onRenameBranch = onRenameBranch,
+            onGraphPaddingChange = { newGraphPadding ->
+                graphPadding = newGraphPadding
+                viewModel.graphPadding = newGraphPadding
+            },
+            onAction = { viewModel.onAction(it) },
+            searchView = {
+                SearchFilter(
+                    logViewModel = viewModel,
+                    searchFilterResults = it,
+                    searchFocused = { viewModel.addSearchToCloseableView() },
+                )
+            }
+        )
+
+        AnimatedVisibility(visible = logStatus.isLoading) {
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }
-    )
+    }
 }
 
 @Composable
