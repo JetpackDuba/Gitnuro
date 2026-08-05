@@ -10,7 +10,7 @@ interface RepositoryStateRepository {
     val currentTask: StateFlow<TaskType?>
     val completedTasks: StateFlow<List<CompletedTask>>
     val lastOperationTimestamp: Flow<Long>
-    val refreshTriggered: StateFlow<List<DataToRefresh>>
+    val refreshTriggered: Flow<List<DataToRefresh>>
 
     suspend fun <T> runOperation(taskType: TaskType, isForegroundTask: Boolean, block: suspend () -> T): T
     suspend fun addCompletedTaskSuccessfully(completedTask: TaskType)

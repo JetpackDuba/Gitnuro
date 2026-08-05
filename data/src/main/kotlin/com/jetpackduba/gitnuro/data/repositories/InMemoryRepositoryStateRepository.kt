@@ -18,8 +18,8 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
     override val lastOperationTimestamp: Flow<Long> = completedTasks.map {
         completedTasks.value.lastOrNull()?.date ?: 0L
     }
-    override val refreshTriggered: StateFlow<List<DataToRefresh>>
-        field = MutableStateFlow(emptyList())
+    override val refreshTriggered: Flow<List<DataToRefresh>>
+        field = MutableSharedFlow()
 
     override suspend fun <T> runOperation(taskType: TaskType, isForegroundTask: Boolean, block: suspend () -> T): T {
         try {
@@ -56,7 +56,7 @@ class InMemoryRepositoryStateRepository @Inject constructor() : RepositoryStateR
     }
 
     override suspend fun refreshTriggered(dataToRefresh: List<DataToRefresh>) {
-        refreshTriggered.value = dataToRefresh
+        refreshTriggered.emit(dataToRefresh)
     }
 
     private fun addCompletedTask(completedTask: CompletedTask) {
