@@ -15,7 +15,7 @@ class StashChangesUseCase @Inject constructor(
 ) {
     operator fun invoke(message: String?) = useCaseExecutor.executeLaunch(
         taskType = TaskType.Stash,
-        dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
+        dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.STASHES, DataToRefresh.LOG),
     ) { repositoryPath ->
         stageUntrackedFileGitAction(repositoryPath).bind()
 
