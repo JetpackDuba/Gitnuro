@@ -1,8 +1,11 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
+import com.jetpackduba.gitnuro.domain.Pagination
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
-import com.jetpackduba.gitnuro.domain.errors.*
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.flatten
+import com.jetpackduba.gitnuro.domain.errors.mapOk
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.repositories.DataState
@@ -10,9 +13,6 @@ import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.max
-
-private const val INITIAL_COMMITS_LOAD = 2000
 
 class RefreshDataUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
@@ -20,8 +20,6 @@ class RefreshDataUseCase @Inject constructor(
     private val getCurrentBranchGitAction: IGetCurrentBranchGitAction,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val repositoryStateRepository: RepositoryStateRepository,
-    private val getLogGitAction: IGetLogGitAction,
-    private val getCurrentBranchAction: IGetCurrentBranchGitAction,
     private val getStashListGitAction: IGetStashListGitAction,
     private val loadAuthorGitAction: ILoadAuthorGitAction,
     private val getStatusGitAction: IGetStatusGitAction,
@@ -31,6 +29,7 @@ class RefreshDataUseCase @Inject constructor(
     private val getRepositoryState: IGetRepositoryStateGitAction,
     private val getRebaseInteractiveTodoLinesUseCase: GetRebaseInteractiveTodoLinesUseCase,
     private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
+    private val getLogUseCase: GetLogUseCase,
     private val scope: TabCoroutineScope,
 ) {
     operator fun invoke(vararg dataToRefresh: DataToRefresh) {
@@ -98,22 +97,9 @@ class RefreshDataUseCase @Inject constructor(
     private fun refreshLog() {
         useCaseExecutor.executeOnTabScope { repositoryPath ->
             repositoryDataRepository.updateLog {
-                loadLog(repositoryPath)
+                getLogUseCase(repositoryPath, pagination = Pagination.None)
             }
         }
-    }
-
-    private suspend fun loadLog(repository: String) = either {
-        val status = getStatusGitAction(repository).bind()
-        val currentBranch = getCurrentBranchAction(repository).bind()
-
-        getLogGitAction(
-            repository,
-            currentBranch,
-            hasUncommittedChanges = status.staged.isNotEmpty() || status.unstaged.isNotEmpty(),
-            commitsLimit = max(repositoryDataRepository.maxCommitsToLoadLimit, INITIAL_COMMITS_LOAD),
-            isPaginated = false,
-        )
     }
 
     private fun refreshStatus() {

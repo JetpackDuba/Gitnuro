@@ -41,5 +41,6 @@ sealed interface DataState<out T> {
     data object Loading : DataState<Nothing>
     data class Loaded<T>(val data: T) : DataState<T>
     data class Error(val error: AppError) : DataState<Nothing>
-
 }
+
+fun <T> DataState<T>.dataOrNull(): T? = (this as? DataState.Loaded)?.data

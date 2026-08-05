@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 data class LogState(
     val isLoading: Boolean,
     val hasUncommittedChanges: Boolean = false,
-    val commitList: GraphCommits = GraphCommits(LinkedHashMap(), 0),
+    val commitList: GraphCommits = GraphCommits(),
     val currentBranch: Branch? = null,
     val branches: Map<String, List<Branch>> = emptyMap(),
     val tags: Map<String, List<Tag>> = emptyMap(),

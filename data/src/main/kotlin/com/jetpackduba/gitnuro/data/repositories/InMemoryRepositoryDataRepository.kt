@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.data.repositories
 
-import com.jetpackduba.gitnuro.data.git.log.GraphWalkCache
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.models.*
@@ -11,9 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
-class InMemoryRepositoryDataRepository @Inject constructor(
-    private val graphWalkCache: GraphWalkCache,
-) : RepositoryDataRepository {
+class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRepository {
     override val status: Flow<DataState<Status>>
         field = MutableStateFlow<DataState<Status>>(DataState.Loading)
 
@@ -72,8 +69,6 @@ class InMemoryRepositoryDataRepository @Inject constructor(
         stashes.value = DataState.Loading
         rebaseInteractiveState.value = DataState.Loading
         submodules.value = DataState.Loading
-        graphWalkCache.cachedGraphWalks?.close()
-        graphWalkCache.cachedGraphWalks = null
     }
 
     override suspend fun updateStatus(block: suspend () -> Either<Status, AppError>) {

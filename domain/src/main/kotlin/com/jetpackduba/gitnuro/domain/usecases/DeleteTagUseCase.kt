@@ -11,7 +11,7 @@ class DeleteTagUseCase @Inject constructor(
     private val deleteTagGitAction: IDeleteTagGitAction,
 ) {
     operator fun invoke(tag: Tag) = useCaseExecutor.executeLaunch(
-        taskType = TaskType.CreateTag,
+        taskType = TaskType.DeleteTag,
         dataToRefresh = arrayOf(DataToRefresh.TAGS, DataToRefresh.LOG),
     ) { repositoryPath ->
         deleteTagGitAction(repositoryPath, tag)

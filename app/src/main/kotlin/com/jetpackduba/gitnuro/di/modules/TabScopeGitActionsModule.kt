@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.data.git.tags.DeleteTagGitAction
 import com.jetpackduba.gitnuro.data.git.tags.GetTagsGitAction
 import com.jetpackduba.gitnuro.data.git.workspace.*
 import com.jetpackduba.gitnuro.data.log.GetFileCommitsAction
+import com.jetpackduba.gitnuro.domain.GraphRevWalker
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import dagger.Binds
 import dagger.Module
@@ -214,10 +215,6 @@ interface TabScopeGitActionsModule {
     @Binds
     @TabScope
     fun bindsGetLfsObjectsGitAction(action: GetLfsObjectsGitAction): IGetLfsObjectsGitAction
-
-    @Binds
-    @TabScope
-    fun bindsGetLogGitAction(action: GetLogGitAction): IGetLogGitAction
 
     @Binds
     @TabScope
@@ -450,4 +447,7 @@ interface TabScopeGitActionsModule {
     @Binds
     @TabScope
     fun bindsGetFileCommitsAction(action: GetFileCommitsAction): IGetFileCommitsAction
+
+    @Binds
+    fun bindsGraphRevWalker(walker: JGitGraphRevWalker): GraphRevWalker
 }

@@ -1,6 +1,5 @@
 package com.jetpackduba.gitnuro.repositoryopen
 
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
 import com.jetpackduba.gitnuro.common.OS

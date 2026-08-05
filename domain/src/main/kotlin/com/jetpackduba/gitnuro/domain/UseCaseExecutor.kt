@@ -1,7 +1,6 @@
 package com.jetpackduba.gitnuro.domain
 
 import com.jetpackduba.gitnuro.domain.errors.*
-import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.extensions.runOperationInTabScope
 import com.jetpackduba.gitnuro.domain.extensions.runOperationInTabScopeAsync
 import com.jetpackduba.gitnuro.domain.models.TaskType
@@ -101,6 +100,7 @@ class UseCaseExecutor @Inject constructor(
             }
         }
     }
+
     private suspend fun <T> executeTask(
         dataToRefresh: Array<DataToRefresh>,
         refreshEvenIfFailed: Boolean,
@@ -110,7 +110,9 @@ class UseCaseExecutor @Inject constructor(
             val repositoryPath = repositoryDataRepository.repositoryPath ?: return Either.Err(RepositoryPathNotSetError)
             return either { block(repositoryPath) }.apply {
                 if (this is Either.Ok || refreshEvenIfFailed) {
-                    refreshDataUseCase.get()(*dataToRefresh)
+                    if (dataToRefresh.isNotEmpty()) {
+                        refreshDataUseCase.get()(*dataToRefresh)
+                    }
                 }
             }
         } catch (e: Exception) {
