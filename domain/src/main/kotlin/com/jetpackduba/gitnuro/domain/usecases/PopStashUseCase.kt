@@ -16,7 +16,7 @@ class PopStashUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(commit: Commit?) = useCaseExecutor.executeLaunch(
-        taskType = TaskType.Stash,
+        taskType = TaskType.PopStash,
         refreshEvenIfFailed = true,
         dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG, DataToRefresh.STASHES),
     ) { repositoryPath ->
