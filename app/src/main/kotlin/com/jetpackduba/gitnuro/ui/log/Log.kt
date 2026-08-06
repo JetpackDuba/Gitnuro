@@ -27,8 +27,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.onPreviewKeyEvent
@@ -80,6 +84,9 @@ private const val CANVAS_DEFAULT_WIDTH = 120
 private const val MIN_GRAPH_LANES = 2
 
 private const val HORIZONTAL_SCROLL_PIXELS_MULTIPLIER = 10
+
+private const val ARC_DIRECTION_LEFT = -1
+private const val ARC_DIRECTION_RIGHT = 1
 
 /**
  * Additional number of lanes to simulate to create a margin at the end of the graph.
@@ -1093,21 +1100,43 @@ fun CommitsGraph(
                 }
 
                 forkingOffLanes.forEach { plotLane ->
-                    drawLine(
-                        color = colors[plotLane % colors.size],
-                        start = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        end = Offset(laneWidthWithDensity * (plotLane + 1), 0f),
-                        strokeWidth = 2f * density,
-                    )
+                    val x1 = laneWidthWithDensity * (itemPosition + 1)
+                    val x2 = laneWidthWithDensity * (plotLane + 1) - (laneWidthWithDensity * 0.25F)
+                    val x3 = laneWidthWithDensity * (plotLane + 1)
+                    val y1 = this@clipRect.center.y
+                    val y2 = this@clipRect.center.y - (laneWidthWithDensity * 0.25F)
+                    val y3 = 0F
+                    val startAngle = 90F
+                    val sweepAngleDegrees = -90F
+
+                    val arcRect = Rect(x2, y2, x3, y1)
+
+                    graphArc(x1, y1, x2, arcRect, startAngle, sweepAngleDegrees, x3, y3, plotLane, density)
                 }
 
                 mergingLanes.forEach { plotLane ->
-                    drawLine(
-                        color = colors[plotLane % colors.size],
-                        start = Offset(laneWidthWithDensity * (plotLane + 1), this.size.height),
-                        end = Offset(laneWidthWithDensity * (itemPosition + 1), this.center.y),
-                        strokeWidth = 2f * density,
-                    )
+                    val direction = if (plotLane < itemPosition) {
+                        ARC_DIRECTION_LEFT
+                    } else {
+                        ARC_DIRECTION_RIGHT
+                    }
+
+                    val x1 = laneWidthWithDensity * (itemPosition + 1)
+                    val x2 = laneWidthWithDensity * (plotLane + 1) + (laneWidthWithDensity * 0.25F * direction * -1)
+                    val x3 = laneWidthWithDensity * (plotLane + 1)
+                    val y1 = this@clipRect.center.y
+                    val y2 = this@clipRect.center.y + (laneWidthWithDensity * 0.25F)
+                    val y3 = this@clipRect.size.height
+                    val startAngle = 270F
+                    val sweepAngleDegrees = 90F * direction
+
+                    val arcRect = if (plotLane < itemPosition) {
+                        Rect(x3, y1, x2, y2)
+                    } else {
+                        Rect(x2, y1, x3, y2)
+                    }
+
+                    graphArc(x1, y1, x2, arcRect, startAngle, sweepAngleDegrees, x3, y3, plotLane, density)
                 }
 
                 if (plotCommit.commit.parentCount > 0) {
@@ -1134,21 +1163,53 @@ fun CommitsGraph(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = ((itemPosition + 1) * 30 - 15).dp),
-            commit = plotCommit,
+            author = plotCommit.author,
+            isMerge = plotCommit.commit.parentCount > 1,
             isStash = isStash,
             color = nodeColor,
         )
     }
 }
 
+private fun DrawScope.graphArc(
+    x1: Float,
+    y1: Float,
+    x2: Float,
+    arcRect: Rect,
+    startAngle: Float,
+    sweepAngleDegrees: Float,
+    x3: Float,
+    y3: Float,
+    plotLane: Int,
+    density: Float
+) {
+    val path = Path().apply {
+        moveTo(x1, y1)
+        lineTo(x2, y1)
+        arcTo(
+            rect = arcRect,
+            startAngleDegrees = startAngle,
+            sweepAngleDegrees = sweepAngleDegrees,
+            forceMoveTo = false
+        )
+        lineTo(x3, y3)
+    }
+
+    drawPath(
+        path = path,
+        color = colors[plotLane % colors.size],
+        style = Stroke(width = 2f * density)
+    )
+}
+
 @Composable
 fun CommitNode(
     modifier: Modifier = Modifier,
-    commit: GraphCommit,
+    author: Identity,
+    isMerge: Boolean,
     isStash: Boolean,
     color: Color,
 ) {
-    val author = commit.author
     if (isStash) {
         Box(
             modifier = modifier
@@ -1166,6 +1227,12 @@ fun CommitNode(
             )
         }
     } else {
+        val shape = if (isMerge) {
+            RoundedCornerShape(4.dp)
+        } else {
+            CircleShape
+        }
+
         InstantTooltip(
             "${author.name} <${author.email}>",
             position = InstantTooltipPosition.RIGHT,
@@ -1173,12 +1240,13 @@ fun CommitNode(
             Box(
                 modifier = modifier
                     .size(30.dp)
-                    .border(2.dp, color, shape = CircleShape)
-                    .clip(CircleShape)
+                    .border(2.dp, color, shape = shape)
+                    .clip(shape)
             ) {
                 AvatarImage(
                     modifier = Modifier.fillMaxSize(),
-                    personIdent = commit.author,
+                    personIdent = author,
+                    shape = shape,
                     color = color,
                 )
             }
