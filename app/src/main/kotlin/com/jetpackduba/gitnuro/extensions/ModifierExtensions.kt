@@ -25,9 +25,15 @@ fun Modifier.backgroundIf(condition: Boolean, color: Color, elseColor: Color? = 
         this
 }
 
-fun Modifier.handMouseClickable(onClick: () -> Unit): Modifier {
+fun Modifier.handMouseClickable(enabled: Boolean = true, onClick: () -> Unit): Modifier {
     return this
-        .clickable { onClick() }
+        .run {
+            if (enabled) {
+                clickable { onClick() }
+            } else {
+                this
+            }
+        }
         .handOnHover()
 }
 

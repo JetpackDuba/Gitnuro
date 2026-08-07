@@ -328,7 +328,7 @@ private fun Entry(icon: DrawableResource, name: String, isSelected: Boolean, onC
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .background(color = backgroundColor)
-            .handMouseClickable(onClick)
+            .handMouseClickable(onClick = onClick)
             .fillMaxWidth(),
     ) {
         Icon(

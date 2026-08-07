@@ -58,10 +58,10 @@ fun ContextMenu(enabled: Boolean = true, items: () -> List<ContextMenuElement>, 
 }
 
 @Composable
-fun DropDownMenu(showIcons: Boolean = true, items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+fun DropDownMenu(enabled: Boolean = true, showIcons: Boolean = true, items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
     Box(
         modifier = Modifier
-            .dropdownMenu(showIcons, items),
+            .dropdownMenu(enabled, showIcons, items),
         propagateMinConstraints = true,
     ) {
         function()
@@ -128,7 +128,7 @@ private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
 
 
 @Composable
-private fun Modifier.dropdownMenu(showIcons: Boolean, items: () -> List<ContextMenuElement>): Modifier {
+private fun Modifier.dropdownMenu(enabled: Boolean, showIcons: Boolean, items: () -> List<ContextMenuElement>): Modifier {
     val (isClicked, setIsClicked) = remember { mutableStateOf(false) }
     val (offset, setOffset) = remember { mutableStateOf<Offset?>(null) }
     val mod = this
@@ -137,7 +137,7 @@ private fun Modifier.dropdownMenu(showIcons: Boolean, items: () -> List<ContextM
             val offsetToBottomOfComponent = offsetToRoot.copy(y = offsetToRoot.y + layoutCoordinates.size.height)
             setOffset(offsetToBottomOfComponent)
         }
-        .handMouseClickable {
+        .handMouseClickable(enabled) {
             setIsClicked(true)
         }
 

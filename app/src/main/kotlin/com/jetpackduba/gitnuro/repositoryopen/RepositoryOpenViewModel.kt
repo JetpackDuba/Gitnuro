@@ -333,7 +333,7 @@ class RepositoryOpenViewModel @Inject constructor(
             )
         }.stateIn(SubmodulesState(isLoading = true, emptyList(), isExpandedSubmodules.value))
 
-    private val hasUncommittedChanges = repositoryDataRepository
+    val hasUncommittedChanges = repositoryDataRepository
         .status
         .toUiDataState()
         .map { data ->
@@ -341,6 +341,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
             status.staged.isNotEmpty() || status.unstaged.isNotEmpty()
         }
+        .stateIn(false)
 
     private val log = repositoryDataRepository.log.toUiDataState()
     private val statusSummary = repositoryDataRepository
