@@ -1087,6 +1087,14 @@ fun CommitsGraph(
         val itemPosition = plotCommit.lane
         val arcsAngleMultiplier = 0.50F
 
+        val hasMergeAndForkOff = forkingOffLanes.isNotEmpty() && mergingLanes.isNotEmpty()
+
+        val laneHeightModifier = if(hasMergeAndForkOff) {
+            2f
+        } else {
+            0f
+        }
+
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -1101,10 +1109,11 @@ fun CommitsGraph(
                 }
 
                 forkingOffLanes.forEach { plotLane ->
+
                     val x1 = laneWidthWithDensity * (itemPosition + 1)
                     val x2 = laneWidthWithDensity * (plotLane + 1) - (laneWidthWithDensity * arcsAngleMultiplier)
                     val x3 = laneWidthWithDensity * (plotLane + 1)
-                    val y1 = this@clipRect.center.y
+                    val y1 = this@clipRect.center.y - (laneHeightModifier * density)
                     val y2 = this@clipRect.center.y - (laneWidthWithDensity * arcsAngleMultiplier)
                     val y3 = 0F
                     val startAngle = 90F
@@ -1125,7 +1134,7 @@ fun CommitsGraph(
                     val x1 = laneWidthWithDensity * (itemPosition + 1)
                     val x2 = laneWidthWithDensity * (plotLane + 1) + (laneWidthWithDensity * arcsAngleMultiplier * direction * -1)
                     val x3 = laneWidthWithDensity * (plotLane + 1)
-                    val y1 = this@clipRect.center.y
+                    val y1 = this@clipRect.center.y + (laneHeightModifier * density)
                     val y2 = this@clipRect.center.y + (laneWidthWithDensity * arcsAngleMultiplier)
                     val y3 = this@clipRect.size.height
                     val startAngle = 270F
