@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.viewmodels
 
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
@@ -101,11 +102,16 @@ class SetUpstreamBranchDialogViewModel @AssistedInject constructor(
 
         if (state is SetDefaultUpstreamBranchState.Loaded) {
             // TODO Handle error in dialog instead of generic view
-            setTrackingBranchUseCase(
+            val setRemoteResult = setTrackingBranchUseCase(
                 branch,
                 state.selectedRemote?.remote?.name,
                 state.selectedBranch,
-            )
+            ).await()
+
+            if (setRemoteResult is Either.Ok) {
+                isCompleted.value = true
+            }
+
         }
     }
 

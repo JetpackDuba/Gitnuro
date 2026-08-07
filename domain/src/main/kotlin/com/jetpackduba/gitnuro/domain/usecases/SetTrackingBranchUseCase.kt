@@ -11,7 +11,7 @@ class SetTrackingBranchUseCase @Inject constructor(
     private val setTrackingBranchGitAction: ISetTrackingBranchGitAction,
     private val useCaseExecutor: UseCaseExecutor,
 ) {
-    operator fun invoke(branch: Branch, remoteName: String?, remoteBranch: Branch?) = useCaseExecutor.executeLaunch(
+    operator fun invoke(branch: Branch, remoteName: String?, remoteBranch: Branch?) = useCaseExecutor.executeLaunchAsync(
         taskType = TaskType.ChangeBranchUpstream,
         dataToRefresh = arrayOf(DataToRefresh.LOG, DataToRefresh.BRANCHES),
     ) {repositoryPath ->
