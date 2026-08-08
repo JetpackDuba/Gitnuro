@@ -31,7 +31,14 @@ fun combineBranchesState(
     return combine(branches, currentBranch, isExpandedBranches, filter) { branches, currentBranch, isExpanded, filter ->
         BranchesState(
             isLoading = branches.isLoading || currentBranch.isLoading,
-            branches = branches.data.orEmpty().filter { it.name.lowercaseContains(filter) },
+            branches = branches.data
+                .orEmpty()
+                .filter { it.name.lowercaseContains(filter) }
+                .sortedWith { branch, branch1 ->
+                    if (branch == currentBranch) return@sortedWith -1
+                    if (branch1 == currentBranch) return@sortedWith 1
+                    else branch.name.compareTo(branch1.name, ignoreCase = true)
+                },
             isExpanded = isExpanded,
             currentBranch = currentBranch.data
         )
