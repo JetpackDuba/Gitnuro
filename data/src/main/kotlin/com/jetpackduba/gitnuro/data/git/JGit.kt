@@ -21,7 +21,7 @@ class JGit @Inject constructor() {
 
         val git = if (cachedGit == null) {
             val newGit = handleException(
-                exceptionMapper = { RepositoryReadError }
+                exceptionMapper = { RepositoryReadError(it.message.orEmpty()) }
             ) {
                 Git
                     .open(File(repositoryPath))
@@ -52,7 +52,7 @@ class JGit @Inject constructor() {
 
             if (cachedGit == null) {
                 val newGit = handleException(
-                    exceptionMapper = { RepositoryReadError }
+                    exceptionMapper = { RepositoryReadError(it.message.orEmpty()) }
                 ) {
                     Git
                         .open(File(repositoryPath))

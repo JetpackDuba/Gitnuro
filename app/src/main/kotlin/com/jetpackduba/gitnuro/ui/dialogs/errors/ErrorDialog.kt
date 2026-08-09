@@ -27,6 +27,7 @@ import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
+import com.jetpackduba.gitnuro.ui.getErrorText
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -76,7 +77,7 @@ fun ErrorDialog(
 
             SelectionContainer {
                 Text(
-                    text = error.reason.toString(), // TODO
+                    text = error.reason.getErrorText(),
                     color = MaterialTheme.colors.onBackground,
                     modifier = Modifier
                         .padding(top = 16.dp)

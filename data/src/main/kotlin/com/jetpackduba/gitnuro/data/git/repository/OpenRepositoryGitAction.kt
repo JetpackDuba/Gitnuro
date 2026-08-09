@@ -2,6 +2,9 @@ package com.jetpackduba.gitnuro.data.git.repository
 
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.domain.errors.AppError
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.OpenRepoError
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidDirectoryException
 import com.jetpackduba.gitnuro.domain.interfaces.IOpenRepositoryGitAction
 import kotlinx.coroutines.Dispatchers
@@ -15,12 +18,17 @@ import javax.inject.Inject
 private const val TAG = "OpenRepositoryGitAction"
 
 class OpenRepositoryGitAction @Inject constructor() : IOpenRepositoryGitAction {
-    override suspend operator fun invoke(directory: String): String? {
+    override suspend operator fun invoke(directory: String): Either<String, AppError> {
         val directory = File(directory)
+
+        if (!directory.exists()) {
+            printError(TAG, "Can't open git repo, specified path does not exist")
+            return Either.Err(OpenRepoError.DirectoryNotFoundError)
+        }
 
         if (!directory.isDirectory) {
             printError(TAG, "Can't open git repo, specified path is not a directory")
-            return null
+            return Either.Err(OpenRepoError.PathIsNotDirectory)
         }
 
         val repository = if (directory.listFiles()?.any { it.name == ".git" && it.isFile } == true) {
@@ -31,15 +39,15 @@ class OpenRepositoryGitAction @Inject constructor() : IOpenRepositoryGitAction {
 
         if (repository == null) {
             printError(TAG, "Can't open git repo, specified path is not a directory")
-            return null
+            return Either.Err(OpenRepoError.RepositoryNotFoundInPath)
         }
 
         try {
             repository.workTree // test if repository is valid
-            return repository.directory.absolutePath
+            return Either.Ok(repository.directory.absolutePath)
         } catch (e: Exception) {
             printError(TAG, "Can't open git repo", e)
-            return null
+            return Either.Err(OpenRepoError.RepositoryLoadFailed(e.message.orEmpty()))
         }
     }
 
