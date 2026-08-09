@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_app_version
 import com.jetpackduba.gitnuro.app.generated.resources.bottom_info_bar_update_available
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.updates.Update
 import org.jetbrains.compose.resources.stringResource
 
@@ -46,6 +47,9 @@ fun BottomInfoBar(
             stringResource(Res.string.bottom_info_bar_app_version, AppConstants.APP_VERSION),
             style = MaterialTheme.typography.body2,
             maxLines = 1,
+            modifier = Modifier.handMouseClickable {
+                onOpenUrlInBrowser("https://github.com/JetpackDuba/Gitnuro/releases")
+            }
         )
     }
 }
