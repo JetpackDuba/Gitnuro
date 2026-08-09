@@ -65,7 +65,6 @@ sealed interface TaskType {
     data object GetCommitForRebase : TaskType
     data object GetLinesForRebaseInteractive : TaskType
     data object GetFileCommits : TaskType
-    data object PersistCommitMessage : TaskType
     data object GetCommitDiffEntries : TaskType
     data object RefreshLog : TaskType
     data object RefreshBranches : TaskType

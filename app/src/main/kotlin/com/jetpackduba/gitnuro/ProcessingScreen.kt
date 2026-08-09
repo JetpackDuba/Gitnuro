@@ -97,7 +97,6 @@ fun getTitle(taskType: TaskType): String {
         TaskType.InitSubmodule -> "Initializing submodule"
         TaskType.LoadAuthor -> "Loading author"
         TaskType.MergeBranch -> "Merging branch"
-        TaskType.PersistCommitMessage -> "Saving commit message"
         TaskType.PopStash -> "Popping stash"
         TaskType.Pull -> "Pulling"
         TaskType.PullFromBranch -> "Pulling from branch"

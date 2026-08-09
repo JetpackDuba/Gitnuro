@@ -227,7 +227,6 @@ fun TaskType.errorTitle(): String {
         TaskType.GetCommitForRebase -> "Get commit for rebase failed"
         TaskType.GetFileCommits -> "Get file commits failed"
         TaskType.GetLinesForRebaseInteractive -> "Get lines for rebase interactive failed"
-        TaskType.PersistCommitMessage -> "Persist commit message failed"
         TaskType.GetCommitDiffEntries -> "Getting commit entries failed"
         TaskType.RefreshBranches -> "Refresh branches failed"
         TaskType.RefreshLog -> "Refresh log failed"
