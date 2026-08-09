@@ -35,8 +35,8 @@ fun combineBranchesState(
                 .orEmpty()
                 .filter { it.name.lowercaseContains(filter) }
                 .sortedWith { branch, branch1 ->
-                    if (branch == currentBranch) return@sortedWith -1
-                    if (branch1 == currentBranch) return@sortedWith 1
+                    if (branch == currentBranch.data) return@sortedWith -1
+                    if (branch1 == currentBranch.data) return@sortedWith 1
                     else branch.name.compareTo(branch1.name, ignoreCase = true)
                 },
             isExpanded = isExpanded,
