@@ -162,7 +162,6 @@ impl FileWatcher {
     }
 
     fn add_watch(&self, path: String, is_recursive: bool) -> i32 {
-        println!("Adding watch: {path}");
         let mut watcher_holder = self.watcher.write().unwrap();
         let watcher = match watcher_holder.as_mut() {
             None => {
