@@ -12,19 +12,18 @@ import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
-import com.jetpackduba.gitnuro.system.PickerType
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
+import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import java.awt.Desktop
 import javax.inject.Inject
 
 private const val TAG = "SettingsViewModel"
 
 class SettingsViewModel @Inject constructor(
     private val appSettingsService: AppSettingsService,
-    private val openFilePickerGitAction: OpenFilePickerGitAction,
     private val logsRepository: LogsRepository,
+    private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
 ) : TabViewModel() {
     val settingsViewState = settingsState()
         .stateIn(emptySettingsState())
@@ -40,15 +39,11 @@ class SettingsViewModel @Inject constructor(
         appSettingsService.setConfiguration(appConfig)
     }
 
-    fun openFileDialog(): String? {
-        return openFilePickerGitAction(PickerType.FILES, null)
-    }
-
     fun openLogsFolderInFileExplorer() {
         try {
-            Desktop.getDesktop().open(logsRepository.logsDirectory)
-        } catch (ex: Exception) {
-            printError(TAG, ex.message.orEmpty(), ex)
+            openUrlInBrowserUseCase(logsRepository.logsDirectory.absolutePath)
+        } catch (e: Exception) {
+            printError(TAG, "Failed to open logs dir: ${e.message.orEmpty()}", e)
         }
     }
 
@@ -196,6 +191,6 @@ data class SettingsViewState(
 )
 
 sealed interface SettingsAction {
-    data class SetConfig(val configuration: AppConfig): SettingsAction
-    data object OpenLogsFolder: SettingsAction
+    data class SetConfig(val configuration: AppConfig) : SettingsAction
+    data object OpenLogsFolder : SettingsAction
 }

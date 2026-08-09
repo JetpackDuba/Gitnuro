@@ -8,10 +8,11 @@ import javax.inject.Inject
 
 private const val TAG = "SystemUtils"
 
+// TODO This is not a domain use case, using a different name would be nice.
 /**
  * Opens a URL in the default system browser
  */
-class OpenUrlInBrowserGitAction @Inject constructor(
+class OpenUrlInBrowserUseCase @Inject constructor(
     private val openPathInSystemUseCase: OpenPathInSystemUseCase,
 ) {
     operator fun invoke(url: String) {

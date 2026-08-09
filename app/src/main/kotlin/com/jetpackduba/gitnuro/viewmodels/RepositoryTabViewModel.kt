@@ -23,8 +23,8 @@ import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.domain.AppStateManager
-import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
-import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
+import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
@@ -54,8 +54,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
     val appStateManager: AppStateManager,
     private val fileChangesWatcher: IFileChangesWatcher,
     private val credentialsStateManager: CredentialsStateManager,
-    private val openFilePickerGitAction: OpenFilePickerGitAction,
-    private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
+    private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
     private val openRepositoryUseCase: OpenRepositoryUseCase,
@@ -214,7 +214,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     fun openDirectoryPicker(): String? {
         val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
 
-        return openFilePickerGitAction(PickerType.DIRECTORIES, latestDirectoryOpened)
+        return openFilePickerUseCase(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
 
     fun initLocalRepository(dir: String) = viewModelScope.launch {
@@ -230,7 +230,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     }
 
     fun openUrlInBrowser(url: String) {
-        openUrlInBrowserGitAction(url)
+        openUrlInBrowserUseCase(url)
     }
 
     fun removeRepositoryFromRecent(repository: String) = viewModelScope.launch {

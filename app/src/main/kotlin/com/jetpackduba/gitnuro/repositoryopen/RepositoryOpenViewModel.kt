@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
 import com.jetpackduba.gitnuro.domain.models.*
@@ -24,12 +25,15 @@ import com.jetpackduba.gitnuro.domain.repositories.*
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
-import com.jetpackduba.gitnuro.system.OpenUrlInBrowserGitAction
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
+import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import com.jetpackduba.gitnuro.terminal.OpenRepositoryInTerminalGitAction
-import com.jetpackduba.gitnuro.ui.*
+import com.jetpackduba.gitnuro.ui.AppViewModel
+import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
+import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.status.StatusAction
+import com.jetpackduba.gitnuro.ui.toUiDataState
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import com.jetpackduba.gitnuro.viewmodels.HistoryViewModel
@@ -47,6 +51,7 @@ import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.lib.AbbreviatedObjectId
 import org.eclipse.jgit.lib.RebaseTodoLine
 import org.jetbrains.compose.resources.getString
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -80,8 +85,8 @@ class RepositoryOpenViewModel @Inject constructor(
     private val getWorktreeUseCase: GetWorktreeUseCase,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
     val appStateManager: AppStateManager,
-    private val openFilePickerGitAction: OpenFilePickerGitAction,
-    private val openUrlInBrowserGitAction: OpenUrlInBrowserGitAction,
+    private val openFilePickerUseCase: OpenFilePickerUseCase,
+    private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val appViewModel: AppViewModel,
     private val tabScope: TabCoroutineScope,
     private val verticalSplitPaneConfig: VerticalSplitPaneConfig,
@@ -379,6 +384,7 @@ class RepositoryOpenViewModel @Inject constructor(
         showAsTree,
         diffSelected,
         rebaseInteractiveState,
+        onOpenFileInFolder = ::openFileInFolder,
         onDiffSelected = {
             diffSelected.value = it
         },
@@ -656,7 +662,7 @@ class RepositoryOpenViewModel @Inject constructor(
     fun openDirectoryPicker(): String? {
         val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
 
-        return openFilePickerGitAction(PickerType.DIRECTORIES, latestDirectoryOpened)
+        return openFilePickerUseCase(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
 
     val update: StateFlow<Update?> = updatesRepository.hasUpdatesFlow.stateIn(null)
@@ -718,7 +724,7 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun openUrlInBrowser(url: String) {
-        openUrlInBrowserGitAction(url)
+        openUrlInBrowserUseCase(url)
     }
 
     var savedSearchFilter: String = ""
@@ -1235,8 +1241,12 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun openFileInFolder(path: String) {
-        TODO()
+    fun openFileInFolder(folderPath: String?) = viewModelScope.launch {
+        if (folderPath != null) {
+            val worktreeDir = getWorktreeUseCase().okOrNull() ?: return@launch
+            val file = File(worktreeDir + File.separator + folderPath)
+            file.openFileInFolder()
+        }
     }
 }
 

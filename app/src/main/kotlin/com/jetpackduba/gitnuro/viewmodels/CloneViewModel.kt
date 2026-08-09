@@ -7,7 +7,7 @@ import com.jetpackduba.gitnuro.domain.interfaces.ICloneRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.CloneState
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
-import com.jetpackduba.gitnuro.system.OpenFilePickerGitAction
+import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 class CloneViewModel @Inject constructor(
     private val cloneRepositoryGitAction: ICloneRepositoryGitAction,
-    private val openFilePickerGitAction: OpenFilePickerGitAction,
+    private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val appSettings: AppSettingsService,
 ) : TabViewModel() {
     private val _repositoryUrl = MutableStateFlow(TextFieldValue(""))
@@ -115,7 +115,7 @@ class CloneViewModel @Inject constructor(
     }
 
     fun openDirectoryPicker(): String? {
-        return openFilePickerGitAction(PickerType.DIRECTORIES, null)
+        return openFilePickerUseCase(PickerType.DIRECTORIES, null)
     }
 
     fun onDirectoryPathChanged(directory: TextFieldValue) {

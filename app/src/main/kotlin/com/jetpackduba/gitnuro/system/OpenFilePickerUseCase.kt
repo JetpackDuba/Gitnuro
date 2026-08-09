@@ -10,10 +10,11 @@ import javax.swing.UIManager
 
 private const val TAG = "SystemDialogs"
 
+// TODO This is not a domain use case, using a different name would be nice.
 /**
  * Shows a picker dialog to select a file or directory
  */
-class OpenFilePickerGitAction @Inject constructor(
+class OpenFilePickerUseCase @Inject constructor(
     /**
      * We want specifically [ShellManager] implementation and not [com.jetpackduba.gitnuro.domain.IShellManager],
      * to run commands without any modification

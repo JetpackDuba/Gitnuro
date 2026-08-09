@@ -50,11 +50,11 @@ class StatusViewModelExtender @AssistedInject constructor(
     private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,
     private val persistCommitMessageUseCase: PersistCommitMessageUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
-    private val getWorktreeUseCase: GetWorktreeUseCase,
     @Assisted private val viewModelScope: CoroutineScope,
     @Assisted private val showAsTree: Flow<Boolean>,
     @Assisted private val diffSelected: StateFlow<DiffSelected?>,
     @Assisted private val rebaseInteractiveState: StateFlow<RebaseInteractiveState>,
+    @Assisted private val onOpenFileInFolder: (String) -> Unit,
     @Assisted private val onDiffSelected: (DiffSelected) -> Unit,
     @Assisted private val onRemoveEntriesFromSelection: (Set<DiffType.UncommittedDiff>, EntryType) -> Unit,
     @Assisted private val onAlternateShowAsTree: () -> Unit,
@@ -69,6 +69,7 @@ class StatusViewModelExtender @AssistedInject constructor(
             showAsTree: Flow<Boolean>,
             diffSelected: StateFlow<DiffSelected?>,
             rebaseInteractiveState: StateFlow<RebaseInteractiveState>,
+            onOpenFileInFolder: (String) -> Unit,
             onDiffSelected: (DiffSelected) -> Unit,
             onRemoveEntriesFromSelection: (Set<DiffType.UncommittedDiff>, EntryType) -> Unit,
             onAlternateShowAsTree: () -> Unit,
@@ -240,7 +241,7 @@ class StatusViewModelExtender @AssistedInject constructor(
             EntryType.UNSTAGED -> stageByDirectory(action.path)
         }
 
-        is StatusAction.OpenInFolder -> openFileInFolder(action.path)
+        is StatusAction.OpenInFolder -> onOpenFileInFolder(action.path)
         is StatusAction.SearchFilterChanged -> when (action.entryType) {
             EntryType.STAGED -> onSearchFilterChangedStaged(action.filter)
             EntryType.UNSTAGED -> onSearchFilterChangedUnstaged(action.filter)
@@ -289,14 +290,6 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     fun acceptCommitterData(newAuthorInfo: AuthorInfo, persist: Boolean) {
         this.committerDataRequestState.value = CommitterDataRequestState.Accepted(newAuthorInfo, persist)
-    }
-
-    fun openFileInFolder(folderPath: String?) = viewModelScope.launch {
-        if (folderPath != null) {
-            val worktreeDir = getWorktreeUseCase().okOrNull() ?: return@launch
-            val file = File(worktreeDir + File.separator + folderPath)
-            file.openFileInFolder()
-        }
     }
 
     fun updateCommitMessage(message: String) {
