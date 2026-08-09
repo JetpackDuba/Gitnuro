@@ -9,6 +9,7 @@ data class GenericError(val message: String, val exception: Exception? = null) :
 
 sealed interface CreateBranchError : GitError {
     data class BranchAlreadyExists(val name: String): CreateBranchError
+    data class NameNotAllowed(val name: String): CreateBranchError
 }
 
 /**

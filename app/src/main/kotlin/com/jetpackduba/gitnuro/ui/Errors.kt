@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.ui
 import androidx.compose.runtime.Composable
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.error_create_branch_already_exists
+import com.jetpackduba.gitnuro.app.generated.resources.error_create_branch_name_not_allowed
 import com.jetpackduba.gitnuro.app.generated.resources.error_hook_rejection
 import com.jetpackduba.gitnuro.app.generated.resources.error_open_repository_dir_not_found
 import com.jetpackduba.gitnuro.app.generated.resources.error_open_repository_path_is_not_dir
@@ -19,6 +20,7 @@ fun AppError.getErrorText(): String {
     return when (this) {
         is CreateBranchError -> when (this) {
             is CreateBranchError.BranchAlreadyExists -> stringResource(Res.string.error_create_branch_already_exists, this.name)
+            is CreateBranchError.NameNotAllowed -> stringResource(Res.string.error_create_branch_name_not_allowed, this.name)
         }
 
         is GenericError -> this.message

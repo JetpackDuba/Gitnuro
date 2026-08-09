@@ -202,6 +202,8 @@
 
     <!-- Errors -->
     <string name="error_create_branch_already_exists">Branch "%1$s" already exists, please try with a different name</string>
+    <string name="error_create_branch_name_not_allowed">Branch name "%1$s" is not allowed, please use only alphanumeric characters.</string>
+
     <string name="error_hook_rejection">Commit rejected by hook: "%1$s"</string>
 
     <string name="error_repository_path_not_set">Repository path is not stored, if you believe this is a bug, please report it to Gitnuro's issue tracker.</string>
