@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
@@ -12,7 +12,6 @@ import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -161,7 +160,7 @@ class SettingsViewModel @Inject constructor(
     }
 }
 
-@Stable
+@Immutable
 data class SettingsViewState(
     val scaleUi: Float?,
     val theme: Theme,

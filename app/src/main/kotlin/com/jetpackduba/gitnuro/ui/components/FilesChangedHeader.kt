@@ -27,7 +27,6 @@ import com.jetpackduba.gitnuro.theme.tertiarySurface
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
-@Stable
 @Immutable
 data class ActionInfo(
     val applyToOneTitle: String,

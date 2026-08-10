@@ -1,12 +1,11 @@
 package com.jetpackduba.gitnuro.ui.status
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.ui.UiDataState
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
 import com.jetpackduba.gitnuro.ui.tree_files.entriesToTreeEntry
@@ -23,7 +22,7 @@ sealed interface SelectionType<T> {
 }
 
 
-@Stable
+@Immutable
 data class StatusState(
     val isLoading: Boolean = true,
     val staged: List<TreeItem<StatusEntry>> = emptyList(),

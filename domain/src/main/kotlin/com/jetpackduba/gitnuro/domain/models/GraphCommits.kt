@@ -1,9 +1,9 @@
 package com.jetpackduba.gitnuro.domain.models
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import java.util.*
 
-@Stable
+@Immutable
 data class GraphCommits(
     val commits: LinkedHashMap<String, GraphCommit> = LinkedHashMap(),
     val maxLane: Int = 0,

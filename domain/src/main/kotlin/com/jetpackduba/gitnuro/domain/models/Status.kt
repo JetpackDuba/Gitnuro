@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.models
 
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 
 data class Status(
     val staged: List<StatusEntry> = emptyList(),
@@ -18,7 +18,7 @@ enum class StatusType {
     CONFLICTING,
 }
 
-@Stable
+@Immutable
 data class StatusSummary(
     val modifiedCount: Int,
     val deletedCount: Int,

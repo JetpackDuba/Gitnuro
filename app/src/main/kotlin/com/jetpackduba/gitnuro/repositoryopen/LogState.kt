@@ -2,7 +2,7 @@ package com.jetpackduba.gitnuro.repositoryopen
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.Stable
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.GraphCommits
@@ -12,7 +12,7 @@ import com.jetpackduba.gitnuro.ui.UiDataState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
-@Stable
+@Immutable
 data class LogState(
     val isLoading: Boolean,
     val hasUncommittedChanges: Boolean = false,
