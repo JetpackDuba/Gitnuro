@@ -14,17 +14,17 @@ plugins {    // Apply the shared build logic from a convention plugin.
     alias(libs.plugins.kotlinx.serialization)
 }
 
-val javaLanguageVersion = JavaLanguageVersion.of(21)
+val javaLanguageVersion = JavaLanguageVersion.of(25)
 val linuxArmTarget = "aarch64-unknown-linux-gnu"
 val linuxX64Target = "x86_64-unknown-linux-gnu"
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "1.5.0"
+val projectVersion = "2.0-beta01"
 
 val projectName = "Gitnuro"
 
 // Required for JPackage, as it doesn't accept additional suffixes after the version.
-val projectVersionSimplified = "1.5.0"
+val projectVersionSimplified = "2.0.0"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
@@ -153,14 +153,14 @@ compose.desktop {
             description = "Multiplatform Git client"
 
             windows {
-                iconFile.set(project.file("icons/icon.ico"))
+                iconFile.set(project.file("../icons/icon.ico"))
             }
 
             macOS {
                 jvmArgs(
                     "-Dapple.awt.application.appearance=system"
                 )
-                iconFile.set(project.file("icons/icon.icns"))
+                iconFile.set(project.file("../icons/icon.icns"))
             }
         }
     }
@@ -168,6 +168,7 @@ compose.desktop {
 
 
 tasks.register("fatJarLinux", type = Jar::class) {
+    this.dependsOn("rustTasks")
     val archSuffix = if (isLinuxAarch64) {
         "arm_aarch64"
     } else {
