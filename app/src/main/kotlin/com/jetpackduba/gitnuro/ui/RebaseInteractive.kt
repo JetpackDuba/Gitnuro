@@ -20,8 +20,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.app.generated.resources.*
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.RebaseLine
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.extensions.backgroundIf
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
 import com.jetpackduba.gitnuro.theme.backgroundSelected
@@ -29,18 +31,20 @@ import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
+import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
+import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
+import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenuText
 import com.jetpackduba.gitnuro.ui.drag_sorting.VerticalDraggableItem
 import com.jetpackduba.gitnuro.ui.drag_sorting.rememberVerticalDragDropState
 import com.jetpackduba.gitnuro.ui.drag_sorting.verticalDragContainer
 import com.jetpackduba.gitnuro.viewmodels.RebaseAction
-import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RebaseInteractive(
     viewModel: RepositoryOpenViewModel,
-    state: RebaseInteractiveViewState,
+    state: RebaseInteractiveState,
 ) {
     val selectedItem = viewModel.selectedItem.collectAsState().value
 
@@ -50,32 +54,28 @@ fun RebaseInteractive(
             .fillMaxSize(),
     ) {
         when (state) {
-            is RebaseInteractiveViewState.None, is RebaseInteractiveViewState.Failed -> {}
-            is RebaseInteractiveViewState.Loaded -> {
-                RebaseStateLoaded(
-                    viewModel,
-                    state,
-                    selectedItem,
-                    onFocusLine = {
-                        if (
-                            selectedItem !is SelectedItem.CommitItem ||
-                            !selectedItem.commit.hash.startsWith(it.commit)
-                        ) {
-                            viewModel.selectLine(it)
-                        }
-                    },
-                    onCancel = {
-                        viewModel.cancel()
-                    },
-                    onMoveCommit = { from, to ->
-                        viewModel.moveCommit(from, to)
+            is RebaseInteractiveState.AwaitingInteraction -> RebaseStateLoaded(
+                viewModel,
+                state.data,
+                selectedItem,
+                onFocusLine = {
+                    if (
+                        selectedItem !is SelectedItem.CommitItem ||
+                        !selectedItem.commit.hash.startsWith(it.commit)
+                    ) {
+                        viewModel.selectLine(it)
                     }
-                )
-            }
+                },
+                onCancel = {
+                    viewModel.cancel()
+                },
+                onMoveCommit = { from, to ->
+                    viewModel.moveCommit(from, to)
+                }
+            )
 
-            RebaseInteractiveViewState.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+            DataState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            is RebaseInteractiveState.ProcessingCommits, RebaseInteractiveState.None -> {}
         }
     }
 }
@@ -84,14 +84,12 @@ fun RebaseInteractive(
 @Composable
 fun RebaseStateLoaded(
     viewModel: RepositoryOpenViewModel,
-    rebaseState: RebaseInteractiveViewState.Loaded,
+    stepsList: List<RebaseLine>,
     selectedItem: SelectedItem,
     onFocusLine: (RebaseLine) -> Unit,
     onCancel: () -> Unit,
     onMoveCommit: (from: Int, to: Int) -> Unit,
 ) {
-    val stepsList = rebaseState.stepsList
-
     Column(
         modifier = Modifier.fillMaxSize()
             .clip(RoundedCornerShape(4.dp))

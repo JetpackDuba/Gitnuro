@@ -37,7 +37,6 @@ import com.jetpackduba.gitnuro.ui.toUiDataState
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.updates.UpdatesRepository
 import com.jetpackduba.gitnuro.viewmodels.HistoryViewModel
-import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -156,31 +155,16 @@ class RepositoryOpenViewModel @Inject constructor(
             .map { it.data ?: RepositoryState.SAFE } // TODO: Instead of using safe as default, it should show some kind of feedback while data is null
             .stateIn(RepositoryState.SAFE)
 
-    val rebaseInteractiveState = repositoryState.map {
-        if (it == RepositoryState.REBASING_INTERACTIVE) {
-            RebaseInteractiveState.AwaitingInteraction
-        } else {
-            RebaseInteractiveState.None
+    val rebaseInteractiveState = repositoryDataRepository
+        .rebaseInteractiveState
+        .map {
+            if (it is DataState.Loaded) {
+                it.data
+            } else {
+                RebaseInteractiveState.None
+            }
         }
-    }.stateIn(RebaseInteractiveState.None)
-
-    val rebaseInteractiveViewState = combine(
-        repositoryDataRepository.repositoryState,
-        repositoryDataRepository.rebaseInteractiveState
-    ) { repositoryState, rebaseLines ->
-        if (repositoryState is DataState.Loading || rebaseLines is DataState.Loading) {
-            RebaseInteractiveViewState.Loading
-        } else if (
-            repositoryState is DataState.Loaded &&
-            repositoryState.data == RepositoryState.REBASING_INTERACTIVE &&
-            rebaseLines is DataState.Loaded
-        ) {
-            RebaseInteractiveViewState.Loaded(rebaseLines.data)
-        } else {
-            RebaseInteractiveViewState.None
-        }
-    }
-        .mutableStateIn(viewModelScope, RebaseInteractiveViewState.None)
+        .mutableStateIn(viewModelScope, RebaseInteractiveState.None)
 
     val filter: StateFlow<String>
         field = MutableStateFlow("")
@@ -1109,9 +1093,9 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    private fun isSameRebase(rebaseLines: List<RebaseLine>, state: RebaseInteractiveViewState): Boolean {
-        if (state is RebaseInteractiveViewState.Loaded) {
-            val stepsList = state.stepsList
+    private fun isSameRebase(rebaseLines: List<RebaseLine>, state: RebaseInteractiveState): Boolean {
+        if (state is RebaseInteractiveState.AwaitingInteraction) {
+            val stepsList = state.data
 
             if (rebaseLines.count() != stepsList.count()) {
                 return false
@@ -1124,15 +1108,15 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun continueRebaseInteractive() {
-        val rebaseState = rebaseInteractiveViewState.value
+        val rebaseState = this.rebaseInteractiveState.value
 
         val interactiveHandlerContinue = object : InteractiveHandler {
             override fun prepareSteps(steps: MutableList<RebaseTodoLine>) {
-                if (rebaseState !is RebaseInteractiveViewState.Loaded) {
+                if (rebaseState !is RebaseInteractiveState.AwaitingInteraction) {
                     throw Exception("prepareSteps called when rebaseState is not Loaded") // Should never happen, just in case
                 }
 
-                val newSteps = rebaseState.stepsList.toMutableList()
+                val newSteps = rebaseState.data.toMutableList()
                 rewordSteps = ArrayDeque(newSteps.filter { it.action == RebaseLine.Action.REWORD })
 
                 val newRebaseTodoLines = newSteps
@@ -1161,13 +1145,13 @@ class RepositoryOpenViewModel @Inject constructor(
                 // This can be called when there aren't any reword steps if squash is used.
                 val step = rewordSteps.removeFirstOrNull() ?: return commit
 
-                val rebaseState = rebaseInteractiveViewState.value
-                if (rebaseState !is RebaseInteractiveViewState.Loaded) {
+                val rebaseState = rebaseInteractiveState.value
+                if (rebaseState !is RebaseInteractiveState.AwaitingInteraction) {
                     throw Exception("modifyCommitMessage called when rebaseState is not Loaded") // Should never happen, just in case
                 }
 
                 return rebaseState
-                    .stepsList
+                    .data
                     .firstOrNull { it.commit == step.commit }
                     ?.let { line ->
                         line.modifiedMessage ?: line.fullMessage
@@ -1180,28 +1164,28 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun onCommitMessageChanged(rebaseLine: RebaseLine, newMessage: String) {
-        val rebaseState = rebaseInteractiveViewState.value
+        val rebaseState = this.rebaseInteractiveState.value
 
-        if (rebaseState !is RebaseInteractiveViewState.Loaded)
+        if (rebaseState !is RebaseInteractiveState.AwaitingInteraction)
             return
 
 
-        val rebaseLines = rebaseState.stepsList.toMutableList()
+        val rebaseLines = rebaseState.data.toMutableList()
         val currentValueIndex = rebaseLines.indexOf(rebaseLine)
 
         rebaseLines[currentValueIndex] = rebaseLine.copy(modifiedMessage = newMessage)
 
-        this.rebaseInteractiveViewState.value = rebaseState.copy(stepsList = rebaseLines)
+        this.rebaseInteractiveState.value = rebaseState.copy(data = rebaseLines)
     }
 
     fun onCommitActionChanged(commit: String, rebaseAction: RebaseLine.Action) {
-        val rebaseState = rebaseInteractiveViewState.value
+        val rebaseState = rebaseInteractiveState.value
 
-        if (rebaseState !is RebaseInteractiveViewState.Loaded)
+        if (rebaseState !is RebaseInteractiveState.AwaitingInteraction)
             return
 
         val newStepsList =
-            rebaseState.stepsList.toMutableList() // Change the list reference to update the flow with .toList()
+            rebaseState.data.toMutableList() // Change the list reference to update the flow with .toList()
 
         val stepIndex = newStepsList.indexOfFirst {
             it.commit == commit
@@ -1211,13 +1195,12 @@ class RepositoryOpenViewModel @Inject constructor(
             val step = newStepsList[stepIndex]
             newStepsList[stepIndex] = step.copy(action = rebaseAction)
 
-            this.rebaseInteractiveViewState.value = rebaseState.copy(stepsList = newStepsList)
+            this.rebaseInteractiveState.value = rebaseState.copy(data = newStepsList)
         }
     }
 
     fun cancel() {
         abortRebaseUseCase()
-        rebaseInteractiveViewState.value = RebaseInteractiveViewState.Loading
     }
 
     fun selectLine(line: RebaseLine) = viewModelScope.launch {
@@ -1229,17 +1212,18 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun moveCommit(from: Int, to: Int) {
-        val state = rebaseInteractiveViewState.value
+        val state = rebaseInteractiveState.value
 
-        if (state is RebaseInteractiveViewState.Loaded) {
+        if (state is RebaseInteractiveState.AwaitingInteraction) {
 
-            val newStepsList = state.stepsList.toMutableList().apply {
+            val newStepsList = state.data.toMutableList().apply {
                 add(to, removeAt(from))
             }
 
-            this.rebaseInteractiveViewState.value = state.copy(stepsList = newStepsList)
+            this.rebaseInteractiveState.value = state.copy(data = newStepsList)
         }
     }
+
 
     fun openFileInFolder(folderPath: String?) = viewModelScope.launch {
         if (folderPath != null) {

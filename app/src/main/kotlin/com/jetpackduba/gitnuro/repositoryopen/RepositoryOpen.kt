@@ -24,6 +24,8 @@ import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.domain.repositories.DataState
+import com.jetpackduba.gitnuro.domain.repositories.dataOrNull
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -34,7 +36,6 @@ import com.jetpackduba.gitnuro.ui.diff.DiffPane
 import com.jetpackduba.gitnuro.ui.log.Log
 import com.jetpackduba.gitnuro.ui.status.StatusPane
 import com.jetpackduba.gitnuro.updates.Update
-import com.jetpackduba.gitnuro.viewmodels.RebaseInteractiveViewState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -240,7 +241,7 @@ fun MainContentView(
     onNavigate: (Screen) -> Unit,
 ) {
     val diffSelected by viewModel.diffSelected.collectAsState()
-    val rebaseInteractiveState by viewModel.rebaseInteractiveViewState.collectAsState()
+    val rebaseInteractiveState by viewModel.rebaseInteractiveState.collectAsState()
     val density = LocalDensity.current.density
     val scope = rememberCoroutineScope()
 
@@ -273,7 +274,10 @@ fun MainContentView(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
-                if (rebaseInteractiveState != RebaseInteractiveViewState.None /*&& diffSelected == null*/) {
+                if (
+                    rebaseInteractiveState is RebaseInteractiveState.AwaitingInteraction
+                    && diffSelected == null
+                ) {
                     RebaseInteractive(viewModel, rebaseInteractiveState)
                 } else if (blameState is BlameState.Loaded && !blameState.isMinimized) {
                     Blame(
@@ -327,7 +331,6 @@ fun MainContentView(
             ) {
                 val commitChangesState = viewModel.commitChangesState.collectAsState().value
 
-
                 if (commitChangesState != null) {
                     CommitChanges(
                         viewModel = viewModel,
@@ -335,7 +338,7 @@ fun MainContentView(
                         onHistory = { viewModel.fileHistory(it) },
                         commitChangesState = commitChangesState,
                     )
-                } else {
+                } else if (rebaseInteractiveState !is RebaseInteractiveState.AwaitingInteraction) {
                     StatusPane(
                         statusState = statusState,
                         completedTasks = viewModel.completedTasks,

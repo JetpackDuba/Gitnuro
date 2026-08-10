@@ -16,7 +16,7 @@ interface RepositoryDataRepository {
     val stashes: Flow<DataState<List<Commit>>>
     val repositorySelectionState: StateFlow<RepositorySelectionState>
     val repositoryState: StateFlow<DataState<RepositoryState>>
-    val rebaseInteractiveState: StateFlow<DataState<List<RebaseLine>>>
+    val rebaseInteractiveState: StateFlow<DataState<RebaseInteractiveState>>
     val repositoryPath: String?
     val submodules: Flow<DataState<Map<String, Submodule>>>
     val author: Flow<DataState<AuthorInfo>>
@@ -34,7 +34,7 @@ interface RepositoryDataRepository {
     suspend fun updateSubmodules(block: suspend () -> Either<Map<String, Submodule>, AppError>)
     suspend fun updateAuthor(block: suspend () -> Either<AuthorInfo, AppError>)
     suspend fun updateRepositoryState(block: suspend () -> Either<RepositoryState, AppError>)
-    suspend fun updateRebaseInteractiveState(block: suspend () -> Either<List<RebaseLine>, AppError>)
+    suspend fun updateRebaseInteractiveState(block: suspend () -> Either<RebaseInteractiveState, AppError>)
 }
 
 sealed interface DataState<out T> {

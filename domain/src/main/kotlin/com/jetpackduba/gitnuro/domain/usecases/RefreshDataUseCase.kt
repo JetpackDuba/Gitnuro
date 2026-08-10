@@ -1,17 +1,21 @@
 package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.domain.Pagination
+import com.jetpackduba.gitnuro.domain.RebaseConstants
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.flatten
 import com.jetpackduba.gitnuro.domain.errors.mapOk
 import com.jetpackduba.gitnuro.domain.interfaces.*
+import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import kotlinx.coroutines.launch
+import org.eclipse.jgit.api.RebaseCommand
+import java.io.File
 import javax.inject.Inject
 
 class RefreshDataUseCase @Inject constructor(
@@ -165,18 +169,49 @@ class RefreshDataUseCase @Inject constructor(
 //            }
 
                 repositoryDataRepository.updateRebaseInteractiveState {
-                    getRebaseInteractiveTodoLinesUseCase()
-                        .mapOk { originalLines ->
-                            getRebaseLinesFullMessageUseCase(originalLines)
-                        }
-                        .flatten()
+                    val rebaseMergeDir = File(repositoryPath, RebaseConstants.REBASE_MERGE)
+                    val doneFile = File(rebaseMergeDir, RebaseConstants.DONE)
+                    val stoppedShaFile = File(rebaseMergeDir, RebaseConstants.STOPPED_SHA)
 
+                    val newState = when {
+                        !rebaseMergeDir.exists() -> RebaseInteractiveState.None
+                        doneFile.exists() || stoppedShaFile.exists() -> {
+                            val commitId: String? = getRebaseAmendCommitId(repositoryPath)
+
+                            RebaseInteractiveState.ProcessingCommits(commitId)
+                        }
+
+                        else -> {
+                            val lines = getRebaseInteractiveTodoLinesUseCase()
+                                .mapOk { originalLines ->
+                                    getRebaseLinesFullMessageUseCase(originalLines)
+                                }
+                                .flatten()
+
+                            when (lines) {
+                                is Either.Err -> return@updateRebaseInteractiveState lines
+                                is Either.Ok -> RebaseInteractiveState.AwaitingInteraction(lines.value)
+                            }
+                        }
+                    }
+
+                    Either.Ok(newState)
                 }
             } else {
                 repositoryDataRepository.updateRebaseInteractiveState {
-                    Either.Ok(emptyList())
+                    Either.Ok(RebaseInteractiveState.None)
                 }
             }
+        }
+    }
+
+    private fun getRebaseAmendCommitId(repository: String): String? {
+        val amendFile = File(repository, "${RebaseCommand.REBASE_MERGE}/${RebaseConstants.AMEND}")
+
+        return if (!amendFile.exists()) {
+            null
+        } else {
+            amendFile.readText().removeSuffix("\n").removeSuffix("\r\n")
         }
     }
 }

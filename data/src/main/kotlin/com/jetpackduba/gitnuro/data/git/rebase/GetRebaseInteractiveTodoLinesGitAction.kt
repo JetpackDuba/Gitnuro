@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.data.git.rebase
 import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.data.mappers.JGitRebaseTodoLineMapper
+import com.jetpackduba.gitnuro.domain.RebaseConstants
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseInteractiveTodoLinesGitAction
 import org.eclipse.jgit.api.RebaseCommand
 import javax.inject.Inject

@@ -1,4 +1,4 @@
-package com.jetpackduba.gitnuro.data.git.rebase
+package com.jetpackduba.gitnuro.domain
 
 
 object RebaseConstants {

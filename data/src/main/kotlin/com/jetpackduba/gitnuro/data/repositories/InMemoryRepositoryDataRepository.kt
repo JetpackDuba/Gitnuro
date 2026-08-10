@@ -1,5 +1,7 @@
 package com.jetpackduba.gitnuro.data.repositories
 
+import com.jetpackduba.gitnuro.common.extensions.TAG
+import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.models.*
@@ -41,8 +43,8 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val repositoryState: StateFlow<DataState<RepositoryState>>
         field = MutableStateFlow<DataState<RepositoryState>>(DataState.Loading)
 
-    override val rebaseInteractiveState: StateFlow<DataState<List<RebaseLine>>>
-        field = MutableStateFlow<DataState<List<RebaseLine>>>(DataState.Loading)
+    override val rebaseInteractiveState: StateFlow<DataState<RebaseInteractiveState>>
+        field = MutableStateFlow<DataState<RebaseInteractiveState>>(DataState.Loading)
 
     override val author: Flow<DataState<AuthorInfo>>
         field = MutableStateFlow<DataState<AuthorInfo>>(DataState.Loading)
@@ -111,7 +113,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         handleDataState(repositoryState, block)
     }
 
-    override suspend fun updateRebaseInteractiveState(block: suspend () -> Either<List<RebaseLine>, AppError>) {
+    override suspend fun updateRebaseInteractiveState(block: suspend () -> Either<RebaseInteractiveState, AppError>) {
         handleDataState(rebaseInteractiveState, block)
     }
 
@@ -123,7 +125,10 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
         val result = block()
 
         flow.value = when (result) {
-            is Either.Err -> DataState.Error(result.error)
+            is Either.Err -> {
+                printError(TAG, "Failed to load data: $result")
+                DataState.Error(result.error)
+            }
             is Either.Ok -> DataState.Loaded(result.value)
         }
     }

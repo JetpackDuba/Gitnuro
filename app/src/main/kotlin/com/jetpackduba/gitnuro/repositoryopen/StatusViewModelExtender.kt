@@ -7,10 +7,10 @@ import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
-import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
+import com.jetpackduba.gitnuro.domain.repositories.dataOrNull
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
@@ -22,7 +22,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import java.io.File
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.time.Duration.Companion.milliseconds
@@ -535,7 +534,16 @@ class StatusViewModelExtender @AssistedInject constructor(
         addCloseableView(view)
     }
 
-    private fun continueRebase(message: String) = continueRebaseUseCase(message, isAmendRebaseInteractive.value)
+    private fun continueRebase(message: String) = viewModelScope.launch {
+        continueRebaseUseCase(
+            message = message,
+            isAmendRebaseInteractive = isAmendRebaseInteractive.value,
+            repositoryState = repositoryDataRepository.repositoryState.value.dataOrNull() ?: RepositoryState.SAFE,
+            rebaseInteractiveState = rebaseInteractiveState.value,
+            onIdentityRequest = { getIdentity() }
+        )
+    }
+
     private fun abortRebase() = abortRebaseUseCase()
     private fun skipRebase() = skipRebaseUseCase()
     private fun resetRepoState() = resetRepositoryStateUseCase()
@@ -575,7 +583,10 @@ class StatusViewModelExtender @AssistedInject constructor(
     }
 
     private suspend fun getIdentity(): Identity? {
-        val author = getAuthorUseCase().okOrNull() ?: return null
+        val author = when (val data = getAuthorUseCase()) {
+            is Either.Err -> AuthorInfo(Identity(null, null), Identity(null, null))
+            is Either.Ok -> data.value
+        }
 
         return if (
             author.repositoryIdentity.name.isNullOrEmpty() && author.globalIdentity.name.isNullOrEmpty() ||

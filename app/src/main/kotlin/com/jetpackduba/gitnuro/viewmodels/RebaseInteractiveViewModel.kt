@@ -1,16 +1,8 @@
 package com.jetpackduba.gitnuro.viewmodels
 
-import org.eclipse.jgit.lib.AbbreviatedObjectId
 import com.jetpackduba.gitnuro.domain.models.RebaseLine
 
 private const val TAG = "RebaseInteractiveViewMo"
-
-sealed interface RebaseInteractiveViewState {
-    object None : RebaseInteractiveViewState
-    object Loading : RebaseInteractiveViewState
-    data class Loaded(val stepsList: List<RebaseLine>) : RebaseInteractiveViewState
-    data class Failed(val error: String) : RebaseInteractiveViewState
-}
 
 enum class RebaseAction(val displayName: String, val value: RebaseLine.Action) {
     PICK("Pick", RebaseLine.Action.PICK),

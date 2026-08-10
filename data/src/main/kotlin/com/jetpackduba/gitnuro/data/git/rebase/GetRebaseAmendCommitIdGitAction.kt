@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.rebase
 
+import com.jetpackduba.gitnuro.domain.RebaseConstants
 import com.jetpackduba.gitnuro.domain.interfaces.IGetRebaseAmendCommitIdGitAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
