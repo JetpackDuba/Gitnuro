@@ -1,9 +1,7 @@
 package com.jetpackduba.gitnuro.ui.dialogs.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
@@ -12,7 +10,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,7 +27,6 @@ import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
-import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -41,7 +37,7 @@ import com.jetpackduba.gitnuro.ui.components.AppSwitch
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableColumn
 import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
-import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenu
+import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenuText
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsAction
@@ -706,44 +702,15 @@ fun <T> SettingDropDown(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        Box {
-            DropDownMenu(
-                showIcons = false,
-                items = {
-                    dropDownOptions.map {
-                        ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
-                    }
-                },
-            ) {
-                Row(
-                    modifier = Modifier.width(180.dp)
-                        .border(
-                            width = 2.dp,
-                            color = MaterialTheme.colors.onBackground.copy(alpha = 0.1F),
-                            shape = RoundedCornerShape(4.dp),
-                        )
-                        .clip(shape = RoundedCornerShape(4.dp))
-                        .background(MaterialTheme.colors.background)
-                        .padding(vertical = 8.dp, horizontal = 12.dp)
-                        .handOnHover(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = dropDownOptions.first { it.value == currentOption }.optionName,
-                        style = MaterialTheme.typography.body2,
-                        color = MaterialTheme.colors.onBackground,
-                        modifier = Modifier.weight(1f),
-                        maxLines = 1
-                    )
-
-                    Icon(
-                        painter = painterResource(Res.drawable.dropdown),
-                        contentDescription = null,
-                        tint = MaterialTheme.colors.onBackground,
-                    )
+        DropDownMenuText(
+            showIcons = false,
+            currentValue = dropDownOptions.first { it.value == currentOption }.optionName,
+            items = {
+                dropDownOptions.map {
+                    ContextMenuElement.ContextTextEntry(it.optionName, onClick = { onOptionSelected(it) })
                 }
-            }
-        }
+            },
+        )
     }
 }
 

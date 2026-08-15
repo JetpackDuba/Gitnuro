@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.ui.context_menu
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.Icon
@@ -34,11 +35,13 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.copy
 import com.jetpackduba.gitnuro.app.generated.resources.cut
+import com.jetpackduba.gitnuro.app.generated.resources.dropdown
 import com.jetpackduba.gitnuro.app.generated.resources.paste
+import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.isDark
@@ -58,13 +61,57 @@ fun ContextMenu(enabled: Boolean = true, items: () -> List<ContextMenuElement>, 
 }
 
 @Composable
-fun DropDownMenu(enabled: Boolean = true, showIcons: Boolean = true, items: () -> List<ContextMenuElement>, function: @Composable () -> Unit) {
+fun DropDownMenu(
+    enabled: Boolean = true,
+    showIcons: Boolean = true,
+    items: () -> List<ContextMenuElement>,
+    function: @Composable () -> Unit
+) {
     Box(
         modifier = Modifier
             .dropdownMenu(enabled, showIcons, items),
         propagateMinConstraints = true,
     ) {
         function()
+    }
+}
+
+
+@Composable
+fun DropDownMenuText(
+    enabled: Boolean = true,
+    showIcons: Boolean = true,
+    currentValue: String,
+    items: () -> List<ContextMenuElement>,
+) {
+    DropDownMenu(enabled, showIcons, items) {
+        Row(
+            modifier = Modifier.width(180.dp)
+                .border(
+                    width = 2.dp,
+                    color = MaterialTheme.colors.onBackground.copy(alpha = 0.1F),
+                    shape = RoundedCornerShape(4.dp),
+                )
+                .clip(shape = RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colors.background)
+                .padding(vertical = 8.dp, horizontal = 12.dp)
+                .handOnHover(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = currentValue,
+                style = MaterialTheme.typography.body2,
+                color = MaterialTheme.colors.onBackground,
+                modifier = Modifier.weight(1f),
+                maxLines = 1
+            )
+
+            Icon(
+                painter = painterResource(Res.drawable.dropdown),
+                contentDescription = null,
+                tint = MaterialTheme.colors.onBackground,
+            )
+        }
     }
 }
 
@@ -128,7 +175,11 @@ private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
 
 
 @Composable
-private fun Modifier.dropdownMenu(enabled: Boolean, showIcons: Boolean, items: () -> List<ContextMenuElement>): Modifier {
+private fun Modifier.dropdownMenu(
+    enabled: Boolean,
+    showIcons: Boolean,
+    items: () -> List<ContextMenuElement>
+): Modifier {
     val (isClicked, setIsClicked) = remember { mutableStateOf(false) }
     val (offset, setOffset) = remember { mutableStateOf<Offset?>(null) }
     val mod = this

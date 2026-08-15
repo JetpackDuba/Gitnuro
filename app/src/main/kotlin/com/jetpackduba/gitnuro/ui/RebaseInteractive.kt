@@ -264,40 +264,24 @@ fun ActionDropdown(
                 style = MaterialTheme.typography.body1,
                 modifier = Modifier.weight(1f)
             )
-
-            Icon(
-                painterResource(Res.drawable.expand_more),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(20.dp),
-                tint = MaterialTheme.colors.onBackground,
-            )
         }
 
-        DropdownMenu(
-            expanded = showDropDownMenu,
-            onDismissRequest = { showDropDownMenu = false },
-        ) {
-            val dropDownItems = if (isFirst) {
-                firstItemActions
-            } else {
-                actions
-            }
+        val dropDownItems = if (isFirst) {
+            firstItemActions
+        } else {
+            actions
+        }
 
-            for (dropDownOption in dropDownItems) {
-                DropdownMenuItem(
-                    onClick = {
-                        showDropDownMenu = false
-                        onActionChanged(dropDownOption.value)
-                    }
-                ) {
-                    Text(
-                        text = dropDownOption.displayName,
-                        style = MaterialTheme.typography.body1,
-                    )
+
+        DropDownMenuText(
+            showIcons = false,
+            currentValue = getActionDisplayName(action),
+            items = {
+                dropDownItems.map {
+                    ContextMenuElement.ContextTextEntry(it.displayName, onClick = { onActionChanged(it.value) })
                 }
             }
-        }
+        )
     }
 }
 
