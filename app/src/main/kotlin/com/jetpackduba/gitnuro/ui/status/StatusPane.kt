@@ -36,10 +36,8 @@ import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.compose.rememberInTab
-import com.jetpackduba.gitnuro.data.extensions.isCherryPicking
-import com.jetpackduba.gitnuro.data.extensions.isMerging
-import com.jetpackduba.gitnuro.data.extensions.isReverting
-import com.jetpackduba.gitnuro.domain.extensions.*
+import com.jetpackduba.gitnuro.domain.extensions.fileName
+import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -71,7 +69,15 @@ fun StatusPane(
     completedTasks: StateFlow<List<CompletedTask>>,
 ) {
     val swapUncommittedChanges = statusState.swapUncommittedChanges
-    val (commitMessage, setCommitMessage) = remember() { mutableStateOf("") }
+    val (commitMessage, setCommitMessage) = remember() {
+        val message = if (statusState.isAmend || statusState.isAmendRebaseInteractive) {
+            statusState.previousCommitMessage.orEmpty()
+        } else {
+            ""
+        }
+
+        mutableStateOf(message)
+    }
     val stagedListState = rememberInTab("statusStagedListState", statusState.staged) {
         LazyListState()
     }
@@ -204,6 +210,7 @@ fun StatusPane(
             canAmend,
             doCommit,
             commitMessage,
+            previousCommitMessage = statusState.previousCommitMessage,
             statusState.repositoryState,
             isAmenableRebaseInteractive,
             statusState.hasUnstagedFiles,
@@ -480,6 +487,7 @@ private fun CommitField(
     canAmend: Boolean,
     doCommit: () -> Unit,
     commitMessage: String,
+    previousCommitMessage: String?,
     repositoryState: RepositoryState,
     isAmenableRebaseInteractive: Boolean,
     hasUnstagedFiles: Boolean,
@@ -495,6 +503,7 @@ private fun CommitField(
     onAmendChecked: (Boolean) -> Unit,
     onAmendRebaseInteractiveChecked: (Boolean) -> Unit,
 ) {
+    val isReadOnlyRebase = repositoryState.isRebasing && !isAmenableRebaseInteractive
     Column(
         modifier = Modifier
             .height(192.dp)
@@ -511,11 +520,11 @@ private fun CommitField(
                     } else
                         false
                 },
-            value = commitMessage,
+            value = if (isReadOnlyRebase) previousCommitMessage.orEmpty() else commitMessage,
             onValueChange = setCommitMessage,
             enabled = !repositoryState.isRebasing || isAmenableRebaseInteractive,
             label = {
-                val text = if (repositoryState.isRebasing && !isAmenableRebaseInteractive) {
+                val text = if (isReadOnlyRebase) {
                     stringResource(Res.string.uncommited_changes_text_input_label_message_read_only)
                 } else {
                     stringResource(Res.string.uncommited_changes_text_input_label_message)
@@ -538,16 +547,20 @@ private fun CommitField(
                 onMerge = { doCommit() }
             )
 
-            repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits -> RebasingButtons(
-                canContinue = hasStagedFiles || hasUnstagedFiles || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.isNotEmpty()),
-                haveConflictsBeenSolved = !hasUnstagedFiles,
-                onAbort = onAbortRebase,
-                onContinue = onContinueRebase,
-                onSkip = onSkipRebase,
-                isAmendable = rebaseInteractiveState.isCurrentStepAmenable,
-                isAmend = isAmendRebaseInteractive,
-                onAmendChecked = onAmendRebaseInteractiveChecked,
-            )
+            repositoryState.isRebasing -> {
+                val isCurrentStepAmenable =
+                    (rebaseInteractiveState as? RebaseInteractiveState.ProcessingCommits)?.isCurrentStepAmenable == true
+                RebasingButtons(
+                    canContinue = hasStagedFiles || hasUnstagedFiles || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.isNotEmpty()),
+                    haveConflictsBeenSolved = !hasUnstagedFiles,
+                    onAbort = onAbortRebase,
+                    onContinue = onContinueRebase,
+                    onSkip = onSkipRebase,
+                    isAmendable = isCurrentStepAmenable,
+                    isAmend = isAmendRebaseInteractive,
+                    onAmendChecked = onAmendRebaseInteractiveChecked,
+                )
+            }
 
             repositoryState.isCherryPicking -> CherryPickingButtons(
                 haveConflictsBeenSolved = !hasUnstagedFiles,
