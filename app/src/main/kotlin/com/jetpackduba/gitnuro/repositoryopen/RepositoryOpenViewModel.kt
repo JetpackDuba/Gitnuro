@@ -508,11 +508,10 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun onOpenSubmoduleInTab(path: String) = viewModelScope.launch {
-        val repositoryPath = repositoryDataRepository.repositoryPath
+        val repositoryPath = getWorktreeUseCase()
 
-        if (repositoryPath != null) {
-            // TODO Repository path may point to git dir and not workdir? If so, add use case
-            appViewModel.addNewTabFromPath("$repositoryPath/$path", true)
+        if (repositoryPath is Either.Ok) {
+            appViewModel.addNewTabFromPath("${repositoryPath.value}/$path", true)
         }
     }
 
