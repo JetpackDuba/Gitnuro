@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 private const val TAG = "ObserveRepositoryToRefreshUseCase"
 
-private const val REFRESH_TIME_SINCE_LAST_OPERATION = 5_000L // 5 seconds
+private const val REFRESH_TIME_SINCE_LAST_OPERATION = 1_500L
 
 class ObserveRepositoryToRefreshUseCase @Inject constructor(
     private val tabCoroutineScope: TabCoroutineScope,
@@ -51,10 +51,7 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                             is WatcherEvent.ChangesDetected -> {
                                 printDebug(TAG, "Changes detected: ${event.changes.toList()}")
 
-                                val timeDiffInMs =
-                                    System.currentTimeMillis() - repositoryStateRepository.lastOperationTimestamp.first()
-
-                                if (timeDiffInMs > REFRESH_TIME_SINCE_LAST_OPERATION) {
+                                if (canRefreshData()) {
                                     val hasGitDirChanged = event.changes.any { it.path.startsWith(repositoryPath) }
 
                                     updateWatchedDirectories(event, repositoryPath, worktreeDir + systemSeparator)
@@ -62,10 +59,10 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                                     if (hasGitDirChanged) {
                                         refreshDataUseCase(DataToRefresh.ALL)
                                     } else {
-                                        refreshDataUseCase(DataToRefresh.STATUS, DataToRefresh.LOG)
+                                        refreshDataUseCase(DataToRefresh.STATUS, DataToRefresh.LOG, DataToRefresh.REPO_STATE)
                                     }
                                 } else {
-                                    printDebug(TAG, "Ignoring detected changes because the time diff since last change is $timeDiffInMs ms")
+                                    printDebug(TAG, "Ignoring detected changes because the time diff since last change is too short or currently running other tasks")
                                 }
                             }
 
@@ -102,6 +99,23 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
         }.invokeOnCompletion {
             fileChangesWatcher.close()
         }
+    }
+
+    private suspend fun canRefreshData(): Boolean {
+        val canRefresh = if (repositoryStateRepository.currentTask.value != null) {
+            false
+        } else {
+            val timeDiffInMs =
+                System.currentTimeMillis() - repositoryStateRepository.lastOperationTimestamp.first()
+
+            printDebug(TAG, "time diff in ms: $timeDiffInMs")
+
+            timeDiffInMs > REFRESH_TIME_SINCE_LAST_OPERATION
+        }
+
+        printDebug(TAG, "canRefresh: $canRefresh")
+
+        return canRefresh
     }
 
     private suspend fun updateWatchedDirectories(

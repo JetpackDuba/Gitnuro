@@ -69,21 +69,15 @@ fun StatusPane(
     completedTasks: StateFlow<List<CompletedTask>>,
 ) {
     val swapUncommittedChanges = statusState.swapUncommittedChanges
-    val (commitMessage, setCommitMessage) = remember() {
-        val message = if (statusState.isAmend || statusState.isAmendRebaseInteractive) {
-            statusState.previousCommitMessage.orEmpty()
-        } else {
-            ""
-        }
-
-        mutableStateOf(message)
-    }
     val stagedListState = rememberInTab("statusStagedListState", statusState.staged) {
         LazyListState()
     }
     val unstagedListState = rememberInTab("statusUnstagedListState", statusState.unstaged) {
         LazyListState()
     }
+
+    val commitMessage = statusState.commitMessage
+
     val isAmend = statusState.isAmend
     val isAmendRebaseInteractive = statusState.isAmendRebaseInteractive
     val committerDataRequestState = statusState.committerDataRequestState
@@ -101,34 +95,18 @@ fun StatusPane(
         statusState.repositoryState.isRebasing && rebaseInteractiveState is RebaseInteractiveState.ProcessingCommits && rebaseInteractiveState.isCurrentStepAmenable
 
     val doCommit = {
-        onAction(StatusAction.Commit(commitMessage))
+        onAction(StatusAction.Commit(commitMessage.text))
         Unit
     }
 
-    val canCommit = commitMessage.isNotEmpty() && statusState.hasStagedFiles
-    val canAmend = commitMessage.isNotEmpty() && statusState.hasPreviousCommits
+    val canCommit = commitMessage.text.isNotEmpty() && statusState.hasStagedFiles
+    val canAmend = commitMessage.text.isNotEmpty() && statusState.hasPreviousCommits
     val tabFocusRequester = LocalTabFocusRequester.current
 
     LaunchedEffect(statusState) {
-        // TODO Restore this functionality?
-//        launch {
-//            viewModel.commitMessageChangesFlow.collect { newCommitMessage ->
-//                setCommitMessage(newCommitMessage)
-//            }
-//        }
-
         launch {
             if (statusState.showSearchUnstaged || statusState.showSearchStaged) {
                 tabFocusRequester.requestFocus()
-            }
-        }
-    }
-
-    LaunchedEffect(completedTasks) {
-        completedTasks.collect { tasks ->
-            val lastCompletedTask = tasks.lastOrNull()
-            if (lastCompletedTask is CompletedTask.Success && lastCompletedTask.taskType is TaskType.DoCommit) {
-                setCommitMessage("")
             }
         }
     }
@@ -219,28 +197,27 @@ fun StatusPane(
             isAmendRebaseInteractive,
             !statusState.isLoading && statusState.haveConflictsBeenSolved,
             setCommitMessage = {
-                setCommitMessage(it)
                 onAction(StatusAction.UpdateCommitMessage(it))
             },
             onResetRepoState = {
                 onAction(StatusAction.ResetRepositoryState)
-                onAction(StatusAction.UpdateCommitMessage(""))
+                onAction(StatusAction.UpdateCommitMessage(TextFieldValue("")))
             },
             onAbortRebase = {
                 onAction(StatusAction.AbortRebase)
-                onAction(StatusAction.UpdateCommitMessage(""))
+                onAction(StatusAction.UpdateCommitMessage(TextFieldValue("")))
             },
             onAmendChecked = { amend ->
-                if (amend && commitMessage.isEmpty()) {
-                    setCommitMessage(statusState.previousCommitMessage.orEmpty())
+                if (amend && commitMessage.text.isEmpty()) {
+                    onAction(StatusAction.UpdateCommitMessage(TextFieldValue(statusState.previousCommitMessage.orEmpty())))
                 }
                 onAction(StatusAction.ToggleAmend(amend))
             },
-            onContinueRebase = { onAction(StatusAction.ContinueRebase(commitMessage)) },
+            onContinueRebase = { onAction(StatusAction.ContinueRebase(commitMessage.text)) },
             onSkipRebase = { onAction(StatusAction.SkipRebase) },
             onAmendRebaseInteractiveChecked = { amend ->
-                if (amend && commitMessage.isEmpty()) {
-                    setCommitMessage(statusState.previousCommitMessage.orEmpty())
+                if (amend && commitMessage.text.isEmpty()) {
+                    onAction(StatusAction.UpdateCommitMessage(TextFieldValue(statusState.previousCommitMessage.orEmpty())))
                 }
 
                 onAction(StatusAction.ToggleAmendRebaseInteractive(amend))
@@ -486,7 +463,7 @@ private fun CommitField(
     isAmend: Boolean,
     canAmend: Boolean,
     doCommit: () -> Unit,
-    commitMessage: String,
+    commitMessage: TextFieldValue,
     previousCommitMessage: String?,
     repositoryState: RepositoryState,
     isAmenableRebaseInteractive: Boolean,
@@ -495,7 +472,7 @@ private fun CommitField(
     hasStagedFiles: Boolean,
     isAmendRebaseInteractive: Boolean,
     haveConflictsBeenSolved: Boolean,
-    setCommitMessage: (String) -> Unit,
+    setCommitMessage: (TextFieldValue) -> Unit,
     onResetRepoState: () -> Unit,
     onAbortRebase: () -> Unit,
     onContinueRebase: () -> Unit,
@@ -520,7 +497,7 @@ private fun CommitField(
                     } else
                         false
                 },
-            value = if (isReadOnlyRebase) previousCommitMessage.orEmpty() else commitMessage,
+            value = if (isReadOnlyRebase) TextFieldValue(previousCommitMessage.orEmpty()) else commitMessage,
             onValueChange = setCommitMessage,
             enabled = !repositoryState.isRebasing || isAmenableRebaseInteractive,
             label = {
@@ -551,7 +528,7 @@ private fun CommitField(
                 val isCurrentStepAmenable =
                     (rebaseInteractiveState as? RebaseInteractiveState.ProcessingCommits)?.isCurrentStepAmenable == true
                 RebasingButtons(
-                    canContinue = hasStagedFiles || hasUnstagedFiles || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.isNotEmpty()),
+                    canContinue = hasStagedFiles || hasUnstagedFiles || (isAmenableRebaseInteractive && isAmendRebaseInteractive && commitMessage.text.isNotEmpty()),
                     haveConflictsBeenSolved = !hasUnstagedFiles,
                     onAbort = onAbortRebase,
                     onContinue = onContinueRebase,
@@ -572,7 +549,7 @@ private fun CommitField(
 
             repositoryState.isReverting -> RevertingButtons(
                 haveConflictsBeenSolved = haveConflictsBeenSolved,
-                canCommit = commitMessage.isNotBlank(),
+                canCommit = commitMessage.text.isNotBlank(),
                 onAbort = onResetRepoState,
                 onCommit = {
                     doCommit()

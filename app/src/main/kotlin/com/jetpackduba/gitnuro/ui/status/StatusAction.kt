@@ -32,7 +32,7 @@ sealed interface StatusAction {
     data object SkipRebase : StatusAction
     data object AbortRebase : StatusAction
     data object ResetRepositoryState : StatusAction
-    data class UpdateCommitMessage(val message: String) : StatusAction
+    data class UpdateCommitMessage(val message: TextFieldValue) : StatusAction
 
     data object RejectCommitterData : StatusAction
     data class AcceptCommitterData(val authorInfo: AuthorInfo, val persist: Boolean) : StatusAction

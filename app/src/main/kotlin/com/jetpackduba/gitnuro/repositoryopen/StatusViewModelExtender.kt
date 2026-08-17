@@ -6,7 +6,6 @@ import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.nullIf
 import com.jetpackduba.gitnuro.domain.errors.Either
-import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
@@ -94,7 +93,7 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     val swapUncommittedChanges = appSettings.swapStatusPanes
 
-    var savedCommitMessage = CommitMessage("", MessageType.NORMAL)
+    private val commitMessage = MutableStateFlow(TextFieldValue(""))
 
     // When false, disable "amend previous commit"
     // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
@@ -111,18 +110,15 @@ class StatusViewModelExtender @AssistedInject constructor(
     val committerDataRequestState: StateFlow<CommitterDataRequestState>
         field = MutableStateFlow<CommitterDataRequestState>(CommitterDataRequestState.None)
 
-    /**
-     * Notify the UI that the commit message has been changed by the view model
-     */
-    val commitMessageChangesFlow: SharedFlow<String>
-        field = MutableSharedFlow<String>()
-
     val isAmend: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
-    private val _isAmendRebaseInteractive =
-        MutableStateFlow(true) // TODO should copy message from previous commit when this is required
-    val isAmendRebaseInteractive: StateFlow<Boolean> = _isAmendRebaseInteractive
+    val isAmendRebaseInteractive: StateFlow<Boolean>
+        field = rebaseInteractiveState
+            .map {
+                it is RebaseInteractiveState.ProcessingCommits
+            }
+            .mutableStateIn(viewModelScope, false)
 
 
     private var persistMessageJob: Job? = null
@@ -165,6 +161,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         rebaseInteractiveState,
         selectedUnstagedDiffEntries,
         selectedStagedDiffEntries,
+        commitMessage,
         previousCommitMessage,
         repositoryDataRepository.repositoryState.toUiDataState(),
         repositoryPath,
@@ -291,8 +288,8 @@ class StatusViewModelExtender @AssistedInject constructor(
         this.committerDataRequestState.value = CommitterDataRequestState.Accepted(newAuthorInfo, persist)
     }
 
-    fun updateCommitMessage(message: String) {
-        savedCommitMessage = savedCommitMessage.copy(message = message)
+    fun updateCommitMessage(message: TextFieldValue) {
+        commitMessage.value = message
         persistMessage()
     }
 
@@ -301,7 +298,7 @@ class StatusViewModelExtender @AssistedInject constructor(
 
         persistMessageJob = viewModelScope.launch {
             delay(PERSIST_MESSAGE_DELAY_IN_MS.milliseconds)
-            persistCommitMessageUseCase(savedCommitMessage.message.ifBlank { null })
+            persistCommitMessageUseCase(commitMessage.value.text.ifBlank { null })
         }
     }
 
@@ -555,7 +552,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     }
 
     fun amendRebaseInteractive(isAmend: Boolean) {
-        _isAmendRebaseInteractive.value = isAmend
+        isAmendRebaseInteractive.value = isAmend
     }
 
     fun commit(message: String) = viewModelScope.launch {
@@ -570,8 +567,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         val doCommitResult = doCommitUseCase(message, amend, personIdent).await()
 
         if (doCommitResult is Either.Ok) {
-            updateCommitMessage("")
-            commitMessageChangesFlow.emit("")
+            updateCommitMessage(TextFieldValue(""))
             isAmend.value = false
         } else {
             // If committing failed and the message was going to be persisted before the commit, restart the
