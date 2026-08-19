@@ -24,6 +24,7 @@ sealed interface AppConfig {
     data class CacheCredentialsInMemory(val value: Boolean) : AppConfig
     data class AvatarProvider(val value: AvatarProviderType) : AppConfig
     data class Theme(val value: com.jetpackduba.gitnuro.domain.models.ui.Theme) : AppConfig
+    data class Language(val value: com.jetpackduba.gitnuro.domain.models.ui.AppLanguage) : AppConfig
     data class CustomTheme(val value: String) : AppConfig
     data class SwapStatusPanes(val value: Boolean) : AppConfig
     data class DiffDisplayFullFile(val value: Boolean) : AppConfig

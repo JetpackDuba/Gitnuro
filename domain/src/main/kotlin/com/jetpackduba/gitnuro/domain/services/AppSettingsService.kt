@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
+import com.jetpackduba.gitnuro.domain.models.ui.AppLanguage
 import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -20,6 +21,8 @@ class AppSettingsService @Inject constructor(
 
     val scaleUi: Flow<Float?> get() = appSettingsRepository.scaleUi
     val theme: Flow<Theme> get() = appSettingsRepository.theme.defaultIfNull { DEFAULT_THEME }
+    val language: Flow<AppLanguage>
+        get() = appSettingsRepository.language.defaultIfNull { DEFAULT_LANGUAGE }
     val customTheme: Flow<String?> get() = appSettingsRepository.customTheme
     val linesHeightType: Flow<LinesHeightType> get() = appSettingsRepository.linesHeightType.defaultIfNull { DEFAULT_LINES_HEIGHT }
     val dateFormatUseDefault: Flow<Boolean> get() = appSettingsRepository.dateFormatUseDefault.defaultIfNull { DEFAULT_DATE_USE_DEFAULT }
@@ -49,6 +52,7 @@ class AppSettingsService @Inject constructor(
 
     companion object {
         val DEFAULT_THEME = Theme.Dark
+        val DEFAULT_LANGUAGE = AppLanguage.System
         val DEFAULT_LINES_HEIGHT = LinesHeightType.SPACED
         const val DEFAULT_DATE_USE_DEFAULT = true
         const val DEFAULT_DATE_IS_24H = true

@@ -44,6 +44,7 @@ import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
+import com.jetpackduba.gitnuro.locale.applyAppLanguage
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.AppViewModel
 import com.jetpackduba.gitnuro.ui.components.TabsRow
@@ -127,6 +128,7 @@ class App @Inject constructor(
             addDirTab(dirToOpen)
 
         val themeInitial = appSettings.theme.first()
+        val languageInitial = appSettings.language.first()
         val customThemeInitial = appSettings.customTheme.firstOrNull()
         val scaleInitial = appSettings.scaleUi.firstOrNull()
         val linesHeightTypeInitial = appSettings.linesHeightType.first()
@@ -138,6 +140,8 @@ class App @Inject constructor(
 
         application {
             val theme by appSettings.theme.collectAsState(themeInitial)
+            val language by appSettings.language.collectAsState(languageInitial)
+            LaunchedEffect(language) { applyAppLanguage(language) }
             val customThemeRaw by appSettings.customTheme.collectAsState(customThemeInitial)
             val customTheme = remember(customThemeRaw) {
                 val customThemeRaw = customThemeRaw
@@ -216,13 +220,16 @@ class App @Inject constructor(
                 CompositionLocalProvider(
                     values = compositionValues.toTypedArray()
                 ) {
-                    AppTheme(
-                        selectedTheme = theme,
-                        customTheme = customTheme,
-                        linesHeightType = linesHeightType,
-                    ) {
-                        Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-                            AppTabs()
+                    // Recompose when language changes so stringResource() reloads catalogs.
+                    key(language) {
+                        AppTheme(
+                            selectedTheme = theme,
+                            customTheme = customTheme,
+                            linesHeightType = linesHeightType,
+                        ) {
+                            Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+                                AppTabs()
+                            }
                         }
                     }
                 }

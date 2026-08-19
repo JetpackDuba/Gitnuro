@@ -6,12 +6,14 @@ import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
+import com.jetpackduba.gitnuro.domain.models.ui.AppLanguage
 import kotlinx.coroutines.flow.Flow
 
 interface AppSettingsRepository {
     // UI
     val scaleUi: Flow<Float?>
     val theme: Flow<Theme?>
+    val language: Flow<AppLanguage?>
     val customTheme: Flow<String?>
     val linesHeightType: Flow<LinesHeightType?>
     val dateFormatUseDefault: Flow<Boolean?>
