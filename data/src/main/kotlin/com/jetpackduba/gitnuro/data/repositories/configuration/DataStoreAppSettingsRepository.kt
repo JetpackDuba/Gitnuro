@@ -13,6 +13,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.ThemeMapp
 import com.jetpackduba.gitnuro.domain.models.AppConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.AppWindowPlacement
+import com.jetpackduba.gitnuro.domain.models.ui.AppLanguage
 import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -32,6 +33,7 @@ private const val DEFAULT_THIRD_PANE_WIDTH = 330f
 
 private val scaleUiPreference get() = floatPreferencesKey("scale_ui")
 private val themePreference get() = stringPreferencesKey("theme")
+private val languagePreference get() = stringPreferencesKey("language")
 private val customThemePreference get() = stringPreferencesKey("custom_theme")
 private val linesHeightPreference get() = stringPreferencesKey("lines_height")
 private val swapStatusPanesPreference get() = booleanPreferencesKey("swap_status_panes")
@@ -93,6 +95,8 @@ class DataStoreAppSettingsRepository @Inject constructor(
     override val scaleUi = preferences.data[scaleUiPreference]
 
     override val theme = preferences.data[themePreference].map { themeMapper.toDomain(it) }
+    override val language =
+        preferences.data[languagePreference].map { AppLanguage.fromCode(it) }
     override val customTheme = preferences.data[customThemePreference]
 
     override val linesHeightType =
@@ -160,6 +164,7 @@ class DataStoreAppSettingsRepository @Inject constructor(
                 )
 
                 is AppConfig.Theme -> setValue(themePreference, themeMapper.toData(appConfig.value))
+                is AppConfig.Language -> setValue(languagePreference, appConfig.value.code)
                 is AppConfig.CustomTheme -> setValue(customThemePreference, appConfig.value)
                 is AppConfig.SwapStatusPanes -> setValue(swapStatusPanesPreference, appConfig.value)
                 is AppConfig.DiffDisplayFullFile -> setValue(diffDisplayFullFilePreference, appConfig.value)

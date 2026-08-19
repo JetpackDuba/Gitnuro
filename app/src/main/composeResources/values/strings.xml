@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Gitnuro</string>
 
@@ -175,6 +176,10 @@
     <string name="settings_environment_default_clone_directory_description">Directory that will be used as default when cloning a repository</string>
     <string name="settings_section_user_interface">User interface</string>
     <string name="settings_entry_appearance">Appearance</string>
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_description">Interface language. System default follows the OS locale.</string>
+    <string name="settings_theme_title">Theme</string>
+    <string name="settings_theme_description">Select the UI theme between light and dark mode</string>
     <string name="settings_entry_layout">Layout</string>
     <string name="settings_entry_datetime">Date/Time</string>
     <string name="settings_section_git">GIT</string>
@@ -190,6 +195,51 @@
     <string name="settings_entry_logs">Logs</string>
 
     <!-- Notifications -->
+    <string name="settings_lists_spacing_title">Lists spacing (Beta)</string>
+    <string name="settings_lists_spacing_description">Spacing around lists items</string>
+    <string name="settings_scale_title">Scale</string>
+    <string name="settings_scale_description">Adapt the size the UI to your preferred scale</string>
+    <string name="settings_avatar_provider_title">Avatar provider</string>
+    <string name="settings_avatar_provider_description">When using a provider, the e-mail addresses will be hashed using SHA256</string>
+    <string name="settings_avatar_provider_none">None</string>
+    <string name="settings_avatar_provider_gravatar">Gravatar</string>
+    <string name="settings_lists_spacing_spaced">Spaced</string>
+    <string name="settings_lists_spacing_compact">Compact</string>
+    <string name="settings_swap_staged_unstaged_title">Swap position for staged/unstaged views</string>
+    <string name="settings_swap_staged_unstaged_description">Show the list of unstaged changes above the list of staged changes</string>
+    <string name="settings_datetime_use_system_title">Use system's Date/Time format</string>
+    <string name="settings_datetime_use_system_description">If enabled, current date would be shown as "%1$s"</string>
+    <string name="settings_datetime_custom_format_title">Custom date format</string>
+    <string name="settings_datetime_use_24h_title">Use 24h time</string>
+    <string name="settings_datetime_relative_title">Relative date</string>
+    <string name="settings_datetime_relative_description">Use "Today" and "Yesterday" instead of the date</string>
+    <string name="settings_fast_forward_merge_title">Fast-forward merge</string>
+    <string name="settings_fast_forward_merge_description">Try to fast-forward merges when possible</string>
+    <string name="settings_auto_stash_on_merge_title">Automatically stash uncommitted changes before merge</string>
+    <string name="settings_auto_stash_on_merge_description">To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes</string>
+    <string name="settings_pull_with_rebase_title">Pull with rebase as default</string>
+    <string name="settings_pull_with_rebase_description">Rebase changes instead of merging when pulling</string>
+    <string name="settings_force_push_with_lease_title">Force push with lease</string>
+    <string name="settings_force_push_with_lease_description">Check if the local version remote branch is up to date to avoid accidentally overriding unintended commits</string>
+    <string name="settings_use_proxy_title">Use proxy</string>
+    <string name="settings_use_proxy_description">Set up your proxy configuration if needed</string>
+    <string name="settings_proxy_type_title">Proxy type</string>
+    <string name="settings_proxy_type_description">Pick between HTTP or SOCKS</string>
+    <string name="settings_proxy_host_title">Host name</string>
+    <string name="settings_proxy_port_title">Port number</string>
+    <string name="settings_proxy_auth_title">Proxy authentication</string>
+    <string name="settings_proxy_auth_description">Use your credentials to provide your identity the proxy server</string>
+    <string name="settings_proxy_login_title">Login</string>
+    <string name="settings_proxy_password_title">Password</string>
+    <string name="settings_cache_credentials_title">Cache HTTP credentials in memory</string>
+    <string name="settings_cache_credentials_description">If active, HTTP Credentials will be remembered until Gitnuro is closed</string>
+    <string name="settings_do_not_verify_ssl_title">Do not verify SSL security</string>
+    <string name="settings_do_not_verify_ssl_description">If active, you may connect to the remote server via insecure HTTPS connection</string>
+    <string name="settings_terminal_path_title">Custom terminal path</string>
+    <string name="settings_terminal_path_description">If empty, Gitnuro will try to open the default terminal emulator</string>
+    <string name="settings_logs_title">Logs</string>
+    <string name="settings_logs_description">Open the logs folder</string>
+    <string name="settings_logs_open_folder">Open folder</string>
     <string name="notification_copied_branch_to_clipboard">"%1$s" copied to clipboard</string>
 
     <!-- Error dialog -->
@@ -207,6 +257,7 @@
     <string name="error_hook_rejection">Commit rejected by hook: "%1$s"</string>
 
     <string name="error_repository_path_not_set">Repository path is not stored, if you believe this is a bug, please report it to Gitnuro's issue tracker.</string>
+
     <string name="error_repository_read_error">Failed to read a repository: %1$s. Please verify the repository exists and it's accessible.</string>
 
     <string name="error_stash_no_data">No data to stash</string>
@@ -215,6 +266,4 @@
     <string name="error_open_repository_path_is_not_dir">Failed to open repository, specified path is not a directory</string>
     <string name="error_open_repository_repository_load">Failed to open repository, could not load repository: %1$s</string>
     <string name="error_open_repository_repo_not_found">Failed to open repository, could not find a repository in the specified path</string>
-
-
 </resources>

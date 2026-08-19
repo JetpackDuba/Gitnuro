@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Gitnuro</string>
+
+    <!-- Generic -->
+    <string name="generic_button_ok">OK</string>
+    <string name="generic_button_cancel">Отмена</string>
+    <string name="generic_button_continue">Продолжить</string>
+    <string name="generic_save_as_default">Сохранить по умолчанию</string>
+
+    <!-- Home page -->
+    <string name="home_button_open_repository">Открыть репозиторий</string>
+    <string name="home_button_clone_repository">Клонировать репозиторий</string>
+    <string name="home_button_start_repository">Создать локальный репозиторий</string>
+    <string name="home_label_additional_options">Дополнительные опции</string>
+    <string name="home_button_source_code">Исходный код</string>
+    <string name="home_button_report_bug">Сообщить об ошибке</string>
+    <string name="home_button_additional_information">Дополнительная информация</string>
+    <string name="home_button_settings">Настройки</string>
+    <string name="home_recent_repositories_search_label">Поиск в недавних репозиториях</string>
+    <string name="home_recent_repositories_list_empty">Пока пусто — сначала откройте репозиторий!</string>
+    <string name="home_recent_repositories_remove_repository">Убрать из недавних</string>
+
+    <!-- Top menu -->
+    <string name="menu_open">Открыть</string>
+    <string name="menu_open_dialog_title">Открыть репозиторий</string>
+    <string name="menu_open_tooltip">Открыть другой репозиторий</string>
+    <string name="menu_pull">Pull</string>
+    <string name="menu_pull_default">Pull текущей ветки</string>
+    <string name="menu_pull_rebase">Pull текущей ветки с rebase</string>
+    <string name="menu_pull_tooltip_disabled">Pull недоступен без удалённого репозитория</string>
+    <string name="menu_push">Push</string>
+    <string name="menu_push_tooltip">Отправить изменения текущей ветки</string>
+    <string name="menu_push_tooltip_disabled">Push недоступен без удалённого репозитория</string>
+    <string name="menu_branch">Ветка</string>
+    <string name="menu_branch_tooltip">Создать новую ветку</string>
+    <string name="menu_stash">Stash</string>
+    <string name="menu_stash_tooltip">Сохранить незакоммиченные изменения в stash</string>
+    <string name="menu_stash_tooltip_disabled">Измените файлы, чтобы сделать stash</string>
+    <string name="menu_pop_stash">Pop stash</string>
+    <string name="menu_pop_stash_tooltip">Применить последний stash</string>
+    <string name="menu_pop_stash_tooltip_disabled">Нет stash для применения</string>
+    <string name="menu_terminal">Терминал</string>
+    <string name="menu_terminal_tooltip">Открыть терминал в каталоге репозитория</string>
+    <string name="menu_actions">Действия</string>
+    <string name="menu_actions_tooltip">Дополнительные действия</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_settings_tooltip">Настройки Gitnuro</string>
+    <string name="rebase_interactive_view_title">Интерактивный rebase</string>
+    <string name="rebase_interactive_view_button_complete_rebase">Завершить rebase</string>
+
+    <!-- Bottom info bar -->
+    <string name="bottom_info_bar_name_and_email">%1$s &lt;%2$s&gt;</string>
+    <string name="bottom_info_bar_name_not_set">Имя не задано</string>
+    <string name="bottom_info_bar_email_not_set">Email не задан</string>
+    <string name="bottom_info_bar_update_available">Доступно обновление %1$s</string>
+    <string name="bottom_info_bar_app_version">Версия %1$s</string>
+
+    <!-- Side pane view -->
+    <string name="side_pane_search_hint">Поиск веток, тегов и др.</string>
+    <string name="side_pane_local_branches_title">Локальные ветки</string>
+    <string name="side_pane_local_branches_current_branch_label">HEAD</string>
+    <string name="side_pane_remotes_title">Remotes</string>
+    <string name="side_pane_tags_title">Теги</string>
+    <string name="side_pane_stashes_title">Stashes</string>
+    <string name="side_pane_submodules_title">Подмодули</string>
+
+    <!-- Uncommited changes view -->
+    <string name="uncommited_changes_unstaged_title">Unstaged</string>
+    <string name="uncommited_changes_unstaged_all_items_action">Stage все</string>
+    <string name="uncommited_changes_unstaged_selected_items_action">Stage выбранные</string>
+    <string name="uncommited_changes_unstaged_item_action">Stage</string>
+    <string name="uncommited_changes_staged_title">Staged</string>
+    <string name="uncommited_changes_staged_all_items_action">Unstage все</string>
+    <string name="uncommited_changes_staged_selected_items_action">Unstage выбранные</string>
+    <string name="uncommited_changes_staged_item_action">Unstage</string>
+    <string name="uncommited_changes_text_input_label_message_read_only">Сообщение коммита (только чтение)</string>
+    <string name="uncommited_changes_text_input_label_message">Введите сообщение коммита</string>
+    <string name="uncommited_changes_primary_button_commit">Commit</string>
+    <string name="uncommited_changes_primary_button_amend">Amend</string>
+    <string name="uncommited_changes_primary_button_merge">Merge</string>
+    <string name="uncommited_changes_primary_button_continue">Продолжить</string>
+    <string name="uncommited_changes_primary_button_skip">Пропустить</string>
+    <string name="uncommited_changes_secondary_button_abort">Отменить</string>
+    <string name="uncommited_changes_amend_check">Amend предыдущего коммита</string>
+
+    <!-- Merge automatic stash -->
+    <string name="merge_automatic_stash_description">Автоматический stash перед merge «%1$s» в «%2$s»</string>
+    <string name="pull_with_merge_automatic_stash_description">Автоматический stash перед pull «%1$s»</string>
+    <string name="pull_with_merge_from_specific_branch_automatic_stash_description">Автоматический stash перед pull из «%1$s» в «%2$s»</string>
+
+    <!-- Status entries context menu -->
+    <string name="status_entries_context_menu_delete_file">Удалить файл</string>
+    <string name="status_entries_context_menu_file_history">История файла</string>
+    <string name="status_entries_context_menu_blame_file">Blame файла</string>
+    <string name="status_entries_context_menu_discard_file_changes">Отменить изменения файла</string>
+    <string name="status_entries_context_menu_open_file_in_folder">Открыть файл в папке</string>
+    <string name="status_entries_context_menu_copy_file_absolute_path">Копировать путь</string>
+    <string name="status_entries_context_menu_copy_file_relative_path">Копировать относительный путь</string>
+    <string name="status_entries_context_menu_discard_multiple_files">Отменить изменения в %1$s файлах</string>
+    <string name="status_entries_context_menu_stage_multiple_files">Stage %1$s файлов</string>
+    <string name="status_entries_context_menu_unstage_multiple_files">Unstage %1$s файлов</string>
+    <string name="status_entries_context_menu_copy_files_absolute_paths">Копировать пути</string>
+    <string name="status_entries_context_menu_copy_files_relative_paths">Копировать относительные пути</string>
+
+    <!-- Branch context menu -->
+    <string name="branch_context_menu_checkout_branch">Переключиться на ветку</string>
+    <string name="branch_context_menu_merge_branch">Слить ветку</string>
+    <string name="branch_context_menu_rebase_branch">Rebase ветки</string>
+    <string name="branch_context_menu_push_current_to_target">Push «%1$s» в «%2$s»</string>
+    <string name="branch_context_menu_pull_target_to_current">Pull «%1$s» в «%2$s»</string>
+    <string name="branch_context_menu_rename_branch">Переименовать ветку</string>
+    <string name="branch_context_menu_change_default_upstream_branch">Изменить upstream по умолчанию</string>
+    <string name="branch_context_menu_delete_remote_branch">Удалить удалённую ветку</string>
+    <string name="branch_context_menu_delete_branch">Удалить ветку</string>
+    <string name="branch_context_menu_copy_branch_name">Копировать имя ветки</string>
+
+    <!-- Committed changes context menu -->
+    <string name="committed_changes_context_menu_blame_file">Blame файла</string>
+    <string name="committed_changes_context_menu_file_history">История файла</string>
+    <string name="committed_changes_context_menu_open_file_in_folder">Открыть файл в папке</string>
+
+    <!-- Log context menu -->
+    <string name="log_context_menu_checkout_commit">Checkout коммита</string>
+    <string name="log_context_menu_create_branch">Создать ветку</string>
+    <string name="log_context_menu_create_tag">Создать тег</string>
+    <string name="log_context_menu_rebase_interactive">Интерактивный rebase</string>
+    <string name="log_context_menu_revert_commit">Revert коммита</string>
+    <string name="log_context_menu_cherry_pick_commit">Cherry-pick коммита</string>
+    <string name="log_context_menu_reset_current_branch_to_commit">Сбросить текущую ветку на этот коммит</string>
+
+    <!-- Pull context menu -->
+    <string name="pull_context_menu_pull_with_merge">Pull с merge</string>
+    <string name="pull_context_menu_pull_with_rebase">Pull с rebase</string>
+    <string name="pull_context_menu_fetch_all">Fetch всех</string>
+
+    <!-- Push context menu -->
+    <string name="push_context_menu_push_including_tags">Push включая теги</string>
+    <string name="push_context_menu_force_push">Force push</string>
+
+    <!-- Remote context menu -->
+    <string name="remote_context_menu_edit">Изменить</string>
+    <string name="remote_context_menu_delete">Удалить</string>
+    <string name="remote_context_menu_fetch_all">Fetch веток</string>
+
+    <!-- Stash menu context menu -->
+    <string name="stash_context_menu_stash_with_message">Stash с сообщением</string>
+
+    <!-- Stashes context menu -->
+    <string name="stashes_context_menu_apply_stash">Применить stash</string>
+    <string name="stashes_context_menu_pop_stash">Pop stash</string>
+    <string name="stashes_context_menu_drop_stash">Удалить stash</string>
+
+    <!-- Status dir entries context menu -->
+    <string name="status_dir_entries_context_menu_unstage_changes">Unstage изменений в каталоге</string>
+    <string name="status_dir_entries_context_menu_stage_changes">Stage изменений в каталоге</string>
+    <string name="status_dir_entries_context_menu_discard_changes">Отменить изменения</string>
+
+    <!-- Submodules context menu -->
+    <string name="submodules_context_menu_initialize_submodule">Инициализировать подмодуль</string>
+    <string name="submodules_context_menu_open_submodule_in_tab">Открыть подмодуль в новой вкладке</string>
+    <string name="submodules_context_menu_sync_submodule">Синхронизировать подмодуль</string>
+    <string name="submodules_context_menu_update_submodule">Обновить подмодуль</string>
+    <string name="submodules_context_menu_delete_submodule">Удалить подмодуль</string>
+
+    <!-- Tag context menu -->
+    <string name="tag_context_menu_checkout_tag_commit">Checkout коммита тега</string>
+    <string name="tag_context_menu_delete_tag">Удалить тег</string>
+
+    <!-- Settings -->
+    <string name="settings_environment_default_clone_directory_title">Каталог клонирования по умолчанию</string>
+    <string name="settings_environment_default_clone_directory_description">Каталог, который будет предложен по умолчанию при клонировании репозитория</string>
+    <string name="settings_section_user_interface">Интерфейс</string>
+    <string name="settings_entry_appearance">Оформление</string>
+    <string name="settings_language_title">Язык</string>
+    <string name="settings_language_description">Язык интерфейса. «Системный» следует локали ОС.</string>
+    <string name="settings_theme_title">Тема</string>
+    <string name="settings_theme_description">Выбор светлой или тёмной темы интерфейса</string>
+    <string name="settings_entry_layout">Макет</string>
+    <string name="settings_entry_datetime">Дата и время</string>
+    <string name="settings_section_git">GIT</string>
+    <string name="settings_entry_environment">Окружение</string>
+    <string name="settings_entry_branches">Ветки</string>
+    <string name="settings_entry_remote_actions">Удалённые действия</string>
+    <string name="settings_section_network">Сеть</string>
+    <string name="settings_entry_proxy">Прокси</string>
+    <string name="settings_entry_auth">Аутентификация</string>
+    <string name="settings_entry_security">Безопасность</string>
+    <string name="settings_section_tools">Инструменты</string>
+    <string name="settings_entry_terminal">Терминал</string>
+    <string name="settings_entry_logs">Журналы</string>
+
+    <!-- Notifications -->
+    <string name="settings_lists_spacing_title">Интервал списков (Beta)</string>
+    <string name="settings_lists_spacing_description">Отступы вокруг элементов списков</string>
+    <string name="settings_scale_title">Масштаб</string>
+    <string name="settings_scale_description">Подстройте размер интерфейса под нужный масштаб</string>
+    <string name="settings_avatar_provider_title">Провайдер аватаров</string>
+    <string name="settings_avatar_provider_description">При использовании провайдера адреса e-mail хешируются с помощью SHA256</string>
+    <string name="settings_avatar_provider_none">Нет</string>
+    <string name="settings_avatar_provider_gravatar">Gravatar</string>
+    <string name="settings_lists_spacing_spaced">Просторный</string>
+    <string name="settings_lists_spacing_compact">Компактный</string>
+    <string name="settings_swap_staged_unstaged_title">Поменять местами staged/unstaged</string>
+    <string name="settings_swap_staged_unstaged_description">Показывать список unstaged-изменений над списком staged</string>
+    <string name="settings_datetime_use_system_title">Системный формат даты и времени</string>
+    <string name="settings_datetime_use_system_description">Если включено, дата отображается как «%1$s»</string>
+    <string name="settings_datetime_custom_format_title">Свой формат даты</string>
+    <string name="settings_datetime_use_24h_title">24-часовой формат времени</string>
+    <string name="settings_datetime_relative_title">Относительная дата</string>
+    <string name="settings_datetime_relative_description">Использовать «Сегодня» и «Вчера» вместо даты</string>
+    <string name="settings_fast_forward_merge_title">Fast-forward merge</string>
+    <string name="settings_fast_forward_merge_description">По возможности выполнять слияние fast-forward</string>
+    <string name="settings_auto_stash_on_merge_title">Автоматически stash перед merge</string>
+    <string name="settings_auto_stash_on_merge_description">Чтобы не потерять незакоммиченные изменения при отмене merge, приложение может сохранить их снимок</string>
+    <string name="settings_pull_with_rebase_title">Pull с rebase по умолчанию</string>
+    <string name="settings_pull_with_rebase_description">При pull делать rebase вместо merge</string>
+    <string name="settings_force_push_with_lease_title">Force push with lease</string>
+    <string name="settings_force_push_with_lease_description">Проверять актуальность локальной копии удалённой ветки, чтобы случайно не перезаписать чужие коммиты</string>
+    <string name="settings_use_proxy_title">Использовать прокси</string>
+    <string name="settings_use_proxy_description">Настройте прокси при необходимости</string>
+    <string name="settings_proxy_type_title">Тип прокси</string>
+    <string name="settings_proxy_type_description">HTTP или SOCKS</string>
+    <string name="settings_proxy_host_title">Имя хоста</string>
+    <string name="settings_proxy_port_title">Номер порта</string>
+    <string name="settings_proxy_auth_title">Аутентификация прокси</string>
+    <string name="settings_proxy_auth_description">Учётные данные для авторизации на прокси-сервере</string>
+    <string name="settings_proxy_login_title">Логин</string>
+    <string name="settings_proxy_password_title">Пароль</string>
+    <string name="settings_cache_credentials_title">Кэшировать HTTP-учётные данные в памяти</string>
+    <string name="settings_cache_credentials_description">Если включено, HTTP-учётные данные сохраняются до закрытия Gitnuro</string>
+    <string name="settings_do_not_verify_ssl_title">Не проверять SSL</string>
+    <string name="settings_do_not_verify_ssl_description">Если включено, допускается незащищённое HTTPS-соединение с удалённым сервером</string>
+    <string name="settings_terminal_path_title">Путь к терминалу</string>
+    <string name="settings_terminal_path_description">Если пусто, Gitnuro попытается открыть терминал по умолчанию</string>
+    <string name="settings_logs_title">Журналы</string>
+    <string name="settings_logs_description">Открыть папку с логами</string>
+    <string name="settings_logs_open_folder">Открыть папку</string>
+    <string name="notification_copied_branch_to_clipboard">«%1$s» скопировано в буфер</string>
+
+    <!-- Error dialog -->
+    <string name="error_dialog_copy_button_tooltip">Копировать ошибку</string>
+
+    <!-- Clone -->
+    <string name="clone_error_invalid_directory">Некорректный пустой каталог</string>
+    <string name="clone_error_invalid_url">Некорректный пустой URL</string>
+    <string name="clone_error_invalid_folder_name">Некорректное пустое имя папки</string>
+
+    <!-- Errors -->
+    <string name="error_create_branch_already_exists">Ветка «%1$s» уже существует, попробуйте другое имя</string>
+    <string name="error_create_branch_name_not_allowed">Имя ветки «%1$s» недопустимо, используйте только буквы и цифры.</string>
+    <string name="error_hook_rejection">Коммит отклонён hook: «%1$s»</string>
+    <string name="error_repository_path_not_set">Путь к репозиторию не сохранён. Если это ошибка, сообщите в issue tracker Gitnuro.</string>
+    <string name="error_repository_read_error">Не удалось прочитать репозиторий: %1$s. Проверьте, что он существует и доступен.</string>
+    <string name="error_stash_no_data">Нет данных для stash</string>
+    <string name="error_open_repository_dir_not_found">Не удалось открыть репозиторий: проверьте, что он существует и доступен</string>
+    <string name="error_open_repository_path_is_not_dir">Не удалось открыть репозиторий: указанный путь не является каталогом</string>
+    <string name="error_open_repository_repository_load">Не удалось открыть репозиторий: ошибка загрузки: %1$s</string>
+    <string name="error_open_repository_repo_not_found">Не удалось открыть репозиторий: в указанном пути репозиторий не найден</string>
+</resources>

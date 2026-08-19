@@ -10,6 +10,7 @@ import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
+import com.jetpackduba.gitnuro.domain.models.ui.AppLanguage
 import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
@@ -50,6 +51,7 @@ class SettingsViewModel @Inject constructor(
         return combine(
             appSettingsService.scaleUi,
             appSettingsService.theme,
+            appSettingsService.language,
             appSettingsService.customTheme,
             appSettingsService.linesHeightType,
             appSettingsService.dateFormatUseDefault,
@@ -75,6 +77,7 @@ class SettingsViewModel @Inject constructor(
             appSettingsService.terminalPath,
         ) { scaleUi,
             theme,
+            language,
             customTheme,
             linesHeightType,
             dateFormatUseDefault,
@@ -101,6 +104,7 @@ class SettingsViewModel @Inject constructor(
 
             SettingsViewState(
                 scaleUi,
+                language,
                 theme,
                 customTheme,
                 linesHeightType,
@@ -132,6 +136,7 @@ class SettingsViewModel @Inject constructor(
     private fun emptySettingsState(): SettingsViewState {
         return SettingsViewState(
             scaleUi = null,
+            language = AppLanguage.System,
             theme = Theme.Light,
             customTheme = "",
             linesHeightType = LinesHeightType.SPACED,
@@ -163,6 +168,7 @@ class SettingsViewModel @Inject constructor(
 @Immutable
 data class SettingsViewState(
     val scaleUi: Float?,
+    val language: AppLanguage,
     val theme: Theme,
     val customTheme: String?,
     val linesHeightType: LinesHeightType,
