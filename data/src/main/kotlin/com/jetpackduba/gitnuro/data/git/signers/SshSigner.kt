@@ -25,14 +25,25 @@ class SshSigner @Inject constructor(
             throw CancellationException("Signing key not specified")
         }
 
-        val credentials = runBlocking { // TODO Run blocking perhaps could be replaced?
-            credentialsStateManager.requestSshCredentials()
-        }
-        val result = Signing().use {
-            it.signData(data, signingKey, credentials.password)
+
+        val result = try {
+            signData(data, signingKey, null)
+        } catch (e: Exception) {
+            val credentials = runBlocking { // TODO Run blocking perhaps could be replaced?
+                credentialsStateManager.requestSshCredentials()
+            }
+
+            signData(data, signingKey, credentials.password)
         }
 
         return GpgSignature(result.toByteArray(Charsets.UTF_8))
+    }
+
+    private fun signData(data: ByteArray, signingKey: String, password: String?): String {
+        val result = Signing().use {
+            it.signData(data, signingKey, password)
+        }
+        return result
     }
 
     override fun canLocateSigningKey(

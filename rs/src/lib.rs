@@ -711,9 +711,9 @@ impl Signing {
         Signing {}
     }
 
-    fn sign_data(&self, data: &Vec<u8>, key: String, password: String) -> String {
+    fn sign_data(&self, data: &Vec<u8>, key: String, password: Option<String>) -> String {
         let key =
-            SshKey::from_privkey_file(&key, Some(&password)).expect("Unable to load private key");
+            SshKey::from_privkey_file(&key, password.as_deref()).expect("Unable to load private key");
         ssh_sign(&data, key, SignAlgorithm::SHA512, None, "git".to_string())
             .expect("Unable to sign data")
     }
