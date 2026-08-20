@@ -32,7 +32,7 @@ import com.jetpackduba.gitnuro.keybindings.Keybinding
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.keyBinding
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
-import com.jetpackduba.gitnuro.theme.notoSansMonoFontFamily
+import com.jetpackduba.gitnuro.theme.monoTypography
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
@@ -344,7 +344,7 @@ fun KeybindingHint(keybinding: Keybinding) {
 
     Text(
         parts,
-        fontFamily = notoSansMonoFontFamily,
+        fontFamily = monoTypography(),
         fontSize = MaterialTheme.typography.caption.fontSize,
         fontWeight = FontWeight.Medium,
         color = MaterialTheme.colors.onBackgroundSecondary,

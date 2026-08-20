@@ -25,22 +25,21 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.extensions.handOnHover
-import com.jetpackduba.gitnuro.domain.extensions.lineAt
-import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
+import com.jetpackduba.gitnuro.domain.extensions.lineAt
 import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.extensions.handOnHover
+import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
-import com.jetpackduba.gitnuro.theme.notoSansMonoFontFamily
+import com.jetpackduba.gitnuro.theme.monoTypography
 import com.jetpackduba.gitnuro.theme.secondarySurface
 import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import org.eclipse.jgit.blame.BlameResult
-import org.eclipse.jgit.revwalk.RevCommit
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -126,7 +125,7 @@ fun Blame(
                             text = syntaxHighlighter.syntaxHighlight(line + blameResult.resultContents.lineDelimiter),
                             color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-                            fontFamily = notoSansMonoFontFamily,
+                            fontFamily = monoTypography(),
                             maxLines = 1,
                         )
                     }
@@ -148,7 +147,7 @@ private fun LineNumber(line: Int, highestLineLength: Int) {
         Text(
             text = line.toStringWithSpaces(highestLineLength),
             color = MaterialTheme.colors.onBackground,
-            fontFamily = notoSansMonoFontFamily,
+            fontFamily = monoTypography(),
         )
     }
 }

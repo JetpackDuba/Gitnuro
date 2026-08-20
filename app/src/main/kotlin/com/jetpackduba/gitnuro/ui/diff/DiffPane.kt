@@ -1248,7 +1248,7 @@ fun DiffText(text: String, matchLine: MatchLine?, syntaxHighlighter: SyntaxHighl
             modifier = Modifier
                 .padding(start = 16.dp)
                 .fillMaxWidth(),
-            fontFamily = notoSansMonoFontFamily,
+            fontFamily = monoTypography(),
             style = MaterialTheme.typography.body2,
             color = MaterialTheme.colors.onBackground,
             overflow = TextOverflow.Visible,
@@ -1276,7 +1276,7 @@ fun LineNumber(text: String, remarked: Boolean) {
         text = text,
         modifier = Modifier
             .padding(start = 8.dp, end = 4.dp),
-        fontFamily = notoSansMonoFontFamily,
+        fontFamily = monoTypography(),
         style = MaterialTheme.typography.body2,
         color = if (remarked) MaterialTheme.colors.onBackground else MaterialTheme.colors.onBackgroundSecondary,
     )
