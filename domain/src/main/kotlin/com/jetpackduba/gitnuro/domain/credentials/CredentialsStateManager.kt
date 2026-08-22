@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.domain.credentials
 
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.domain.models.CredentialsType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,16 +15,15 @@ import kotlin.coroutines.cancellation.CancellationException
 @Singleton
 class CredentialsStateManager @Inject constructor() {
     private val mutex = Mutex()
-    private val _credentialsState = MutableStateFlow<CredentialsState>(CredentialsState.None)
     val credentialsState: StateFlow<CredentialsState>
-        get() = _credentialsState
+        field = MutableStateFlow<CredentialsState>(CredentialsState.None)
 
     suspend fun requestHttpCredentials(): CredentialsAccepted.HttpCredentialsAccepted {
         return requestAwaitingCredentials(CredentialsRequest.HttpCredentialsRequest)
     }
 
-    suspend fun requestSshCredentials(): CredentialsAccepted.SshCredentialsAccepted {
-        return requestAwaitingCredentials(CredentialsRequest.SshCredentialsRequest)
+    suspend fun requestSshCredentials(isRetry: Boolean, password: String?): CredentialsAccepted.SshCredentialsAccepted {
+        return requestAwaitingCredentials(CredentialsRequest.SshCredentialsRequest(isRetry, password.orEmpty()))
     }
 
     suspend fun requestGpgCredentials(isRetry: Boolean, password: String): CredentialsAccepted.GpgCredentialsAccepted {
@@ -35,35 +35,35 @@ class CredentialsStateManager @Inject constructor() {
     }
 
     fun credentialsDenied() {
-        _credentialsState.value = CredentialsState.CredentialsDenied
+        credentialsState.value = CredentialsState.CredentialsDenied
     }
 
     fun httpCredentialsAccepted(user: String, password: String) {
-        _credentialsState.value = CredentialsAccepted.HttpCredentialsAccepted(user, password)
+        credentialsState.value = CredentialsAccepted.HttpCredentialsAccepted(user, password)
     }
 
     fun sshCredentialsAccepted(password: String) {
-        _credentialsState.value = CredentialsAccepted.SshCredentialsAccepted(password)
+        credentialsState.value = CredentialsAccepted.SshCredentialsAccepted(password)
     }
 
     fun gpgCredentialsAccepted(password: String) {
-        _credentialsState.value = CredentialsAccepted.GpgCredentialsAccepted(password)
+        credentialsState.value = CredentialsAccepted.GpgCredentialsAccepted(password)
     }
 
     fun lfsCredentialsAccepted(user: String, password: String) {
-        _credentialsState.value = CredentialsAccepted.LfsCredentialsAccepted(user, password)
+        credentialsState.value = CredentialsAccepted.LfsCredentialsAccepted(user, password)
     }
 
     private suspend inline fun <reified T : CredentialsAccepted> requestAwaitingCredentials(credentialsRequest: CredentialsRequest): T {
         mutex.withLock {
             assert(this.credentialsState.value is CredentialsState.None)
 
-            _credentialsState.value = credentialsRequest
+            credentialsState.value = credentialsRequest
 
             val credentialsResult = this.credentialsState
                 .first { it !is CredentialsRequest }
 
-            _credentialsState.value = CredentialsState.None
+            credentialsState.value = CredentialsState.None
 
             return when (credentialsResult) {
                 is T -> credentialsResult
@@ -93,7 +93,9 @@ sealed interface CredentialsAccepted : CredentialsState {
 }
 
 sealed interface CredentialsRequest : CredentialsState {
-    data object SshCredentialsRequest : CredentialsRequest
+    @Immutable
+    data class SshCredentialsRequest(val isRetry: Boolean, val password: String) : CredentialsRequest
+    @Immutable
     data class GpgCredentialsRequest(val isRetry: Boolean, val password: String) : CredentialsRequest
     data object HttpCredentialsRequest : CredentialsRequest
     data object LfsCredentialsRequest : CredentialsRequest

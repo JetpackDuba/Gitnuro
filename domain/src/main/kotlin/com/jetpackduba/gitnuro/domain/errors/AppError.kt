@@ -38,3 +38,8 @@ sealed interface OpenRepoError: AppError {
     data object RepositoryNotFoundInPath : OpenRepoError
     data class RepositoryLoadFailed(val error: String) : OpenRepoError
 }
+
+sealed interface SshSigningError : AppError {
+    data class InvalidPassword(val password: String): SshSigningError
+    data class KeyNotFound(val path: String): SshSigningError
+}

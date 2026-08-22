@@ -82,7 +82,7 @@ sealed interface Screen : NavKey {
     data class Error(val error: CompletedTask.Failure) : Screen
     data object SubmoduleAdd : Screen
     data object HttpCredentials : Screen
-    data object SshCredentials : Screen
+    data class SshCredentials(val credentialsRequest: CredentialsRequest.SshCredentialsRequest) : Screen
     data class GpgCredentials(val credentialsRequest: CredentialsRequest.GpgCredentialsRequest) : Screen
     data object LfsCredentials : Screen
     data object QuickActions : Screen

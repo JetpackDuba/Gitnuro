@@ -15,7 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -38,7 +40,7 @@ fun PasswordDialog(
 ) {
     var showRetryMessage by remember(isRetry) { mutableStateOf(isRetry) }
     var showPassword by remember { mutableStateOf(false) }
-    var passwordField by remember { mutableStateOf(password) }
+    var passwordField by remember { mutableStateOf(TextFieldValue(password, selection = TextRange(password.length)) ) }
     val passwordFieldFocusRequester = remember { FocusRequester() }
 
     SingleTextFieldDialog(
@@ -78,7 +80,7 @@ fun PasswordDialog(
             }
         },
         onDismiss = onDismiss,
-        onPrimaryActionClicked = { onAccept(passwordField) },
+        onPrimaryActionClicked = { onAccept(passwordField.text) },
     ) {
         if (showRetryMessage) {
             Box(
@@ -87,7 +89,7 @@ fun PasswordDialog(
                     .clip(RoundedCornerShape(4.dp))
                     .background(MaterialTheme.colors.error)
                     .align(Alignment.CenterHorizontally)
-                    .padding(4.dp)
+                    .padding(vertical = 4.dp, horizontal = 8.dp)
                     .fillMaxWidth()
             ) {
                 Text(

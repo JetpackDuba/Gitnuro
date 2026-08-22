@@ -106,7 +106,7 @@ fun AppTab(
             is CredentialsRequest.GpgCredentialsRequest -> Screen.GpgCredentials(state)
             CredentialsRequest.HttpCredentialsRequest -> Screen.HttpCredentials
             CredentialsRequest.LfsCredentialsRequest -> Screen.LfsCredentials
-            CredentialsRequest.SshCredentialsRequest -> Screen.SshCredentials
+            is CredentialsRequest.SshCredentialsRequest -> Screen.SshCredentials(state)
             else -> null
         }
 
@@ -254,6 +254,7 @@ fun AppTab(
                             metadata = dialogsMetadata
                         ) { entry ->
                             SshPasswordDialog(
+                                credentialsRequest = entry.credentialsRequest,
                                 onReject = {
                                     repositoryTabViewModel.credentialsDenied()
                                     backStack.removeLastOrNull()

@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.error_open_repository_rep
 import com.jetpackduba.gitnuro.app.generated.resources.error_open_repository_repository_load
 import com.jetpackduba.gitnuro.app.generated.resources.error_repository_path_not_set
 import com.jetpackduba.gitnuro.app.generated.resources.error_repository_read_error
+import com.jetpackduba.gitnuro.app.generated.resources.error_sign_ssh_key_not_found
 import com.jetpackduba.gitnuro.app.generated.resources.error_stash_no_data
 import com.jetpackduba.gitnuro.domain.errors.*
 import org.jetbrains.compose.resources.stringResource
@@ -37,5 +38,8 @@ fun AppError.getErrorText(): String {
             is OpenRepoError.RepositoryLoadFailed -> stringResource(Res.string.error_open_repository_repository_load, this.error)
             OpenRepoError.RepositoryNotFoundInPath -> stringResource(Res.string.error_open_repository_repo_not_found)
         }
+
+        is SshSigningError.InvalidPassword -> throw IllegalStateException("InvalidPassword error should never trigger")
+        is SshSigningError.KeyNotFound -> stringResource(Res.string.error_sign_ssh_key_not_found)
     }
 }

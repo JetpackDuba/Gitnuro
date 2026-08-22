@@ -34,7 +34,7 @@ class SshCredentialsProvider @Inject constructor(
 
         if (cachedCredentials == null || !cacheCredentialsInMemory) {
             val sshCredentials = runBlocking {
-                credentialsStateManager.requestSshCredentials()
+                credentialsStateManager.requestSshCredentials(isRetry = false, null)
             }
 
             passwordItem.value = sshCredentials.password.toCharArray()

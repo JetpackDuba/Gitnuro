@@ -1,12 +1,17 @@
 package com.jetpackduba.gitnuro.data.git.signers
 
 import com.jetpackduba.gitnuro.Signing
+import com.jetpackduba.gitnuro.common.extensions.TAG
+import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
-import com.jetpackduba.gitnuro.use
+import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.SshSigningError
+import com.jetpackduba.gitnuro.domain.errors.handleException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.lib.*
 import org.eclipse.jgit.transport.CredentialsProvider
+import java.io.File
 import javax.inject.Inject
 
 class SshSigner @Inject constructor(
@@ -25,25 +30,39 @@ class SshSigner @Inject constructor(
             throw CancellationException("Signing key not specified")
         }
 
+        var password = ""
+        var result: Either<String, SshSigningError>
+        do {
+            result = signData(data, signingKey, password)
 
-        val result = try {
-            signData(data, signingKey, null)
-        } catch (e: Exception) {
-            val credentials = runBlocking { // TODO Run blocking perhaps could be replaced?
-                credentialsStateManager.requestSshCredentials()
+            if (result is Either.Ok) {
+                return GpgSignature(result.value.toByteArray(Charsets.UTF_8))
             }
 
-            signData(data, signingKey, credentials.password)
-        }
+            val credentials = runBlocking { // TODO Run blocking perhaps could be replaced?
+                val isRetry = password.isNotEmpty() && result is Either.Err
 
-        return GpgSignature(result.toByteArray(Charsets.UTF_8))
+                credentialsStateManager.requestSshCredentials(isRetry, password)
+            }
+
+            password = credentials.password
+        } while (result is Either.Err)
+
+        throw CancellationException("Signing cancelled")
     }
 
-    private fun signData(data: ByteArray, signingKey: String, password: String?): String {
-        val result = Signing().use {
-            it.signData(data, signingKey, password)
+    private fun signData(data: ByteArray, signingKey: String, password: String?): Either<String, SshSigningError> {
+        return runBlocking {
+            handleException(
+                exceptionMapper = { exception ->
+                    printError(TAG, exception.message.orEmpty(), exception)
+                    SshSigningError.InvalidPassword(password.orEmpty())
+                }
+            ) {
+                val signer = Signing()
+                signer.signData(data, signingKey, password)
+            }
         }
-        return result
     }
 
     override fun canLocateSigningKey(

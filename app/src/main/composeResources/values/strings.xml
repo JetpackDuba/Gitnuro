@@ -216,5 +216,6 @@
     <string name="error_open_repository_repository_load">Failed to open repository, could not load repository: %1$s</string>
     <string name="error_open_repository_repo_not_found">Failed to open repository, could not find a repository in the specified path</string>
 
+    <string name="error_sign_ssh_key_not_found">Could not find signing key specified in your config</string>
 
 </resources>
