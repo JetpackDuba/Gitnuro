@@ -88,9 +88,9 @@
     <string name="uncommited_changes_amend_check">Amend previous commit</string>
 
     <!-- Merge automatic stash -->
-    <string name="merge_automatic_stash_description">Automatic stash before merge of "%1$s" to "%2$s"</string>
-    <string name="pull_with_merge_automatic_stash_description">Automatic stash before pull of "%1$s"</string>
-    <string name="pull_with_merge_from_specific_branch_automatic_stash_description">Automatic stash before pull from "%1$s" to "%2$s"</string>
+    <string name="merge_automatic_stash_description">Automatic snapshot stash before merge of "%1$s" to "%2$s"</string>
+    <string name="pull_with_merge_automatic_stash_description">Automatic snapshot stash before pull of "%1$s"</string>
+    <string name="pull_with_merge_from_specific_branch_automatic_stash_description">Automatic snapshot stash before pull from "%1$s" to "%2$s"</string>
 
     <!-- Status entries context menu -->
     <string name="status_entries_context_menu_delete_file">Delete file</string>
