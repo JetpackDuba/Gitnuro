@@ -33,6 +33,7 @@ class RefreshDataUseCase @Inject constructor(
     private val getRepositoryState: IGetRepositoryStateGitAction,
     private val getRebaseInteractiveTodoLinesUseCase: GetRebaseInteractiveTodoLinesUseCase,
     private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
+    private val getPersistedCommitMessagesGitAction: IGetPersistedCommitMessagesGitAction,
     private val getLogUseCase: GetLogUseCase,
     private val scope: TabCoroutineScope,
 ) {
@@ -57,6 +58,7 @@ class RefreshDataUseCase @Inject constructor(
 
         if (isRefreshAll || dataToRefresh.contains(DataToRefresh.STATUS)) {
             refreshStatus()
+            refreshCommitMessages()
         }
 
         if (isRefreshAll || dataToRefresh.contains(DataToRefresh.GIT_CONFIG)) {
@@ -77,6 +79,14 @@ class RefreshDataUseCase @Inject constructor(
 
         if (isRefreshAll || dataToRefresh.contains(DataToRefresh.REPO_STATE)) {
             refreshRepositoryState()
+        }
+    }
+
+    private fun refreshCommitMessages() {
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
+            repositoryDataRepository.updatePersistedCommitMessages {
+                getPersistedCommitMessagesGitAction(repositoryPath)
+            }
         }
     }
 

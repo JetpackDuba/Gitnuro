@@ -49,6 +49,9 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
     override val author: Flow<DataState<AuthorInfo>>
         field = MutableStateFlow<DataState<AuthorInfo>>(DataState.Loading)
 
+    override val persistedCommitMessage: Flow<DataState<PersistedCommitMessage>>
+        field = MutableStateFlow<DataState<PersistedCommitMessage>>(DataState.Loading)
+
     override var maxCommitsToLoadLimit: Int = 0
 
     override val repositoryPath: String?
@@ -115,6 +118,10 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
     override suspend fun updateRebaseInteractiveState(block: suspend () -> Either<RebaseInteractiveState, AppError>) {
         handleDataState(rebaseInteractiveState, block)
+    }
+
+    override suspend fun updatePersistedCommitMessages(block: suspend () -> Either<PersistedCommitMessage, AppError>) {
+        handleDataState(persistedCommitMessage, block)
     }
 
     private suspend inline fun <T> handleDataState(

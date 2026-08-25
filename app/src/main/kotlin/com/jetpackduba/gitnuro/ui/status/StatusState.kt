@@ -208,14 +208,6 @@ private fun List<StatusEntry>.prioritizeConflicts(): List<StatusEntry> {
         }
 }
 
-
-data class CommitMessage(val message: String, val type: MessageType)
-
-enum class MessageType {
-    NORMAL,
-    MERGE;
-}
-
 sealed interface CommitterDataRequestState {
     data object None : CommitterDataRequestState
     data class WaitingInput(val authorInfo: AuthorInfo) : CommitterDataRequestState

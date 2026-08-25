@@ -20,6 +20,7 @@ interface RepositoryDataRepository {
     val repositoryPath: String?
     val submodules: Flow<DataState<Map<String, Submodule>>>
     val author: Flow<DataState<AuthorInfo>>
+    val persistedCommitMessage: Flow<DataState<PersistedCommitMessage>>
     var maxCommitsToLoadLimit: Int
 
     fun setRepositorySelectionState(state: RepositorySelectionState)
@@ -35,6 +36,7 @@ interface RepositoryDataRepository {
     suspend fun updateAuthor(block: suspend () -> Either<AuthorInfo, AppError>)
     suspend fun updateRepositoryState(block: suspend () -> Either<RepositoryState, AppError>)
     suspend fun updateRebaseInteractiveState(block: suspend () -> Either<RebaseInteractiveState, AppError>)
+    suspend fun updatePersistedCommitMessages(block: suspend () -> Either<PersistedCommitMessage, AppError>)
 }
 
 sealed interface DataState<out T> {

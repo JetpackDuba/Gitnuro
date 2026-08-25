@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.repositoryopen
 
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
 import com.jetpackduba.gitnuro.common.OS
@@ -93,7 +94,51 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     val swapUncommittedChanges = appSettings.swapStatusPanes
 
-    private val commitMessage = MutableStateFlow(TextFieldValue(""))
+    private val normalCommitMessage = persistedCommitMessageFlow { it.commitMessage }
+
+    private val mergeCommitMessage = persistedCommitMessageFlow { it.mergeMessage }
+
+    private val commitMessage = combine(
+        normalCommitMessage,
+        mergeCommitMessage,
+        repositoryDataRepository.repositoryState,
+    ) { normalCommitMessage, mergeCommitMessage, repositoryState ->
+        val state = repositoryState.dataOrNull()
+
+        if (state?.isMerging == true) {
+            mergeCommitMessage
+        } else {
+            normalCommitMessage
+        }
+    }
+        .mutableStateIn(viewModelScope, TextFieldValue(""))
+
+
+    private fun persistedCommitMessageFlow(filter: (PersistedCommitMessage) -> String?): MutableStateFlow<TextFieldValue> =
+        flow {
+            val mutable = MutableStateFlow(TextFieldValue(""))
+
+            viewModelScope.launch {
+                repositoryDataRepository
+                    .persistedCommitMessage
+                    .map {
+                        it
+                            .dataOrNull()
+                            ?.let { persistedCommitMessage -> filter(persistedCommitMessage) }
+                    }
+                    .distinctUntilChanged()
+                    .collect {
+                        if (mutable.value.text.isBlank()) {
+                            val newText = it.orEmpty()
+                            mutable.value = TextFieldValue(newText, selection = TextRange(newText.count()))
+                        }
+                    }
+            }
+
+            emit(mutable)
+        }
+            .flattenConcat()
+            .mutableStateIn(viewModelScope, TextFieldValue(""))
 
     // When false, disable "amend previous commit"
     // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
@@ -289,7 +334,13 @@ class StatusViewModelExtender @AssistedInject constructor(
     }
 
     fun updateCommitMessage(message: TextFieldValue) {
-        commitMessage.value = message
+        val repositoryState = repositoryDataRepository.repositoryState.value.dataOrNull()
+
+        if (repositoryState?.isMerging == true) {
+            mergeCommitMessage.value = message
+        } else {
+            normalCommitMessage.value = message
+        }
         persistMessage()
     }
 
@@ -301,7 +352,6 @@ class StatusViewModelExtender @AssistedInject constructor(
             persistCommitMessageUseCase(commitMessage.value.text.ifBlank { null })
         }
     }
-
 
     private fun getDiffSelectedEntriesByEntryType(
         diffSelected: DiffSelected?,

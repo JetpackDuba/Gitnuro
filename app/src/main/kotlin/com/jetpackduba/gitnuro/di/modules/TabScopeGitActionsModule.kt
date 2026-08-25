@@ -450,4 +450,8 @@ interface TabScopeGitActionsModule {
 
     @Binds
     fun bindsGraphRevWalker(walker: JGitGraphRevWalker): GraphRevWalker
+
+    @Binds
+    @TabScope
+    fun bindsGetPersistedCommitMessagesGitAction(walker: GetPersistedCommitMessagesGitAction): IGetPersistedCommitMessagesGitAction
 }
