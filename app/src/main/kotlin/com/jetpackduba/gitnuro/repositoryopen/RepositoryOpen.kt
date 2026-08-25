@@ -24,8 +24,6 @@ import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
-import com.jetpackduba.gitnuro.domain.repositories.DataState
-import com.jetpackduba.gitnuro.domain.repositories.dataOrNull
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -173,7 +171,7 @@ fun RepositoryOpenPage(
 
 @Composable
 private fun RepositoryOpenBottomInfoBar(
-    userInfo: Identity,
+    userInfo: UiDataState<Identity>,
     newUpdate: Update?,
     onOpenUrlInBrowser: (String) -> Unit,
     onShowAuthorInfoDialog: () -> Unit,
@@ -188,14 +186,18 @@ private fun RepositoryOpenBottomInfoBar(
                     .handMouseClickable { onShowAuthorInfoDialog() },
                 contentAlignment = Alignment.Center,
             ) {
-                val name = userInfo.name ?: stringResource(Res.string.bottom_info_bar_name_not_set)
-                val email = userInfo.email ?: stringResource(Res.string.bottom_info_bar_email_not_set)
+                val identity = userInfo.data
 
-                Text(
-                    text = stringResource(Res.string.bottom_info_bar_name_and_email, name, email),
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.onBackground,
-                )
+                if (identity != null) {
+                    val name = identity.name ?: stringResource(Res.string.bottom_info_bar_name_not_set)
+                    val email = identity.email ?: stringResource(Res.string.bottom_info_bar_email_not_set)
+
+                    Text(
+                        text = stringResource(Res.string.bottom_info_bar_name_and_email, name, email),
+                        style = MaterialTheme.typography.body2,
+                        color = MaterialTheme.colors.onBackground,
+                    )
+                }
             }
         }
     )

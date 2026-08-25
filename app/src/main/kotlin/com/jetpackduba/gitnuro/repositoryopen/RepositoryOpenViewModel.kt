@@ -609,9 +609,18 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val authorInfoSimple = repositoryDataRepository
         .author
+        .map {
+            when (it) {
+                is DataState.Loaded -> {
+                    val identity = it.data.identityToUse()
+                    DataState.Loaded(identity)
+                }
+
+                is DataState.Loading -> DataState.Loading
+                is DataState.Error -> DataState.Error(it.error)
+            }
+        }
         .toUiDataState()
-        .map { it.data?.identityToUse() ?: Identity(null, null) }
-        .stateIn(emptyIdentity())
 
     var historyViewModel: HistoryViewModel? = null
         private set
