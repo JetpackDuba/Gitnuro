@@ -59,7 +59,15 @@ class GetLfsUrlGitAction @Inject constructor(
                 val remotes = getRemotesGitAction(repositoryPath).okOrNull().orEmpty()
 
                 return if (remotes.count() == 1) {
-                    "${remotes[0].fetchUri.removeSuffix("/")}/info/lfs"
+                    val remote = remotes[0].fetchUri.removeSuffix("/")
+                        .let {
+                            if (it.endsWith(".git")) {
+                                it
+                            } else {
+                                "$it.git"
+                            }
+                        }
+                    "$remote/info/lfs"
                 } else {
                     printError(TAG, "Remote name is null and couldn't obtain tracking branch remote.")
                     null
