@@ -43,7 +43,6 @@ fun ErrorDialog(
         (error.reason as? GenericError)
             ?.exception
             ?.stackTraceToString()
-            .orEmpty()
     }
     var showStackTrace by remember { mutableStateOf(false) }
 
@@ -94,7 +93,7 @@ fun ErrorDialog(
                         .fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = errorStackTrace.toString(),
+                        value = errorStackTrace,
                         onValueChange = {},
                         readOnly = true,
                         colors = TextFieldDefaults.outlinedTextFieldColors(backgroundColor = MaterialTheme.colors.secondarySurface),
