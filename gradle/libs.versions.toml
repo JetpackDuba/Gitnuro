@@ -1,6 +1,6 @@
 [versions]
 
-kotlin = "2.3.20"
+kotlin = "2.4.0"
 ksp = "2.3.8"
 jgit = "7.7.0.202606012155-r"
 dagger = "2.59.2"
@@ -12,7 +12,7 @@ slf4j = "2.0.17"
 bouncycastle = "1.81"
 ktor = "3.3.2"
 coil = "3.3.0"
-compose = "1.11.1"
+compose = "1.12.0"
 composeNav = "1.1.1"
 materialExtended = "1.7.3"
 coroutines = "1.10.2"
