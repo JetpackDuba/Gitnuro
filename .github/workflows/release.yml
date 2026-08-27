@@ -7,10 +7,11 @@ on:
 
 jobs:
   build_linux_x86_64:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
+      - run: cargo install cross
       - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
@@ -20,7 +21,7 @@ jobs:
       - name: Java version
         run: java --version
       - name: Build with Gradle
-        run: ./gradlew fatJarLinux -PisLinuxAarch64=false
+        run: ./gradlew fatJarLinux -PisLinuxAarch64=false -PuseCross=true
       - name: Generate SHA256 Checksum
         working-directory: ./app/build/libs
         run: find . -type f -exec bash -c "sha256sum {}  > {}.sum " \;
@@ -39,7 +40,7 @@ jobs:
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
   build_linux_aarch64:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
@@ -51,8 +52,9 @@ jobs:
           java-version: '25'
           distribution: 'jetbrains'
           architecture: x64
+      - run: cargo install cross
       - name: Build with Gradle
-        run: ./gradlew fatJarLinux -PisLinuxAarch64=true
+        run: ./gradlew fatJarLinux -PisLinuxAarch64=true -PuseCross=true
       - name: Generate SHA256 Checksum
         working-directory: ./app/build/libs
         run: find . -type f -exec bash -c "sha256sum {}  > {}.sum " \;
@@ -114,7 +116,7 @@ jobs:
           token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
 
   build_macos:
-    runs-on: macos-latest
+    runs-on: [self-hosted, macOS]
     steps:
       - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
