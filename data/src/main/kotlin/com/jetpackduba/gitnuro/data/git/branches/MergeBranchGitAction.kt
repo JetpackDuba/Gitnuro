@@ -28,11 +28,13 @@ class MergeBranchGitAction @Inject constructor(
             MergeCommand.FastForwardMode.NO_FF
 
         val mergeBase: ObjectId = git.repository.resolve(branch.name) ?: throw Exception("Branch ${branch.name} not found")
+        val currentBranch = git.repository.branch.orEmpty()
 
         val mergeResult = git
             .merge()
             .include(mergeBase)
             .setFastForward(fastForwardMode)
+            .setMessage("Merge branch '${branch.simpleNameWithRemote}' into $currentBranch")
             .call()
 
         if (mergeResult.mergeStatus == MergeResult.MergeStatus.FAILED) {

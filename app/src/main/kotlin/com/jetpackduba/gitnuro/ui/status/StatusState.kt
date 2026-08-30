@@ -137,7 +137,6 @@ fun combineStatusState(
         }.prioritizeConflicts()
 
         val isLoading = statusDataState.isLoading || repositoryStateDateState.isLoading
-        printLog(TAG, "Status is loading: $isLoading -> $statusDataState || $repositoryStateDateState")
 
         StatusState(
             isLoading = isLoading,

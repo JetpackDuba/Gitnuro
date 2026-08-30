@@ -114,31 +114,29 @@ class StatusViewModelExtender @AssistedInject constructor(
         .mutableStateIn(viewModelScope, TextFieldValue(""))
 
 
-    private fun persistedCommitMessageFlow(filter: (PersistedCommitMessage) -> String?): MutableStateFlow<TextFieldValue> =
-        flow {
-            val mutable = MutableStateFlow(TextFieldValue(""))
+    private fun persistedCommitMessageFlow(filter: (PersistedCommitMessage) -> String?): MutableStateFlow<TextFieldValue> {
+        val textFlow = MutableStateFlow(TextFieldValue(""))
 
-            viewModelScope.launch {
-                repositoryDataRepository
-                    .persistedCommitMessage
-                    .map {
-                        it
-                            .dataOrNull()
-                            ?.let { persistedCommitMessage -> filter(persistedCommitMessage) }
+        viewModelScope.launch {
+            repositoryDataRepository
+                .persistedCommitMessage
+                .map {
+                    it
+                        .dataOrNull()
+                        ?.let { persistedCommitMessage -> filter(persistedCommitMessage) }
+                }
+                .distinctUntilChanged()
+                .collect {
+                    if (textFlow.value.text.isBlank()) {
+                        val newText = it.orEmpty()
+                        textFlow.value = TextFieldValue(newText, selection = TextRange(newText.count()))
                     }
-                    .distinctUntilChanged()
-                    .collect {
-                        if (mutable.value.text.isBlank()) {
-                            val newText = it.orEmpty()
-                            mutable.value = TextFieldValue(newText, selection = TextRange(newText.count()))
-                        }
-                    }
-            }
-
-            emit(mutable)
+                }
         }
-            .flattenConcat()
-            .mutableStateIn(viewModelScope, TextFieldValue(""))
+
+        return textFlow
+    }
+
 
     // When false, disable "amend previous commit"
     // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
