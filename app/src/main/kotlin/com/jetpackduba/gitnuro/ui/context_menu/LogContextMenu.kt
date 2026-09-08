@@ -7,6 +7,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
 fun logContextMenu(
+    onShowStatusAmending: () -> Unit,
     onCheckoutCommit: () -> Unit,
     onCreateNewBranch: () -> Unit,
     onCreateNewTag: () -> Unit,
@@ -15,7 +16,18 @@ fun logContextMenu(
     onResetBranch: () -> Unit,
     onRebaseInteractive: () -> Unit,
     isLastCommit: Boolean,
+    showInAmend: Boolean,
 ) = mutableListOf<ContextMenuElement>().apply {
+    if (showInAmend) {
+        addContextMenu(
+            composableLabel = { stringResource(Res.string.log_context_menu_show_status_to_amend) },
+            icon = { painterResource(Res.drawable.edit) },
+            onClick = onShowStatusAmending
+        )
+
+        add(ContextMenuElement.ContextSeparator)
+    }
+
     addContextMenu(
         composableLabel = { stringResource(Res.string.log_context_menu_checkout_commit) },
         icon = { painterResource(Res.drawable.start) },

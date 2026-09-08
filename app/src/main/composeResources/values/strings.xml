@@ -124,6 +124,7 @@
     <string name="committed_changes_context_menu_open_file_in_folder">Open file in folder</string>
 
     <!-- Log context menu -->
+    <string name="log_context_menu_show_status_to_amend">Show status to amend this commit</string>
     <string name="log_context_menu_checkout_commit">Checkout commit</string>
     <string name="log_context_menu_create_branch">Create branch</string>
     <string name="log_context_menu_create_tag">Create tag</string>

@@ -15,6 +15,7 @@ sealed interface LogAction {
     data class CheckoutBranch(val branch: Branch) : LogAction
     data class RebaseInteractive(val commit: Commit) : LogAction
     data class CommitSelected(val commit: Commit) : LogAction
+    data object ShowStatusAmending : LogAction
     data object UncommittedChangesSelected : LogAction
     data class DeleteStash(val commit: Commit) : LogAction
     data class ApplyStash(val commit: Commit) : LogAction

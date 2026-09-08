@@ -597,6 +597,11 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     fun amend(isAmend: Boolean) {
         this.isAmend.value = isAmend
+
+        if (this.commitMessage.value.text.isEmpty()) {
+            val previousCommitMessage = this.statusState.value.previousCommitMessage.orEmpty()
+            this.commitMessage.value= TextFieldValue(previousCommitMessage, selection = TextRange(previousCommitMessage.count()))
+        }
     }
 
     fun amendRebaseInteractive(isAmend: Boolean) {

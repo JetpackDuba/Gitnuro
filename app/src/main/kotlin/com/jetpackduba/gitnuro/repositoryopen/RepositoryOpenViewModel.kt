@@ -770,6 +770,7 @@ class RepositoryOpenViewModel @Inject constructor(
             is LogAction.RebaseInteractive -> rebaseInteractive(action.commit)
             is LogAction.RevertCommit -> revertCommit(action.commit)
             LogAction.UncommittedChangesSelected -> selectUncommittedChanges()
+            LogAction.ShowStatusAmending -> selectUncommittedChanges(forceAmend = true)
             is LogAction.SearchValueChange -> onSearchValueChanged(action.filter)
         }
     }
@@ -779,7 +780,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private fun cherryPickCommit(commit: Commit) = cherryPickCommitUseCase(commit)
     private fun revertCommit(commit: Commit) = revertCommitUseCase(commit)
 
-    fun selectUncommittedChanges() = viewModelScope.launch {
+    fun selectUncommittedChanges(forceAmend: Boolean = false) = viewModelScope.launch {
         selectedItem.value = SelectedItem.UncommittedChanges
 
         val searchValue = logSearchFilterResults.value
@@ -787,6 +788,10 @@ class RepositoryOpenViewModel @Inject constructor(
             val lastIndexSelected = getLastIndexSelected()
 
             logSearchFilterResults.value = searchValue.copy(index = lastIndexSelected)
+        }
+
+        if (forceAmend) {
+            statusViewModelExtender.amend(true)
         }
     }
 

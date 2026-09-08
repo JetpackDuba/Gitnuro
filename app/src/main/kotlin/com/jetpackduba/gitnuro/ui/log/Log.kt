@@ -559,6 +559,7 @@ fun CommitsList(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
                 isSelected = selectedCommit?.hash == graphNode.hash,
+                showInAmend = logState.currentBranch?.hash == graphNode.hash && !hasUncommittedChanges,
                 isStash = stashes.contains(graphNode.hash),
                 branches = branches[graphNode.hash].orEmpty(),
                 tags = tags[graphNode.hash].orEmpty(),
@@ -583,6 +584,7 @@ fun CommitsList(
                 onDeleteStash = { onAction(LogAction.DeleteStash(graphNode.commit)) },
                 onApplyStash = { onAction(LogAction.ApplyStash(graphNode.commit)) },
                 onPopStash = { onAction(LogAction.PopStash(graphNode.commit)) },
+                onShowStatusAmending = { onAction(LogAction.ShowStatusAmending) },
                 onCheckoutCommit = { onAction(LogAction.CheckoutCommit(graphNode.commit)) },
                 onRevertCommit = { onAction(LogAction.RevertCommit(graphNode.commit)) },
                 onCherryPickCommit = { onAction(LogAction.CherryPickCommit(graphNode.commit)) },
@@ -773,6 +775,7 @@ private fun CommitLine(
     isSelected: Boolean,
     currentBranch: Branch?,
     isStash: Boolean,
+    showInAmend: Boolean,
     matchesSearchFilter: Boolean?,
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
@@ -790,6 +793,7 @@ private fun CommitLine(
     onRebaseBranch: (Branch) -> Unit,
     onRevCommitSelected: () -> Unit,
     onRebaseInteractive: () -> Unit,
+    onShowStatusAmending: () -> Unit,
     onCheckoutCommit: () -> Unit,
     onRevertCommit: () -> Unit,
     onCherryPickCommit: () -> Unit,
@@ -814,14 +818,16 @@ private fun CommitLine(
                 )
             } else {
                 logContextMenu(
-                    onCheckoutCommit = onCheckoutCommit,//{ logViewModel.checkoutCommit(graphNode) },
+                    onShowStatusAmending = onShowStatusAmending,
+                    onCheckoutCommit = onCheckoutCommit,
                     onCreateNewBranch = showCreateNewBranch,
                     onCreateNewTag = showCreateNewTag,
-                    onRevertCommit = onRevertCommit,//{ logViewModel.revertCommit(graphNode) },
-                    onCherryPickCommit = onCherryPickCommit, //{ logViewModel.cherryPickCommit(graphNode) },
+                    onRevertCommit = onRevertCommit,
+                    onCherryPickCommit = onCherryPickCommit,
                     onRebaseInteractive = onRebaseInteractive,
                     onResetBranch = { resetBranch() },
-                    isLastCommit = isLastCommitOfCurrentBranch
+                    isLastCommit = isLastCommitOfCurrentBranch,
+                    showInAmend = showInAmend,
                 )
             }
         },
