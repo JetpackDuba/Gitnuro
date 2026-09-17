@@ -14,7 +14,7 @@ interface IShellManager {
     fun runCommand(command: List<String>): String?
     fun runCommandInPath(command: List<String>, path: String)
     fun runCommandWithoutResult(command: List<String>): Boolean
-    fun runCommandProcess(command: List<String>): Process
+    fun runCommandProcess(command: List<String>, directory: File? = null): Process
 }
 
 class ShellManager @Inject constructor() : IShellManager {
@@ -78,11 +78,18 @@ class ShellManager @Inject constructor() : IShellManager {
         }
     }
 
-    override fun runCommandProcess(command: List<String>): Process {
+    override fun runCommandProcess(command: List<String>, directory: File?): Process {
         printLog(TAG, "runCommandProcess: " + command.joinToString(" "))
         try {
-            return ProcessBuilder(command).start()
-//            return ProcessBuilder(command).start()
+            return ProcessBuilder(command)
+                .run {
+                    if (directory != null) {
+                        this.directory(directory)
+                    } else {
+                        this
+                    }
+                }
+                .start()
         } catch (ex: IOException) {
             throw CommandExecutionFailed(ex.message.orEmpty(), ex)
         }
@@ -109,7 +116,7 @@ class FlatpakShellManager @Inject constructor(
         return shellManager.runCommandWithoutResult(flatpakPrefix + command)
     }
 
-    override fun runCommandProcess(command: List<String>): Process {
+    override fun runCommandProcess(command: List<String>, directory: File?): Process {
         return shellManager.runCommandProcess(flatpakPrefix + command)
     }
 
