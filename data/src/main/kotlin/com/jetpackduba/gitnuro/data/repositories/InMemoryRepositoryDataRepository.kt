@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.common.extensions.TAG
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
+import com.jetpackduba.gitnuro.domain.errors.GenericError
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.DataState
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
@@ -133,7 +134,7 @@ class InMemoryRepositoryDataRepository @Inject constructor() : RepositoryDataRep
 
         flow.value = when (result) {
             is Either.Err -> {
-                printError(TAG, "Failed to load data: $result")
+                printError(TAG, "Failed to load data: $result", (result.error as? GenericError)?.exception)
                 DataState.Error(result.error)
             }
             is Either.Ok -> DataState.Loaded(result.value)
