@@ -8,7 +8,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 
@@ -22,8 +22,8 @@ class AddEditRemoteViewModel @AssistedInject constructor(
         fun create(commit: Remote?): AddEditRemoteViewModel
     }
 
-    private val _remote = MutableStateFlow(remoteToEdit ?: Remote("", "", ""))
-    val remote = _remote.asStateFlow()
+    val remote: StateFlow<Remote>
+        field = MutableStateFlow(remoteToEdit ?: Remote("", "", ""))
 
     val isNewRemote = remoteToEdit == null
 
@@ -31,23 +31,23 @@ class AddEditRemoteViewModel @AssistedInject constructor(
         if (remoteToEdit == null) {
             addRemoteUseCase(remote.value)
         } else {
-            updateRemoteUseCase(remoteToEdit)
+            updateRemoteUseCase(remote.value)
         }
     }
 
     fun updateRemoteName(name: String) {
-        _remote.update { it.copy(name = name) }
+        remote.update { it.copy(name = name) }
     }
 
     fun updateAllUri(uri: String) {
-        _remote.update { it.copy(fetchUri = uri, pushUri = uri) }
+        remote.update { it.copy(fetchUri = uri, pushUri = uri) }
     }
 
     fun updateFetchUri(uri: String) {
-        _remote.update { it.copy(fetchUri = uri) }
+        remote.update { it.copy(fetchUri = uri) }
     }
 
     fun updatePushUri(uri: String) {
-        _remote.update { it.copy(pushUri = uri) }
+        remote.update { it.copy(pushUri = uri) }
     }
 }
