@@ -8,6 +8,7 @@ import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.models.Commit
 import org.eclipse.jgit.lib.MutableObjectId
+import org.eclipse.jgit.revwalk.RevSort
 import org.eclipse.jgit.revwalk.RevWalk
 import javax.inject.Inject
 
@@ -21,7 +22,11 @@ class JGitGraphRevWalker @Inject constructor(
 
     override suspend fun prepare(repository: String, startingCommits: List<String>): Either<Unit, GitError> {
         val initResult = jgit.provide(repository) { git ->
-            val revWalk = RevWalk(git.repository)
+            val revWalk = RevWalk(git.repository).apply {
+                this.sort(RevSort.TOPO, true)
+                this.sort(RevSort.COMMIT_TIME_DESC, true)
+            }
+
             this@JGitGraphRevWalker.revWalk = revWalk
 
             for (commit in startingCommits) {
