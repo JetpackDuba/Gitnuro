@@ -23,7 +23,19 @@ class PullBranchUseCase @Inject constructor(
     ) { repositoryPath ->
         val autoStashOnMerge = appSettingsService.autoStashOnMerge.first()
 
-        val result = pullBranchGitAction(repositoryPath, pullType, autoStashOnMerge, remoteBranch, automaticStashDescription)
+        val pullTypeWithSettings = if (pullType == PullType.DEFAULT) {
+            val isPullWithRebase = appSettingsService.pullWithRebase.first()
+
+            if (isPullWithRebase) {
+                PullType.REBASE
+            } else {
+                PullType.MERGE
+            }
+        } else {
+            pullType
+        }
+
+        val result = pullBranchGitAction(repositoryPath, pullTypeWithSettings, autoStashOnMerge, remoteBranch, automaticStashDescription)
 
         if (result is Either.Ok) {
             if (result.value) {
