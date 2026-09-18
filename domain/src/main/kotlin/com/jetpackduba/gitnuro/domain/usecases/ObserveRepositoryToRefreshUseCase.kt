@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.FileType
 import com.jetpackduba.gitnuro.common.printDebug
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.domain.GitConstants
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
@@ -52,6 +53,16 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                                 printDebug(TAG, "Changes detected: ${event.changes.toList()}")
 
                                 if (canRefreshData()) {
+                                    val containsOnlyEditMessageChanges = event.changes.all {
+                                        it.path == "$repositoryPath/${GitConstants.COMMIT_MSG}" ||
+                                                it.path == "$repositoryPath/${GitConstants.MERGE_MSG}" ||
+                                                it.path == "$repositoryPath/${GitConstants.SQUASH_MSG}"
+                                    }
+
+                                    if (containsOnlyEditMessageChanges) {
+                                        return@collect
+                                    }
+                                    
                                     val hasGitDirChanged = event.changes.any { it.path.startsWith(repositoryPath) }
 
                                     updateWatchedDirectories(event, repositoryPath, worktreeDir + systemSeparator)
