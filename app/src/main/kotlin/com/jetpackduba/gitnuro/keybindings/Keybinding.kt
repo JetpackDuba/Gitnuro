@@ -101,7 +101,7 @@ enum class KeybindingOption {
 
 
 @OptIn(ExperimentalComposeUiApi::class)
-private fun baseKeybindings() = mapOf(
+internal fun baseKeybindings() = mapOf(
     KeybindingOption.REFRESH to listOf(
         Keybinding(key = Key.F5),
         Keybinding(control = true, key = Key.R),
@@ -158,10 +158,10 @@ private fun baseKeybindings() = mapOf(
     ),
 )
 
-private fun linuxKeybindings(): Map<KeybindingOption, List<Keybinding>> = baseKeybindings()
-private fun windowsKeybindings(): Map<KeybindingOption, List<Keybinding>> = baseKeybindings()
+internal fun linuxKeybindings(): Map<KeybindingOption, List<Keybinding>> = baseKeybindings()
+internal fun windowsKeybindings(): Map<KeybindingOption, List<Keybinding>> = baseKeybindings()
 
-private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
+internal fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
     val macBindings = baseKeybindings().toMutableMap()
 
     macBindings.apply {
@@ -176,8 +176,6 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
             KeybindingOption.OPEN_REPOSITORY,
             KeybindingOption.OPEN_NEW_TAB,
             KeybindingOption.CLOSE_CURRENT_TAB,
-            KeybindingOption.CHANGE_CURRENT_TAB_RIGHT,
-            KeybindingOption.CHANGE_CURRENT_TAB_LEFT,
             KeybindingOption.SETTINGS,
         )
 
@@ -189,6 +187,13 @@ private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
 
             this[key] = newKeybindings
         }
+
+        this[KeybindingOption.CHANGE_CURRENT_TAB_LEFT] = listOf(
+            Keybinding(key = Key.Tab, control = true, shift = true),
+        )
+        this[KeybindingOption.CHANGE_CURRENT_TAB_RIGHT] = listOf(
+            Keybinding(key = Key.Tab, control = true),
+        )
     }
 
     return macBindings
