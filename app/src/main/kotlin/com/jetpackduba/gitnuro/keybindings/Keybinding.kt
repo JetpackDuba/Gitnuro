@@ -164,31 +164,40 @@ private fun windowsKeybindings(): Map<KeybindingOption, List<Keybinding>> = base
 private fun macKeybindings(): Map<KeybindingOption, List<Keybinding>> {
     val macBindings = baseKeybindings().toMutableMap()
 
-    macBindings.apply {
-        val keysToReplaceControlWithCommand = listOf(
-            KeybindingOption.TEXT_ACCEPT,
-            KeybindingOption.REFRESH,
-            KeybindingOption.PULL,
-            KeybindingOption.PUSH,
-            KeybindingOption.BRANCH_CREATE,
-            KeybindingOption.STASH,
-            KeybindingOption.STASH_POP,
-            KeybindingOption.OPEN_REPOSITORY,
-            KeybindingOption.OPEN_NEW_TAB,
-            KeybindingOption.CLOSE_CURRENT_TAB,
-            KeybindingOption.CHANGE_CURRENT_TAB_RIGHT,
-            KeybindingOption.CHANGE_CURRENT_TAB_LEFT,
-            KeybindingOption.SETTINGS,
-        )
+    val keysToReplaceControlWithCommand = listOf(
+        KeybindingOption.TEXT_ACCEPT,
+        KeybindingOption.REFRESH,
+        KeybindingOption.PULL,
+        KeybindingOption.PUSH,
+        KeybindingOption.BRANCH_CREATE,
+        KeybindingOption.STASH,
+        KeybindingOption.STASH_POP,
+        KeybindingOption.OPEN_REPOSITORY,
+        KeybindingOption.OPEN_NEW_TAB,
+        KeybindingOption.CLOSE_CURRENT_TAB,
+        KeybindingOption.SETTINGS,
+    )
 
-        for (key in keysToReplaceControlWithCommand) {
-            val originalKeybindings = this[key] ?: emptyList()
-            val newKeybindings = originalKeybindings.map {
-                it.copy(meta = it.control, control = false)
-            }
-
-            this[key] = newKeybindings
+    for (key in keysToReplaceControlWithCommand) {
+        val originalKeybindings = macBindings[key] ?: emptyList()
+        val newKeybindings = originalKeybindings.map {
+            it.copy(meta = it.control, control = false)
         }
+
+        macBindings[key] = newKeybindings
+    }
+
+    val bindingsToReplace = listOf(
+        KeybindingOption.CHANGE_CURRENT_TAB_LEFT to listOf(
+            Keybinding(key = Key.Tab, control = true, shift = true),
+        ),
+        KeybindingOption.CHANGE_CURRENT_TAB_RIGHT to listOf(
+            Keybinding(key = Key.Tab, control = true),
+        )
+    )
+
+    for (key in bindingsToReplace) {
+        macBindings[key.first] = key.second
     }
 
     return macBindings
