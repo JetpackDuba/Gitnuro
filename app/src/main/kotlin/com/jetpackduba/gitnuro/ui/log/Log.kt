@@ -149,8 +149,8 @@ fun Log(
             onChangeUpstreamBranch = onChangeUpstreamBranch,
             onRenameBranch = onRenameBranch,
             onGraphPaddingChange = { newGraphPadding ->
-                graphPadding = newGraphPadding
-                viewModel.graphPadding = newGraphPadding
+                graphPadding += newGraphPadding
+                viewModel.graphPadding = graphPadding
             },
             onAction = { viewModel.onAction(it) },
             searchView = {
@@ -295,7 +295,7 @@ private fun LogView(
             DividerLog(
                 modifier = Modifier.draggable(
                     rememberDraggableState {
-                        onGraphPaddingChange(graphPadding + it / density)
+                        onGraphPaddingChange(it / density)
                     }, Orientation.Horizontal
                 ),
                 graphWidth = graphWidth,
