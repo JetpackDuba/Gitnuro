@@ -502,6 +502,12 @@ fun CommitsList(
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
 
+    LaunchedEffect(commitList.commits.keys.firstOrNull().orEmpty()) {
+        if (commitList.commits.isNotEmpty()) {
+            scrollState.scrollToItem(0)
+        }
+    }
+
     ScrollableLazyColumn(
         state = scrollState,
         modifier = Modifier
