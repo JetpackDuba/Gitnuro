@@ -245,7 +245,7 @@ private fun LogView(
         GraphHeader(
             graphWidth = graphWidth,
             onPaddingChange = {
-                onGraphPaddingChange(graphPadding + it)
+                onGraphPaddingChange(it)
             },
             onShowSearch = {
                 onAction(LogAction.SearchValueChange(""))
