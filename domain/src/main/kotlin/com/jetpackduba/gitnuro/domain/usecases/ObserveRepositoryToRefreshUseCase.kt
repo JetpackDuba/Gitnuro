@@ -41,19 +41,24 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
         val repositoryPath = repositoryDataRepository.repositoryPath ?: return
         tabCoroutineScope.launch {
             val worktreeDir = getWorktreeUseCase().okOrNull() ?: return@launch
-            // The Rust code for the watch used to exclude files that started with .probe- as they were generate by JGit
-            // We may need to filter some of that stuff in this use case or provide some regex filtering to the rust side
-            //             let probe_prefix = format!("{git_dir_path}.probe-");
             launch {
                 fileChangesWatcher
                     .observeEvents()
                     .collect { event ->
                         when (event) {
                             is WatcherEvent.ChangesDetected -> {
-                                printDebug(TAG, "Changes detected: ${event.changes.toList()}")
+                                // TODO Does this filtering work properly on Windows?
+                                // Remove probe files that may temporarily be created by JGit
+                                val changes = event.changes.filter { it.path.startsWith("${repositoryPath.removeSuffix("/")}/.probe-") }
+
+                                if (changes.isEmpty()) {
+                                    return@collect
+                                }
+
+                                printDebug(TAG, "Changes detected: ${changes.toList()}")
 
                                 if (canRefreshData()) {
-                                    val containsOnlyEditMessageChanges = event.changes.all {
+                                    val containsOnlyEditMessageChanges = changes.all {
                                         it.path == "$repositoryPath/${GitConstants.COMMIT_MSG}" ||
                                                 it.path == "$repositoryPath/${GitConstants.MERGE_MSG}" ||
                                                 it.path == "$repositoryPath/${GitConstants.SQUASH_MSG}"
@@ -63,7 +68,7 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                                         return@collect
                                     }
                                     
-                                    val hasGitDirChanged = event.changes.any { it.path.startsWith(repositoryPath) }
+                                    val hasGitDirChanged = changes.any { it.path.startsWith(repositoryPath) }
 
                                     updateWatchedDirectories(event, repositoryPath, worktreeDir + systemSeparator)
 
