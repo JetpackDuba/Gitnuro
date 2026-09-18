@@ -8,7 +8,7 @@ import java.io.File
 import java.io.OutputStream
 import javax.inject.Inject
 
-/*
+/**
 * Version of the Windows FS with support for hooks by using Git Bash if present.
 * */
 class WindowsFs @Inject constructor(

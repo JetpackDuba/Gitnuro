@@ -28,6 +28,16 @@ class UseCaseExecutor @Inject constructor(
     ): Either<T, AppError> {
         return executeTask(dataToRefresh = dataToRefresh, refreshEvenIfFailed, block)
     }
+    suspend fun executeWithoutResult(
+        dataToRefresh: Array<DataToRefresh> = emptyArray(),
+        refreshEvenIfFailed: Boolean = false,
+        block: suspend EitherContext<AppError>.(String) -> Unit,
+    ) {
+        executeTask(dataToRefresh = dataToRefresh, refreshEvenIfFailed) {
+            this@executeTask.block(it)
+            Either.Ok(Unit)
+        }
+    }
 
     fun executeOnTabScope(
         block: suspend EitherContext<AppError>.(String) -> Unit,
