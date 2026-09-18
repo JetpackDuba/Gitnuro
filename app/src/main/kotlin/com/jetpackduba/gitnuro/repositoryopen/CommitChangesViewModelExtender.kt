@@ -102,7 +102,7 @@ class CommitChangesViewModelExtender @AssistedInject constructor(
         showAsTree: Boolean,
         treeContractedDirectories: List<String>
     ) = channelFlow {
-        if (item is SelectedItem.CommitItem) {
+        if (item is SelectedItem.CommitBasedItem) {
             send(
                 CommitChangesState(
                     isLoading = false,
