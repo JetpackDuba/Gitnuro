@@ -14,13 +14,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.*
@@ -35,11 +38,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
-import com.jetpackduba.gitnuro.app.generated.resources.Res
-import com.jetpackduba.gitnuro.app.generated.resources.copy
-import com.jetpackduba.gitnuro.app.generated.resources.cut
-import com.jetpackduba.gitnuro.app.generated.resources.dropdown
-import com.jetpackduba.gitnuro.app.generated.resources.paste
+import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -255,7 +254,14 @@ fun showPopup(
 
         Box(
             modifier = Modifier
-                .shadow(8.dp)
+                .dropShadow(
+                    shape = RoundedCornerShape(4.dp),
+                    shadow = Shadow(
+                        radius = 5.dp,
+                        spread = 6.dp,
+                        color = Color(0x20000000),
+                    )
+                )
                 .clip(MaterialTheme.shapes.small)
                 .background(MaterialTheme.colors.background)
                 .width(IntrinsicSize.Max)
