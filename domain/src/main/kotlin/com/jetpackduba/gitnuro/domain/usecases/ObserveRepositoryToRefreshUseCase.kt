@@ -49,7 +49,10 @@ class ObserveRepositoryToRefreshUseCase @Inject constructor(
                             is WatcherEvent.ChangesDetected -> {
                                 // TODO Does this filtering work properly on Windows?
                                 // Remove probe files that may temporarily be created by JGit
-                                val changes = event.changes.filter { it.path.startsWith("${repositoryPath.removeSuffix("/")}/.probe-") }
+                                val changes = event.changes
+                                    .filter {
+                                        !it.path.startsWith("${repositoryPath.removeSuffix("/")}/.probe-")
+                                    }
 
                                 if (changes.isEmpty()) {
                                     return@collect
