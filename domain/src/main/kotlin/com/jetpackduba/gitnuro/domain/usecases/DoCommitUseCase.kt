@@ -26,7 +26,7 @@ class DoCommitUseCase @Inject constructor(
     ): Deferred<Either<Commit, AppError>> {
         return useCaseExecutor.executeLaunchAsync(
             taskType = TaskType.DoCommit,
-            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.BRANCHES, DataToRefresh.LOG),
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.BRANCHES, DataToRefresh.LOG, DataToRefresh.REPO_STATE),
         ) { repositoryPath ->
             val signOffConfig = loadSignOffConfigGitAction(repositoryPath).bind()
 
