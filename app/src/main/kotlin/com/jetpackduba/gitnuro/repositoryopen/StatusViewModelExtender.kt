@@ -110,8 +110,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         } else {
             normalCommitMessage
         }
-    }
-        .mutableStateIn(viewModelScope, TextFieldValue(""))
+    }.stateIn(TextFieldValue(""))
 
 
     private fun persistedCommitMessageFlow(filter: (PersistedCommitMessage) -> String?): MutableStateFlow<TextFieldValue> {
@@ -339,15 +338,16 @@ class StatusViewModelExtender @AssistedInject constructor(
         } else {
             normalCommitMessage.value = message
         }
-        persistMessage()
+
+        persistMessage(message.text)
     }
 
-    private fun persistMessage() {
+    private fun persistMessage(newMessage: String?) {
         persistMessageJob?.cancel()
 
         persistMessageJob = viewModelScope.launch {
             delay(PERSIST_MESSAGE_DELAY_IN_MS.milliseconds)
-            persistCommitMessageUseCase(commitMessage.value.text.ifBlank { null })
+            persistCommitMessageUseCase(newMessage)
         }
     }
 
@@ -600,7 +600,8 @@ class StatusViewModelExtender @AssistedInject constructor(
 
         if (this.commitMessage.value.text.isEmpty()) {
             val previousCommitMessage = this.statusState.value.previousCommitMessage.orEmpty()
-            this.commitMessage.value= TextFieldValue(previousCommitMessage, selection = TextRange(previousCommitMessage.count()))
+
+            updateCommitMessage(TextFieldValue(previousCommitMessage, selection = TextRange(previousCommitMessage.count())))
         }
     }
 
@@ -615,7 +616,7 @@ class StatusViewModelExtender @AssistedInject constructor(
 
         // If someone clicks on commit before persisting the message (as it has a delay), cancel it.
         val hadOngoingPersistJob = persistMessageJob?.isActive == true
-        persistMessageJob?.cancel()
+        persistMessageJob?.cancelAndJoin()
 
         val doCommitResult = doCommitUseCase(message, amend, personIdent).await()
 
@@ -626,7 +627,7 @@ class StatusViewModelExtender @AssistedInject constructor(
             // If committing failed and the message was going to be persisted before the commit, restart the
             // persistence task
             if (hadOngoingPersistJob) {
-                persistMessage()
+                persistMessage(message)
             }
         }
     }

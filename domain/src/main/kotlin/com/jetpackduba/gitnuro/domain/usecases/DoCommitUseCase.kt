@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
+import com.jetpackduba.gitnuro.domain.errors.onOk
 import com.jetpackduba.gitnuro.domain.interfaces.IDoCommitGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.ILoadSignOffConfigGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
@@ -18,6 +19,7 @@ class DoCommitUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val loadSignOffConfigGitAction: ILoadSignOffConfigGitAction,
     private val getAuthorUseCase: GetAuthorUseCase,
+    private val persistCommitMessageUseCase: PersistCommitMessageUseCase,
 ) {
     operator fun invoke(
         message: String,
@@ -43,6 +45,10 @@ class DoCommitUseCase @Inject constructor(
 
 
             doCommitGitAction(repositoryPath, finalMessage, amend, author)
+                .onOk {
+                    persistCommitMessageUseCase(null)
+                }
+
         }
     }
 }
