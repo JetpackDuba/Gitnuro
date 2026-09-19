@@ -501,10 +501,30 @@ fun CommitsList(
 ) {
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
+    var hasToScrollIfUncommittedChangesAppear by remember { mutableStateOf(false) }
 
     LaunchedEffect(commitList.commits.keys.firstOrNull().orEmpty()) {
-        if (commitList.commits.isNotEmpty()) {
+        if (commitList.commits.isNotEmpty() || hasToScrollIfUncommittedChangesAppear) {
             scrollState.scrollToItem(0)
+        }
+    }
+
+    val isOnTop by remember(scrollState) {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex == 0
+        }
+    }
+
+
+    LaunchedEffect(isOnTop, hasUncommittedChanges) {
+        if (hasToScrollIfUncommittedChangesAppear && hasUncommittedChanges) {
+            scrollState.scrollToItem(0)
+        }
+
+        hasToScrollIfUncommittedChangesAppear = if (isOnTop && !hasUncommittedChanges) {
+            true
+        } else {
+            false
         }
     }
 
@@ -557,7 +577,8 @@ fun CommitsList(
         items(
             items = commitList.values.toList(),
             key = { commit ->
-                commit.hash + commit.lane + branches[commit.hash].orEmpty().joinToString() + tags[commit.hash].orEmpty().joinToString()
+                commit.hash + commit.lane + branches[commit.hash].orEmpty().joinToString() + tags[commit.hash].orEmpty()
+                    .joinToString()
             },
         )
         { graphNode ->
@@ -1101,7 +1122,7 @@ fun CommitsGraph(
 
         val hasMergeAndForkOff = forkingOffLanes.isNotEmpty() && mergingLanes.isNotEmpty()
 
-        val laneHeightModifier = if(hasMergeAndForkOff) {
+        val laneHeightModifier = if (hasMergeAndForkOff) {
             2f
         } else {
             0f
@@ -1144,7 +1165,8 @@ fun CommitsGraph(
                     }
 
                     val x1 = laneWidthWithDensity * (itemPosition + 1)
-                    val x2 = laneWidthWithDensity * (plotLane + 1) + (laneWidthWithDensity * arcsAngleMultiplier * direction * -1)
+                    val x2 =
+                        laneWidthWithDensity * (plotLane + 1) + (laneWidthWithDensity * arcsAngleMultiplier * direction * -1)
                     val x3 = laneWidthWithDensity * (plotLane + 1)
                     val y1 = this@clipRect.center.y + (laneHeightModifier * density)
                     val y2 = this@clipRect.center.y + (laneWidthWithDensity * arcsAngleMultiplier)
