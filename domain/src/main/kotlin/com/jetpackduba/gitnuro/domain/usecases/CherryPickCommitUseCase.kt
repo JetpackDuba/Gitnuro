@@ -13,7 +13,7 @@ class CherryPickCommitUseCase @Inject constructor(
     operator fun invoke(commit: Commit) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.CherryPickCommit,
-            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
+            dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG, DataToRefresh.BRANCHES, DataToRefresh.REPO_STATE),
         ) { repositoryPath ->
             cherryPickGitAction(repositoryPath, commit)
         }
