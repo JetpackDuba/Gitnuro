@@ -1,4 +1,5 @@
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.io.FileOutputStream
 import java.nio.file.Files
 
@@ -28,7 +29,8 @@ val projectVersionSimplified = "2.0.0"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
-group = "com.jetpackduba.gitnuro"
+val packageName = "com.jetpackduba.gitnuro"
+group = packageName
 version = projectVersion
 
 val isLinuxAarch64 = (properties.getOrDefault("isLinuxAarch64", "false") as String).toBoolean()
@@ -149,6 +151,7 @@ compose.desktop {
             packageName = projectName
             version = projectVersionSimplified
             description = "Multiplatform Git client"
+            targetFormats(TargetFormat.Dmg)
 
             windows {
                 iconFile.set(project.file("../icons/icon.ico"))
@@ -159,6 +162,17 @@ compose.desktop {
                     "-Dapple.awt.application.appearance=system"
                 )
                 iconFile.set(project.file("../icons/icon.icns"))
+                bundleID = packageName
+                signing {
+                    sign.set(true)
+                    identity.set(providers.environmentVariable("SIGNING_IDENTITY"))
+                }
+                notarization {
+                    val providers = project.providers
+                    appleID.set(providers.environmentVariable("NOTARIZATION_APPLE_ID"))
+                    password.set(providers.environmentVariable("NOTARIZATION_PASSWORD"))
+                    teamID.set(providers.environmentVariable("NOTARIZATION_TEAM_ID"))
+                }
             }
         }
     }
