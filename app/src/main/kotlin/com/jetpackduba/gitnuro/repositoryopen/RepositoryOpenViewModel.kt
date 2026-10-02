@@ -933,15 +933,6 @@ class RepositoryOpenViewModel @Inject constructor(
         appSettings.setConfiguration(AppConfig.ShowChangesAsTree(!appSettings.showChangesAsTree.first()))
     }
 
-
-    fun selectEntries(entries: List<DiffEntry>) {
-        diffSelected.value = addSelectedDiffUseCase(
-            diffSelected = diffSelected.value,
-            diffType = entries.map { DiffType.CommitDiff(it) },
-            addToExisting = false,
-        )
-    }
-
     private val refreshDiffFlow = repositoryStateRepository
         .completedTasks
         .map { tasks ->

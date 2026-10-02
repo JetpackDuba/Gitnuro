@@ -64,7 +64,7 @@ fun CommitChanges(
         onHistory = onHistory,
         onOpenFileInFolder = { viewModel.openFileInFolder(it) },
         onDiffSelected = {
-            viewModel.selectEntries(listOf(it)) // TODO pass proper list
+            viewModel.onAction(CommitChangesAction.SelectEntry(it))
         },
         onSearchFilterToggled = { visible ->
             viewModel.onAction(CommitChangesAction.SearchFilterToggle(visible))
@@ -98,8 +98,6 @@ private fun CommitChangesView(
     val commit = commitChangesState.commit
 
     LaunchedEffect(commitChangesState.showSearch) {
-        val state = commitChangesState
-
         if (!commitChangesState.showSearch) {
             tabFocusRequester.requestFocus()
         }
@@ -339,7 +337,7 @@ fun ListCommitLogChanges(
                 iconColor = diffEntry.iconColor,
                 parentDirectoryPath = diffEntry.parentDirectoryPath,
                 fileName = diffEntry.fileName,
-                isSelected = false,/*diffSelected is DiffType.CommitDiff && diffSelected.diffEntry == diffEntry*/
+                isSelected = diffSelected?.items?.any { it.diffEntry == diffEntry} ?: false,
                 onClick = { onDiffSelected(diffEntry) },
                 onDoubleClick = {},
                 onGenerateContextMenu = { onGenerateContextMenu(diffEntry) },
@@ -366,10 +364,8 @@ fun TreeCommitLogChanges(
         items(items = treeItems) { entry ->
             CommitTreeItemEntry(
                 entry = entry,
-                isSelected = false,
-                /*entry is TreeItem.File &&
-                                        diffSelected is DiffType.CommitDiff &&
-                                        diffSelected.diffEntry == entry.data*/
+                isSelected = entry is TreeItem.File &&
+                        diffSelected?.items?.any { it.diffEntry == entry.data } ?: false,
                 onFileClick = { onDiffSelected(it) },
                 onDirectoryClick = { onDirectoryClicked(it) },
                 onGenerateContextMenu = onGenerateContextMenu,

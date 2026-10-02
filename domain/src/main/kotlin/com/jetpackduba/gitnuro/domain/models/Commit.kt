@@ -1,5 +1,8 @@
 package com.jetpackduba.gitnuro.domain.models
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class Commit(
     val hash: String,
     val message: String,
