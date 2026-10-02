@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-private const val LOADING_DEBOUNCE = 0
+private const val LOADING_DEBOUNCE = 300
 
 data class UiDataState<T>(val isLoading: Boolean, val data: T?, val error: AppError?)
 
