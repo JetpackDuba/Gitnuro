@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.data.git
 
+import com.jetpackduba.gitnuro.common.extensions.TAG
+import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.domain.errors.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.util.FS
 import org.eclipse.jgit.util.FS_Win32
@@ -22,7 +22,7 @@ class JGit @Inject constructor(
         errorHandle: ((Exception) -> GitError)? = null,
         block: suspend EitherContext<GitError>.(Git) -> T,
     ) = either<T, GitError> {
-        val cachedGit = repositories[repositoryPath]
+        val cachedGit: Git? = repositories[repositoryPath]
 
         val git = if (cachedGit == null) {
             val newGit = handleException(
@@ -51,6 +51,8 @@ class JGit @Inject constructor(
         } catch (ex: Exception) {
             val error = errorHandle?.invoke(ex) ?: GenericError(ex.message.orEmpty(), ex)
             Either.Err(error)
+        } finally {
+//            git.close()
         }
     }
 
@@ -88,8 +90,16 @@ class JGit @Inject constructor(
         }
     }
 
-    fun cleanup(repositoryPath: String) {
-        repositories.remove(repositoryPath)
+    fun cleanupExcept(repositoriesToKeep: Set<String>) {
+        val repositoriesToRemove = repositories.keys - repositoriesToKeep
+
+        for (repo in repositoriesToRemove) {
+            try {
+                repositories.remove(repo)?.close()
+            } catch (ex: Exception) {
+                printError(TAG, "Failed to cleanup $repo from memory: ${ex.message}")
+            }
+        }
     }
 }
 

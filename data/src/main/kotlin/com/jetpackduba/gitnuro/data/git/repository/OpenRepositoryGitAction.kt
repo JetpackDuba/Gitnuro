@@ -42,12 +42,14 @@ class OpenRepositoryGitAction @Inject constructor() : IOpenRepositoryGitAction {
             return Either.Err(OpenRepoError.RepositoryNotFoundInPath)
         }
 
-        try {
-            repository.workTree // test if repository is valid
-            return Either.Ok(repository.directory.absolutePath)
-        } catch (e: Exception) {
-            printError(TAG, "Can't open git repo", e)
-            return Either.Err(OpenRepoError.RepositoryLoadFailed(e.message.orEmpty()))
+        repository.use { repository ->
+            try {
+                repository.workTree // test if repository is valid
+                return Either.Ok(repository.directory.absolutePath)
+            } catch (e: Exception) {
+                printError(TAG, "Can't open git repo", e)
+                return Either.Err(OpenRepoError.RepositoryLoadFailed(e.message.orEmpty()))
+            }
         }
     }
 

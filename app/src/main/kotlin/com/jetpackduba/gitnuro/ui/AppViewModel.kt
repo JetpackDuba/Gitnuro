@@ -2,10 +2,10 @@ package com.jetpackduba.gitnuro.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.domain.usecases.CleanRepositoriesResourcesUseCase
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +21,7 @@ import javax.inject.Singleton
 class AppViewModel @Inject constructor(
     private val appSettingsRepository: AppSettingsRepository,
     private val tabComponentFactory: TabComponent.Factory,
+    private val cleanRepositoriesResourcesUseCase: CleanRepositoriesResourcesUseCase,
 ) : ViewModel() {
     val tabs: StateFlow<List<TabInformation<RepositoryTabViewModel>>>
         field = MutableStateFlow<List<TabInformation<RepositoryTabViewModel>>>(emptyList())
@@ -118,6 +119,16 @@ class AppViewModel @Inject constructor(
         } else {
             tabs.value = tabsList
         }
+
+        val remainingTabs = tabsList.mapNotNull {
+            if (it.data.isLoaded) {
+                it.data.repositoryPath.value
+            } else {
+                null
+            }
+        }
+
+        cleanRepositoriesResourcesUseCase(remainingTabs)
 
         updatePersistedTabs()
         System.gc()

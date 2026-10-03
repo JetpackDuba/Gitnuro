@@ -35,7 +35,7 @@ class JGitGraphRevWalker @Inject constructor(
                 }
 
                 try {
-                revWalk.markStart(revWalk.lookupCommit(oid))
+                    revWalk.markStart(revWalk.lookupCommit(oid))
                 } catch (e: Exception) {
                     printError(TAG, "Could not mark commit $commit as start: ${e.message}", e)
                 }

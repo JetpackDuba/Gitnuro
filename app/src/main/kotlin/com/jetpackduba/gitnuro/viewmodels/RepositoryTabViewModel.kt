@@ -73,7 +73,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
         fun create(initialPath: String?): RepositoryTabViewModel
     }
 
-    private var alreadyLoaded = false
+    var isLoaded = false
+        private set
 
     val savedStates = mutableMapOf<String, Pair<Any?, Any?>>()
 
@@ -238,8 +239,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
     }
 
     fun loadTab() {
-        if (!alreadyLoaded) {
-            alreadyLoaded = true
+        if (!isLoaded) {
+            isLoaded = true
             if (initialPath != null) {
                 openRepository(initialPath)
             } else {
