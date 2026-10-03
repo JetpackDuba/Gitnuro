@@ -135,14 +135,19 @@ class AppViewModel @Inject constructor(
     }
 
     suspend fun updatePersistedTabs() {
-        val tabs = tabs
+        val tabsToPersist = tabs
             .value
-            .filter { it.data.repositorySelectionState.value is RepositorySelectionState.Open }
+            .mapNotNull {
+                when (val selectionState = it.data.repositorySelectionState.value) {
+                    RepositorySelectionState.None -> null
+                    is RepositorySelectionState.Open -> it to selectionState.path
+                    is RepositorySelectionState.Opening -> it to selectionState.path
+                    RepositorySelectionState.Unknown -> it to it.data.repositoryPath.value
+                }
+            }
 
-        val tabsPaths = tabs.map { it.data.repositoryPath.firstOrNull().orEmpty() }
-
-        appSettingsRepository.latestTabsOpened = Json.encodeToString(tabsPaths)
-        appSettingsRepository.latestRepositoryTabSelected = tabs.indexOf(currentTab.value)
+        appSettingsRepository.latestTabsOpened = Json.encodeToString(tabsToPersist.map { it.second })
+        appSettingsRepository.latestRepositoryTabSelected = tabsToPersist.indexOfFirst { it.first == currentTab.value }
     }
 
     fun addNewEmptyTab() {
