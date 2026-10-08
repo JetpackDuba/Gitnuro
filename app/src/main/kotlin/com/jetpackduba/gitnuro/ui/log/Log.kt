@@ -39,12 +39,14 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.IntOffset
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.BranchesConstants.LOCAL_PREFIX_LENGTH
@@ -190,6 +192,10 @@ private fun LogView(
 
     val verticalScrollState = logState.verticalScrollState
     val horizontalScrollState = logState.horizontalScrollState
+    val chipsScrollState = rememberScrollState()
+    var maxChipsWidthPx by remember { mutableIntStateOf(0) }
+    var chipsViewportPx by remember { mutableIntStateOf(0) }
+    val localDensity = LocalDensity.current
     val searchFilterValue = logState.searchFilter
 
     LaunchedEffect(verticalScrollState, logState) {
@@ -269,6 +275,16 @@ private fun LogView(
                 )
             }
 
+            Box(
+                Modifier
+                    .padding(start = graphWidth)
+                    .width(with(localDensity) { chipsViewportPx.toDp() })
+                    .fillMaxHeight()
+                    .horizontalScroll(chipsScrollState)
+            ) {
+                Box(Modifier.width(with(localDensity) { maxChipsWidthPx.toDp() }))
+            }
+
             CommitsList(
                 scrollState = verticalScrollState,
                 horizontalScrollState = horizontalScrollState,
@@ -289,6 +305,9 @@ private fun LogView(
                 onChangeUpstreamBranch = onChangeUpstreamBranch,
                 onRenameBranch = onRenameBranch,
                 onAction = onAction,
+                chipsScrollState = chipsScrollState,
+                onChipsWidthMeasured = { if (it > maxChipsWidthPx) maxChipsWidthPx = it },
+                onChipsViewportMeasured = { chipsViewportPx = it },
             )
 
             val density = LocalDensity.current.density
@@ -314,6 +333,23 @@ private fun LogView(
                 ),
                 adapter = rememberScrollbarAdapter(horizontalScrollState)
             )
+
+            if (chipsViewportPx > 0 && maxChipsWidthPx > chipsViewportPx) {
+                HorizontalScrollbar(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = graphWidth + DIVIDER_WIDTH.dp, bottom = 4.dp)
+                        .width(
+                            (with(localDensity) { chipsViewportPx.toDp() } - DIVIDER_WIDTH.dp)
+                                .coerceAtLeast(0.dp)
+                        ),
+                    style = LocalScrollbarStyle.current.copy(
+                        unhoverColor = MaterialTheme.colors.scrollbarNormal,
+                        hoverColor = MaterialTheme.colors.scrollbarHover,
+                    ),
+                    adapter = rememberScrollbarAdapter(chipsScrollState)
+                )
+            }
 
             val isFirstItemVisible by remember(verticalScrollState) {
                 derivedStateOf { verticalScrollState.firstVisibleItemIndex > 0 }
@@ -498,6 +534,9 @@ fun CommitsList(
     onRenameBranch: (Branch) -> Unit,
     graphWidth: Dp,
     horizontalScrollState: ScrollState,
+    chipsScrollState: ScrollState,
+    onChipsWidthMeasured: (Int) -> Unit,
+    onChipsViewportMeasured: (Int) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
@@ -622,6 +661,9 @@ fun CommitsList(
                         clipboard.setClipboardText(it.simpleName)
                     }
                 },
+                chipsScrollState = chipsScrollState,
+                onChipsWidthMeasured = onChipsWidthMeasured,
+                onChipsViewportMeasured = onChipsViewportMeasured,
             )
         }
 
@@ -832,6 +874,9 @@ private fun CommitLine(
     horizontalScrollState: ScrollState,
     branches: List<Branch>,
     tags: List<Tag>,
+    chipsScrollState: ScrollState,
+    onChipsWidthMeasured: (Int) -> Unit,
+    onChipsViewportMeasured: (Int) -> Unit,
 ) {
     val isLastCommitOfCurrentBranch = currentBranch?.hash == graphNode.hash
 
@@ -934,6 +979,9 @@ private fun CommitLine(
                         onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
                         onRenameBranch = onRenameBranch,
                         onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
+                        chipsScrollState = chipsScrollState,
+                        onChipsWidthMeasured = onChipsWidthMeasured,
+                        onChipsViewportMeasured = onChipsViewportMeasured,
                     )
                 }
             }
@@ -962,6 +1010,9 @@ fun CommitMessage(
     onChangeDefaultUpstreamBranch: (ref: Branch) -> Unit,
     onRenameBranch: (ref: Branch) -> Unit,
     onCopyBranchNameToClipboard: (ref: Branch) -> Unit,
+    chipsScrollState: ScrollState = rememberScrollState(),
+    onChipsWidthMeasured: (Int) -> Unit = {},
+    onChipsViewportMeasured: (Int) -> Unit = {},
 ) {
     Row(
         modifier = Modifier.fillMaxSize()
@@ -970,39 +1021,49 @@ fun CommitMessage(
                 remember { MutableInteractionSource() },
             ),
         verticalAlignment = Alignment.CenterVertically,
-    ) {
+    ) {Box(
+        modifier = Modifier
+            .weight(1f)
+            .clipToBounds()
+            .onSizeChanged { onChipsViewportMeasured(it.width) }
+    ){
         Row(
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier
+                .wrapContentWidth(align = Alignment.Start, unbounded = true)
+                .offset { IntOffset(-chipsScrollState.value, 0) }
+                .onSizeChanged { onChipsWidthMeasured(it.width) },
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (!isStash) {
-                // TODO Enable this once commits list is migrated to new structure
-                for (tag in tags) {
-                    TagChip(
-                        tag = tag,
-                        color = nodeColor,
-                        onCheckoutTag = { onCheckoutTag(tag) },
-                        onDeleteTag = { onDeleteTag(tag) },
-                    )
-                }
-                for (branch in branches) {
-                    BranchChip(
-                        ref = branch,
-                        color = nodeColor,
-                        currentBranch = currentBranch,
-                        isCurrentBranch = branch.isSameBranch(currentBranch),
-                        onCheckoutBranch = { onCheckoutBranch(branch) },
-                        onMergeBranch = { onMergeBranch(branch) },
-                        onDeleteBranch = { onDeleteBranch(branch) },
-                        onDeleteRemoteBranch = { onDeleteRemoteBranch(branch) },
-                        onRebaseBranch = { onRebaseBranch(branch) },
-                        onPullRemoteBranch = { onPullRemoteBranch(branch) },
-                        onPushRemoteBranch = { onPushRemoteBranch(branch) },
-                        onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
-                        onRenameBranch = { onRenameBranch(branch) },
-                        onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(branch) },
-                    )
-                }
-                /*commit.refs.sortedWith { ref1, ref2 ->
+            Row(modifier = Modifier.padding(start = 16.dp)) {
+                if (!isStash) {
+                    // TODO Enable this once commits list is migrated to new structure
+                    for (tag in tags) {
+                        TagChip(
+                            tag = tag,
+                            color = nodeColor,
+                            onCheckoutTag = { onCheckoutTag(tag) },
+                            onDeleteTag = { onDeleteTag(tag) },
+                        )
+                    }
+                    for (branch in branches) {
+                        BranchChip(
+                            ref = branch,
+                            color = nodeColor,
+                            currentBranch = currentBranch,
+                            isCurrentBranch = branch.isSameBranch(currentBranch),
+                            onCheckoutBranch = { onCheckoutBranch(branch) },
+                            onMergeBranch = { onMergeBranch(branch) },
+                            onDeleteBranch = { onDeleteBranch(branch) },
+                            onDeleteRemoteBranch = { onDeleteRemoteBranch(branch) },
+                            onRebaseBranch = { onRebaseBranch(branch) },
+                            onPullRemoteBranch = { onPullRemoteBranch(branch) },
+                            onPushRemoteBranch = { onPushRemoteBranch(branch) },
+                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
+                            onRenameBranch = { onRenameBranch(branch) },
+                            onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(branch) },
+                        )
+                    }
+                    /*commit.refs.sortedWith { ref1, ref2 ->
                     if (ref1.isSameBranch(currentBranch)) {
                         -1
                     } else {
@@ -1035,23 +1096,23 @@ fun CommitMessage(
                         )
                     }
                 }*/
+                }
             }
-        }
+            val message = remember(graphCommit.hash) {
+                graphCommit.commit.shortMessage
+            }
 
-        val message = remember(graphCommit.hash) {
-            graphCommit.commit.shortMessage
+            Text(
+                text = message,
+                modifier = Modifier
+                    .padding(start = 8.dp),
+                style = MaterialTheme.typography.body2,
+                color = if (matchesSearchFilter == false) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground,
+                maxLines = 1,
+            )
         }
+    }
 
-        Text(
-            text = message,
-            modifier = Modifier
-                .padding(start = 8.dp)
-                .weight(1f),
-            style = MaterialTheme.typography.body2,
-            color = if (matchesSearchFilter == false) MaterialTheme.colors.onBackgroundSecondary else MaterialTheme.colors.onBackground,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
 
         InstantTooltip(
             text = graphCommit.date.toSmartSystemString(allowRelative = false, showTime = true),
