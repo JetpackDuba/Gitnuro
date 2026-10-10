@@ -286,12 +286,27 @@ fun MainContentView(
                         filePath = blameState.filePath,
                         blameResult = blameState.blameResult,
                         onClose = { viewModel.resetBlameState() },
-                        onSelectCommit = { viewModel.selectCommit(it) }
+                        onSelectCommit = { viewModel.selectCommit(it, isStash = false) }
                     )
                 } else {
                     Column {
                         Box(modifier = Modifier.weight(1f, true)) {
-                            if (diffSelected?.entries?.count() == 1) {
+                            val showDiff = diffSelected?.entries?.count() == 1
+
+                            Log(
+                                modifier = Modifier.focusable(!showDiff),
+                                viewModel = viewModel,
+                                selectedItem = selectedItem,
+                                repositoryState = repositoryState,
+                                // TODO Move nav outside of this? Applies to next lines
+                                onCreateBranch = { onNavigate(Screen.BranchCreate(it)) },
+                                onResetBranch = { onNavigate(Screen.BranchReset(it)) },
+                                onCreateTag = { onNavigate(Screen.TagCreate(it)) },
+                                onChangeUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
+                                onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
+                            )
+
+                            if (showDiff) {
                                 val tabFocusRequester = LocalTabFocusRequester.current
 
                                 DiffPane(
@@ -299,18 +314,6 @@ fun MainContentView(
                                     onCloseDiffView = {
                                         tabFocusRequester.requestFocus()
                                     }
-                                )
-                            } else {
-                                Log(
-                                    viewModel = viewModel,
-                                    selectedItem = selectedItem,
-                                    repositoryState = repositoryState,
-                                    // TODO Move nav outside of this? Applies to next lines
-                                    onCreateBranch = { onNavigate(Screen.BranchCreate(it)) },
-                                    onResetBranch = { onNavigate(Screen.BranchReset(it)) },
-                                    onCreateTag = { onNavigate(Screen.TagCreate(it)) },
-                                    onChangeUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
-                                    onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
                                 )
                             }
                         }

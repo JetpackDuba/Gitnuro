@@ -104,6 +104,7 @@ private const val TAG = "LogView"
 // TODO Min size for message column
 @Composable
 fun Log(
+    modifier: Modifier,
     viewModel: RepositoryOpenViewModel,
     selectedItem: SelectedItem,
     repositoryState: RepositoryState,
@@ -131,12 +132,15 @@ fun Log(
     }
 
     LaunchedEffect(selectedItem) {
-        if (!(selectedItem is SelectedItem.CommitItem && !selectedItem.isStash) && selectedItem is SelectedItem.CommitBasedItem) {
+        if (
+            (selectedItem is SelectedItem.CommitBasedItem && selectedItem !is SelectedItem.CommitItem) ||
+            (selectedItem is SelectedItem.CommitItem && selectedItem.scrollToItem)
+        ) {
             scrollToCommit(logStatus.verticalScrollState, logStatus.commitList, selectedItem.commit)
         }
     }
 
-    Box {
+    Box (modifier) {
         LogView(
             logState = logStatus,
             selectedItem = selectedItem,
@@ -358,13 +362,19 @@ private fun LogView(
 suspend fun scrollToCommit(
     verticalScrollState: LazyListState,
     commitList: GraphCommits,
-    commit: Commit?,
+    commit: Commit,
 ) {
     val index = commitList.commits.entries.indexOfFirst { it.value.hash == commit?.hash }
     // TODO Show a message informing the user why we aren't scrolling
     // Index can be -1 if the ref points to a commit that is not shown in the graph due to the limited
     // number of displayed commits.
-    if (index >= 0) verticalScrollState.scrollToItem(index)
+    val isCommitAlreadyVisible = verticalScrollState.layoutInfo.visibleItemsInfo.any {
+        (it.key as? String).orEmpty().contains(commit.message)
+    }
+
+    if (!isCommitAlreadyVisible) {
+        if (index >= 0) verticalScrollState.scrollToItem(index)
+    }
 }
 
 suspend fun scrollToUncommittedChanges(
@@ -582,12 +592,13 @@ fun CommitsList(
             },
         )
         { graphNode ->
+            val isStash = stashes.contains(graphNode.hash)
             CommitLine(
                 graphWidth = graphWidth,
                 graphNode = graphNode,
                 isSelected = selectedCommit?.hash == graphNode.hash,
                 showInAmend = logState.currentBranch?.hash == graphNode.hash && !hasUncommittedChanges,
-                isStash = stashes.contains(graphNode.hash),
+                isStash = isStash,
                 branches = branches[graphNode.hash].orEmpty(),
                 tags = tags[graphNode.hash].orEmpty(),
                 currentBranch = logState.currentBranch,
@@ -605,7 +616,7 @@ fun CommitsList(
                 onPullFromRemoteBranch = { onAction(LogAction.PullFromRemoteBranch(it)) },
                 onRebaseBranch = { onAction(LogAction.Rebase(it)) },
                 onRebaseInteractive = { onAction(LogAction.RebaseInteractive(graphNode.commit)) },
-                onRevCommitSelected = { onAction(LogAction.CommitSelected(graphNode.commit)) },
+                onRevCommitSelected = { onAction(LogAction.CommitSelected(graphNode.commit, isStash)) },
                 onChangeDefaultUpstreamBranch = { onChangeUpstreamBranch(it) },
                 onRenameBranch = { onRenameBranch(it) },
                 onDeleteStash = { onAction(LogAction.DeleteStash(graphNode.commit)) },

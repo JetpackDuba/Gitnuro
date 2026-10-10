@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.viewmodels.sidepanel
 
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.ui.UiDataState
@@ -8,13 +9,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 
+@Immutable
 data class SubmodulesState(val isLoading: Boolean, val submodules: List<Pair<String, Submodule>>, val isExpanded: Boolean)
 
+@Immutable
 data class TagsState(val tags: List<Tag>, val isExpanded: Boolean)
 
+@Immutable
 data class StashesState(val stashes: List<Commit>, val isExpanded: Boolean)
 
-
+@Immutable
 data class BranchesState(
     val isLoading: Boolean,
     val branches: List<Branch>,

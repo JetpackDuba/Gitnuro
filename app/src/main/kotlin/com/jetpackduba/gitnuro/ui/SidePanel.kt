@@ -15,19 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.Screen
 import com.jetpackduba.gitnuro.app.generated.resources.*
-import com.jetpackduba.gitnuro.domain.extensions.isValid
-import com.jetpackduba.gitnuro.domain.models.Branch
-import com.jetpackduba.gitnuro.domain.models.Commit
-import com.jetpackduba.gitnuro.domain.models.Remote
-import com.jetpackduba.gitnuro.domain.models.Submodule
-import com.jetpackduba.gitnuro.domain.models.Tag
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.setClipboardText
@@ -42,10 +36,8 @@ import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.submodule.SubmoduleStatus
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import java.awt.datatransfer.StringSelection
 
 @Composable
 fun SidePanel(
@@ -116,7 +108,11 @@ fun SidePanel(
             stashes(
                 stashesState = stashesState,
                 selectedItem = selectedItem,
-                viewModel = viewModel,
+                onExpandStashes = { viewModel.onExpandStashes() },
+                onSelectStash = { viewModel.selectStash(it) },
+                onApplyStash = { viewModel.applyStash(it) },
+                onPopStash = { viewModel.popStash(it) },
+                onDeleteStash = { viewModel.deleteStash(it) },
             )
 
             submodules(
@@ -340,8 +336,12 @@ fun LazyListScope.tags(
 
 fun LazyListScope.stashes(
     stashesState: StashesState,
-    viewModel: RepositoryOpenViewModel,
     selectedItem: SelectedItem,
+    onExpandStashes: () -> Unit,
+    onSelectStash: (Commit) -> Unit,
+    onApplyStash: (Commit) -> Unit,
+    onPopStash: (Commit) -> Unit,
+    onDeleteStash: (Commit) -> Unit,
 ) {
     val isExpanded = stashesState.isExpanded
     val stashes = stashesState.stashes
@@ -356,7 +356,7 @@ fun LazyListScope.stashes(
                 itemsCount = stashes.count(),
                 hoverIcon = null,
                 isExpanded = isExpanded,
-                onExpand = { viewModel.onExpandStashes() }
+                onExpand = onExpandStashes,
             )
         }
     }
@@ -366,10 +366,10 @@ fun LazyListScope.stashes(
             Stash(
                 stash,
                 isSelected = selectedItem is SelectedItem.CommitItem && selectedItem.isStash && selectedItem.commit.hash == stash.hash,
-                onClick = { viewModel.selectStash(stash) },
-                onApply = { viewModel.applyStash(stash) },
-                onPop = { viewModel.popStash(stash) },
-                onDelete = { viewModel.deleteStash(stash) },
+                onClick = { onSelectStash(stash) },
+                onApply = { onApplyStash(stash) },
+                onPop = { onPopStash(stash) },
+                onDelete = { onDeleteStash(stash) },
             )
         }
     }

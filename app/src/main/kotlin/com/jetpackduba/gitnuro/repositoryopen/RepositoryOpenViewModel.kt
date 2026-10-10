@@ -598,7 +598,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun deleteTag(tag: Tag) = deleteTagUseCase(tag)
     fun selectStash(stash: Commit) {
-        selectCommit(stash)
+        selectCommit(stash, isStash = true, scrollToItem = true)
     }
 
     private val _blameState = MutableStateFlow<BlameState>(BlameState.None)
@@ -757,7 +757,7 @@ class RepositoryOpenViewModel @Inject constructor(
             is LogAction.CheckoutRemoteBranch -> checkoutRemoteBranch(action.branch)
             is LogAction.CheckoutTag -> checkoutTag(action.tag)
             is LogAction.CherryPickCommit -> cherryPickCommit(action.commit)
-            is LogAction.CommitSelected -> selectCommit(action.commit)
+            is LogAction.CommitSelected -> selectCommit(action.commit, action.isStash)
             is LogAction.DeleteBranch -> deleteBranch(action.branch)
             is LogAction.DeleteRemoteBranch -> deleteRemoteBranch(action.branch)
             is LogAction.DeleteStash -> deleteStash(action.commit)
@@ -804,8 +804,8 @@ class RepositoryOpenViewModel @Inject constructor(
             NONE_MATCHING_INDEX
     }
 
-    fun selectCommit(commit: Commit) = viewModelScope.launch {
-        selectedItem.value = SelectedItem.CommitItem(commit, isStash = false)
+    fun selectCommit(commit: Commit, isStash: Boolean, scrollToItem: Boolean = false) = viewModelScope.launch {
+        selectedItem.value = SelectedItem.CommitItem(commit, isStash = isStash, scrollToItem = scrollToItem)
 
         val searchValue = logSearchFilterResults.value
         if (searchValue is LogSearch.SearchResults) {
@@ -1211,7 +1211,7 @@ class RepositoryOpenViewModel @Inject constructor(
         val fullCommit = getCommitFromRebaseLineUseCase(line.commit, line.fullMessage).okOrNull()
 
         if (fullCommit != null) {
-            selectedItem.value = SelectedItem.CommitItem(fullCommit, isStash = false)
+            selectedItem.value = SelectedItem.CommitItem(fullCommit, isStash = false, scrollToItem = false)
         }
     }
 
