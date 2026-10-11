@@ -68,7 +68,6 @@ private const val NEW_TAB_DEFAULT_NAME = "New tab"
 
 sealed interface Screen : NavKey {
     data object Welcome : Screen
-    data object Clone : Screen
     data object RepositoryLoading : Screen
     data object RepositoryOpen : Screen
     data object Settings : Screen

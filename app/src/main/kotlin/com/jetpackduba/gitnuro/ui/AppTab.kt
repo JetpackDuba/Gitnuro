@@ -338,7 +338,7 @@ fun AppTab(
                                 },
                                 onShowClone = {
                                     backStack.removeLastOrNull()
-                                    backStack.add(Screen.Clone)
+                                    backStack.add(Screen.CloneRepository)
                                 },
                             )
                         }

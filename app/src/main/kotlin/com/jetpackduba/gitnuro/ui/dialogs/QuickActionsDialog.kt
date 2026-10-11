@@ -61,13 +61,17 @@ fun QuickActionsDialog(
         filteredItems = filteredItems,
         onAction = { action ->
             when (action) {
-                QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> viewModel.openProjectInFileExplorer()
+                QuickActionType.OPEN_DIR_IN_FILE_MANAGER -> {
+                    viewModel.openProjectInFileExplorer()
+                    onDismiss()
+                }
                 QuickActionType.CLONE -> onShowClone()
-                QuickActionType.REFRESH -> viewModel.refreshRepository()
+                QuickActionType.REFRESH -> {
+                    viewModel.refreshRepository()
+                    onDismiss()
+                }
                 QuickActionType.SIGN_OFF -> onShowSignOff()
             }
-            
-            onDismiss()
         },
         searchFilter = searchFilter,
         textFieldFocusRequester = textFieldFocusRequester,
