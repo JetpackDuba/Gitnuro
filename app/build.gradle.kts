@@ -29,8 +29,8 @@ val projectVersionSimplified = "2.0.0"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
-val packageName = "com.jetpackduba.gitnuro"
-group = packageName
+val appPackageName = "com.jetpackduba.gitnuro"
+group = appPackageName
 version = projectVersion
 
 val isLinuxAarch64 = (properties.getOrDefault("isLinuxAarch64", "false") as String).toBoolean()
@@ -162,7 +162,7 @@ compose.desktop {
                     "-Dapple.awt.application.appearance=system"
                 )
                 iconFile.set(project.file("../icons/icon.icns"))
-                bundleID = packageName
+                bundleID = appPackageName
                 signing {
                     sign.set(true)
                     identity.set(providers.environmentVariable("SIGNING_IDENTITY"))
