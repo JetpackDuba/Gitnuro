@@ -19,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -28,6 +29,25 @@ import com.jetpackduba.gitnuro.theme.isDark
 @Composable
 fun InstantTooltip(
     text: String?,
+    trailingContent: (@Composable () -> Unit)? = null,
+    modifier: Modifier = Modifier,
+    position: InstantTooltipPosition = InstantTooltipPosition.BOTTOM,
+    enabled: Boolean = true,
+    content: @Composable () -> Unit,
+) {
+    InstantTooltip(
+        text = text?.let { AnnotatedString(it) },
+        trailingContent = trailingContent,
+        modifier = modifier,
+        position = position,
+        enabled = enabled,
+        content = content,
+    )
+}
+
+@Composable
+fun InstantTooltip(
+    text: AnnotatedString?,
     trailingContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier,
     position: InstantTooltipPosition = InstantTooltipPosition.BOTTOM,

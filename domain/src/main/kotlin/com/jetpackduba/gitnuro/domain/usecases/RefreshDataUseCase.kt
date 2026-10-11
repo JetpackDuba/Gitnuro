@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.flatten
 import com.jetpackduba.gitnuro.domain.errors.mapOk
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.*
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
@@ -34,6 +35,7 @@ class RefreshDataUseCase @Inject constructor(
     private val getRebaseInteractiveTodoLinesUseCase: GetRebaseInteractiveTodoLinesUseCase,
     private val getRebaseLinesFullMessageUseCase: GetRebaseLinesFullMessageUseCase,
     private val getPersistedCommitMessagesGitAction: IGetPersistedCommitMessagesGitAction,
+    private val getTrackingBranchUseCase: GetTrackingBranchUseCase,
     private val getLogUseCase: GetLogUseCase,
     private val scope: TabCoroutineScope,
 ) {
@@ -91,7 +93,12 @@ class RefreshDataUseCase @Inject constructor(
     private suspend fun refreshBranches() {
         useCaseExecutor.executeWithoutResult { repositoryPath ->
             repositoryDataRepository.updateLocalBranches {
-                getBranchesGitAction(repositoryPath)
+                getBranchesGitAction(repositoryPath).mapOk { branches ->
+                    branches.map { branch ->
+                        val remoteBranch = getTrackingBranchUseCase(branch).okOrNull()
+                        branch.copy(trackingBranch = remoteBranch)
+                    }
+                }
             }
 
             repositoryDataRepository.updateCurrentBranch {

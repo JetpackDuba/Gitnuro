@@ -17,6 +17,7 @@ class JGitBranchMapper @Inject constructor(): DataMapper<Branch?, Ref?> {
             hash = value.objectId.name,
             name = value.name,
             isLocal = value.isLocal,
+            trackingBranch = null,
         )
     }
 }

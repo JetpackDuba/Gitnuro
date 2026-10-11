@@ -19,7 +19,6 @@ import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
-import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
 import com.jetpackduba.gitnuro.viewmodels.SetUpstreamBranchDialogViewModel
@@ -30,7 +29,7 @@ import org.jetbrains.compose.resources.painterResource
 fun SetDefaultUpstreamBranchDialogPreview() {
     SetDefaultUpstreamBranchDialogView(
         state = SetDefaultUpstreamBranchState.Loaded(
-            Branch("XYZ", "main", isLocal = true),
+            Branch("XYZ", "main", isLocal = true, trackingBranch = null),
             null,
             emptyList(),
             null,

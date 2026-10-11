@@ -16,7 +16,7 @@ class PushBranchUseCase @Inject constructor(
     operator fun invoke(force: Boolean, pushTags: Boolean, targetRemoteBranch: Branch? = null) {
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Push,
-            dataToRefresh = arrayOf(DataToRefresh.LOG, DataToRefresh.REMOTES),
+            dataToRefresh = arrayOf(DataToRefresh.LOG, DataToRefresh.REMOTES, DataToRefresh.BRANCHES),
         ) { repositoryPath ->
             val pushWithLease = appSettingsService.pushWithLease.first()
 

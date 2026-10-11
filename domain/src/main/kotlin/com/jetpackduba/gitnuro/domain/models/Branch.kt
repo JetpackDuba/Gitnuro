@@ -1,13 +1,16 @@
 package com.jetpackduba.gitnuro.domain.models
 
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.domain.BranchesConstants.LOCAL_PREFIX_LENGTH
 import com.jetpackduba.gitnuro.domain.BranchesConstants.REMOTE_PREFIX_LENGTH
 import org.eclipse.jgit.lib.Constants
 
+@Immutable
 data class Branch(
     val hash: String,
     val name: String,
     val isLocal: Boolean,
+    val trackingBranch: TrackingBranch?,
 ) {
     val isRemote = !isLocal
     val simpleName: String
@@ -50,6 +53,8 @@ data class Branch(
                 else -> simpleName
             }
         }
+
+    val matchesTrackingBranchName = this.simpleName == this.trackingBranch?.branch
 
     // TODO Override equals?
     fun isSameBranch(otherRef: Branch?): Boolean {

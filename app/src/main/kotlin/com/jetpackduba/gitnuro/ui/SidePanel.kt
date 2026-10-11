@@ -205,15 +205,15 @@ fun LazyListScope.localBranches(
                 currentBranch = currentBranch,
                 onBranchClicked = { viewModel.selectBranch(branch) },
                 onBranchDoubleClicked = { viewModel.checkoutBranch(branch) },
-                onCheckoutBranch = { viewModel.checkoutBranch(branch) },
-                onMergeBranch = { viewModel.mergeBranch(branch) },
-                onRebaseBranch = { viewModel.rebaseBranch(branch) },
-                onDeleteBranch = { viewModel.deleteBranch(branch) },
-                onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
-                onRenameBranch = { onRenameBranch(branch) },
+                onCheckoutBranch = { viewModel.checkoutBranch(it) },
+                onMergeBranch = { viewModel.mergeBranch(it) },
+                onRebaseBranch = { viewModel.rebaseBranch(it) },
+                onDeleteBranch = { viewModel.deleteBranch(it) },
+                onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(it) },
+                onRenameBranch = { onRenameBranch(it) },
                 onCopyBranchNameToClipboard = {
                     scope.launch {
-                        clipboard.setClipboardText(branch.simpleName)
+                        clipboard.setClipboardText(it.simpleName)
                     }
                 },
             )
@@ -279,15 +279,15 @@ fun LazyListScope.remotes(
                         remoteBranch = remoteBranch,
                         currentBranch = remotesState.currentBranch,
                         onBranchClicked = { viewModel.selectBranch(remoteBranch) },
-                        onCheckoutBranch = { viewModel.checkoutRemoteBranch(remoteBranch) },
-                        onDeleteBranch = { viewModel.deleteRemoteBranch(remoteBranch) },
-                        onPushRemoteBranch = { viewModel.pushToRemoteBranch(remoteBranch) },
-                        onPullRemoteBranch = { viewModel.pullFromRemoteBranch(remoteBranch) },
-                        onRebaseRemoteBranch = { viewModel.rebaseBranch(remoteBranch) },
-                        onMergeRemoteBranch = { viewModel.mergeBranch(remoteBranch) },
+                        onCheckoutBranch = { viewModel.checkoutRemoteBranch(it) },
+                        onDeleteBranch = { viewModel.deleteRemoteBranch(it) },
+                        onPushRemoteBranch = { viewModel.pushToRemoteBranch(it) },
+                        onPullRemoteBranch = { viewModel.pullFromRemoteBranch(it) },
+                        onRebaseRemoteBranch = { viewModel.rebaseBranch(it) },
+                        onMergeRemoteBranch = { viewModel.mergeBranch(it) },
                         onCopyBranchNameToClipboard = {
                             scope.launch {
-                                clipboard.setClipboardText(remoteBranch.simpleName)
+                                clipboard.setClipboardText(it.simpleName)
                             }
                         }
                     )
@@ -436,13 +436,13 @@ private fun Branch(
     isSelectedItem: Boolean,
     onBranchClicked: () -> Unit,
     onBranchDoubleClicked: () -> Unit,
-    onCheckoutBranch: () -> Unit,
-    onMergeBranch: () -> Unit,
-    onRebaseBranch: () -> Unit,
-    onDeleteBranch: () -> Unit,
-    onChangeDefaultUpstreamBranch: () -> Unit,
-    onRenameBranch: () -> Unit,
-    onCopyBranchNameToClipboard: () -> Unit,
+    onCheckoutBranch: (Branch) -> Unit,
+    onMergeBranch: (Branch) -> Unit,
+    onRebaseBranch: (Branch) -> Unit,
+    onDeleteBranch: (Branch) -> Unit,
+    onChangeDefaultUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
+    onCopyBranchNameToClipboard: (Branch) -> Unit,
 ) {
     val isCurrentBranch = currentBranch?.name == branch.name
 
@@ -519,13 +519,13 @@ private fun RemoteBranches(
     remoteBranch: Branch,
     currentBranch: Branch?,
     onBranchClicked: () -> Unit,
-    onCheckoutBranch: () -> Unit,
-    onDeleteBranch: () -> Unit,
-    onPushRemoteBranch: () -> Unit,
-    onPullRemoteBranch: () -> Unit,
-    onRebaseRemoteBranch: () -> Unit,
-    onMergeRemoteBranch: () -> Unit,
-    onCopyBranchNameToClipboard: () -> Unit,
+    onCheckoutBranch: (Branch) -> Unit,
+    onDeleteBranch: (Branch) -> Unit,
+    onPushRemoteBranch: (Branch) -> Unit,
+    onPullRemoteBranch: (Branch) -> Unit,
+    onRebaseRemoteBranch: (Branch) -> Unit,
+    onMergeRemoteBranch: (Branch) -> Unit,
+    onCopyBranchNameToClipboard: (Branch) -> Unit,
 ) {
     ContextMenu(
         items = {
@@ -553,7 +553,7 @@ private fun RemoteBranches(
             isSelected = false,
             iconResourcePath = Res.drawable.branch,
             onClick = onBranchClicked,
-            onDoubleClick = onCheckoutBranch,
+            onDoubleClick = { onCheckoutBranch(remoteBranch) },
         )
     }
 }
