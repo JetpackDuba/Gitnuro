@@ -57,6 +57,10 @@ dependencies {
     println("composeDependency: $composeDependency")
     implementation(composeDependency)
 
+    val jewelVersion = "0.41.0-262.10968.63"
+    implementation("org.jetbrains.jewel:jewel-int-ui-standalone:$jewelVersion")
+    implementation("org.jetbrains.jewel:jewel-int-ui-decorated-window:$jewelVersion")
+
     implementation(libs.compose.ui.util)
     implementation(libs.compose.components.animatedimage)
     implementation(libs.compose.components.resources)

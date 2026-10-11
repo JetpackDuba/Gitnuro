@@ -1328,7 +1328,7 @@ fun UncommittedChangesGraphNode(
                     color = colors[0],
                     start = Offset(laneWidthWithDensity, this.center.y),
                     end = Offset(laneWidthWithDensity, this.size.height),
-                    strokeWidth = 2f * density,
+                    strokeWidth = 3f * density,
                 )
 
                 drawCircle(

@@ -1,0 +1,98 @@
+package com.jetpackduba.gitnuro
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import java.awt.Desktop
+import java.net.URI
+import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.cloud
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.jewel.ui.component.Dropdown
+import org.jetbrains.jewel.ui.component.Icon
+import org.jetbrains.jewel.ui.component.IconButton
+import org.jetbrains.jewel.ui.component.Text
+import org.jetbrains.jewel.ui.component.Tooltip
+import org.jetbrains.jewel.window.DecoratedWindowScope
+import org.jetbrains.jewel.window.TitleBar
+import org.jetbrains.jewel.window.newFullscreenControls
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DecoratedWindowScope.TitleBarView() {
+    TitleBar(Modifier.newFullscreenControls(), gradientStartColor = MainViewModel.projectColor) {
+        Row(Modifier.align(Alignment.Start)) {
+            Dropdown(
+                Modifier.height(30.dp),
+                menuContent = {
+
+                },
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(3.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+//                        Icon(MainViewModel.currentView.iconKey, null, hint = Size(20))
+                        Text(MainViewModel.currentView.title)
+                    }
+                }
+            }
+        }
+
+        Text(title)
+
+        Row(Modifier.align(Alignment.End)) {
+            Tooltip({ Text("Open Jewel Github repository") }) {
+                IconButton(
+                    { Desktop.getDesktop().browse(URI.create("https://github.com/JetBrains/jewel")) },
+                    Modifier.size(40.dp).padding(5.dp),
+                ) {
+                    Icon(painterResource(Res.drawable.cloud), "Github")
+                }
+            }
+
+            Tooltip({
+                when (MainViewModel.theme) {
+                    IntUiThemes.Light -> Text("Switch to light theme with light header")
+                    IntUiThemes.LightWithLightHeader -> Text("Switch to dark theme")
+                    IntUiThemes.Dark,
+                    IntUiThemes.System -> Text("Switch to light theme")
+                }
+            }) {
+                IconButton(
+                    {
+                        MainViewModel.theme =
+                            when (MainViewModel.theme) {
+                                IntUiThemes.Light -> IntUiThemes.LightWithLightHeader
+                                IntUiThemes.LightWithLightHeader -> IntUiThemes.Dark
+                                IntUiThemes.Dark,
+                                IntUiThemes.System -> IntUiThemes.Light
+                            }
+                    },
+                    Modifier.size(40.dp).padding(5.dp),
+                ) {
+                    when (MainViewModel.theme) {
+                        IntUiThemes.Light -> Text("Light")
+
+                        IntUiThemes.LightWithLightHeader -> Text("Light with light header")
+
+                        IntUiThemes.Dark -> Text("Dark")
+
+                        IntUiThemes.System -> Text("System")
+                    }
+                }
+            }
+        }
+    }
+}

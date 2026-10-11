@@ -5,7 +5,6 @@ package com.jetpackduba.gitnuro
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.LocalTextContextMenu
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -13,25 +12,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.navigation3.runtime.NavKey
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.logo
-import com.jetpackduba.gitnuro.avatarproviders.GravatarAvatarProvider
-import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.data.git.signers.AppGpgSigner
 import com.jetpackduba.gitnuro.data.git.signers.SshSigner
+import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.*
@@ -40,15 +35,12 @@ import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
-import com.jetpackduba.gitnuro.domain.AppStateManager
-import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.AppViewModel
-import com.jetpackduba.gitnuro.ui.components.TabsRow
 import com.jetpackduba.gitnuro.ui.components.TabInformation
-import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
+import com.jetpackduba.gitnuro.ui.components.TabsRow
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -57,6 +49,15 @@ import org.eclipse.jgit.lib.GpgConfig
 import org.eclipse.jgit.lib.Signers
 import org.eclipse.jgit.util.LfsFactory
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.jewel.foundation.theme.JewelTheme
+import org.jetbrains.jewel.intui.standalone.theme.IntUiTheme
+import org.jetbrains.jewel.intui.standalone.theme.darkThemeDefinition
+import org.jetbrains.jewel.intui.standalone.theme.default
+import org.jetbrains.jewel.intui.window.decoratedWindow
+import org.jetbrains.jewel.intui.window.styling.dark
+import org.jetbrains.jewel.ui.ComponentStyling
+import org.jetbrains.jewel.window.DecoratedWindow
+import org.jetbrains.jewel.window.styling.TitleBarStyle
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Paths
@@ -188,42 +189,48 @@ class App @Inject constructor(
                 appViewModel.updatePersistedTabs()
             }
 
-            Window(
-                title = "${System.getenv("title") ?: AppConstants.APP_NAME} - $currentTabName",
-                onCloseRequest = {
-                    tempFilesManager.clearAll()
-                    this@application.exitApplication()
-                },
-                state = windowState,
-                icon = painterResource(Res.drawable.logo),
+            val themeDefinition = JewelTheme.darkThemeDefinition()
+
+            IntUiTheme(
+                theme = themeDefinition,
+                styling = ComponentStyling.default().decoratedWindow(
+                    titleBarStyle = TitleBarStyle.dark(),
+                ),
             ) {
-                val compositionValues: MutableList<ProvidedValue<*>> =
-                    mutableListOf(LocalTextContextMenu provides AppPopupMenu())
-
-                if (scale != null) {
-                    compositionValues.add(LocalDensity provides Density(scale, 1f))
-                }
-
-                val avatarProvider = when (avatarProviderType) {
-                    AvatarProviderType.Gravatar -> GravatarAvatarProvider()
-                    AvatarProviderType.None -> NoneAvatarProvider()
-                }
-
-                compositionValues.add(LocalAvatarProvider provides avatarProvider)
-                compositionValues.add(LocalDateTimeFormat provides dateFormat)
-
-                CompositionLocalProvider(
-                    values = compositionValues.toTypedArray()
+                DecoratedWindow(
+                    onCloseRequest = { exitApplication() },
+                    title = "${System.getenv("title") ?: AppConstants.APP_NAME} - $currentTabName",
+                    icon = painterResource(Res.drawable.logo),
                 ) {
-                    AppTheme(
-                        selectedTheme = theme,
-                        customTheme = customTheme,
-                        linesHeightType = linesHeightType,
-                    ) {
-                        Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
-                            AppTabs()
-                        }
-                    }
+                    TitleBarView()
+//                    val compositionValues: MutableList<ProvidedValue<*>> =
+//                        mutableListOf(LocalTextContextMenu provides AppPopupMenu())
+//
+//                    if (scale != null) {
+//                        compositionValues.add(LocalDensity provides Density(scale, 1f))
+//                    }
+//
+//                    val avatarProvider = when (avatarProviderType) {
+//                        AvatarProviderType.Gravatar -> GravatarAvatarProvider()
+//                        AvatarProviderType.None -> NoneAvatarProvider()
+//                    }
+//
+//                    compositionValues.add(LocalAvatarProvider provides avatarProvider)
+//                    compositionValues.add(LocalDateTimeFormat provides dateFormat)
+//
+//                    CompositionLocalProvider(
+//                        values = compositionValues.toTypedArray()
+//                    ) {
+//                        AppTheme(
+//                            selectedTheme = theme,
+//                            customTheme = customTheme,
+//                            linesHeightType = linesHeightType,
+//                        ) {
+//                            Box(modifier = Modifier.background(MaterialTheme.colors.background)) {
+//                                AppTabs()
+//                            }
+//                        }
+//                    }
                 }
             }
         }
