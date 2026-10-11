@@ -3,6 +3,7 @@
 package com.jetpackduba.gitnuro.ui.log
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -41,7 +42,10 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -140,7 +144,7 @@ fun Log(
         }
     }
 
-    Box (modifier) {
+    Box(modifier) {
         LogView(
             logState = logStatus,
             selectedItem = selectedItem,
@@ -995,57 +999,49 @@ fun CommitMessage(
                         onDeleteTag = { onDeleteTag(tag) },
                     )
                 }
+
+                val branchesToSkip = mutableListOf<Branch>()
+
                 for (branch in branches) {
+                    if (branchesToSkip.contains(branch)) {
+                        continue
+                    }
+
+                    val trackingBranch = branch.trackingBranch
+                    val trackingRemoteBranch = if (branch.matchesTrackingBranchName && trackingBranch != null) {
+                        val remoteBranchInSameCommit = branches.firstOrNull {
+                            it.isRemote && it.remoteName == trackingBranch.remote &&
+                                    it.simpleName == trackingBranch.branch
+                        }
+
+                        if (remoteBranchInSameCommit != null) {
+                            branchesToSkip.add(remoteBranchInSameCommit)
+                            remoteBranchInSameCommit
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
+
                     BranchChip(
-                        ref = branch,
+                        branch = branch,
+                        trackingRemoteBranch = trackingRemoteBranch,
                         color = nodeColor,
                         currentBranch = currentBranch,
                         isCurrentBranch = branch.isSameBranch(currentBranch),
-                        onCheckoutBranch = { onCheckoutBranch(branch) },
-                        onMergeBranch = { onMergeBranch(branch) },
-                        onDeleteBranch = { onDeleteBranch(branch) },
-                        onDeleteRemoteBranch = { onDeleteRemoteBranch(branch) },
-                        onRebaseBranch = { onRebaseBranch(branch) },
-                        onPullRemoteBranch = { onPullRemoteBranch(branch) },
-                        onPushRemoteBranch = { onPushRemoteBranch(branch) },
-                        onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(branch) },
-                        onRenameBranch = { onRenameBranch(branch) },
-                        onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(branch) },
+                        onCheckoutBranch = { onCheckoutBranch(it) },
+                        onMergeBranch = { onMergeBranch(it) },
+                        onDeleteBranch = { onDeleteBranch(it) },
+                        onDeleteRemoteBranch = { onDeleteRemoteBranch(it) },
+                        onRebaseBranch = { onRebaseBranch(it) },
+                        onPullRemoteBranch = { onPullRemoteBranch(it) },
+                        onPushRemoteBranch = { onPushRemoteBranch(it) },
+                        onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(it) },
+                        onRenameBranch = { onRenameBranch(it) },
+                        onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(it) },
                     )
                 }
-                /*commit.refs.sortedWith { ref1, ref2 ->
-                    if (ref1.isSameBranch(currentBranch)) {
-                        -1
-                    } else {
-                        ref1.name.compareTo(ref2.name)
-                    }
-                }.forEach { ref ->
-                    if (ref.isTag) {
-                        TagChip(
-                            ref = ref,
-                            color = nodeColor,
-                            onCheckoutTag = { onCheckoutRef(ref) },
-                            onDeleteTag = { onDeleteTag(ref) },
-                        )
-                    } else if (ref.isBranch) {
-                        BranchChip(
-                            ref = ref,
-                            color = nodeColor,
-                            currentBranch = currentBranch,
-                            isCurrentBranch = ref.isSameBranch(currentBranch),
-                            onCheckoutBranch = { onCheckoutRef(ref) },
-                            onMergeBranch = { onMergeBranch(ref) },
-                            onDeleteBranch = { onDeleteBranch(ref) },
-                            onDeleteRemoteBranch = { onDeleteRemoteBranch(ref) },
-                            onRebaseBranch = { onRebaseBranch(ref) },
-                            onPullRemoteBranch = { onPullRemoteBranch(ref) },
-                            onPushRemoteBranch = { onPushRemoteBranch(ref) },
-                            onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(ref) },
-                            onRenameBranch = { onRenameBranch(ref) },
-                            onCopyBranchNameToClipboard = { onCopyBranchNameToClipboard(ref) },
-                        )
-                    }
-                }*/
             }
         }
 
@@ -1348,27 +1344,29 @@ fun UncommittedChangesGraphNode(
 @Composable
 fun BranchChip(
     modifier: Modifier = Modifier,
+    trackingRemoteBranch: Branch?,
     isCurrentBranch: Boolean = false,
-    ref: Branch,
+    branch: Branch,
     currentBranch: Branch?,
-    onCheckoutBranch: () -> Unit,
-    onMergeBranch: () -> Unit,
-    onDeleteBranch: () -> Unit,
-    onDeleteRemoteBranch: () -> Unit,
-    onRebaseBranch: () -> Unit,
-    onPushRemoteBranch: () -> Unit,
-    onPullRemoteBranch: () -> Unit,
-    onChangeDefaultUpstreamBranch: () -> Unit,
-    onCopyBranchNameToClipboard: () -> Unit,
-    onRenameBranch: () -> Unit,
+    onCheckoutBranch: (Branch) -> Unit,
+    onMergeBranch: (Branch) -> Unit,
+    onDeleteBranch: (Branch) -> Unit,
+    onDeleteRemoteBranch: (Branch) -> Unit,
+    onRebaseBranch: (Branch) -> Unit,
+    onPushRemoteBranch: (Branch) -> Unit,
+    onPullRemoteBranch: (Branch) -> Unit,
+    onChangeDefaultUpstreamBranch: (Branch) -> Unit,
+    onCopyBranchNameToClipboard: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
     color: Color,
 ) {
+    val remoteBranchIconColor = Color(0xFFbd9b46)
     val contextMenuItemsList = {
         branchContextMenuItems(
-            branch = ref,
+            branch = branch,
             currentBranch = currentBranch,
             isCurrentBranch = isCurrentBranch,
-            isLocal = ref.isLocal,
+            isLocal = branch.isLocal,
             onCheckoutBranch = onCheckoutBranch,
             onMergeBranch = onMergeBranch,
             onDeleteBranch = onDeleteBranch,
@@ -1381,16 +1379,79 @@ fun BranchChip(
             onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
         )
     }
-
-    var endingContent: @Composable () -> Unit = {}
-    if (isCurrentBranch) {
-        endingContent = {
-            Icon(
-                painter = painterResource(Res.drawable.location),
-                contentDescription = null,
-                modifier = Modifier.padding(end = 6.dp),
-                tint = MaterialTheme.colors.primaryVariant,
+    val remoteContextMenuItemsList = {
+        if (trackingRemoteBranch != null) {
+            branchContextMenuItems(
+                branch = trackingRemoteBranch,
+                currentBranch = currentBranch,
+                isCurrentBranch = isCurrentBranch,
+                isLocal = false,
+                onCheckoutBranch = onCheckoutBranch,
+                onMergeBranch = onMergeBranch,
+                onDeleteBranch = onDeleteBranch,
+                onDeleteRemoteBranch = onDeleteRemoteBranch,
+                onRebaseBranch = onRebaseBranch,
+                onPushToRemoteBranch = onPushRemoteBranch,
+                onPullFromRemoteBranch = onPullRemoteBranch,
+                onChangeDefaultUpstreamBranch = onChangeDefaultUpstreamBranch,
+                onRenameBranch = onRenameBranch,
+                onCopyBranchNameToClipboard = onCopyBranchNameToClipboard,
             )
+        } else {
+            emptyList()
+        }
+    }
+
+    val endingContent: @Composable RowScope.() -> Unit = {
+        val sizeMultiplierCurrentBranch by animateFloatAsState(if (isCurrentBranch) 1f else 0f)
+        val sizeMultiplierTrackingRemoteBranch by animateFloatAsState(if (trackingRemoteBranch != null) 1f else 0f)
+
+        Icon(
+            painter = painterResource(Res.drawable.location),
+            contentDescription = null,
+            modifier = Modifier
+                .size((18 * sizeMultiplierCurrentBranch).dp)
+                .padding(end = (6 * sizeMultiplierCurrentBranch).dp),
+            tint = MaterialTheme.colors.primaryVariant,
+        )
+
+        if (trackingRemoteBranch != null) {
+            val tooltipText = buildAnnotatedString {
+                val branchNameStyle = SpanStyle(fontWeight = FontWeight.SemiBold)
+                val defaultStyle = SpanStyle(fontWeight = FontWeight.Normal)
+
+                this.pushStyle(style = defaultStyle)
+                this.append("Local branch ")
+
+                this.pushStyle(style = branchNameStyle)
+                this.append(branch.simpleName)
+
+                this.pushStyle(style = SpanStyle(fontWeight = FontWeight.Normal))
+                this.append(" is up to date with remote branch ")
+
+                this.pushStyle(style = branchNameStyle)
+                this.append(trackingRemoteBranch.simpleNameWithRemote)
+            }
+
+            InstantTooltip(
+                text = tooltipText,
+                position = InstantTooltipPosition.RIGHT,
+            ) {
+                ContextMenu(
+                    items = remoteContextMenuItemsList,
+                ) {
+                    Box(modifier = Modifier.background(color = remoteBranchIconColor)) {
+                        Icon(
+                            modifier = Modifier
+                                .padding((6 * sizeMultiplierTrackingRemoteBranch).dp)
+                                .size((14 * sizeMultiplierTrackingRemoteBranch).dp),
+                            painter = painterResource(Res.drawable.cloud),
+                            contentDescription = null,
+                            tint = MaterialTheme.colors.background,
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -1402,9 +1463,10 @@ fun BranchChip(
             orientation = Orientation.Vertical,
         ),
         color = color,
-        text = ref.logName,
-        icon = Res.drawable.branch,
-        onCheckoutRef = onCheckoutBranch,
+        iconBackgroundColor = if (branch.isLocal) color else remoteBranchIconColor,
+        text = branch.logName,
+        icon = if (branch.isLocal) Res.drawable.branch else Res.drawable.cloud,
+        onCheckoutRef = { onCheckoutBranch(branch) },
         contextMenuItemsList = contextMenuItemsList,
         endingContent = endingContent,
     )
@@ -1459,9 +1521,10 @@ fun Chip(
     text: String,
     icon: DrawableResource,
     color: Color,
+    iconBackgroundColor: Color = color,
     onCheckoutRef: () -> Unit,
     contextMenuItemsList: () -> List<ContextMenuElement>,
-    endingContent: @Composable () -> Unit = {},
+    endingContent: @Composable RowScope.() -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -1478,7 +1541,7 @@ fun Chip(
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(modifier = Modifier.background(color = color)) {
+                Box(modifier = Modifier.background(color = iconBackgroundColor)) {
                     Icon(
                         modifier = Modifier
                             .padding(6.dp)

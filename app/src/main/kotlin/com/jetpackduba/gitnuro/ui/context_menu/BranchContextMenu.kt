@@ -10,16 +10,16 @@ fun branchContextMenuItems(
     isCurrentBranch: Boolean,
     currentBranch: Branch?,
     isLocal: Boolean,
-    onCheckoutBranch: () -> Unit,
-    onMergeBranch: () -> Unit,
-    onRebaseBranch: () -> Unit,
-    onDeleteBranch: () -> Unit,
-    onDeleteRemoteBranch: () -> Unit = {},
-    onPushToRemoteBranch: () -> Unit,
-    onPullFromRemoteBranch: () -> Unit,
-    onChangeDefaultUpstreamBranch: () -> Unit,
-    onRenameBranch: () -> Unit,
-    onCopyBranchNameToClipboard: () -> Unit,
+    onCheckoutBranch: (Branch) -> Unit,
+    onMergeBranch: (Branch) -> Unit,
+    onRebaseBranch: (Branch) -> Unit,
+    onDeleteBranch: (Branch) -> Unit,
+    onDeleteRemoteBranch: (Branch) -> Unit = {},
+    onPushToRemoteBranch: (Branch) -> Unit,
+    onPullFromRemoteBranch: (Branch) -> Unit,
+    onChangeDefaultUpstreamBranch: (Branch) -> Unit,
+    onRenameBranch: (Branch) -> Unit,
+    onCopyBranchNameToClipboard: (Branch) -> Unit,
 ): List<ContextMenuElement> {
 
     return mutableListOf<ContextMenuElement>().apply {
@@ -27,16 +27,16 @@ fun branchContextMenuItems(
             addContextMenu(
                 composableLabel = { stringResource(Res.string.branch_context_menu_checkout_branch) },
                 icon = { painterResource(Res.drawable.start) },
-                onClick = onCheckoutBranch
+                onClick = { onCheckoutBranch(branch) }
             )
             if (currentBranch != null && currentBranch.name != "HEAD") {
                 addContextMenu(
                     composableLabel = { stringResource(Res.string.branch_context_menu_merge_branch) },
-                    onClick = onMergeBranch
+                    onClick = { onMergeBranch(branch) }
                 )
                 addContextMenu(
                     composableLabel = { stringResource(Res.string.branch_context_menu_rebase_branch) },
-                    onClick = onRebaseBranch
+                    onClick = { onRebaseBranch(branch) }
                 )
 
                 add(ContextMenuElement.ContextSeparator)
@@ -51,7 +51,7 @@ fun branchContextMenuItems(
                         branch.simpleNameWithRemote,
                     )
                 },
-                onClick = onPushToRemoteBranch
+                onClick = { onPushToRemoteBranch(branch) }
             )
             addContextMenu(
                 composableLabel = {
@@ -61,7 +61,7 @@ fun branchContextMenuItems(
                         currentBranch.simpleName,
                     )
                 },
-                onClick = onPullFromRemoteBranch,
+                onClick = { onPullFromRemoteBranch(branch) },
             )
 
             add(ContextMenuElement.ContextSeparator)
@@ -71,12 +71,12 @@ fun branchContextMenuItems(
             addContextMenu(
                 composableLabel = { stringResource(Res.string.branch_context_menu_rename_branch) },
                 icon = { painterResource(Res.drawable.edit) },
-                onClick = onRenameBranch,
+                onClick = { onRenameBranch(branch) },
             )
 
             addContextMenu(
                 composableLabel = { stringResource(Res.string.branch_context_menu_change_default_upstream_branch) },
-                onClick = onChangeDefaultUpstreamBranch
+                onClick = { onChangeDefaultUpstreamBranch(branch) }
             )
 
             add(ContextMenuElement.ContextSeparator)
@@ -86,7 +86,7 @@ fun branchContextMenuItems(
             addContextMenu(
                 composableLabel = { stringResource(Res.string.branch_context_menu_delete_remote_branch) },
                 icon = { painterResource(Res.drawable.delete) },
-                onClick = onDeleteRemoteBranch,
+                onClick = { onDeleteRemoteBranch(branch) },
             )
 
             add(ContextMenuElement.ContextSeparator)
@@ -96,7 +96,7 @@ fun branchContextMenuItems(
             addContextMenu(
                 composableLabel = { stringResource(Res.string.branch_context_menu_delete_branch) },
                 icon = { painterResource(Res.drawable.delete) },
-                onClick = onDeleteBranch,
+                onClick = { onDeleteBranch(branch) },
             )
 
             add(ContextMenuElement.ContextSeparator)
@@ -106,7 +106,7 @@ fun branchContextMenuItems(
             composableLabel = { stringResource(Res.string.branch_context_menu_copy_branch_name) },
             icon = { painterResource(Res.drawable.copy) },
             onClick = {
-                onCopyBranchNameToClipboard()
+                onCopyBranchNameToClipboard(branch)
             }
         )
     }
