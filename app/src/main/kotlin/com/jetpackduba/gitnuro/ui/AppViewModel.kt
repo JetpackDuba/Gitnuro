@@ -33,11 +33,13 @@ class AppViewModel @Inject constructor(
         val repositoriesSaved = appSettingsRepository.latestTabsOpened
 
         val repositoriesList = if (repositoriesSaved.isNotEmpty())
-            Json.decodeFromString<List<String>>(repositoriesSaved).map { path ->
-                newAppTab2(
-                    path = path,
-                )
-            }
+            Json.decodeFromString<List<String?>>(repositoriesSaved)
+                .filterNotNull()
+                .map { path ->
+                    newAppTab2(
+                        path = path,
+                    )
+                }
         else
             listOf()
 
