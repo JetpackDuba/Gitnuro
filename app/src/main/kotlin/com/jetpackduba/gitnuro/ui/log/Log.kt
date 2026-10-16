@@ -73,6 +73,7 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Constants
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import java.util.LinkedHashMap
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -515,32 +516,9 @@ fun CommitsList(
 ) {
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
-    var hasToScrollIfUncommittedChangesAppear by remember { mutableStateOf(false) }
 
-    LaunchedEffect(commitList.commits.keys.firstOrNull().orEmpty()) {
-        if (commitList.commits.isNotEmpty() || hasToScrollIfUncommittedChangesAppear) {
-            scrollState.scrollToItem(0)
-        }
-    }
-
-    val isOnTop by remember(scrollState) {
-        derivedStateOf {
-            scrollState.firstVisibleItemIndex == 0
-        }
-    }
-
-
-    LaunchedEffect(isOnTop, hasUncommittedChanges) {
-        if (hasToScrollIfUncommittedChangesAppear && hasUncommittedChanges) {
-            scrollState.scrollToItem(0)
-        }
-
-        hasToScrollIfUncommittedChangesAppear = if (isOnTop && !hasUncommittedChanges) {
-            true
-        } else {
-            false
-        }
-    }
+    scrollOnUncommittedChangesAppear(scrollState, hasUncommittedChanges)
+    scrollOnNewCommitAdded(scrollState, commitList.commits)
 
     ScrollableLazyColumn(
         state = scrollState,
@@ -643,6 +621,44 @@ fun CommitsList(
         item {
             Box(modifier = Modifier.height(LOG_BOTTOM_PADDING.dp))
         }
+    }
+}
+
+@Composable
+private fun scrollOnUncommittedChangesAppear(
+    scrollState: LazyListState,
+    hasUncommittedChanges: Boolean
+) {
+    // On scrollstate/tab change this is reset to prevent triggering a scroll in other tabs
+    val isFirst = remember(scrollState) { booleanArrayOf(true) }
+
+    LaunchedEffect(scrollState, hasUncommittedChanges) {
+        if (isFirst[0]) {
+            isFirst[0] = false
+            return@LaunchedEffect
+        }
+
+        if (hasUncommittedChanges && scrollState.firstVisibleItemIndex == 1) {
+            scrollState.scrollToItem(0)
+        }
+    }
+}
+
+@Composable
+private fun scrollOnNewCommitAdded(
+    scrollState: LazyListState,
+    commits: LinkedHashMap<String, GraphCommit>,
+) {
+    // On scrollstate/tab change this is reset to prevent triggering a scroll in other tabs
+    val isFirst = remember(scrollState) { booleanArrayOf(true) }
+
+    LaunchedEffect(scrollState, commits.keys.firstOrNull()) {
+        if (isFirst[0]) {
+            isFirst[0] = false
+            return@LaunchedEffect
+        }
+
+        scrollState.scrollToItem(0)
     }
 }
 
