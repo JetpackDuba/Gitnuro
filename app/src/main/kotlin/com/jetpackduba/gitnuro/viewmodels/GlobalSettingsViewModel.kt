@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 private const val TAG = "SettingsViewModel"
 
-class SettingsViewModel @Inject constructor(
+class GlobalSettingsViewModel @Inject constructor(
     private val appSettingsService: AppSettingsService,
     private val logsRepository: LogsRepository,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,

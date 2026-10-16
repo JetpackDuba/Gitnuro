@@ -31,7 +31,7 @@ import com.jetpackduba.gitnuro.ui.components.Notification
 import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.base.UserPasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
-import com.jetpackduba.gitnuro.ui.dialogs.settings.SettingsDialog
+import com.jetpackduba.gitnuro.ui.dialogs.settings.GlobalSettingsDialog
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
@@ -132,7 +132,7 @@ fun AppTab(
                             WelcomePage(
                                 repositoryTabViewModel = repositoryTabViewModel,
                                 onShowCloneDialog = { backStack.add(Screen.CloneRepository) },
-                                onShowSettings = { backStack.add(Screen.Settings) }
+                                onShowSettings = { backStack.add(Screen.GlobalSettings) }
                             )
                         }
                         entry<Screen.RepositoryLoading> {
@@ -151,11 +151,11 @@ fun AppTab(
                                 onNavigate = { backStack.add(it) }
                             )
                         }
-                        entry<Screen.Settings>(
+                        entry<Screen.GlobalSettings>(
                             metadata = dialogsMetadata
                         ) { entry ->
                             val viewModel = tabViewModel(entry, { it.settingsViewModel() })
-                            SettingsDialog(
+                            GlobalSettingsDialog(
                                 settingsViewModel = viewModel,
                                 onDismiss = { backStack.removeLastOrNull() },
                             )

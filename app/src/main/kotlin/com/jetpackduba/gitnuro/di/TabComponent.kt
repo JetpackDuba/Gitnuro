@@ -27,7 +27,7 @@ interface TabComponent {
     }
 
     fun cloneViewModel(): CloneViewModel
-    fun settingsViewModel(): SettingsViewModel
+    fun settingsViewModel(): GlobalSettingsViewModel
     fun repositoryTabViewModelFactory(): RepositoryTabViewModel.Factory
     fun repositoryOpenViewModel(): RepositoryOpenViewModel
     fun historyViewModel(): HistoryViewModel

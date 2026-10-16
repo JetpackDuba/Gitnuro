@@ -98,7 +98,7 @@ fun RepositoryOpenPage(
                     }
 
                     it.matchesBinding(KeybindingOption.SETTINGS) -> {
-                        onNavigate(Screen.Settings)
+                        onNavigate(Screen.GlobalSettings)
                         true
                     }
 
@@ -129,7 +129,7 @@ fun RepositoryOpenPage(
                         }
                     },
                     onQuickActions = { onNavigate(Screen.QuickActions) },
-                    onShowSettingsDialog = { onNavigate(Screen.Settings) },
+                    onShowSettingsDialog = { onNavigate(Screen.GlobalSettings) },
                     showOpenPopup = showOpenPopup,
                     onShowOpenPopupChange = { showOpenPopup = it }
                 )

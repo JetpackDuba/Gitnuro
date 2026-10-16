@@ -70,7 +70,7 @@ sealed interface Screen : NavKey {
     data object Welcome : Screen
     data object RepositoryLoading : Screen
     data object RepositoryOpen : Screen
-    data object Settings : Screen
+    data object GlobalSettings : Screen
     data object CloneRepository : Screen
     data class BranchRename(val ref: Branch) : Screen
     data class BranchChangeUpstream(val ref: Branch) : Screen

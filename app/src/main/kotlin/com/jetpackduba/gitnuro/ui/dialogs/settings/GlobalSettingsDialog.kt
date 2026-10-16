@@ -41,7 +41,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenuText
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SettingsAction
-import com.jetpackduba.gitnuro.viewmodels.SettingsViewModel
+import com.jetpackduba.gitnuro.viewmodels.GlobalSettingsViewModel
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -138,8 +138,8 @@ val linesHeightTypesList = listOf(
 )
 
 @Composable
-fun SettingsDialog(
-    settingsViewModel: SettingsViewModel,
+fun GlobalSettingsDialog(
+    settingsViewModel: GlobalSettingsViewModel,
     onDismiss: () -> Unit,
 ) {
     var selectedCategory by remember {
