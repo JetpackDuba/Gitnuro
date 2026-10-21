@@ -10,7 +10,7 @@ import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.GetCommitDiffEntriesUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetDiffUseCase
 import com.jetpackduba.gitnuro.domain.usecases.GetFileCommitsUseCase
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class HistoryViewModel @Inject constructor(
     private val getCommitDiffEntriesUseCase: GetCommitDiffEntriesUseCase,
     private val generateSplitHunkFromDiffResultGitAction: IGenerateSplitHunkFromDiffResultGitAction,
-    private val settings: AppSettingsService,
+    private val settings: GlobalSettingsService,
     private val tabScope: TabCoroutineScope,
     private val getFileCommitsUseCase: GetFileCommitsUseCase,
     private val getDiffUseCase: GetDiffUseCase,

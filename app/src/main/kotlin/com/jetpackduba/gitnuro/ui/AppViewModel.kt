@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jetpackduba.gitnuro.di.TabComponent
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
-import com.jetpackduba.gitnuro.domain.repositories.AppSettingsRepository
+import com.jetpackduba.gitnuro.domain.repositories.GlobalSettingsRepository
+import com.jetpackduba.gitnuro.domain.repositories.TabsOpenRepository
 import com.jetpackduba.gitnuro.domain.usecases.CleanRepositoriesResourcesUseCase
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
@@ -19,7 +20,7 @@ import javax.inject.Singleton
 
 @Singleton
 class AppViewModel @Inject constructor(
-    private val appSettingsRepository: AppSettingsRepository,
+    private val tabsOpenRepository: TabsOpenRepository,
     private val tabComponentFactory: TabComponent.Factory,
     private val cleanRepositoriesResourcesUseCase: CleanRepositoriesResourcesUseCase,
 ) : ViewModel() {
@@ -29,23 +30,17 @@ class AppViewModel @Inject constructor(
     val currentTab: StateFlow<TabInformation<RepositoryTabViewModel>?>
         field = MutableStateFlow<TabInformation<RepositoryTabViewModel>?>(null)
 
-    fun loadPersistedTabs() {
-        val repositoriesSaved = appSettingsRepository.latestTabsOpened
-
-        val repositoriesList = if (repositoriesSaved.isNotEmpty())
-            Json.decodeFromString<List<String?>>(repositoriesSaved)
-                .filterNotNull()
-                .map { path ->
-                    newAppTab2(
-                        path = path,
-                    )
-                }
-        else
-            listOf()
+    suspend fun loadPersistedTabs() {
+        val repositoriesSaved = tabsOpenRepository.openTabs.firstOrNull().orEmpty()
+        val repositoriesList = repositoriesSaved.map { path ->
+            newAppTab2(
+                path = path,
+            )
+        }
 
         tabs.value = repositoriesList.ifEmpty { listOf(newAppTab2()) }
 
-        val latestSelectedTabIndex = appSettingsRepository.latestRepositoryTabSelected
+        val latestSelectedTabIndex = tabsOpenRepository.selectedTabIndex.firstOrNull() ?: -1
 
         currentTab.value = when (latestSelectedTabIndex < 0) {
             true -> tabs.value.first()
@@ -85,11 +80,9 @@ class AppViewModel @Inject constructor(
     fun selectTab(tab: TabInformation<RepositoryTabViewModel>) {
         currentTab.value = tab
 
-        persistTabSelected(tab)
-    }
-
-    private fun persistTabSelected(tab: TabInformation<RepositoryTabViewModel>) {
-        appSettingsRepository.latestRepositoryTabSelected = tabs.value.indexOf(tab)
+        viewModelScope.launch {
+            updatePersistedTabs()
+        }
     }
 
     fun closeTab(tab: TabInformation<RepositoryTabViewModel>) = viewModelScope.launch {
@@ -144,12 +137,16 @@ class AppViewModel @Inject constructor(
                     RepositorySelectionState.None -> null
                     is RepositorySelectionState.Open -> it to selectionState.path
                     is RepositorySelectionState.Opening -> it to selectionState.path
-                    RepositorySelectionState.Unknown -> it to it.data.repositoryPath.value
+                    RepositorySelectionState.Unknown -> {
+                        val path = it.data.repositoryPath.value ?: return@mapNotNull null
+                        it to path
+                    }
                 }
             }
 
-        appSettingsRepository.latestTabsOpened = Json.encodeToString(tabsToPersist.map { it.second })
-        appSettingsRepository.latestRepositoryTabSelected = tabsToPersist.indexOfFirst { it.first == currentTab.value }
+        val paths = tabsToPersist.map { it.second }
+        tabsOpenRepository.updateOpenTabs(paths)
+        tabsOpenRepository.updateSelectedTabIndex(tabsToPersist.indexOfFirst { it.first == currentTab.value })
     }
 
     fun addNewEmptyTab() {

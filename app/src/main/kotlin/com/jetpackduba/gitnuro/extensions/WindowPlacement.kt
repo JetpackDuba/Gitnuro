@@ -1,12 +1,9 @@
 package com.jetpackduba.gitnuro.extensions
 
 import androidx.compose.ui.window.WindowPlacement
-import com.jetpackduba.gitnuro.domain.models.ui.AppWindowPlacement
+import com.jetpackduba.gitnuro.domain.models.ui.WindowPlacement as AppWindowPlacement
 
-
-val defaultWindowPlacement = AppWindowPlacement.MAXIMIZED
-
-val WindowPlacement.preferenceValue: AppWindowPlacement
+val WindowPlacement.toAppWindowPlacement: AppWindowPlacement
     get() {
         return when (this) {
             WindowPlacement.Floating -> AppWindowPlacement.FLOATING
@@ -15,7 +12,7 @@ val WindowPlacement.preferenceValue: AppWindowPlacement
         }
     }
 
-val AppWindowPlacement.toWindowPlacement: WindowPlacement
+val AppWindowPlacement.toComposeWindowPlacement: WindowPlacement
     get() {
         return when (this) {
             AppWindowPlacement.FLOATING -> WindowPlacement.Floating

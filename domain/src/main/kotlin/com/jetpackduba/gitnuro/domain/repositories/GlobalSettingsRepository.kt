@@ -1,14 +1,15 @@
 package com.jetpackduba.gitnuro.domain.repositories
 
-import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
+import com.jetpackduba.gitnuro.domain.models.ui.WindowPlacement
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import kotlinx.coroutines.flow.Flow
 
-interface AppSettingsRepository {
+interface GlobalSettingsRepository {
     // UI
     val scaleUi: Flow<Float?>
     val theme: Flow<Theme?>
@@ -45,11 +46,5 @@ interface AppSettingsRepository {
     // Tools
     val terminalPath: Flow<String?>
 
-    suspend fun setConfiguration(appConfig: AppConfig)
-
-    var latestTabsOpened: String
-    var latestRepositoryTabSelected: Int
-    var latestOpenedRepositoriesPath: String
-    var firstPaneWidth: Float
-    var thirdPaneWidth: Float
+    suspend fun setConfiguration(globalConfig: GlobalConfig)
 }

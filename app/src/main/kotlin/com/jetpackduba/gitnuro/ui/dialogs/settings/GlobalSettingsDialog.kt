@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.ProxyType
@@ -245,7 +245,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             subtitle = "Set up your proxy configuration if needed",
             value = useProxy,
             onValueChanged = {
-                onAction(SettingsAction.SetConfig(AppConfig.UseProxy(it)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.UseProxy(it)))
             },
         )
 
@@ -255,7 +255,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             dropDownOptions = proxyTypesDropDownOptions,
             currentOption = settingsViewState.proxyType,
             onOptionSelected = {
-                onAction(SettingsAction.SetConfig(AppConfig.ProxyProxyType(it.value)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.ProxyProxyType(it.value)))
             }
         )
 
@@ -265,7 +265,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             value = settingsViewState.proxyHostName.orEmpty(),
             enabled = useProxy,
             onValueChanged = {
-                onAction(SettingsAction.SetConfig(AppConfig.ProxyHostName(it)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.ProxyHostName(it)))
             },
         )
 
@@ -274,7 +274,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             subtitle = "",
             value = settingsViewState.proxyPortNumber ?: 0,
             onValueChanged = {
-                onAction(SettingsAction.SetConfig(AppConfig.ProxyPortNumber(it)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.ProxyPortNumber(it)))
             },
             enabled = useProxy,
         )
@@ -284,7 +284,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             subtitle = "Use your credentials to provide your identity the proxy server",
             value = proxyUseAuth,
             onValueChanged = {
-                onAction(SettingsAction.SetConfig(AppConfig.ProxyUseAuth(it)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.ProxyUseAuth(it)))
             }
         )
 
@@ -294,7 +294,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             value = settingsViewState.proxyHostUser.orEmpty(),
             enabled = useProxy && proxyUseAuth,
             onValueChanged = {
-                onAction(SettingsAction.SetConfig(AppConfig.ProxyHostPassword(it)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.ProxyHostPassword(it)))
             },
         )
 
@@ -306,7 +306,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
             enabled = useProxy && proxyUseAuth,
             isPassword = true,
             onValueChanged = {
-                onAction(SettingsAction.SetConfig(AppConfig.ProxyHostPassword(it)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.ProxyHostPassword(it)))
             },
         )
 
@@ -365,7 +365,7 @@ private fun RemoteActions(settingsViewState: SettingsViewState, onAction: (Setti
         subtitle = "Rebase changes instead of merging when pulling",
         value = pullRebase,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.PullWithRebase(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.PullWithRebase(value)))
         }
     )
 
@@ -374,7 +374,7 @@ private fun RemoteActions(settingsViewState: SettingsViewState, onAction: (Setti
         subtitle = "Check if the local version remote branch is up to date to avoid accidentally overriding unintended commits",
         value = pushWithLease,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.PushWithLease(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.PushWithLease(value)))
         }
     )
 }
@@ -389,7 +389,7 @@ private fun Authentication(settingsViewState: SettingsViewState, onAction: (Sett
         subtitle = "If active, HTTP Credentials will be remembered until Gitnuro is closed",
         value = cacheCredentialsInMemory,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.CacheCredentialsInMemory(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.CacheCredentialsInMemory(value)))
         }
     )
 }
@@ -403,7 +403,7 @@ private fun Security(settingsViewState: SettingsViewState, onAction: (SettingsAc
         subtitle = "If active, you may connect to the remote server via insecure HTTPS connection",
         value = !verifySsl,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.CacheCredentialsInMemory(!value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.CacheCredentialsInMemory(!value)))
         }
     )
 }
@@ -417,7 +417,7 @@ fun Terminal(settingsViewState: SettingsViewState, onAction: (SettingsAction) ->
         subtitle = "If empty, Gitnuro will try to open the default terminal emulator",
         value = terminalPath,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.TerminalPath(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.TerminalPath(value)))
         },
     )
 }
@@ -446,7 +446,7 @@ private fun Environment(settingsViewState: SettingsViewState, onAction: (Setting
         value = defaultCloneDir,
         onValueChanged = { value ->
             defaultCloneDir = value
-            onAction(SettingsAction.SetConfig(AppConfig.CloneDefaultDirectory(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.CloneDefaultDirectory(value)))
         },
     )
 }
@@ -461,7 +461,7 @@ private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAc
         subtitle = "Try to fast-forward merges when possible",
         value = fastForwardMerge,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.FastForwardMerge(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.FastForwardMerge(value)))
         }
     )
 
@@ -470,7 +470,7 @@ private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAc
         subtitle = "To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes",
         value = mergeAutoStash,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.AutoStashOnMerge(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.AutoStashOnMerge(value)))
         }
     )
 }
@@ -484,7 +484,7 @@ private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsActi
         subtitle = "Show the list of unstaged changes above the list of staged changes",
         value = swapUncommittedChanges,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.SwapStatusPanes(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.SwapStatusPanes(value)))
         }
     )
 }
@@ -511,7 +511,7 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         subtitle = "If enabled, current date would be shown as \"$currentDateSystemDefault\"",
         value = useDefault,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.DateFormatUseDefault(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatUseDefault(value)))
         }
     )
 
@@ -530,7 +530,7 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         onValueChanged = { value ->
             customFormat = value
             if (isValidDateFormat(value)) {
-                onAction(SettingsAction.SetConfig(AppConfig.DateFormatCustomFormat(value)))
+                onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatCustomFormat(value)))
                 isError = false
             } else {
                 isError = true
@@ -551,7 +551,7 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         enabled = !useDefault,
         value = is24h,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.DateFormatIs24h(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatIs24h(value)))
         }
     )
 
@@ -560,7 +560,7 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         subtitle = "Use \"Today\" and \"Yesterday\" instead of the date",
         value = useRelative,
         onValueChanged = { value ->
-            onAction(SettingsAction.SetConfig(AppConfig.DateFormatUseRelative(value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatUseRelative(value)))
         }
     )
 }
@@ -579,7 +579,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         dropDownOptions = themeLists,
         currentOption = currentTheme,
         onOptionSelected = { themeDropDown ->
-            onAction(SettingsAction.SetConfig(AppConfig.Theme(themeDropDown.value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.Theme(themeDropDown.value)))
         }
     )
 
@@ -600,7 +600,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
 
                 themeJob = scope.launch {
                     delay(1.seconds)
-                    onAction(SettingsAction.SetConfig(AppConfig.CustomTheme(value)))
+                    onAction(SettingsAction.SetConfig(GlobalConfig.CustomTheme(value)))
                 }
 
             },
@@ -614,7 +614,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         dropDownOptions = linesHeightTypesList,
         currentOption = currentLinesHeightType,
         onOptionSelected = { dropDown ->
-            onAction(SettingsAction.SetConfig(AppConfig.LinesHeight(dropDown.value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.LinesHeight(dropDown.value)))
         }
     )
 
@@ -659,7 +659,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         dropDownOptions = options,
         currentOption = scaleValue.value,
         onOptionSelected = { newValue ->
-            onAction(SettingsAction.SetConfig(AppConfig.ScaleUi(newValue.value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.ScaleUi(newValue.value)))
         }
     )
 
@@ -672,7 +672,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
             DropDownOption(AvatarProviderType.Gravatar, "Gravatar"),
         ),
         onOptionSelected = {
-            onAction(SettingsAction.SetConfig(AppConfig.AvatarProvider(it.value)))
+            onAction(SettingsAction.SetConfig(GlobalConfig.AvatarProvider(it.value)))
         }
     )
 

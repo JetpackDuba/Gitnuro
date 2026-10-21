@@ -1,13 +1,12 @@
 package com.jetpackduba.gitnuro.extensions
 
-import androidx.compose.runtime.Composable
 import kotlinx.coroutines.sync.Semaphore
 
-suspend inline fun Semaphore.acquireAndUse(
-    block: () -> Composable,
-) {
+suspend inline fun <T> Semaphore.acquireAndUse(
+    block: () -> T,
+): T {
     this.acquire()
-    try {
+    return try {
         block()
     } finally {
         this.release()

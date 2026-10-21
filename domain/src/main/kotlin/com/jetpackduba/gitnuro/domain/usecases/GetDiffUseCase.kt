@@ -10,7 +10,6 @@ import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.DiffType
 import com.jetpackduba.gitnuro.domain.models.ViewDiffResult
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
 import org.eclipse.jgit.diff.DiffEntry
 import javax.inject.Inject
 

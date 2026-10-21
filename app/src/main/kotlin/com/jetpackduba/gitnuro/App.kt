@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import androidx.navigation3.runtime.NavKey
@@ -30,17 +29,21 @@ import com.jetpackduba.gitnuro.avatarproviders.NoneAvatarProvider
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.systemSeparator
+import com.jetpackduba.gitnuro.data.DataStoreFilesProvider
 import com.jetpackduba.gitnuro.data.git.signers.AppGpgSigner
 import com.jetpackduba.gitnuro.data.git.signers.SshSigner
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.repositories.UiStateRepository
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.uistate.GetWindowPlacementUseCase
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
-import com.jetpackduba.gitnuro.domain.AppStateManager
+import com.jetpackduba.gitnuro.extensions.toAppWindowPlacement
+import com.jetpackduba.gitnuro.extensions.toComposeWindowPlacement
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
@@ -92,8 +95,7 @@ sealed interface Screen : NavKey {
 
 
 class App @Inject constructor(
-    private val appStateManager: AppStateManager,
-    private val appSettings: AppSettingsService,
+    private val appSettings: GlobalSettingsService,
     private val appEnvInfo: AppEnvInfo,
     private val appViewModel: AppViewModel,
     private val tempFilesManager: TempFilesManager,
@@ -101,6 +103,9 @@ class App @Inject constructor(
     private val gpgSigner: AppGpgSigner,
     private val sshSigner: SshSigner,
     private val lfsFactory: AppLfsFactory,
+    private val dataStoreFilesProvider: DataStoreFilesProvider,
+    private val uiStateRepository: UiStateRepository,
+    private val getWindowPlacementUseCase: GetWindowPlacementUseCase,
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -109,15 +114,15 @@ class App @Inject constructor(
         initNativeDependencies()
         logsRepository.initLogging()
         initProxySettings()
+        dataStoreFilesProvider.initDataStoreDirPath()
 
         Signers.set(GpgConfig.GpgFormat.OPENPGP, gpgSigner)
         Signers.set(GpgConfig.GpgFormat.SSH, sshSigner)
 
-        val windowPlacement = WindowPlacement.Maximized //appSettingsRepository.windowPlacement.toWindowPlacement
+
         val dirToOpen = getDirToOpen(args)
 
         appEnvInfo.isFlatpak = args.contains("--flatpak")
-        appStateManager.loadRepositoriesTabs()
 
         appViewModel.loadPersistedTabs()
         LfsFactory.setInstance(lfsFactory)
@@ -134,6 +139,7 @@ class App @Inject constructor(
         val dateFormatCustomFormatInitial = appSettings.dateFormatCustomFormat.first()
         val dateFormatIs24hInitial = appSettings.dateFormatIs24h.first()
         val dateFormatUseRelativeInitial = appSettings.dateFormatUseRelative.first()
+        val windowPlacement = getWindowPlacementUseCase().toComposeWindowPlacement
 
         application {
             val theme by appSettings.theme.collectAsState(themeInitial)
@@ -153,6 +159,7 @@ class App @Inject constructor(
                     null
                 }
             }
+
             val scale = appSettings.scaleUi.collectAsState(scaleInitial).value
             val linesHeightType by appSettings.linesHeightType.collectAsState(linesHeightTypeInitial)
             val avatarProviderType by appSettings.avatarProvider.collectAsState(avatarProviderTypeInitial)
@@ -178,7 +185,9 @@ class App @Inject constructor(
             )
 
             // Save window state for next time the Window is started
-            // TODO appSettings.windowPlacement = windowState.placement.preferenceValue
+            LaunchedEffect(windowState.placement) {
+                uiStateRepository.windowPlacement(windowState.placement.toAppWindowPlacement)
+            }
 
             val currentTab = appViewModel.currentTab.collectAsState().value
             val tabName = currentTab?.name?.collectAsState()?.value

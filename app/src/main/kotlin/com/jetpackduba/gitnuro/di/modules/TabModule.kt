@@ -4,8 +4,6 @@ import com.jetpackduba.gitnuro.common.TabScope
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 
 @Module
 class TabModule {    @TabScope

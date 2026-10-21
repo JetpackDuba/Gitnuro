@@ -10,7 +10,6 @@ import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_from_spec
 import com.jetpackduba.gitnuro.collectLatestInViewModel
 import com.jetpackduba.gitnuro.common.flows.invert
 import com.jetpackduba.gitnuro.common.printLog
-import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
@@ -22,7 +21,7 @@ import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.*
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
@@ -83,7 +82,7 @@ private const val TAG = "TabViewModel"
 class RepositoryOpenViewModel @Inject constructor(
     private val getWorktreeUseCase: GetWorktreeUseCase,
     private val historyViewModelProvider: Provider<HistoryViewModel>,
-    val appStateManager: AppStateManager,
+    private val recentRepositoriesRepository: RecentRepositoriesRepository,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val appViewModel: AppViewModel,
@@ -115,7 +114,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val cherryPickCommitUseCase: CherryPickCommitUseCase,
     private val revertCommitUseCase: RevertCommitUseCase,
     private val abortRebaseUseCase: AbortRebaseUseCase,
-    private val appSettings: AppSettingsService,
+    private val appSettings: GlobalSettingsService,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
     private val getSummaryFromStatusUseCase: GetSummaryFromStatusUseCase,
     private val stageHunkUseCase: StageHunkUseCase,
@@ -129,7 +128,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val openFileInExternalAppUseCase: OpenFileInExternalAppUseCase,
     private val getDiffUseCase: GetDiffUseCase,
     private val repositoryStateRepository: RepositoryStateRepository,
-    private val settings: AppSettingsService,
+    private val settings: GlobalSettingsService,
     private val getCommitFromRebaseLineUseCase: GetCommitFromRebaseLineUseCase,
     private val resumeRebaseInteractiveUseCase: ResumeRebaseInteractiveUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
@@ -148,7 +147,14 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val isPullWithRebaseDefault = settings.pullWithRebase
 
-    val lastLoadedTabs = appStateManager.latestOpenedRepositoriesPaths
+    val lastLoadedTabs = recentRepositoriesRepository
+        .recentRepositoriesPaths
+        .map { it.toList() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            emptyList()
+        )
 
     val repositoryState: StateFlow<RepositoryState> =
         repositoryDataRepository.repositoryState.toUiDataState()
@@ -652,7 +658,7 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun openDirectoryPicker(): String? {
-        val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
+        val latestDirectoryOpened = lastLoadedTabs.value.lastOrNull()
 
         return openFilePickerUseCase(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
@@ -930,7 +936,7 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     private fun alternateShowAsTree() = tabScope.launch {
-        appSettings.setConfiguration(AppConfig.ShowChangesAsTree(!appSettings.showChangesAsTree.first()))
+        appSettings.setConfiguration(GlobalConfig.ShowChangesAsTree(!appSettings.showChangesAsTree.first()))
     }
 
     private val refreshDiffFlow = repositoryStateRepository
@@ -1017,11 +1023,11 @@ class RepositoryOpenViewModel @Inject constructor(
     }
 
     fun changeTextDiffType(newDiffType: DiffTextViewType) = tabScope.launch {
-        settings.setConfiguration(AppConfig.DiffTextViewType(newDiffType))
+        settings.setConfiguration(GlobalConfig.DiffTextViewType(newDiffType))
     }
 
     fun changeDisplayFullFile(isDisplayFullFile: Boolean) = tabScope.launch {
-        settings.setConfiguration(AppConfig.DiffDisplayFullFile(isDisplayFullFile))
+        settings.setConfiguration(GlobalConfig.DiffDisplayFullFile(isDisplayFullFile))
     }
 
     fun stageHunkLine(entry: DiffEntry, hunk: Hunk, line: Line) = stageHunkLineUseCase(entry, hunk, line)

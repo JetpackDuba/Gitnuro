@@ -17,12 +17,13 @@ import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
 import com.jetpackduba.gitnuro.domain.models.RepositorySelectionState
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
+import com.jetpackduba.gitnuro.domain.repositories.RecentRepositoriesRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
+import com.jetpackduba.gitnuro.domain.usecases.repositories.recent.RemoveRecentRepositoryUseCase
 import com.jetpackduba.gitnuro.extensions.stateIn
-import com.jetpackduba.gitnuro.domain.AppStateManager
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
@@ -51,7 +52,7 @@ private const val TAG = "RepositoryTabViewModel"
  */
 class RepositoryTabViewModel @AssistedInject constructor(
     private val initLocalRepositoryGitAction: IInitLocalRepositoryGitAction,
-    val appStateManager: AppStateManager,
+    private val recentRepositoriesStateHolder: RecentRepositoriesRepository,
     private val fileChangesWatcher: IFileChangesWatcher,
     private val credentialsStateManager: CredentialsStateManager,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
@@ -63,6 +64,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val repositoryStateRepository: RepositoryStateRepository,
     private val setRepositorySelectionStateToNoneUseCase: SetRepositorySelectionStateToNoneUseCase,
     private val tabComponent: TabComponent,
+    private val removeRecentRepositoryUseCase: RemoveRecentRepositoryUseCase,
     @Assisted private val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -72,6 +74,15 @@ class RepositoryTabViewModel @AssistedInject constructor(
     interface Factory {
         fun create(initialPath: String?): RepositoryTabViewModel
     }
+
+    val recentRepositories = recentRepositoriesStateHolder
+        .recentRepositoriesPaths
+        .map { it.toList() }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            emptyList()
+        )
 
     var isLoaded = false
         private set
@@ -213,7 +224,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     }
 
     fun openDirectoryPicker(): String? {
-        val latestDirectoryOpened = appStateManager.latestOpenedRepositoryPath
+        val latestDirectoryOpened = recentRepositories.value.firstOrNull()
 
         return openFilePickerUseCase(PickerType.DIRECTORIES, latestDirectoryOpened)
     }
@@ -235,7 +246,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     }
 
     fun removeRepositoryFromRecent(repository: String) = viewModelScope.launch {
-        appStateManager.removeRepositoryFromRecent(repository)
+        removeRecentRepositoryUseCase(repository)
     }
 
     fun loadTab() {

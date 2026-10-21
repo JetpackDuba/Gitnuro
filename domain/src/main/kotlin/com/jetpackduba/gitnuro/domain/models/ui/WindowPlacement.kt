@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.domain.models.ui
 
-enum class AppWindowPlacement {
+enum class WindowPlacement {
     FLOATING,
     MAXIMIZED,
     FULLSCREEN,

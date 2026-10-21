@@ -1,9 +1,8 @@
 package com.jetpackduba.gitnuro.terminal
 
-import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreAppSettingsRepository
+import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreGlobalSettingsRepository
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.io.File
@@ -13,7 +12,7 @@ import javax.inject.Inject
 
 class OpenRepositoryInTerminalGitAction @Inject constructor(
     private val terminalProvider: ITerminalProvider,
-    private val settings: DataStoreAppSettingsRepository,
+    private val settings: DataStoreGlobalSettingsRepository,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val tabScope: TabCoroutineScope,
 ) {

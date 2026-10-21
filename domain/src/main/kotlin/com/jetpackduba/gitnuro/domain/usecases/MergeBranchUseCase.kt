@@ -10,13 +10,13 @@ import com.jetpackduba.gitnuro.domain.interfaces.IMergeBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.models.TaskType
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class MergeBranchUseCase @Inject constructor(
     private val mergeBranchGitAction: IMergeBranchGitAction,
-    private val appSettingsService: AppSettingsService,
+    private val globalSettingsService: GlobalSettingsService,
     private val checkHasUncommittedChangesGitAction: ICheckHasUncommittedChangesGitAction,
     private val useCaseExecutor: UseCaseExecutor,
     private val deleteStashGitAction: IDeleteStashGitAction,
@@ -29,8 +29,8 @@ class MergeBranchUseCase @Inject constructor(
             refreshEvenIfFailed = true,
             dataToRefresh = arrayOf(DataToRefresh.ALL),
         ) { repositoryPath ->
-            val mergeAutoStash = appSettingsService.autoStashOnMerge.first()
-            val fastForwardMerge = appSettingsService.fastForwardMerge.first()
+            val mergeAutoStash = globalSettingsService.autoStashOnMerge.first()
+            val fastForwardMerge = globalSettingsService.fastForwardMerge.first()
             var backupStash: Commit? = null
 
             if (mergeAutoStash) {

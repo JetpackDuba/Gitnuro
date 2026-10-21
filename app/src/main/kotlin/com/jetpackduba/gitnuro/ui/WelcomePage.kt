@@ -61,7 +61,7 @@ fun WelcomePage(
     onShowCloneDialog: () -> Unit,
     onShowSettings: () -> Unit,
 ) {
-    val recentlyOpenedRepositories by repositoryTabViewModel.appStateManager.latestOpenedRepositoriesPaths.collectAsState()
+    val recentlyOpenedRepositories by repositoryTabViewModel.recentRepositories.collectAsState()
     val newUpdate by repositoryTabViewModel.update.collectAsState()
 
     WelcomeView(

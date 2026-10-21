@@ -4,14 +4,14 @@ import com.jetpackduba.gitnuro.domain.UseCaseExecutor
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.interfaces.IPullBranchGitAction
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class PullBranchUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
     private val pullBranchGitAction: IPullBranchGitAction,
-    private val appSettingsService: AppSettingsService,
+    private val globalSettingsService: GlobalSettingsService,
 ) {
     operator fun invoke(
         pullType: PullType,
@@ -21,10 +21,10 @@ class PullBranchUseCase @Inject constructor(
         taskType = TaskType.Pull,
         dataToRefresh = arrayOf(DataToRefresh.ALL),
     ) { repositoryPath ->
-        val autoStashOnMerge = appSettingsService.autoStashOnMerge.first()
+        val autoStashOnMerge = globalSettingsService.autoStashOnMerge.first()
 
         val pullTypeWithSettings = if (pullType == PullType.DEFAULT) {
-            val isPullWithRebase = appSettingsService.pullWithRebase.first()
+            val isPullWithRebase = globalSettingsService.pullWithRebase.first()
 
             if (isPullWithRebase) {
                 PullType.REBASE

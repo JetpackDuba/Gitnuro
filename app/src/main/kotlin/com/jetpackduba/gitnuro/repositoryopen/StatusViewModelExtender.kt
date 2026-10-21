@@ -11,7 +11,7 @@ import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.dataOrNull
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.ui.status.*
@@ -43,7 +43,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     private val doCommitUseCase: DoCommitUseCase,
     private val getAuthorUseCase: GetAuthorUseCase,
     private val saveAuthorUseCase: SaveAuthorUseCase,
-    private val appSettings: AppSettingsService,
+    private val appSettings: GlobalSettingsService,
     private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
     private val stageByDirectoryUseCase: StageByDirectoryUseCase,
     private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,

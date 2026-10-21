@@ -4,9 +4,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.interfaces.ICloneRepositoryGitAction
-import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.CloneState
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.PickerType
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +23,7 @@ import javax.inject.Inject
 class CloneViewModel @Inject constructor(
     private val cloneRepositoryGitAction: ICloneRepositoryGitAction,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
-    private val appSettings: AppSettingsService,
+    private val appSettings: GlobalSettingsService,
 ) : TabViewModel() {
     private val _repositoryUrl = MutableStateFlow(TextFieldValue(""))
     val repositoryUrl = _repositoryUrl.asStateFlow()
@@ -69,7 +69,7 @@ class CloneViewModel @Inject constructor(
                 directory.mkdirs()
             }
             if (_saveDirAsDefault.value) {
-                appSettings.setConfiguration(AppConfig.CloneDefaultDirectory(directoryPath))
+                appSettings.setConfiguration(GlobalConfig.CloneDefaultDirectory(directoryPath))
             }
 
             val repoDir = File(directory, folder)

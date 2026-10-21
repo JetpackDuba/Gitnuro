@@ -5,12 +5,12 @@ import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.domain.models.AppConfig
+import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
-import com.jetpackduba.gitnuro.domain.services.AppSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +20,7 @@ import javax.inject.Inject
 private const val TAG = "SettingsViewModel"
 
 class GlobalSettingsViewModel @Inject constructor(
-    private val appSettingsService: AppSettingsService,
+    private val globalSettingsService: GlobalSettingsService,
     private val logsRepository: LogsRepository,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
 ) : TabViewModel() {
@@ -34,8 +34,8 @@ class GlobalSettingsViewModel @Inject constructor(
         }
     }
 
-    private fun setAppConfiguration(appConfig: AppConfig) = viewModelScope.launch {
-        appSettingsService.setConfiguration(appConfig)
+    private fun setAppConfiguration(globalConfig: GlobalConfig) = viewModelScope.launch {
+        globalSettingsService.setConfiguration(globalConfig)
     }
 
     fun openLogsFolderInFileExplorer() {
@@ -48,31 +48,31 @@ class GlobalSettingsViewModel @Inject constructor(
 
     private fun settingsState(): Flow<SettingsViewState> {
         return combine(
-            appSettingsService.scaleUi,
-            appSettingsService.theme,
-            appSettingsService.customTheme,
-            appSettingsService.linesHeightType,
-            appSettingsService.dateFormatUseDefault,
-            appSettingsService.dateFormatCustomFormat,
-            appSettingsService.dateFormatIs24h,
-            appSettingsService.dateFormatUseRelative,
-            appSettingsService.avatarProvider,
-            appSettingsService.swapStatusPanes,
-            appSettingsService.pullWithRebase,
-            appSettingsService.pushWithLease,
-            appSettingsService.fastForwardMerge,
-            appSettingsService.autoStashOnMerge,
-            appSettingsService.cloneDefaultDirectory,
-            appSettingsService.useProxy,
-            appSettingsService.proxyUseAuth,
-            appSettingsService.proxyType,
-            appSettingsService.proxyHostName,
-            appSettingsService.proxyPortNumber,
-            appSettingsService.proxyHostUser,
-            appSettingsService.proxyHostPassword,
-            appSettingsService.verifySsl,
-            appSettingsService.cacheCredentialsInMemory,
-            appSettingsService.terminalPath,
+            globalSettingsService.scaleUi,
+            globalSettingsService.theme,
+            globalSettingsService.customTheme,
+            globalSettingsService.linesHeightType,
+            globalSettingsService.dateFormatUseDefault,
+            globalSettingsService.dateFormatCustomFormat,
+            globalSettingsService.dateFormatIs24h,
+            globalSettingsService.dateFormatUseRelative,
+            globalSettingsService.avatarProvider,
+            globalSettingsService.swapStatusPanes,
+            globalSettingsService.pullWithRebase,
+            globalSettingsService.pushWithLease,
+            globalSettingsService.fastForwardMerge,
+            globalSettingsService.autoStashOnMerge,
+            globalSettingsService.cloneDefaultDirectory,
+            globalSettingsService.useProxy,
+            globalSettingsService.proxyUseAuth,
+            globalSettingsService.proxyType,
+            globalSettingsService.proxyHostName,
+            globalSettingsService.proxyPortNumber,
+            globalSettingsService.proxyHostUser,
+            globalSettingsService.proxyHostPassword,
+            globalSettingsService.verifySsl,
+            globalSettingsService.cacheCredentialsInMemory,
+            globalSettingsService.terminalPath,
         ) { scaleUi,
             theme,
             customTheme,
@@ -190,6 +190,6 @@ data class SettingsViewState(
 )
 
 sealed interface SettingsAction {
-    data class SetConfig(val configuration: AppConfig) : SettingsAction
+    data class SetConfig(val configuration: GlobalConfig) : SettingsAction
     data object OpenLogsFolder : SettingsAction
 }
