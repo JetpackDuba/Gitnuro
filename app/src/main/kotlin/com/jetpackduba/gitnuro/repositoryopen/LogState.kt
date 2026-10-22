@@ -25,6 +25,7 @@ data class LogState(
     val searchFilter: LogSearch = LogSearch.NotSearching,
     val verticalScrollState: LazyListState = LazyListState(),
     val horizontalScrollState: ScrollState = ScrollState(0),
+    val groupBranchesWithRemotes: Boolean = true,
 )
 
 fun combineLogState(
@@ -38,6 +39,7 @@ fun combineLogState(
     logSearchFilterResults: Flow<LogSearch>,
     verticalListState: Flow<LazyListState>,
     horizontalListState: Flow<ScrollState>,
+    groupBranchesWithRemotes: Flow<Boolean>,
 ): Flow<LogState> {
     return combine(
         log,
@@ -50,6 +52,7 @@ fun combineLogState(
         logSearchFilterResults,
         verticalListState,
         horizontalListState,
+        groupBranchesWithRemotes,
     ) { log,
         hasUncommittedChanges,
         currentBranch,
@@ -59,7 +62,8 @@ fun combineLogState(
         statusSummary,
         logSearchFilterResults,
         verticalListState,
-        horizontalListState ->
+        horizontalListState,
+        groupBranchesWithRemotes ->
         LogState(
             isLoading = log.isLoading || currentBranch.isLoading,
             hasUncommittedChanges,
@@ -72,6 +76,7 @@ fun combineLogState(
             logSearchFilterResults,
             verticalListState,
             horizontalListState,
+            groupBranchesWithRemotes = groupBranchesWithRemotes,
         )
     }
 }

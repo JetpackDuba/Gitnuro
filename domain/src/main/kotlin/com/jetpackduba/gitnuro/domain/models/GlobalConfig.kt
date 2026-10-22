@@ -30,4 +30,5 @@ sealed interface GlobalConfig {
     data class DiffTextViewType(val value: com.jetpackduba.gitnuro.domain.models.DiffTextViewType) : GlobalConfig
     data class ShowChangesAsTree(val value: Boolean) : GlobalConfig
     data class TerminalPath(val value: String) : GlobalConfig
+    data class GroupBranches(val value: Boolean) : GlobalConfig
 }

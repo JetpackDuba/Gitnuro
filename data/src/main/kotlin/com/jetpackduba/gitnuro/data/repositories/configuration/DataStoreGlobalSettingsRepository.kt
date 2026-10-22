@@ -34,6 +34,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.v
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.windowPlacementPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.*
 import com.jetpackduba.gitnuro.data.mappers.PathsListMapper
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.groupBranchesWithRemotesPreference
 import com.jetpackduba.gitnuro.data.repositories.ui.WindowPlacementMapper
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
@@ -55,57 +56,58 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
 ) : GlobalSettingsRepository {
 
     // UI
-    override val scaleUi = dataStore.data[scaleUiPreference]
+    override val scaleUi = dataStore[scaleUiPreference]
 
-    override val theme = dataStore.data[themePreference].map { themeMapper.toDomain(it) }
-    override val customTheme = dataStore.data[customThemePreference]
+    override val theme = dataStore[themePreference].map { themeMapper.toDomain(it) }
+    override val customTheme = dataStore[customThemePreference]
 
     override val linesHeightType =
-        dataStore.data[linesHeightPreference].map { linesHeightMapper.toDomain(it) }
+        dataStore[linesHeightPreference].map { linesHeightMapper.toDomain(it) }
 
-    override val dateFormatUseDefault get() = dataStore.data[dateFormatUseDefaultPreference]
-    override val dateFormatCustomFormat get() = dataStore.data[dateFormatCustomFormatPreference]
-    override val dateFormatIs24h get() = dataStore.data[dateFormatIs24hPreference]
-    override val dateFormatUseRelative get() = dataStore.data[dateFormatUseRelativePreference]
+    override val groupBranchesWithRemotes: Flow<Boolean?> = dataStore[groupBranchesWithRemotesPreference]
+    override val dateFormatUseDefault get() = dataStore[dateFormatUseDefaultPreference]
+    override val dateFormatCustomFormat get() = dataStore[dateFormatCustomFormatPreference]
+    override val dateFormatIs24h get() = dataStore[dateFormatIs24hPreference]
+    override val dateFormatUseRelative get() = dataStore[dateFormatUseRelativePreference]
 
     override val avatarProvider
-        get() = dataStore.data[avatarProviderPreference].map {
+        get() = dataStore[avatarProviderPreference].map {
             avatarProviderMapper.toDomain(
                 it
             )
         }
-    override val swapStatusPanes get() = dataStore.data[swapStatusPanesPreference]
-    override val showChangesAsTree get() = dataStore.data[showChangesAsTreePreference]
-    override val diffDisplayFullFile get() = dataStore.data[diffDisplayFullFilePreference]
+    override val swapStatusPanes get() = dataStore[swapStatusPanesPreference]
+    override val showChangesAsTree get() = dataStore[showChangesAsTreePreference]
+    override val diffDisplayFullFile get() = dataStore[diffDisplayFullFilePreference]
     override val diffTextViewType
-        get() = dataStore.data[diffTextViewTypePreference].map {
+        get() = dataStore[diffTextViewTypePreference].map {
             textDiffViewTypeMapper.toDomain(
                 it
             )
         }
 
     // Git
-    override val pullWithRebase get() = dataStore.data[pullWithRebasePreference]
-    override val pushWithLease get() = dataStore.data[pushWithLeasePreference]
-    override val fastForwardMerge get() = dataStore.data[fastForwardMergePreference]
-    override val autoStashOnMerge get() = dataStore.data[autoStashOnMergePreference]
-    override val cloneDefaultDirectory get() = dataStore.data[cloneDefaultDirectoryPreference]
+    override val pullWithRebase get() = dataStore[pullWithRebasePreference]
+    override val pushWithLease get() = dataStore[pushWithLeasePreference]
+    override val fastForwardMerge get() = dataStore[fastForwardMergePreference]
+    override val autoStashOnMerge get() = dataStore[autoStashOnMergePreference]
+    override val cloneDefaultDirectory get() = dataStore[cloneDefaultDirectoryPreference]
 
 
     // Network
-    override val useProxy get() = dataStore.data[useProxyPreference]
-    override val proxyUseAuth get() = dataStore.data[proxyUseAuthPreference]
-    override val proxyType get() = dataStore.data[proxyProxyTypePreference].map { ProxyType.fromValue(it) }
-    override val proxyHostName get() = dataStore.data[proxyHostNamePreference]
-    override val proxyPortNumber get() = dataStore.data[proxyPortNumberPreference]
-    override val proxyHostUser get() = dataStore.data[proxyHostUserPreference]
-    override val proxyHostPassword get() = dataStore.data[proxyHostPasswordPreference]
+    override val useProxy get() = dataStore[useProxyPreference]
+    override val proxyUseAuth get() = dataStore[proxyUseAuthPreference]
+    override val proxyType get() = dataStore[proxyProxyTypePreference].map { ProxyType.fromValue(it) }
+    override val proxyHostName get() = dataStore[proxyHostNamePreference]
+    override val proxyPortNumber get() = dataStore[proxyPortNumberPreference]
+    override val proxyHostUser get() = dataStore[proxyHostUserPreference]
+    override val proxyHostPassword get() = dataStore[proxyHostPasswordPreference]
 
-    override val verifySsl get() = dataStore.data[verifySslPreference]
-    override val cacheCredentialsInMemory get() = dataStore.data[cacheCredentialsPreference]
+    override val verifySsl get() = dataStore[verifySslPreference]
+    override val cacheCredentialsInMemory get() = dataStore[cacheCredentialsPreference]
 
     // Tools
-    override val terminalPath get() = dataStore.data[terminalPathPreference]
+    override val terminalPath get() = dataStore[terminalPathPreference]
 
     override suspend fun setConfiguration(globalConfig: GlobalConfig) {
         dataStore.apply {
@@ -149,6 +151,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
 
                 is GlobalConfig.ShowChangesAsTree -> setValue(showChangesAsTreePreference, globalConfig.value)
                 is GlobalConfig.TerminalPath -> setValue(terminalPathPreference, globalConfig.value)
+                is GlobalConfig.GroupBranches -> setValue(groupBranchesWithRemotesPreference, globalConfig.value)
             }
         }
     }

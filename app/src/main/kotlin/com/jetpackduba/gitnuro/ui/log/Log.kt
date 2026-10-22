@@ -73,7 +73,6 @@ import kotlinx.coroutines.launch
 import org.eclipse.jgit.lib.Constants
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import java.util.LinkedHashMap
 
 private val colors = listOf(
     Color(0xFF42a5f5),
@@ -589,6 +588,7 @@ fun CommitsList(
                 showCreateNewBranch = { onCreateBranch(graphNode.commit) },
                 showCreateNewTag = { onCreateTag(graphNode.commit) },
                 resetBranch = { onResetBranch(graphNode.commit) },
+                groupBranchesWithRemotes = logState.groupBranchesWithRemotes,
                 onMergeBranch = { onAction(LogAction.Merge(it)) },
                 onDeleteBranch = { onAction(LogAction.DeleteBranch(it)) },
                 onDeleteRemoteBranch = { onAction(LogAction.DeleteRemoteBranch(it)) },
@@ -838,6 +838,7 @@ private fun CommitLine(
     showCreateNewBranch: () -> Unit,
     showCreateNewTag: () -> Unit,
     resetBranch: () -> Unit,
+    groupBranchesWithRemotes: Boolean,
     onApplyStash: () -> Unit,
     onPopStash: () -> Unit,
     onDeleteStash: () -> Unit,
@@ -947,6 +948,7 @@ private fun CommitLine(
                         isStash = isStash,
                         branches = branches,
                         tags = tags,
+                        groupBranchesWithRemotes = groupBranchesWithRemotes,
                         onCheckoutBranch = { ref ->
                             if (ref.isRemote) {
                                 onCheckoutRemoteBranch(ref)
@@ -981,6 +983,7 @@ fun CommitMessage(
     branches: List<Branch>,
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
+    groupBranchesWithRemotes: Boolean,
     onCheckoutBranch: (ref: Branch) -> Unit,
     onMergeBranch: (ref: Branch) -> Unit,
     onDeleteBranch: (ref: Branch) -> Unit,
@@ -1006,7 +1009,6 @@ fun CommitMessage(
             modifier = Modifier.padding(start = 16.dp)
         ) {
             if (!isStash) {
-                // TODO Enable this once commits list is migrated to new structure
                 for (tag in tags) {
                     TagChip(
                         tag = tag,
@@ -1016,30 +1018,12 @@ fun CommitMessage(
                     )
                 }
 
-                val branchesToSkip = mutableListOf<Branch>()
+                val branchesGrouped = remember(groupBranchesWithRemotes) {
+                    getBranchesGrouped(groupBranchesWithRemotes, branches)
+                }
 
-                for (branch in branches) {
-                    if (branchesToSkip.contains(branch)) {
-                        continue
-                    }
 
-                    val trackingBranch = branch.trackingBranch
-                    val trackingRemoteBranch = if (branch.matchesTrackingBranchName && trackingBranch != null) {
-                        val remoteBranchInSameCommit = branches.firstOrNull {
-                            it.isRemote && it.remoteName == trackingBranch.remote &&
-                                    it.simpleName == trackingBranch.branch
-                        }
-
-                        if (remoteBranchInSameCommit != null) {
-                            branchesToSkip.add(remoteBranchInSameCommit)
-                            remoteBranchInSameCommit
-                        } else {
-                            null
-                        }
-                    } else {
-                        null
-                    }
-
+                for ((branch, trackingRemoteBranch) in branchesGrouped) {
                     BranchChip(
                         branch = branch,
                         trackingRemoteBranch = trackingRemoteBranch,
@@ -1089,6 +1073,39 @@ fun CommitMessage(
                 overflow = TextOverflow.Ellipsis,
             )
         }
+    }
+}
+
+fun getBranchesGrouped(groupBranches: Boolean, branches: List<Branch>): List<Pair<Branch, Branch?>> {
+    return if (groupBranches) {
+        val branchesToSkip = mutableListOf<Branch>()
+
+        branches.mapNotNull { branch ->
+            if (branchesToSkip.contains(branch)) {
+                return@mapNotNull null
+            }
+
+            val trackingBranch = branch.trackingBranch
+            val trackingRemoteBranch = if (branch.matchesTrackingBranchName && trackingBranch != null) {
+                val remoteBranchInSameCommit = branches.firstOrNull {
+                    it.isRemote && it.remoteName == trackingBranch.remote &&
+                            it.simpleName == trackingBranch.branch
+                }
+
+                if (remoteBranchInSameCommit != null) {
+                    branchesToSkip.add(remoteBranchInSameCommit)
+                    remoteBranchInSameCommit
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+
+            branch to trackingRemoteBranch
+        }
+    } else {
+        branches.map { it to (null as Branch?) }
     }
 }
 

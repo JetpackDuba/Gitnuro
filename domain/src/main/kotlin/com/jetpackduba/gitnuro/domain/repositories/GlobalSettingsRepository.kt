@@ -24,6 +24,7 @@ interface GlobalSettingsRepository {
     val showChangesAsTree: Flow<Boolean?>
     val diffDisplayFullFile: Flow<Boolean?>
     val diffTextViewType: Flow<DiffTextViewType?>
+    val groupBranchesWithRemotes: Flow<Boolean?>
 
     // Git
     val pullWithRebase: Flow<Boolean?>

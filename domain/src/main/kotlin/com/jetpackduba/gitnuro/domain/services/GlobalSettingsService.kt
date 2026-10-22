@@ -47,6 +47,7 @@ class GlobalSettingsService @Inject constructor(
     val verifySsl: Flow<Boolean> get() = globalSettingsRepository.verifySsl.defaultIfNull { DEFAULT_VERIFY_SSL }
     val cacheCredentialsInMemory: Flow<Boolean> get() = globalSettingsRepository.cacheCredentialsInMemory.defaultIfNull { DEFAULT_CACHE_CREDENTIALS_IN_MEMORY }
     val terminalPath: Flow<String?> get() = globalSettingsRepository.terminalPath
+    val groupBranchesWithRemotes: Flow<Boolean> get() = globalSettingsRepository.groupBranchesWithRemotes.defaultIfNull { DEFAULT_GROUP_BRANCHES_WITH_REMOTES }
 
     companion object {
         val DEFAULT_THEME = Theme.Dark
@@ -69,5 +70,6 @@ class GlobalSettingsService @Inject constructor(
         val DEFAULT_PROXY_TYPE = ProxyType.HTTP
         const val DEFAULT_VERIFY_SSL = true
         const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
+        const val DEFAULT_GROUP_BRANCHES_WITH_REMOTES = true
     }
 }

@@ -365,6 +365,7 @@ class RepositoryOpenViewModel @Inject constructor(
         logSearchFilterResults,
         verticalListState,
         horizontalListState,
+        groupBranchesWithRemotes = appSettings.groupBranchesWithRemotes,
     )
         .stateIn(LogState(true))
 

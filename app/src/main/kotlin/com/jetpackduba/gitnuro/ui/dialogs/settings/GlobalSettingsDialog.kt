@@ -571,6 +571,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     val customTheme = settingsViewState.customTheme
     val currentLinesHeightType = settingsViewState.linesHeightType
     val avatarProvider = settingsViewState.avatarProvider
+    val groupBranchesWithRemotes = settingsViewState.groupBranchesWithRemotes
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
     SettingDropDown(
@@ -674,6 +675,15 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         onOptionSelected = {
             onAction(SettingsAction.SetConfig(GlobalConfig.AvatarProvider(it.value)))
         }
+    )
+
+    SettingToggle(
+        title = "Group local branches with their remotes",
+        subtitle = "Grouping of local branches with their remote when they are in the same commit",
+        value = groupBranchesWithRemotes,
+        onValueChanged = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.GroupBranches(value)))
+        },
     )
 
     if (errorToDisplay != null) {
