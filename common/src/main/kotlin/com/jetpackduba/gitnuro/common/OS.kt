@@ -20,7 +20,7 @@ enum class OS {
 
 val currentOs by lazy {
     val os = System.getProperty("os.name").lowercase()
-    // TODO Fix logging: printLog(TAG, "OS is $os")
+    printLog(TAG, "OS is $os")
 
     return@lazy when {
         os.contains("linux") -> OS.LINUX
