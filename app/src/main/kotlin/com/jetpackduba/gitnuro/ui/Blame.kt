@@ -29,6 +29,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
 import com.jetpackduba.gitnuro.domain.extensions.lineAt
 import com.jetpackduba.gitnuro.domain.models.Commit
+import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.toStringWithSpaces
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
@@ -39,6 +40,7 @@ import com.jetpackduba.gitnuro.theme.tertiarySurface
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
+import kotlinx.coroutines.flow.SharedFlow
 import org.eclipse.jgit.blame.BlameResult
 import org.jetbrains.compose.resources.painterResource
 
@@ -47,7 +49,9 @@ fun Blame(
     filePath: String,
     blameResult: BlameResult,
     onSelectCommit: (Commit) -> Unit,
+    addToCloseables: () -> Unit,
     onClose: () -> Unit,
+    closeViewFlow: SharedFlow<CloseableView>,
 ) {
 
     val fileExtension = filePath.split(".").lastOrNull()
@@ -55,7 +59,15 @@ fun Blame(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        addToCloseables()
+    }
+
+    LaunchedEffect(closeViewFlow) {
+        closeViewFlow.collect { closeView ->
+            if (closeView == CloseableView.BLAME) {
+                onClose()
+            }
+        }
     }
 
     Column(

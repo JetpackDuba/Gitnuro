@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.domain.models.RebaseInteractiveState
 import com.jetpackduba.gitnuro.domain.models.RepositoryState
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
+import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -285,8 +286,10 @@ fun MainContentView(
                     Blame(
                         filePath = blameState.filePath,
                         blameResult = blameState.blameResult,
+                        closeViewFlow = viewModel.closeViewFlow,
                         onClose = { viewModel.resetBlameState() },
-                        onSelectCommit = { viewModel.selectCommit(it, isStash = false) }
+                        onSelectCommit = { viewModel.selectCommit(it, isStash = false) },
+                        addToCloseables = { viewModel.addToCloseables(CloseableView.BLAME) },
                     )
                 } else {
                     Column {

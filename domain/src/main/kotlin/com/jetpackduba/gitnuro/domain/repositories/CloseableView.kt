@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.domain.repositories
 
 
 enum class CloseableView {
+    BLAME,
     DIFF,
     LOG_SEARCH,
     SIDE_PANE_SEARCH,

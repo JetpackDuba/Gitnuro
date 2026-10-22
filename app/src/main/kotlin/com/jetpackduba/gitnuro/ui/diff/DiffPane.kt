@@ -52,6 +52,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.SelectionAwareTextContextMenu
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.SyntaxHighlighter
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
+import io.ktor.utils.io.core.Closeable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
@@ -107,7 +108,7 @@ fun DiffPane(
             .focusRequester(focusRequester)
             .onFocusChanged {
                 if (it.isFocused) {
-                    viewModel.addToCloseables()
+                    viewModel.addToCloseables(CloseableView.DIFF)
                 }
             }
     ) {

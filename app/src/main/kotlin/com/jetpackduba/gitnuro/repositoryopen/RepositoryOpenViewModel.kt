@@ -422,11 +422,10 @@ class RepositoryOpenViewModel @Inject constructor(
                     statusViewModelExtender.searchFilterToggledUnstaged(false)
                 }
 
-                CloseableView.DIFF -> {
-                }
+                CloseableView.DIFF -> {}
 
                 CloseableView.COMMIT_CHANGES_SEARCH -> commitChangesViewModelExtender.searchFilterToggled(false)
-
+                CloseableView.BLAME -> {}
             }
         }
 
@@ -979,7 +978,7 @@ class RepositoryOpenViewModel @Inject constructor(
             val diff = loadDiff(diffSelected.entries.first(), diffType, isDisplayFullFile)
 
             if (diff is ViewDiffResult.Loaded) {
-                addToCloseables()
+                addToCloseables(CloseableView.DIFF)
             }
 
             diff
@@ -1018,7 +1017,7 @@ class RepositoryOpenViewModel @Inject constructor(
 
     fun unstageFile(statusEntry: StatusEntry) = statusUnstageUseCase(statusEntry)
 
-    fun cancelRunningJobs() {
+    fun cancelDiffRunningJobs() {
         diffJob?.cancel()
     }
 
@@ -1051,17 +1050,12 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun addToCloseables() = tabScope.launch {
-        addCloseableView(CloseableView.DIFF)
+    fun addToCloseables(closeableView: CloseableView) = tabScope.launch {
+        addCloseableView(closeableView)
     }
 
-    private fun removeFromCloseables() = tabScope.launch {
-        removeCloseableView(CloseableView.DIFF)
-    }
-
-    fun reset() {
-        cancelRunningJobs()
-        removeFromCloseables()
+    private fun removeFromCloseables(closeableView: CloseableView) = tabScope.launch {
+        removeCloseableView(closeableView)
     }
 
     fun clearDiff() {
