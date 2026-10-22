@@ -3,6 +3,9 @@ package com.jetpackduba.gitnuro.data.git.credentials
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
 import com.jetpackduba.gitnuro.domain.models.CredentialsType
 import com.jetpackduba.gitnuro.domain.repositories.CredentialsRepository
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
+import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService.Companion.DEFAULT_CACHE_CREDENTIALS_IN_MEMORY
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.eclipse.jgit.transport.CredentialItem
 import org.eclipse.jgit.transport.CredentialItem.Password
@@ -13,8 +16,9 @@ import javax.inject.Inject
 class SshCredentialsProvider @Inject constructor(
     private val credentialsStateManager: CredentialsStateManager,
     private val credentialsCacheRepository: CredentialsRepository,
+    private val globalSettingsService: GlobalSettingsService,
     //private val appSettingsRepository: AppSettingsRepository,
-) : CredentialsProvider(),  CredentialsCache {
+) : CredentialsProvider(), CredentialsCache {
     private var credentialsCached: CredentialsType.SshCredentials? = null
 
     override fun isInteractive() = true
@@ -30,7 +34,9 @@ class SshCredentialsProvider @Inject constructor(
             .first()
 
         val cachedCredentials = credentialsCacheRepository.getCachedSshCredentials(uri.toString())
-        val cacheCredentialsInMemory = true// TODO After refactor fix appSettingsRepository.cacheCredentialsInMemory
+        val cacheCredentialsInMemory = runBlocking {
+            globalSettingsService.cacheCredentialsInMemory.firstOrNull()
+        } ?: DEFAULT_CACHE_CREDENTIALS_IN_MEMORY
 
         if (cachedCredentials == null || !cacheCredentialsInMemory) {
             val sshCredentials = runBlocking {
