@@ -888,7 +888,7 @@ private fun FieldTitles(
 
         Text(
             text = subtitle,
-            color = MaterialTheme.colors.onBackground.copy(alpha = if (enabled) 1F else 0.6F),
+            color = MaterialTheme.colors.onBackgroundSecondary.copy(alpha = if (enabled) 1F else 0.6F),
             modifier = Modifier.padding(top = 4.dp),
             style = MaterialTheme.typography.body2,
         )
