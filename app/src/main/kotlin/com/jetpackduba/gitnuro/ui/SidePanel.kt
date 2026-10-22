@@ -56,12 +56,6 @@ fun SidePanel(
     val searchFocusRequester = remember { FocusRequester() }
     val tabFocusRequester = LocalTabFocusRequester.current
 
-    LaunchedEffect(viewModel) {
-        viewModel.freeSearchFocusFlow.collectLatest {
-            tabFocusRequester.requestFocus()
-        }
-    }
-
     Column {
         FilterTextField(
             value = filter,

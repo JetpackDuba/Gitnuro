@@ -167,6 +167,10 @@ fun RepositoryOpenPage(
 
     LaunchedEffect(repositoryOpenViewModel) {
         focusRequester.requestFocus()
+
+        repositoryOpenViewModel.requestTabFocusFlow.collectLatest {
+            focusRequester.requestFocus()
+        }
     }
 }
 
@@ -289,7 +293,7 @@ fun MainContentView(
                         closeViewFlow = viewModel.closeViewFlow,
                         onClose = { viewModel.resetBlameState() },
                         onSelectCommit = { viewModel.selectCommit(it, isStash = false) },
-                        addToCloseables = { viewModel.addToCloseables(CloseableView.BLAME) },
+                        addToCloseables = { viewModel.addCloseableView(CloseableView.BLAME) },
                     )
                 } else {
                     Column {

@@ -108,7 +108,7 @@ fun DiffPane(
             .focusRequester(focusRequester)
             .onFocusChanged {
                 if (it.isFocused) {
-                    viewModel.addToCloseables(CloseableView.DIFF)
+                    viewModel.addCloseableView(CloseableView.DIFF)
                 }
             }
     ) {

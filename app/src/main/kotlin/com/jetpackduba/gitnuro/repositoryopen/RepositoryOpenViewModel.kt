@@ -193,7 +193,7 @@ class RepositoryOpenViewModel @Inject constructor(
     val isExpandedSubmodules: StateFlow<Boolean>
         field = MutableStateFlow<Boolean>(true)
 
-    val freeSearchFocusFlow: SharedFlow<Unit>
+    val requestTabFocusFlow: SharedFlow<Unit>
         field = MutableSharedFlow<Unit>()
 
     val diffSelected: StateFlow<DiffSelected?>
@@ -407,7 +407,6 @@ class RepositoryOpenViewModel @Inject constructor(
             when (it) {
                 CloseableView.SIDE_PANE_SEARCH -> {
                     newFilter("")
-                    freeSearchFocusFlow.emit(Unit)
                 }
 
                 CloseableView.LOG_SEARCH -> {
@@ -427,6 +426,8 @@ class RepositoryOpenViewModel @Inject constructor(
                 CloseableView.COMMIT_CHANGES_SEARCH -> commitChangesViewModelExtender.searchFilterToggled(false)
                 CloseableView.BLAME -> {}
             }
+
+            requestTabFocusFlow.emit(Unit)
         }
 
         tabScope.run {
@@ -978,7 +979,7 @@ class RepositoryOpenViewModel @Inject constructor(
             val diff = loadDiff(diffSelected.entries.first(), diffType, isDisplayFullFile)
 
             if (diff is ViewDiffResult.Loaded) {
-                addToCloseables(CloseableView.DIFF)
+                addCloseableView(CloseableView.DIFF)
             }
 
             diff
@@ -1048,14 +1049,6 @@ class RepositoryOpenViewModel @Inject constructor(
                 appViewModel.addNewTabFromPath("$repositoryPath/$path", true)
             }
         }
-    }
-
-    fun addToCloseables(closeableView: CloseableView) = tabScope.launch {
-        addCloseableView(closeableView)
-    }
-
-    private fun removeFromCloseables(closeableView: CloseableView) = tabScope.launch {
-        removeCloseableView(closeableView)
     }
 
     fun clearDiff() {
