@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.data.git.workspace
 
+import com.jetpackduba.gitnuro.common.extensions.lockAndUse
 import com.jetpackduba.gitnuro.data.git.JGit
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.bind
@@ -11,6 +12,7 @@ import com.jetpackduba.gitnuro.domain.models.Status
 import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import com.jetpackduba.gitnuro.domain.models.StatusType
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import org.eclipse.jgit.api.Status as JGitStatus
@@ -18,19 +20,23 @@ import org.eclipse.jgit.api.Status as JGitStatus
 class GetStatusGitAction @Inject constructor(
     private val jgit: JGit,
 ) : IGetStatusGitAction {
+    private val mutex = Mutex()
+
     override suspend operator fun invoke(repository: String, paths: List<String>) = either {
-        val status = withContext(Dispatchers.IO) {
-            jgit.provide(repository) { git ->
-                git
-                    .status()
-                    .apply {
-                        for (path in paths) {
-                            addPath(path)
+        val status = mutex.lockAndUse {
+            withContext(Dispatchers.IO) {
+                jgit.provide(repository) { git ->
+                    git
+                        .status()
+                        .apply {
+                            for (path in paths) {
+                                addPath(path)
+                            }
                         }
-                    }
-                    .call()
-            }
-        }.bind()
+                        .call()
+                }
+            }.bind()
+        }
 
         val staged = getStaged(status)
         val unstaged = getUnstaged(status)
