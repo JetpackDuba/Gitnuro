@@ -94,14 +94,7 @@ private fun CommitChangesView(
     onDirectoryClicked: (TreeItem.Dir) -> Unit,
     onAlternateShowAsTree: () -> Unit,
 ) {
-    val tabFocusRequester = LocalTabFocusRequester.current
     val commit = commitChangesState.commit
-
-    LaunchedEffect(commitChangesState.showSearch) {
-        if (!commitChangesState.showSearch) {
-            tabFocusRequester.requestFocus()
-        }
-    }
 
     val showSearch = commitChangesState.showSearch
     val showAsTree = commitChangesState.showAsTree

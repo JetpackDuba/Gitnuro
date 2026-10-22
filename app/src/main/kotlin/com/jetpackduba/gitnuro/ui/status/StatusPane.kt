@@ -96,20 +96,10 @@ fun StatusPane(
 
     val doCommit = {
         onAction(StatusAction.Commit(commitMessage.text))
-        Unit
     }
 
     val canCommit = commitMessage.text.isNotEmpty() && statusState.hasStagedFiles
     val canAmend = commitMessage.text.isNotEmpty() && statusState.hasPreviousCommits
-    val tabFocusRequester = LocalTabFocusRequester.current
-
-    LaunchedEffect(statusState) {
-        launch {
-            if (statusState.showSearchUnstaged || statusState.showSearchStaged) {
-                tabFocusRequester.requestFocus()
-            }
-        }
-    }
 
     if (committerDataRequestState is CommitterDataRequestState.WaitingInput) {
         CommitAuthorDialog(
