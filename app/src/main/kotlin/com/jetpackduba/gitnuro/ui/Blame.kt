@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.IconButton
@@ -27,7 +28,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.close
-import com.jetpackduba.gitnuro.domain.extensions.lineAt
+import com.jetpackduba.gitnuro.domain.models.BlameResult
 import com.jetpackduba.gitnuro.domain.models.Commit
 import com.jetpackduba.gitnuro.domain.repositories.CloseableView
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -41,7 +42,6 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.diff.syntax_highlighter.getSyntaxHighlighterFromExtension
 import kotlinx.coroutines.flow.SharedFlow
-import org.eclipse.jgit.blame.BlameResult
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -57,6 +57,10 @@ fun Blame(
     val fileExtension = filePath.split(".").lastOrNull()
     val syntaxHighlighter = getSyntaxHighlighterFromExtension(fileExtension)
     val focusRequester = remember { FocusRequester() }
+
+    val contentSizeLengthInString = remember(blameResult) {
+        blameResult.lines.count().toString().count()
+    }
 
     LaunchedEffect(Unit) {
         addToCloseables()
@@ -87,15 +91,9 @@ fun Blame(
             ScrollableLazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                val contents = blameResult.resultContents
-                val contentsSize = contents.size()
-                val contentSizeLengthInString = contentsSize.toString().count()
 
-                items(contentsSize) { index ->
-                    val line = contents.lineAt(index)
-                    val author = blameResult.getSourceAuthor(index)
-                    val commit = blameResult.getSourceCommit(index)
-
+                itemsIndexed(blameResult.lines) { index, line ->
+                    val commit = line.commit
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -103,7 +101,6 @@ fun Blame(
                             .height(IntrinsicSize.Min),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-
                         DisableSelection {
                             LineNumber(
                                 line = index + 1,
@@ -115,11 +112,11 @@ fun Blame(
                                     .width(200.dp)
                                     .fillMaxHeight()
                                     .background(MaterialTheme.colors.secondarySurface)
-                                    .clickable { /* TODO Reenable this once blame has been refactored: if (commit != null) onSelectCommit(commit)*/ },
+                                    .clickable { if (commit != null) onSelectCommit(commit) },
                                 verticalArrangement = Arrangement.Center,
                             ) {
                                 Text(
-                                    text = author?.name.orEmpty(),
+                                    text = line.identity?.name.orEmpty(),
                                     maxLines = 1,
                                     modifier = Modifier.padding(start = 16.dp),
                                     style = MaterialTheme.typography.body2,
@@ -134,7 +131,7 @@ fun Blame(
                         }
 
                         Text(
-                            text = syntaxHighlighter.syntaxHighlight(line + blameResult.resultContents.lineDelimiter),
+                            text = syntaxHighlighter.syntaxHighlight(line.content),
                             color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
                             fontFamily = monoTypography(),

@@ -4,8 +4,8 @@ import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.GitError
 import com.jetpackduba.gitnuro.domain.errors.RepositoryPathNotSetError
 import com.jetpackduba.gitnuro.domain.interfaces.IBlameFileGitAction
+import com.jetpackduba.gitnuro.domain.models.BlameResult
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
-import org.eclipse.jgit.blame.BlameResult
 import javax.inject.Inject
 
 class BlameFileUseCase @Inject constructor(
