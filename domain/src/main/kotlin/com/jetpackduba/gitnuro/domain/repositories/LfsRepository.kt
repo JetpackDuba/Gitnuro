@@ -5,7 +5,7 @@ import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjects
 import com.jetpackduba.gitnuro.domain.lfs.LfsPrepareUploadObjectBatch
-import com.jetpackduba.gitnuro.domain.models.OperationType
+import com.jetpackduba.gitnuro.domain.models.LfsOperationType
 import java.nio.file.Path
 
 interface LfsRepository {
@@ -46,7 +46,7 @@ interface LfsRepository {
 
     suspend fun getLfsObjects(
         lfsServerUrl: String,
-        operationType: OperationType,
+        lfsOperationType: LfsOperationType,
         branch: String,
         objects: List<LfsObjectBatch>,
         username: String?,

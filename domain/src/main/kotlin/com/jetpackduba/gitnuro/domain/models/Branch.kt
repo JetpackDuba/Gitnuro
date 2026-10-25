@@ -56,7 +56,6 @@ data class Branch(
 
     val matchesTrackingBranchName = this.simpleName == this.trackingBranch?.branch
 
-    // TODO Override equals?
     fun isSameBranch(otherRef: Branch?): Boolean {
         if (this.name == Constants.HEAD && otherRef == null)
             return true

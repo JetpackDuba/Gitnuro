@@ -15,6 +15,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.d
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.diffDisplayFullFilePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.diffTextViewTypePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.fastForwardMergePreference
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.groupBranchesWithRemotesPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.linesHeightPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.proxyHostNamePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.proxyHostPasswordPreference
@@ -31,14 +32,8 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.t
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.themePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.useProxyPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.verifySslPreference
-import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.windowPlacementPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.*
-import com.jetpackduba.gitnuro.data.mappers.PathsListMapper
-import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.groupBranchesWithRemotesPreference
-import com.jetpackduba.gitnuro.data.repositories.ui.WindowPlacementMapper
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
-import com.jetpackduba.gitnuro.domain.models.ProxyType
-import com.jetpackduba.gitnuro.domain.models.ui.WindowPlacement
 import com.jetpackduba.gitnuro.domain.repositories.GlobalSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -51,8 +46,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     private val linesHeightMapper: LinesHeightMapper,
     private val avatarProviderMapper: AvatarProviderMapper,
     private val textDiffViewTypeMapper: TextDiffViewTypeMapper,
-    private val windowPlacementMapper: WindowPlacementMapper,
-    private val pathsListMapper: PathsListMapper,
+    private val proxyTypeMapper: ProxyTypeMapper,
 ) : GlobalSettingsRepository {
 
     // UI
@@ -97,7 +91,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     // Network
     override val useProxy get() = dataStore[useProxyPreference]
     override val proxyUseAuth get() = dataStore[proxyUseAuthPreference]
-    override val proxyType get() = dataStore[proxyProxyTypePreference].map { ProxyType.fromValue(it) }
+    override val proxyType get() = dataStore[proxyProxyTypePreference].map { it?.let { proxyTypeMapper.toDomain(it) } }
     override val proxyHostName get() = dataStore[proxyHostNamePreference]
     override val proxyPortNumber get() = dataStore[proxyPortNumberPreference]
     override val proxyHostUser get() = dataStore[proxyHostUserPreference]
@@ -129,7 +123,11 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
                 is GlobalConfig.ProxyHostPassword -> setValue(proxyHostPasswordPreference, globalConfig.value)
                 is GlobalConfig.ProxyHost -> setValue(proxyHostUserPreference, globalConfig.value)
                 is GlobalConfig.ProxyPortNumber -> setValue(proxyPortNumberPreference, globalConfig.value)
-                is GlobalConfig.ProxyProxyType -> setValue(proxyProxyTypePreference, globalConfig.value.value)
+                is GlobalConfig.ProxyProxyType -> setValue(
+                    proxyProxyTypePreference,
+                    proxyTypeMapper.toData(globalConfig.value)
+                )
+
                 is GlobalConfig.ProxyUseAuth -> setValue(proxyUseAuthPreference, globalConfig.value)
                 is GlobalConfig.PullWithRebase -> setValue(pullWithRebasePreference, globalConfig.value)
                 is GlobalConfig.PushWithLease -> setValue(pushWithLeasePreference, globalConfig.value)

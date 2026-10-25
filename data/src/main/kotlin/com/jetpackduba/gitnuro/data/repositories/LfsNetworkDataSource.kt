@@ -6,7 +6,7 @@ import com.jetpackduba.gitnuro.domain.errors.LfsError
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjects
 import com.jetpackduba.gitnuro.domain.lfs.LfsPrepareUploadObjectBatch
-import com.jetpackduba.gitnuro.domain.models.OperationType
+import com.jetpackduba.gitnuro.domain.models.LfsOperationType
 import com.jetpackduba.gitnuro.domain.repositories.LfsRepository
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -134,7 +134,7 @@ class LfsNetworkDataSource @Inject constructor(
 
     override suspend fun getLfsObjects(
         lfsServerUrl: String,
-        operationType: OperationType,
+        lfsOperationType: LfsOperationType,
         branch: String,
         objects: List<com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch>,
         username: String?,

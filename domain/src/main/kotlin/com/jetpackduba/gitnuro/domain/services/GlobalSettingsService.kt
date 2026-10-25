@@ -1,13 +1,14 @@
 package com.jetpackduba.gitnuro.domain.services
 
+import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.flows.defaultIfNull
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
+import com.jetpackduba.gitnuro.domain.models.ProxySettings
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
-import com.jetpackduba.gitnuro.domain.models.ui.WindowPlacement
 import com.jetpackduba.gitnuro.domain.repositories.GlobalSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

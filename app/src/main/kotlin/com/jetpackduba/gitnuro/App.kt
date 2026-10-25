@@ -38,6 +38,7 @@ import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.domain.repositories.UiStateRepository
 import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
+import com.jetpackduba.gitnuro.domain.usecases.ObserveAndApplyProxySettingsUseCase
 import com.jetpackduba.gitnuro.domain.usecases.uistate.GetWindowPlacementUseCase
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
@@ -106,6 +107,7 @@ class App @Inject constructor(
     private val dataStoreFilesProvider: DataStoreFilesProvider,
     private val uiStateRepository: UiStateRepository,
     private val getWindowPlacementUseCase: GetWindowPlacementUseCase,
+    private val observeAndApplyProxySettingsUseCase: ObserveAndApplyProxySettingsUseCase,
 ) {
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -113,7 +115,7 @@ class App @Inject constructor(
     suspend fun start(args: Array<String>) {
         initNativeDependencies()
         logsRepository.initLogging()
-        initProxySettings()
+        observeAndApplyProxySettingsUseCase()
         dataStoreFilesProvider.initDataStoreDirPath()
 
         Signers.set(GpgConfig.GpgFormat.OPENPGP, gpgSigner)
@@ -263,18 +265,7 @@ class App @Inject constructor(
 
     private fun initProxySettings() {
         // TODO Reenable this in domain layer
-        /*appStateManager.appScope.launch {
-            appSettingsRepository.proxyFlow.collect { proxySettings ->
-                if (proxySettings.useProxy) {
-                    when (proxySettings.proxyType) {
-                        ProxyType.HTTP -> setHttpProxy(proxySettings)
-                        ProxyType.SOCKS -> setSocksProxy(proxySettings)
-                    }
-                } else {
-                    clearProxySettings()
-                }
-            }
-        }*/
+
     }
 
     private suspend fun addDirTab(dirToOpen: File) {

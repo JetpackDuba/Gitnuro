@@ -6,7 +6,7 @@ import com.jetpackduba.gitnuro.domain.lfs.LfsObjectBatch
 import com.jetpackduba.gitnuro.domain.lfs.LfsObjects
 import com.jetpackduba.gitnuro.domain.lfs.LfsPrepareUploadObjectBatch
 import com.jetpackduba.gitnuro.domain.lfs.LfsRef
-import com.jetpackduba.gitnuro.domain.models.OperationType
+import com.jetpackduba.gitnuro.domain.models.LfsOperationType
 import com.jetpackduba.gitnuro.domain.repositories.LfsRepository
 import javax.inject.Inject
 
@@ -17,7 +17,7 @@ class NetworkLfsRepository @Inject constructor(
 ) : LfsRepository by lfsNetworkDataSource {
     override suspend fun getLfsObjects(
         lfsServerUrl: String,
-        operationType: OperationType,
+        lfsOperationType: LfsOperationType,
         branch: String,
         objects: List<LfsObjectBatch>,
         username: String?,
@@ -27,7 +27,7 @@ class NetworkLfsRepository @Inject constructor(
         return postBatchObjects(
             lfsServerUrl,
             createLfsPrepareUploadObjectBatch(
-                operationType,
+                lfsOperationType,
                 branch = branch,
                 objects = objects,
             ),
@@ -38,7 +38,7 @@ class NetworkLfsRepository @Inject constructor(
     }
 
     private fun createLfsPrepareUploadObjectBatch(
-        operation: OperationType,
+        operation: LfsOperationType,
         algo: String = "sha256",
         branch: String,
         objects: List<LfsObjectBatch>,

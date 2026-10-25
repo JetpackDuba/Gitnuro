@@ -5,7 +5,7 @@ import com.jetpackduba.gitnuro.data.git.credentials.SshRemoteSession
 import com.jetpackduba.gitnuro.domain.extensions.readUntilValue
 import com.jetpackduba.gitnuro.domain.interfaces.IAuthenticateLfsServerWithSshGitAction
 import com.jetpackduba.gitnuro.domain.lfs.LfsSshAuthenticateResult
-import com.jetpackduba.gitnuro.domain.models.OperationType
+import com.jetpackduba.gitnuro.domain.models.LfsOperationType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -23,11 +23,11 @@ class AuthenticateLfsServerWithSshGitAction @Inject constructor(
 
     override suspend operator fun invoke(
         lfsServerUrl: String,
-        operationType: OperationType,
+        lfsOperationType: LfsOperationType,
     ): LfsSshAuthenticateResult = withContext(Dispatchers.IO) {
-        val operation = when (operationType) {
-            OperationType.UPLOAD -> "upload"
-            OperationType.DOWNLOAD -> "download"
+        val operation = when (lfsOperationType) {
+            LfsOperationType.UPLOAD -> "upload"
+            LfsOperationType.DOWNLOAD -> "download"
         }
 
         val sshRemoteSession = sshRemoteSessionProvider.get()

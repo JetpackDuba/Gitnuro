@@ -14,9 +14,6 @@ class QuickActionsViewModel @Inject constructor(
     private val getWorktreeUseCase: GetWorktreeUseCase,
     private val openPathInSystemUseCase: OpenPathInSystemUseCase,
 ) : TabViewModel() {
-
-    // TODO Implement bunch of methods
-
     fun refreshRepository() = refreshDataUseCase(DataToRefresh.ALL)
 
     fun openProjectInFileExplorer() {

@@ -31,7 +31,6 @@ import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
 import org.jetbrains.compose.resources.painterResource
 
-// TODO Refactor the logic of this screen
 @Composable
 fun AddSubmodulesDialog(
     viewModel: SubmoduleDialogViewModel,
