@@ -17,7 +17,7 @@ class GitCredentialsManagerModule {
         nixGitCredentialsManagerProvider: Provider<NixGitCredentialsManagerProvider>,
     ): IGitCredentialsManagerProvider {
         return when (currentOs) {
-            OS.LINUX, OS.MAC ->  nixGitCredentialsManagerProvider.get() // TODO Test this on MacOs
+            OS.LINUX, OS.MAC ->  nixGitCredentialsManagerProvider.get()
             OS.WINDOWS -> windowsGitCredentialsManagerProvider.get()
             OS.UNKNOWN -> throw IllegalStateException("Unknown OS")
         }

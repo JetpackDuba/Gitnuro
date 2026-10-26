@@ -6,7 +6,6 @@ import com.jetpackduba.gitnuro.common.systemSeparator
 import javax.inject.Inject
 
 class DataStoreFilesProvider @Inject constructor() {
-    // TODO verify this after refactor. Are the paths for mac and windows correct?
     fun getGlobalSettingsPath(): String {
         return getPreferencesDir() + systemSeparator + "user_prefs.preferences_pb"
     }
