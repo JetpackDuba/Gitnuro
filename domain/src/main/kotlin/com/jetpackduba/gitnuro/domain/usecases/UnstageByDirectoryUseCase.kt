@@ -10,7 +10,7 @@ class UnstageByDirectoryUseCase @Inject constructor(
     private val useCaseExecutor: UseCaseExecutor,
 ) {
     operator fun invoke(dir: String) = useCaseExecutor.executeLaunch(
-        taskType = TaskType.StageDir,
+        taskType = TaskType.UnstageDir(emptyList()),
         dataToRefresh = arrayOf(DataToRefresh.STATUS),
     ) { repositoryPath ->
         unstageByDirectoryGitAction(repositoryPath, dir)

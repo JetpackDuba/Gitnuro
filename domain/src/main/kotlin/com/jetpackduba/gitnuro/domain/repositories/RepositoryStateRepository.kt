@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.domain.repositories
 
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.domain.errors.AppError
 import com.jetpackduba.gitnuro.domain.models.TaskType
 import com.jetpackduba.gitnuro.domain.usecases.DataToRefresh
@@ -22,11 +23,13 @@ sealed interface CompletedTask {
     val date: Long
     val taskType: TaskType
 
+    @Immutable
     data class Success(
         override val date: Long,
         override val taskType: TaskType
     ) : CompletedTask
 
+    @Immutable
     data class Failure(
         override val date: Long,
         override val taskType: TaskType,

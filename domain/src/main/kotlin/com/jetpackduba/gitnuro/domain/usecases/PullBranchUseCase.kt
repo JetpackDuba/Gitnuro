@@ -18,7 +18,7 @@ class PullBranchUseCase @Inject constructor(
         remoteBranch: Branch? = null,
         automaticStashDescription: String,
     ) = useCaseExecutor.executeLaunch(
-        taskType = TaskType.Pull,
+        taskType = TaskType.Pull(remoteBranch),
         dataToRefresh = arrayOf(DataToRefresh.ALL),
     ) { repositoryPath ->
         val autoStashOnMerge = globalSettingsService.autoStashOnMerge.first()

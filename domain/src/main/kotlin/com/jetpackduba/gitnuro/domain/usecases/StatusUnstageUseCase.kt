@@ -15,7 +15,7 @@ class StatusUnstageUseCase @Inject constructor(
 ) {
     operator fun invoke(statusEntry: StatusEntry) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.UnstageFile,
+            taskType = TaskType.UnstageFile(emptyList()),
             dataToRefresh = arrayOf(DataToRefresh.STATUS),
         ) { repositoryPath ->
             unstageEntryGitAction(repositoryPath, statusEntry)

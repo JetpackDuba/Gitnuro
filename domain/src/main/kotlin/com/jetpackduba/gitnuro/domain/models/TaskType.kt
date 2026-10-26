@@ -3,17 +3,17 @@ package com.jetpackduba.gitnuro.domain.models
 sealed interface TaskType {
     data object Unspecified : TaskType
     data object StageAllFiles : TaskType
-    data object StageDir : TaskType
-    data object StageFile : TaskType
+    data class StageDir(val paths: List<String>) : TaskType
+    data class StageFile(val paths: List<String>) : TaskType
     data object StageHunk : TaskType
     data object StageLine : TaskType
     data object UnstageAllFiles : TaskType
-    data object UnstageDir : TaskType
-    data object UnstageFile : TaskType
+    data class UnstageDir(val paths: List<String>) : TaskType
+    data class UnstageFile(val paths: List<String>) : TaskType
     data object UnstageHunk : TaskType
     data object UnstageLine : TaskType
-    data object DiscardFile : TaskType
-    data object DeleteFile : TaskType
+    data class DiscardFile(val paths: List<String>) : TaskType
+    data class DeleteFile(val paths: List<String>) : TaskType
     data object BlameFile : TaskType
     data object HistoryFile : TaskType
     data object DoCommit : TaskType
@@ -33,11 +33,9 @@ sealed interface TaskType {
     data object AbortRebase : TaskType
     data object SkipRebase : TaskType
     data object ChangeBranchUpstream : TaskType
-    data object PullFromBranch : TaskType
-    data object PushToBranch : TaskType
     data object DeleteRemoteBranch : TaskType
-    data object Pull : TaskType
-    data object Push : TaskType
+    data class Pull(val remoteBranch: Branch?) : TaskType
+    data class Push(val remoteBranch: Branch?) : TaskType
     data object Fetch : TaskType
     data object Stash : TaskType
     data object ApplyStash : TaskType

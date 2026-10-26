@@ -12,7 +12,7 @@ class DiscardEntriesUseCase @Inject constructor(
 ) {
     operator fun invoke(statusEntries: List<StatusEntry>, isStaged: Boolean) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.DiscardFile,
+            taskType = TaskType.DiscardFile(emptyList()),
             dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
         ) { repositoryPath ->
             discardEntriesGitAction(repositoryPath, statusEntries, isStaged)

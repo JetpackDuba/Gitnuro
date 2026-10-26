@@ -14,7 +14,7 @@ class StatusStageUseCase @Inject constructor(
 ) {
     operator fun invoke(statusEntry: StatusEntry) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.StageFile,
+            taskType = TaskType.StageFile(emptyList()),
             dataToRefresh = arrayOf(DataToRefresh.STATUS),
         ) { repositoryPath ->
             stageEntryGitAction(repositoryPath, statusEntry)

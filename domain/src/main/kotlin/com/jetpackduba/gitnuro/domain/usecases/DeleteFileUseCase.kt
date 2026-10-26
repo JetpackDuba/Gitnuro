@@ -15,7 +15,7 @@ class DeleteFileUseCase @Inject constructor(
 ) {
     operator fun invoke(filePath: String) {
         useCaseExecutor.executeLaunch(
-            taskType = TaskType.DiscardFile,
+            taskType = TaskType.DiscardFile(emptyList()),
             dataToRefresh = arrayOf(DataToRefresh.STATUS, DataToRefresh.LOG),
         ) { repositoryPath ->
             deleteFileGitAction(repositoryPath, filePath)

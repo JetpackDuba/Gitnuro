@@ -41,15 +41,15 @@ fun ProcessingScreen(
                 color = MaterialTheme.colors.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
-// TODO Does this need to be restored?
-//            if (processingState.subtitle.isNotEmpty()) {
-//                Text(
-//                    processingState.subtitle,
-//                    style = MaterialTheme.typography.body1,
-//                    color = MaterialTheme.colors.onBackground,
-//                    modifier = Modifier.padding(bottom = 32.dp),
-//                )
-//            }
+
+            val subtitle = getSubtitle(processingTask)
+
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.body1,
+                color = MaterialTheme.colors.onBackground,
+                modifier = Modifier.padding(bottom = 32.dp),
+            )
 
             LinearProgressIndicator(
                 modifier = Modifier.width(280.dp)
@@ -80,13 +80,13 @@ fun getTitle(taskType: TaskType): String {
         TaskType.CreateTag -> "Creating tag"
         TaskType.DeinitSubmodule -> "Deinitializing submodule"
         TaskType.DeleteBranch -> "Deleting branch"
-        TaskType.DeleteFile -> "Deleting file"
+        is TaskType.DeleteFile -> "Deleting file"
         TaskType.DeleteRemote -> "Deleting remote"
         TaskType.DeleteRemoteBranch -> "Deleting remote branch"
         TaskType.DeleteStash -> "Deleting stash"
         TaskType.DeleteSubmodule -> "Deleting submodule"
         TaskType.DeleteTag -> "Deleting tag"
-        TaskType.DiscardFile -> "Discarding file"
+        is TaskType.DiscardFile -> "Discarding file"
         TaskType.DoCommit -> "Committing"
         TaskType.Fetch -> "Fetching"
         TaskType.GetCommitDiffEntries -> "Getting commit diff entries"
@@ -98,10 +98,8 @@ fun getTitle(taskType: TaskType): String {
         TaskType.LoadAuthor -> "Loading author"
         TaskType.MergeBranch -> "Merging branch"
         TaskType.PopStash -> "Popping stash"
-        TaskType.Pull -> "Pulling"
-        TaskType.PullFromBranch -> "Pulling from branch"
-        TaskType.Push -> "Pushing"
-        TaskType.PushToBranch -> "Pushing to branch"
+        is TaskType.Pull -> "Pulling"
+        is TaskType.Push -> "Pushing"
         TaskType.RebaseBranch -> "Rebasing branch"
         TaskType.RebaseInteractive -> "Rebasing interactively"
         TaskType.RenameBranch -> "Renaming branch"
@@ -114,16 +112,16 @@ fun getTitle(taskType: TaskType): String {
         TaskType.SaveCustomTheme -> "Saving custom theme"
         TaskType.SkipRebase -> "Skipping rebase"
         TaskType.StageAllFiles -> "Staging all files"
-        TaskType.StageDir -> "Staging directory"
-        TaskType.StageFile -> "Staging file"
+        is TaskType.StageDir -> "Staging directory"
+        is TaskType.StageFile -> "Staging file"
         TaskType.StageHunk -> "Staging hunk"
         TaskType.StageLine -> "Staging line"
         TaskType.Stash -> "Stashing"
         TaskType.SyncSubmodule -> "Synchronizing submodule"
         TaskType.Unspecified -> "No task specified"
         TaskType.UnstageAllFiles -> "Unstaging all files"
-        TaskType.UnstageDir -> "Unstaging directory"
-        TaskType.UnstageFile -> "Unstaging file"
+        is TaskType.UnstageDir -> "Unstaging directory"
+        is TaskType.UnstageFile -> "Unstaging file"
         TaskType.UnstageHunk -> "Unstaging hunk"
         TaskType.UnstageLine -> "Unstaging line"
         TaskType.UpdateSubmodule -> "Updating submodule"
@@ -137,5 +135,22 @@ fun getTitle(taskType: TaskType): String {
         TaskType.RefreshTags -> ""
         TaskType.GetWorktree -> ""
         TaskType.UpdateRemote -> ""
+    }
+}
+
+
+@Composable
+fun getSubtitle(taskType: TaskType): String {
+    return when (taskType) {
+        is TaskType.Pull -> "Pulling changes from ${taskType.remoteBranch?.simpleNameWithRemote ?: "remote branch"} to the current"
+        // TODO Handle better multiple files
+//        is TaskType.DeleteFile -> "${taskType.path} is being deleted"
+//        is TaskType.DiscardFile -> "${taskType.path} is being discarded"
+//        is TaskType.Push -> "Pushing changes from the current branch to ${taskType.remoteBranch?.simpleNameWithRemote ?: "remote"}"
+//        is TaskType.StageDir -> "Files in ${taskType.path} are being staged"
+//        is TaskType.StageFile -> "File in ${taskType.path} is being staged"
+//        is TaskType.UnstageDir -> "Files in ${taskType.path} are being unstaged"
+//        is TaskType.UnstageFile -> "File in ${taskType.path} is being unstaged"
+        else -> "This could take a few seconds"
     }
 }
