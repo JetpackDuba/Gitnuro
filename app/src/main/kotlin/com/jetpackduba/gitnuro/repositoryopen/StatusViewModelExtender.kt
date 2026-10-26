@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.repositoryopen
 
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
@@ -76,6 +77,9 @@ class StatusViewModelExtender @AssistedInject constructor(
             @Assisted("removeCloseableView") removeCloseableView: (CloseableView) -> Unit,
         ): StatusViewModelExtender
     }
+
+    private val stagedLazyListState = LazyListState()
+    private val unstagedLazyListState = LazyListState()
 
     val showSearchUnstaged: StateFlow<Boolean>
         field = MutableStateFlow(false)
@@ -207,8 +211,15 @@ class StatusViewModelExtender @AssistedInject constructor(
         previousCommitMessage,
         repositoryDataRepository.repositoryState.toUiDataState(),
         repositoryPath,
+        stagedLazyListState,
+        unstagedLazyListState
     )
-        .stateIn(StatusState())
+        .stateIn(
+            StatusState(
+                stagedLazyListState = stagedLazyListState,
+                unstagedLazyListState = unstagedLazyListState,
+            )
+        )
 
     init {
         showSearchStaged.collectLatestInCoroutineScope {
@@ -601,7 +612,12 @@ class StatusViewModelExtender @AssistedInject constructor(
         if (this.commitMessage.value.text.isEmpty()) {
             val previousCommitMessage = this.statusState.value.previousCommitMessage.orEmpty()
 
-            updateCommitMessage(TextFieldValue(previousCommitMessage, selection = TextRange(previousCommitMessage.count())))
+            updateCommitMessage(
+                TextFieldValue(
+                    previousCommitMessage,
+                    selection = TextRange(previousCommitMessage.count())
+                )
+            )
         }
     }
 

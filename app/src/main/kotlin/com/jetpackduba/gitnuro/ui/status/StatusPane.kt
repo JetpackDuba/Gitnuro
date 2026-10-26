@@ -69,12 +69,8 @@ fun StatusPane(
     completedTasks: StateFlow<List<CompletedTask>>,
 ) {
     val swapUncommittedChanges = statusState.swapUncommittedChanges
-    val stagedListState = rememberInTab("statusStagedListState", statusState.staged) {
-        LazyListState()
-    }
-    val unstagedListState = rememberInTab("statusUnstagedListState", statusState.unstaged) {
-        LazyListState()
-    }
+    val stagedListState = statusState.stagedLazyListState
+    val unstagedListState = statusState.unstagedLazyListState
 
     val commitMessage = statusState.commitMessage
 
