@@ -37,5 +37,3 @@ data class License(
 )
 
 data class Project(val name: String, val url: String, val license: License)
-
-

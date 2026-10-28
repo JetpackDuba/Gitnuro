@@ -25,10 +25,10 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CommitAuthorDialog(
-    authorInfo: AuthorInfo,
-    onClose: () -> Unit,
-    onAccept: (newAuthorInfo: AuthorInfo, persist: Boolean) -> Unit,
+    viewModel: CommitAuthorViewModel,
+    onDismiss: () -> Unit,
 ) {
+    val authorInfo =  viewModel.authorInfo
     var globalName by remember(authorInfo) { mutableStateOf(authorInfo.globalIdentity.name) }
     var globalEmail by remember(authorInfo) { mutableStateOf(authorInfo.globalIdentity.email) }
     var persist by remember { mutableStateOf(false) }
@@ -42,15 +42,19 @@ fun CommitAuthorDialog(
         beforeActionsFocusRequester = null,
         actionsFocusRequester = null,
         afterActionsFocusRequester = null,
-        onDismiss = onClose,
+        onDismiss = {
+            viewModel.reject()
+            onDismiss()
+        },
         onPrimaryActionClicked = {
-            onAccept(
+            viewModel.accept(
                 AuthorInfo(
                     globalIdentity = Identity(globalName, globalEmail),
                     repositoryIdentity = Identity(name = "", email = ""),
                 ),
                 persist,
             )
+            onDismiss()
         },
     ) {
         Text(

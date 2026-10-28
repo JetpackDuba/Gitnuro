@@ -15,7 +15,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -32,14 +34,11 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.LocalTabFocusRequester
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.systemSeparator
-import com.jetpackduba.gitnuro.compose.rememberInTab
 import com.jetpackduba.gitnuro.domain.extensions.fileName
 import com.jetpackduba.gitnuro.domain.extensions.parentDirectoryPath
 import com.jetpackduba.gitnuro.domain.models.*
-import com.jetpackduba.gitnuro.domain.repositories.CompletedTask
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.icon
 import com.jetpackduba.gitnuro.extensions.iconColor
@@ -53,9 +52,7 @@ import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.statusDirEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntriesContextMenuItems
 import com.jetpackduba.gitnuro.ui.context_menu.statusEntryContextMenuItems
-import com.jetpackduba.gitnuro.ui.dialogs.CommitAuthorDialog
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.stringResource
@@ -66,7 +63,6 @@ fun StatusPane(
     onAction: (StatusAction) -> Unit,
     onBlameFile: (String) -> Unit,
     onHistoryFile: (String) -> Unit,
-    completedTasks: StateFlow<List<CompletedTask>>,
 ) {
     val swapUncommittedChanges = statusState.swapUncommittedChanges
     val stagedListState = statusState.stagedLazyListState
@@ -76,7 +72,6 @@ fun StatusPane(
 
     val isAmend = statusState.isAmend
     val isAmendRebaseInteractive = statusState.isAmendRebaseInteractive
-    val committerDataRequestState = statusState.committerDataRequestState
     val rebaseInteractiveState = statusState.rebaseInteractiveState
     val selectedUnstagedDiffEntries = statusState.selectedUnstagedDiffEntries
     val selectedStagedDiffEntries = statusState.selectedStagedDiffEntries
@@ -96,16 +91,6 @@ fun StatusPane(
 
     val canCommit = commitMessage.text.isNotEmpty() && statusState.hasStagedFiles
     val canAmend = commitMessage.text.isNotEmpty() && statusState.hasPreviousCommits
-
-    if (committerDataRequestState is CommitterDataRequestState.WaitingInput) {
-        CommitAuthorDialog(
-            committerDataRequestState.authorInfo,
-            onClose = { onAction(StatusAction.RejectCommitterData) },
-            onAccept = { newAuthorInfo, persist ->
-                onAction(StatusAction.AcceptCommitterData(newAuthorInfo, persist))
-            },
-        )
-    }
 
     Column(
         modifier = Modifier

@@ -15,6 +15,7 @@ import com.jetpackduba.gitnuro.domain.repositories.dataOrNull
 import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.*
 import com.jetpackduba.gitnuro.extensions.stateIn
+import com.jetpackduba.gitnuro.ui.CommitAuthorRequestHolder
 import com.jetpackduba.gitnuro.ui.status.*
 import com.jetpackduba.gitnuro.ui.toUiDataState
 import com.jetpackduba.gitnuro.ui.tree_files.TreeItem
@@ -50,6 +51,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     private val unstageByDirectoryUseCase: UnstageByDirectoryUseCase,
     private val persistCommitMessageUseCase: PersistCommitMessageUseCase,
     private val repositoryDataRepository: RepositoryDataRepository,
+    private val commitAuthorRequestHolder: CommitAuthorRequestHolder,
     @Assisted private val viewModelScope: CoroutineScope,
     @Assisted private val showAsTree: Flow<Boolean>,
     @Assisted private val diffSelected: StateFlow<DiffSelected?>,
@@ -153,8 +155,7 @@ class StatusViewModelExtender @AssistedInject constructor(
         commits[branch.hash]?.message
     }
 
-    val committerDataRequestState: StateFlow<CommitterDataRequestState>
-        field = MutableStateFlow<CommitterDataRequestState>(CommitterDataRequestState.None)
+    val committerDataRequestState = commitAuthorRequestHolder.requestState
 
     val isAmend: StateFlow<Boolean>
         field = MutableStateFlow(false)
@@ -318,8 +319,6 @@ class StatusViewModelExtender @AssistedInject constructor(
         }
 
         StatusAction.AbortRebase -> abortRebase()
-        is StatusAction.AcceptCommitterData -> acceptCommitterData(action.authorInfo, action.persist)
-        StatusAction.RejectCommitterData -> rejectCommitterData()
         StatusAction.AddStagedSearchToCloseableView -> addStagedSearchToCloseableView()
         StatusAction.AddUnstagedSearchToCloseableView -> addUnstagedSearchToCloseableView()
         is StatusAction.Commit -> commit(action.message)
@@ -331,14 +330,6 @@ class StatusViewModelExtender @AssistedInject constructor(
         is StatusAction.ToggleAmend -> amend(action.toggle)
         is StatusAction.ToggleAmendRebaseInteractive -> amendRebaseInteractive(action.toggle)
         is StatusAction.UpdateCommitMessage -> updateCommitMessage(action.message)
-    }
-
-    fun rejectCommitterData() {
-        this.committerDataRequestState.value = CommitterDataRequestState.Reject
-    }
-
-    fun acceptCommitterData(newAuthorInfo: AuthorInfo, persist: Boolean) {
-        this.committerDataRequestState.value = CommitterDataRequestState.Accepted(newAuthorInfo, persist)
     }
 
     fun updateCommitMessage(message: TextFieldValue) {
@@ -658,7 +649,7 @@ class StatusViewModelExtender @AssistedInject constructor(
             author.repositoryIdentity.name.isNullOrEmpty() && author.globalIdentity.name.isNullOrEmpty() ||
             author.repositoryIdentity.email.isNullOrEmpty() && author.globalIdentity.email.isNullOrEmpty()
         ) {
-            committerDataRequestState.value = CommitterDataRequestState.WaitingInput(author)
+            commitAuthorRequestHolder.setStateToWaiting(author)
 
             var committerData = committerDataRequestState.value
 

@@ -33,6 +33,7 @@ interface TabComponent {
     fun historyViewModel(): HistoryViewModel
     fun authorViewModel(): AuthorViewModel
     fun stashWithMessageViewModel(): StashWithMessageViewModel
+    fun commitAuthorViewModelFactory(): CommitAuthorViewModel.Factory
     fun quickActionsViewModel(): QuickActionsViewModel
     fun setUpstreamBranchDialogViewModelFactory(): SetUpstreamBranchDialogViewModel.Factory
     fun renameBranchDialogViewModelFactory(): RenameBranchDialogViewModel.Factory

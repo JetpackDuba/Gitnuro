@@ -34,8 +34,6 @@ sealed interface StatusAction {
     data object ResetRepositoryState : StatusAction
     data class UpdateCommitMessage(val message: TextFieldValue) : StatusAction
 
-    data object RejectCommitterData : StatusAction
-    data class AcceptCommitterData(val authorInfo: AuthorInfo, val persist: Boolean) : StatusAction
     data class SearchFilterToggledStaged(val show: Boolean): StatusAction
     data class SearchFilterToggledUnstaged(val show: Boolean): StatusAction
     data object AddStagedSearchToCloseableView: StatusAction

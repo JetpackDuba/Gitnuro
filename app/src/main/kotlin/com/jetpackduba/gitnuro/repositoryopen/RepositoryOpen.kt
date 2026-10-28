@@ -353,7 +353,6 @@ fun MainContentView(
                 } else if (rebaseInteractiveState !is RebaseInteractiveState.AwaitingInteraction) {
                     StatusPane(
                         statusState = statusState,
-                        completedTasks = viewModel.completedTasks,
                         onAction = { viewModel.onAction(it) },
                         onBlameFile = { viewModel.blameFile(it) },
                         onHistoryFile = { viewModel.fileHistory(it) }

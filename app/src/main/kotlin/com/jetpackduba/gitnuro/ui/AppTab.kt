@@ -32,6 +32,7 @@ import com.jetpackduba.gitnuro.ui.dialogs.*
 import com.jetpackduba.gitnuro.ui.dialogs.base.UserPasswordDialog
 import com.jetpackduba.gitnuro.ui.dialogs.errors.ErrorDialog
 import com.jetpackduba.gitnuro.ui.dialogs.settings.GlobalSettingsDialog
+import com.jetpackduba.gitnuro.ui.status.CommitterDataRequestState
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.painterResource
@@ -43,6 +44,11 @@ fun <T : NavKey> NavBackStack<T>.addAndRemovePrevious(item: T) {
 
     repeat(lastIndex) {
         this.removeFirst()
+    }
+}
+fun <T : NavKey> NavBackStack<T>.addIfNotPresent(item: T) {
+    if (!this.contains(item)) {
+        this.add(item)
     }
 }
 
@@ -100,6 +106,7 @@ fun AppTab(
         )
 
     val credentialsState by repositoryTabViewModel.credentialsState.collectAsState()
+    val commitAuthorRequestState by repositoryTabViewModel.commitAuthorRequestState.collectAsState()
 
     LaunchedEffect(credentialsState) {
         val destination = when (val state = credentialsState) {
@@ -112,6 +119,12 @@ fun AppTab(
 
         if (destination != null) {
             backStack.add(destination)
+        }
+    }
+
+    LaunchedEffect(commitAuthorRequestState) {
+        (commitAuthorRequestState as? CommitterDataRequestState.WaitingInput)?.let { state ->
+            backStack.addIfNotPresent(Screen.CommitAuthor(state.authorInfo))
         }
     }
 
@@ -357,6 +370,17 @@ fun AppTab(
                         ) { entry ->
                             val viewModel = tabViewModel(entry) { it.stashWithMessageViewModel() }
                             StashWithMessageDialog(
+                                viewModel = viewModel,
+                                onDismiss = { backStack.removeLastOrNull() },
+                            )
+                        }
+                        entry<Screen.CommitAuthor>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            val viewModel = tabViewModel(entry) {
+                                it.commitAuthorViewModelFactory().create(entry.authorInfo)
+                            }
+                            CommitAuthorDialog(
                                 viewModel = viewModel,
                                 onDismiss = { backStack.removeLastOrNull() },
                             )

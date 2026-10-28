@@ -27,6 +27,7 @@ import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
+import com.jetpackduba.gitnuro.ui.CommitAuthorRequestHolder
 import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.components.TabInformationProvider
@@ -55,6 +56,7 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val recentRepositoriesStateHolder: RecentRepositoriesRepository,
     private val fileChangesWatcher: IFileChangesWatcher,
     private val credentialsStateManager: CredentialsStateManager,
+    private val commitAuthorRequestHolder: CommitAuthorRequestHolder,
     private val openFilePickerUseCase: OpenFilePickerUseCase,
     private val openUrlInBrowserUseCase: OpenUrlInBrowserUseCase,
     private val tabScope: TabCoroutineScope,
@@ -177,7 +179,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
         .debounce(300L.milliseconds)
         .stateIn(initialValue = null)
 
-    val credentialsState: StateFlow<CredentialsState> = credentialsStateManager.credentialsState
+    val credentialsState = credentialsStateManager.credentialsState
+    val commitAuthorRequestState = commitAuthorRequestHolder.requestState
 
 
     fun openRepository(directory: String) {

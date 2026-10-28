@@ -92,6 +92,7 @@ sealed interface Screen : NavKey {
     data object SignOffData : Screen
     data object Author : Screen
     data object StashWithMessage : Screen
+    data class CommitAuthor(val authorInfo: AuthorInfo) : Screen
 }
 
 
