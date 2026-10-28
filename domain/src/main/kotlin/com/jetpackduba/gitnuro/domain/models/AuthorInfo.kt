@@ -5,8 +5,8 @@ data class AuthorInfo(
     val repositoryIdentity: Identity,
 ) {
     fun identityToUse() = Identity(
-        repositoryIdentity.name ?: globalIdentity.name ?: "",
-        repositoryIdentity.email ?: globalIdentity.email ?: "",
+        repositoryIdentity.name ?: globalIdentity.name,
+        repositoryIdentity.email ?: globalIdentity.email,
     )
 }
 
