@@ -82,7 +82,7 @@ fun AppTab(
         }
     }
 
-    LaunchedEffect(repositorySelectionStatusValue) {
+    LaunchedEffect(repositoryTabViewModel, repositorySelectionStatusValue) {
         val screen = when (repositorySelectionStatusValue) {
             RepositorySelectionState.None -> Screen.Welcome
 
