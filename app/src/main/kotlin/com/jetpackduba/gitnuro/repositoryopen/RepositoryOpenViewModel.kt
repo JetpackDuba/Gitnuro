@@ -16,6 +16,7 @@ import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
 import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
+import com.jetpackduba.gitnuro.domain.extensions.removeGitSuffix
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
 import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
 import com.jetpackduba.gitnuro.domain.models.*
@@ -114,7 +115,6 @@ class RepositoryOpenViewModel @Inject constructor(
     private val revertCommitUseCase: RevertCommitUseCase,
     private val abortRebaseUseCase: AbortRebaseUseCase,
     private val appSettings: GlobalSettingsService,
-    private val addSelectedDiffUseCase: AddSelectedDiffUseCase,
     private val getSummaryFromStatusUseCase: GetSummaryFromStatusUseCase,
     private val stageHunkUseCase: StageHunkUseCase,
     private val unstageHunkUseCase: UnstageHunkUseCase,
@@ -155,9 +155,24 @@ class RepositoryOpenViewModel @Inject constructor(
             emptyList()
         )
 
+    val displayLastLoadedTabs = combine(
+        lastLoadedTabs,
+        repositoryDataRepository.repositorySelectionState
+    ) { paths, state ->
+        val path = (state as? RepositorySelectionState.Open)?.path?.removeGitSuffix()
+        paths.filter { it != path }
+    }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            emptyList()
+        )
+
     val repositoryState: StateFlow<RepositoryState> =
         repositoryDataRepository.repositoryState.toUiDataState()
-            .map { it.data ?: RepositoryState.SAFE } // TODO: Instead of using safe as default, it should show some kind of feedback while data is null
+            .map {
+                it.data ?: RepositoryState.SAFE
+            } // TODO: Instead of using safe as default, it should show some kind of feedback while data is null
             .stateIn(RepositoryState.SAFE)
 
     val rebaseInteractiveState = repositoryDataRepository
@@ -636,22 +651,6 @@ class RepositoryOpenViewModel @Inject constructor(
 
     override fun onClear() {
     }
-
-    /**
-     * To make sure the tab opens the new repository with a clean state,
-     * instead of opening the repo in the same ViewModel we simply create a new tab with a new TabViewModel
-     * replacing the current tab
-     */
-    fun openAnotherRepository(directory: String) {
-        viewModelScope.launch {
-            val worktree = getWorktreeUseCase()
-
-            if (worktree is Either.Ok) {
-                appViewModel.addNewTabFromPath(directory, true, worktree.value)
-            }
-        }
-    }
-
 
     private fun refreshRepositoryInfo() {
         refreshDataUseCase(DataToRefresh.ALL)

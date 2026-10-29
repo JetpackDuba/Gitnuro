@@ -56,7 +56,7 @@ fun Menu(
     onShowOpenPopupChange: (Boolean) -> Unit,
 ) {
     val isPullWithRebaseDefault by viewModel.isPullWithRebaseDefault.collectAsState(false)
-    val lastLoadedTabs by viewModel.lastLoadedTabs.collectAsState()
+    val lastLoadedTabs by viewModel.displayLastLoadedTabs.collectAsState()
     val hasUncommittedChanges by viewModel.hasUncommittedChanges.collectAsState()
     val stashesState by viewModel.stashesState.collectAsState()
     val remotes by viewModel.remoteState.collectAsState()
