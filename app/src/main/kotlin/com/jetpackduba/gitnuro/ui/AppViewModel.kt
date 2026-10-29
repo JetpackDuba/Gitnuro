@@ -48,7 +48,7 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplacedPath: RepositoryTabViewModel? = null) {
+    suspend fun addNewTabFromPath(path: String, selectTab: Boolean, tabToBeReplacedPath: RepositoryTabViewModel? = null) {
         val tabToBeReplaced = tabs
             .value
             .firstOrNull {
@@ -75,6 +75,8 @@ class AppViewModel @Inject constructor(
         if (selectTab) {
             currentTab.value = newTab
         }
+
+        updatePersistedTabs()
     }
 
     fun selectTab(tab: TabInformation<RepositoryTabViewModel>) {
