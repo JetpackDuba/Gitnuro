@@ -1,7 +1,9 @@
 package com.jetpackduba.gitnuro.terminal
 
+import com.jetpackduba.gitnuro.data.git.GetWorktreePathGitAction
 import com.jetpackduba.gitnuro.data.repositories.configuration.DataStoreGlobalSettingsRepository
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
+import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -15,11 +17,13 @@ class OpenRepositoryInTerminalGitAction @Inject constructor(
     private val settings: DataStoreGlobalSettingsRepository,
     private val repositoryDataRepository: RepositoryDataRepository,
     private val tabScope: TabCoroutineScope,
+    private val getWorktreePathGitAction: GetWorktreePathGitAction,
 ) {
     operator fun invoke() = tabScope.launch {
         val terminalEmulators = terminalProvider.getTerminalEmulators()
+
         val repositoryPath = repositoryDataRepository.repositoryPath ?: return@launch
-        val repositoryDir = File(repositoryPath).parentFile.absolutePath
+        val repositoryDir = getWorktreePathGitAction(repositoryPath).okOrNull() ?: return@launch
 
         val terminalPath = settings.terminalPath.firstOrNull()
 
