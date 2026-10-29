@@ -32,11 +32,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
-import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.domain.extensions.dirName
 import com.jetpackduba.gitnuro.domain.extensions.dirPath
 import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
+import com.jetpackduba.gitnuro.extensions.*
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.theme.AppTheme
@@ -47,7 +47,6 @@ import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.BottomInfoBar
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
-import com.jetpackduba.gitnuro.ui.dialogs.AppInfoDialog
 import com.jetpackduba.gitnuro.updates.Update
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.launch
@@ -60,6 +59,7 @@ fun WelcomePage(
     repositoryTabViewModel: RepositoryTabViewModel,
     onShowCloneDialog: () -> Unit,
     onShowSettings: () -> Unit,
+    onShowAppInfo: () -> Unit,
 ) {
     val recentlyOpenedRepositories by repositoryTabViewModel.recentRepositories.collectAsState()
     val newUpdate by repositoryTabViewModel.update.collectAsState()
@@ -85,8 +85,8 @@ fun WelcomePage(
         },
         onOpenKnownRepository = { repositoryTabViewModel.openRepository(it) },
         onOpenUrlInBrowser = { repositoryTabViewModel.openUrlInBrowser(it) },
-        onRemoveRepositoryFromRecent = { repositoryTabViewModel.removeRepositoryFromRecent(it) }
-
+        onRemoveRepositoryFromRecent = { repositoryTabViewModel.removeRepositoryFromRecent(it) },
+        onShowAppInfo = onShowAppInfo,
     )
 }
 
@@ -109,6 +109,7 @@ fun WelcomeViewPreview() {
             onStartRepository = {},
             onOpenUrlInBrowser = {},
             onRemoveRepositoryFromRecent = {},
+            onShowAppInfo = {},
         )
     }
 }
@@ -124,9 +125,9 @@ fun WelcomeView(
     onStartRepository: () -> Unit,
     onOpenUrlInBrowser: (String) -> Unit,
     onRemoveRepositoryFromRecent: (String) -> Unit,
+    onShowAppInfo: () -> Unit,
 ) {
 
-    var showAdditionalInfo by remember { mutableStateOf(false) }
     val searchFocusRequester = remember { FocusRequester() }
     val welcomeViewFocusRequester = remember { FocusRequester() }
 
@@ -173,7 +174,7 @@ fun WelcomeView(
                     onOpenRepository = onOpenRepository,
                     onStartRepository = onStartRepository,
                     onShowCloneView = onShowCloneDialog,
-                    onShowAdditionalInfo = { showAdditionalInfo = true },
+                    onShowAdditionalInfo = { onShowAppInfo() },
                     onShowSettings = onShowSettings,
                     onOpenUrlInBrowser = onOpenUrlInBrowser,
                 )
@@ -207,13 +208,6 @@ fun WelcomeView(
         } else {
             searchFocusRequester.requestFocus()
         }
-    }
-
-    if (showAdditionalInfo) {
-        AppInfoDialog(
-            onClose = { showAdditionalInfo = false },
-            onOpenUrlInBrowser = onOpenUrlInBrowser
-        )
     }
 }
 

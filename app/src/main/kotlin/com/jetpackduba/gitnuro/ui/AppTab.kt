@@ -145,7 +145,8 @@ fun AppTab(
                             WelcomePage(
                                 repositoryTabViewModel = repositoryTabViewModel,
                                 onShowCloneDialog = { backStack.add(Screen.CloneRepository) },
-                                onShowSettings = { backStack.add(Screen.GlobalSettings) }
+                                onShowSettings = { backStack.add(Screen.GlobalSettings) },
+                                onShowAppInfo = { backStack.add(Screen.AppInfo) }
                             )
                         }
                         entry<Screen.RepositoryLoading> {
@@ -171,6 +172,14 @@ fun AppTab(
                             val viewModel = tabViewModel(entry, { it.settingsViewModel() })
                             GlobalSettingsDialog(
                                 settingsViewModel = viewModel,
+                                onDismiss = { backStack.removeLastOrNull() },
+                            )
+                        }
+                        entry<Screen.AppInfo>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            AppInfoDialog(
+                                onOpenUrlInBrowser = { repositoryTabViewModel.openUrlInBrowser(it) },
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }

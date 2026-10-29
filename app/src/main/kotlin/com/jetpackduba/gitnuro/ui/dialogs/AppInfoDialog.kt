@@ -20,10 +20,10 @@ import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 
 @Composable
 fun AppInfoDialog(
-    onClose: () -> Unit,
+    onDismiss: () -> Unit,
     onOpenUrlInBrowser: (String) -> Unit,
 ) {
-    MaterialDialog(onCloseRequested = onClose) {
+    MaterialDialog(onCloseRequested = onDismiss) {
         Column(
             modifier = Modifier
                 .width(600.dp)
@@ -64,7 +64,7 @@ fun AppInfoDialog(
                     .padding(top = 16.dp, end = 8.dp)
                     .align(Alignment.End)
                     .handOnHover(),
-                onClick = onClose,
+                onClick = onDismiss,
                 colors = textButtonColors(),
             ) {
                 Text("Close")
