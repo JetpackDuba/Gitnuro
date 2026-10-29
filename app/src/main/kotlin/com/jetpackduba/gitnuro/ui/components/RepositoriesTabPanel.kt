@@ -49,8 +49,6 @@ fun <T : TabInformationProvider> TabsRow(
 ) {
     val stateHorizontal = rememberLazyListState()
     val scrollAdapter = rememberScrollbarAdapter(stateHorizontal)
-    val scope = rememberCoroutineScope()
-    var latestTabCount by remember { mutableStateOf(tabs.count()) }
 
     val canBeScrolled by remember {
         derivedStateOf {
@@ -151,17 +149,18 @@ fun <T : TabInformationProvider> TabsRow(
         }
     }
 
-    LaunchedEffect(tabs.count()) {
-        // Scroll to the end if a new tab has been added & it's empty (so it's not a new submodule tab)
-        // TODO Use TabInformationProvider to know if the app should scroll to the tab or not instead of relying on extra info
-        if (latestTabCount < tabs.count() && currentTab?.extraInfo?.firstOrNull() == null) {
-            scope.launch {
-                delay(50) // add small delay to wait until [scrollAdapter.maxScrollOffset] is recalculated. Seems more like a hack of some kind...
-                scrollAdapter.scrollTo(scrollAdapter.maxScrollOffset)
-            }
-        }
+    LaunchedEffect(currentTab) {
+        val currentTabOffset = stateHorizontal
+            .layoutInfo
+            .visibleItemsInfo
+            .firstOrNull { info -> info.key == currentTab?.data }
+            ?.offset
 
-        latestTabCount = tabs.count()
+        val isCurrentTabVisible = (currentTabOffset ?: -1) >= 0
+
+        if (!isCurrentTabVisible) {
+            stateHorizontal.animateScrollToItem(tabs.indexOf(currentTab))
+        }
     }
 }
 
