@@ -43,6 +43,7 @@ import org.jetbrains.compose.resources.stringResource
 fun RepositoryOpenPage(
     repositoryOpenViewModel: RepositoryOpenViewModel,
     onNavigate: (Screen) -> Unit, // TODO Perhaps have specific callbacks instead of directly navigating
+    onOpenAnotherRepository: (String) -> Unit,
 ) {
     val repositoryState by repositoryOpenViewModel.repositoryState.collectAsState()
     val selectedItem by repositoryOpenViewModel.selectedItem.collectAsState()
@@ -121,12 +122,12 @@ fun RepositoryOpenPage(
                         .fillMaxWidth(),
                     onCreateBranch = { onNavigate(Screen.BranchCreate(null)) },
                     onStashWithMessage = { onNavigate(Screen.StashWithMessage) },
-                    onOpenAnotherRepository = { repositoryOpenViewModel.openAnotherRepository(it) },
+                    onOpenAnotherRepository = { onOpenAnotherRepository(it) },
                     onOpenAnotherRepositoryFromPicker = {
                         val repoToOpen = repositoryOpenViewModel.openDirectoryPicker()
 
                         if (repoToOpen != null) {
-                            repositoryOpenViewModel.openAnotherRepository(repoToOpen)
+                            onOpenAnotherRepository(repoToOpen)
                         }
                     },
                     onQuickActions = { onNavigate(Screen.QuickActions) },

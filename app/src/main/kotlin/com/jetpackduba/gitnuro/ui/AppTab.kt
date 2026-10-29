@@ -161,7 +161,8 @@ fun AppTab(
 
                             RepositoryOpenPage(
                                 repositoryOpenViewModel = repositoryOpenViewModel,
-                                onNavigate = { backStack.add(it) }
+                                onNavigate = { backStack.add(it) },
+                                onOpenAnotherRepository = { repositoryTabViewModel.openAnotherRepository(it) }
                             )
                         }
                         entry<Screen.GlobalSettings>(

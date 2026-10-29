@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.domain.MAX_COMPLETED_TASKS_KEPT
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsState
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsStateManager
+import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.extensions.removeGitSuffix
 import com.jetpackduba.gitnuro.domain.interfaces.IFileChangesWatcher
 import com.jetpackduba.gitnuro.domain.interfaces.IInitLocalRepositoryGitAction
@@ -20,6 +21,7 @@ import com.jetpackduba.gitnuro.domain.repositories.FailureSeverity
 import com.jetpackduba.gitnuro.domain.repositories.RecentRepositoriesRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryDataRepository
 import com.jetpackduba.gitnuro.domain.repositories.RepositoryStateRepository
+import com.jetpackduba.gitnuro.domain.usecases.GetWorktreeUseCase
 import com.jetpackduba.gitnuro.domain.usecases.OpenRepositoryUseCase
 import com.jetpackduba.gitnuro.domain.usecases.SetRepositorySelectionStateToNoneUseCase
 import com.jetpackduba.gitnuro.domain.usecases.repositories.recent.RemoveRecentRepositoryUseCase
@@ -27,6 +29,7 @@ import com.jetpackduba.gitnuro.extensions.stateIn
 import com.jetpackduba.gitnuro.system.OpenFilePickerUseCase
 import com.jetpackduba.gitnuro.system.OpenUrlInBrowserUseCase
 import com.jetpackduba.gitnuro.system.PickerType
+import com.jetpackduba.gitnuro.ui.AppViewModel
 import com.jetpackduba.gitnuro.ui.CommitAuthorRequestHolder
 import com.jetpackduba.gitnuro.ui.IVerticalSplitPaneConfig
 import com.jetpackduba.gitnuro.ui.VerticalSplitPaneConfig
@@ -67,6 +70,8 @@ class RepositoryTabViewModel @AssistedInject constructor(
     private val setRepositorySelectionStateToNoneUseCase: SetRepositorySelectionStateToNoneUseCase,
     private val tabComponent: TabComponent,
     private val removeRecentRepositoryUseCase: RemoveRecentRepositoryUseCase,
+    private val getWorktreeUseCase: GetWorktreeUseCase,
+    private val appViewModel: AppViewModel,
     @Assisted private val initialPath: String?,
     updatesRepository: UpdatesRepository,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
@@ -259,6 +264,21 @@ class RepositoryTabViewModel @AssistedInject constructor(
                 openRepository(initialPath)
             } else {
                 setRepositorySelectionStateToNoneUseCase()
+            }
+        }
+    }
+
+    /**
+     * To make sure the tab opens the new repository with a clean state,
+     * instead of opening the repo in the same ViewModel we simply create a new tab with a new TabViewModel
+     * replacing the current tab
+     */
+    fun openAnotherRepository(directory: String) {
+        viewModelScope.launch {
+            val worktree = getWorktreeUseCase()
+
+            if (worktree is Either.Ok) {
+                appViewModel.addNewTabFromPath(directory, true, this@RepositoryTabViewModel)
             }
         }
     }
