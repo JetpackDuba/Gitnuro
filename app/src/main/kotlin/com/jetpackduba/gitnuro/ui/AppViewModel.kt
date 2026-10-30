@@ -11,6 +11,7 @@ import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -30,7 +31,18 @@ class AppViewModel @Inject constructor(
     val currentTab: StateFlow<TabInformation<RepositoryTabViewModel>?>
         field = MutableStateFlow<TabInformation<RepositoryTabViewModel>?>(null)
 
+    val groups: StateFlow<Map<String, List<String>>>
+        field = MutableStateFlow<Map<String, List<String>>>(emptyMap())
+
+    val activeGroup: StateFlow<String>
+        field = MutableStateFlow("")
+
     suspend fun loadPersistedTabs() {
+        activeGroup.value = tabsOpenRepository.activeGroup.first()
+        groups.value = tabsOpenRepository.groups.first().let {
+            if (activeGroup.value in it) it else mapOf(activeGroup.value to emptyList<String>()) + it
+        }
+
         val repositoriesSaved = tabsOpenRepository.openTabs.firstOrNull().orEmpty()
         val repositoriesList = repositoriesSaved.map { path ->
             newAppTab2(
@@ -129,6 +141,53 @@ class AppViewModel @Inject constructor(
 
         updatePersistedTabs()
         System.gc()
+    }
+
+    fun switchGroup(name: String) = viewModelScope.launch {
+        if (name == activeGroup.value || name !in groups.value) return@launch
+
+        updatePersistedTabs()
+        groups.update { it + (activeGroup.value to tabsOpenRepository.openTabs.first()) }
+
+        val paths = groups.value.getValue(name)
+        val newTabs = paths.map { newAppTab2(it) }.ifEmpty { listOf(newAppTab2()) }
+
+        tabs.value.forEach { it.data.dispose() }
+        tabs.value = newTabs
+        currentTab.value = newTabs.first()
+        activeGroup.value = name
+
+        cleanRepositoriesResourcesUseCase(paths)
+        tabsOpenRepository.updateGroups(groups.value)
+        tabsOpenRepository.updateActiveGroup(name)
+        tabsOpenRepository.updateOpenTabs(paths)
+        tabsOpenRepository.updateSelectedTabIndex(0)
+        System.gc()
+    }
+
+    fun createGroup(name: String) {
+        if (name in groups.value) return
+
+        groups.update { it + (name to emptyList<String>()) }
+        switchGroup(name)
+    }
+
+    fun renameGroup(oldName: String, newName: String) = viewModelScope.launch {
+        if (newName in groups.value) return@launch
+
+        groups.update { it.mapKeys { (key, _) -> if (key == oldName) newName else key } }
+        if (activeGroup.value == oldName) {
+            activeGroup.value = newName
+            tabsOpenRepository.updateActiveGroup(newName)
+        }
+        tabsOpenRepository.updateGroups(groups.value)
+    }
+
+    fun deleteGroup(name: String) = viewModelScope.launch {
+        if (name == activeGroup.value) return@launch
+
+        groups.update { it - name }
+        tabsOpenRepository.updateGroups(groups.value)
     }
 
     suspend fun updatePersistedTabs() {

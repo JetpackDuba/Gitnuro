@@ -219,4 +219,13 @@
 
     <string name="error_sign_ssh_key_not_found">Could not find signing key specified in your config</string>
 
+    <!-- Tab groups -->
+    <string name="tab_groups_new_group">New group...</string>
+    <string name="tab_groups_rename_group">Rename group</string>
+    <string name="tab_groups_delete_group">Delete group</string>
+    <string name="tab_groups_new_group_title">New group</string>
+    <string name="tab_groups_dialog_subtitle">Groups keep their own set of open repositories</string>
+    <string name="tab_groups_dialog_create">Create</string>
+    <string name="tab_groups_dialog_rename">Rename</string>
+
 </resources>
