@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 val tabsOpenPreference = stringPreferencesKey("tabs_open")
 val selectedTabIndexPreference = intPreferencesKey("selected_tab")
+val tabGroupsPreference = stringPreferencesKey("tab_groups")
+val activeTabGroupPreference = stringPreferencesKey("active_tab_group")
 
 class TabsOpenDataStore(
     private val dataStore: DataStore<Preferences>
