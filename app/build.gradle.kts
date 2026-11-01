@@ -20,12 +20,12 @@ val linuxArmTarget = "aarch64-unknown-linux-gnu"
 val linuxX64Target = "x86_64-unknown-linux-gnu"
 
 // Remember to update Constants.APP_VERSION when changing this version
-val projectVersion = "2.0"
+val projectVersion = "2.1"
 
 val projectName = "Gitnuro"
 
 // Required for JPackage, as it doesn't accept additional suffixes after the version.
-val projectVersionSimplified = "2.0.0"
+val projectVersionSimplified = "2.1.0"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
