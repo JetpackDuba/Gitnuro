@@ -50,6 +50,7 @@ import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.AppViewModel
+import com.jetpackduba.gitnuro.ui.components.TabGroupSelector
 import com.jetpackduba.gitnuro.ui.components.TabsRow
 import com.jetpackduba.gitnuro.ui.components.TabInformation
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
@@ -345,11 +346,23 @@ class App @Inject constructor(
         onAddedTab: () -> Unit,
         onCloseTab: (TabInformation<RepositoryTabViewModel>) -> Unit,
     ) {
+        val groups by appViewModel.groups.collectAsState()
+        val activeGroup by appViewModel.activeGroup.collectAsState()
+
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            TabGroupSelector(
+                groups = groups.keys.toList(),
+                activeGroup = activeGroup,
+                onSwitchGroup = { appViewModel.switchGroup(it) },
+                onCreateGroup = { appViewModel.createGroup(it) },
+                onRenameGroup = { old, new -> appViewModel.renameGroup(old, new) },
+                onDeleteGroup = { appViewModel.deleteGroup(it) },
+            )
+
             TabsRow(
                 tabs = tabsInformationList,
                 defaultTabName = NEW_TAB_DEFAULT_NAME,
