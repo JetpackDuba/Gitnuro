@@ -31,4 +31,5 @@ sealed interface GlobalConfig {
     data class ShowChangesAsTree(val value: Boolean) : GlobalConfig
     data class TerminalPath(val value: String) : GlobalConfig
     data class GroupBranches(val value: Boolean) : GlobalConfig
+    data class ShowDiffWithLog(val value: Boolean) : GlobalConfig
 }

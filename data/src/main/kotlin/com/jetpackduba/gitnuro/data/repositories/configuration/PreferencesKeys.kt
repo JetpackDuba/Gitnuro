@@ -15,6 +15,7 @@ object PreferencesKeys {
     val groupBranchesWithRemotesPreference get() = booleanPreferencesKey("group_branches_with_remotes")
     val diffTextViewTypePreference get() = stringPreferencesKey("diff_text_view")
     val showChangesAsTreePreference get() = booleanPreferencesKey("show_changes_as_tree")
+    val showDiffWithLogPreference get() = booleanPreferencesKey("show_diff_with_log")
 
     val dateFormatUseDefaultPreference get() = booleanPreferencesKey("date_format_use_default")
     val dateFormatCustomFormatPreference get() = stringPreferencesKey("date_format_custom_format")

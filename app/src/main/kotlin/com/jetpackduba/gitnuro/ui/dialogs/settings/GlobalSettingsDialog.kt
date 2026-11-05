@@ -478,6 +478,7 @@ private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAc
 @Composable
 private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
     val swapUncommittedChanges = settingsViewState.swapStatusPanes
+    val showDiffWithLog = settingsViewState.showDiffWithLog
 
     SettingToggle(
         title = "Swap position for staged/unstaged views",
@@ -485,6 +486,15 @@ private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsActi
         value = swapUncommittedChanges,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.SwapStatusPanes(value)))
+        }
+    )
+
+    SettingToggle(
+        title = "Show diff view below the commits history",
+        subtitle = "Allows you to keep both visible at the same time",
+        value = showDiffWithLog,
+        onValueChanged = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.ShowDiffWithLog(value)))
         }
     )
 }

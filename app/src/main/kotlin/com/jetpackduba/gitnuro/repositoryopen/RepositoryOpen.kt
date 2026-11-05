@@ -255,6 +255,8 @@ fun MainContentView(
 
     val statusState by viewModel.statusState.collectAsState()
 
+    val showDiffWithLog by viewModel.showDiffWithLog.collectAsState(false)
+
     // We create 2 mutableStates here because using directly the flow makes compose lose some drag events for some reason
     var firstWidth by remember(viewModel) { mutableStateOf(viewModel.firstPaneWidth.value) }
     var thirdWidth by remember(viewModel) { mutableStateOf(viewModel.thirdPaneWidth.value) }
@@ -298,26 +300,31 @@ fun MainContentView(
                     )
                 } else {
                     Column {
-                        Box(modifier = Modifier.weight(1f, true)) {
+                        Column(modifier = Modifier.weight(1f, true)) {
                             val showDiff = diffSelected?.entries?.count() == 1
 
-                            Log(
-                                modifier = Modifier.focusable(!showDiff),
-                                viewModel = viewModel,
-                                selectedItem = selectedItem,
-                                repositoryState = repositoryState,
-                                // TODO Move nav outside of this? Applies to next lines
-                                onCreateBranch = { onNavigate(Screen.BranchCreate(it)) },
-                                onResetBranch = { onNavigate(Screen.BranchReset(it)) },
-                                onCreateTag = { onNavigate(Screen.TagCreate(it)) },
-                                onChangeUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
-                                onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
-                            )
+                            if (showDiffWithLog || !showDiff) {
+                                Log(
+                                    modifier = Modifier
+                                        .focusable(!showDiff)
+                                        .weight(1f, true),
+                                    viewModel = viewModel,
+                                    selectedItem = selectedItem,
+                                    repositoryState = repositoryState,
+                                    // TODO Move nav outside of this? Applies to next lines
+                                    onCreateBranch = { onNavigate(Screen.BranchCreate(it)) },
+                                    onResetBranch = { onNavigate(Screen.BranchReset(it)) },
+                                    onCreateTag = { onNavigate(Screen.TagCreate(it)) },
+                                    onChangeUpstreamBranch = { onNavigate(Screen.BranchChangeUpstream(it)) },
+                                    onRenameBranch = { onNavigate(Screen.BranchRename(it)) },
+                                )
+                            }
 
                             if (showDiff) {
                                 val tabFocusRequester = LocalTabFocusRequester.current
 
                                 DiffPane(
+                                    modifier = Modifier.weight(1f, true),
                                     viewModel = viewModel,
                                     onCloseDiffView = {
                                         tabFocusRequester.requestFocus()

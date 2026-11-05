@@ -79,6 +79,7 @@ private fun <T> loadOrNull(key: Any, action: suspend () -> T?): T? {
 
 @Composable
 fun DiffPane(
+    modifier: Modifier,
     viewModel: RepositoryOpenViewModel,
     onCloseDiffView: () -> Unit,
 ) {
@@ -101,7 +102,7 @@ fun DiffPane(
     }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .background(MaterialTheme.colors.background)
             .fillMaxSize()
             .focusable(true)

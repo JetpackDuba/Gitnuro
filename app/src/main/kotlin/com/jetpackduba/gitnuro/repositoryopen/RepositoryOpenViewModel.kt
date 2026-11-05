@@ -213,6 +213,8 @@ class RepositoryOpenViewModel @Inject constructor(
     val diffSelected: StateFlow<DiffSelected?>
         field = MutableStateFlow<DiffSelected?>(null)
 
+    val showDiffWithLog = appSettings.showDiffWithLog
+
     private val closeableViews = ArrayDeque<CloseableView>()
     private val closeableViewsMutex = Mutex()
 

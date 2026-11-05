@@ -27,6 +27,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.p
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.pushWithLeasePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.scaleUiPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showChangesAsTreePreference
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showDiffWithLogPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.swapStatusPanesPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.terminalPathPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.themePreference
@@ -63,6 +64,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     override val dateFormatCustomFormat get() = dataStore[dateFormatCustomFormatPreference]
     override val dateFormatIs24h get() = dataStore[dateFormatIs24hPreference]
     override val dateFormatUseRelative get() = dataStore[dateFormatUseRelativePreference]
+    override val showDiffWithLog = dataStore[showDiffWithLogPreference]
 
     override val avatarProvider
         get() = dataStore[avatarProviderPreference].map {
@@ -150,6 +152,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
                 is GlobalConfig.ShowChangesAsTree -> setValue(showChangesAsTreePreference, globalConfig.value)
                 is GlobalConfig.TerminalPath -> setValue(terminalPathPreference, globalConfig.value)
                 is GlobalConfig.GroupBranches -> setValue(groupBranchesWithRemotesPreference, globalConfig.value)
+                is GlobalConfig.ShowDiffWithLog -> setValue(showDiffWithLogPreference, globalConfig.value)
             }
         }
     }
