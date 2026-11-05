@@ -29,6 +29,7 @@ val StatusType.icon: ImageVector
             StatusType.MODIFIED -> Icons.Default.Edit
             StatusType.REMOVED -> Icons.Default.Delete
             StatusType.CONFLICTING -> Icons.Default.Warning
+            StatusType.RENAMED -> Icons.Default.Refresh
         }
     }
 
@@ -49,7 +50,7 @@ val StatusType.iconColor: Color
     get() {
         return when (this) {
             StatusType.ADDED -> MaterialTheme.colors.addFile
-            StatusType.MODIFIED -> MaterialTheme.colors.modifyFile
+            StatusType.MODIFIED, StatusType.RENAMED -> MaterialTheme.colors.modifyFile
             StatusType.REMOVED -> MaterialTheme.colors.error
             StatusType.CONFLICTING -> MaterialTheme.colors.conflictFile
         }

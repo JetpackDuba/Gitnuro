@@ -33,7 +33,7 @@ class StageAllGitAction @Inject constructor(
 
 
             addAllExceptNew(git, unstaged.filter { it.statusType != StatusType.ADDED })
-            addNewFiles(git, unstaged.filter { it.statusType == StatusType.ADDED })
+            addNewFiles(git, unstaged.filter { it.statusType == StatusType.ADDED || it.statusType == StatusType.RENAMED } )
         }
     }
 
@@ -47,8 +47,8 @@ class StageAllGitAction @Inject constructor(
         val addCommand = git
             .add()
 
-        for (entry in allExceptNew) {
-            addCommand.addFilepattern(entry.filePath)
+        for ((oldPath) in allExceptNew) {
+            addCommand.addFilepattern(oldPath)
         }
 
         addCommand.setUpdate(true)
@@ -63,8 +63,10 @@ class StageAllGitAction @Inject constructor(
         val addCommand = git
             .add()
 
-        for (path in newFiles) {
-            addCommand.addFilepattern(path.filePath)
+        for ((_, newPath) in newFiles) {
+            if (newPath != null) {
+                addCommand.addFilepattern(newPath)
+            }
         }
 
         addCommand.setUpdate(false)

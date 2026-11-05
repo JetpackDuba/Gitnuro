@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.domain.exceptions.MissingDiffEntryException
 import com.jetpackduba.gitnuro.data.git.branches.GetCurrentBranchGitAction
 import com.jetpackduba.gitnuro.data.git.repository.GetRepositoryStateGitAction
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
+import com.jetpackduba.gitnuro.domain.interfaces.FileVersion
 import com.jetpackduba.gitnuro.domain.interfaces.IGetDiffEntryFromStatusEntryGitAction
 import com.jetpackduba.gitnuro.domain.models.StatusEntry
 import kotlinx.coroutines.Dispatchers
@@ -21,9 +22,15 @@ class GetDiffEntryFromStatusEntryGitAction @Inject constructor(
         git: Git,
         isCached: Boolean,
         statusEntry: StatusEntry,
+        fileVersion: FileVersion,
     ) = withContext(Dispatchers.IO) {
+        val pathFilter = when(fileVersion) {
+            FileVersion.OLD -> statusEntry.oldPath
+            FileVersion.NEW -> statusEntry.newPath
+        }
+
         val firstDiffEntry = git.diff()
-            .setPathFilter(PathFilter.create(statusEntry.filePath))
+            .setPathFilter(PathFilter.create(pathFilter))
             .setCached(isCached).apply {
                 val repositoryState = getRepositoryStateGitAction(git.repository.directory.absolutePath).okOrNull()!!
                 if (

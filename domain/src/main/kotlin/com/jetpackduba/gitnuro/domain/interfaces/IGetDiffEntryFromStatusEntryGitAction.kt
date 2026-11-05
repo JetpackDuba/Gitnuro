@@ -9,5 +9,11 @@ interface IGetDiffEntryFromStatusEntryGitAction {
         git: Git,
         isCached: Boolean,
         statusEntry: StatusEntry,
+        fileVersion: FileVersion,
     ): DiffEntry
+}
+
+enum class FileVersion {
+    OLD,
+    NEW
 }

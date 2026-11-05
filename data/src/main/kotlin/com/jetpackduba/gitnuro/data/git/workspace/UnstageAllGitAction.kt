@@ -10,14 +10,13 @@ class UnstageAllGitAction @Inject constructor(
 ) : IUnstageAllGitAction {
     override suspend operator fun invoke(repositoryPath: String, entries: List<StatusEntry>?) =
         jgit.provide(repositoryPath) { git ->
-            git
-                .reset()
-                .apply {
-                    entries?.forEach { entry ->
-                        addPath(entry.filePath)
-                    }
-                }
-                .call()
+            val resetCommand = git.reset()
+
+            for (entry in entries.orEmpty()) {
+                resetCommand.addPath(entry.filePath)
+            }
+
+            resetCommand.call()
 
             Unit
         }

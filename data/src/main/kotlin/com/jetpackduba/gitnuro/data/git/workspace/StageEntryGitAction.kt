@@ -11,9 +11,15 @@ class StageEntryGitAction @Inject constructor(
 ) : IStageEntryGitAction {
     override suspend operator fun invoke(repositoryPath: String, statusEntry: StatusEntry) =
         jgit.provide(repositoryPath) { git ->
+            val files = if (statusEntry.statusType == StatusType.RENAMED) {
+                listOf(statusEntry.oldPath, statusEntry.newPath)
+            } else {
+                listOf(statusEntry.filePath)
+            }
+
             git
                 .add()
-                .addFilepattern(statusEntry.filePath)
+                .addFilepatterns(files)
                 .setUpdate(statusEntry.statusType == StatusType.REMOVED)
                 .call()
 

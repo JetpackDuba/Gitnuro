@@ -5,6 +5,8 @@ import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.fullData
 import com.jetpackduba.gitnuro.domain.interfaces.IGetCommitDiffEntriesGitAction
 import com.jetpackduba.gitnuro.domain.models.Commit
+import org.eclipse.jgit.diff.DiffEntry
+import org.eclipse.jgit.diff.RenameDetector
 import org.eclipse.jgit.lib.Repository
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.revwalk.RevTree
@@ -40,11 +42,16 @@ class GetCommitDiffEntriesGitAction @Inject constructor(
 
         val newTreeParser = prepareTreeParser(repository, fullCommit)
 
-        return@provide git.diff()
+        val entries = git.diff()
             .setNewTree(newTreeParser)
             .setOldTree(oldTreeParser)
             .call()
             .sortedBy { it.filePath }
+
+        val renameDetector = RenameDetector(git.repository)
+
+        renameDetector.addAll(entries)
+        renameDetector.compute()
     }
 }
 

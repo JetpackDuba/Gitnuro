@@ -1,9 +1,13 @@
 package com.jetpackduba.gitnuro.data.git.diff
 
+import com.jetpackduba.gitnuro.domain.interfaces.FileVersion
 import com.jetpackduba.gitnuro.domain.models.DiffType
+import com.jetpackduba.gitnuro.domain.models.EntryType
+import com.jetpackduba.gitnuro.domain.models.StatusType
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.diff.DiffEntry
 import org.eclipse.jgit.diff.DiffFormatter
+import org.eclipse.jgit.diff.RenameDetector
 import org.eclipse.jgit.dircache.DirCacheIterator
 import org.eclipse.jgit.treewalk.FileTreeIterator
 import org.eclipse.jgit.treewalk.filter.PathFilter
@@ -23,6 +27,9 @@ class GetDiffEntryFromDiffTypeGitAction @Inject constructor(
 
         return DiffFormatter(byteArrayOutputStream).use { formatter ->
             formatter.setRepository(repository)
+
+            val diffEntry = getDiffEntry(diffType, git) ?: throw IllegalStateException("Diff entry not found")
+
             formatter.pathFilter = PathFilter.create(diffType.filePath)
 
             val oldTree = DirCacheIterator(repository.readDirCache())
@@ -31,20 +38,54 @@ class GetDiffEntryFromDiffTypeGitAction @Inject constructor(
             if (diffType.isUnstagedDiff)
                 formatter.scan(oldTree, newTree)
 
-            val diffEntry = when (diffType) {
-                is DiffType.CommitDiff -> {
-                    diffType.diffEntry
-                }
-
-                is DiffType.UncommittedDiff -> {
-                    getDiffEntryFromStatusEntryGitAction(git, diffType.isStagedDiff, diffType.statusEntry)
-                }
-            }
-
             formatter.format(diffEntry)
             formatter.flush()
 
             diffEntry
+        }
+    }
+
+    private suspend fun getDiffEntry(
+        diffType: DiffType,
+        git: Git,
+    ): DiffEntry? {
+        return when (diffType) {
+            is DiffType.CommitDiff -> {
+                diffType.diffEntry
+            }
+            is DiffType.UncommittedDiff -> {
+                if (diffType.statusType == StatusType.RENAMED) {
+                    val oldEntry = getDiffEntryFromStatusEntryGitAction(
+                        git,
+                        isCached = diffType.entryType == EntryType.STAGED,
+                        diffType.statusEntry,
+                        FileVersion.OLD
+                    )
+
+                    val newEntry = getDiffEntryFromStatusEntryGitAction(
+                        git,
+                        isCached = diffType.entryType == EntryType.STAGED,
+                        diffType.statusEntry,
+                        FileVersion.NEW
+                    )
+
+                    val renameDetector = RenameDetector(git.repository)
+                    renameDetector.addAll(listOf(oldEntry, newEntry))
+                    val diffEntries = renameDetector.compute()
+
+                    diffEntries.firstOrNull()
+                } else {
+                    getDiffEntryFromStatusEntryGitAction(
+                        git,
+                        diffType.isStagedDiff,
+                        diffType.statusEntry,
+                        fileVersion = when (diffType.statusEntry.statusType) {
+                            StatusType.ADDED -> FileVersion.NEW
+                            else -> FileVersion.OLD
+                        },
+                    )
+                }
+            }
         }
     }
 }

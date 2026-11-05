@@ -201,6 +201,9 @@
     <string name="clone_error_invalid_url">Invalid empty URL</string>
     <string name="clone_error_invalid_folder_name">Invalid empty folder name</string>
 
+    <!-- Diff -->
+    <string name="diff_pane_no_changes">No content changes to display</string>
+
     <!-- Errors -->
     <string name="error_create_branch_already_exists">Branch "%1$s" already exists, please try with a different name</string>
     <string name="error_create_branch_name_not_allowed">Branch name "%1$s" is not allowed, please use only alphanumeric characters.</string>

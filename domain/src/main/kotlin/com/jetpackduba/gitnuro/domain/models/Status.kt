@@ -9,13 +9,21 @@ data class Status(
 )
 
 
-data class StatusEntry(val filePath: String, val statusType: StatusType, val entryType: EntryType = EntryType.UNSTAGED)
+data class StatusEntry(
+    val oldPath: String?,
+    val newPath: String?,
+    val statusType: StatusType,
+    val entryType: EntryType = EntryType.UNSTAGED,
+) {
+    val filePath: String get() = newPath ?: oldPath ?: ""
+}
 
 enum class StatusType {
     ADDED,
     MODIFIED,
     REMOVED,
     CONFLICTING,
+    RENAMED,
 }
 
 @Immutable
