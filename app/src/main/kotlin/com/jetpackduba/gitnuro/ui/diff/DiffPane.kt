@@ -136,7 +136,7 @@ fun DiffPane(
                     onDisplayFullFile = { viewModel.changeDisplayFullFile(it) },
                 )
 
-                val scrollState by viewModel.lazyListState.collectAsState()
+                val scrollState by viewModel.diffLazyListState.collectAsState()
 
                 when (diffResult) {
                     is DiffResult.TextSplit -> HunkSplitTextDiff(
