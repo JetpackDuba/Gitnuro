@@ -14,11 +14,7 @@ import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.exceptions.InvalidMessageException
-import com.jetpackduba.gitnuro.domain.extensions.lowercaseContains
-import com.jetpackduba.gitnuro.domain.extensions.openFileInFolder
-import com.jetpackduba.gitnuro.domain.extensions.removeGitSuffix
-import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndAdd
-import com.jetpackduba.gitnuro.domain.extensions.toMutableSetAndRemove
+import com.jetpackduba.gitnuro.domain.extensions.*
 import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.SelectedItem
 import com.jetpackduba.gitnuro.domain.repositories.*
@@ -992,12 +988,19 @@ class RepositoryOpenViewModel @Inject constructor(
 
     private var diffJob: Job? = null
 
-    val lazyListState = MutableStateFlow(
-        LazyListState(
-            0,
-            0
+    val diffLazyListState =
+        diffSelected.map {
+            LazyListState(
+                0,
+                0
+            )
+        }.mutableStateIn(
+            viewModelScope,
+            initialValue = LazyListState(
+                0,
+                0
+            )
         )
-    )
 
     private suspend fun loadDiff(
         diffType: DiffType,
