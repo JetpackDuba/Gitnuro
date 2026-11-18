@@ -387,7 +387,7 @@ class RepositoryOpenViewModel @Inject constructor(
         rebaseInteractiveState,
         onOpenFileInFolder = ::openFileInFolder,
         onDiffSelected = {
-            diffSelected.value = it
+            updateDiffEntries(it)
         },
         onRemoveEntriesFromSelection = { entries, entryType ->
             removeSelectedDiff(entries, entryType)
@@ -402,7 +402,7 @@ class RepositoryOpenViewModel @Inject constructor(
         selectedItem,
         diffSelected,
         onDiffSelected = {
-            diffSelected.value = it
+            updateDiffEntries(it)
         },
         onAlternateShowAsTree = ::alternateShowAsTree,
         addCloseableView = ::addCloseableView,
@@ -905,7 +905,10 @@ class RepositoryOpenViewModel @Inject constructor(
         removeCloseableView(CloseableView.LOG_SEARCH)
     }
 
-    private fun rebaseInteractive(commit: Commit) = startRebaseInteractiveUseCase(commit)
+    private fun rebaseInteractive(commit: Commit) {
+        diffSelected.value = null
+        startRebaseInteractiveUseCase(commit)
+    }
 
     fun loadMoreLogItems(firstVisibleItemIndex: Int) = viewModelScope.launch {
         val logState = this@RepositoryOpenViewModel.logState.value
@@ -1079,7 +1082,8 @@ class RepositoryOpenViewModel @Inject constructor(
 
         if (diffSelected is DiffSelected.CommitedChanges) {
             val newDiffSelected = diffSelected.copy(items = diffSelected.items - selectedToRemove)
-            this.diffSelected.value = newDiffSelected
+
+            updateDiffEntries(newDiffSelected)
         }
     }
 
@@ -1088,7 +1092,17 @@ class RepositoryOpenViewModel @Inject constructor(
 
         if (diffSelected is DiffSelected.UncommittedChanges && diffSelected.entryType == entryType) {
             val newDiffSelected = diffSelected.copy(items = diffSelected.items - selectedToRemove)
-            this.diffSelected.value = newDiffSelected
+            updateDiffEntries(newDiffSelected)
+        }
+    }
+
+    private fun updateDiffEntries(
+        newDiffSelected: DiffSelected
+    ) {
+        diffSelected.value = if (newDiffSelected.entries.isEmpty()) {
+            null
+        } else {
+            newDiffSelected
         }
     }
 
