@@ -630,6 +630,12 @@ class StatusViewModelExtender @AssistedInject constructor(
         if (doCommitResult is Either.Ok) {
             updateCommitMessage(TextFieldValue(""))
             isAmend.value = false
+            
+            val diffSelected = diffSelected.value
+
+            if (diffSelected is DiffSelected.UncommittedChanges && diffSelected.entryType == EntryType.STAGED) {
+                this@StatusViewModelExtender.onDiffSelected(DiffSelected.UncommittedChanges(EntryType.STAGED, emptySet()))
+            }
         } else {
             // If committing failed and the message was going to be persisted before the commit, restart the
             // persistence task
