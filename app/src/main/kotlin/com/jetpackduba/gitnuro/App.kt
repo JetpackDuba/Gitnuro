@@ -10,10 +10,12 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.pollSystemTheme
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -144,6 +146,12 @@ class App @Inject constructor(
         val dateFormatIs24hInitial = appSettings.dateFormatIs24h.first()
         val dateFormatUseRelativeInitial = appSettings.dateFormatUseRelative.first()
         val windowPlacement = getWindowPlacementUseCase().toComposeWindowPlacement
+
+        // Compose polls the OS light/dark preference on macOS and Windows, but not on Linux by default.
+        // Enable it so the "System" theme follows live changes there too. Must be set before any UI is created.
+        if (currentOs == OS.LINUX) {
+            ComposeUiFlags.pollSystemTheme = true
+        }
 
         application {
             val theme by appSettings.theme.collectAsState(themeInitial)

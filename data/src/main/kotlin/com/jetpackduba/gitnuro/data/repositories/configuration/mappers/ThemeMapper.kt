@@ -7,6 +7,7 @@ import javax.inject.Inject
 private const val DARK = "dark"
 private const val LIGHT = "light"
 private const val CUSTOM = "custom"
+private const val SYSTEM = "system"
 
 class ThemeMapper @Inject constructor() : DataMapper<Theme?, String?> {
     override fun toData(value: Theme?): String? {
@@ -14,6 +15,7 @@ class ThemeMapper @Inject constructor() : DataMapper<Theme?, String?> {
             Theme.Light -> LIGHT
             Theme.Dark -> DARK
             Theme.Custom -> CUSTOM
+            Theme.System -> SYSTEM
             null -> null
         }
     }
@@ -24,6 +26,7 @@ class ThemeMapper @Inject constructor() : DataMapper<Theme?, String?> {
             LIGHT -> Theme.Light
             DARK -> Theme.Dark
             CUSTOM -> Theme.Custom
+            SYSTEM -> Theme.System
             null -> null
             else -> throw IllegalStateException("Unhandled theme $value")
         }

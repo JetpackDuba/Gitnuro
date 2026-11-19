@@ -2,6 +2,7 @@
 
 package com.jetpackduba.gitnuro.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
@@ -43,6 +44,8 @@ fun AppTheme(
     content: @Composable () -> Unit,
 ) {
     val theme = when (selectedTheme) {
+        // When the OS preference can't be read (e.g. some Linux setups), Compose reports "not dark" and Light is used.
+        Theme.System -> if (isSystemInDarkTheme()) darkTheme else lightTheme
         Theme.Light -> lightTheme
         Theme.Dark -> darkTheme
         Theme.Custom -> customTheme ?: defaultAppTheme
@@ -161,6 +164,7 @@ val Colors.isDark: Boolean
 
 // TODO Do not hardcode theme here and use proper string resource
 val themeLists = listOf(
+    DropDownOption(Theme.System, "System"),
     DropDownOption(Theme.Light, "Light"),
     DropDownOption(Theme.Dark, "Dark"),
     DropDownOption(Theme.Custom, "Custom"),
