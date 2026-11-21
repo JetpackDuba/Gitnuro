@@ -25,7 +25,7 @@ Windows:
 
 MacOS:
 
-- [ZIP which contains the app bundle](https://github.com/JetpackDuba/Gitnuro/releases/latest).
+- [DMG](https://github.com/JetpackDuba/Gitnuro/releases/latest).
 - Using hombrew: `brew install jetpackduba/apps/gitnuro`
 
 ## Features
@@ -64,16 +64,16 @@ Gitnuro has support for the following features:
 - Stage/Unstage specific lines.
 - Submodules support.
 - Change the tracking of a specific branch.
+- View stashes in the log tree.
+- Syntax highlighting for diff.
+- Customizations settings.
 
 <details>
   <summary><b>Features planned</b></summary>
 
 - Create/Apply patches
 - Remove tags from remote.
-- View stashes in the log tree.
-- Syntax highlighting for diff.
 - Various log options like showing the author, filtering by current branch o hide remote branches.
-- Customizations settings.
 
 </details>
 
@@ -84,6 +84,12 @@ If you find a bug or you would like to suggest a new feature, feel free to open 
 Pull requests are also welcome but please create an issue first if it's a new feature. If you want to work on an
 existing issue, please comment so I'm aware of it and discuss the changes if required.
 See [this page](DEVELOPMENT.md) for how to set up your development environment.
+
+## LLM / AI Policy
+
+This project does not use any AI/LLM generated code or code written with assistance of such tools, and as project 
+creator and maintainer, it is my wish to keep things that way. Any pull request that does not satisfy this requirement
+is going to be rejected.
 
 ## FAQ
 
@@ -140,8 +146,9 @@ Colors are in ARGB Hex format.
 
 > Why isn't the Mac version signed?
 
-The cost of the Apple Developer Program is quite high with a platform that currently has very few users. I may pay for
-it if it's a very requested feature but not for now.
+~~The cost of the Apple Developer Program is quite high with a platform that currently has very few users. I may pay for
+it if it's a very requested feature but not for now.~~
+The current versions are signed but only available for Apple Silicon devices.
 
 > Authentication has failed. What's wrong?
 
@@ -156,7 +163,7 @@ If the authentication fails and you think its due to a different reason, please 
 
 > Does it support Git credentials manager (aka manager-core)?
 
-Yes, but it requires specifying the full path of the binary in your `.gitconfig`.
+Yes, it should work out of the box. If it's not, try specifying the full path of the binary in your `.gitconfig`.
 
 Example for linux:
 
