@@ -378,6 +378,8 @@ class RepositoryOpenViewModel @Inject constructor(
         verticalListState,
         horizontalListState,
         groupBranchesWithRemotes = appSettings.groupBranchesWithRemotes,
+        showAuthor = appSettings.showAuthorInLog,
+        showAuthorWithEmail = appSettings.showAuthorWithEmailInLog,
     )
         .stateIn(LogState(true))
 

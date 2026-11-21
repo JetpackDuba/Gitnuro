@@ -3,9 +3,16 @@
 
     <!-- Generic -->
     <string name="generic_button_ok">OK</string>
+    <string name="generic_button_accept">Accept</string>
     <string name="generic_button_cancel">Cancel</string>
+    <string name="generic_button_close">Close</string>
     <string name="generic_button_continue">Continue</string>
     <string name="generic_save_as_default">Save as default</string>
+    <string name="generic_save_changes">Save as default</string>
+    <string name="generic_repository_url">Repository URL</string>
+    <string name="generic_directory">Directory</string>
+    <string name="generic_search">Search</string>
+    <string name="generic_repository_folder_name">Repository folder name</string>
 
     <!-- Home page -->
     <string name="home_button_open_repository">Open a repository</string>
@@ -172,12 +179,14 @@
     <string name="tag_context_menu_delete_tag">Delete tag</string>
 
     <!-- Settings -->
+    <string name="settings_title">Settings</string>
     <string name="settings_environment_default_clone_directory_title">Default clone directory</string>
     <string name="settings_environment_default_clone_directory_description">Directory that will be used as default when cloning a repository</string>
     <string name="settings_section_user_interface">User interface</string>
     <string name="settings_entry_appearance">Appearance</string>
     <string name="settings_entry_layout">Layout</string>
     <string name="settings_entry_datetime">Date/Time</string>
+    <string name="settings_entry_commits_history">Commits history</string>
     <string name="settings_section_git">GIT</string>
     <string name="settings_entry_environment">Environment</string>
     <string name="settings_entry_branches">Branches</string>
@@ -189,6 +198,64 @@
     <string name="settings_section_tools">Tools</string>
     <string name="settings_entry_terminal">Terminal</string>
     <string name="settings_entry_logs">Logs</string>
+    <string name="settings_branches_fast_wordard_merge_title">Fast-forward merge</string>
+    <string name="settings_branches_fast_wordard_merge_description">Try to fast-forward merges when possible</string>
+    <string name="settings_branches_automatic_stash_title">Automatically stash uncommitted changes before merge</string>
+    <string name="settings_branches_automatic_stash_description">To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes</string>
+    <string name="settings_layout_swap_status_title">Swap position for staged/unstaged views</string>
+    <string name="settings_layout_swap_status_description">Show the list of unstaged changes above the list of staged changes</string>
+    <string name="settings_layout_diff_with_log_title">Show diff view below the commits history</string>
+    <string name="settings_layout_diff_with_log_description">Allows you to keep both visible at the same time</string>
+    <string name="settings_datetime_use_system_format_title">Use system's Date/Time format</string>
+    <string name="settings_datetime_use_system_format_description">If enabled, current date would be shown as "%1$s"</string>
+    <string name="settings_datetime_custom_date_format_title">Custom date format</string>
+    <string name="settings_datetime_custom_date_format_description_invalid">Invalid date/time format</string>
+    <string name="settings_datetime_custom_date_format_description_valid">Current date would be shown as "%1$s"</string>
+    <string name="settings_datetime_use_24h_title">Use 24h time</string>
+    <string name="settings_datetime_relative_date_title">Relative date</string>
+    <string name="settings_datetime_relative_date_description">Use "Today" and "Yesterday" instead of the date</string>
+    <string name="settings_commmits_history_show_author_title">Show author</string>
+    <string name="settings_commmits_history_show_author_description">Display the commit's author</string>
+    <string name="settings_commmits_history_show_author_with_email_title">Show author email</string>
+    <string name="settings_commmits_history_show_author_with_email_description">Display the commit's author with their email</string>
+    <string name="settings_appearence_theme_title">Theme</string>
+    <string name="settings_appearence_theme_description">Select the UI theme between light and dark mode</string>
+    <string name="settings_appearence_custom_theme_title">Custom theme</string>
+    <string name="settings_appearence_custom_theme_description">Add a JSON to load the custom theme</string>
+    <string name="settings_appearence_line_spacing_title">Lists spacing</string>
+    <string name="settings_appearence_line_spacing_description">Spacing around lists items</string>
+    <string name="settings_appearence_line_spacing_option_spaced">Spaced</string>
+    <string name="settings_appearence_line_spacing_option_compacted">Compact</string>
+    <string name="settings_appearence_scale_title">Scale</string>
+    <string name="settings_appearence_scale_description">Adapt the size the UI to your preferred scale</string>
+    <string name="settings_appearence_avatar_provider_title">Avatar provider</string>
+    <string name="settings_appearence_avatar_provider_description">When using a provider, the e-mail addresses will be hashed using SHA256</string>
+    <string name="settings_appearence_group_branches_title">Group local branches with their remotes</string>
+    <string name="settings_appearence_group_branches_description">Grouping of local branches with their remote when they are in the same commit</string>
+    <string name="settings_proxy_use_proxy_title">Use proxy</string>
+    <string name="settings_proxy_use_proxy_description">Set up your proxy configuration if needed</string>
+    <string name="settings_proxy_proxy_type_title">Proxy type</string>
+    <string name="settings_proxy_proxy_type_description">Pick between HTTP or SOCKS</string>
+    <string name="settings_proxy_host_name_title">Host name</string>
+    <string name="settings_proxy_port_number_title">Port number</string>
+    <string name="settings_proxy_proxy_authentication_title">Proxy authentication</string>
+    <string name="settings_proxy_proxy_authentication_description">Use your credentials to provide your identity the proxy server</string>
+    <string name="settings_proxy_login_title">Login</string>
+    <string name="settings_proxy_password_title">Password</string>
+    <string name="settings_remote_actions_pull_with_rebase_title">Pull with rebase as default</string>
+    <string name="settings_remote_actions_pull_with_rebase_description">Rebase changes instead of merging when pulling</string>
+    <string name="settings_remote_actions_force_push_with_lease_title">Force push with lease</string>
+    <string name="settings_remote_actions_force_push_with_lease_description">Check if the local version remote branch is up to date to avoid accidentally overriding unintended commits</string>
+    <string name="settings_authentication_cache_http_title">Cache HTTP credentials in memory</string>
+    <string name="settings_authentication_cache_http_description">If active, HTTP Credentials will be remembered until Gitnuro is closed</string>
+    <string name="settings_security_do_not_verify_ssl_title">Do not verify SSL security</string>
+    <string name="settings_security_do_not_verify_ssl_description">If active, you may connect to the remote server via insecure HTTPS connection</string>
+    <string name="settings_terminal_custom_terminal_title">Custom terminal path</string>
+    <string name="settings_terminal_custom_terminal_description">If empty, Gitnuro will try to open the default terminal emulator</string>
+    <string name="settings_logs_open_logs_title">Logs</string>
+    <string name="settings_logs_open_logs_description">Open the logs folder</string>
+    <string name="settings_logs_open_logs_action">Open folder</string>
+
 
     <!-- Notifications -->
     <string name="notification_copied_branch_to_clipboard">"%1$s" copied to clipboard</string>
@@ -222,4 +289,69 @@
 
     <string name="error_sign_ssh_key_not_found">Could not find signing key specified in your config</string>
 
+    <!-- Add edit remote -->
+    <string name="add_edit_remote_title_new">New remote</string>
+    <string name="add_edit_remote_title_edit">Edit remote "%1$s"</string>
+    <string name="add_edit_remote_name">Remote name</string>
+    <string name="add_edit_remote_fetch_url">Fetch URL</string>
+    <string name="add_edit_remote_push_url">Push URL</string>
+
+    <!-- App info -->
+    <string name="app_info_open_source_projects">Gitnuro has been possible thanks to the following open source projects:</string>
+
+    <!-- Author dialog -->
+    <string name="author_dialog_global_settings">Global settings</string>
+    <string name="author_dialog_repository_settings">Repository settings</string>
+    <string name="author_dialog_name">Name</string>
+    <string name="author_dialog_email">Email</string>
+    <string name="author_dialog_override_global_values">Repository-level values will override global values</string>
+
+    <!-- Clone dialog -->
+    <string name="clone_dialog_clone_new_repository">Clone new repository</string>
+    <string name="clone_dialog_clone_submodules_recursively">Clone submodules recursively</string>
+    <string name="clone_dialog_action">Clone</string>
+
+    <!-- Create branch dialog -->
+    <string name="create_branch_dialog_title">New branch</string>
+    <string name="create_branch_dialog_subtitle">Create a new branch and check it out</string>
+    <string name="create_branch_dialog_action">Create branch</string>
+
+    <!-- Create tag dialog -->
+    <string name="create_tag_dialog_title">New tag</string>
+    <string name="create_tag_dialog_subtitle">Create a new tag on the specified commit</string>
+    <string name="create_tag_dialog_action">Create tag</string>
+
+    <!-- GPG password dialog -->
+    <string name="gpg_password_dialog_title">Introduce your GPG key's password</string>
+    <string name="gpg_password_dialog_subtitle">Your GPG key is protected with a password</string>
+    <string name="gpg_password_dialog_retry_message">Invalid password, please try again</string>
+
+    <!-- HTTP credentials dialog -->
+    <string name="http_credentials_dialog_title">Introduce your remote server credentials</string>
+    <!-- TODO remove this \n and handle longer lines properly in the UI -->
+    <string name="http_credentials_dialog_subtitle">Your remote requires authentication with a\nusername and a password</string>
+
+
+    <!-- Quick actions dialog -->
+    <string name="quick_actions_dialog_entry_open_in_file_manager">Open repository in file manager</string>
+    <string name="quick_actions_dialog_entry_clone_new_repository">Clone new repository</string>
+    <string name="quick_actions_dialog_entry_refresh_repository_data">Refresh repository data</string>
+    <string name="quick_actions_dialog_entry_signoff_config">Signoff config</string>
+    <string name="quick_actions_dialog_search">Search for an action or press ESC to close the dialog</string>
+
+    <!-- Rename branch dialog -->
+    <string name="rename_branch_dialog_title">Rename branch</string>
+    <string name="rename_branch_dialog_subtitle">Set a new name to the branch "%1$s"</string>
+    <string name="rename_branch_dialog_action">Rename branch</string>
+
+    <!-- Reset branch dialog -->
+    <string name="reset_branch_dialog_title">Reset current branch</string>
+    <string name="reset_branch_dialog_subtitle">Reset the changes of your current branch to a \nprevious or different commit</string>
+    <string name="reset_branch_dialog_action">Reset branch</string>
+    <string name="reset_branch_dialog_entry_soft_title">Soft reset</string>
+    <string name="reset_branch_dialog_entry_soft_subtitle">Keep the changes in the index (staged)</string>
+    <string name="reset_branch_dialog_entry_mixed_title">Mixed reset</string>
+    <string name="reset_branch_dialog_entry_mixed_subtitle">Keep the changes (unstaged)</string>
+    <string name="reset_branch_dialog_entry_hard_title">Hard reset</string>
+    <string name="reset_branch_dialog_entry_hard_subtitle">Discard all the changes</string>
 </resources>

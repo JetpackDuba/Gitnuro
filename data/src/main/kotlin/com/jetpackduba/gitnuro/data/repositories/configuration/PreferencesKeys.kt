@@ -21,6 +21,8 @@ object PreferencesKeys {
     val dateFormatCustomFormatPreference get() = stringPreferencesKey("date_format_custom_format")
     val dateFormatIs24hPreference get() = booleanPreferencesKey("date_format_is_24h")
     val dateFormatUseRelativePreference get() = booleanPreferencesKey("date_format_use_relative")
+    val showAuthorInLogPreference get() = booleanPreferencesKey("log_show_author")
+    val showAuthorWithEmailInLogPreference get() = booleanPreferencesKey("log_show_author_with_email")
 
     val avatarProviderPreference get() = stringPreferencesKey("avatar_provider")
 

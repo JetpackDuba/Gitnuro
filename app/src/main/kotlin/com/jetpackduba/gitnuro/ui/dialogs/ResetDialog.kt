@@ -15,11 +15,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_action
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_entry_hard_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_entry_hard_title
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_entry_mixed_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_entry_mixed_title
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_entry_soft_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_entry_soft_title
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.reset_branch_dialog_title
 import com.jetpackduba.gitnuro.app.generated.resources.undo
 import com.jetpackduba.gitnuro.domain.usecases.ResetType
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ResetBranchDialog(
@@ -30,9 +40,9 @@ fun ResetBranchDialog(
 
     IconBasedDialog(
         icon = painterResource(Res.drawable.undo),
-        title = "Reset current branch",
-        subtitle = "Reset the changes of your current branch to a \nprevious or different commit",
-        primaryActionText = "Reset branch",
+        title = stringResource(Res.string.reset_branch_dialog_title),
+        subtitle = stringResource(Res.string.reset_branch_dialog_subtitle),
+        primaryActionText = stringResource(Res.string.reset_branch_dialog_action),
         onDismiss = onDismiss,
         onPrimaryActionClicked = {
             viewModel.reset(resetType)
@@ -47,24 +57,24 @@ fun ResetBranchDialog(
         ) {
             RadioButtonText(
                 isSelected = resetType == ResetType.SOFT,
-                title = "Soft reset",
-                subtitle = "Keep the changes in the index (staged)",
+                title = stringResource(Res.string.reset_branch_dialog_entry_soft_title),
+                subtitle = stringResource(Res.string.reset_branch_dialog_entry_soft_subtitle),
                 onClick = {
                     resetType = ResetType.SOFT
                 },
             )
             RadioButtonText(
                 isSelected = resetType == ResetType.MIXED,
-                title = "Mixed reset",
-                subtitle = "Keep the changes (unstaged)",
+                title = stringResource(Res.string.reset_branch_dialog_entry_mixed_title),
+                subtitle = stringResource(Res.string.reset_branch_dialog_entry_mixed_subtitle),
                 onClick = {
                     resetType = ResetType.MIXED
                 },
             )
             RadioButtonText(
                 isSelected = resetType == ResetType.HARD,
-                title = "Hard",
-                subtitle = "Discard all the changes",
+                title = stringResource(Res.string.reset_branch_dialog_entry_hard_title),
+                subtitle = stringResource(Res.string.reset_branch_dialog_entry_hard_subtitle),
                 onClick = {
                     resetType = ResetType.HARD
                 },

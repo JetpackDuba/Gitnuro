@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.Error
+import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
@@ -40,8 +40,8 @@ import com.jetpackduba.gitnuro.ui.context_menu.ContextMenuElement
 import com.jetpackduba.gitnuro.ui.context_menu.DropDownMenuText
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
-import com.jetpackduba.gitnuro.viewmodels.SettingsAction
 import com.jetpackduba.gitnuro.viewmodels.GlobalSettingsViewModel
+import com.jetpackduba.gitnuro.viewmodels.SettingsAction
 import com.jetpackduba.gitnuro.viewmodels.SettingsViewState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -81,6 +81,12 @@ val settings = listOf(
     },
     SettingsEntry.Entry(Res.drawable.schedule, Res.string.settings_entry_datetime) { state, onAction ->
         DateTime(
+            state,
+            onAction
+        )
+    },
+    SettingsEntry.Entry(Res.drawable.list, Res.string.settings_entry_commits_history) { state, onAction ->
+        CommitsHistory(
             state,
             onAction
         )
@@ -129,12 +135,9 @@ val settings = listOf(
             onAction
         )
     },
-    SettingsEntry.Entry(Res.drawable.info, Res.string.settings_entry_logs) { state, onAction -> Logs(state, onAction) },
-)
-
-val linesHeightTypesList = listOf(
-    DropDownOption(LinesHeightType.SPACED, "Spaced"),
-    DropDownOption(LinesHeightType.COMPACT, "Compact"),
+    SettingsEntry.Entry(Res.drawable.info, Res.string.settings_entry_logs) { state, onAction ->
+        Logs(onAction)
+    },
 )
 
 @Composable
@@ -170,7 +173,7 @@ fun GlobalSettingsDialog(
                     .background(MaterialTheme.colors.background)
             ) {
                 Text(
-                    text = "Settings",
+                    text = stringResource(Res.string.settings_title),
                     style = MaterialTheme.typography.h3,
                     color = MaterialTheme.colors.onBackground,
                     modifier = Modifier.padding(16.dp),
@@ -217,7 +220,7 @@ fun GlobalSettingsDialog(
                 }
 
                 PrimaryButton(
-                    text = "Accept",
+                    text = stringResource(Res.string.generic_button_accept),
                     modifier = Modifier
                         .padding(end = 16.dp, bottom = 16.dp)
                         .align(Alignment.End),
@@ -241,8 +244,8 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
 
     Column {
         SettingToggle(
-            title = "Use proxy",
-            subtitle = "Set up your proxy configuration if needed",
+            title = stringResource(Res.string.settings_proxy_use_proxy_title),
+            subtitle = stringResource(Res.string.settings_proxy_use_proxy_description),
             value = useProxy,
             onValueChanged = {
                 onAction(SettingsAction.SetConfig(GlobalConfig.UseProxy(it)))
@@ -250,8 +253,8 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
         )
 
         SettingDropDown(
-            title = "Proxy type",
-            subtitle = "Pick between HTTP or SOCKS",
+            title = stringResource(Res.string.settings_proxy_proxy_type_title),
+            subtitle = stringResource(Res.string.settings_proxy_proxy_type_description),
             dropDownOptions = proxyTypesDropDownOptions,
             currentOption = settingsViewState.proxyType,
             onOptionSelected = {
@@ -260,7 +263,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
         )
 
         SettingTextInput(
-            title = "Host name",
+            title = stringResource(Res.string.settings_proxy_host_name_title),
             subtitle = "",
             value = settingsViewState.proxyHostName.orEmpty(),
             enabled = useProxy,
@@ -270,7 +273,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
         )
 
         SettingIntInput(
-            title = "Port number",
+            title = stringResource(Res.string.settings_proxy_port_number_title),
             subtitle = "",
             value = settingsViewState.proxyPortNumber ?: 0,
             onValueChanged = {
@@ -280,8 +283,8 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
         )
 
         SettingToggle(
-            title = "Proxy authentication",
-            subtitle = "Use your credentials to provide your identity the proxy server",
+            title = stringResource(Res.string.settings_proxy_proxy_authentication_title),
+            subtitle = stringResource(Res.string.settings_proxy_proxy_authentication_description),
             value = proxyUseAuth,
             onValueChanged = {
                 onAction(SettingsAction.SetConfig(GlobalConfig.ProxyUseAuth(it)))
@@ -289,7 +292,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
         )
 
         SettingTextInput(
-            title = "Login",
+            title = stringResource(Res.string.settings_proxy_login_title),
             subtitle = "",
             value = settingsViewState.proxyHostUser.orEmpty(),
             enabled = useProxy && proxyUseAuth,
@@ -300,7 +303,7 @@ fun Proxy(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Un
 
 
         SettingTextInput(
-            title = "Password",
+            title = stringResource(Res.string.settings_proxy_password_title),
             subtitle = "",
             value = settingsViewState.proxyHostPassword.orEmpty(),
             enabled = useProxy && proxyUseAuth,
@@ -361,8 +364,8 @@ private fun RemoteActions(settingsViewState: SettingsViewState, onAction: (Setti
     val pushWithLease = settingsViewState.pushWithLease
 
     SettingToggle(
-        title = "Pull with rebase as default",
-        subtitle = "Rebase changes instead of merging when pulling",
+        title = stringResource(Res.string.settings_remote_actions_pull_with_rebase_title),
+        subtitle = stringResource(Res.string.settings_remote_actions_pull_with_rebase_description),
         value = pullRebase,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.PullWithRebase(value)))
@@ -370,8 +373,8 @@ private fun RemoteActions(settingsViewState: SettingsViewState, onAction: (Setti
     )
 
     SettingToggle(
-        title = "Force push with lease",
-        subtitle = "Check if the local version remote branch is up to date to avoid accidentally overriding unintended commits",
+        title = stringResource(Res.string.settings_remote_actions_force_push_with_lease_title),
+        subtitle = stringResource(Res.string.settings_remote_actions_force_push_with_lease_description),
         value = pushWithLease,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.PushWithLease(value)))
@@ -385,8 +388,8 @@ private fun Authentication(settingsViewState: SettingsViewState, onAction: (Sett
     val cacheCredentialsInMemory = settingsViewState.cacheCredentialsInMemory
 
     SettingToggle(
-        title = "Cache HTTP credentials in memory",
-        subtitle = "If active, HTTP Credentials will be remembered until Gitnuro is closed",
+        title = stringResource(Res.string.settings_authentication_cache_http_title),
+        subtitle = stringResource(Res.string.settings_authentication_cache_http_description),
         value = cacheCredentialsInMemory,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.CacheCredentialsInMemory(value)))
@@ -399,8 +402,8 @@ private fun Security(settingsViewState: SettingsViewState, onAction: (SettingsAc
     val verifySsl = settingsViewState.verifySsl
 
     SettingToggle(
-        title = "Do not verify SSL security",
-        subtitle = "If active, you may connect to the remote server via insecure HTTPS connection",
+        title = stringResource(Res.string.settings_security_do_not_verify_ssl_title),
+        subtitle = stringResource(Res.string.settings_security_do_not_verify_ssl_description),
         value = !verifySsl,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.CacheCredentialsInMemory(!value)))
@@ -413,8 +416,8 @@ fun Terminal(settingsViewState: SettingsViewState, onAction: (SettingsAction) ->
     val terminalPath = settingsViewState.terminalPath.orEmpty()
 
     SettingTextInput(
-        title = "Custom terminal path",
-        subtitle = "If empty, Gitnuro will try to open the default terminal emulator",
+        title = stringResource(Res.string.settings_terminal_custom_terminal_title),
+        subtitle = stringResource(Res.string.settings_terminal_custom_terminal_description),
         value = terminalPath,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.TerminalPath(value)))
@@ -423,11 +426,11 @@ fun Terminal(settingsViewState: SettingsViewState, onAction: (SettingsAction) ->
 }
 
 @Composable
-fun Logs(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+fun Logs(onAction: (SettingsAction) -> Unit) {
     SettingButton(
-        title = "Logs",
-        subtitle = "Open the logs folder",
-        buttonText = "Open folder",
+        title = stringResource(Res.string.settings_logs_open_logs_title),
+        subtitle = stringResource(Res.string.settings_logs_open_logs_description),
+        buttonText = stringResource(Res.string.settings_logs_open_logs_action),
         onClick = {
             onAction(SettingsAction.OpenLogsFolder)
         }
@@ -437,15 +440,13 @@ fun Logs(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Uni
 
 @Composable
 private fun Environment(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
-    //var defaultCloneDir by remember { mutableStateOf(settingsViewModel.defaultCloneDir) }
-    var defaultCloneDir = settingsViewState.cloneDefaultDirectory.orEmpty()
+    val defaultCloneDir = settingsViewState.cloneDefaultDirectory.orEmpty()
 
     SettingTextInput(
         title = stringResource(Res.string.settings_environment_default_clone_directory_title),
         subtitle = stringResource(Res.string.settings_environment_default_clone_directory_description),
         value = defaultCloneDir,
         onValueChanged = { value ->
-            defaultCloneDir = value
             onAction(SettingsAction.SetConfig(GlobalConfig.CloneDefaultDirectory(value)))
         },
     )
@@ -457,8 +458,8 @@ private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAc
     val mergeAutoStash = settingsViewState.autoStashOnMerge
 
     SettingToggle(
-        title = "Fast-forward merge",
-        subtitle = "Try to fast-forward merges when possible",
+        title = stringResource(Res.string.settings_branches_fast_wordard_merge_title),
+        subtitle = stringResource(Res.string.settings_branches_fast_wordard_merge_description),
         value = fastForwardMerge,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.FastForwardMerge(value)))
@@ -466,8 +467,8 @@ private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAc
     )
 
     SettingToggle(
-        title = "Automatically stash uncommitted changes before merge",
-        subtitle = "To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes",
+        title = stringResource(Res.string.settings_branches_automatic_stash_title),
+        subtitle = stringResource(Res.string.settings_branches_automatic_stash_description),
         value = mergeAutoStash,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.AutoStashOnMerge(value)))
@@ -481,8 +482,8 @@ private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsActi
     val showDiffWithLog = settingsViewState.showDiffWithLog
 
     SettingToggle(
-        title = "Swap position for staged/unstaged views",
-        subtitle = "Show the list of unstaged changes above the list of staged changes",
+        title = stringResource(Res.string.settings_layout_swap_status_title),
+        subtitle = stringResource(Res.string.settings_layout_swap_status_description),
         value = swapUncommittedChanges,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.SwapStatusPanes(value)))
@@ -490,8 +491,8 @@ private fun Layout(settingsViewState: SettingsViewState, onAction: (SettingsActi
     )
 
     SettingToggle(
-        title = "Show diff view below the commits history",
-        subtitle = "Allows you to keep both visible at the same time",
+        title = stringResource(Res.string.settings_layout_diff_with_log_title),
+        subtitle = stringResource(Res.string.settings_layout_diff_with_log_description),
         value = showDiffWithLog,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.ShowDiffWithLog(value)))
@@ -508,7 +509,6 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
     val is24h = settingsViewState.dateFormatIs24h
     val useRelative = settingsViewState.dateFormatUseRelative
 
-
     var isError by remember { mutableStateOf(false) }
 
     val currentInstant = remember { Instant.now() }
@@ -517,8 +517,8 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         currentInstant.toSmartSystemString(allowRelative = false, useSystemDefaultFormat = true)
 
     SettingToggle(
-        title = "Use system's Date/Time format",
-        subtitle = "If enabled, current date would be shown as \"$currentDateSystemDefault\"",
+        title = stringResource(Res.string.settings_datetime_use_system_format_title),
+        subtitle = stringResource(Res.string.settings_datetime_use_system_format_description, currentDateSystemDefault),
         value = useDefault,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatUseDefault(value)))
@@ -526,14 +526,14 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
     )
 
     val customFormatSubtitle = if (isError) {
-        "Invalid date/time format"
+        stringResource(Res.string.settings_datetime_custom_date_format_description_invalid)
     } else {
         val currentDate = currentInstant.toSmartSystemString(allowRelative = false, useSystemDefaultFormat = false)
-        "Current date would be shown as \"$currentDate\""
+        stringResource(Res.string.settings_datetime_custom_date_format_description_valid, currentDate)
     }
 
     SettingTextInput(
-        title = "Custom date format",
+        title = stringResource(Res.string.settings_datetime_custom_date_format_title),
         subtitle = customFormatSubtitle,
         value = customFormat,
         isError = isError,
@@ -549,14 +549,14 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         enabled = !useDefault,
     )
 
-    val is24hSubtitle = if (is24h) { // TODO Fix this
+    val is24hSubtitle = if (is24h) {
         "17:30"
     } else {
         "05:30 PM"
     }
 
     SettingToggle(
-        title = "Use 24h time",
+        title = stringResource(Res.string.settings_datetime_use_24h_title),
         subtitle = is24hSubtitle,
         enabled = !useDefault,
         value = is24h,
@@ -566,11 +566,36 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
     )
 
     SettingToggle(
-        title = "Relative date",
-        subtitle = "Use \"Today\" and \"Yesterday\" instead of the date",
+        title = stringResource(Res.string.settings_datetime_relative_date_title),
+        subtitle = stringResource(Res.string.settings_datetime_relative_date_description),
         value = useRelative,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatUseRelative(value)))
+        }
+    )
+}
+
+@Composable
+private fun CommitsHistory(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val showAuthorInLog = settingsViewState.showAuthorInLog
+    val showAuthorWithEmail = settingsViewState.showAuthorWithEmailInLog
+
+    SettingToggle(
+        title = stringResource(Res.string.settings_commmits_history_show_author_title),
+        subtitle = stringResource(Res.string.settings_commmits_history_show_author_description),
+        value = showAuthorInLog,
+        onValueChanged = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.ShowAuthorInLog(value)))
+        }
+    )
+
+    SettingToggle(
+        title = stringResource(Res.string.settings_commmits_history_show_author_with_email_title),
+        subtitle = stringResource(Res.string.settings_commmits_history_show_author_with_email_description),
+        enabled = showAuthorInLog,
+        value = showAuthorWithEmail,
+        onValueChanged = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.ShowAuthorInLogWithEmail(value)))
         }
     )
 }
@@ -600,8 +625,8 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         var themeJob: Job? = null
 
         SettingTextInput(
-            title = "Custom theme",
-            subtitle = "Add a JSON to load the custom theme",
+            title = stringResource(Res.string.settings_appearence_custom_theme_title),
+            subtitle = stringResource(Res.string.settings_appearence_custom_theme_description),
             value = themeJson,
             singleLine = false,
             onValueChanged = { value ->
@@ -619,9 +644,20 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         )
     }
 
+    val linesHeightTypesList = listOf(
+        DropDownOption(
+            LinesHeightType.SPACED,
+            stringResource(Res.string.settings_appearence_line_spacing_option_spaced)
+        ),
+        DropDownOption(
+            LinesHeightType.COMPACT,
+            stringResource(Res.string.settings_appearence_line_spacing_option_compacted)
+        ),
+    )
+
     SettingDropDown(
-        title = "Lists spacing (Beta)",
-        subtitle = "Spacing around lists items",
+        title = stringResource(Res.string.settings_appearence_line_spacing_title),
+        subtitle = stringResource(Res.string.settings_appearence_line_spacing_description),
         dropDownOptions = linesHeightTypesList,
         currentOption = currentLinesHeightType,
         onOptionSelected = { dropDown ->
@@ -665,8 +701,8 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     }
 
     SettingDropDown(
-        title = "Scale",
-        subtitle = "Adapt the size the UI to your preferred scale",
+        title = stringResource(Res.string.settings_appearence_scale_title),
+        subtitle = stringResource(Res.string.settings_appearence_scale_description),
         dropDownOptions = options,
         currentOption = scaleValue.value,
         onOptionSelected = { newValue ->
@@ -675,8 +711,8 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     )
 
     SettingDropDown(
-        title = "Avatar provider",
-        subtitle = "When using a provider, the e-mail addresses will be hashed using SHA256",
+        title = stringResource(Res.string.settings_appearence_avatar_provider_title),
+        subtitle = stringResource(Res.string.settings_appearence_avatar_provider_description),
         currentOption = avatarProvider,
         dropDownOptions = listOf(
             DropDownOption(AvatarProviderType.None, "None"),
@@ -688,8 +724,8 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     )
 
     SettingToggle(
-        title = "Group local branches with their remotes",
-        subtitle = "Grouping of local branches with their remote when they are in the same commit",
+        title = stringResource(Res.string.settings_appearence_group_branches_title),
+        subtitle = stringResource(Res.string.settings_appearence_group_branches_description),
         value = groupBranchesWithRemotes,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.GroupBranches(value)))

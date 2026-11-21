@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.domain.models
 
+import androidx.compose.runtime.Immutable
 import com.jetpackduba.gitnuro.domain.extensions.filePath
 import com.jetpackduba.gitnuro.domain.extensions.toStatusType
 import org.eclipse.jgit.diff.DiffEntry
@@ -7,6 +8,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
+@Immutable
 sealed class DiffType {
     abstract val filePath: String
     abstract val statusType: StatusType

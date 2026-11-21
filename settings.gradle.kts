@@ -1,11 +1,9 @@
-import org.gradle.kotlin.dsl.maven
-import org.gradle.kotlin.dsl.mavenCentral
-
 pluginManagement {
     repositories {
+        maven { url = uri("https://raw.githubusercontent.com/graalvm/native-build-tools/snapshots") }
+        maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
         gradlePluginPortal()
         mavenCentral()
-        maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
     }
 }
 

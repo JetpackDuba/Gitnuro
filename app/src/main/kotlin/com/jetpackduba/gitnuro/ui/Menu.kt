@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -27,14 +28,15 @@ import androidx.compose.ui.window.PopupProperties
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.domain.models.PullType
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
+import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.extensions.ignoreKeyEvents
 import com.jetpackduba.gitnuro.keybindings.Keybinding
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.keyBinding
 import com.jetpackduba.gitnuro.repositoryopen.RepositoryOpenViewModel
+import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.monoTypography
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.components.tooltip.InstantTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import org.jetbrains.compose.resources.painterResource
@@ -252,16 +254,6 @@ fun Menu(
                     .border(2.dp, MaterialTheme.colors.onBackground.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
                     .padding(16.dp)
             ) {
-                PrimaryButton(
-                    text = stringResource(Res.string.menu_open_dialog_title),
-                    onClick = {
-                        onShowOpenPopupChange(false)
-                        onOpenAnotherRepositoryFromPicker()
-                    },
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                )
-
                 Box(modifier = Modifier.weight(1f)) {
                     RecentRepositoriesList(
                         recentlyOpenedRepositories = lastLoadedTabs,
@@ -276,6 +268,36 @@ fun Menu(
                             onShowOpenPopupChange(false)
                         }
                     )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp)
+                        .background(MaterialTheme.colors.backgroundSelected)
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End,
+                ) {
+                    InstantTooltip(
+                        text = stringResource(Res.string.menu_open_dialog_title)
+                    ) {
+                        IconButton(
+                            modifier = Modifier.handOnHover(),
+                            onClick = {
+                                onShowOpenPopupChange(false)
+                                onOpenAnotherRepositoryFromPicker()
+                            },
+                        ) {
+                            Icon(
+                                painterResource(Res.drawable.open),
+                                contentDescription = stringResource(Res.string.menu_open_dialog_title),
+                                tint = MaterialTheme.colors.onBackground,
+                            )
+                        }
+                    }
                 }
             }
 

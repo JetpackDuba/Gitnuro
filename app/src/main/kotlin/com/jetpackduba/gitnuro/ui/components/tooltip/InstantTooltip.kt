@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.ui.components.tooltip
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -16,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -56,7 +60,10 @@ fun InstantTooltip(
 ) {
     val hoverInteractionSource = remember { MutableInteractionSource() }
     val isHovered by hoverInteractionSource.collectIsHoveredAsState()
+    val tooltipHoverInteractionSource = remember { MutableInteractionSource() }
+    val isTooltipHovered by tooltipHoverInteractionSource.collectIsHoveredAsState()
     val (coordinates, setCoordinates) = remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val (cursorCoordinatesOnTooltipHover, setCursorCoordinatesOnTooltipHover) = remember { mutableStateOf<Offset?>(null) }
 
     Box(
         modifier = modifier
@@ -68,7 +75,26 @@ fun InstantTooltip(
         content()
     }
 
-    if (isHovered && coordinates != null && text != null && enabled) {
+    val isHoveringTooltipAndContent = remember(cursorCoordinatesOnTooltipHover, coordinates) {
+        if (cursorCoordinatesOnTooltipHover != null && coordinates != null) {
+            val positionInWindowX = coordinates.positionInWindow().x
+            val positionInWindowY = coordinates.positionInWindow().y
+            val isXInContent =
+                cursorCoordinatesOnTooltipHover.x in positionInWindowX..positionInWindowX + coordinates.size.width
+            val isYInContent =
+                cursorCoordinatesOnTooltipHover.y in positionInWindowY..positionInWindowY + coordinates.size.height
+            isXInContent && isYInContent
+        } else {
+            false
+        }
+    }
+
+    LaunchedEffect(isTooltipHovered) {
+        println("Is tooltipHovered: $isTooltipHovered")
+    }
+
+    if ((isHovered || isHoveringTooltipAndContent) && coordinates != null && text != null && enabled) {
+        val popupPosition = remember { mutableStateOf(Offset.Zero) }
         Popup(
             properties = PopupProperties(
                 focusable = false,
@@ -80,13 +106,9 @@ fun InstantTooltip(
                     layoutDirection: LayoutDirection,
                     popupContentSize: IntSize,
                 ): IntOffset {
-                    val positionInWindow = coordinates.positionInWindow()
-                    val contentSize = coordinates.size
+                    val position = popupPosition(coordinates, position, popupContentSize)
 
-                    val x = getXBasedOnTooltipPosition(position, positionInWindow, contentSize, popupContentSize) //
-                    val y = getYBasedOnTooltipPosition(position, positionInWindow, contentSize, popupContentSize)
-
-                    return IntOffset(x, y)
+                    return position
                 }
             },
             onDismissRequest = {}
@@ -101,11 +123,29 @@ fun InstantTooltip(
 
             Row(
                 modifier = Modifier
+                    .onGloballyPositioned {
+                        popupPosition.value = it.positionInWindow()
+                    }
+                    .pointerInput(popupPosition) {
+                        awaitEachGesture {
+                            val event = awaitPointerEvent()
+                            if (event.type == PointerEventType.Move) {
+                                val cursorPosition = event.changes.getOrNull(0)?.position
+
+                                if (cursorPosition != null) {
+                                    setCursorCoordinatesOnTooltipHover(popupPosition.value + cursorPosition)
+                                }
+                            } else if (event.type == PointerEventType.Exit) {
+                                setCursorCoordinatesOnTooltipHover(null)
+                            }
+                        }
+                    }
                     .padding(padding)
                     .shadow(8.dp)
                     .clip(MaterialTheme.shapes.small)
                     .background(MaterialTheme.colors.background)
                     .width(IntrinsicSize.Max)
+                    .hoverable(tooltipHoverInteractionSource)
                     .run {
                         if (MaterialTheme.colors.isDark) {
                             this.border(
@@ -133,6 +173,20 @@ fun InstantTooltip(
             }
         }
     }
+}
+
+private fun popupPosition(
+    coordinates: LayoutCoordinates,
+    position: InstantTooltipPosition,
+    popupContentSize: IntSize
+): IntOffset {
+    val positionInWindow = coordinates.positionInWindow()
+    val contentSize = coordinates.size
+
+    val x = getXBasedOnTooltipPosition(position, positionInWindow, contentSize, popupContentSize) //
+    val y = getYBasedOnTooltipPosition(position, positionInWindow, contentSize, popupContentSize)
+
+    return IntOffset(x, y)
 }
 
 fun getXBasedOnTooltipPosition(

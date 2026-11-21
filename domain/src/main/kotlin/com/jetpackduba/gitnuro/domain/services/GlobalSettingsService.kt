@@ -28,6 +28,8 @@ class GlobalSettingsService @Inject constructor(
     val dateFormatCustomFormat: Flow<String> get() = globalSettingsRepository.dateFormatCustomFormat.defaultIfNull { DEFAULT_DATE_CUSTOM_FORMAT }
     val dateFormatIs24h: Flow<Boolean> get() = globalSettingsRepository.dateFormatIs24h.defaultIfNull { DEFAULT_DATE_IS_24H }
     val dateFormatUseRelative: Flow<Boolean> get() = globalSettingsRepository.dateFormatUseRelative.defaultIfNull { DEFAULT_DATE_USE_RELATIVE }
+    val showAuthorInLog: Flow<Boolean> get() = globalSettingsRepository.showAuthorInLog.defaultIfNull { DEFAULT_LOG_SHOW_AUTHOR }
+    val showAuthorWithEmailInLog: Flow<Boolean> get() = globalSettingsRepository.showAuthorWithEmailInLog.defaultIfNull { DEFAULT_LOG_SHOW_AUTHOR_WITH_EMAIL }
     val avatarProvider: Flow<AvatarProviderType> get() = globalSettingsRepository.avatarProvider.defaultIfNull { DEFAULT_AVATAR_PROVIDER }
     val swapStatusPanes: Flow<Boolean> get() = globalSettingsRepository.swapStatusPanes.defaultIfNull { DEFAULT_SWAP_STATUS_PANES }
     val showChangesAsTree: Flow<Boolean> get() = globalSettingsRepository.showChangesAsTree.defaultIfNull { DEFAULT_SHOW_CHANGES_AS_TREE }
@@ -58,6 +60,8 @@ class GlobalSettingsService @Inject constructor(
         const val DEFAULT_DATE_IS_24H = true
         const val DEFAULT_DATE_USE_RELATIVE = true
         const val DEFAULT_DATE_CUSTOM_FORMAT = "dd MMM yyyy"
+        const val DEFAULT_LOG_SHOW_AUTHOR = false
+        const val DEFAULT_LOG_SHOW_AUTHOR_WITH_EMAIL = false
         val DEFAULT_AVATAR_PROVIDER = AvatarProviderType.Gravatar
         const val DEFAULT_SWAP_STATUS_PANES = false
         const val DEFAULT_SHOW_CHANGES_AS_TREE = false
