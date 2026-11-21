@@ -515,6 +515,13 @@ fun CommitsList(
 ) {
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
+    val focusRequester = remember { FocusRequester() }
+    val commits = remember(commitList) { commitList.values.toList() }
+    val showUncommittedChanges = hasUncommittedChanges ||
+            repositoryState.isMerging ||
+            repositoryState.isRebasing ||
+            repositoryState.isCherryPicking
+    val firstCommitIndex = if (showUncommittedChanges) 1 else 0
 
     scrollOnUncommittedChangesAppear(scrollState, hasUncommittedChanges)
     scrollOnNewCommitAdded(scrollState, commitList.commits)
@@ -523,6 +530,42 @@ fun CommitsList(
         state = scrollState,
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focusRequester)
+            .onPreviewKeyEvent { event ->
+                val direction = when {
+                    event.matchesBinding(KeybindingOption.UP) -> -1
+                    event.matchesBinding(KeybindingOption.DOWN) -> 1
+                    else -> return@onPreviewKeyEvent false
+                }
+
+                val selectedCommitIndex = commits.indexOfFirst { it.hash == selectedCommit?.hash }
+                val nextIndex = when {
+                    selectedCommitIndex >= 0 -> selectedCommitIndex + firstCommitIndex + direction
+                    showUncommittedChanges && selectedItem == SelectedItem.UncommittedChanges -> direction
+                    commits.isNotEmpty() -> firstCommitIndex
+                    else -> 0
+                }
+                if (nextIndex in 0 until (commits.size + firstCommitIndex)) {
+                    val commit = commits.getOrNull(nextIndex - firstCommitIndex)
+                    if (commit == null) {
+                        onAction(LogAction.UncommittedChangesSelected)
+                    } else {
+                        onAction(LogAction.CommitSelected(commit.commit, commit.hash in stashes))
+                    }
+
+                    val layout = scrollState.layoutInfo
+                    val isFullyVisible = layout.visibleItemsInfo.any {
+                        it.index == nextIndex &&
+                                it.offset >= layout.viewportStartOffset &&
+                                it.offset + it.size <= layout.viewportEndOffset
+                    }
+                    if (!isFullyVisible) {
+                        scrollState.requestScrollToItem(nextIndex)
+                    }
+                }
+                true
+            }
+            .focusable()
             // The underlying composable assigned to the horizontal scroll bar won't be receiving the scroll events
             // because the commits list will consume the events, so this code tries to scroll manually when it detects
             // horizontal scrolling
@@ -533,18 +576,16 @@ fun CommitsList(
                 }
             },
     ) {
-        if (
-            hasUncommittedChanges ||
-            repositoryState.isMerging ||
-            repositoryState.isRebasing ||
-            repositoryState.isCherryPicking
-        ) {
+        if (showUncommittedChanges) {
             item {
                 Box(
                     modifier = Modifier.height(MaterialTheme.linesHeight.logCommitHeight)
                         .clipToBounds()
                         .fillMaxWidth()
-                        .handMouseClickable { onAction(LogAction.UncommittedChangesSelected) }
+                        .handMouseClickable {
+                            focusRequester.requestFocus()
+                            onAction(LogAction.UncommittedChangesSelected)
+                        }
                 ) {
                     UncommittedChangesGraphNode(
                         hasPreviousCommits = commitList.commits.isNotEmpty(),
@@ -566,7 +607,7 @@ fun CommitsList(
         // Therefore, after popping a stash, the uncommitted changes wouldn't be visible and requires the user scrolling.
         // TODO This should be improved in case it's a dangling branch, shouldn't happen often but could be a thing
         items(
-            items = commitList.values.toList(),
+            items = commits,
             key = { commit ->
                 commit.hash + commit.lane + branches[commit.hash].orEmpty().joinToString() + tags[commit.hash].orEmpty()
                     .joinToString()
@@ -598,7 +639,10 @@ fun CommitsList(
                 onPullFromRemoteBranch = { onAction(LogAction.PullFromRemoteBranch(it)) },
                 onRebaseBranch = { onAction(LogAction.Rebase(it)) },
                 onRebaseInteractive = { onAction(LogAction.RebaseInteractive(graphNode.commit)) },
-                onRevCommitSelected = { onAction(LogAction.CommitSelected(graphNode.commit, isStash)) },
+                onRevCommitSelected = {
+                    focusRequester.requestFocus()
+                    onAction(LogAction.CommitSelected(graphNode.commit, isStash))
+                },
                 onChangeDefaultUpstreamBranch = { onChangeUpstreamBranch(it) },
                 onRenameBranch = { onRenameBranch(it) },
                 onDeleteStash = { onAction(LogAction.DeleteStash(graphNode.commit)) },
