@@ -7,6 +7,8 @@ plugins {    // Apply the shared build logic from a convention plugin.
     // The shared code is located in `buildSrc/src/main/kotlin/kotlin-jvm.gradle.kts`.
     id("buildsrc.convention.kotlin-jvm")
 
+    id("org.graalvm.buildtools.native") version "1.1.18"
+
     // Apply the Application plugin to add support for building an executable JVM application.
     //application
     alias(libs.plugins.compose.compiler)
@@ -29,6 +31,7 @@ val projectVersionSimplified = "2.1.0"
 
 val rustGeneratedSource = "${layout.buildDirectory.get()}/generated/source/uniffi/main/com/jetpackduba/gitnuro/java"
 
+val appMainClass = "com.jetpackduba.gitnuro.MainKt"
 val appPackageName = "com.jetpackduba.gitnuro"
 group = appPackageName
 version = projectVersion
@@ -131,6 +134,22 @@ kotlin {
     }
 }
 
+graalvmNative {
+    toolchainDetection.set(true)
+
+    binaries {
+        named("main") {
+            imageName.set("$appMainClass-$projectVersion")
+            mainClass.set(appMainClass)
+            debug.set(false)
+            verbose.set(true)
+
+            // Runtime options
+            runtimeArgs.add("--graalvm")
+        }
+    }
+}
+
 tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask::class.java) {
     compilerOptions {
         allWarningsAsErrors.set(false)
@@ -140,7 +159,7 @@ tasks.named("compileKotlin", org.jetbrains.kotlin.gradle.tasks.KotlinCompilation
 
 compose.desktop {
     application {
-        mainClass = "com.jetpackduba.gitnuro.MainKt"
+        mainClass = appMainClass
 
         sourceSets.forEach {
             it.java.srcDir(rustGeneratedSource)
