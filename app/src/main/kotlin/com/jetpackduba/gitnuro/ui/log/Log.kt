@@ -1060,18 +1060,34 @@ fun CommitMessage(
             overflow = TextOverflow.Ellipsis,
         )
 
+
+        val author = "${graphCommit.author.name} <${graphCommit.author.email}>"
+
+        val tooltipTime = graphCommit.date.toSmartSystemString(allowRelative = false, showTime = true)
         InstantTooltip(
-            text = graphCommit.date.toSmartSystemString(allowRelative = false, showTime = true),
+            text = "$tooltipTime - $author",
             modifier = Modifier.padding(horizontal = 16.dp),
             position = InstantTooltipPosition.RIGHT,
         ) {
-            Text(
-                text = graphCommit.date.toSmartSystemString(),
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onBackgroundSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column (
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    text = graphCommit.date.toSmartSystemString(),
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Text(
+                    text = author,
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

@@ -85,6 +85,12 @@ val settings = listOf(
             onAction
         )
     },
+    SettingsEntry.Entry(Res.drawable.schedule, Res.string.settings_entry_commits_history) { state, onAction ->
+        DateTime(
+            state,
+            onAction
+        )
+    },
 
     SettingsEntry.Section(Res.string.settings_section_git),
     SettingsEntry.Entry(Res.drawable.folder, Res.string.settings_entry_environment) { state, onAction ->

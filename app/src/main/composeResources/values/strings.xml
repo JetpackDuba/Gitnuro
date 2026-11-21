@@ -186,6 +186,7 @@
     <string name="settings_entry_appearance">Appearance</string>
     <string name="settings_entry_layout">Layout</string>
     <string name="settings_entry_datetime">Date/Time</string>
+    <string name="settings_entry_commits_history">Commits history</string>
     <string name="settings_section_git">GIT</string>
     <string name="settings_entry_environment">Environment</string>
     <string name="settings_entry_branches">Branches</string>
