@@ -82,16 +82,16 @@ class RefreshDataUseCase @Inject constructor(
         }
     }
 
-    private suspend fun refreshCommitMessages() {
-        useCaseExecutor.executeWithoutResult { repositoryPath ->
+    private fun refreshCommitMessages() {
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
             repositoryDataRepository.updatePersistedCommitMessages {
                 getPersistedCommitMessagesGitAction(repositoryPath)
             }
         }
     }
 
-    private suspend fun refreshBranches() {
-        useCaseExecutor.executeWithoutResult { repositoryPath ->
+    private fun refreshBranches() {
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
             repositoryDataRepository.updateLocalBranches {
                 getBranchesGitAction(repositoryPath).mapOk { branches ->
                     branches.map { branch ->
@@ -107,60 +107,60 @@ class RefreshDataUseCase @Inject constructor(
         }
     }
 
-    private suspend fun refreshStashes() {
-        useCaseExecutor.executeWithoutResult { repositoryPath ->
+    private fun refreshStashes() {
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
             repositoryDataRepository.updateStashes { getStashListGitAction(repositoryPath) }
         }
     }
 
-    private suspend fun refreshLog() {
-        useCaseExecutor.executeWithoutResult { repositoryPath ->
+    private fun refreshLog() {
+        useCaseExecutor.executeOnTabScope { repositoryPath ->
             repositoryDataRepository.updateLog {
                 getLogUseCase(repositoryPath, pagination = Pagination.None)
             }
         }
     }
 
-    private suspend fun refreshStatus() {
-        useCaseExecutor.executeWithoutResult() { repositoryPath ->
+    private fun refreshStatus() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             repositoryDataRepository.updateStatus {
                 getStatusGitAction(repositoryPath)
             }
         }
     }
 
-    private suspend fun refreshGitConfig() {
-        useCaseExecutor.executeWithoutResult() { repositoryPath ->
+    private fun refreshGitConfig() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             repositoryDataRepository.updateAuthor {
                 loadAuthorGitAction(repositoryPath)
             }
         }
     }
 
-    private suspend fun refreshRemotes() {
-        useCaseExecutor.executeWithoutResult() { repositoryPath ->
+    private fun refreshRemotes() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             repositoryDataRepository.updateRemotes { getRemotesUseCase() }
         }
     }
 
-    private suspend fun refreshSubmodules() {
-        useCaseExecutor.executeWithoutResult() { repositoryPath ->
+    private fun refreshSubmodules() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             repositoryDataRepository.updateSubmodules {
                 getSubmodulesGitAction(repositoryPath)
             }
         }
     }
 
-    private suspend fun refreshTags() {
-        useCaseExecutor.executeWithoutResult() { repositoryPath ->
+    private fun refreshTags() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             repositoryDataRepository.updateTags {
                 getTagsGitAction(repositoryPath)
             }
         }
     }
 
-    private suspend fun refreshRepositoryState() {
-        useCaseExecutor.executeWithoutResult() { repositoryPath ->
+    private fun refreshRepositoryState() {
+        useCaseExecutor.executeOnTabScope() { repositoryPath ->
             repositoryDataRepository.updateRepositoryState {
                 getRepositoryState(repositoryPath)
             }
