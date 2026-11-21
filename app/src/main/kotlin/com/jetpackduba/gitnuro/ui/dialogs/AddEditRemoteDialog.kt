@@ -8,10 +8,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_fetch_url
+import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_name
+import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_push_url
+import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_title_edit
+import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_title_new
+import com.jetpackduba.gitnuro.app.generated.resources.generic_button_cancel
+import com.jetpackduba.gitnuro.app.generated.resources.generic_save_changes
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AddEditRemoteDialog(
@@ -38,7 +47,11 @@ fun AddEditRemoteDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (isNew) "New remote" else "Edit remote \"${remote.name}\"",
+                    text = if (isNew) {
+                        stringResource(Res.string.add_edit_remote_title_new)
+                    } else {
+                        stringResource(Res.string.add_edit_remote_title_edit, remote.name)
+                    },
                     color = MaterialTheme.colors.onBackground,
                     style = MaterialTheme.typography.h3,
                     modifier = Modifier
@@ -58,7 +71,7 @@ fun AddEditRemoteDialog(
                     Column {
                         if (isNew) {
                             Text(
-                                text = "Remote name",
+                                text = stringResource(Res.string.add_edit_remote_name),
                                 color = MaterialTheme.colors.onBackground,
                                 modifier = Modifier.padding(top = 8.dp),
                             )
@@ -76,7 +89,7 @@ fun AddEditRemoteDialog(
                         }
 
                         Text(
-                            text = "Fetch URL",
+                            text = stringResource(Res.string.add_edit_remote_fetch_url),
                             color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(top = 8.dp),
                         )
@@ -98,7 +111,7 @@ fun AddEditRemoteDialog(
                         )
 
                         Text(
-                            text = "Push URL",
+                            text = stringResource(Res.string.add_edit_remote_push_url),
                             color = MaterialTheme.colors.onBackground,
                             modifier = Modifier.padding(top = 8.dp),
                         )
@@ -123,7 +136,7 @@ fun AddEditRemoteDialog(
                             Spacer(modifier = Modifier.weight(1f))
 
                             PrimaryButton(
-                                text = "Cancel",
+                                text = stringResource(Res.string.generic_button_cancel),
                                 modifier = Modifier.padding(end = 8.dp),
                                 onClick = onDismiss,
                                 backgroundColor = Color.Transparent,
@@ -138,7 +151,7 @@ fun AddEditRemoteDialog(
                                     viewModel.save()
                                     onDismiss() // TODO This should be only dimissed if save worked
                                 },
-                                text = "Save changes",
+                                text = stringResource(Res.string.generic_save_changes),
                             )
                         }
                     }

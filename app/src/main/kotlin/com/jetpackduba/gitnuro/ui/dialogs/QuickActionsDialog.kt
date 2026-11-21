@@ -25,6 +25,7 @@ import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun QuickActionsDialog(
@@ -35,15 +36,28 @@ fun QuickActionsDialog(
 ) {
     val textFieldFocusRequester = remember { FocusRequester() }
 
-    // TODO Extract list of actions strings
-    val items = remember {
-        listOf(
-            QuickAction(Res.drawable.code, "Open repository in file manager", QuickActionType.OPEN_DIR_IN_FILE_MANAGER),
-            QuickAction(Res.drawable.download, "Clone new repository", QuickActionType.CLONE),
-            QuickAction(Res.drawable.refresh, "Refresh repository data", QuickActionType.REFRESH),
-            QuickAction(Res.drawable.sign, "Signoff config", QuickActionType.SIGN_OFF),
-        )
-    }
+    val items = listOf(
+        QuickAction(
+            Res.drawable.code,
+            stringResource(Res.string.quick_actions_dialog_entry_open_in_file_manager),
+            QuickActionType.OPEN_DIR_IN_FILE_MANAGER
+        ),
+        QuickAction(
+            Res.drawable.download,
+            stringResource(Res.string.quick_actions_dialog_entry_clone_new_repository),
+            QuickActionType.CLONE
+        ),
+        QuickAction(
+            Res.drawable.refresh,
+            stringResource(Res.string.quick_actions_dialog_entry_refresh_repository_data),
+            QuickActionType.REFRESH
+        ),
+        QuickAction(
+            Res.drawable.sign,
+            stringResource(Res.string.quick_actions_dialog_entry_signoff_config),
+            QuickActionType.SIGN_OFF
+        ),
+    )
 
     var searchFilter by remember { mutableStateOf("") }
 
@@ -65,11 +79,13 @@ fun QuickActionsDialog(
                     viewModel.openProjectInFileExplorer()
                     onDismiss()
                 }
+
                 QuickActionType.CLONE -> onShowClone()
                 QuickActionType.REFRESH -> {
                     viewModel.refreshRepository()
                     onDismiss()
                 }
+
                 QuickActionType.SIGN_OFF -> onShowSignOff()
             }
         },
@@ -118,7 +134,7 @@ private fun QuickActionView(
         ) {
             AdjustableOutlinedTextField(
                 value = searchFilter,
-                hint = "Search for an action or press ESC to close the dialog", // TODO don't hardcode ESC here, fix keybinding toString
+                hint = stringResource(Res.string.quick_actions_dialog_search), // TODO don't hardcode ESC here, fix keybinding toString
                 onValueChange = { onChangeSearchFilter(it) },
                 maxLines = 1,
                 modifier = Modifier.fillMaxWidth()

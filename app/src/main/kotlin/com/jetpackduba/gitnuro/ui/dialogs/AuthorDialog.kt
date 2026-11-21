@@ -13,6 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_email
+import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_global_settings
+import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_name
+import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_override_global_values
+import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_repository_settings
+import com.jetpackduba.gitnuro.app.generated.resources.generic_button_cancel
+import com.jetpackduba.gitnuro.app.generated.resources.generic_save_changes
 import com.jetpackduba.gitnuro.app.generated.resources.warning
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -20,6 +27,7 @@ import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.AuthorViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AuthorDialog(
@@ -43,37 +51,37 @@ fun AuthorDialog(
         ) {
 
             Text(
-                text = "Global settings",
+                text = stringResource(Res.string.author_dialog_global_settings),
                 color = MaterialTheme.colors.onBackground,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(vertical = 8.dp),
             )
 
             TextInput(
-                title = "Name",
+                title = stringResource(Res.string.author_dialog_name),
                 value = globalName.orEmpty(),
                 onValueChange = { globalName = it },
             )
             TextInput(
-                title = "Email",
+                title = stringResource(Res.string.author_dialog_email),
                 value = globalEmail.orEmpty(),
                 onValueChange = { globalEmail = it },
             )
 
             Text(
-                text = "Repository settings",
+                text = stringResource(Res.string.author_dialog_repository_settings),
                 color = MaterialTheme.colors.onBackground,
                 fontSize = 16.sp,
                 modifier = Modifier.padding(top = 16.dp, bottom = 8.dp),
             )
 
             TextInput(
-                title = "Name",
+                title = stringResource(Res.string.author_dialog_name),
                 value = name.orEmpty(),
                 onValueChange = { name = it },
             )
             TextInput(
-                title = "Email",
+                title = stringResource(Res.string.author_dialog_email),
                 value = email.orEmpty(),
                 onValueChange = { email = it },
             )
@@ -93,7 +101,7 @@ fun AuthorDialog(
                     modifier = Modifier.size(16.dp)
                 )
                 Text(
-                    text = "Repository-level values will override global values",
+                    text = stringResource(Res.string.author_dialog_override_global_values),
                     style = MaterialTheme.typography.body2,
                     modifier = Modifier
                         .padding(top = 8.dp, bottom = 8.dp, start = 4.dp),
@@ -105,7 +113,7 @@ fun AuthorDialog(
                     .align(Alignment.End)
             ) {
                 PrimaryButton(
-                    text = "Cancel",
+                    text = stringResource(Res.string.generic_button_cancel),
                     modifier = Modifier.padding(end = 8.dp),
                     onClick = onDismiss,
                     backgroundColor = Color.Transparent,
@@ -121,7 +129,7 @@ fun AuthorDialog(
                         )
                         onDismiss()
                     },
-                    text = "Save data"
+                    text = stringResource(Res.string.generic_save_changes),
                 )
             }
         }

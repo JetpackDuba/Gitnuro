@@ -5,10 +5,14 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
+import com.jetpackduba.gitnuro.app.generated.resources.rename_branch_dialog_action
+import com.jetpackduba.gitnuro.app.generated.resources.rename_branch_dialog_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.rename_branch_dialog_title
 import com.jetpackduba.gitnuro.ui.dialogs.base.SingleTextFieldDialog
 import com.jetpackduba.gitnuro.viewmodels.RenameBranchDialogViewModel
 import com.jetpackduba.gitnuro.viewmodels.RenameState
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RenameBranchDialog(
@@ -37,14 +41,14 @@ fun RenameBranchDialog(
 
     SingleTextFieldDialog(
         icon = painterResource(Res.drawable.branch),
-        title = "Rename branch",
-        subtitle = "Set a new name to the branch \"${branch.simpleName}\"",
+        title = stringResource(Res.string.rename_branch_dialog_title),
+        subtitle = stringResource(Res.string.rename_branch_dialog_subtitle, branch.simpleName),
         value = field,
         enabled = state is RenameState.Waiting || state is RenameState.Failed,
         onValueChange = {
             field = it
         },
-        primaryActionText = "Rename branch",
+        primaryActionText = stringResource(Res.string.rename_branch_dialog_action),
         isPrimaryActionEnabled = field.text.isNotBlank(),
         onDismiss = onDismiss,
         onPrimaryActionClicked = {

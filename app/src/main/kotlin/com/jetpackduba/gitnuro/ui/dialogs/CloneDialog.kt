@@ -18,12 +18,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.jetpackduba.gitnuro.app.generated.resources.Res
-import com.jetpackduba.gitnuro.app.generated.resources.clone_error_invalid_directory
-import com.jetpackduba.gitnuro.app.generated.resources.clone_error_invalid_folder_name
-import com.jetpackduba.gitnuro.app.generated.resources.clone_error_invalid_url
-import com.jetpackduba.gitnuro.app.generated.resources.generic_save_as_default
-import com.jetpackduba.gitnuro.app.generated.resources.search
+import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.domain.models.CloneState
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.extensions.handOnHover
@@ -120,7 +115,7 @@ private fun CloneDialogView(
             .padding(horizontal = 8.dp)
     ) {
         Text(
-            "Clone a new repository",
+            stringResource(Res.string.clone_dialog_clone_new_repository),
             style = MaterialTheme.typography.h4,
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,7 +129,7 @@ private fun CloneDialogView(
                     onFolderChange(TextFieldValue(cloneViewModel.repoName(url.text)))
                 }
             },
-            title = "URL",
+            title = stringResource(Res.string.generic_repository_url),
             value = url,
             focusRequester = urlFocusRequester,
             focusProperties = {
@@ -150,7 +145,7 @@ private fun CloneDialogView(
 
         TextInput(
             modifier = Modifier.padding(top = 16.dp),
-            title = "Directory",
+            title = stringResource(Res.string.generic_directory),
             value = directory,
             focusRequester = directoryFocusRequester,
             focusProperties = {
@@ -185,7 +180,7 @@ private fun CloneDialogView(
                 ) {
                     Icon(
                         painterResource(Res.drawable.search),
-                        contentDescription = "Search",
+                        contentDescription = stringResource(Res.string.generic_search),
                         tint = MaterialTheme.colors.onBackground,
                     )
                 }
@@ -199,7 +194,7 @@ private fun CloneDialogView(
 
         TextInput(
             modifier = Modifier.padding(top = 16.dp),
-            title = "Folder",
+            title = stringResource(Res.string.generic_repository_folder_name),
             value = folder,
             focusRequester = folderFocusRequester,
             focusProperties = {
@@ -235,7 +230,7 @@ private fun CloneDialogView(
             )
 
             Text(
-                "Clone submodules recursively",
+                stringResource(Res.string.clone_dialog_clone_submodules_recursively),
                 style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.onBackground,
             )
@@ -265,7 +260,7 @@ private fun CloneDialogView(
                 .align(Alignment.End)
         ) {
             PrimaryButton(
-                text = "Cancel",
+                text = stringResource(Res.string.generic_button_cancel),
                 modifier = Modifier.padding(end = 8.dp)
                     .focusRequester(cancelButtonFocusRequester)
                     .focusProperties {
@@ -286,7 +281,7 @@ private fun CloneDialogView(
                         previous = directoryButtonFocusRequester
                         next = cancelButtonFocusRequester
                     },
-                text = "Clone"
+                text = stringResource(Res.string.clone_dialog_action),
             )
         }
 

@@ -1,9 +1,11 @@
 package com.jetpackduba.gitnuro.ui.dialogs
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -15,21 +17,21 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.generic_directory
+import com.jetpackduba.gitnuro.app.generated.resources.generic_repository_url
 import com.jetpackduba.gitnuro.app.generated.resources.topic
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
-import com.jetpackduba.gitnuro.ui.components.PrimaryButton
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
-import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.SubmoduleDialogViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AddSubmodulesDialog(
@@ -71,7 +73,7 @@ fun AddSubmodulesDialog(
     ) {
 
         Text(
-            "Repository URL",
+            stringResource(Res.string.generic_repository_url),
             style = MaterialTheme.typography.body1,
             color = MaterialTheme.colors.onBackground,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -100,7 +102,7 @@ fun AddSubmodulesDialog(
         )
 
         Text(
-            "Directory",
+            stringResource(Res.string.generic_directory),
             style = MaterialTheme.typography.body1,
             color = MaterialTheme.colors.onBackground,
             modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)

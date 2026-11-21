@@ -12,11 +12,15 @@ import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.AppConstants
 import com.jetpackduba.gitnuro.AppConstants.openSourceProjects
 import com.jetpackduba.gitnuro.Project
+import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.app_info_open_source_projects
+import com.jetpackduba.gitnuro.app.generated.resources.generic_button_close
 import com.jetpackduba.gitnuro.extensions.handOnHover
 import com.jetpackduba.gitnuro.theme.textButtonColors
 import com.jetpackduba.gitnuro.ui.components.ScrollableLazyColumn
 import com.jetpackduba.gitnuro.ui.components.TextLink
 import com.jetpackduba.gitnuro.ui.dialogs.base.MaterialDialog
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AppInfoDialog(
@@ -47,7 +51,7 @@ fun AppInfoDialog(
                         )
 
                         Text(
-                            "Gitnuro has been possible thanks to the following open source projects:",
+                            stringResource(Res.string.app_info_open_source_projects),
                             style = MaterialTheme.typography.body1,
                             modifier = Modifier.padding(vertical = 16.dp)
                         )
@@ -67,7 +71,7 @@ fun AppInfoDialog(
                 onClick = onDismiss,
                 colors = textButtonColors(),
             ) {
-                Text("Close")
+                Text(stringResource(Res.string.generic_button_close))
             }
         }
     }
