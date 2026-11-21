@@ -26,6 +26,8 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.p
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.pullWithRebasePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.pushWithLeasePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.scaleUiPreference
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showAuthorInLogPreference
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showAuthorWithEmailInLogPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showChangesAsTreePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showDiffWithLogPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.swapStatusPanesPreference
@@ -64,6 +66,8 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     override val dateFormatCustomFormat get() = dataStore[dateFormatCustomFormatPreference]
     override val dateFormatIs24h get() = dataStore[dateFormatIs24hPreference]
     override val dateFormatUseRelative get() = dataStore[dateFormatUseRelativePreference]
+    override val showAuthorInLog get() = dataStore[showAuthorInLogPreference]
+    override val showAuthorWithEmailInLog get() = dataStore[showAuthorWithEmailInLogPreference]
     override val showDiffWithLog = dataStore[showDiffWithLogPreference]
 
     override val avatarProvider
@@ -114,6 +118,8 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
                 is GlobalConfig.DateFormatIs24h -> setValue(dateFormatIs24hPreference, globalConfig.value)
                 is GlobalConfig.DateFormatUseDefault -> setValue(dateFormatUseDefaultPreference, globalConfig.value)
                 is GlobalConfig.DateFormatUseRelative -> setValue(dateFormatUseRelativePreference, globalConfig.value)
+                is GlobalConfig.ShowAuthorInLog -> setValue(showAuthorInLogPreference, globalConfig.value)
+                is GlobalConfig.ShowAuthorInLogWithEmail -> setValue(showAuthorWithEmailInLogPreference, globalConfig.value)
                 is GlobalConfig.FastForwardMerge -> setValue(fastForwardMergePreference, globalConfig.value)
                 is GlobalConfig.LinesHeight -> setValue(
                     linesHeightPreference,

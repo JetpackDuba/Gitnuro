@@ -26,6 +26,8 @@ data class LogState(
     val verticalScrollState: LazyListState = LazyListState(),
     val horizontalScrollState: ScrollState = ScrollState(0),
     val groupBranchesWithRemotes: Boolean = true,
+    val showAuthor: Boolean = false,
+    val showAuthorWithEmail: Boolean = false,
 )
 
 fun combineLogState(
@@ -40,6 +42,8 @@ fun combineLogState(
     verticalListState: Flow<LazyListState>,
     horizontalListState: Flow<ScrollState>,
     groupBranchesWithRemotes: Flow<Boolean>,
+    showAuthor: Flow<Boolean>,
+    showAuthorWithEmail: Flow<Boolean>,
 ): Flow<LogState> {
     return combine(
         log,
@@ -53,6 +57,8 @@ fun combineLogState(
         verticalListState,
         horizontalListState,
         groupBranchesWithRemotes,
+        showAuthor,
+        showAuthorWithEmail,
     ) { log,
         hasUncommittedChanges,
         currentBranch,
@@ -63,7 +69,9 @@ fun combineLogState(
         logSearchFilterResults,
         verticalListState,
         horizontalListState,
-        groupBranchesWithRemotes ->
+        groupBranchesWithRemotes,
+        showAuthor,
+        showAuthorWithEmail ->
         LogState(
             isLoading = log.isLoading || currentBranch.isLoading,
             hasUncommittedChanges,
@@ -77,6 +85,8 @@ fun combineLogState(
             verticalListState,
             horizontalListState,
             groupBranchesWithRemotes = groupBranchesWithRemotes,
+            showAuthor = showAuthor,
+            showAuthorWithEmail = showAuthorWithEmail,
         )
     }
 }

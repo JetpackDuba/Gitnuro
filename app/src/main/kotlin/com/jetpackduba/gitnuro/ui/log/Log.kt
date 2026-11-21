@@ -579,6 +579,8 @@ fun CommitsList(
                 graphNode = graphNode,
                 isSelected = selectedCommit?.hash == graphNode.hash,
                 showInAmend = logState.currentBranch?.hash == graphNode.hash && !hasUncommittedChanges,
+                showAuthor = logState.showAuthor,
+                showAuthorWithEmail = logState.showAuthorWithEmail,
                 isStash = isStash,
                 branches = branches[graphNode.hash].orEmpty(),
                 tags = tags[graphNode.hash].orEmpty(),
@@ -832,6 +834,8 @@ private fun CommitLine(
     graphNode: GraphCommit,
     isSelected: Boolean,
     currentBranch: Branch?,
+    showAuthor: Boolean,
+    showAuthorWithEmail: Boolean,
     isStash: Boolean,
     showInAmend: Boolean,
     matchesSearchFilter: Boolean?,
@@ -949,6 +953,8 @@ private fun CommitLine(
                         branches = branches,
                         tags = tags,
                         groupBranchesWithRemotes = groupBranchesWithRemotes,
+                        showAuthor = showAuthor,
+                        showAuthorWithEmail = showAuthorWithEmail,
                         onCheckoutBranch = { ref ->
                             if (ref.isRemote) {
                                 onCheckoutRemoteBranch(ref)
@@ -984,6 +990,8 @@ fun CommitMessage(
     nodeColor: Color,
     matchesSearchFilter: Boolean?,
     groupBranchesWithRemotes: Boolean,
+    showAuthor: Boolean,
+    showAuthorWithEmail: Boolean,
     onCheckoutBranch: (ref: Branch) -> Unit,
     onMergeBranch: (ref: Branch) -> Unit,
     onDeleteBranch: (ref: Branch) -> Unit,
@@ -1060,18 +1068,34 @@ fun CommitMessage(
             overflow = TextOverflow.Ellipsis,
         )
 
+        val tooltipTime = graphCommit.date.toSmartSystemString(allowRelative = false, showTime = true)
+
         InstantTooltip(
-            text = graphCommit.date.toSmartSystemString(allowRelative = false, showTime = true),
+            text = "$tooltipTime - ${graphCommit.author.formatted(true)}",
             modifier = Modifier.padding(horizontal = 16.dp),
-            position = InstantTooltipPosition.RIGHT,
+            position = InstantTooltipPosition.LEFT,
         ) {
-            Text(
-                text = graphCommit.date.toSmartSystemString(),
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onBackgroundSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    text = graphCommit.date.toSmartSystemString(),
+                    style = MaterialTheme.typography.caption,
+                    color = MaterialTheme.colors.onBackgroundSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                if (showAuthor) {
+                    Text(
+                        text = graphCommit.author.formatted(showEmail = showAuthorWithEmail),
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.onBackgroundSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
     }
 }
@@ -1318,7 +1342,7 @@ fun CommitNode(
         }
 
         InstantTooltip(
-            "${author.name} <${author.email}>",
+            author.toString(),
             position = InstantTooltipPosition.RIGHT,
         ) {
             Box(

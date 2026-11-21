@@ -19,6 +19,8 @@ interface GlobalSettingsRepository {
     val dateFormatCustomFormat: Flow<String?>
     val dateFormatIs24h: Flow<Boolean?>
     val dateFormatUseRelative: Flow<Boolean?>
+    val showAuthorInLog: Flow<Boolean?>
+    val showAuthorWithEmailInLog: Flow<Boolean?>
     val avatarProvider: Flow<AvatarProviderType?>
     val swapStatusPanes: Flow<Boolean?>
     val showChangesAsTree: Flow<Boolean?>

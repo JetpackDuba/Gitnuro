@@ -20,6 +20,8 @@ sealed interface GlobalConfig {
     data class DateFormatCustomFormat(val value: String) : GlobalConfig
     data class DateFormatIs24h(val value: Boolean) : GlobalConfig
     data class DateFormatUseRelative(val value: Boolean) : GlobalConfig
+    data class ShowAuthorInLog(val value: Boolean) : GlobalConfig
+    data class ShowAuthorInLogWithEmail(val value: Boolean) : GlobalConfig
     data class CloneDefaultDirectory(val value: String) : GlobalConfig
     data class CacheCredentialsInMemory(val value: Boolean) : GlobalConfig
     data class AvatarProvider(val value: AvatarProviderType) : GlobalConfig

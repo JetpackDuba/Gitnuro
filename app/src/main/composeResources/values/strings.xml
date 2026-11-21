@@ -186,6 +186,7 @@
     <string name="settings_entry_appearance">Appearance</string>
     <string name="settings_entry_layout">Layout</string>
     <string name="settings_entry_datetime">Date/Time</string>
+    <string name="settings_entry_commits_history">Commits history</string>
     <string name="settings_section_git">GIT</string>
     <string name="settings_entry_environment">Environment</string>
     <string name="settings_entry_branches">Branches</string>
@@ -213,6 +214,10 @@
     <string name="settings_datetime_use_24h_title">Use 24h time</string>
     <string name="settings_datetime_relative_date_title">Relative date</string>
     <string name="settings_datetime_relative_date_description">Use "Today" and "Yesterday" instead of the date</string>
+    <string name="settings_commmits_history_show_author_title">Show author</string>
+    <string name="settings_commmits_history_show_author_description">Display the commit's author</string>
+    <string name="settings_commmits_history_show_author_with_email_title">Show author email</string>
+    <string name="settings_commmits_history_show_author_with_email_description">Display the commit's author with their email</string>
     <string name="settings_appearence_theme_title">Theme</string>
     <string name="settings_appearence_theme_description">Select the UI theme between light and dark mode</string>
     <string name="settings_appearence_custom_theme_title">Custom theme</string>

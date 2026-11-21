@@ -85,6 +85,12 @@ val settings = listOf(
             onAction
         )
     },
+    SettingsEntry.Entry(Res.drawable.list, Res.string.settings_entry_commits_history) { state, onAction ->
+        CommitsHistory(
+            state,
+            onAction
+        )
+    },
 
     SettingsEntry.Section(Res.string.settings_section_git),
     SettingsEntry.Entry(Res.drawable.folder, Res.string.settings_entry_environment) { state, onAction ->
@@ -565,6 +571,31 @@ private fun DateTime(settingsViewState: SettingsViewState, onAction: (SettingsAc
         value = useRelative,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.DateFormatUseRelative(value)))
+        }
+    )
+}
+
+@Composable
+private fun CommitsHistory(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val showAuthorInLog = settingsViewState.showAuthorInLog
+    val showAuthorWithEmail = settingsViewState.showAuthorWithEmailInLog
+
+    SettingToggle(
+        title = stringResource(Res.string.settings_commmits_history_show_author_title),
+        subtitle = stringResource(Res.string.settings_commmits_history_show_author_description),
+        value = showAuthorInLog,
+        onValueChanged = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.ShowAuthorInLog(value)))
+        }
+    )
+
+    SettingToggle(
+        title = stringResource(Res.string.settings_commmits_history_show_author_with_email_title),
+        subtitle = stringResource(Res.string.settings_commmits_history_show_author_with_email_description),
+        enabled = showAuthorInLog,
+        value = showAuthorWithEmail,
+        onValueChanged = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.ShowAuthorInLogWithEmail(value)))
         }
     )
 }
