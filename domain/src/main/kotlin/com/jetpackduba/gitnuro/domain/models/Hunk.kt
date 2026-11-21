@@ -1,9 +1,12 @@
 package com.jetpackduba.gitnuro.domain.models
 
+import androidx.compose.runtime.Immutable
+
 data class Hunk(val header: String, val lines: List<Line>)
 
 data class SplitHunk(val sourceHunk: Hunk, val lines: List<Pair<Line?, Line?>>)
 
+@Immutable
 data class Line(
     val text: String,
     val oldLineNumber: Int,
