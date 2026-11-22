@@ -2,6 +2,7 @@ package com.jetpackduba.gitnuro.domain.usecases
 
 import com.jetpackduba.gitnuro.common.extensions.TAG
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.domain.errors.mapErr
 import com.jetpackduba.gitnuro.domain.errors.okOrNull
 import com.jetpackduba.gitnuro.domain.interfaces.IFormatDiffGitAction
 import com.jetpackduba.gitnuro.domain.interfaces.IGenerateSplitHunkFromDiffResultGitAction
@@ -22,7 +23,12 @@ class GetDiffUseCase @Inject constructor(
         val repositoryPath = repositoryDataRepository.repositoryPath ?: return ViewDiffResult.None
 
         return try {
-            val diffFormat = formatDiffGitAction(repositoryPath, diffType, isDisplayFullFile).okOrNull()!!
+            val diffFormat = formatDiffGitAction(repositoryPath, diffType, isDisplayFullFile)
+                .mapErr { printError(TAG, "Error while fetching diff from $diffType: $it") }
+                .okOrNull()
+
+            if (diffFormat == null) return ViewDiffResult.DiffNotFound(diffType)
+
             val diffEntry = diffFormat.diffEntry
             if (
                 diffViewType == DiffTextViewType.Split &&
