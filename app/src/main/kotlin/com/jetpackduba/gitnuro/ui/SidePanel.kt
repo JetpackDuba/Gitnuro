@@ -196,7 +196,7 @@ fun LazyListScope.localBranches(
                 branch = branch,
                 isSelectedItem = selectedItem is SelectedItem.BranchItem && selectedItem.branch == branch,
                 currentBranch = currentBranch,
-                onBranchClicked = { viewModel.selectBranch(branch) },
+                onBranchClicked = { viewModel.selectBranches(branch) },
                 onBranchDoubleClicked = { viewModel.checkoutBranch(branch) },
                 onCheckoutBranch = { viewModel.checkoutBranch(it) },
                 onMergeBranch = { viewModel.mergeBranch(it) },
@@ -271,7 +271,7 @@ fun LazyListScope.remotes(
                     RemoteBranches(
                         remoteBranch = remoteBranch,
                         currentBranch = remotesState.currentBranch,
-                        onBranchClicked = { viewModel.selectBranch(remoteBranch) },
+                        onBranchClicked = { viewModel.selectBranches(remoteBranch) },
                         onCheckoutBranch = { viewModel.checkoutRemoteBranch(it) },
                         onDeleteBranch = { viewModel.deleteRemoteBranch(it) },
                         onPushRemoteBranch = { viewModel.pushToRemoteBranch(it) },

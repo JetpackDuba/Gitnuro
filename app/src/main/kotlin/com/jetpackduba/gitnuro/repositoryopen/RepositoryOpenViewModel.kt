@@ -511,7 +511,7 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun selectBranch(branch: Branch) = viewModelScope.launch {
+    fun selectBranches(branch: Branch) = viewModelScope.launch {
         val commit = getCommitFromHashUseCase(branch.hash).okOrNull()
 
         if (commit != null) {

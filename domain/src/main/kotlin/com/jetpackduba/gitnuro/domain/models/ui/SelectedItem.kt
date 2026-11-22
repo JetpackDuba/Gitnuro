@@ -14,6 +14,9 @@ sealed interface SelectedItem {
     data object UncommittedChanges : SelectedItem
 
     @Immutable
+    data class MultiSelection(val type: MultiSelectionType, val items: List<SelectedItem>) : SelectedItem
+
+    @Immutable
     sealed interface CommitBasedItem : SelectedItem {
         val commit: Commit
     }
@@ -26,4 +29,11 @@ sealed interface SelectedItem {
 
     @Immutable
     data class CommitItem(override val commit: Commit, val isStash: Boolean, val scrollToItem: Boolean) : CommitBasedItem
+}
+
+enum class MultiSelectionType {
+    Branch,
+    Tag,
+    Stash,
+    Commit,
 }
