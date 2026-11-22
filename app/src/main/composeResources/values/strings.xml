@@ -206,7 +206,7 @@
     <string name="settings_branches_delete_requires_confirmation_description">Applies for local and remote branches</string>
     <string name="settings_branches_delete_requires_confirmation_option_always">Always</string>
     <string name="settings_branches_delete_requires_confirmation_option_unmerged">Unmerged</string>
-    <string name="settings_branches_delete_requires_confirmation_option_never">Always</string>
+    <string name="settings_branches_delete_requires_confirmation_option_never">Never</string>
     <string name="settings_layout_swap_status_title">Swap position for staged/unstaged views</string>
     <string name="settings_layout_swap_status_description">Show the list of unstaged changes above the list of staged changes</string>
     <string name="settings_layout_diff_with_log_title">Show diff view below the commits history</string>
