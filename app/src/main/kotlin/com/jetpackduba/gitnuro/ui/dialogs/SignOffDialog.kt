@@ -16,10 +16,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.sign
+import com.jetpackduba.gitnuro.app.generated.resources.sign_off_dialog_option_enable_for_repository
+import com.jetpackduba.gitnuro.app.generated.resources.sign_off_dialog_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.sign_off_dialog_title
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.dialogs.base.IconBasedDialog
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SignOffDialog(
@@ -58,8 +62,8 @@ fun SignOffDialog(
 
     IconBasedDialog(
         icon = painterResource(Res.drawable.sign),
-        title = "Edit sign-off",
-        subtitle = "Enable or disable the sign-off or adjust its format",
+        title = stringResource(Res.string.sign_off_dialog_title),
+        subtitle = stringResource(Res.string.sign_off_dialog_subtitle),
         primaryActionText = "Save",
         showCancelAction = false,
         onDismiss = onDismiss,
@@ -112,7 +116,7 @@ fun SignOffDialog(
             )
 
             Text(
-                "Enable sign-off for this repository",
+                stringResource(Res.string.sign_off_dialog_option_enable_for_repository),
                 style = MaterialTheme.typography.body2,
                 color = MaterialTheme.colors.onBackground,
             )

@@ -29,7 +29,7 @@ fun branchContextMenuItems(
                 icon = { painterResource(Res.drawable.start) },
                 onClick = { onCheckoutBranch(branch) }
             )
-            if (currentBranch != null && currentBranch.name != "HEAD") {
+            if (currentBranch != null && !currentBranch.isHead) {
                 addContextMenu(
                     composableLabel = { stringResource(Res.string.branch_context_menu_merge_branch) },
                     onClick = { onMergeBranch(branch) }
@@ -42,7 +42,7 @@ fun branchContextMenuItems(
                 add(ContextMenuElement.ContextSeparator)
             }
         }
-        if (!isLocal && currentBranch != null && currentBranch.name != "HEAD") { // TODO currentBranch.name != "HEAD" as function or even extension function?
+        if (!isLocal && currentBranch != null && !currentBranch.isHead) {
             addContextMenu(
                 composableLabel = {
                     stringResource(

@@ -56,6 +56,8 @@ data class Branch(
 
     val matchesTrackingBranchName = this.simpleName == this.trackingBranch?.branch
 
+    val isHead: Boolean get() = name == "HEAD"
+
     fun isSameBranch(otherRef: Branch?): Boolean {
         if (this.name == Constants.HEAD && otherRef == null)
             return true

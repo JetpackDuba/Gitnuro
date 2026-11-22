@@ -72,7 +72,7 @@ fun UserPasswordDialog(
             colors = outlinedTextFieldColors(),
             maxLines = 1,
             singleLine = true,
-            hint = "Username",
+            hint = stringResource(Res.string.user_password_dialog_label_username),
             onValueChange = {
                 userField = it
             },
@@ -99,7 +99,7 @@ fun UserPasswordDialog(
             maxLines = 1,
             singleLine = true,
             colors = outlinedTextFieldColors(),
-            hint = "Password",
+            hint = stringResource(Res.string.user_password_dialog_label_password),
             onValueChange = {
                 passwordField = it
             },

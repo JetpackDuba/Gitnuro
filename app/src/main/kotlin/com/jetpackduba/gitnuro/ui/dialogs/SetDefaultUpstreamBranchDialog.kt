@@ -15,6 +15,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.Res
 import com.jetpackduba.gitnuro.app.generated.resources.branch
+import com.jetpackduba.gitnuro.app.generated.resources.generic_button_accept
+import com.jetpackduba.gitnuro.app.generated.resources.set_upstream_branch_dialog_label_branch
+import com.jetpackduba.gitnuro.app.generated.resources.set_upstream_branch_dialog_label_remote
+import com.jetpackduba.gitnuro.app.generated.resources.set_upstream_branch_dialog_subtitle
+import com.jetpackduba.gitnuro.app.generated.resources.set_upstream_branch_dialog_title
 import com.jetpackduba.gitnuro.domain.models.Branch
 import com.jetpackduba.gitnuro.domain.models.RemoteInfo
 import com.jetpackduba.gitnuro.ui.components.FilterDropdown
@@ -23,6 +28,7 @@ import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import com.jetpackduba.gitnuro.viewmodels.SetDefaultUpstreamBranchState
 import com.jetpackduba.gitnuro.viewmodels.SetUpstreamBranchDialogViewModel
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Preview
 @Composable
@@ -75,9 +81,9 @@ private fun SetDefaultUpstreamBranchDialogView(
 ) {
     IconBasedDialog(
         icon = painterResource(Res.drawable.branch),
-        title = "Change upstream branch",
-        subtitle = "Set the upstream remote branch",
-        primaryActionText = "Accept",
+        title = stringResource(Res.string.set_upstream_branch_dialog_title),
+        subtitle = stringResource(Res.string.set_upstream_branch_dialog_subtitle),
+        primaryActionText = stringResource(Res.string.generic_button_accept),
         onDismiss = onDismiss,
         onPrimaryActionClicked = changeDefaultUpstreamBranch,
         beforeActionsFocusRequester = null,
@@ -114,7 +120,7 @@ private fun SetDefaultUpstreamBranchDialogView(
                 }
 
                 Text(
-                    text = "Remote",
+                    text = stringResource(Res.string.set_upstream_branch_dialog_label_remote),
                     modifier = Modifier
                         .padding(top = 8.dp),
                     color = MaterialTheme.colors.onBackground,
@@ -131,7 +137,7 @@ private fun SetDefaultUpstreamBranchDialogView(
 
 
                 Text(
-                    text = "Branch",
+                    text = stringResource(Res.string.set_upstream_branch_dialog_label_branch),
                     modifier = Modifier
                         .padding(top = 8.dp),
                     color = MaterialTheme.colors.onBackground,

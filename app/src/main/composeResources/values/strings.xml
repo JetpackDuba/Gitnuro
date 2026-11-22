@@ -14,6 +14,7 @@
     <string name="generic_search">Search</string>
     <string name="generic_repository_folder_name">Repository folder name</string>
 
+
     <!-- Home page -->
     <string name="home_button_open_repository">Open a repository</string>
     <string name="home_button_clone_repository">Clone a repository</string>
@@ -364,4 +365,29 @@
     <string name="delete_branch_confirmation_dialog_title">Delete the following branches?</string>
     <string name="delete_branch_confirmation_dialog_subtitle">This is a destructive operation that may result in data loss.</string>
     <string name="delete_branch_confirmation_dialog_action">Delete</string>
+
+    <!-- Set upstream branch dialog -->
+    <string name="set_upstream_branch_dialog_title">Change upstream branch</string>
+    <string name="set_upstream_branch_dialog_subtitle">Set the upstream remote branch</string>
+    <string name="set_upstream_branch_dialog_label_remote">Remote</string>
+    <string name="set_upstream_branch_dialog_label_branch">Branch</string>
+
+    <!-- Sign off dialog -->
+    <string name="sign_off_dialog_title">Edit sign-off</string>
+    <string name="sign_off_dialog_subtitle">Enable or disable the sign-off or adjust its format</string>
+    <string name="sign_off_dialog_option_enable_for_repository">Enable sign-off for this repository</string>
+
+    <!-- Ssh password dialog -->
+    <string name="ssh_password_dialog_title">Introduce your SSH key's password</string>
+    <string name="ssh_password_dialog_subtitle">Your SSH key is protected with a password</string>
+    <string name="ssh_password_dialog_retry">Invalid password, please try again</string>
+
+    <!-- Stash with message dialog -->
+    <string name="stash_with_message_dialog_title">Stash message</string>
+    <string name="stash_with_message_dialog_subtitle">Create a new stash with a custom message</string>
+    <string name="stash_with_message_dialog_action">Stash</string>
+
+    <!-- Base user password dialog -->
+    <string name="user_password_dialog_label_username">Username</string>
+    <string name="user_password_dialog_label_password">Password</string>
 </resources>
