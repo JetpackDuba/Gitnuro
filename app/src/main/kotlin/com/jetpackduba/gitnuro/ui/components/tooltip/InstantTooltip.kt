@@ -60,8 +60,6 @@ fun InstantTooltip(
 ) {
     val hoverInteractionSource = remember { MutableInteractionSource() }
     val isHovered by hoverInteractionSource.collectIsHoveredAsState()
-    val tooltipHoverInteractionSource = remember { MutableInteractionSource() }
-    val isTooltipHovered by tooltipHoverInteractionSource.collectIsHoveredAsState()
     val (coordinates, setCoordinates) = remember { mutableStateOf<LayoutCoordinates?>(null) }
     val (cursorCoordinatesOnTooltipHover, setCursorCoordinatesOnTooltipHover) = remember { mutableStateOf<Offset?>(null) }
 
@@ -87,10 +85,6 @@ fun InstantTooltip(
         } else {
             false
         }
-    }
-
-    LaunchedEffect(isTooltipHovered) {
-        println("Is tooltipHovered: $isTooltipHovered")
     }
 
     if ((isHovered || isHoveringTooltipAndContent) && coordinates != null && text != null && enabled) {
@@ -145,7 +139,6 @@ fun InstantTooltip(
                     .clip(MaterialTheme.shapes.small)
                     .background(MaterialTheme.colors.background)
                     .width(IntrinsicSize.Max)
-                    .hoverable(tooltipHoverInteractionSource)
                     .run {
                         if (MaterialTheme.colors.isDark) {
                             this.border(
