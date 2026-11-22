@@ -25,6 +25,7 @@ sealed interface TaskType {
     data object CheckoutRemoteBranch : TaskType
     data object CreateBranch : TaskType
     data object DeleteBranch : TaskType
+    data object CheckingBranchMerged : TaskType
     data object RenameBranch : TaskType
     data object MergeBranch : TaskType
     data object RebaseBranch : TaskType

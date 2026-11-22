@@ -12,10 +12,12 @@ object PreferencesKeys {
     val linesHeightPreference get() = stringPreferencesKey("lines_height")
     val swapStatusPanesPreference get() = booleanPreferencesKey("swap_status_panes")
     val diffDisplayFullFilePreference get() = booleanPreferencesKey("diff_display_full_file")
-    val groupBranchesWithRemotesPreference get() = booleanPreferencesKey("group_branches_with_remotes")
     val diffTextViewTypePreference get() = stringPreferencesKey("diff_text_view")
     val showChangesAsTreePreference get() = booleanPreferencesKey("show_changes_as_tree")
     val showDiffWithLogPreference get() = booleanPreferencesKey("show_diff_with_log")
+
+    val groupBranchesWithRemotesPreference get() = booleanPreferencesKey("group_branches_with_remotes")
+    val requestDeleteBranchPreference get() = stringPreferencesKey("branches_request_delete")
 
     val dateFormatUseDefaultPreference get() = booleanPreferencesKey("date_format_use_default")
     val dateFormatCustomFormatPreference get() = stringPreferencesKey("date_format_custom_format")

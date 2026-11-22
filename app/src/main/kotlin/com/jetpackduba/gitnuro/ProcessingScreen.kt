@@ -135,6 +135,7 @@ fun getTitle(taskType: TaskType): String {
         TaskType.RefreshTags -> ""
         TaskType.GetWorktree -> ""
         TaskType.UpdateRemote -> ""
+        TaskType.CheckingBranchMerged -> "Checking if branch is merged"
     }
 }
 

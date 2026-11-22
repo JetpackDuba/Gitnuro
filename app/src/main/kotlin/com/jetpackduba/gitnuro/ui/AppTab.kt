@@ -395,6 +395,17 @@ fun AppTab(
                                 onDismiss = { backStack.removeLastOrNull() },
                             )
                         }
+                        entry<Screen.DeleteBranchConfirmation>(
+                            metadata = dialogsMetadata
+                        ) { entry ->
+                            val viewModel = tabViewModel(entry) {
+                                it.deleteBranchConfirmationViewModelFactory().create(entry.branch)
+                            }
+                            DeleteBranchConfirmationDialog(
+                                viewModel = viewModel,
+                                onDismiss = { backStack.removeLastOrNull() },
+                            )
+                        }
                     }
                 )
             }

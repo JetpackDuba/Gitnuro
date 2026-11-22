@@ -235,5 +235,6 @@ fun TaskType.errorTitle(): String {
         TaskType.RefreshTags -> "Refresh tags failed"
         TaskType.GetWorktree -> "Get worktree failed"
         TaskType.UpdateRemote -> "Update remote failed"
+        TaskType.CheckingBranchMerged -> "Checking branch merged failed"
     }
 }

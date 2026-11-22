@@ -24,6 +24,7 @@ import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.Error
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
+import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -456,6 +457,7 @@ private fun Environment(settingsViewState: SettingsViewState, onAction: (Setting
 private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
     val fastForwardMerge = settingsViewState.fastForwardMerge
     val mergeAutoStash = settingsViewState.autoStashOnMerge
+    val requestDeleteBranch = settingsViewState.requestDeleteBranch
 
     SettingToggle(
         title = stringResource(Res.string.settings_branches_fast_wordard_merge_title),
@@ -472,6 +474,32 @@ private fun Branches(settingsViewState: SettingsViewState, onAction: (SettingsAc
         value = mergeAutoStash,
         onValueChanged = { value ->
             onAction(SettingsAction.SetConfig(GlobalConfig.AutoStashOnMerge(value)))
+        }
+    )
+
+    val requestDeleteBranchOptions = listOf(
+        DropDownOption(
+            RequestDeleteBranch.ALWAYS,
+            stringResource(Res.string.settings_branches_delete_requires_confirmation_option_always)
+        ),
+        DropDownOption(
+            RequestDeleteBranch.UNMERGED,
+            stringResource(Res.string.settings_branches_delete_requires_confirmation_option_unmerged)
+        ),
+        DropDownOption(
+            RequestDeleteBranch.NEVER,
+            stringResource(Res.string.settings_branches_delete_requires_confirmation_option_never)
+        ),
+
+    )
+
+    SettingDropDown(
+        title = stringResource(Res.string.settings_branches_delete_requires_confirmation_title),
+        subtitle = stringResource(Res.string.settings_branches_delete_requires_confirmation_description),
+        dropDownOptions = requestDeleteBranchOptions,
+        currentOption = requestDeleteBranch,
+        onOptionSelected = { value ->
+            onAction(SettingsAction.SetConfig(GlobalConfig.RequestDeleteBranch(value.value)))
         }
     )
 }

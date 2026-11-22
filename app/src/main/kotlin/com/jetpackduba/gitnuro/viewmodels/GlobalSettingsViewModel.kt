@@ -5,9 +5,10 @@ import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
+import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
+import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
@@ -60,6 +61,7 @@ class GlobalSettingsViewModel @Inject constructor(
             globalSettingsService.showAuthorWithEmailInLog,
             globalSettingsService.avatarProvider,
             globalSettingsService.groupBranchesWithRemotes,
+            globalSettingsService.requestDeleteBranch,
             globalSettingsService.swapStatusPanes,
             globalSettingsService.showDiffWithLog,
             globalSettingsService.pullWithRebase,
@@ -89,6 +91,7 @@ class GlobalSettingsViewModel @Inject constructor(
             showAuthorWithEmailInLog,
             avatarProvider,
             groupBranchesWithRemotes,
+            requestDeleteBranch,
             swapStatusPanes,
             showDiffWithLog,
             pullWithRebase,
@@ -120,6 +123,7 @@ class GlobalSettingsViewModel @Inject constructor(
                 showAuthorWithEmailInLog,
                 avatarProvider,
                 groupBranchesWithRemotes,
+                requestDeleteBranch,
                 swapStatusPanes,
                 showDiffWithLog,
                 pullWithRebase,
@@ -161,6 +165,7 @@ class GlobalSettingsViewModel @Inject constructor(
             pushWithLease = false,
             fastForwardMerge = false,
             autoStashOnMerge = false,
+            requestDeleteBranch = RequestDeleteBranch.ALWAYS,
             cloneDefaultDirectory = "",
             useProxy = false,
             proxyUseAuth = false,
@@ -190,6 +195,7 @@ data class SettingsViewState(
     val showAuthorWithEmailInLog: Boolean,
     val avatarProvider: AvatarProviderType,
     val groupBranchesWithRemotes: Boolean,
+    val requestDeleteBranch: RequestDeleteBranch,
     val swapStatusPanes: Boolean,
     val showDiffWithLog: Boolean,
     val pullWithRebase: Boolean,

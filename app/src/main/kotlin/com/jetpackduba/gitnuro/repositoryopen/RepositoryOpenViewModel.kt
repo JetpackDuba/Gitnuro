@@ -9,6 +9,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_automatic
 import com.jetpackduba.gitnuro.app.generated.resources.pull_with_merge_from_specific_branch_automatic_stash_description
 import com.jetpackduba.gitnuro.collectLatestInViewModel
 import com.jetpackduba.gitnuro.common.flows.invert
+import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.printLog
 import com.jetpackduba.gitnuro.domain.TabCoroutineScope
 import com.jetpackduba.gitnuro.domain.errors.Either
@@ -133,6 +134,7 @@ class RepositoryOpenViewModel @Inject constructor(
     private val fetchAllUseCase: FetchAllBranchUseCase,
     private val stashChangesUseCase: StashChangesUseCase,
     private val openRepositoryInTerminalGitAction: OpenRepositoryInTerminalGitAction,
+    private val isBranchMergedUseCase: IsBranchMergedUseCase,
 ) : IVerticalSplitPaneConfig by verticalSplitPaneConfig,
     TabViewModel() {
     val completedTasks = repositoryStateRepository.completedTasks
@@ -205,6 +207,9 @@ class RepositoryOpenViewModel @Inject constructor(
 
     val requestTabFocusFlow: SharedFlow<Unit>
         field = MutableSharedFlow<Unit>()
+
+    val navigateToDeleteBranchConfirmation: SharedFlow<Branch>
+        field = MutableSharedFlow<Branch>()
 
     val diffSelected: StateFlow<DiffSelected?>
         field = MutableStateFlow<DiffSelected?>(null)
@@ -557,13 +562,46 @@ class RepositoryOpenViewModel @Inject constructor(
         }
     }
 
-    fun deleteBranch(branch: Branch) = deleteBranchUseCase(branch)
+    fun deleteLocalBranch(branch: Branch) {
+        deleteBranch(branch) { deleteBranchUseCase(branch) }
+    }
+
+    fun deleteRemoteBranch(branch: Branch) {
+        deleteBranch(branch) { deleteRemoteBranchUseCase(branch) }
+    }
+
+    private fun deleteBranch(branch: Branch, deleteAction: (Branch) -> Unit) {
+        viewModelScope.launch {
+            val requestDelete = appSettings.requestDeleteBranch.firstOrNull() ?: return@launch
+
+            when (requestDelete) {
+                RequestDeleteBranch.ALWAYS -> navigateToDeleteBranchConfirmation.emit(branch)
+                RequestDeleteBranch.UNMERGED -> {
+                    val isMerged = isBranchMergedUseCase(branch)
+
+                    if (isMerged is Either.Err) {
+                        printError(
+                            TAG,
+                            "Failed to check if branch has been merged, falling back to requiring confirmation"
+                        )
+                    }
+
+                    if (isMerged.okOrNull() == true) {
+                        deleteAction(branch)
+                    } else {
+                        navigateToDeleteBranchConfirmation.emit(branch)
+                    }
+                }
+
+                RequestDeleteBranch.NEVER -> deleteAction(branch)
+            }
+        }
+    }
 
     fun checkoutBranch(branch: Branch) = checkoutBranchUseCase(branch)
 
     fun rebaseBranch(branch: Branch) = rebaseBranchUseCase(branch)
 
-    fun deleteRemoteBranch(branch: Branch) = deleteRemoteBranchUseCase(branch)
 
     fun checkoutRemoteBranch(remoteBranch: Branch) = checkoutBranchUseCase(remoteBranch)
 
@@ -763,7 +801,7 @@ class RepositoryOpenViewModel @Inject constructor(
             is LogAction.CheckoutTag -> checkoutTag(action.tag)
             is LogAction.CherryPickCommit -> cherryPickCommit(action.commit)
             is LogAction.CommitSelected -> selectCommit(action.commit, action.isStash)
-            is LogAction.DeleteBranch -> deleteBranch(action.branch)
+            is LogAction.DeleteBranch -> deleteLocalBranch(action.branch)
             is LogAction.DeleteRemoteBranch -> deleteRemoteBranch(action.branch)
             is LogAction.DeleteStash -> deleteStash(action.commit)
             is LogAction.DeleteTag -> deleteTag(action.tag)

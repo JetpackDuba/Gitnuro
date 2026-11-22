@@ -34,4 +34,5 @@ sealed interface GlobalConfig {
     data class TerminalPath(val value: String) : GlobalConfig
     data class GroupBranches(val value: Boolean) : GlobalConfig
     data class ShowDiffWithLog(val value: Boolean) : GlobalConfig
+    data class RequestDeleteBranch(val value: com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch) : GlobalConfig
 }

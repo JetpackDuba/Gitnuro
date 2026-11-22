@@ -34,7 +34,6 @@ import com.jetpackduba.gitnuro.ui.components.SideMenuSubentry
 import com.jetpackduba.gitnuro.ui.components.tooltip.DelayedTooltip
 import com.jetpackduba.gitnuro.ui.context_menu.*
 import com.jetpackduba.gitnuro.viewmodels.sidepanel.*
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -202,7 +201,7 @@ fun LazyListScope.localBranches(
                 onCheckoutBranch = { viewModel.checkoutBranch(it) },
                 onMergeBranch = { viewModel.mergeBranch(it) },
                 onRebaseBranch = { viewModel.rebaseBranch(it) },
-                onDeleteBranch = { viewModel.deleteBranch(it) },
+                onDeleteBranch = { viewModel.deleteLocalBranch(it) },
                 onChangeDefaultUpstreamBranch = { onChangeDefaultUpstreamBranch(it) },
                 onRenameBranch = { onRenameBranch(it) },
                 onCopyBranchNameToClipboard = {

@@ -4,6 +4,7 @@ import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.ProxyType
+import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
 import com.jetpackduba.gitnuro.domain.models.ui.WindowPlacement
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
@@ -27,6 +28,7 @@ interface GlobalSettingsRepository {
     val diffDisplayFullFile: Flow<Boolean?>
     val diffTextViewType: Flow<DiffTextViewType?>
     val groupBranchesWithRemotes: Flow<Boolean?>
+    val requestDeleteBranch: Flow<RequestDeleteBranch?>
     val showDiffWithLog: Flow<Boolean?>
 
     // Git

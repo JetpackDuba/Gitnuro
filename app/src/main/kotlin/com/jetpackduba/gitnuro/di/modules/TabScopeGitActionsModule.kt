@@ -302,6 +302,10 @@ interface TabScopeGitActionsModule {
 
     @Binds
     @TabScope
+    fun bindsIsBranchMergedGitAction(action: IsBranchMergedGitAction): IIsBranchMergedGitAction
+
+    @Binds
+    @TabScope
     fun bindsOpenRepositoryGitAction(action: OpenRepositoryGitAction): IOpenRepositoryGitAction
 
     @Binds

@@ -34,6 +34,7 @@ interface TabComponent {
     fun authorViewModel(): AuthorViewModel
     fun stashWithMessageViewModel(): StashWithMessageViewModel
     fun commitAuthorViewModelFactory(): CommitAuthorViewModel.Factory
+    fun deleteBranchConfirmationViewModelFactory(): DeleteBranchConfirmationViewModel.Factory
     fun quickActionsViewModel(): QuickActionsViewModel
     fun setUpstreamBranchDialogViewModelFactory(): SetUpstreamBranchDialogViewModel.Factory
     fun renameBranchDialogViewModelFactory(): RenameBranchDialogViewModel.Factory

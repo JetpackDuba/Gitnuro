@@ -173,6 +173,12 @@ fun RepositoryOpenPage(
             focusRequester.requestFocus()
         }
     }
+
+    LaunchedEffect(repositoryOpenViewModel) {
+        repositoryOpenViewModel.navigateToDeleteBranchConfirmation.collectLatest { branch ->
+            onNavigate(Screen.DeleteBranchConfirmation(branch))
+        }
+    }
 }
 
 @Composable

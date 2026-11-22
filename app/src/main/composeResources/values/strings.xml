@@ -202,6 +202,11 @@
     <string name="settings_branches_fast_wordard_merge_description">Try to fast-forward merges when possible</string>
     <string name="settings_branches_automatic_stash_title">Automatically stash uncommitted changes before merge</string>
     <string name="settings_branches_automatic_stash_description">To avoid losing work if the merge is aborted, the app can create a snapshot of the uncommitted changes</string>
+    <string name="settings_branches_delete_requires_confirmation_title">Request confirmation for branch deletion</string>
+    <string name="settings_branches_delete_requires_confirmation_description">Applies for local and remote branches</string>
+    <string name="settings_branches_delete_requires_confirmation_option_always">Always</string>
+    <string name="settings_branches_delete_requires_confirmation_option_unmerged">Unmerged</string>
+    <string name="settings_branches_delete_requires_confirmation_option_never">Always</string>
     <string name="settings_layout_swap_status_title">Swap position for staged/unstaged views</string>
     <string name="settings_layout_swap_status_description">Show the list of unstaged changes above the list of staged changes</string>
     <string name="settings_layout_diff_with_log_title">Show diff view below the commits history</string>
@@ -354,4 +359,9 @@
     <string name="reset_branch_dialog_entry_mixed_subtitle">Keep the changes (unstaged)</string>
     <string name="reset_branch_dialog_entry_hard_title">Hard reset</string>
     <string name="reset_branch_dialog_entry_hard_subtitle">Discard all the changes</string>
+
+    <!-- Delete branch confirmation dialog -->
+    <string name="delete_branch_confirmation_dialog_title">Delete the following branches?</string>
+    <string name="delete_branch_confirmation_dialog_subtitle">This is a destructive operation that may result in data loss.</string>
+    <string name="delete_branch_confirmation_dialog_action">Delete</string>
 </resources>

@@ -7,6 +7,7 @@ import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.ProxySettings
 import com.jetpackduba.gitnuro.domain.models.ProxyType
+import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.domain.repositories.GlobalSettingsRepository
@@ -51,6 +52,7 @@ class GlobalSettingsService @Inject constructor(
     val cacheCredentialsInMemory: Flow<Boolean> get() = globalSettingsRepository.cacheCredentialsInMemory.defaultIfNull { DEFAULT_CACHE_CREDENTIALS_IN_MEMORY }
     val terminalPath: Flow<String?> get() = globalSettingsRepository.terminalPath
     val groupBranchesWithRemotes: Flow<Boolean> get() = globalSettingsRepository.groupBranchesWithRemotes.defaultIfNull { DEFAULT_GROUP_BRANCHES_WITH_REMOTES }
+    val requestDeleteBranch: Flow<RequestDeleteBranch> get() = globalSettingsRepository.requestDeleteBranch.defaultIfNull { DEFAULT_REQUEST_DELETE_BRANCH }
     val showDiffWithLog: Flow<Boolean> get() = globalSettingsRepository.showDiffWithLog.defaultIfNull { DEFAULT_SHOW_DIFF_WITH_LOG }
 
     companion object {
@@ -77,6 +79,8 @@ class GlobalSettingsService @Inject constructor(
         const val DEFAULT_VERIFY_SSL = true
         const val DEFAULT_CACHE_CREDENTIALS_IN_MEMORY = true
         const val DEFAULT_GROUP_BRANCHES_WITH_REMOTES = true
+        val DEFAULT_REQUEST_DELETE_BRANCH = RequestDeleteBranch.ALWAYS
         const val DEFAULT_SHOW_DIFF_WITH_LOG = false
+
     }
 }

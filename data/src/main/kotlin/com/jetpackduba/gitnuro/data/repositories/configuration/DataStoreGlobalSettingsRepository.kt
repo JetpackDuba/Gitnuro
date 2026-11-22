@@ -25,6 +25,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.p
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.proxyUseAuthPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.pullWithRebasePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.pushWithLeasePreference
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.requestDeleteBranchPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.scaleUiPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showAuthorInLogPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.showAuthorWithEmailInLogPreference
@@ -37,6 +38,7 @@ import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.u
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.verifySslPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.mappers.*
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
+import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
 import com.jetpackduba.gitnuro.domain.repositories.GlobalSettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -50,6 +52,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     private val avatarProviderMapper: AvatarProviderMapper,
     private val textDiffViewTypeMapper: TextDiffViewTypeMapper,
     private val proxyTypeMapper: ProxyTypeMapper,
+    private val requestDeleteBranchMapper: RequestDeleteBranchMapper,
 ) : GlobalSettingsRepository {
 
     // UI
@@ -92,6 +95,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     override val fastForwardMerge get() = dataStore[fastForwardMergePreference]
     override val autoStashOnMerge get() = dataStore[autoStashOnMergePreference]
     override val cloneDefaultDirectory get() = dataStore[cloneDefaultDirectoryPreference]
+    override val requestDeleteBranch: Flow<RequestDeleteBranch?> = dataStore[requestDeleteBranchPreference].map { it?.let { requestDeleteBranchMapper.toDomainOrNull(it) } }
 
 
     // Network
@@ -159,6 +163,10 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
                 is GlobalConfig.TerminalPath -> setValue(terminalPathPreference, globalConfig.value)
                 is GlobalConfig.GroupBranches -> setValue(groupBranchesWithRemotesPreference, globalConfig.value)
                 is GlobalConfig.ShowDiffWithLog -> setValue(showDiffWithLogPreference, globalConfig.value)
+                is GlobalConfig.RequestDeleteBranch -> setValue(
+                    requestDeleteBranchPreference,
+                    requestDeleteBranchMapper.toData(globalConfig.value)
+                )
             }
         }
     }

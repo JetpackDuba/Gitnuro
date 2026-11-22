@@ -32,9 +32,9 @@ fun PrimaryButton(
     enabled: Boolean = true,
     focusable: Boolean = true,
     backgroundColor: Color = MaterialTheme.colors.primary,
-    backgroundDisabled: Color = MaterialTheme.colors.primary.copy(0.5f),
+    backgroundDisabled: Color = backgroundColor.copy(0.5f),
     textColor: Color = MaterialTheme.colors.onPrimary,
-    disabledTextColor: Color = MaterialTheme.colors.onPrimary.copy(alpha = 0.5f),
+    disabledTextColor: Color = textColor.copy(alpha = 0.5f),
     onClick: () -> Unit,
 ) {
     Box(

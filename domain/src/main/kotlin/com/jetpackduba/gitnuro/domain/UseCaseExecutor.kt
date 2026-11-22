@@ -12,6 +12,7 @@ import com.jetpackduba.gitnuro.domain.usecases.RefreshDataUseCase
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -76,15 +77,24 @@ class UseCaseExecutor @Inject constructor(
         dataToRefresh: Array<DataToRefresh>,
         refreshEvenIfFailed: Boolean = false,
         isForegroundTask: Boolean = true,
+        includeErrorHandling: Boolean = true,
         block: suspend EitherContext<AppError>.(String) -> Either<T, AppError>,
     ): Deferred<Either<T, AppError>> {
         return repositoryStateRepository.runOperationInTabScopeAsync(taskType, scope, isForegroundTask) {
-            executeTaskWithErrorHandling(
-                taskType,
-                dataToRefresh,
-                refreshEvenIfFailed,
-                block,
-            )
+            if (includeErrorHandling) {
+                executeTaskWithErrorHandling(
+                    taskType,
+                    dataToRefresh,
+                    refreshEvenIfFailed,
+                    block,
+                )
+            } else {
+                executeTask(
+                    dataToRefresh,
+                    refreshEvenIfFailed,
+                    block,
+                )
+            }
         }
     }
 

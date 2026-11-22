@@ -52,6 +52,8 @@ fun IconBasedDialog(
     title: String,
     subtitle: String,
     primaryActionText: String,
+    primaryActionBackgroundColor: Color= MaterialTheme.colors.primary,
+    primaryActionTextColor: Color= MaterialTheme.colors.onPrimary,
     isPrimaryActionEnabled: Boolean = true,
     showCancelAction: Boolean = true,
     cancelActionText: String = stringResource(Res.string.generic_button_cancel),
@@ -144,6 +146,8 @@ fun IconBasedDialog(
                                 this
                             }
                         },
+                    backgroundColor = primaryActionBackgroundColor,
+                    textColor = primaryActionTextColor,
                     enabled = isPrimaryActionEnabled,
                     onClick = { onPrimaryActionClicked() },
                     text = primaryActionText
