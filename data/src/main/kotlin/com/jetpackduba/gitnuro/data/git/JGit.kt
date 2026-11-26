@@ -1,10 +1,14 @@
 package com.jetpackduba.gitnuro.data.git
 
+import com.jetpackduba.gitnuro.common.OS
+import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.common.extensions.TAG
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.domain.AppEnvInfo
 import com.jetpackduba.gitnuro.domain.errors.*
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.util.FS
+import org.eclipse.jgit.util.FS_POSIX
 import org.eclipse.jgit.util.FS_Win32
 import java.io.File
 import javax.inject.Inject
@@ -14,6 +18,8 @@ import javax.inject.Singleton
 @Singleton
 class JGit @Inject constructor(
     private val windowsFs: Provider<WindowsFs>,
+    private val flatpakFs: Provider<FlatpakFs.Factory>,
+    private val appEnvInfo: AppEnvInfo,
 ) {
     private val repositories = mutableMapOf<String, Git>()
 
@@ -32,6 +38,8 @@ class JGit @Inject constructor(
 
                 val fsToUse = if (fs is FS_Win32) {
                     windowsFs.get()
+                } else if (fs is FS_POSIX && currentOs == OS.LINUX && appEnvInfo.isFlatpak) {
+                    flatpakFs.get().create(repositoryPath)
                 } else {
                     fs
                 }

@@ -32,6 +32,7 @@ import com.jetpackduba.gitnuro.common.systemSeparator
 import com.jetpackduba.gitnuro.data.DataStoreFilesProvider
 import com.jetpackduba.gitnuro.data.git.signers.AppGpgSigner
 import com.jetpackduba.gitnuro.data.git.signers.SshSigner
+import com.jetpackduba.gitnuro.domain.AppEnvInfo
 import com.jetpackduba.gitnuro.domain.TempFilesManager
 import com.jetpackduba.gitnuro.domain.credentials.CredentialsRequest
 import com.jetpackduba.gitnuro.domain.models.*

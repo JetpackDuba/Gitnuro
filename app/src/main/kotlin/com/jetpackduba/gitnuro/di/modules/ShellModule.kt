@@ -1,6 +1,6 @@
 package com.jetpackduba.gitnuro.di.modules
 
-import com.jetpackduba.gitnuro.AppEnvInfo
+import com.jetpackduba.gitnuro.domain.AppEnvInfo
 import com.jetpackduba.gitnuro.common.OS
 import com.jetpackduba.gitnuro.common.currentOs
 import com.jetpackduba.gitnuro.domain.FlatpakShellManager

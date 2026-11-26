@@ -1,10 +1,11 @@
 package com.jetpackduba.gitnuro.domain.credentials.external
 
+import com.jetpackduba.gitnuro.domain.IShellManager
 import com.jetpackduba.gitnuro.domain.ShellManager
 import javax.inject.Inject
 
 class NixGitCredentialsManagerProvider @Inject constructor(
-    private val shellManager: ShellManager,
+    private val shellManager: IShellManager,
 ) : IGitCredentialsManagerProvider {
     override fun loadPath(): String? {
         return listOf(

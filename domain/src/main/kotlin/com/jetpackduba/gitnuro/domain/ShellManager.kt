@@ -1,8 +1,8 @@
 package com.jetpackduba.gitnuro.domain
 
-import com.jetpackduba.gitnuro.domain.exceptions.CommandExecutionFailed
 import com.jetpackduba.gitnuro.common.printError
 import com.jetpackduba.gitnuro.common.printLog
+import com.jetpackduba.gitnuro.domain.exceptions.CommandExecutionFailed
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -15,6 +15,8 @@ interface IShellManager {
     fun runCommandInPath(command: List<String>, path: String)
     fun runCommandWithoutResult(command: List<String>): Boolean
     fun runCommandProcess(command: List<String>, directory: File? = null): Process
+    fun prepareProcessBuilder(command: List<String>, directory: File? = null): ProcessBuilder
+    fun prepareProcessBuilderOrNull(command: List<String>, directory: File? = null): ProcessBuilder?
 }
 
 class ShellManager @Inject constructor() : IShellManager {
@@ -81,6 +83,19 @@ class ShellManager @Inject constructor() : IShellManager {
     override fun runCommandProcess(command: List<String>, directory: File?): Process {
         printLog(TAG, "runCommandProcess: " + command.joinToString(" "))
         try {
+            return prepareProcessBuilder(command).start()
+        } catch (ex: IOException) {
+            throw CommandExecutionFailed(ex.message.orEmpty(), ex)
+        }
+    }
+
+    override fun prepareProcessBuilder(
+        command: List<String>,
+        directory: File?
+    ): ProcessBuilder {
+        printLog(TAG, "prepareProcessBuilder: " + command.joinToString(" "))
+
+        try {
             return ProcessBuilder(command)
                 .run {
                     if (directory != null) {
@@ -89,11 +104,32 @@ class ShellManager @Inject constructor() : IShellManager {
                         this
                     }
                 }
-                .start()
         } catch (ex: IOException) {
             throw CommandExecutionFailed(ex.message.orEmpty(), ex)
         }
     }
+
+    override fun prepareProcessBuilderOrNull(
+        command: List<String>,
+        directory: File?
+    ): ProcessBuilder? {
+        printLog(TAG, "prepareProcessBuilder: " + command.joinToString(" "))
+
+        return try {
+            ProcessBuilder(command)
+                .run {
+                    if (directory != null) {
+                        this.directory(directory)
+                    } else {
+                        this
+                    }
+                }
+        } catch (ex: Exception) {
+            printError(TAG, "Error preparing process: ${ex.message}", ex)
+            null
+        }
+    }
+
 }
 
 /**
@@ -120,4 +156,11 @@ class FlatpakShellManager @Inject constructor(
         return shellManager.runCommandProcess(flatpakPrefix + command)
     }
 
+    override fun prepareProcessBuilder(command: List<String>, directory: File?): ProcessBuilder {
+        return shellManager.prepareProcessBuilder(flatpakPrefix + command, directory)
+    }
+
+    override fun prepareProcessBuilderOrNull(command: List<String>, directory: File?): ProcessBuilder? {
+        return shellManager.prepareProcessBuilderOrNull(flatpakPrefix + command, directory)
+    }
 }
