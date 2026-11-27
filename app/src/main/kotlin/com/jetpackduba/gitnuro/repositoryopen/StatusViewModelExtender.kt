@@ -1,6 +1,8 @@
 package com.jetpackduba.gitnuro.repositoryopen
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.collectLatestInCoroutineScope
@@ -100,29 +102,21 @@ class StatusViewModelExtender @AssistedInject constructor(
 
     val swapUncommittedChanges = appSettings.swapStatusPanes
 
-    private val normalCommitMessage = persistedCommitMessageFlow { it.commitMessage }
+    private val normalCommitMessage = persistedDraft { it.commitMessage }
 
-    private val mergeCommitMessage = persistedCommitMessageFlow { it.mergeMessage }
+    private val mergeCommitMessage = persistedDraft { it.mergeMessage }
 
-    private val commitMessage = combine(
-        normalCommitMessage,
-        mergeCommitMessage,
-        repositoryDataRepository.repositoryState,
-    ) { normalCommitMessage, mergeCommitMessage, repositoryState ->
-        val state = repositoryState.dataOrNull()
-
-        if (state?.isMerging == true) {
+    private val currentDraft: MutableState<TextFieldValue>
+        get() = if (repositoryDataRepository.repositoryState.value.dataOrNull()?.isMerging == true) {
             mergeCommitMessage
         } else {
             normalCommitMessage
         }
-    }.stateIn(TextFieldValue(""))
 
+    private fun persistedDraft(filter: (PersistedCommitMessage) -> String?): MutableState<TextFieldValue> {
+        val draft = mutableStateOf(TextFieldValue(""))
 
-    private fun persistedCommitMessageFlow(filter: (PersistedCommitMessage) -> String?): MutableStateFlow<TextFieldValue> {
-        val textFlow = MutableStateFlow(TextFieldValue(""))
-
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main.immediate) {
             repositoryDataRepository
                 .persistedCommitMessage
                 .map {
@@ -132,14 +126,14 @@ class StatusViewModelExtender @AssistedInject constructor(
                 }
                 .distinctUntilChanged()
                 .collect {
-                    if (textFlow.value.text.isBlank()) {
+                    if (draft.value.text.isBlank()) {
                         val newText = it.orEmpty()
-                        textFlow.value = TextFieldValue(newText, selection = TextRange(newText.count()))
+                        draft.value = TextFieldValue(newText, selection = TextRange(newText.count()))
                     }
                 }
         }
 
-        return textFlow
+        return draft
     }
 
 
@@ -208,7 +202,8 @@ class StatusViewModelExtender @AssistedInject constructor(
         rebaseInteractiveState,
         selectedUnstagedDiffEntries,
         selectedStagedDiffEntries,
-        commitMessage,
+        normalCommitMessage,
+        mergeCommitMessage,
         previousCommitMessage,
         repositoryDataRepository.repositoryState.toUiDataState(),
         repositoryPath,
@@ -217,6 +212,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     )
         .stateIn(
             StatusState(
+                commitMessageState = currentDraft,
                 stagedLazyListState = stagedLazyListState,
                 unstagedLazyListState = unstagedLazyListState,
             )
@@ -333,14 +329,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     }
 
     fun updateCommitMessage(message: TextFieldValue) {
-        val repositoryState = repositoryDataRepository.repositoryState.value.dataOrNull()
-
-        if (repositoryState?.isMerging == true) {
-            mergeCommitMessage.value = message
-        } else {
-            normalCommitMessage.value = message
-        }
-
+        currentDraft.value = message
         persistMessage(message.text)
     }
 
@@ -600,7 +589,7 @@ class StatusViewModelExtender @AssistedInject constructor(
     fun amend(isAmend: Boolean) {
         this.isAmend.value = isAmend
 
-        if (this.commitMessage.value.text.isEmpty()) {
+        if (currentDraft.value.text.isEmpty()) {
             val previousCommitMessage = this.statusState.value.previousCommitMessage.orEmpty()
 
             updateCommitMessage(
