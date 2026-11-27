@@ -1,7 +1,8 @@
 package com.jetpackduba.gitnuro.ui.status
 
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.ui.text.input.TextFieldValue
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.printLog
@@ -23,7 +24,7 @@ sealed interface SelectionType<T> {
 }
 
 
-@Immutable
+@Stable
 data class StatusState(
     val isLoading: Boolean = true,
     val staged: List<TreeItem<StatusEntry>> = emptyList(),
@@ -42,13 +43,16 @@ data class StatusState(
     val showSearchUnstaged: Boolean = false,
     val searchFilterUnstaged: TextFieldValue = TextFieldValue(""),
     val showAsTree: Boolean = false,
-    val commitMessage: TextFieldValue = TextFieldValue(""),
+    private val commitMessageState: State<TextFieldValue>,
     val previousCommitMessage: String? = null,
     val repositoryState: RepositoryState = RepositoryState.SAFE,
     val repositoryPath: String? = null,
     val stagedLazyListState: LazyListState,
     val unstagedLazyListState: LazyListState,
 ) {
+    // Read the live editing value, including the selection and IME composition range.
+    val commitMessage: TextFieldValue get() = commitMessageState.value
+
     val hasPreviousCommits: Boolean = previousCommitMessage != null
 
     val haveConflictsBeenSolved: Boolean = unstaged.none {
@@ -81,7 +85,8 @@ fun combineStatusState(
     rebaseInteractiveState: Flow<RebaseInteractiveState>,
     selectedUnstagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
     selectedStagedDiffEntries: Flow<List<DiffType.UncommittedDiff>>,
-    commitMessage: Flow<TextFieldValue>,
+    normalCommitMessage: State<TextFieldValue>,
+    mergeCommitMessage: State<TextFieldValue>,
     previousCommitMessage: Flow<String?>,
     repositoryState: Flow<UiDataState<RepositoryState>>,
     repositoryPath: Flow<String?>,
@@ -103,7 +108,6 @@ fun combineStatusState(
         rebaseInteractiveState,
         selectedUnstagedDiffEntries,
         selectedStagedDiffEntries,
-        commitMessage,
         previousCommitMessage,
         repositoryState,
         repositoryPath,
@@ -122,7 +126,6 @@ fun combineStatusState(
             rebaseInteractiveState,
             selectedUnstagedDiffEntries,
             selectedStagedDiffEntries,
-            commitMessage,
             previousCommitMessage,
             repositoryStateDateState,
             repositoryPath,
@@ -177,7 +180,7 @@ fun combineStatusState(
             showSearchUnstaged = showSearchUnstaged,
             searchFilterUnstaged = searchFilterUnstaged,
             showAsTree = showAsTree,
-            commitMessage = commitMessage,
+            commitMessageState = if (repositoryState.isMerging) mergeCommitMessage else normalCommitMessage,
             previousCommitMessage = previousCommitMessage,
             repositoryState = repositoryState,
             repositoryPath = repositoryPath,
