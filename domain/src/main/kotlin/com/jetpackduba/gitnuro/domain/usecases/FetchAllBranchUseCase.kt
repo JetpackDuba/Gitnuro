@@ -14,7 +14,7 @@ class FetchAllBranchUseCase @Inject constructor(
         useCaseExecutor.executeLaunch(
             taskType = TaskType.Fetch,
             refreshEvenIfFailed = true,
-            dataToRefresh = arrayOf(DataToRefresh.LOG),
+            dataToRefresh = arrayOf(DataToRefresh.LOG, DataToRefresh.BRANCHES, DataToRefresh.TAGS),
         ) { repositoryPath ->
             fetchAllGitAction(repositoryPath, specificRemote)
         }
