@@ -20,11 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.app.generated.resources.*
 import com.jetpackduba.gitnuro.common.printError
-import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
-import com.jetpackduba.gitnuro.domain.models.Error
-import com.jetpackduba.gitnuro.domain.models.GlobalConfig
-import com.jetpackduba.gitnuro.domain.models.ProxyType
-import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
+import com.jetpackduba.gitnuro.domain.models.*
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
 import com.jetpackduba.gitnuro.extensions.handMouseClickable
@@ -32,7 +28,6 @@ import com.jetpackduba.gitnuro.extensions.toSmartSystemString
 import com.jetpackduba.gitnuro.theme.backgroundSelected
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
-import com.jetpackduba.gitnuro.theme.themeLists
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.AppSwitch
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -630,6 +625,7 @@ private fun CommitsHistory(settingsViewState: SettingsViewState, onAction: (Sett
 
 @Composable
 private fun Appearance(settingsViewState: SettingsViewState, onAction: (SettingsAction) -> Unit) {
+    val appLanguage = settingsViewState.appLanguage
     val currentTheme = settingsViewState.theme
     val customTheme = settingsViewState.customTheme
     val currentLinesHeightType = settingsViewState.linesHeightType
@@ -637,9 +633,20 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
     val groupBranchesWithRemotes = settingsViewState.groupBranchesWithRemotes
     val (errorToDisplay, setErrorToDisplay) = remember { mutableStateOf<Error?>(null) }
 
+    AppLanguageSelection(
+        appLanguage,
+        onValueChange = { onAction(SettingsAction.SetConfig(GlobalConfig.Language(it))) }
+    )
+
+    val themeLists = listOf(
+        DropDownOption(Theme.LIGHT, stringResource(Res.string.settings_appearence_theme_option_light)),
+        DropDownOption(Theme.DARK, stringResource(Res.string.settings_appearence_theme_option_dark)),
+        DropDownOption(Theme.CUSTOM, stringResource(Res.string.settings_appearence_theme_option_custom)),
+    )
+
     SettingDropDown(
-        title = "Theme",
-        subtitle = "Select the UI theme between light and dark mode",
+        title = stringResource(Res.string.settings_appearence_theme_title),
+        subtitle = stringResource(Res.string.settings_appearence_theme_description),
         dropDownOptions = themeLists,
         currentOption = currentTheme,
         onOptionSelected = { themeDropDown ->
@@ -647,7 +654,7 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
         }
     )
 
-    if (currentTheme == Theme.Custom) {
+    if (currentTheme == Theme.CUSTOM) {
         val scope = rememberCoroutineScope()
         var themeJson by remember { mutableStateOf(customTheme.orEmpty()) }
         var themeJob: Job? = null
@@ -767,6 +774,52 @@ private fun Appearance(settingsViewState: SettingsViewState, onAction: (Settings
                onAccept = { setErrorToDisplay(null) }
            )*/
     }
+}
+
+private val languagesLabels by lazy {
+    mapOf(
+        AppLanguage.CATALAN to "Català",
+        AppLanguage.ENGLISH to "English",
+        AppLanguage.SPANISH to "Español",
+    )
+}
+
+@Composable
+private fun AppLanguageSelection(currentValue: AppLanguage, onValueChange: (AppLanguage) -> Unit) {
+    val systemDefaultLabel = stringResource(Res.string.settings_appearence_language_option_system_default)
+
+    val appLanguagesList = remember(systemDefaultLabel) {
+        buildList {
+            val default = DropDownOption(
+                AppLanguage.SYSTEM_DEFAULT,
+                systemDefaultLabel,
+            )
+
+            add(default)
+
+            val dropDownOptions = AppLanguage.entries.map { language ->
+                languageDropDownOption(language)
+            }.filterNotNull()
+
+            addAll(dropDownOptions)
+        }
+    }
+
+    SettingDropDown(
+        title = stringResource(Res.string.settings_appearence_language_title),
+        subtitle = stringResource(Res.string.settings_appearence_language_description),
+        dropDownOptions = appLanguagesList,
+        currentOption = currentValue,
+        onOptionSelected = { dropDownOption ->
+            onValueChange(dropDownOption.value)
+        }
+    )
+}
+
+private fun languageDropDownOption(language: AppLanguage): DropDownOption<AppLanguage>? {
+    val languageLabel = languagesLabels[language] ?: return null
+
+    return DropDownOption(language, languageLabel)
 }
 
 

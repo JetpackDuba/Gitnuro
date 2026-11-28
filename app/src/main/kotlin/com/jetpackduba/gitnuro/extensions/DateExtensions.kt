@@ -2,6 +2,10 @@ package com.jetpackduba.gitnuro.extensions
 
 import androidx.compose.runtime.Composable
 import com.jetpackduba.gitnuro.LocalDateTimeFormat
+import com.jetpackduba.gitnuro.app.generated.resources.Res
+import com.jetpackduba.gitnuro.app.generated.resources.generic_date_today
+import com.jetpackduba.gitnuro.app.generated.resources.generic_date_yesterday
+import org.jetbrains.compose.resources.stringResource
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -41,9 +45,9 @@ fun Instant.toSmartSystemString(
         localDate.isTodayOrYesterday(currentTime)
     ) {
         if (localDate.dayOfMonth == currentTime.dayOfMonth)
-            "Today"
+            stringResource(Res.string.generic_date_today)
         else
-            "Yesterday"
+            stringResource(Res.string.generic_date_yesterday)
     } else {
         val systemLocale = System.getProperty("user.language")
         val locale = Locale.Builder()

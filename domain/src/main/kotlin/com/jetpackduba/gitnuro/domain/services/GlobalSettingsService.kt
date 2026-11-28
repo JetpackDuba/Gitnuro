@@ -1,11 +1,10 @@
 package com.jetpackduba.gitnuro.domain.services
 
-import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.flows.defaultIfNull
+import com.jetpackduba.gitnuro.domain.models.AppLanguage
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
-import com.jetpackduba.gitnuro.domain.models.ProxySettings
 import com.jetpackduba.gitnuro.domain.models.ProxyType
 import com.jetpackduba.gitnuro.domain.models.RequestDeleteBranch
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
@@ -21,6 +20,7 @@ class GlobalSettingsService @Inject constructor(
         globalSettingsRepository.setConfiguration(globalConfig)
     }
 
+    val appLanguage: Flow<AppLanguage> get() = globalSettingsRepository.appLanguage.defaultIfNull { DEFAULT_LANGUAGE }
     val scaleUi: Flow<Float?> get() = globalSettingsRepository.scaleUi
     val theme: Flow<Theme> get() = globalSettingsRepository.theme.defaultIfNull { DEFAULT_THEME }
     val customTheme: Flow<String?> get() = globalSettingsRepository.customTheme
@@ -56,7 +56,7 @@ class GlobalSettingsService @Inject constructor(
     val showDiffWithLog: Flow<Boolean> get() = globalSettingsRepository.showDiffWithLog.defaultIfNull { DEFAULT_SHOW_DIFF_WITH_LOG }
 
     companion object {
-        val DEFAULT_THEME = Theme.Dark
+        val DEFAULT_THEME = Theme.DARK
         val DEFAULT_LINES_HEIGHT = LinesHeightType.SPACED
         const val DEFAULT_DATE_USE_DEFAULT = true
         const val DEFAULT_DATE_IS_24H = true
@@ -81,6 +81,6 @@ class GlobalSettingsService @Inject constructor(
         const val DEFAULT_GROUP_BRANCHES_WITH_REMOTES = true
         val DEFAULT_REQUEST_DELETE_BRANCH = RequestDeleteBranch.ALWAYS
         const val DEFAULT_SHOW_DIFF_WITH_LOG = false
-
+        val DEFAULT_LANGUAGE = AppLanguage.SYSTEM_DEFAULT
     }
 }

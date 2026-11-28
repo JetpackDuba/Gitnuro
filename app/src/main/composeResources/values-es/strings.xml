@@ -1,0 +1,401 @@
+<resources>
+    <string name="app_name">Gitnuro</string>
+
+    <!-- Generic -->
+    <string name="generic_button_ok">OK</string>
+    <string name="generic_button_accept">Aceptar</string>
+    <string name="generic_button_cancel">Cancelar</string>
+    <string name="generic_button_close">Cerrar</string>
+    <string name="generic_button_continue">Continuar</string>
+    <string name="generic_save">Guardar</string>
+    <string name="generic_save_as_default">Save as default</string>
+    <string name="generic_repository_url">URL del repository</string>
+    <string name="generic_directory">Directorio</string>
+    <string name="generic_search">Búsqueda</string>
+    <string name="generic_repository_folder_name">Carpeta del repositorio</string>
+    <string name="generic_date_today">Hoy</string>
+    <string name="generic_date_yesterday">Ayer</string>
+
+
+    <!-- Home page -->
+    <string name="home_button_open_repository">Abrir repositorio</string>
+    <string name="home_button_clone_repository">Clonar repositorio</string>
+    <string name="home_button_start_repository">Iniciar repositorio local</string>
+    <string name="home_label_additional_options">Opciones adicionales</string>
+    <string name="home_button_source_code">Código fuente</string>
+    <string name="home_button_report_bug">Reportar un problema</string>
+    <string name="home_button_additional_information">Información adicional</string>
+    <string name="home_button_settings">Ajustes</string>
+
+    <string name="home_recent_repositories_search_label">Búsqueda de repositorios recientes</string>
+    <string name="home_recent_repositories_list_empty">¡No hay nada que ver aquí, abre un repositorio primero!</string>
+    <string name="home_recent_repositories_remove_repository">Eliminar repositorio del listado de recientes</string>
+
+    <!-- Top menu -->
+    <string name="menu_open">Abrir</string>
+    <string name="menu_open_dialog_title">Abrir un repositorio</string>
+    <string name="menu_open_tooltip">Abrir un repositorio diferente</string>
+    <string name="menu_pull">Pull</string>
+    <string name="menu_pull_default">Pull de la rama actual</string>
+    <string name="menu_pull_rebase">Pull de la rama actual con rebase</string>
+    <string name="menu_pull_tooltip_disabled">Pull no disponible sin un repositorio remoto</string>
+    <string name="menu_push">Push</string>
+    <string name="menu_push_tooltip">Push de los cambios de la actual rama</string>
+    <string name="menu_push_tooltip_disabled">Push no disponible sin un repositorio remoto</string>
+    <string name="menu_branch">Rama</string>
+    <string name="menu_branch_tooltip">Crear una nueva rama</string>
+    <string name="menu_stash">Guardar</string>
+    <string name="menu_stash_tooltip">Guarda los cambios pendientes de commit</string>
+    <string name="menu_stash_tooltip_disabled">Modifica algunos ficheros para poder hacer un guardado de cambios</string>
+    <string name="menu_pop_stash">Recuperar</string>
+    <string name="menu_pop_stash_tooltip">Recuperar los últimos cambios guardados</string>
+    <string name="menu_pop_stash_tooltip_disabled">No hay cambios a recuperar</string>
+    <string name="menu_terminal">Terminal</string>
+    <string name="menu_terminal_tooltip">Abrir una terminal en la ruta del repositorio</string>
+    <string name="menu_actions">Acciones</string>
+    <string name="menu_actions_tooltip">Acciones adicionales</string>
+    <string name="menu_settings">Ajustes</string>
+    <string name="menu_settings_tooltip">Ajustes de Gitnuro</string>
+
+    <string name="rebase_interactive_view_title">Rebase interactivo</string>
+    <string name="rebase_interactive_view_button_complete_rebase">Completar rebase</string>
+
+    <!-- Bottom info bar -->
+    <string name="bottom_info_bar_name_and_email">%1$s &lt;%2$s&gt;</string>
+    <string name="bottom_info_bar_name_not_set">Nombre no configurado</string>
+    <string name="bottom_info_bar_email_not_set">Correo no configurado</string>
+    <string name="bottom_info_bar_update_available">Actualización %1$s disponible</string>
+    <string name="bottom_info_bar_app_version">Versión %1$s</string>
+
+    <!-- Side pane view -->
+    <string name="side_pane_search_hint">Busca ramas, etiquetas y más</string>
+    <string name="side_pane_local_branches_title">Ramas locales</string>
+    <string name="side_pane_local_branches_current_branch_label">HEAD</string>
+    <string name="side_pane_remotes_title">Remotos</string>
+    <string name="side_pane_tags_title">Etiquetas</string>
+    <string name="side_pane_stashes_title">Cambios guardados</string>
+    <string name="side_pane_submodules_title">Submodulos</string>
+
+    <!-- Uncommited changes view -->
+    <string name="uncommited_changes_unstaged_title">Sin preparar</string>
+    <string name="uncommited_changes_unstaged_all_items_action">Preparar todo</string>
+    <string name="uncommited_changes_unstaged_selected_items_action">Preparar seleccionados</string>
+    <string name="uncommited_changes_unstaged_item_action">Preparar</string>
+
+    <string name="uncommited_changes_staged_title">Preparados</string>
+    <string name="uncommited_changes_staged_all_items_action">Quitar todo</string>
+    <string name="uncommited_changes_staged_selected_items_action">Quitar seleccionados</string>
+    <string name="uncommited_changes_staged_item_action">Quitar</string>
+
+    <string name="uncommited_changes_text_input_label_message_read_only">Mensaje de commit (solo lectura)</string>
+    <string name="uncommited_changes_text_input_label_message">Escribe el mensaje de commit aquí</string>
+    <string name="uncommited_changes_primary_button_commit">Commit</string>
+    <string name="uncommited_changes_primary_button_amend">Modificar</string>
+    <string name="uncommited_changes_primary_button_merge">Fusionar</string>
+    <string name="uncommited_changes_primary_button_continue">Continuar</string>
+    <string name="uncommited_changes_primary_button_skip">Omitir</string>
+    <string name="uncommited_changes_secondary_button_abort">Abortar</string>
+    <string name="uncommited_changes_amend_check">Modificar commit anterior</string>
+
+    <!-- Merge automatic stash -->
+    <string name="merge_automatic_stash_description">Guardado de cambios automático (snapshot) antes de la fusión de "%1$s" a "%2$s"</string>
+    <string name="pull_with_merge_automatic_stash_description">Guardado de cambios automático (snapshot) antes del pull de "%1$s"</string>
+    <string name="pull_with_merge_from_specific_branch_automatic_stash_description">Guardado de cambios automático (snapshot) antes del pull de "%1$s" a "%2$s"</string>
+
+    <!-- Status entries context menu -->
+    <string name="status_entries_context_menu_delete_file">Eliminar fichero</string>
+    <string name="status_entries_context_menu_file_history">Historial del fichero</string>
+    <string name="status_entries_context_menu_blame_file">Blame del fichero</string>
+    <string name="status_entries_context_menu_discard_file_changes">Descartar cambios del fichero</string>
+    <string name="status_entries_context_menu_open_file_in_folder">Abrir carpeta en explorador de archivos</string>
+    <string name="status_entries_context_menu_copy_file_absolute_path">Copiar ruta</string>
+    <string name="status_entries_context_menu_copy_file_relative_path">Copiar ruta relativa</string>
+    <string name="status_entries_context_menu_discard_multiple_files">Descartar %1$s ficheros</string>
+    <string name="status_entries_context_menu_stage_multiple_files">Preparar %1$s ficheros</string>
+    <string name="status_entries_context_menu_unstage_multiple_files">Quitar %1$s ficheros</string>
+    <string name="status_entries_context_menu_copy_files_absolute_paths">Copiar rutas</string>
+    <string name="status_entries_context_menu_copy_files_relative_paths">Copiar rutas relativas</string>
+
+    <!-- Branch context menu -->
+    <string name="branch_context_menu_checkout_branch">Checkout de rama</string>
+    <string name="branch_context_menu_merge_branch">Fusión de rama</string>
+    <string name="branch_context_menu_rebase_branch">Rebase de rama</string>
+    <string name="branch_context_menu_push_current_to_target">Push de "%1$s" a "%2$s"</string>
+    <string name="branch_context_menu_pull_target_to_current">Pull de "%1$s" a "%2$s"</string>
+    <string name="branch_context_menu_rename_branch">Renombrar rama</string>
+    <string name="branch_context_menu_change_default_upstream_branch">Cambiar rama remota por defecto</string>
+    <string name="branch_context_menu_delete_remote_branch">Eliminar rama remota</string>
+    <string name="branch_context_menu_delete_branch">Eliminar rama</string>
+    <string name="branch_context_menu_copy_branch_name">Copiar nombre de rama</string>
+
+    <!-- Committed changes context menu -->
+    <string name="committed_changes_context_menu_blame_file">Blame del fichero</string>
+    <string name="committed_changes_context_menu_file_history">Historial del fichero</string>
+    <string name="committed_changes_context_menu_open_file_in_folder">Abrir fichero en la carpeta</string>
+
+    <!-- Log context menu -->
+    <string name="log_context_menu_show_status_to_amend">Mostrar estado para modificar este commit</string>
+    <string name="log_context_menu_checkout_commit">Checkout del commit</string>
+    <string name="log_context_menu_create_branch">Crear rama</string>
+    <string name="log_context_menu_create_tag">Crear etiqueta</string>
+    <string name="log_context_menu_rebase_interactive">Rebase interactivo</string>
+    <string name="log_context_menu_revert_commit">Revertir commit</string>
+    <string name="log_context_menu_cherry_pick_commit">Cherry-pick del commit</string>
+    <string name="log_context_menu_reset_current_branch_to_commit">Restablecer la rama actual a este commit</string>
+
+    <!-- Pull context menu -->
+    <string name="pull_context_menu_pull_with_merge">Pull con fusión</string>
+    <string name="pull_context_menu_pull_with_rebase">Pull con rebase</string>
+    <string name="pull_context_menu_fetch_all">Actualizar todos los remotos</string>
+
+    <!-- Push context menu -->
+    <string name="push_context_menu_push_including_tags">Push incluyendo etiquetas</string>
+    <string name="push_context_menu_force_push">Push forzado</string>
+
+    <!-- Remote context menu -->
+    <string name="remote_context_menu_edit">Editar</string>
+    <string name="remote_context_menu_delete">Eliminar</string>
+    <string name="remote_context_menu_fetch_all">Actualizar ramas</string>
+
+    <!-- Stash menu context menu -->
+    <string name="stash_context_menu_stash_with_message">Guardar cambios con mensaje</string>
+
+    <!-- Stashes context menu -->
+    <string name="stashes_context_menu_apply_stash">Aplicar cambios guardados</string>
+    <string name="stashes_context_menu_pop_stash">Recuperar cambios guardados</string>
+    <string name="stashes_context_menu_drop_stash">Eliminar cambios guardados</string>
+
+    <!-- Status dir entries context menu -->
+    <string name="status_dir_entries_context_menu_unstage_changes">Quitar cambios preparados del directorio</string>
+    <string name="status_dir_entries_context_menu_stage_changes">Preparar cambios del directorio</string>
+    <string name="status_dir_entries_context_menu_discard_changes">Descartar cambios</string>
+
+    <!-- Submodules context menu -->
+    <string name="submodules_context_menu_initialize_submodule">Inicializar submódulo</string>
+    <string name="submodules_context_menu_open_submodule_in_tab">Abrir submódulo en pestaña nueva</string>
+    <string name="submodules_context_menu_sync_submodule">Sincronizar submódulo</string>
+    <string name="submodules_context_menu_update_submodule">Actualizar submódulo</string>
+    <string name="submodules_context_menu_delete_submodule">Eliminar submódulo</string>
+
+    <!-- Tag context menu -->
+    <string name="tag_context_menu_checkout_tag_commit">Checkout del commit de la etiqueta</string>
+    <string name="tag_context_menu_delete_tag">Eliminar etiqueta</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_environment_default_clone_directory_title">Directorio de clonado por defecto</string>
+    <string name="settings_environment_default_clone_directory_description">Directorio que se usará por defecto al clonar un repositorio</string>
+    <string name="settings_section_user_interface">Interfaz de usuario</string>
+    <string name="settings_entry_appearance">Apariencia</string>
+    <string name="settings_entry_layout">Diseño</string>
+    <string name="settings_entry_datetime">Fecha/Hora</string>
+    <string name="settings_entry_commits_history">Historial de commits</string>
+    <string name="settings_section_git">GIT</string>
+    <string name="settings_entry_environment">Entorno</string>
+    <string name="settings_entry_branches">Ramas</string>
+    <string name="settings_entry_remote_actions">Acciones de remotos</string>
+    <string name="settings_section_network">Red</string>
+    <string name="settings_entry_proxy">Proxy</string>
+    <string name="settings_entry_auth">Autenticación</string>
+    <string name="settings_entry_security">Securidad</string>
+    <string name="settings_section_tools">Herramientas</string>
+    <string name="settings_entry_terminal">Terminal</string>
+    <string name="settings_entry_logs">Logs</string>
+    <string name="settings_branches_fast_wordard_merge_title">Fusión fast-forward</string>
+    <string name="settings_branches_fast_wordard_merge_description">Trata de realizar fusiones fast-forward cuando sea posible</string>
+    <string name="settings_branches_automatic_stash_title">Guarda cambios pendientes de commit al realizar una fusión</string>
+    <string name="settings_branches_automatic_stash_description">Para evitar perder el trabajo si la fusión se aborta, la app puede crear un snapshot de los cambios pendientes</string>
+    <string name="settings_branches_delete_requires_confirmation_title">Solicitar confirmación para eliminar ramas</string>
+    <string name="settings_branches_delete_requires_confirmation_description">Se aplica a ramas locales y remotas</string>
+    <string name="settings_branches_delete_requires_confirmation_option_always">Siempre</string>
+    <string name="settings_branches_delete_requires_confirmation_option_unmerged">Sin fusionar (unmerged)</string>
+    <string name="settings_branches_delete_requires_confirmation_option_never">Nunca</string>
+    <string name="settings_layout_swap_status_title">Intercambiar la posición de las vistas de cambios preparados</string>
+    <string name="settings_layout_swap_status_description">Mostrar la lista de cambios sin preparar por encima de la lista de cambios preparados</string>
+    <string name="settings_layout_diff_with_log_title">Mostrar la vista de diff debajo del historial de commits</string>
+    <string name="settings_layout_diff_with_log_description">Permite mantener ambos visibles al mismo tiempo</string>
+    <string name="settings_datetime_use_system_format_title">Usar el formato de fecha/hora del sistema</string>
+    <string name="settings_datetime_use_system_format_description">Si se activa, la fecha actual se mostrará como "%1$s"</string>
+    <string name="settings_datetime_custom_date_format_title">Formato de fecha personalizado</string>
+    <string name="settings_datetime_custom_date_format_description_invalid">Formato de fecha/hora inválido</string>
+    <string name="settings_datetime_custom_date_format_description_valid">La fecha actual se mostrará como "%1$s"</string>
+    <string name="settings_datetime_use_24h_title">Usar formato de 24h</string>
+    <string name="settings_datetime_relative_date_title">Fecha relativa</string>
+    <string name="settings_datetime_relative_date_description">Usar "Hoy" y "Ayer" en lugar de la fecha</string>
+    <string name="settings_commmits_history_show_author_title">Mostrar autor</string>
+    <string name="settings_commmits_history_show_author_description">Mostrar el autor de los commits</string>
+    <string name="settings_commmits_history_show_author_with_email_title">Mostrar el correo del autor</string>
+    <string name="settings_commmits_history_show_author_with_email_description">Mostrar el author de los commits con sus correos</string>
+    <string name="settings_appearence_language_title">Idioma</string>
+    <string name="settings_appearence_language_description">Selecciona el idioma de la aplicación</string>
+    <string name="settings_appearence_theme_title">Tema</string>
+    <string name="settings_appearence_theme_description">Selecciona al tema de la interfaz de usuario</string>
+    <string name="settings_appearence_theme_option_system_default">Por defecto</string>
+    <string name="settings_appearence_theme_option_light">Claro</string>
+    <string name="settings_appearence_theme_option_dark">Oscuro</string>
+    <string name="settings_appearence_theme_option_custom">Personalizado</string>
+    <string name="settings_appearence_custom_theme_title">Tema personalizado</string>
+    <string name="settings_appearence_custom_theme_description">Añade un JSON con el tema personalizado</string>
+    <string name="settings_appearence_line_spacing_title">Espaciado de listas</string>
+    <string name="settings_appearence_line_spacing_description">Espaciado alrededor de los elementos de las listas</string>
+    <string name="settings_appearence_line_spacing_option_spaced">Espaciado</string>
+    <string name="settings_appearence_line_spacing_option_compacted">Compacto</string>
+    <string name="settings_appearence_scale_title">Escala</string>
+    <string name="settings_appearence_scale_description">Adapta la interfaz con tu escala elegida</string>
+    <string name="settings_appearence_avatar_provider_title">Proveedor de avatares</string>
+    <string name="settings_appearence_avatar_provider_description">Al usar un proveedor, las direcciones de correo son procesadas mediante SHA256</string>
+    <string name="settings_appearence_group_branches_title">Agrupa ramas locales con sus contrapartes remotas</string>
+    <string name="settings_appearence_group_branches_description">Agrupa las ramas locales con sus contrapartes remotas cuando están en el mismo commit</string>
+    <string name="settings_proxy_use_proxy_title">Usar proxy</string>
+    <string name="settings_proxy_use_proxy_description">Configura tu proxy si es necesario</string>
+    <string name="settings_proxy_proxy_type_title">Tipo de proxy</string>
+    <string name="settings_proxy_proxy_type_description">Elige entre HTTP o SOCKS</string>
+    <string name="settings_proxy_host_name_title">Host</string>
+    <string name="settings_proxy_port_number_title">Puerto</string>
+    <string name="settings_proxy_proxy_authentication_title">Autenticación del proxy</string>
+    <string name="settings_proxy_proxy_authentication_description">Usa tus credenciales para identificarte ante el servidor proxy</string>
+    <string name="settings_proxy_login_title">Usuario</string>
+    <string name="settings_proxy_password_title">Contraseña</string>
+    <string name="settings_remote_actions_pull_with_rebase_title">Pull con rebase por defecto</string>
+    <string name="settings_remote_actions_pull_with_rebase_description">Rebase changes instead of merging when pulling</string>
+    <string name="settings_remote_actions_force_push_with_lease_title">Push con lease</string>
+    <string name="settings_remote_actions_force_push_with_lease_description">Comprueba si la versión local de la rama remota está actualizada para evitar sobrescribir commits por accidente</string>
+    <string name="settings_authentication_cache_http_title">Recordar credenciales HTTP en memoria</string>
+    <string name="settings_authentication_cache_http_description">Si está activo, las credenciales HTTP se recordarán hasta que se cierre Gitnuro</string>
+    <string name="settings_security_do_not_verify_ssl_title">No verificar la seguridad SSL</string>
+    <string name="settings_security_do_not_verify_ssl_description">Si está activo, podrías conectarte al servidor remoto mediante una conexión HTTPS insegura</string>
+    <string name="settings_terminal_custom_terminal_title">Ruta de terminal personalizada</string>
+    <string name="settings_terminal_custom_terminal_description">Si está vacío, Gitnuro intentará abrir el emulador de terminal por defecto</string>
+    <string name="settings_logs_open_logs_title">Logs</string>
+    <string name="settings_logs_open_logs_description">Abrir la carpeta de logs</string>
+    <string name="settings_logs_open_logs_action">Abrir carpeta</string>
+
+
+    <!-- Notifications -->
+    <string name="notification_copied_branch_to_clipboard">"%1$s" copiado al portapapeles</string>
+
+    <!-- Error dialog -->
+    <string name="error_dialog_copy_button_tooltip">Copiar error</string>
+
+    <!-- Clone -->
+    <string name="clone_error_invalid_directory">Directorio vacío inválido</string>
+    <string name="clone_error_invalid_url">URL vacía inválida</string>
+    <string name="clone_error_invalid_folder_name">Nombre de carpeta vacío inválido</string>
+
+    <!-- Diff -->
+    <string name="diff_pane_no_changes">No hay cambios a mostrar</string>
+
+    <!-- Errors -->
+    <string name="error_create_branch_already_exists">La rama "%1$s" ya existe, por favor intenta con un nombre diferente</string>
+    <string name="error_create_branch_name_not_allowed">El nombre de rama "%1$s" no está permitido, por favor usa solo caracteres alfanuméricos.</string>
+
+    <string name="error_hook_rejection">Commit rechazado por el hook "%1$s" con error: "%2$s"</string>
+
+    <string name="error_repository_path_not_set">La ruta del repositorio no está guardada. Si crees que esto es un error, por favor informa de ello en el tracker de problemas de Gitnuro.</string>
+    <string name="error_repository_read_error">Error al leer el repositorio: %1$s. Por favor verifica que el repositorio exista y sea accesible.</string>
+
+    <string name="error_stash_no_data">No hay datos para hacer stash</string>
+
+    <string name="error_open_repository_dir_not_found">Error al abrir el repositorio, por favor verifica que exista y sea accesible</string>
+    <string name="error_open_repository_path_is_not_dir">Error al abrir el repositorio, la ruta especificada no es un directorio</string>
+    <string name="error_open_repository_repository_load">Error al abrir el repositorio, no se pudo cargar el repositorio: %1$s</string>
+    <string name="error_open_repository_repo_not_found">Error al abrir el repositorio, no se pudo encontrar un repositorio en la ruta especificada</string>
+
+    <string name="error_sign_ssh_key_not_found">No se pudo encontrar la clave de firma especificada en tu configuración</string>
+
+    <!-- Add edit remote -->
+    <string name="add_edit_remote_title_new">Nuevo remoto</string>
+    <string name="add_edit_remote_title_edit">Editar remoto "%1$s"</string>
+    <string name="add_edit_remote_name">Nombre del remoto</string>
+    <string name="add_edit_remote_fetch_url">URL de fetch</string>
+    <string name="add_edit_remote_push_url">URL de push</string>
+
+    <!-- App info -->
+    <string name="app_info_open_source_projects">Gitnuro ha sido posible gracias a los siguientes proyectos de código abierto:</string>
+
+    <!-- Author dialog -->
+    <string name="author_dialog_global_settings">Ajustes globales</string>
+    <string name="author_dialog_repository_settings">Ajustes del repositorio</string>
+    <string name="author_dialog_name">Nombre</string>
+    <string name="author_dialog_email">Correo</string>
+    <string name="author_dialog_override_global_values">Los valores a nivel de repositorio sobrescribirán los valores globales</string>
+
+    <!-- Clone dialog -->
+    <string name="clone_dialog_clone_new_repository">Clonar nuevo repositorio</string>
+    <string name="clone_dialog_clone_submodules_recursively">Clonar submódulos recursivamente</string>
+    <string name="clone_dialog_action">Clonar</string>
+
+    <!-- Create branch dialog -->
+    <string name="create_branch_dialog_title">Nueva rama</string>
+    <string name="create_branch_dialog_subtitle">Crea una nueva rama y haz checkout de ella</string>
+    <string name="create_branch_dialog_action">Crear rama</string>
+
+    <!-- Create tag dialog -->
+    <string name="create_tag_dialog_title">Nueva etiqueta</string>
+    <string name="create_tag_dialog_subtitle">Crea una nueva etiqueta en el commit especificado</string>
+    <string name="create_tag_dialog_action">Crear etiqueta</string>
+
+    <!-- GPG password dialog -->
+    <string name="gpg_password_dialog_title">Introduce la contraseña de tu clave GPG</string>
+    <string name="gpg_password_dialog_subtitle">Tu clave GPG está protegida con una contraseña</string>
+    <string name="gpg_password_dialog_retry_message">Contraseña inválida, por favor inténtalo de nuevo</string>
+
+    <!-- HTTP credentials dialog -->
+    <string name="http_credentials_dialog_title">Introduce tus credenciales del servidor remoto</string>
+    <!-- TODO remove this \n and handle longer lines properly in the UI -->
+    <string name="http_credentials_dialog_subtitle">Tu remoto requiere autenticación con un\nusuario y una contraseña</string>
+
+
+    <!-- Quick actions dialog -->
+    <string name="quick_actions_dialog_entry_open_in_file_manager">Abrir repositorio en el explorador de archivos</string>
+    <string name="quick_actions_dialog_entry_clone_new_repository">Clonar nuevo repositorio</string>
+    <string name="quick_actions_dialog_entry_refresh_repository_data">Actualizar datos del repositorio</string>
+    <string name="quick_actions_dialog_entry_signoff_config">Configuración de sign-off</string>
+    <string name="quick_actions_dialog_search">Busca una acción o presiona ESC para cerrar el diálogo</string>
+
+    <!-- Rename branch dialog -->
+    <string name="rename_branch_dialog_title">Renombrar rama</string>
+    <string name="rename_branch_dialog_subtitle">Establece un nuevo nombre para la rama "%1$s"</string>
+    <string name="rename_branch_dialog_action">Renombrar rama</string>
+
+    <!-- Reset branch dialog -->
+    <string name="reset_branch_dialog_title">Reset de la rama actual</string>
+    <string name="reset_branch_dialog_subtitle">Realiza un reset de los cambios de tu rama actual a un \ncommit previo o diferente</string>
+    <string name="reset_branch_dialog_action">Reset de rama</string>
+    <string name="reset_branch_dialog_entry_soft_title">Soft reset</string>
+    <string name="reset_branch_dialog_entry_soft_subtitle">Mantén los cambios en el índice (preparados)</string>
+    <string name="reset_branch_dialog_entry_mixed_title">Mixed reset</string>
+    <string name="reset_branch_dialog_entry_mixed_subtitle">Mantén los cambios (sin preparar)</string>
+    <string name="reset_branch_dialog_entry_hard_title">Hard reset</string>
+    <string name="reset_branch_dialog_entry_hard_subtitle">Descarta todos los cambios</string>
+
+    <!-- Delete branch confirmation dialog -->
+    <string name="delete_branch_confirmation_dialog_title">¿Eliminar las siguientes ramas?</string>
+    <string name="delete_branch_confirmation_dialog_subtitle">Esta es una operación destructiva que puede resultar en la pérdida de datos.</string>
+    <string name="delete_branch_confirmation_dialog_action">Eliminar</string>
+
+    <!-- Set upstream branch dialog -->
+    <string name="set_upstream_branch_dialog_title">Cambiar rama upstream</string>
+    <string name="set_upstream_branch_dialog_subtitle">Establece la rama remota</string>
+    <string name="set_upstream_branch_dialog_label_remote">Remoto</string>
+    <string name="set_upstream_branch_dialog_label_branch">Rama</string>
+
+    <!-- Sign off dialog -->
+    <string name="sign_off_dialog_title">Editar sign-off</string>
+    <string name="sign_off_dialog_subtitle">Activa o desactiva el sign-off o ajusta su formato</string>
+    <string name="sign_off_dialog_option_enable_for_repository">Activar sign-off para este repositorio</string>
+
+    <!-- Ssh password dialog -->
+    <string name="ssh_password_dialog_title">Introduce la contraseña de tu clave SSH</string>
+    <string name="ssh_password_dialog_subtitle">Tu clave SSH está protegida con una contraseña</string>
+    <string name="ssh_password_dialog_retry">Contraseña inválida, por favor inténtalo de nuevo</string>
+
+    <!-- Stash with message dialog -->
+    <string name="stash_with_message_dialog_title">Mensaje del guardado</string>
+    <string name="stash_with_message_dialog_subtitle">Guarda los cambios con un mensaje personalizado</string>
+    <string name="stash_with_message_dialog_action">Guardar</string>
+
+    <!-- Base user password dialog -->
+    <string name="user_password_dialog_label_username">Usuario</string>
+    <string name="user_password_dialog_label_password">Contraseña</string>
+</resources>

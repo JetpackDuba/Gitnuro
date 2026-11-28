@@ -5,6 +5,7 @@ import com.jetpackduba.gitnuro.LogsRepository
 import com.jetpackduba.gitnuro.TabViewModel
 import com.jetpackduba.gitnuro.common.flows.combine
 import com.jetpackduba.gitnuro.common.printError
+import com.jetpackduba.gitnuro.domain.models.AppLanguage
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.ProxyType
@@ -49,6 +50,7 @@ class GlobalSettingsViewModel @Inject constructor(
 
     private fun settingsState(): Flow<SettingsViewState> {
         return combine(
+            globalSettingsService.appLanguage,
             globalSettingsService.scaleUi,
             globalSettingsService.theme,
             globalSettingsService.customTheme,
@@ -79,7 +81,8 @@ class GlobalSettingsViewModel @Inject constructor(
             globalSettingsService.verifySsl,
             globalSettingsService.cacheCredentialsInMemory,
             globalSettingsService.terminalPath,
-        ) { scaleUi,
+        ) { appLanguage,
+            scaleUi,
             theme,
             customTheme,
             linesHeightType,
@@ -111,6 +114,7 @@ class GlobalSettingsViewModel @Inject constructor(
             terminalPath ->
 
             SettingsViewState(
+                appLanguage,
                 scaleUi,
                 theme,
                 customTheme,
@@ -147,8 +151,9 @@ class GlobalSettingsViewModel @Inject constructor(
 
     private fun emptySettingsState(): SettingsViewState {
         return SettingsViewState(
+            appLanguage = AppLanguage.SYSTEM_DEFAULT,
             scaleUi = null,
-            theme = Theme.Light,
+            theme = Theme.LIGHT,
             customTheme = "",
             linesHeightType = LinesHeightType.SPACED,
             dateFormatUseDefault = false,
@@ -183,6 +188,7 @@ class GlobalSettingsViewModel @Inject constructor(
 
 @Immutable
 data class SettingsViewState(
+    val appLanguage: AppLanguage,
     val scaleUi: Float?,
     val theme: Theme,
     val customTheme: String?,

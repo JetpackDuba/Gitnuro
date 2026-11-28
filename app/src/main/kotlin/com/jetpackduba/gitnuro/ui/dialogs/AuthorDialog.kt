@@ -19,7 +19,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_name
 import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_override_global_values
 import com.jetpackduba.gitnuro.app.generated.resources.author_dialog_repository_settings
 import com.jetpackduba.gitnuro.app.generated.resources.generic_button_cancel
-import com.jetpackduba.gitnuro.app.generated.resources.generic_save_changes
+import com.jetpackduba.gitnuro.app.generated.resources.generic_save_as_default
 import com.jetpackduba.gitnuro.app.generated.resources.warning
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
@@ -129,7 +129,7 @@ fun AuthorDialog(
                         )
                         onDismiss()
                     },
-                    text = stringResource(Res.string.generic_save_changes),
+                    text = stringResource(Res.string.generic_save_as_default),
                 )
             }
         }

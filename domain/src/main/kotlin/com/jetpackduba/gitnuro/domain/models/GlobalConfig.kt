@@ -25,6 +25,7 @@ sealed interface GlobalConfig {
     data class CloneDefaultDirectory(val value: String) : GlobalConfig
     data class CacheCredentialsInMemory(val value: Boolean) : GlobalConfig
     data class AvatarProvider(val value: AvatarProviderType) : GlobalConfig
+    data class Language(val value: AppLanguage) : GlobalConfig
     data class Theme(val value: com.jetpackduba.gitnuro.domain.models.ui.Theme) : GlobalConfig
     data class CustomTheme(val value: String) : GlobalConfig
     data class SwapStatusPanes(val value: Boolean) : GlobalConfig

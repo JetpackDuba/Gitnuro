@@ -2,5 +2,5 @@ package com.jetpackduba.gitnuro.domain.models.ui
 
 
 enum class Theme {
-    Light, Dark, Custom
+    SYSTEM_DEFAULT, LIGHT, DARK, CUSTOM
 }

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 object PreferencesKeys {
+    val appLanguagePreference get() = stringPreferencesKey("app_language")
     val scaleUiPreference get() = floatPreferencesKey("scale_ui")
     val themePreference get() = stringPreferencesKey("theme")
     val customThemePreference get() = stringPreferencesKey("custom_theme")

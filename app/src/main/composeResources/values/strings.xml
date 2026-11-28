@@ -7,12 +7,14 @@
     <string name="generic_button_cancel">Cancel</string>
     <string name="generic_button_close">Close</string>
     <string name="generic_button_continue">Continue</string>
+    <string name="generic_save">Save</string>
     <string name="generic_save_as_default">Save as default</string>
-    <string name="generic_save_changes">Save as default</string>
     <string name="generic_repository_url">Repository URL</string>
     <string name="generic_directory">Directory</string>
     <string name="generic_search">Search</string>
     <string name="generic_repository_folder_name">Repository folder name</string>
+    <string name="generic_date_today">Today</string>
+    <string name="generic_date_yesterday">Yesterday</string>
 
 
     <!-- Home page -->
@@ -224,8 +226,15 @@
     <string name="settings_commmits_history_show_author_description">Display the commit's author</string>
     <string name="settings_commmits_history_show_author_with_email_title">Show author email</string>
     <string name="settings_commmits_history_show_author_with_email_description">Display the commit's author with their email</string>
+    <string name="settings_appearence_language_title">Language</string>
+    <string name="settings_appearence_language_description">Select the app's language</string>
+    <string name="settings_appearence_language_option_system_default">System default</string>
     <string name="settings_appearence_theme_title">Theme</string>
-    <string name="settings_appearence_theme_description">Select the UI theme between light and dark mode</string>
+    <string name="settings_appearence_theme_description">Select the UI theme</string>
+    <string name="settings_appearence_theme_option_system_default">System default</string>
+    <string name="settings_appearence_theme_option_light">Light</string>
+    <string name="settings_appearence_theme_option_dark">Dark</string>
+    <string name="settings_appearence_theme_option_custom">Custom</string>
     <string name="settings_appearence_custom_theme_title">Custom theme</string>
     <string name="settings_appearence_custom_theme_description">Add a JSON to load the custom theme</string>
     <string name="settings_appearence_line_spacing_title">Lists spacing</string>

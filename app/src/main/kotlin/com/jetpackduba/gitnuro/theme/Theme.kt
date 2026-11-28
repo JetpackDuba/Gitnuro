@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.jetpackduba.gitnuro.domain.models.ui.LinesHeightType
 import com.jetpackduba.gitnuro.domain.models.ui.Theme
-import com.jetpackduba.gitnuro.ui.dropdowns.DropDownOption
 import kotlinx.coroutines.flow.MutableStateFlow
 
 private val defaultAppTheme: ColorsScheme = darkTheme
@@ -37,15 +36,15 @@ val compactLineHeight = LinesHeight(
 
 @Composable
 fun AppTheme(
-    selectedTheme: Theme = Theme.Dark,
+    selectedTheme: Theme = Theme.DARK,
     linesHeightType: LinesHeightType = LinesHeightType.COMPACT,
     customTheme: ColorsScheme? = null,
     content: @Composable () -> Unit,
 ) {
     val theme = when (selectedTheme) {
-        Theme.Light -> lightTheme
-        Theme.Dark -> darkTheme
-        Theme.Custom -> customTheme ?: defaultAppTheme
+        Theme.LIGHT -> lightTheme
+        Theme.SYSTEM_DEFAULT, Theme.DARK -> darkTheme // TODO Add system default support
+        Theme.CUSTOM -> customTheme ?: defaultAppTheme
     }
 
     val lineHeight = when (linesHeightType) {
@@ -157,11 +156,3 @@ val Colors.diffComment: Color
 
 val Colors.isDark: Boolean
     get() = !this.isLight
-
-
-// TODO Do not hardcode theme here and use proper string resource
-val themeLists = listOf(
-    DropDownOption(Theme.Light, "Light"),
-    DropDownOption(Theme.Dark, "Dark"),
-    DropDownOption(Theme.Custom, "Custom"),
-)

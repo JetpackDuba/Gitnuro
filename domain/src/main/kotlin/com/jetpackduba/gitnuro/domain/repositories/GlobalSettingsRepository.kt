@@ -1,5 +1,6 @@
 package com.jetpackduba.gitnuro.domain.repositories
 
+import com.jetpackduba.gitnuro.domain.models.AppLanguage
 import com.jetpackduba.gitnuro.domain.models.GlobalConfig
 import com.jetpackduba.gitnuro.domain.models.AvatarProviderType
 import com.jetpackduba.gitnuro.domain.models.DiffTextViewType
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface GlobalSettingsRepository {
     // UI
+    val appLanguage: Flow<AppLanguage?>
     val scaleUi: Flow<Float?>
     val theme: Flow<Theme?>
     val customTheme: Flow<String?>

@@ -15,7 +15,7 @@ import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_push_url
 import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_title_edit
 import com.jetpackduba.gitnuro.app.generated.resources.add_edit_remote_title_new
 import com.jetpackduba.gitnuro.app.generated.resources.generic_button_cancel
-import com.jetpackduba.gitnuro.app.generated.resources.generic_save_changes
+import com.jetpackduba.gitnuro.app.generated.resources.generic_save
 import com.jetpackduba.gitnuro.theme.outlinedTextFieldColors
 import com.jetpackduba.gitnuro.ui.components.AdjustableOutlinedTextField
 import com.jetpackduba.gitnuro.ui.components.PrimaryButton
@@ -151,7 +151,7 @@ fun AddEditRemoteDialog(
                                     viewModel.save()
                                     onDismiss() // TODO This should be only dimissed if save worked
                                 },
-                                text = stringResource(Res.string.generic_save_changes),
+                                text = stringResource(Res.string.generic_save),
                             )
                         }
                     }

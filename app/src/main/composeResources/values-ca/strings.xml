@@ -1,0 +1,401 @@
+<resources>
+    <string name="app_name">Gitnuro</string>
+
+    <!-- Generic -->
+    <string name="generic_button_ok">OK</string>
+    <string name="generic_button_accept">Acceptar</string>
+    <string name="generic_button_cancel">Cancelar</string>
+    <string name="generic_button_close">Tancar</string>
+    <string name="generic_button_continue">Continuar</string>
+    <string name="generic_save">Guardar</string>
+    <string name="generic_save_as_default">Guardar com a preull</string>
+    <string name="generic_repository_url">URL del repositori</string>
+    <string name="generic_directory">Directori</string>
+    <string name="generic_search">Cerca</string>
+    <string name="generic_repository_folder_name">Carpeta del repositori</string>
+    <string name="generic_date_today">Avui</string>
+    <string name="generic_date_yesterday">Ahir</string>
+
+
+    <!-- Home page -->
+    <string name="home_button_open_repository">Obrir repositori</string>
+    <string name="home_button_clone_repository">Clonar repositori</string>
+    <string name="home_button_start_repository">Iniciar repositori local</string>
+    <string name="home_label_additional_options">Opcions addicionals</string>
+    <string name="home_button_source_code">Codi font</string>
+    <string name="home_button_report_bug">Reportar un problema</string>
+    <string name="home_button_additional_information">Informació addicional</string>
+    <string name="home_button_settings">Ajustaments</string>
+
+    <string name="home_recent_repositories_search_label">Cerca de repositories recents</string>
+    <string name="home_recent_repositories_list_empty">No hi ha res aquí, obre un repositori primer!</string>
+    <string name="home_recent_repositories_remove_repository">Eliminar repositori del llistat de recents</string>
+
+    <!-- Top menu -->
+    <string name="menu_open">Obrir</string>
+    <string name="menu_open_dialog_title">Obrir un repositori</string>
+    <string name="menu_open_tooltip">Obrir un repositori diferent</string>
+    <string name="menu_pull">Pull</string>
+    <string name="menu_pull_default">Pull de la branca actual</string>
+    <string name="menu_pull_rebase">Pull de la branca actual amb rebase</string>
+    <string name="menu_pull_tooltip_disabled">Pull no disponible sense un repositori remot</string>
+    <string name="menu_push">Push</string>
+    <string name="menu_push_tooltip">Push dels canvis de la branca actual</string>
+    <string name="menu_push_tooltip_disabled">Push no disponible sense un repositori remot</string>
+    <string name="menu_branch">Branca</string>
+    <string name="menu_branch_tooltip">Crear una nova branca</string>
+    <string name="menu_stash">Desar</string>
+    <string name="menu_stash_tooltip">Desa els canvis pendents de commit</string>
+    <string name="menu_stash_tooltip_disabled">Modifica algun fitxer per poder fer un desat dels canvis</string>
+    <string name="menu_pop_stash">Recuperar</string>
+    <string name="menu_pop_stash_tooltip">Recuperar els últims canvis desats</string>
+    <string name="menu_pop_stash_tooltip_disabled">No hi ha canvis a recuperar</string>
+    <string name="menu_terminal">Terminal</string>
+    <string name="menu_terminal_tooltip">Obrir una terminal a la ruta del repositori</string>
+    <string name="menu_actions">Accions</string>
+    <string name="menu_actions_tooltip">Accions addicionals</string>
+    <string name="menu_settings">Ajustaments</string>
+    <string name="menu_settings_tooltip">Ajustaments de Gitnuro</string>
+
+    <string name="rebase_interactive_view_title">Rebase interactiu</string>
+    <string name="rebase_interactive_view_button_complete_rebase">Completar rebase</string>
+
+    <!-- Bottom info bar -->
+    <string name="bottom_info_bar_name_and_email">%1$s &lt;%2$s&gt;</string>
+    <string name="bottom_info_bar_name_not_set">Nom no configurat</string>
+    <string name="bottom_info_bar_email_not_set">Correu no configurat</string>
+    <string name="bottom_info_bar_update_available">Actualització %1$s disponible</string>
+    <string name="bottom_info_bar_app_version">Versió %1$s</string>
+
+    <!-- Side pane view -->
+    <string name="side_pane_search_hint">Cerca branques, etiquetes i més</string>
+    <string name="side_pane_local_branches_title">Branques locals</string>
+    <string name="side_pane_local_branches_current_branch_label">HEAD</string>
+    <string name="side_pane_remotes_title">Remots</string>
+    <string name="side_pane_tags_title">Etiquetes</string>
+    <string name="side_pane_stashes_title">Canvis desats</string>
+    <string name="side_pane_submodules_title">Submòduls</string>
+
+    <!-- Uncommited changes view -->
+    <string name="uncommited_changes_unstaged_title">Sense preparar</string>
+    <string name="uncommited_changes_unstaged_all_items_action">Preparar tot</string>
+    <string name="uncommited_changes_unstaged_selected_items_action">Preparar seleccionats</string>
+    <string name="uncommited_changes_unstaged_item_action">Preparar</string>
+
+    <string name="uncommited_changes_staged_title">Preparats</string>
+    <string name="uncommited_changes_staged_all_items_action">Treure tot</string>
+    <string name="uncommited_changes_staged_selected_items_action">Treure seleccionats</string>
+    <string name="uncommited_changes_staged_item_action">Treure</string>
+
+    <string name="uncommited_changes_text_input_label_message_read_only">Missatge de commit (només lectura)</string>
+    <string name="uncommited_changes_text_input_label_message">Escriu el missatge del commit aquí</string>
+    <string name="uncommited_changes_primary_button_commit">Commit</string>
+    <string name="uncommited_changes_primary_button_amend">Modificar</string>
+    <string name="uncommited_changes_primary_button_merge">Fusionar</string>
+    <string name="uncommited_changes_primary_button_continue">Continuar</string>
+    <string name="uncommited_changes_primary_button_skip">Ometre</string>
+    <string name="uncommited_changes_secondary_button_abort">Abortar</string>
+    <string name="uncommited_changes_amend_check">Modificar commit anterior</string>
+
+    <!-- Merge automatic stash -->
+    <string name="merge_automatic_stash_description">Desat de canvis automàtic (snapshot) abans de la fusió de "%1$s" a "%2$s"</string>
+    <string name="pull_with_merge_automatic_stash_description">Desat de canvis automàtic (snapshot) abans del pull de "%1$s"</string>
+    <string name="pull_with_merge_from_specific_branch_automatic_stash_description">Desat de canvis automàtic (snapshot) abans del pull de "%1$s" a "%2$s"</string>
+
+    <!-- Status entries context menu -->
+    <string name="status_entries_context_menu_delete_file">Eliminar fitxer</string>
+    <string name="status_entries_context_menu_file_history">Historial del fitxer</string>
+    <string name="status_entries_context_menu_blame_file">Blame del fitxer</string>
+    <string name="status_entries_context_menu_discard_file_changes">Descartar canvis del fitxer</string>
+    <string name="status_entries_context_menu_open_file_in_folder">Obrir carpeta amb l'explorador de fitxers</string>
+    <string name="status_entries_context_menu_copy_file_absolute_path">Copiar ruta absoluta</string>
+    <string name="status_entries_context_menu_copy_file_relative_path">Copiar ruta relativa</string>
+    <string name="status_entries_context_menu_discard_multiple_files">Descartar %1$s fitxers</string>
+    <string name="status_entries_context_menu_stage_multiple_files">Preparar %1$s fitxers</string>
+    <string name="status_entries_context_menu_unstage_multiple_files">Treure %1$s fitxers</string>
+    <string name="status_entries_context_menu_copy_files_absolute_paths">Copiar routes</string>
+    <string name="status_entries_context_menu_copy_files_relative_paths">Copiar routes relatives</string>
+
+    <!-- Branch context menu -->
+    <string name="branch_context_menu_checkout_branch">Checkout de branca</string>
+    <string name="branch_context_menu_merge_branch">Fusionar branca</string>
+    <string name="branch_context_menu_rebase_branch">Rebase de la branca</string>
+    <string name="branch_context_menu_push_current_to_target">Push de "%1$s" a "%2$s"</string>
+    <string name="branch_context_menu_pull_target_to_current">Pull de "%1$s" a "%2$s"</string>
+    <string name="branch_context_menu_rename_branch">Reanomenar branca</string>
+    <string name="branch_context_menu_change_default_upstream_branch">Canviar branca remota per defecte</string>
+    <string name="branch_context_menu_delete_remote_branch">Eliminar branca remota</string>
+    <string name="branch_context_menu_delete_branch">Eliminar branca</string>
+    <string name="branch_context_menu_copy_branch_name">Copiar nom de la branca</string>
+
+    <!-- Committed changes context menu -->
+    <string name="committed_changes_context_menu_blame_file">Blame del fitxer</string>
+    <string name="committed_changes_context_menu_file_history">Historial del fitxer</string>
+    <string name="committed_changes_context_menu_open_file_in_folder">Obrir fitxer a la carpeta</string>
+
+    <!-- Log context menu -->
+    <string name="log_context_menu_show_status_to_amend">Mostrar estat per modificar aquest commit</string>
+    <string name="log_context_menu_checkout_commit">Checkout del commit</string>
+    <string name="log_context_menu_create_branch">Crear branca</string>
+    <string name="log_context_menu_create_tag">Crear etiqueta</string>
+    <string name="log_context_menu_rebase_interactive">Rebase interactiu</string>
+    <string name="log_context_menu_revert_commit">Revertir commit</string>
+    <string name="log_context_menu_cherry_pick_commit">Cherry-pick del commit</string>
+    <string name="log_context_menu_reset_current_branch_to_commit">Restablir la branca actual a aquest commit</string>
+
+    <!-- Pull context menu -->
+    <string name="pull_context_menu_pull_with_merge">Pull amb fusió</string>
+    <string name="pull_context_menu_pull_with_rebase">Pull amb rebase</string>
+    <string name="pull_context_menu_fetch_all">Actualitzar tots els remots</string>
+
+    <!-- Push context menu -->
+    <string name="push_context_menu_push_including_tags">Push incloent etiquetes</string>
+    <string name="push_context_menu_force_push">Push forçat</string>
+
+    <!-- Remote context menu -->
+    <string name="remote_context_menu_edit">Editar</string>
+    <string name="remote_context_menu_delete">Eliminar</string>
+    <string name="remote_context_menu_fetch_all">Actualitzar branques</string>
+
+    <!-- Stash menu context menu -->
+    <string name="stash_context_menu_stash_with_message">Desar canvis amb missatge</string>
+
+    <!-- Stashes context menu -->
+    <string name="stashes_context_menu_apply_stash">Aplicar canvis desats</string>
+    <string name="stashes_context_menu_pop_stash">Recuperar canvis desats</string>
+    <string name="stashes_context_menu_drop_stash">Eliminar canvis desats</string>
+
+    <!-- Status dir entries context menu -->
+    <string name="status_dir_entries_context_menu_unstage_changes">Treure canvis preparats del directori</string>
+    <string name="status_dir_entries_context_menu_stage_changes">Preparar canvis del directori</string>
+    <string name="status_dir_entries_context_menu_discard_changes">Descartar canvis</string>
+
+    <!-- Submodules context menu -->
+    <string name="submodules_context_menu_initialize_submodule">Inicialitzar submòdul</string>
+    <string name="submodules_context_menu_open_submodule_in_tab">Obrir submòdul en pestanya nova</string>
+    <string name="submodules_context_menu_sync_submodule">Sincronitzar submòdul</string>
+    <string name="submodules_context_menu_update_submodule">Actualitzar submòdul</string>
+    <string name="submodules_context_menu_delete_submodule">Eliminar submòdul</string>
+
+    <!-- Tag context menu -->
+    <string name="tag_context_menu_checkout_tag_commit">Checkout del commit de l'etiqueta</string>
+    <string name="tag_context_menu_delete_tag">Eliminar etiqueta</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustaments</string>
+    <string name="settings_environment_default_clone_directory_title">Directori de clonatge per defecte</string>
+    <string name="settings_environment_default_clone_directory_description">Directori que s'utilitzarà per defecte al clonar un repositori</string>
+    <string name="settings_section_user_interface">Interfície d'usuari</string>
+    <string name="settings_entry_appearance">Aparença</string>
+    <string name="settings_entry_layout">Disseny</string>
+    <string name="settings_entry_datetime">Data/Hora</string>
+    <string name="settings_entry_commits_history">Historial de commits</string>
+    <string name="settings_section_git">GIT</string>
+    <string name="settings_entry_environment">Entorn</string>
+    <string name="settings_entry_branches">Branques</string>
+    <string name="settings_entry_remote_actions">Accions de remots</string>
+    <string name="settings_section_network">Xarxa</string>
+    <string name="settings_entry_proxy">Proxy</string>
+    <string name="settings_entry_auth">Autenticació</string>
+    <string name="settings_entry_security">Seguretat</string>
+    <string name="settings_section_tools">Eines</string>
+    <string name="settings_entry_terminal">Terminal</string>
+    <string name="settings_entry_logs">Logs</string>
+    <string name="settings_branches_fast_wordard_merge_title">Fusió fast-forward</string>
+    <string name="settings_branches_fast_wordard_merge_description">Intenta realitzar fusió fast-forward quan sigui possible</string>
+    <string name="settings_branches_automatic_stash_title">Desa canvis pendents de commit quan es realitza una fusió</string>
+    <string name="settings_branches_automatic_stash_description">Per evitar perdre el treball si la fusió s'avorta, l'app pot crear un snapshot dels canvis pendents</string>
+    <string name="settings_branches_delete_requires_confirmation_title">Solicitar confirmació per eliminar branques</string>
+    <string name="settings_branches_delete_requires_confirmation_description">S'aplica a branques locals i remotes</string>
+    <string name="settings_branches_delete_requires_confirmation_option_always">Sempre</string>
+    <string name="settings_branches_delete_requires_confirmation_option_unmerged">Sense fusionar</string>
+    <string name="settings_branches_delete_requires_confirmation_option_never">Mai</string>
+    <string name="settings_layout_swap_status_title">Intercanviar la posició de les vistes de canvis preparats</string>
+    <string name="settings_layout_swap_status_description">Mostrar la llista de canvis sense preparar per sobre de la llista de canvis preparats</string>
+    <string name="settings_layout_diff_with_log_title">Mostrar la vista de diff sota l'historial de commits</string>
+    <string name="settings_layout_diff_with_log_description">Permet mantenir ambdós visibles al mateix temps</string>
+    <string name="settings_datetime_use_system_format_title">Utilitzar el format de data/hora del sistema</string>
+    <string name="settings_datetime_use_system_format_description">Si s'activa, la data actual es mostrarà com "%1$s"</string>
+    <string name="settings_datetime_custom_date_format_title">Format de data personalitzat</string>
+    <string name="settings_datetime_custom_date_format_description_invalid">Format de data/hora no vàlid</string>
+    <string name="settings_datetime_custom_date_format_description_valid">La data actual es mostrarà com "%1$s"</string>
+    <string name="settings_datetime_use_24h_title">Utilitzar format de 24h</string>
+    <string name="settings_datetime_relative_date_title">Data relativa</string>
+    <string name="settings_datetime_relative_date_description">Utilitzar "Avui" i "Ahir" en lloc de la data</string>
+    <string name="settings_commmits_history_show_author_title">Mostrar autor</string>
+    <string name="settings_commmits_history_show_author_description">Mostrar l'autor dels commits</string>
+    <string name="settings_commmits_history_show_author_with_email_title">Mostrar el correu de l'autor</string>
+    <string name="settings_commmits_history_show_author_with_email_description">Mostrar l'autor dels commits amb els seus correus</string>
+    <string name="settings_appearence_language_title">Idioma</string>
+    <string name="settings_appearence_language_description">Selecciona l'idioma de l'aplicació</string>
+    <string name="settings_appearence_theme_title">Tema</string>
+    <string name="settings_appearence_theme_description">Selecciona el tema de la interfície d'usuari</string>
+    <string name="settings_appearence_theme_option_system_default">Per defecte</string>
+    <string name="settings_appearence_theme_option_light">Clar</string>
+    <string name="settings_appearence_theme_option_dark">Fosc</string>
+    <string name="settings_appearence_theme_option_custom">Personalitzat</string>
+    <string name="settings_appearence_custom_theme_title">Tema personalitzat</string>
+    <string name="settings_appearence_custom_theme_description">Afegit un JSON amb el tema personalitzat</string>
+    <string name="settings_appearence_line_spacing_title">Espaiament de llistes</string>
+    <string name="settings_appearence_line_spacing_description">Espaiament al voltant dels elements de les llistes</string>
+    <string name="settings_appearence_line_spacing_option_spaced">Espaiat</string>
+    <string name="settings_appearence_line_spacing_option_compacted">Compacte</string>
+    <string name="settings_appearence_scale_title">Escala</string>
+    <string name="settings_appearence_scale_description">Adapta la interfície amb la teva escala escollida</string>
+    <string name="settings_appearence_avatar_provider_title">Proveïdor d'avatars</string>
+    <string name="settings_appearence_avatar_provider_description">Quan es fa servir un proveïdor, les adreçes de correu són processades mitjançant SHA256</string>
+    <string name="settings_appearence_group_branches_title">Agrupar branques locals amb les seves contraparts remotes</string>
+    <string name="settings_appearence_group_branches_description">Agrupació de branques locals amb les seves contraparts remotes quan són al mateix commit</string>
+    <string name="settings_proxy_use_proxy_title">Utilitzar proxy</string>
+    <string name="settings_proxy_use_proxy_description">Configura el teu proxy si és necessari</string>
+    <string name="settings_proxy_proxy_type_title">Tipus de proxy</string>
+    <string name="settings_proxy_proxy_type_description">Escollir entre HTTP o SOCKS</string>
+    <string name="settings_proxy_host_name_title">Host</string>
+    <string name="settings_proxy_port_number_title">Port</string>
+    <string name="settings_proxy_proxy_authentication_title">Autenticació del proxy</string>
+    <string name="settings_proxy_proxy_authentication_description">Utilitza les teves credencials per identificar-te davant el servidor proxy</string>
+    <string name="settings_proxy_login_title">Usuari</string>
+    <string name="settings_proxy_password_title">Contrasenya</string>
+    <string name="settings_remote_actions_pull_with_rebase_title">Pull amb rebase per defecte</string>
+    <string name="settings_remote_actions_pull_with_rebase_description">Rebase dels canvis en lloc de la fusió quan es fa pull</string>
+    <string name="settings_remote_actions_force_push_with_lease_title">Push amb lease</string>
+    <string name="settings_remote_actions_force_push_with_lease_description">Verifica si la versió local de la branca remota està actualitzada per evitar sobreescriure commits per accident</string>
+    <string name="settings_authentication_cache_http_title">Recordar credencials HTTP en memòria</string>
+    <string name="settings_authentication_cache_http_description">Si està actiu, les credencials HTTP es recordaràn fins que es tancin Gitnuro</string>
+    <string name="settings_security_do_not_verify_ssl_title">No verificar la seguretat SSL</string>
+    <string name="settings_security_do_not_verify_ssl_description">Si està actiu, podràs connectar-te al servidor remota mitjançant una connexió HTTPS insegura</string>
+    <string name="settings_terminal_custom_terminal_title">Ruta de terminal personalitzada</string>
+    <string name="settings_terminal_custom_terminal_description">Si està buida, Gitnuro intentarà obrir l'emulador de terminal per defecte</string>
+    <string name="settings_logs_open_logs_title">Logs</string>
+    <string name="settings_logs_open_logs_description">Obrir la carpeta de logs</string>
+    <string name="settings_logs_open_logs_action">Obrir carpeta</string>
+
+
+    <!-- Notifications -->
+    <string name="notification_copied_branch_to_clipboard">"%1$s" copiat al portapapers</string>
+
+    <!-- Error dialog -->
+    <string name="error_dialog_copy_button_tooltip">Copiar error</string>
+
+    <!-- Clone -->
+    <string name="clone_error_invalid_directory">Directori buit no vàlid</string>
+    <string name="clone_error_invalid_url">URL buida no vàlid</string>
+    <string name="clone_error_invalid_folder_name">Nom de carpeta buit no vàlid</string>
+
+    <!-- Diff -->
+    <string name="diff_pane_no_changes">No hi ha canvis per mostrar</string>
+
+    <!-- Errors -->
+    <string name="error_create_branch_already_exists">La branca "%1$s" ja existeix, si us plau prova amb un nom diferent</string>
+    <string name="error_create_branch_name_not_allowed">El nom de branca "%1$s" no està permès, si us plau utilitza tan sols caràcters alfanumèrics.</string>
+
+    <string name="error_hook_rejection">Commit rebutjat per el hook "%1$s" amb l'error: "%2$s"</string>
+
+    <string name="error_repository_path_not_set">La ruta del repositori no està desada. Si creus que això és un error, si us plau informa'n al tracker de problemes de Gitnuro.</string>
+    <string name="error_repository_read_error">Error al llegir el repositori: %1$s. Si us plau verifica que el repositori existeixi i sigui accessible.</string>
+
+    <string name="error_stash_no_data">No hi ha dades per fer un desat de canvis</string>
+
+    <string name="error_open_repository_dir_not_found">Error en obrir el repositori, si us plau verifica que existeixi i sigui accessible</string>
+    <string name="error_open_repository_path_is_not_dir">Error en obrir el repositori, la ruta especificada no és un directori</string>
+    <string name="error_open_repository_repository_load">Error en obrir el repositori, no s'ha pogut carregar el repositori: %1$s</string>
+    <string name="error_open_repository_repo_not_found">Error en obrir el repositori, no s'ha trobat un repositori a la ruta especificada</string>
+
+    <string name="error_sign_ssh_key_not_found">No s'ha pogut trobar la clau de signatura especificada en la teva configuració</string>
+
+    <!-- Add edit remote -->
+    <string name="add_edit_remote_title_new">Nou remot</string>
+    <string name="add_edit_remote_title_edit">Editar remot "%1$s"</string>
+    <string name="add_edit_remote_name">Nom del remot</string>
+    <string name="add_edit_remote_fetch_url">URL de fetch</string>
+    <string name="add_edit_remote_push_url">URL de push</string>
+
+    <!-- App info -->
+    <string name="app_info_open_source_projects">Gitnuro ha estat possible gràcies als següents projectes de codi obert:</string>
+
+    <!-- Author dialog -->
+    <string name="author_dialog_global_settings">Ajustaments globals</string>
+    <string name="author_dialog_repository_settings">Ajustaments del repositori</string>
+    <string name="author_dialog_name">Nom</string>
+    <string name="author_dialog_email">Correu</string>
+    <string name="author_dialog_override_global_values">Els valors a nivell de repositori sobreescriuràn els valors globals</string>
+
+    <!-- Clone dialog -->
+    <string name="clone_dialog_clone_new_repository">Clonar nou repositori</string>
+    <string name="clone_dialog_clone_submodules_recursively">Clonar submòduls recursivament</string>
+    <string name="clone_dialog_action">Clonar</string>
+
+    <!-- Create branch dialog -->
+    <string name="create_branch_dialog_title">Nova branca</string>
+    <string name="create_branch_dialog_subtitle">Crea una nova branca i fes-ne checkout</string>
+    <string name="create_branch_dialog_action">Crear branca</string>
+
+    <!-- Create tag dialog -->
+    <string name="create_tag_dialog_title">Nova etiqueta</string>
+    <string name="create_tag_dialog_subtitle">Crea una nova etiqueta en el commit especificat</string>
+    <string name="create_tag_dialog_action">Crear etiqueta</string>
+
+    <!-- GPG password dialog -->
+    <string name="gpg_password_dialog_title">Introdueix la contrasenya de la teva clau GPG</string>
+    <string name="gpg_password_dialog_subtitle">La teva clau GPG està protegida amb una contrasenya</string>
+    <string name="gpg_password_dialog_retry_message">Contrasenya invàlida, si us plau intenta de nou</string>
+
+    <!-- HTTP credentials dialog -->
+    <string name="http_credentials_dialog_title">Introdueix les teves credencials del servidor remot</string>
+    <!-- TODO remove this \n and handle longer lines properly in the UI -->
+    <string name="http_credentials_dialog_subtitle">El teu remot requereix autenticació amb un\nusuari i una contrasenya</string>
+
+
+    <!-- Quick actions dialog -->
+    <string name="quick_actions_dialog_entry_open_in_file_manager">Obrir el repositori a l'explorador de fitxers</string>
+    <string name="quick_actions_dialog_entry_clone_new_repository">Clonar nou repositori</string>
+    <string name="quick_actions_dialog_entry_refresh_repository_data">Actualitzar dades del repositori</string>
+    <string name="quick_actions_dialog_entry_signoff_config">Configuració de sign-off</string>
+    <string name="quick_actions_dialog_search">Cerca una acció o pressiona ESC per tancar el diàleg</string>
+
+    <!-- Rename branch dialog -->
+    <string name="rename_branch_dialog_title">Reanomenar branca</string>
+    <string name="rename_branch_dialog_subtitle">Estableix un nou nom per a la branca "%1$s"</string>
+    <string name="rename_branch_dialog_action">Reanomenar branca</string>
+
+    <!-- Reset branch dialog -->
+    <string name="reset_branch_dialog_title">Reset de la branca actual</string>
+    <string name="reset_branch_dialog_subtitle">Realitza un reset dels canvis de la teva branca actual a un \ncommit prèvi o diferent</string>
+    <string name="reset_branch_dialog_action">Reset de branca</string>
+    <string name="reset_branch_dialog_entry_soft_title">Soft reset</string>
+    <string name="reset_branch_dialog_entry_soft_subtitle">Manté els canvis a l'índex (preparats)</string>
+    <string name="reset_branch_dialog_entry_mixed_title">Mixed reset</string>
+    <string name="reset_branch_dialog_entry_mixed_subtitle">Manté els canvis (sense preparar)</string>
+    <string name="reset_branch_dialog_entry_hard_title">Hard reset</string>
+    <string name="reset_branch_dialog_entry_hard_subtitle">Descarta tots els canvis</string>
+
+    <!-- Delete branch confirmation dialog -->
+    <string name="delete_branch_confirmation_dialog_title">Eliminar les següents branques?</string>
+    <string name="delete_branch_confirmation_dialog_subtitle">Aquesta és una operació destructiva que pot resultar en la pèrdua de dades.</string>
+    <string name="delete_branch_confirmation_dialog_action">Eliminar</string>
+
+    <!-- Set upstream branch dialog -->
+    <string name="set_upstream_branch_dialog_title">Canviar branca upstream</string>
+    <string name="set_upstream_branch_dialog_subtitle">Estableix la branca remota</string>
+    <string name="set_upstream_branch_dialog_label_remote">Remot</string>
+    <string name="set_upstream_branch_dialog_label_branch">Branca</string>
+
+    <!-- Sign off dialog -->
+    <string name="sign_off_dialog_title">Editar sign-off</string>
+    <string name="sign_off_dialog_subtitle">Activa o desactiva el sign-off o ajusta el seu format</string>
+    <string name="sign_off_dialog_option_enable_for_repository">Activar sign-off per a aquest repositori</string>
+
+    <!-- Ssh password dialog -->
+    <string name="ssh_password_dialog_title">Introdueix la contrasenya de la teva clau SSH</string>
+    <string name="ssh_password_dialog_subtitle">La teva clau SSH està protegida amb una contrasenya</string>
+    <string name="ssh_password_dialog_retry">Contrasenya invàlida, si us plau intenta-ho de nou</string>
+
+    <!-- Stash with message dialog -->
+    <string name="stash_with_message_dialog_title">Missatge del desat</string>
+    <string name="stash_with_message_dialog_subtitle">Desa els canvis amb un missatge personalitzat</string>
+    <string name="stash_with_message_dialog_action">Desar</string>
+
+    <!-- Base user password dialog -->
+    <string name="user_password_dialog_label_username">Usuari</string>
+    <string name="user_password_dialog_label_password">Contrasenya</string>
+</resources>

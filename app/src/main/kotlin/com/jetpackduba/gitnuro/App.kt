@@ -41,18 +41,19 @@ import com.jetpackduba.gitnuro.domain.repositories.UiStateRepository
 import com.jetpackduba.gitnuro.domain.services.GlobalSettingsService
 import com.jetpackduba.gitnuro.domain.usecases.ObserveAndApplyProxySettingsUseCase
 import com.jetpackduba.gitnuro.domain.usecases.uistate.GetWindowPlacementUseCase
+import com.jetpackduba.gitnuro.extensions.toAppWindowPlacement
+import com.jetpackduba.gitnuro.extensions.toComposeWindowPlacement
+import com.jetpackduba.gitnuro.extensions.toLocaleValue
 import com.jetpackduba.gitnuro.keybindings.KeybindingOption
 import com.jetpackduba.gitnuro.keybindings.matchesBinding
 import com.jetpackduba.gitnuro.lfs.AppLfsFactory
-import com.jetpackduba.gitnuro.extensions.toAppWindowPlacement
-import com.jetpackduba.gitnuro.extensions.toComposeWindowPlacement
 import com.jetpackduba.gitnuro.theme.AppTheme
 import com.jetpackduba.gitnuro.theme.ColorsScheme
 import com.jetpackduba.gitnuro.theme.onBackgroundSecondary
 import com.jetpackduba.gitnuro.ui.AppTab
 import com.jetpackduba.gitnuro.ui.AppViewModel
-import com.jetpackduba.gitnuro.ui.components.TabsRow
 import com.jetpackduba.gitnuro.ui.components.TabInformation
+import com.jetpackduba.gitnuro.ui.components.TabsRow
 import com.jetpackduba.gitnuro.ui.context_menu.AppPopupMenu
 import com.jetpackduba.gitnuro.viewmodels.RepositoryTabViewModel
 import kotlinx.coroutines.flow.first
@@ -65,6 +66,7 @@ import org.jetbrains.compose.resources.painterResource
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.file.Paths
+import java.util.*
 import javax.inject.Inject
 
 private const val TAG = "App"
@@ -136,6 +138,9 @@ class App @Inject constructor(
         if (dirToOpen != null)
             addDirTab(dirToOpen)
 
+        val systemDefaultLocale = Locale.getDefault()
+
+        val appLanguageInitial = appSettings.appLanguage.first()
         val themeInitial = appSettings.theme.first()
         val customThemeInitial = appSettings.customTheme.firstOrNull()
         val scaleInitial = appSettings.scaleUi.firstOrNull()
@@ -165,6 +170,9 @@ class App @Inject constructor(
                     null
                 }
             }
+
+            val appLanguage = appSettings.appLanguage.collectAsState(appLanguageInitial).value
+            updateAppLanguageChanges(appLanguage, systemDefaultLocale)
 
             val scale = appSettings.scaleUi.collectAsState(scaleInitial).value
             val linesHeightType by appSettings.linesHeightType.collectAsState(linesHeightTypeInitial)
@@ -239,6 +247,20 @@ class App @Inject constructor(
                             AppTabs()
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun updateAppLanguageChanges(appLanguage: AppLanguage, systemDefault: Locale) {
+        LaunchedEffect(appLanguage) {
+            if (appLanguage == AppLanguage.SYSTEM_DEFAULT) {
+                Locale.setDefault(systemDefault)
+            } else {
+                val locale = appLanguage.toLocaleValue()
+                if (locale != null) {
+                    Locale.setDefault(Locale.forLanguageTag(locale))
                 }
             }
         }

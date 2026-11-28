@@ -3,6 +3,7 @@ package com.jetpackduba.gitnuro.data.repositories.configuration
 import com.jetpackduba.gitnuro.data.GlobalSettingsDataStore
 import com.jetpackduba.gitnuro.data.extensions.get
 import com.jetpackduba.gitnuro.data.extensions.setValue
+import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.appLanguagePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.autoStashOnMergePreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.avatarProviderPreference
 import com.jetpackduba.gitnuro.data.repositories.configuration.PreferencesKeys.cacheCredentialsPreference
@@ -52,10 +53,12 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
     private val avatarProviderMapper: AvatarProviderMapper,
     private val textDiffViewTypeMapper: TextDiffViewTypeMapper,
     private val proxyTypeMapper: ProxyTypeMapper,
+    private val appLanguageMapper: AppLanguageMapper,
     private val requestDeleteBranchMapper: RequestDeleteBranchMapper,
 ) : GlobalSettingsRepository {
 
     // UI
+    override val appLanguage = dataStore[appLanguagePreference].map { appLanguageMapper.toDomain(it) }
     override val scaleUi = dataStore[scaleUiPreference]
 
     override val theme = dataStore[themePreference].map { themeMapper.toDomain(it) }
@@ -150,6 +153,7 @@ class DataStoreGlobalSettingsRepository @Inject constructor(
                     avatarProviderMapper.toData(globalConfig.value)
                 )
 
+                is GlobalConfig.Language -> setValue(appLanguagePreference, appLanguageMapper.toData(globalConfig.value))
                 is GlobalConfig.Theme -> setValue(themePreference, themeMapper.toData(globalConfig.value))
                 is GlobalConfig.CustomTheme -> setValue(customThemePreference, globalConfig.value)
                 is GlobalConfig.SwapStatusPanes -> setValue(swapStatusPanesPreference, globalConfig.value)

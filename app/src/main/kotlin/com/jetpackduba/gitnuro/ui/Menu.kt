@@ -21,6 +21,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
@@ -351,10 +352,14 @@ fun MenuButton(
             )
             Text(
                 text = title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 2.dp),
                 style = MaterialTheme.typography.caption,
                 maxLines = 1,
                 textAlign = TextAlign.Center,
                 color = color,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
