@@ -31,43 +31,49 @@ class DoCommitGitAction @Inject constructor(
         message: String,
         amend: Boolean,
         author: Identity?,
-    ): Either<Commit, GitError> = jgit.provide(
-        repositoryPath,
-        errorHandle = { ex ->
-            if (ex is AbortedByHookException) {
-//                val out = output.toString(Charsets.UTF_8)
-//                printLog(TAG, out)
+    ): Either<Commit, GitError> {
+        var hookOutput: String = ""
 
-                // TODO Do we need to read the output as it was done before the refactor?
-                HookRejectionError(ex.hookStdErr)
-            } else {
-                GenericError(ex.message.orEmpty())
-            }
-        }
-    ) { git ->
-        val state = getRepositoryStateGitAction(repositoryPath).bind()
-        val isMerging = state.isMerging
-        val output = ByteArrayOutputStream()
-        val printStream = PrintStream(output, true, Charsets.UTF_8)
+        return jgit.provide(
+            repositoryPath,
+            errorHandle = { ex ->
+                if (ex is AbortedByHookException) {
+                    //                val out = output.toString(Charsets.UTF_8)
+                    //                printLog(TAG, out)
 
-        use(output, printStream) {
-            val commit = git
-                .commit()
-                .setMessage(message)
-                .setAllowEmpty(amend || isMerging) // Only allow empty commits when amending
-                .setAmend(amend)
-                .setHookErrorStream(printStream)
-                .setHookOutputStream(printStream)
-                .run {
-                    if (author != null) {
-                        setAuthor(identityMapper.toData(author))
-                    } else {
-                        this
-                    }
+                    // TODO Do we need to read the output as it was done before the refactor?
+                    HookRejectionError(ex.hookName, ex.hookStdErr)
+                } else {
+                    GenericError(ex.message.orEmpty())
                 }
-                .call()
+            }
+        ) { git ->
+            val state = getRepositoryStateGitAction(repositoryPath).bind()
+            val isMerging = state.isMerging
+            val output = ByteArrayOutputStream()
+            val printStream = PrintStream(output, true, Charsets.UTF_8)
 
-            commitMapper.toDomain(commit)
+            use(output, printStream) {
+                val commit = git
+                    .commit()
+                    .setMessage(message)
+                    .setAllowEmpty(amend || isMerging) // Only allow empty commits when amending
+                    .setAmend(amend)
+                    .setHookErrorStream(printStream)
+                    .setHookOutputStream(printStream)
+                    .run {
+                        if (author != null) {
+                            setAuthor(identityMapper.toData(author))
+                        } else {
+                            this
+                        }
+                    }
+                    .call()
+
+                hookOutput = output.toString(Charsets.UTF_8)
+
+                commitMapper.toDomain(commit)
+            }
         }
     }
 }

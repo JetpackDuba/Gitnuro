@@ -25,7 +25,7 @@ fun AppError.getErrorText(): String {
         }
 
         is GenericError -> this.message
-        is HookRejectionError -> stringResource(Res.string.error_hook_rejection, this.message)
+        is HookRejectionError -> stringResource(Res.string.error_hook_rejection,this.hookName, this.message)
         RepositoryPathNotSetError -> stringResource(Res.string.error_repository_path_not_set)
         is RepositoryReadError -> stringResource(Res.string.error_repository_read_error, this.message)
         is StashChangesError -> when (this) {
