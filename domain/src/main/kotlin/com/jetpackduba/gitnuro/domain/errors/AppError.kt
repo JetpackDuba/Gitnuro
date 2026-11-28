@@ -22,7 +22,7 @@ data object RepositoryPathNotSetError : GitError
  */
 data class RepositoryReadError(val message: String) : GitError
 
-data class HookRejectionError(val message: String): GitError
+data class HookRejectionError(val hookName: String, val message: String): GitError
 
 sealed interface StashChangesError: GitError {
     data object NoDataToStash: StashChangesError

@@ -17,18 +17,12 @@ import javax.inject.Inject
 /**
  * Version of the POSIX FS with support for running commands taking in consideration the sandboxing
  * */
-class FlatpakFs @AssistedInject constructor(
+class FlatpakFs @Inject constructor(
     private val shellManager: FlatpakShellManager,
-    @Assisted val repositoryPath: String,
 ) : FS_POSIX() {
-    @AssistedFactory
-    interface Factory {
-        fun create(initialPath: String?): FlatpakFs
-    }
-
     override fun runInShell(cmd: String, args: Array<out String?>?): ProcessBuilder? {
         val command = (cmd.split(" ") + args?.toList().orEmpty()).filterNotNull()
-        return shellManager.prepareProcessBuilderOrNull(command, File(repositoryPath))
+        return shellManager.prepareProcessBuilderOrNull(command)
     }
 
     override fun runHookIfPresent(

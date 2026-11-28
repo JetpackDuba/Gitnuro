@@ -18,7 +18,7 @@ import javax.inject.Singleton
 @Singleton
 class JGit @Inject constructor(
     private val windowsFs: Provider<WindowsFs>,
-    private val flatpakFs: Provider<FlatpakFs.Factory>,
+    private val flatpakFs: Provider<FlatpakFs>,
     private val appEnvInfo: AppEnvInfo,
 ) {
     private val repositories = mutableMapOf<String, Git>()
@@ -39,7 +39,7 @@ class JGit @Inject constructor(
                 val fsToUse = if (fs is FS_Win32) {
                     windowsFs.get()
                 } else if (fs is FS_POSIX && currentOs == OS.LINUX && appEnvInfo.isFlatpak) {
-                    flatpakFs.get().create(repositoryPath)
+                    flatpakFs.get()
                 } else {
                     fs
                 }
